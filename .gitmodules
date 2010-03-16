@@ -1,0 +1,9 @@
+[submodule "lib/vendor/js-oo"]
+	path = lib/vendor/js-oo
+	url = git://github.com/visionmedia/js-oo.git
+[submodule "lib/vendor/web-socket-js"]
+	path = lib/vendor/web-socket-js
+	url = git://github.com/gimite/web-socket-js.git
+[submodule "lib/vendor/LABjs"]
+	path = lib/vendor/LABjs
+	url = git://github.com/getify/LABjs.git

@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+  <head>
+    <title>socket.io client test</title>
+        
+    <script src="../lib/vendor/js-oo/lib/oo.js"></script>
+    <script src="../lib/vendor/LABjs/LAB.src.js"></script>
+    
+    <script src="../lib/io.js"></script>    
+    <script src="../lib/util/util.js"></script>
+    <script src="../lib/util/object.js"></script>
+    <script src="../lib/util/array.js"></script>
+    <script src="../lib/util/options.js"></script>
+    <script src="../lib/util/events.js"></script>    
+    <script src="../lib/util/json.js"></script>
+    <script src="../lib/transport.js"></script>
+    <script src="../lib/transports/xhr.js"></script>
+    <script src="../lib/transports/websocket.js"></script>
+    <script src="../lib/transports/flashsocket.js"></script>
+    <script src="../lib/transports/htmlfile.js"></script>
+    <script src="../lib/transports/server-events.js"></script>
+    <script src="../lib/transports/xhr-multipart.js"></script>    
+    <script src="../lib/transports/xhr-polling.js"></script>
+    <script src="../lib/socket.js"></script>
+  </head>
+  <body>
+    
+    <script>
+      function message(obj){
+        var el = document.createElement('p');
+        if ('announcement' in obj) el.innerHTML = '<em>' + obj.announcement; 
+        else if ('message' in obj) el.innerHTML = '<b>' + obj.message[0] + ':</b> ' + obj.message[1];
+        document.getElementById('chat').appendChild(el);
+        document.getElementById('chat').scrollTop = 1000000;
+      }
+      
+      function send(){
+        var val = document.getElementById('text').value;
+        socket.send(val);
+        message({ message: [socket.transport.sessionid, val] });
+        document.getElementById('text').value = '';
+      }
+    
+      var socket = new io.Socket('192.168.1.155', {rememberTransport: false, port: 80});
+      socket.connect();
+      socket.addEvent('message', function(data){
+        var obj = io.util.JSON.decode(data); // quick and dirty json decoding
+
+        if ('buffer' in obj){
+          document.getElementById('form').style.display='block';
+          document.getElementById('chat').innerHTML = '';
+          
+          for (var i in obj.buffer) message(obj.buffer[i]);
+        } else message(obj);
+      });
+      
+      document.addEventListener('submit', function(ev){
+        if (ev.target.id == 'form'){
+          send();
+          ev.preventDefault();
+        }
+      });
+    </script>
+    
+    <h1>Sample chat client</h1>
+    <div id="chat"><p>Connecting...</p></div>
+    <form id="form">
+      <input type="text" id="text"><input type="submit" value="Send">
+    </form>
+    
+    <style>
+      #chat { height: 300px; overflow: auto; width: 800px; border: 1px solid #eee; font: 13px Helvetica, Arial; }
+      #chat p { padding: 8px; margin: 0; }
+      #chat p:nth-child(odd) { background: #F6F6F6; }
+      #form { width: 782px; background: #333; padding: 5px 10px; display: none; }
+      #form input[type=text] { width: 720px; padding: 5px; background: #fff; border: 1px solid #fff; }
+      #form input[type=submit] { cursor: pointer; background: #999; border: none; padding: 6px 8px; -webkit-border-radius: 8px; margin-left: 5px; text-shadow: 0 1px 0 #fff; }
+      #form input[type=submit]:hover { background: #A2A2A2; }
+      #form input[type=submit]:active { position: relative; top: 2px; }
+    </style>
+    
+  </body>
+</html>
