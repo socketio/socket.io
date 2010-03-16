@@ -1,7 +1,7 @@
 socket.io Client: Sockets for the rest of us
 ============================================
 
-The `socket.io` client is basically a simple TCP socket interface implementation. It allows you to establish a realtime connection with a server (see `socket.io` server [here](http://github.com/RosePad/Socket.IO-node)), hiding the complexity of the different transports (WebSocket, long polling, XHR streaming, etc).
+The `socket.io` client is basically a simple TCP socket interface implementation. It allows you to establish a realtime connection with a server (see `socket.io` server [here](http://github.com/RosePad/Socket.IO-node)), hiding the complexity of the different transports (WebSocket, forever iframe, XHR long polling, XHR multipart encoded, etc).
 
 How to use
 ----------
@@ -111,7 +111,7 @@ Events:
 	
 - *message(message)*
 	
-	Fired 
+	Fired when a message arrives from the server
 
 - *close*
 
