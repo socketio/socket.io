@@ -22,8 +22,13 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 - Easy to use! See [socket.io-node](http://github.com/RosePad/Socket.IO-node) for the server to connect to.
 
 ## How to use
-
-	io.setPath('/path/to/socket.io/');
+	
+In your head
+	
+	<script src="/path/to/socket.io.min.js">
+	<script>
+		io.setPath('/path/to/socket.io/');
+	</script>
 
 	socket = new io.Socket('localhost');
 	socket.connect();
