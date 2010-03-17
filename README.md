@@ -1,21 +1,9 @@
 socket.io Client: Sockets for the rest of us
 ============================================
 
-The `socket.io` client is basically a simple TCP socket interface implementation. It allows you to establish a realtime connection with a server (see `socket.io` server [here](http://github.com/RosePad/Socket.IO-node)), hiding the complexity of the different transports (WebSocket, forever iframe, XHR long polling, XHR multipart encoded, etc).
+The `socket.io` client is basically a simple HTTP Socket interface implementation. It allows you to establish a realtime connection with a server (see `socket.io` server [here](http://github.com/RosePad/Socket.IO-node)), hiding the complexity of the different transports (WebSocket, Flash, forever iframe, XHR long polling, XHR multipart encoded, etc).
 
-How to use
-----------
-
-	var Socket = io.Socket,
-	socket = new Socket('localhost');
-	socket.connect();
-	socket.send('some data');
-	socket.addEvent('message', function(data){
-		alert('got some data' + data);
-	});
-	
-Features
---------
+## Features
 
 - Supports 
 	- WebSocket
@@ -25,10 +13,30 @@ Features
 	- XHR with multipart encoding
 	- XHR with long-polling
 	
-- On a successful connection, it remembers the transport for next time (stores it in a cookie)
+- ActionScript Socket is known not to work behind proxies, as it doesn't have access to the user agent proxy settings to implement the CONNECT HTTP method. If it fails, `socket.io` will try something else.
+	
+- On a successful connection, it remembers the transport for next time (stores it in a cookie).
 
-Documentation 
--------------
+- Small. Closure Compiled with all deps: 5.82kb (gzipped).
+
+- Easy to use! See [socket.io-node](http://github.com/RosePad/Socket.IO-node) for the server to connect to.
+
+## How to use
+
+	io.path = '/path/to/socket.io-client/';
+
+	socket = new io.Socket('localhost');
+	socket.connect();
+	socket.send('some data');
+	socket.addEvent('message', function(data){
+		alert('got some data' + data);
+	});
+	
+The path needs to be specified for the progressive loading of the Flash WebSocket interface .js files and Adobe FABridge.
+
+## Documentation 
+
+### io.Socket
 
 	new io.Socket(host, [options]);
 
@@ -120,9 +128,32 @@ Events:
 - *disconnect*
 
 	Fired when the connection is considered disconnected.
-
 	
-Credits
--------
+## Credits
 
-Guillermo Rauch <guillermo@rosepad.com>
+Guillermo Rauch [guillermo@rosepad.com]
+
+## License 
+
+(The MIT License)
+
+Copyright (c) 2009 RosePad &lt;dev@rosepad.com&gt;
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
