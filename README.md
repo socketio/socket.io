@@ -23,6 +23,8 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 
 ## How to use
 
+	io.path = '/path/to/socket.io/';
+
 	socket = new io.Socket('localhost');
 	socket.connect();
 	socket.send('some data');
