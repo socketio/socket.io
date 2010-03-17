@@ -23,16 +23,12 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 
 ## How to use
 
-	io.path = '/path/to/socket.io-client/';
-
 	socket = new io.Socket('localhost');
 	socket.connect();
 	socket.send('some data');
 	socket.addEvent('message', function(data){
 		alert('got some data' + data);
 	});
-	
-The path needs to be specified for the progressive loading of the Flash WebSocket interface .js files and Adobe FABridge.
 
 ## Documentation 
 
