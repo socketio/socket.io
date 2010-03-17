@@ -13,7 +13,7 @@ Requirements
 ------------
 
 - Node v0.1.32+
-- [Socket.IO-client](http://github.com/RosePad/Socket.IO-client) to connect on the client side.
+- [Socket.IO client](http://github.com/RosePad/Socket.IO) to connect from the browser
 
 How to use
 ----------
@@ -44,7 +44,7 @@ In the node directory run:
 	make test
 	sudo make install
 	
-On the client side, you should use [Socket.IO-client](https://github.com/RosePad/Socket.IO-client) to connect.
+On the client side, you should use the [Socket.IO client](https://github.com/RosePad/Socket.IO) to connect.
 
 ## Demo
 
