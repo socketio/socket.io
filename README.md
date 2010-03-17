@@ -29,6 +29,8 @@ In your head
 	<script>
 		io.setPath('/path/to/socket.io/');
 	</script>
+	
+In your code
 
 	socket = new io.Socket('localhost');
 	socket.connect();
@@ -36,6 +38,8 @@ In your head
 	socket.addEvent('message', function(data){
 		alert('got some data' + data);
 	});
+	
+For an example, check out the chat [source](https://github.com/RosePad/Socket.IO-node/blob/master/test/chat.html).
 
 ## Documentation 
 
