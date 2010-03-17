@@ -4,7 +4,6 @@
     <title>socket.io client test</title>
         
     <script src="/client/lib/vendor/js-oo/lib/oo.js"></script>
-    <script src="/client/lib/vendor/LABjs/LAB.src.js"></script>    
     <script src="/client/lib/io.js"></script>
     <script src="/client/lib/util/util.js"></script>
     <script src="/client/lib/util/object.js"></script>
@@ -21,11 +20,15 @@
     <script src="/client/lib/transports/xhr-multipart.js"></script> 
     <script src="/client/lib/transports/xhr-polling.js"></script> 
     <script src="/client/lib/socket.js"></script>
+    
+    <script src="/client/lib/vendor/web-socket-js/swfobject.js"></script>
+    <script src="/client/lib/vendor/web-socket-js/FABridge.js"></script>
+    <script src="/client/lib/vendor/web-socket-js/web_socket.js"></script>
   </head>
   <body>
     
     <script>
-      io.path = '/client/';
+      io.setPath('/client/');
     
       function message(obj){
         var el = document.createElement('p');
@@ -42,7 +45,7 @@
         document.getElementById('text').value = '';
       }
     
-      var socket = new io.Socket('localhost', {rememberTransport: false, transports:['xhr-polling'], port: 8080});
+      var socket = new io.Socket('localhost', {rememberTransport: false, port: 8080});
       socket.connect();
       socket.addEvent('message', function(data){
         var obj = io.util.JSON.decode(data);

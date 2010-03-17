@@ -3,4 +3,4 @@
 	url = git://github.com/visionmedia/js-oo.git
 [submodule "test/client"]
 	path = test/client
-	url = git@github.com:RosePad/Socket.IO-client.git
+	url = git@github.com:RosePad/Socket.IO.git
