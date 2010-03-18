@@ -46,6 +46,13 @@ In the node directory run:
 	
 On the client side, you should use the [Socket.IO client](https://github.com/RosePad/Socket.IO) to connect.
 
+## Checking out
+
+After cloning the repository, remember to run
+
+	git submodule init
+	git submodule update
+
 ## Demo
 
 To run the demo, go to `test` directory and run
