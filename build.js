@@ -14,30 +14,31 @@
  */
 
 var fs = require('fs'),
-		sys = require('sys'),
-		files = [
-			'io.js',
-			'util/util.js',
-			'util/object.js',
-			'util/array.js',
-			'util/options.js',
-			'util/events.js',
-			'util/json.js',
-			'util/oo.js',
-			'transport.js',
-			'transports/xhr.js',
-			'transports/websocket.js',
-			'transports/flashsocket.js',
-			'transports/htmlfile.js',
-			'transports/server-events.js',
-			'transports/xhr-multipart.js',
-			'transports/xhr-polling.js',
-			'socket.js',
-			'vendor/web-socket-js/swfobject.js',
-			'vendor/web-socket-js/FABridge.js',
-			'vendor/web-socket-js/web_socket.js'
-		],
-		content = '';
+	sys = require('sys'),
+	socket = require('./lib/io'),
+	files = [
+		'io.js',
+		'util/util.js',
+		'util/object.js',
+		'util/array.js',
+		'util/options.js',
+		'util/events.js',
+		'util/json.js',
+		'util/oo.js',
+		'transport.js',
+		'transports/xhr.js',
+		'transports/websocket.js',
+		'transports/flashsocket.js',
+		'transports/htmlfile.js',
+		'transports/server-events.js',
+		'transports/xhr-multipart.js',
+		'transports/xhr-polling.js',
+		'socket.js',
+		'vendor/web-socket-js/swfobject.js',
+		'vendor/web-socket-js/FABridge.js',
+		'vendor/web-socket-js/web_socket.js'
+	],
+	content = "/** Socket.IO "+ socket.io.version +" - Built with build.js */\n";
 
 sys.log('Reading files…');
 

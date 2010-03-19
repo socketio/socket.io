@@ -1,3 +1,4 @@
+/** Socket.IO 0.1 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -7,7 +8,7 @@
  */
 
 this.io = {
-  version: 0.1,
+	version: '0.1',
 
 	setPath: function(path){
 		this.path = path;		
@@ -33,45 +34,45 @@ io.util = {};
 
 (function(){
 
-  var object = io.util.Object = {
-  
-    clone: function(item){
-      var clone;
-      if (item instanceof Array){
-        clone = [];
-      	for (var i = 0; i < item.length; i++) clone[i] = object.clone(item[i]);
-      	return clone;
-      } else if (typeof item == 'object') {
-        clone = {};
-      	for (var key in object) clone[key] = object.clone(object[key]);
-      	return clone;
-      } else {
-        return item;
-      }
-    },
-  
-    merge: function(source, k, v){
-      if (typeof k == 'string') return mergeOne(source, k, v);
-    	for (var i = 1, l = arguments.length; i < l; i++){
-    		var object = arguments[i];
-    		for (var key in object) mergeOne(source, key, object[key]);
-    	}
-    	return source;
-    }
-  
-  },
-  
-  mergeOne = function(source, key, current){
-    if (current instanceof Array){
-      source[key] = object.clone(current);
-    } else if (typeof current == 'object'){
-      if (typeof source[key] == 'object') object.merge(source[key], current);
+	var object = io.util.Object = {
+
+		clone: function(item){
+			var clone;
+			if (item instanceof Array){
+				clone = [];
+				for (var i = 0; i < item.length; i++) clone[i] = object.clone(item[i]);
+				return clone;
+			} else if (typeof item == 'object') {
+				clone = {};
+				for (var key in object) clone[key] = object.clone(object[key]);
+				return clone;
+			} else {
+				return item;
+			}
+		},
+
+		merge: function(source, k, v){
+			if (typeof k == 'string') return mergeOne(source, k, v);
+			for (var i = 1, l = arguments.length; i < l; i++){
+				var object = arguments[i];
+				for (var key in object) mergeOne(source, key, object[key]);
+			}
+			return source;
+		}
+
+	},
+
+	mergeOne = function(source, key, current){
+		if (current instanceof Array){
+			source[key] = object.clone(current);
+		} else if (typeof current == 'object'){
+			if (typeof source[key] == 'object') object.merge(source[key], current);
 			else source[key] = object.clone(current);
-    } else {
-      source[key] = current;
-    }
-    return source;
-  };
+		} else {
+			source[key] = current;
+		}
+		return source;
+	};
   
 })();
 // Methods from Array.js from MooTools (MIT)
@@ -79,29 +80,29 @@ io.util = {};
 
 (function(){
 
-  var array = io.util.Array = {
-  
-    include: function(arr, item){
-      if (!array.contains(arr, item)) arr.push(item);
-    	return arr;
-    },
-  
-    each: function(arr, fn, bind){
-    	for (var i = 0, l = arr.length; i < l; i++) fn.call(bind, arr[i], i, arr);
-    },
-  
-    contains: function(arr, item, from){
-    	return array.indexOf(arr, item, from) != -1;
-    },
-  
-    indexOf: function(arr, item, from){
-    	for (var l = arr.length, i = (from < 0) ? Math.max(0, l + from) : from || 0; i < l; i++){
-    		if (arr[i] === item) return i;
-    	}
-    	return -1;
-    }
-  
-  };
+	var array = io.util.Array = {
+
+		include: function(arr, item){
+			if (!array.contains(arr, item)) arr.push(item);
+			return arr;
+		},
+
+		each: function(arr, fn, bind){
+			for (var i = 0, l = arr.length; i < l; i++) fn.call(bind, arr[i], i, arr);
+		},
+
+		contains: function(arr, item, from){
+			return array.indexOf(arr, item, from) != -1;
+		},
+
+		indexOf: function(arr, item, from){
+			for (var l = arr.length, i = (from < 0) ? Math.max(0, l + from) : from || 0; i < l; i++){
+				if (arr[i] === item) return i;
+			}
+			return -1;
+		}
+
+	};
 
 })();
 // Based on Mixin.js from MooTools (MIT)
@@ -133,129 +134,129 @@ io.util.Options = {
 // Copyright (c) 2006-2009 Valerio Proietti, <http://mad4milk.net/>
 
 io.util.Events = (function(){
-  var array = io.util.Array,
-  
-  eventsOf = function(object, type){
-  	type = type.replace(/^on([A-Z])/, function(full, first){
-  		return first.toLowerCase();
-  	});
-  	var events = object.$events;
-  	return events[type] || (events[type] = []);
-  },
-  
-  removeEventsOfType = function(object, type){
-  	array.each(eventsOf(object, type), function(fn){
-  		object.removeEvent(type, fn);
-  	});
-  };
-  
-  return {
-  	$events: {},
+	var array = io.util.Array,
 
-  	addEvent: function(type, fn){
-  		array.include(eventsOf(this, type), fn);
-  		return this;
-  	},
+	eventsOf = function(object, type){
+		type = type.replace(/^on([A-Z])/, function(full, first){
+			return first.toLowerCase();
+		});
+		var events = object.$events;
+		return events[type] || (events[type] = []);
+	},
 
-  	addEvents: function(events){
-  		for (var name in events) this.addEvent(name, events[name]);
-  		return this;
-  	},
+	removeEventsOfType = function(object, type){
+		array.each(eventsOf(object, type), function(fn){
+			object.removeEvent(type, fn);
+		});
+	};
 
-  	fireEvent: function(type, args){
-  		args = [].concat(args);
-  		array.each(eventsOf(this, type), function(fn){
-  			fn.apply(this, args);
-  		}, this);
-  		return this;
-  	},
+	return {
+		$events: {},
 
-  	fireEvents: function(){
-  		for (var i = 0; i < arguments.length; i++) this.fireEvent(arguments[i]);
-  		return this;
-  	},
+		addEvent: function(type, fn){
+			array.include(eventsOf(this, type), fn);
+			return this;
+		},
 
-  	removeEvent: function(type, fn){
+		addEvents: function(events){
+			for (var name in events) this.addEvent(name, events[name]);
+			return this;
+		},
+
+		fireEvent: function(type, args){
+			args = [].concat(args);
+			array.each(eventsOf(this, type), function(fn){
+				fn.apply(this, args);
+			}, this);
+			return this;
+		},
+
+		fireEvents: function(){
+			for (var i = 0; i < arguments.length; i++) this.fireEvent(arguments[i]);
+			return this;
+		},
+
+		removeEvent: function(type, fn){
 			var events = eventsOf(this, type), index = events.indexOf(fn);
 			if (index != -1) delete events[index];
 
-  		return this;
-  	},
+			return this;
+		},
 
-  	removeEvents: function(option){
-  	  if (option === null){
-  	    var events = this.$events;
+		removeEvents: function(option){
+			if (option === null){
+				var events = this.$events;
 				for (var type in events) removeEventsOfType(this, type);
-  	  } else {
-  	    switch (typeof option){
-    			case 'string': removeEventsOfType(this, option); break;
-    			case 'object': for (var name in option) this.removeEvent(name, option[name]); break;
-    		}
-  	  }  		
-  		return this;
-  	}
-  };
+			} else {
+				switch (typeof option){
+					case 'string': removeEventsOfType(this, option); break;
+					case 'object': for (var name in option) this.removeEvent(name, option[name]); break;
+				}
+			}  		
+			return this;
+		}
+	};
 })();
 // Based on JSON.js from MooTools (MIT)
 // Copyright (c) 2006-2009 Valerio Proietti, <http://mad4milk.net/>
 
 (function(){
 
-  var array = io.util.Array,
-      special = {'\b': '\\b', '\t': '\\t', '\n': '\\n', '\f': '\\f', '\r': '\\r', '"' : '\\"', '\\': '\\\\'},    
-      json = io.util.JSON = {},
+	var array = io.util.Array,
+	special = {'\b': '\\b', '\t': '\\t', '\n': '\\n', '\f': '\\f', '\r': '\\r', '"' : '\\"', '\\': '\\\\'},    
+	json = io.util.JSON = {},
 
-  escape = function(chr){
-    return special[chr] || '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-  },
+	escape = function(chr){
+		return special[chr] || '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+	},
 
-  isSecure = function(string){
-  	string = string.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@').
-  					replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
-  					replace(/(?:^|:|,)(?:\s*\[)+/g, '');
-	
-  	return (/^[\],:{}\s]*$/).test(string);
-  };
+	isSecure = function(string){
+		string = string.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@').
+		replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+		replace(/(?:^|:|,)(?:\s*\[)+/g, '');
 
-  json.encode = JSON.stringify || function(obj){
-  	if (obj && obj.toJSON) obj = obj.toJSON();
-	
-  	if (obj === null){
-  	  return 'null';
-  	}
-	
-  	if (obj instanceof Array){
-  	  return '[' + array.map(obj, JSON.encode) + ']';
-  	}
-		
-  	switch (typeof obj){
-  		case 'string':
-  			return '"' + obj.replace(/[\x00-\x1f\\"]/g, escape) + '"';
-  		case 'object':
-  			var string = [];
-  			for (var key in obj){
-  				var json = JSON.encode(obj[key]);
-  				if (json) string.push(JSON.encode(key) + ':' + json);
-  			}
-  			return '{' + string + '}';
-  		case 'number': 
-  		case 'boolean': 
-  		  return '' + obj;
-  	}
-	
-  	return null;
-  };
+		return (/^[\],:{}\s]*$/).test(string);
+	};
 
-  json.decode = function(string, secure){
-  	if (!string || typeof(string) != 'string') return null;
-	
-  	if (secure || JSON.secure){
-  		if (JSON.parse) return JSON.parse(string);
-  		if (!isSecure(string)) throw new Error('JSON could not decode the input; security is enabled and the value is not secure.');
-  	}
-	
-  	return eval('(' + string + ')');
-  };
+	json.encode = JSON.stringify || function(obj){
+		if (obj && obj.toJSON) obj = obj.toJSON();
+
+		if (obj === null){
+			return 'null';
+		}
+
+		if (obj instanceof Array){
+			return '[' + array.map(obj, JSON.encode) + ']';
+		}
+
+		switch (typeof obj){
+			case 'string':
+			return '"' + obj.replace(/[\x00-\x1f\\"]/g, escape) + '"';
+			case 'object':
+			var string = [];
+			for (var key in obj){
+				var json = JSON.encode(obj[key]);
+				if (json) string.push(JSON.encode(key) + ':' + json);
+			}
+			return '{' + string + '}';
+			case 'number': 
+			case 'boolean': 
+			return '' + obj;
+		}
+
+		return null;
+	};
+
+	json.decode = function(string, secure){
+		if (!string || typeof(string) != 'string') return null;
+
+		if (secure || JSON.secure){
+			if (JSON.parse) return JSON.parse(string);
+			if (!isSecure(string)) throw new Error('JSON could not decode the input; security is enabled and the value is not secure.');
+		}
+
+		return eval('(' + string + ')');
+	};
 
 })();
 // OO - Class - Copyright TJ Holowaychuk <tj@vision-media.ca> (MIT Licensed)
@@ -263,6 +264,7 @@ io.util.Events = (function(){
 // which is based on implementations by Prototype / base2
 
 (function(){
+
   var global = this, initialize = true
   var referencesSuper = /xyz/.test(function(){ xyz }) ? /\b__super__\b/ : /.*/
 
@@ -361,6 +363,7 @@ io.util.Events = (function(){
     
     return ioClass
   }
+
 })();
 /**
  * Socket.IO client
@@ -377,26 +380,26 @@ io.util.Events = (function(){
 	// abstract
 	io.Transport = ioClass({
 
-	  include: [io.util.Events, io.util.Options],
+		include: [io.util.Events, io.util.Options],
 
-	  init: function(base, options){
-	    this.base = base;
-	    this.setOptions(options);
-	  },
+		init: function(base, options){
+			this.base = base;
+			this.setOptions(options);
+		},
 
-	  send: function(){
-	    throw new Error('Missing send() implementation');  
-	  },
+		send: function(){
+			throw new Error('Missing send() implementation');  
+		},
 
-	  connect: function(){
-	    throw new Error('Missing connect() implementation');  
-	  },
+		connect: function(){
+			throw new Error('Missing connect() implementation');  
+		},
 
-	  disconnect: function(){
-	    throw new Error('Missing disconnect() implementation');  
-	  },
+		disconnect: function(){
+			throw new Error('Missing disconnect() implementation');  
+		},
 
-	  _onData: function(data){
+		_onData: function(data){
 			try {
 				var msgs = json.decode(data);
 				if (msgs.messages){
@@ -405,16 +408,16 @@ io.util.Events = (function(){
 					}					
 				}				
 			} catch(e){}
-	  },
+		},
 
 		_onMessage: function(message){
 			if (!('sessionid' in this)){
 				try {
 					var obj = json.decode(message);
-		      if (obj.sessionid){
-		        this.sessionid = obj.sessionid;
+					if (obj.sessionid){
+						this.sessionid = obj.sessionid;
 						this._onConnect();
-		      }
+					}
 				} catch(e){}				
 			} else {	
 				this.base._onMessage(message);
@@ -432,14 +435,14 @@ io.util.Events = (function(){
 			this.base._onDisconnect();
 		},
 
-	  _prepareUrl: function(){
-	    return (this.base.options.secure ? 'https' : 'http') 
-	      + '://' + this.base.host 
-	      + ':' + this.base.options.port
-	      + '/' + this.base.options.resource
+		_prepareUrl: function(){
+			return (this.base.options.secure ? 'https' : 'http') 
+				+ '://' + this.base.host 
+				+ ':' + this.base.options.port
+				+ '/' + this.base.options.resource
 				+ '/' + this.type
 				+ (this.sessionid ? ('/' + this.sessionid) : '');
-	  }
+		}
 
 	});
 	
@@ -454,64 +457,64 @@ io.util.Events = (function(){
 
 (function(){
   
-  var empty = new Function;
-  
-  io.Transport.XHR = io.Transport.extend({
-	
-    connect: function(){
-      this._get();
-    },
-    
-    send: function(data){
-      this._sendXhr = this._request('send', 'POST');
-      this._sendXhr.send('data=' + encodeURIComponent(data));
-    },
-    
-    disconnect: function(){
-      if (this._xhr){
-        this._xhr.onreadystatechange = empty;
-        this._xhr.abort();
-      }            
-      if (this._sendXhr) this._sendXhr.abort();
+	var empty = new Function;
+
+	io.Transport.XHR = io.Transport.extend({
+
+		connect: function(){
+			this._get();
+		},
+
+		send: function(data){
+			this._sendXhr = this._request('send', 'POST');
+			this._sendXhr.send('data=' + encodeURIComponent(data));
+		},
+
+		disconnect: function(){
+			if (this._xhr){
+				this._xhr.onreadystatechange = empty;
+				this._xhr.abort();
+			}            
+			if (this._sendXhr) this._sendXhr.abort();
 			this._onClose();
 			this._onDisconnect();
-    },
-    
-    _request: function(url, method, multipart){
-      var req = request();
-			if (multipart) req.multipart = true;
-      req.open(method || 'GET', this._prepareUrl() + (url ? '/' + url : ''));
-      if (method == 'POST'){
-        req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');
-      }
-      return req;
-    }
+		},
 
-  });
-  
-  var request = io.Transport.XHR.request = function(){
-    if ('XMLHttpRequest' in window) return new XMLHttpRequest();
-    
-    try {
-      var a = new ActiveXObject('MSXML2.XMLHTTP');
-      return a;
-    } catch(e){}
-    
-    try {
-      var b = new ActiveXObject('Microsoft.XMLHTTP');
-      return b;      
-    } catch(e){}
-    
-    return false;
-  };
-  
-  io.Transport.XHR.check = function(){
-    try {
-      if (request()) return true;
-    } catch(e){}
-    return false;
-  };
-  
+		_request: function(url, method, multipart){
+			var req = request();
+			if (multipart) req.multipart = true;
+			req.open(method || 'GET', this._prepareUrl() + (url ? '/' + url : ''));
+			if (method == 'POST'){
+				req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');
+			}
+			return req;
+		}
+
+	});
+
+	var request = io.Transport.XHR.request = function(){
+		if ('XMLHttpRequest' in window) return new XMLHttpRequest();
+
+		try {
+			var a = new ActiveXObject('MSXML2.XMLHTTP');
+			return a;
+		} catch(e){}
+
+		try {
+			var b = new ActiveXObject('Microsoft.XMLHTTP');
+			return b;      
+		} catch(e){}
+
+		return false;
+	};
+
+	io.Transport.XHR.check = function(){
+		try {
+			if (request()) return true;
+		} catch(e){}
+		return false;
+	};
+
 })();
 /**
  * Socket.IO client
@@ -525,42 +528,42 @@ io.Transport.websocket = io.Transport.extend({
 
 	type: 'websocket',
 
-  connect: function(){
-    var self = this;
-    this.socket = new WebSocket(this._prepareUrl());
+	connect: function(){
+		var self = this;
+		this.socket = new WebSocket(this._prepareUrl());
 		this.socket.onmessage = function(ev){ self._onData(ev.data); };
 		this.socket.onclose = function(ev){ self._onClose(); };
-    return this;      
-  },
+		return this;      
+	},
 
-  send: function(data){
-    this.socket.send(data);
-    return this;
-  },
-  
-  disconnect: function(){
-    this.socket.close();
-    return this;      
-  },
+	send: function(data){
+		this.socket.send(data);
+		return this;
+	},
+
+	disconnect: function(){
+		this.socket.close();
+		return this;      
+	},
 
 	_onClose: function(){
 		this._onDisconnect();
 	},
- 
-  _prepareUrl: function(){
-    return (this.base.options.secure ? 'wss' : 'ws') 
-      + '://' + this.base.host 
-      + ':' + this.base.options.port
-      + '/' + this.base.options.resource
-			+ '/' + this.type
-			+ (this.sessionid ? ('/' + this.sessionid) : '');
-  }
+
+	_prepareUrl: function(){
+		return (this.base.options.secure ? 'wss' : 'ws') 
+		+ '://' + this.base.host 
+		+ ':' + this.base.options.port
+		+ '/' + this.base.options.resource
+		+ '/' + this.type
+		+ (this.sessionid ? ('/' + this.sessionid) : '');
+	}
 
 });
 
 io.Transport.websocket.check = function(){
 	// we make sure WebSocket is not confounded with a previously loaded flash WebSocket
-  return 'WebSocket' in window && !('__initialize' in WebSocket);
+	return 'WebSocket' in window && !('__initialize' in WebSocket);
 };
 /**
  * Socket.IO client
@@ -572,31 +575,31 @@ io.Transport.websocket.check = function(){
 
 io.Transport.flashsocket = io.Transport.websocket.extend({
 
-  _onClose: function(){
-    if (!this.base.connected){
-      // something failed, we might be behind a proxy, so we'll try another transport
-      this.base.options.transports.splice(io.util.Array.indexOf(this.base.options.transports, 'flashsocket'), 1);
-      this.base.transport = this.base.getTransport();
-      this.base.connect();
-      return;
-    }
-    return this.__super__();
-  }
+	_onClose: function(){
+		if (!this.base.connected){
+			// something failed, we might be behind a proxy, so we'll try another transport
+			this.base.options.transports.splice(io.util.Array.indexOf(this.base.options.transports, 'flashsocket'), 1);
+			this.base.transport = this.base.getTransport();
+			this.base.connect();
+			return;
+		}
+	    return this.__super__();
+	}
 
 });
 
 io.Transport.flashsocket.check = function(){
-  if ('navigator' in window && navigator.plugins){
-    return !! navigator.plugins['Shockwave Flash'].description;
-  } 
+	if ('navigator' in window && navigator.plugins){
+		return !! navigator.plugins['Shockwave Flash'].description;
+	} 
 
-  if ('ActiveXObject' in window){
-    try {
-      return !! new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version');
-    } catch (e){}      
-  }
+	if ('ActiveXObject' in window){
+		try {
+			return !! new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version');
+		} catch (e){}      
+	}
 
-  return false;
+	return false;
 };
 /**
  * Socket.IO client
@@ -607,63 +610,63 @@ io.Transport.flashsocket.check = function(){
  */
 
 (function(){  
-  var empty = new Function, request = io.Transport.XHR.request;
+	var empty = new Function, request = io.Transport.XHR.request;
 
-  io.Transport['htmlfile'] = io.Transport.extend({
-  
+	io.Transport['htmlfile'] = io.Transport.extend({
+
 		type: 'htmlfile',
 
-    connect: function(){
-      var self = this;
-      
-      this._doc = new ActiveXObject("htmlfile");
-      this._doc.open();
-      this._doc.write('<html><script>document.domain="'+ document.domain +'"</script></html>');
-      this._doc.close();      
-      
-      this.iframe = this.doc.createElement('div');
-      this._doc.body.appendChild(iframe);
-      iframe.innerHTML = '<iframe src="'+ this._prepareUrl() +'"></iframe>';
-  		
-      this.doc.parentWindow.callback = function(data){ self._onData(data); };      
-  		window.attachEvent('onunload', function(){ self._destroy(); });
-    },
-    
-    send: function(data){      
-      this._sendXhr = request();
-      this._sendXhr.open('POST', this._prepareUrl() + '/send');      
-      this._sendXhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');        
-      this._sendXhr.send('data=' + encodeURIComponent(data));
-    },
-    
-    disconnect: function(){
-      this._destroy();
-      if (this._sendXhr) this._sendXhr.abort();	
+		connect: function(){
+			var self = this;
+
+			this._doc = new ActiveXObject("htmlfile");
+			this._doc.open();
+			this._doc.write('<html><script>document.domain="'+ document.domain +'"</script></html>');
+			this._doc.close();      
+
+			this.iframe = this.doc.createElement('div');
+			this._doc.body.appendChild(iframe);
+			iframe.innerHTML = '<iframe src="'+ this._prepareUrl() +'"></iframe>';
+
+			this.doc.parentWindow.callback = function(data){ self._onData(data); };      
+			window.attachEvent('onunload', function(){ self._destroy(); });
+		},
+
+		send: function(data){      
+			this._sendXhr = request();
+			this._sendXhr.open('POST', this._prepareUrl() + '/send');      
+			this._sendXhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');        
+			this._sendXhr.send('data=' + encodeURIComponent(data));
+		},
+
+		disconnect: function(){
+			this._destroy();
+			if (this._sendXhr) this._sendXhr.abort();	
 			this._onClose();
 			this._onDisconnect();
-    },
-    
-    _destroy: function(){
-      this._doc = null;
-      CollectGarbage();
-    },
-    
-    _onData: function(ev){
-      console.log(ev.data);
-    }
-  
-  });
+		},
 
-  io.Transport['htmlfile'].check = function(){
+		_destroy: function(){
+			this._doc = null;
+			CollectGarbage();
+		},
+
+		_onData: function(ev){
+			console.log(ev.data);
+		}
+
+	});
+
+	io.Transport['htmlfile'].check = function(){
 		return false; // temporary to trigger xhr-polling in IE until testing is complete
-    if ('ActiveXObject' in window){
-      try {
-        var a = new ActiveXObject('htmlfile');
-        return true;
-      } catch(e){}
-    }
-    return false;
-  };
+		if ('ActiveXObject' in window){
+			try {
+				var a = new ActiveXObject('htmlfile');
+				return true;
+			} catch(e){}
+		}
+		return false;
+	};
 
 })();
 /**
@@ -677,43 +680,43 @@ io.Transport.flashsocket.check = function(){
 // only Opera's implementation
 
 (function(){  
-  var empty = new Function, request = io.Transport.XHR.request;
+	var empty = new Function, request = io.Transport.XHR.request;
 
-  io.Transport['server-events'] = io.Transport.extend({
-  
+	io.Transport['server-events'] = io.Transport.extend({
+
 		type: 'server-events',
 
-    connect: function(){
-      var self = this;
-      this.source = document.createElement('event-source');
-      this.source.setAttribute('src', this._prepareUrl());
-  		this.source.addEventListener('socket.io', function(ev){ self_onData(ev.data); }, false);
-    },
-  
-    send: function(data){      
-      this._sendXhr = request();
-      this._sendXhr.open('POST', this._prepareUrl() + '/send');
-      this._sendXhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');
-      this._sendXhr.send('data=' + encodeURIComponent(data));
-    },
-    
-    disconnect: function(){
-      this.source.removeEventSource(this.source.getAttribute('src'));
-      this.source.setAttribute('src', '');
-      this.source = null;
-      if (this._sendXhr) this._sendXhr.abort();
-			this._onDisconnect();
-    },
-    
-    _onData: function(data){
-			this._onMessage(data);
-    }
-  
-  });
+		connect: function(){
+			var self = this;
+			this.source = document.createElement('event-source');
+			this.source.setAttribute('src', this._prepareUrl());
+			this.source.addEventListener('socket.io', function(ev){ self_onData(ev.data); }, false);
+		},
 
-  io.Transport['server-events'].check = function(){
-    return 'addEventStream' in window;
-  };
+		send: function(data){      
+			this._sendXhr = request();
+			this._sendXhr.open('POST', this._prepareUrl() + '/send');
+			this._sendXhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');
+			this._sendXhr.send('data=' + encodeURIComponent(data));
+		},
+
+		disconnect: function(){
+			this.source.removeEventSource(this.source.getAttribute('src'));
+			this.source.setAttribute('src', '');
+			this.source = null;
+			if (this._sendXhr) this._sendXhr.abort();
+			this._onDisconnect();
+		},
+
+		_onData: function(data){
+			this._onMessage(data);
+		}
+
+	});
+
+	io.Transport['server-events'].check = function(){
+		return 'addEventStream' in window;
+	};
 
 })();
 /**
@@ -726,21 +729,21 @@ io.Transport.flashsocket.check = function(){
 
 io.Transport['xhr-multipart'] = io.Transport.XHR.extend({
 
-  type: 'xhr-multipart',
+	type: 'xhr-multipart',
 
-  connect: function(){
-    var self = this;
-    this._xhr = this._request('', 'GET', true);
-    this._xhr.onreadystatechange = function(){
-      if (self._xhr.readyState == 3) self._onData(self._xhr.responseText);
-    };
-    this._xhr.send();
-  }
+	connect: function(){
+		var self = this;
+		this._xhr = this._request('', 'GET', true);
+		this._xhr.onreadystatechange = function(){
+			if (self._xhr.readyState == 3) self._onData(self._xhr.responseText);
+		};
+		this._xhr.send();
+	}
 
 });
 
 io.Transport['xhr-multipart'].check = function(){
-  return 'XMLHttpRequest' in window && 'multipart' in XMLHttpRequest.prototype;
+	return 'XMLHttpRequest' in window && 'multipart' in XMLHttpRequest.prototype;
 };
 /**
  * Socket.IO client
@@ -751,32 +754,32 @@ io.Transport['xhr-multipart'].check = function(){
  */
 
 (function(){
-  
-  var empty = new Function();
 
-  io.Transport['xhr-polling'] = io.Transport.XHR.extend({
+	var empty = new Function();
 
-    type: 'xhr-polling',
+	io.Transport['xhr-polling'] = io.Transport.XHR.extend({
 
-    connect: function(){
-      var self = this;
-      this._xhr = this._request('', 'GET');
-      this._xhr.onreadystatechange = function(){
-        if (self._xhr.status == 200 && self._xhr.readyState == 4){
-          if (self._xhr.responseText.length) self._onData(self._xhr.responseText);
-          self._xhr.onreadystatechange = empty;
+		type: 'xhr-polling',
+
+		connect: function(){
+			var self = this;
+			this._xhr = this._request('', 'GET');
+			this._xhr.onreadystatechange = function(){
+				if (self._xhr.status == 200 && self._xhr.readyState == 4){
+					if (self._xhr.responseText.length) self._onData(self._xhr.responseText);
+					self._xhr.onreadystatechange = empty;
 					self.connect();
-        }
-      };
-      this._xhr.send();
-    }
+				}
+			};
+			this._xhr.send();
+		}
 
-  });
+	});
 
-  io.Transport['xhr-polling'].check = function(){
-    return io.Transport.XHR.check();
-  };
-  
+	io.Transport['xhr-polling'].check = function(){
+		return io.Transport.XHR.check();
+	};
+
 })();
 /**
  * Socket.IO client
@@ -788,87 +791,87 @@ io.Transport['xhr-multipart'].check = function(){
 
 io.Socket = ioClass({
 
-  include: [io.util.Events, io.util.Options],
+	include: [io.util.Events, io.util.Options],
 
-  options: {
-    secure: false,
+	options: {
+		secure: false,
 		document: document,
-    resource: 'socket.io',
-    transports: ['websocket', 'server-events', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling'],
-    transportOptions: {},
+		resource: 'socket.io',
+		transports: ['websocket', 'server-events', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling'],
+		transportOptions: {},
 		rememberTransport: true
-  },
+	},
 
-  init: function(host, options){
-    this.host = host;
-    this.setOptions(options);
-    this.connected = false;
-    this.connecting = false;
-    this.transport = this.getTransport();
-    if (!this.transport && 'console' in window) console.error('No transport available');
-  },
+	init: function(host, options){
+		this.host = host;
+		this.setOptions(options);
+		this.connected = false;
+		this.connecting = false;
+		this.transport = this.getTransport();
+		if (!this.transport && 'console' in window) console.error('No transport available');
+	},
 
-  getTransport: function(){
+	getTransport: function(){
 		var transports = this.options.transports, match;
 		if (this.options.rememberTransport){
 			match = this.options.document.cookie.match('(?:^|;)\\s*socket\.io=([^;]*)');
 			if (match) transports = [decodeURIComponent(match[1])];
 		} 
-    for (var i = 0; transport = transports[i]; i++){
-      if (io.Transport[transport] && io.Transport[transport].check()){
-        return new io.Transport[transport](this, this.options.transportOptions[transport] || {});
-      }
-    }
-    return null;
-  },
+		for (var i = 0; transport = transports[i]; i++){
+			if (io.Transport[transport] && io.Transport[transport].check()){
+				return new io.Transport[transport](this, this.options.transportOptions[transport] || {});
+			}
+		}
+		return null;
+	},
 
-  connect: function(){
-    if (this.transport && !this.connected && !this.connecting){
-      this.connecting = true;
-      this.transport.connect();
-    }      
-    return this;
-  },
+	connect: function(){
+		if (this.transport && !this.connected && !this.connecting){
+			this.connecting = true;
+			this.transport.connect();
+		}      
+		return this;
+	},
 
-  send: function(data){
-    if (!this.transport || !this.transport.connected) return this._queue(data);
-    this.transport.send(JSON.stringify([data]));   
-    return this;
-  },
-  
-  disconnect: function(){
-    this.transport.disconnect();
-    return this;
-  },
-  
-  _queue: function(message){
-    if (!('_queueStack' in this)) this._queueStack = [];
-    this._queueStack.push(message);
-    return this;
-  },
+	send: function(data){
+		if (!this.transport || !this.transport.connected) return this._queue(data);
+		this.transport.send(JSON.stringify([data]));   
+		return this;
+	},
 
-  _doQueue: function(){    
-    if (!('_queueStack' in this) || !this._queueStack.length) return this;
+	disconnect: function(){
+		this.transport.disconnect();
+		return this;
+	},
+
+	_queue: function(message){
+		if (!('_queueStack' in this)) this._queueStack = [];
+		this._queueStack.push(message);
+		return this;
+	},
+
+	_doQueue: function(){    
+		if (!('_queueStack' in this) || !this._queueStack.length) return this;
 		this.transport.send(JSON.stringify([].concat(this._queueStack)));
 		this._queueStack = [];
 		return this;
-  },
-  
-  _onConnect: function(){
-    this.connected = true;
-    this.connecting = false;
-    this._doQueue();
-		if (this.options.rememberTransport) this.options.document.cookie = 'socket.io=' + encodeURIComponent(this.transport.type);
-    this.fireEvent('connect');
-  },
-  
-  _onMessage: function(data){
-    this.fireEvent('message', data);
-  },
+	},
 
-  _onDisconnect: function(){
-    this.fireEvent('disconnect');
-  }
+	_onConnect: function(){
+		this.connected = true;
+		this.connecting = false;
+		this._doQueue();
+		if (this.options.rememberTransport) this.options.document.cookie = 'socket.io=' + encodeURIComponent(this.transport.type);
+		this.fireEvent('connect');
+	},
+
+	_onMessage: function(data){
+		this.fireEvent('message', data);
+	},
+
+	_onDisconnect: function(){
+		this.fireEvent('disconnect');
+	}
 
 });
 /*	SWFObject v2.2 <http://code.google.com/p/swfobject/> 
