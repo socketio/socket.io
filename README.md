@@ -25,7 +25,7 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 	
 In your head
 	
-	<script src="/path/to/socket.io.min.js">
+	<script src="/path/to/socket.io.js">
 	<script>
 		io.setPath('/path/to/socket.io/');
 	</script>
@@ -144,7 +144,7 @@ Guillermo Rauch [guillermo@rosepad.com]
 
 (The MIT License)
 
-Copyright (c) 2009 RosePad &lt;dev@rosepad.com&gt;
+Copyright (c) 2009 RosePad <dev@rosepad.com>
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
