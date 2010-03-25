@@ -12,7 +12,7 @@ The `Socket.IO` server provides seamless supports for a variety of transports in
 Requirements
 ------------
 
-- Node v0.1.32+
+- Node v0.1.32+ (tested with v0.1.32, v0.1.33)
 - [Socket.IO client](http://github.com/RosePad/Socket.IO) to connect from the browser
 
 How to use
@@ -191,7 +191,7 @@ Despite this extra layer, your messages are delivered unaltered to the different
 
 ## Credits
 
-Guillermo Rauch [guillermo@rosepad.com]
+Guillermo Rauch &lt;guillermo@rosepad.com&gt;
 
 Special thanks to [Jonas Pfenniger](http://github.com/zimbatm) for his workaround patch to keep the HTTPConnection open after the request is successful.
 
