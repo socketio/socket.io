@@ -51,9 +51,9 @@ Options:
 
 - *port*
 
-		80
+		Current port or 80
 	
-	The port `socket.io` server is attached to
+	The port `socket.io` server is attached to (defaults to the document.location port)
 
 - *resource*
 

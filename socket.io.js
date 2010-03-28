@@ -1,4 +1,4 @@
-/** Socket.IO 0.1 - Built with build.js */
+/** Socket.IO 0.1.1 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,7 +8,7 @@
  */
 
 this.io = {
-	version: '0.1',
+	version: '0.1.1',
 
 	setPath: function(path){
 		this.path = path;		
@@ -796,6 +796,7 @@ io.Socket = ioClass({
 	options: {
 		secure: false,
 		document: document,
+		port: document.location.port || 80,
 		resource: 'socket.io',
 		transports: ['websocket', 'server-events', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling'],
 		transportOptions: {},
@@ -803,7 +804,7 @@ io.Socket = ioClass({
 	},
 
 	init: function(host, options){
-		this.host = host;
+		this.host = host || document.domain;
 		this.setOptions(options);
 		this.connected = false;
 		this.connecting = false;
