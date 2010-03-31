@@ -1,4 +1,4 @@
-/** Socket.IO 0.1.1 - Built with build.js */
+/** Socket.IO 0.1.2 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,10 +8,10 @@
  */
 
 this.io = {
-	version: '0.1.1',
+	version: '0.1.2',
 
 	setPath: function(path){
-		this.path = path;		
+		this.path = /\/$/.test(path) ? path : path + '/';
 		
 		// this is temporary until we get a fix for injecting Flash WebSocket javascript files dynamically, 
 		// as io.js shouldn't be aware of specific transports.
@@ -583,12 +583,14 @@ io.Transport.flashsocket = io.Transport.websocket.extend({
 			this.base.connect();
 			return;
 		}
-	    return this.__super__();
+		return this.__super__();
 	}
 
 });
 
 io.Transport.flashsocket.check = function(){
+	if (!('path' in io)) throw new Error('The `flashsocket` transport requires that you call io.setPath() with the path to the socket.io client dir.');
+  
 	if ('navigator' in window && navigator.plugins){
 		return !! navigator.plugins['Shockwave Flash'].description;
 	} 
