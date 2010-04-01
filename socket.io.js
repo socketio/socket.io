@@ -1,4 +1,4 @@
-/** Socket.IO 0.1.2 - Built with build.js */
+/** Socket.IO 0.1.3 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,7 +8,7 @@
  */
 
 this.io = {
-	version: '0.1.2',
+	version: '0.1.3',
 
 	setPath: function(path){
 		this.path = /\/$/.test(path) ? path : path + '/';
@@ -402,23 +402,23 @@ io.util.Events = (function(){
 		_onData: function(data){
 			try {
 				var msgs = json.decode(data);
-				if (msgs.messages){
-					for (var i = 0, l = msgs.messages.length; i < l; i++){
-						this._onMessage(msgs.messages[i]);	
-					}					
-				}				
 			} catch(e){}
+			if (msgs && msgs.messages){
+			  for (var i = 0, l = msgs.messages.length; i < l; i++){
+					this._onMessage(msgs.messages[i]);	
+				}
+			}
 		},
 
 		_onMessage: function(message){
 			if (!('sessionid' in this)){
 				try {
 					var obj = json.decode(message);
-					if (obj.sessionid){
-						this.sessionid = obj.sessionid;
-						this._onConnect();
-					}
-				} catch(e){}				
+				} catch(e){}
+				if (obj && obj.sessionid){
+					this.sessionid = obj.sessionid;
+					this._onConnect();
+				}				
 			} else {	
 				this.base._onMessage(message);
 			}		
