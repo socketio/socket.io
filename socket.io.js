@@ -1,4 +1,4 @@
-/** Socket.IO 0.1.3 - Built with build.js */
+/** Socket.IO 0.1.4 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,7 +8,7 @@
  */
 
 this.io = {
-	version: '0.1.3',
+	version: '0.1.4',
 
 	setPath: function(path){
 		this.path = /\/$/.test(path) ? path : path + '/';
@@ -218,7 +218,8 @@ io.util.Events = (function(){
 		return (/^[\],:{}\s]*$/).test(string);
 	};
 
-	json.encode = JSON.stringify || function(obj){
+	json.encode = function(obj){
+	  if (JSON.stringify) return JSON.stringify(obj);
 		if (obj && obj.toJSON) obj = obj.toJSON();
 
 		if (obj === null){
@@ -226,7 +227,7 @@ io.util.Events = (function(){
 		}
 
 		if (obj instanceof Array){
-			return '[' + array.map(obj, JSON.encode) + ']';
+			return '[' + array.map(obj, json.encode) + ']';
 		}
 
 		switch (typeof obj){
@@ -236,7 +237,7 @@ io.util.Events = (function(){
 			var string = [];
 			for (var key in obj){
 				var json = JSON.encode(obj[key]);
-				if (json) string.push(JSON.encode(key) + ':' + json);
+				if (json) string.push(json.encode(key) + ':' + json);
 			}
 			return '{' + string + '}';
 			case 'number': 
@@ -250,9 +251,9 @@ io.util.Events = (function(){
 	json.decode = function(string, secure){
 		if (!string || typeof(string) != 'string') return null;
 
-		if (secure || JSON.secure){
+		if (secure || json.secure){
 			if (JSON.parse) return JSON.parse(string);
-			if (!isSecure(string)) throw new Error('JSON could not decode the input; security is enabled and the value is not secure.');
+			if (!isSecure(string)) throw new Error('io.util.JSON could not decode the input; security is enabled and the value is not secure.');
 		}
 
 		return eval('(' + string + ')');
@@ -838,7 +839,7 @@ io.Socket = ioClass({
 
 	send: function(data){
 		if (!this.transport || !this.transport.connected) return this._queue(data);
-		this.transport.send(JSON.stringify([data]));   
+		this.transport.send(io.util.JSON.encode([data]));
 		return this;
 	},
 
