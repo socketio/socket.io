@@ -1,4 +1,4 @@
-/** Socket.IO 0.1.6 - Built with build.js */
+/** Socket.IO 0.1.7 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,7 +8,7 @@
  */
 
 this.io = {
-	version: '0.1.6',
+	version: '0.1.7',
 
 	setPath: function(path){
 		this.path = /\/$/.test(path) ? path : path + '/';
@@ -1011,7 +1011,7 @@ io.Transport.flashsocket = io.Transport.websocket.extend({
 io.Transport.flashsocket.check = function(){
 	if (!('path' in io)) throw new Error('The `flashsocket` transport requires that you call io.setPath() with the path to the socket.io client dir.');
   
-	if ('navigator' in window && navigator.plugins){
+	if ('navigator' in window && 'plugins' in navigator && 'Shockwave Flash' in navigator.plugins){
 		return !! navigator.plugins['Shockwave Flash'].description;
 	} 
 
