@@ -28,7 +28,7 @@
       var socket = new io.Socket('localhost', {rememberTransport: false, port: 8080});
       socket.connect();
       socket.addEvent('message', function(data){
-        var obj = io.util.JSON.decode(data);
+        var obj = JSON.parse(data);
 
         if ('buffer' in obj){
           document.getElementById('form').style.display='block';
