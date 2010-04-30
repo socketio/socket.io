@@ -1,4 +1,4 @@
-/** Socket.IO 0.2.0 - Built with build.js */
+/** Socket.IO 0.2.1 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,7 +8,7 @@
  */
 
 this.io = {
-	version: '0.2.0',
+	version: '0.2.1',
 
 	setPath: function(path){
 		this.path = /\/$/.test(path) ? path : path + '/';
@@ -1072,6 +1072,7 @@ io.Transport.flashsocket.check = function(){
 	});
 
 	io.Transport['htmlfile'].check = function(){
+		return false;
 		if ('ActiveXObject' in window){
 			try {
 				var a = new ActiveXObject('htmlfile');
