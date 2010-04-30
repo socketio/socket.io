@@ -7,7 +7,7 @@ var http = require('http'),
 send404 = function(res){
 	res.writeHead(404);
 	res.write('404');
-	res.close();
+	res.end();
 },
 		
 server = http.createServer(function(req, res){
@@ -17,7 +17,7 @@ server = http.createServer(function(req, res){
 		case '/':
 			res.writeHead(200, {'Content-Type': 'text/html'});
 			res.write('<h1>Welcome. Try the <a href="/chat.html">chat</a> example.</h1>');
-			res.close();
+			res.end();
 			break;
 			
 		default:
@@ -26,7 +26,7 @@ server = http.createServer(function(req, res){
 					var swf = path.substr(-4) == '.swf';
 					res.writeHead(200, {'Content-Type': swf ? 'application/x-shockwave-flash' : ('text/' + (path.substr(-3) == '.js' ? 'javascript' : 'html'))});
 					res.write(fs.readFileSync(__dirname + path, swf ? 'binary' : 'utf8'), swf ? 'binary' : 'utf8');
-					res.close();
+					res.end();
 				} catch(e){ 
 					send404(res); 
 				}				
