@@ -1,4 +1,4 @@
-/** Socket.IO 0.1.7 - Built with build.js */
+/** Socket.IO 0.2.0 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,14 +8,16 @@
  */
 
 this.io = {
-	version: '0.1.7',
+	version: '0.2.0',
 
 	setPath: function(path){
 		this.path = /\/$/.test(path) ? path : path + '/';
 		
 		// this is temporary until we get a fix for injecting Flash WebSocket javascript files dynamically, 
 		// as io.js shouldn't be aware of specific transports.
-		WebSocket.__swfLocation = path + 'lib/vendor/web-socket-js/WebSocketMain.swf';
+		if ('WebSocket' in window){
+			WebSocket.__swfLocation = path + 'lib/vendor/web-socket-js/WebSocketMain.swf';
+		}
 	}
 };
 
@@ -793,80 +795,74 @@ replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
  * @copyright Copyright (c) 2009 RosePad <dev@rosepad.com>
  */
 
-(function(){
-	
-	var json = io.util.JSON;
-	
-	// abstract
-	io.Transport = ioClass({
+// abstract
+io.Transport = ioClass({
 
-		include: [io.util.Events, io.util.Options],
+	include: [io.util.Events, io.util.Options],
 
-		init: function(base, options){
-			this.base = base;
-			this.setOptions(options);
-		},
+	init: function(base, options){
+		this.base = base;
+		this.setOptions(options);
+	},
 
-		send: function(){
-			throw new Error('Missing send() implementation');  
-		},
+	send: function(){
+		throw new Error('Missing send() implementation');  
+	},
 
-		connect: function(){
-			throw new Error('Missing connect() implementation');  
-		},
+	connect: function(){
+		throw new Error('Missing connect() implementation');  
+	},
 
-		disconnect: function(){
-			throw new Error('Missing disconnect() implementation');  
-		},
+	disconnect: function(){
+		throw new Error('Missing disconnect() implementation');  
+	},
 
-		_onData: function(data){
-			try {
-				var msgs = JSON.parse(data);
-			} catch(e){}
-			if (msgs && msgs.messages){
-			  for (var i = 0, l = msgs.messages.length; i < l; i++){
-					this._onMessage(msgs.messages[i]);	
-				}
+	_onData: function(data){
+		try {
+			var msgs = JSON.parse(data);
+		} catch(e){}
+		if (msgs && msgs.messages){
+		  for (var i = 0, l = msgs.messages.length; i < l; i++){
+				this._onMessage(msgs.messages[i]);	
 			}
-		},
-
-		_onMessage: function(message){
-			if (!('sessionid' in this)){
-				try {
-					var obj = JSON.parse(message);
-				} catch(e){}
-				if (obj && obj.sessionid){
-					this.sessionid = obj.sessionid;
-					this._onConnect();
-				}				
-			} else {	
-				this.base._onMessage(message);
-			}		
-		},
-
-		_onConnect: function(){
-			this.connected = true;
-			this.base._onConnect();
-		},
-
-		_onDisconnect: function(){
-			if (!this.connected) return;
-			this.connected = false;
-			this.base._onDisconnect();
-		},
-
-		_prepareUrl: function(){
-			return (this.base.options.secure ? 'https' : 'http') 
-				+ '://' + this.base.host 
-				+ ':' + this.base.options.port
-				+ '/' + this.base.options.resource
-				+ '/' + this.type
-				+ (this.sessionid ? ('/' + this.sessionid) : '');
 		}
+	},
 
-	});
-	
-})();
+	_onMessage: function(message){
+		if (!('sessionid' in this)){
+			try {
+				var obj = JSON.parse(message);
+			} catch(e){}
+			if (obj && obj.sessionid){
+				this.sessionid = obj.sessionid;
+				this._onConnect();
+			}				
+		} else {	
+			this.base._onMessage(message);
+		}		
+	},
+
+	_onConnect: function(){
+		this.connected = true;
+		this.base._onConnect();
+	},
+
+	_onDisconnect: function(){
+		if (!this.connected) return;
+		this.connected = false;
+		this.base._onDisconnect();
+	},
+
+	_prepareUrl: function(){
+		return (this.base.options.secure ? 'https' : 'http') 
+			+ '://' + this.base.host 
+			+ ':' + this.base.options.port
+			+ '/' + this.base.options.resource
+			+ '/' + this.type
+			+ (this.sessionid ? ('/' + this.sessionid) : '');
+	}
+
+});
 /**
  * Socket.IO client
  * 
@@ -1071,73 +1067,18 @@ io.Transport.flashsocket.check = function(){
 		_destroy: function(){
 			this._doc = null;
 			CollectGarbage();
-		},
-
-		_onData: function(ev){
-			console.log(ev.data);
 		}
 
 	});
 
 	io.Transport['htmlfile'].check = function(){
-		return false; // temporary to trigger xhr-polling in IE until testing is complete
 		if ('ActiveXObject' in window){
 			try {
 				var a = new ActiveXObject('htmlfile');
-				return true;
+				return io.Transport.XHR.check();
 			} catch(e){}
 		}
 		return false;
-	};
-
-})();
-/**
- * Socket.IO client
- * 
- * @author Guillermo Rauch <guillermo@rosepad.com>
- * @license The MIT license.
- * @copyright Copyright (c) 2009 RosePad <dev@rosepad.com>
- */
-
-// only Opera's implementation
-
-(function(){  
-	var empty = new Function, request = io.Transport.XHR.request;
-
-	io.Transport['server-events'] = io.Transport.extend({
-
-		type: 'server-events',
-
-		connect: function(){
-			var self = this;
-			this.source = document.createElement('event-source');
-			this.source.setAttribute('src', this._prepareUrl());
-			this.source.addEventListener('socket.io', function(ev){ self_onData(ev.data); }, false);
-		},
-
-		send: function(data){      
-			this._sendXhr = request();
-			this._sendXhr.open('POST', this._prepareUrl() + '/send');
-			this._sendXhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');
-			this._sendXhr.send('data=' + encodeURIComponent(data));
-		},
-
-		disconnect: function(){
-			this.source.removeEventSource(this.source.getAttribute('src'));
-			this.source.setAttribute('src', '');
-			this.source = null;
-			if (this._sendXhr) this._sendXhr.abort();
-			this._onDisconnect();
-		},
-
-		_onData: function(data){
-			this._onMessage(data);
-		}
-
-	});
-
-	io.Transport['server-events'].check = function(){
-		return 'addEventStream' in window;
 	};
 
 })();
@@ -1220,7 +1161,7 @@ io.Socket = ioClass({
 		document: document,
 		port: document.location.port || 80,
 		resource: 'socket.io',
-		transports: ['websocket', 'server-events', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling'],
+		transports: ['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling'],
 		transportOptions: {},
 		rememberTransport: true
 	},
