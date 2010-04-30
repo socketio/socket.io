@@ -12,8 +12,8 @@ The `Socket.IO` server provides seamless supports for a variety of transports in
 Requirements
 ------------
 
-- Node v0.1.32+ (tested with v0.1.32, v0.1.33)
-- [Socket.IO client](http://github.com/RosePad/Socket.IO) to connect from the browser
+- Node v0.1.93+
+- [Socket.IO client](http://github.com/LearnBoost/Socket.IO) to connect from the browser
 
 How to use
 ----------
@@ -35,16 +35,7 @@ By default, the server will intercept requests that contain `socket.io` in the p
 	// socket.io, I choose you
 	io.listen(server);
 	
-Due to a lack of flexibility in the current Node HTTP server implementation, you'll have to patch Node before using `socket.io`.
-In the node directory run:
-	
-	patch -p1 < {../directory/to/socket.io-node}/patch/{node version}.patch
-	./configure
-	make
-	make test
-	sudo make install
-	
-On the client side, you should use the [Socket.IO client](https://github.com/RosePad/Socket.IO) to connect.
+On the client side, you should use the [Socket.IO client](https://github.com/LearnBoost/Socket.IO) to connect.
 
 ## Checking out
 
@@ -191,15 +182,13 @@ Despite this extra layer, your messages are delivered unaltered to the different
 
 ## Credits
 
-Guillermo Rauch &lt;guillermo@rosepad.com&gt;
-
-Special thanks to [Jonas Pfenniger](http://github.com/zimbatm) for his workaround patch to keep the HTTPConnection open after the request is successful.
+Guillermo Rauch &lt;guillermo@learnboost.com&gt;
 
 ## License 
 
 (The MIT License)
 
-Copyright (c) 2009 RosePad &lt;dev@rosepad.com&gt;
+Copyright (c) 2010 LearnBoost &lt;dev@learnboost.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
