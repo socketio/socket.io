@@ -4,7 +4,6 @@ Socket.IO Server: Sockets for the rest of us
 The `Socket.IO` server provides seamless supports for a variety of transports intended for realtime communication
 
 - WebSocket (with Flash policy support)
-- Server-Sent Events
 - XHR Polling
 - XHR Multipart Streaming
 - Forever Iframe
