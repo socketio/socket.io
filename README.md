@@ -1,15 +1,14 @@
 socket.io Client: Sockets for the rest of us
 ============================================
 
-The `socket.io` client is basically a simple HTTP Socket interface implementation. It allows you to establish a realtime connection with a server (see `socket.io` server [here](http://github.com/RosePad/Socket.IO-node)), hiding the complexity of the different transports (WebSocket, Flash, forever iframe, XHR long polling, XHR multipart encoded, etc).
+The `socket.io` client is basically a simple HTTP Socket interface implementation. It allows you to establish a realtime connection with a server (see `socket.io` server [here](http://github.com/LearnBoost/Socket.IO-node)), hiding the complexity of the different transports (WebSocket, Flash, forever iframe, XHR long polling, XHR multipart encoded, etc).
 
 ## Features
 
 - Supports 
 	- WebSocket
 	- Adobe Flash Socket
-	- ActiveX HTMLFile (IE) 
-	- Server-Sent Events (Opera)
+	- ActiveX HTMLFile (IE)
 	- XHR with multipart encoding
 	- XHR with long-polling
 	
@@ -19,7 +18,7 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 
 - Small. Closure Compiled with all deps: 5.82kb (gzipped).
 
-- Easy to use! See [socket.io-node](http://github.com/RosePad/Socket.IO-node) for the server to connect to.
+- Easy to use! See [socket.io-node](http://github.com/LearnBoost/Socket.IO-node) for the server to connect to.
 
 ## How to use
 	
@@ -39,7 +38,7 @@ In your code
 		alert('got some data' + data);
 	});
 	
-For an example, check out the chat [source](https://github.com/RosePad/Socket.IO-node/blob/master/test/chat.html).
+For an example, check out the chat [source](https://github.com/LearnBoost/Socket.IO-node/blob/master/test/chat.html).
 
 ## Documentation 
 
@@ -63,7 +62,7 @@ Options:
 
 - *transports*
 
-		['websocket', 'server-events', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling']
+		['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling']
 
 	A list of the transports to attempt to utilize (in order of preference)
 	
@@ -138,13 +137,13 @@ Events:
 	
 ## Credits
 
-Guillermo Rauch [guillermo@rosepad.com]
+Guillermo Rauch &lt;guillermo@learnboost.com&gt;
 
 ## License 
 
 (The MIT License)
 
-Copyright (c) 2009 RosePad <dev@rosepad.com>
+Copyright (c) 2010 LearnBoost &lt;dev@learnboost.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
