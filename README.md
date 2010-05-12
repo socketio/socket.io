@@ -11,7 +11,7 @@ The `Socket.IO` server provides seamless supports for a variety of transports in
 Requirements
 ------------
 
-- Node v0.1.93+
+- Node v0.1.94+
 - [Socket.IO client](http://github.com/LearnBoost/Socket.IO) to connect from the browser
 
 How to use
@@ -105,11 +105,9 @@ Options:
 		
 	A list of the accepted transports.
 	
-- *timeout*
-
-		8000
-		
-	Time it has to pass without a reconnection to consider a client disconnected. Applies to all transports.
+- *transportOptions*
+	
+	An object of options to pass to each transport. For example `{ websocket: { closeTimeout: 8000 }}`
 	
 - *log*
 	
@@ -171,7 +169,7 @@ One of the design goals is that you should be able to implement whatever protoco
 	
 	The concept of session also benefits naturally full-duplex WebSocket, in the event of an accidental disconnection and a quick reconnection. Messages that the server intends to deliver to the client are cached temporarily until the reconnection.
 	
-	The implementation of reconnection logic (potentially with retries) is left for the user.
+	The implementation of reconnection logic (potentially with retries) is left for the user. By default, transports that are keep-alive or open all the time (like WebSocket) have a timeout of 0 if a disconnection is detected.
 	
 * Message batching
 
