@@ -36,12 +36,15 @@ By default, the server will intercept requests that contain `socket.io` in the p
 	
 On the client side, you should use the [Socket.IO client](https://github.com/LearnBoost/Socket.IO) to connect.
 
-## Checking out
+## Notes
 
-After cloning the repository, remember to run
+IMPORTANT! When checking out the git repo, make sure to include the submodules. One way to do it is:
 
-	git submodule init
-	git submodule update
+	git clone [repo] --recursive
+  
+Another, once cloned
+
+	git submodule update --init --recursive
 
 ## Demo
 
