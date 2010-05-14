@@ -40,6 +40,16 @@ In your code
 	
 For an example, check out the chat [source](https://github.com/LearnBoost/Socket.IO-node/blob/master/test/chat.html).
 
+## Notes
+
+IMPORTANT! When checking out the git repo, make sure to include the submodules. One way to do it is:
+
+	git clone [repo] --recursive
+  
+Another, once cloned
+
+	git submodule update --init --recursive
+
 ## Documentation 
 
 ### io.Socket
