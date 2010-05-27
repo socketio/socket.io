@@ -1,14 +1,14 @@
-/** Socket.IO 0.2.1 - Built with build.js */
+/** Socket.IO 0.2.2 - Built with build.js */
 /**
  * Socket.IO client
  * 
- * @author Guillermo Rauch <guillermo@rosepad.com>
+ * @author Guillermo Rauch <guillermo@learnboost.com>
  * @license The MIT license.
- * @copyright Copyright (c) 2009 RosePad <dev@rosepad.com>
+ * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
  */
 
 this.io = {
-	version: '0.2.1',
+	version: '0.2.2',
 
 	setPath: function(path){
 		this.path = /\/$/.test(path) ? path : path + '/';
@@ -25,9 +25,9 @@ if ('jQuery' in this) jQuery.io = this.io;
 /**
  * Socket.IO client
  * 
- * @author Guillermo Rauch <guillermo@rosepad.com>
+ * @author Guillermo Rauch <guillermo@learnboost.com>
  * @license The MIT license.
- * @copyright Copyright (c) 2009 RosePad <dev@rosepad.com>
+ * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
  */
 
 io.util = {};
@@ -790,9 +790,9 @@ replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
 /**
  * Socket.IO client
  * 
- * @author Guillermo Rauch <guillermo@rosepad.com>
+ * @author Guillermo Rauch <guillermo@learnboost.com>
  * @license The MIT license.
- * @copyright Copyright (c) 2009 RosePad <dev@rosepad.com>
+ * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
  */
 
 // abstract
@@ -859,16 +859,16 @@ io.Transport = ioClass({
 			+ ':' + this.base.options.port
 			+ '/' + this.base.options.resource
 			+ '/' + this.type
-			+ (this.sessionid ? ('/' + this.sessionid) : '');
+			+ (this.sessionid ? ('/' + this.sessionid) : '/');
 	}
 
 });
 /**
  * Socket.IO client
  * 
- * @author Guillermo Rauch <guillermo@rosepad.com>
+ * @author Guillermo Rauch <guillermo@learnboost.com>
  * @license The MIT license.
- * @copyright Copyright (c) 2009 RosePad <dev@rosepad.com>
+ * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
  */
 
 (function(){
@@ -935,9 +935,9 @@ io.Transport = ioClass({
 /**
  * Socket.IO client
  * 
- * @author Guillermo Rauch <guillermo@rosepad.com>
+ * @author Guillermo Rauch <guillermo@learnboost.com>
  * @license The MIT license.
- * @copyright Copyright (c) 2009 RosePad <dev@rosepad.com>
+ * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
  */
 
 io.Transport.websocket = io.Transport.extend({
@@ -984,9 +984,9 @@ io.Transport.websocket.check = function(){
 /**
  * Socket.IO client
  * 
- * @author Guillermo Rauch <guillermo@rosepad.com>
+ * @author Guillermo Rauch <guillermo@learnboost.com>
  * @license The MIT license.
- * @copyright Copyright (c) 2009 RosePad <dev@rosepad.com>
+ * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
  */
 
 io.Transport.flashsocket = io.Transport.websocket.extend({
@@ -1022,9 +1022,9 @@ io.Transport.flashsocket.check = function(){
 /**
  * Socket.IO client
  * 
- * @author Guillermo Rauch <guillermo@rosepad.com>
+ * @author Guillermo Rauch <guillermo@learnboost.com>
  * @license The MIT license.
- * @copyright Copyright (c) 2009 RosePad <dev@rosepad.com>
+ * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
  */
 
 (function(){  
@@ -1086,9 +1086,9 @@ io.Transport.flashsocket.check = function(){
 /**
  * Socket.IO client
  * 
- * @author Guillermo Rauch <guillermo@rosepad.com>
+ * @author Guillermo Rauch <guillermo@learnboost.com>
  * @license The MIT license.
- * @copyright Copyright (c) 2009 RosePad <dev@rosepad.com>
+ * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
  */
 
 io.Transport['xhr-multipart'] = io.Transport.XHR.extend({
@@ -1112,9 +1112,9 @@ io.Transport['xhr-multipart'].check = function(){
 /**
  * Socket.IO client
  * 
- * @author Guillermo Rauch <guillermo@rosepad.com>
+ * @author Guillermo Rauch <guillermo@learnboost.com>
  * @license The MIT license.
- * @copyright Copyright (c) 2009 RosePad <dev@rosepad.com>
+ * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
  */
 
 (function(){
@@ -1127,12 +1127,16 @@ io.Transport['xhr-multipart'].check = function(){
 
 		connect: function(){
 			var self = this;
-			this._xhr = this._request('', 'GET');
+			this._xhr = this._request(+ new Date, 'GET');
 			this._xhr.onreadystatechange = function(){
-				if (self._xhr.status == 200 && self._xhr.readyState == 4){
-					if (self._xhr.responseText.length) self._onData(self._xhr.responseText);
+				var status;
+				if (self._xhr.readyState == 4){
 					self._xhr.onreadystatechange = empty;
-					self.connect();
+					try { status = self._xhr.status; } catch(e){}
+					if (status == 200){
+						if (self._xhr.responseText.length) self._onData(self._xhr.responseText);
+						self.connect();
+					}
 				}
 			};
 			this._xhr.send();
@@ -1148,9 +1152,9 @@ io.Transport['xhr-multipart'].check = function(){
 /**
  * Socket.IO client
  * 
- * @author Guillermo Rauch <guillermo@rosepad.com>
+ * @author Guillermo Rauch <guillermo@learnboost.com>
  * @license The MIT license.
- * @copyright Copyright (c) 2009 RosePad <dev@rosepad.com>
+ * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
  */
 
 io.Socket = ioClass({
