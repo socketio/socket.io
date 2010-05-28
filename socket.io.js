@@ -1,4 +1,4 @@
-/** Socket.IO 0.2.2 - Built with build.js */
+/** Socket.IO 0.2.3 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,7 +8,7 @@
  */
 
 this.io = {
-	version: '0.2.2',
+	version: '0.2.3',
 
 	setPath: function(path){
 		this.path = /\/$/.test(path) ? path : path + '/';
@@ -1011,17 +1011,14 @@ io.Transport.flashsocket = io.Transport.websocket.extend({
 
 io.Transport.flashsocket.check = function(){
 	if (!('path' in io)) throw new Error('The `flashsocket` transport requires that you call io.setPath() with the path to the socket.io client dir.');
-  
-	if ('navigator' in window && 'plugins' in navigator && 'Shockwave Flash' in navigator.plugins){
-		return !! navigator.plugins['Shockwave Flash'].description;
-	} 
-
-	if ('ActiveXObject' in window){
+	if ('navigator' in window && 'plugins' in navigator && navigator.plugins['Shockwave Flash']){
+		return !!navigator.plugins['Shockwave Flash'].description;
+  }
+	if ('ActiveXObject' in window) {
 		try {
-			return !! new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version');
-		} catch (e){}      
+			return !!new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version');
+		} catch (e) {}
 	}
-
 	return false;
 };
 /**
@@ -1863,13 +1860,33 @@ ASProxy.prototype =
 };
 
 // Copyright: Hiroshi Ichikawa <http://gimite.net/en/>
-// Lincense: New BSD Lincense
+// License: New BSD License
 // Reference: http://dev.w3.org/html5/websockets/
 // Reference: http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol
 
-if (!window.WebSocket) {
+(function() {
+  
+  if (window.WebSocket) return;
 
-  if (!window.console) console = {log: function(){ }, error: function(){ }};
+  var console = window.console;
+  if (!console) console = {log: function(){ }, error: function(){ }};
+
+  function hasFlash() {
+    if ('navigator' in window && 'plugins' in navigator && navigator.plugins['Shockwave Flash']) {
+      return !!navigator.plugins['Shockwave Flash'].description;
+    }
+    if ('ActiveXObject' in window) {
+      try {
+        return !!new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version');
+      } catch (e) {}
+    }
+    return false;
+  }
+  
+  if (!hasFlash()) {
+    console.error("Flash Player is not installed.");
+    return;
+  }
 
   WebSocket = function(url, protocol, proxyHost, proxyPort, headers) {
     var self = this;
@@ -1889,7 +1906,7 @@ if (!window.WebSocket) {
 
       self.__flash.addEventListener("close", function(fe) {
         try {
-          if (self.onopen) self.onclose();
+          if (self.onclose) self.onclose();
         } catch (e) {
           console.error(e.toString());
         }
@@ -2107,7 +2124,7 @@ if (!window.WebSocket) {
     container.appendChild(holder);
     document.body.appendChild(container);
     swfobject.embedSWF(
-      WebSocket.__swfLocation, "webSocketFlash", "10", "10", "9.0.0",
+      WebSocket.__swfLocation, "webSocketFlash", "8", "8", "9.0.0",
       null, {bridgeName: "webSocket"}, null, null,
       function(e) {
         if (!e.success) console.error("[WebSocket] swfobject.embedSWF failed");
@@ -2151,5 +2168,6 @@ if (!window.WebSocket) {
   } else {
     window.attachEvent("onload", WebSocket.__initialize);
   }
-}
+  
+})();
 
