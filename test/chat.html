@@ -25,7 +25,7 @@
         document.getElementById('text').value = '';
       }
     
-      var socket = new io.Socket('localhost', {rememberTransport: false, port: 8080});
+      var socket = new io.Socket(null, {rememberTransport: false, port: 8080});
       socket.connect();
       socket.addEvent('message', function(data){
         var obj = JSON.parse(data);
