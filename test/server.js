@@ -58,7 +58,9 @@ io.listen(server, {
 	onClientMessage: function(message, client){
 		var msg = { message: [client.sessionId, message] };
 		buffer.push(msg);
-		if (buffer.length > 15) buffer.shift();
+		if (buffer.length > 15) {
+			buffer.shift();
+		}
 		client.broadcast(json(msg));
 	}
 	
