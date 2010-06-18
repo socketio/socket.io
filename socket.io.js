@@ -1,4 +1,4 @@
-/** Socket.IO 0.2.3 - Built with build.js */
+/** Socket.IO 0.2.4 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,7 +8,7 @@
  */
 
 this.io = {
-	version: '0.2.3',
+	version: '0.2.4',
 
 	setPath: function(path){
 		this.path = /\/$/.test(path) ? path : path + '/';
@@ -893,7 +893,7 @@ io.Transport = ioClass({
 
 		disconnect: function(){
 			if (this._xhr){
-				this._xhr.onreadystatechange = empty;
+				this._xhr.onreadystatechange = this._xhr.onload = empty;
 				this._xhr.abort();
 			}            
 			if (this._sendXhr) this._sendXhr.abort();
@@ -902,7 +902,7 @@ io.Transport = ioClass({
 		},
 
 		_request: function(url, method, multipart){
-			var req = request();
+			var req = request(this.base._isXDomain());
 			if (multipart) req.multipart = true;
 			req.open(method || 'GET', this._prepareUrl() + (url ? '/' + url : ''));
 			if (method == 'POST'){
@@ -913,7 +913,8 @@ io.Transport = ioClass({
 
 	});
 
-	var request = io.Transport.XHR.request = function(){
+	var request = io.Transport.XHR.request = function(xdomain){
+		if ('XDomainRequest' in window && xdomain) return new XDomainRequest();
 		if ('XMLHttpRequest' in window) return new XMLHttpRequest();
 
 		try {
@@ -986,6 +987,10 @@ io.Transport.websocket.check = function(){
 	// we make sure WebSocket is not confounded with a previously loaded flash WebSocket
 	return 'WebSocket' in window && !('__initialize' in WebSocket);
 };
+
+io.Transport.websocket.xdomainCheck = function(){
+	return true;
+};
 /**
  * Socket.IO client
  * 
@@ -1021,6 +1026,10 @@ io.Transport.flashsocket.check = function(){
 	}
 	return false;
 };
+
+io.Transport.flashsocket.xdomainCheck = function(){
+	return true;
+};
 /**
  * Socket.IO client
  * 
@@ -1029,7 +1038,7 @@ io.Transport.flashsocket.check = function(){
  * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
  */
 
-io.Transport['htmlfile'] = io.Transport.extend({
+io.Transport.htmlfile = io.Transport.extend({
 
 	type: 'htmlfile',
 
@@ -1065,7 +1074,7 @@ io.Transport['htmlfile'] = io.Transport.extend({
 		CollectGarbage();
 	},
 	
-	send: function(data){      
+	send: function(data){
 		this._sendXhr = io.Transport.XHR.request();
 		this._sendXhr.open('POST', this._prepareUrl() + '/send');
 		this._sendXhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');
@@ -1081,7 +1090,7 @@ io.Transport['htmlfile'] = io.Transport.extend({
 
 });
 
-io.Transport['htmlfile'].check = function(){
+io.Transport.htmlfile.check = function(){
 	if ('ActiveXObject' in window){
 		try {
 			var a = new ActiveXObject('htmlfile');
@@ -1089,6 +1098,10 @@ io.Transport['htmlfile'].check = function(){
 		} catch(e){}
 	}
 	return false;
+};
+
+io.Transport.htmlfile.xdomainCheck = function(){
+	return false; // send() is not cross domain. we need to POST to an iframe to fix it
 };
 /**
  * Socket.IO client
@@ -1116,6 +1129,10 @@ io.Transport['xhr-multipart'] = io.Transport.XHR.extend({
 io.Transport['xhr-multipart'].check = function(){
 	return 'XMLHttpRequest' in window && 'multipart' in XMLHttpRequest.prototype;
 };
+
+io.Transport['xhr-multipart'].xdomainCheck = function(){
+	return true;
+};
 /**
  * Socket.IO client
  * 
@@ -1135,17 +1152,24 @@ io.Transport['xhr-multipart'].check = function(){
 		connect: function(){
 			var self = this;
 			this._xhr = this._request(+ new Date, 'GET');
-			this._xhr.onreadystatechange = function(){
-				var status;
-				if (self._xhr.readyState == 4){
-					self._xhr.onreadystatechange = empty;
-					try { status = self._xhr.status; } catch(e){}
-					if (status == 200){
-						if (self._xhr.responseText.length) self._onData(self._xhr.responseText);
-						self.connect();
+			if ('onload' in this._xhr){
+				this._xhr.onload = function(){
+					if (this.responseText.length) self._onData(this.responseText);
+					self.connect();
+				};
+			} else {
+				this._xhr.onreadystatechange = function(){
+					var status;
+					if (self._xhr.readyState == 4){
+						self._xhr.onreadystatechange = empty;
+						try { status = self._xhr.status; } catch(e){}
+						if (status == 200){
+							if (self._xhr.responseText.length) self._onData(self._xhr.responseText);
+							self.connect();
+						}
 					}
-				}
-			};
+				};	
+			}
 			this._xhr.send();
 		}
 
@@ -1153,6 +1177,10 @@ io.Transport['xhr-multipart'].check = function(){
 
 	io.Transport['xhr-polling'].check = function(){
 		return io.Transport.XHR.check();
+	};
+	
+	io.Transport['xhr-polling'].xdomainCheck = function(){
+		return 'XDomainRequest' in window || 'XMLHttpRequest' in window;
 	};
 
 })();
@@ -1194,7 +1222,9 @@ io.Socket = ioClass({
 			if (match) transports = [decodeURIComponent(match[1])];
 		} 
 		for (var i = 0; transport = transports[i]; i++){
-			if (io.Transport[transport] && io.Transport[transport].check()){
+			if (io.Transport[transport] 
+				&& io.Transport[transport].check() 
+				&& (!this._isXDomain() || io.Transport[transport].xdomainCheck())){
 				return new io.Transport[transport](this, this.options.transportOptions[transport] || {});
 			}
 		}
@@ -1231,6 +1261,10 @@ io.Socket = ioClass({
 		this.transport.send(JSON.stringify([].concat(this._queueStack)));
 		this._queueStack = [];
 		return this;
+	},
+	
+	_isXDomain: function(){
+		return this.host !== document.domain;
 	},
 
 	_onConnect: function(){
