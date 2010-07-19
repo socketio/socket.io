@@ -1,6 +1,3 @@
-[submodule "lib/vendor/js-oo"]
-	path = lib/vendor/js-oo
-	url = git://github.com/visionmedia/js-oo.git
 [submodule "example/client"]
 	path = example/client
 	url = git://github.com/LearnBoost/Socket.IO.git
