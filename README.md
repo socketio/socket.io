@@ -48,7 +48,7 @@ Another, once cloned
 
 ## Demo
 
-To run the demo, go to `test` directory and run
+To run the demo, go to `example` directory and run
 
 	sudo node server.js
 	
