@@ -4,3 +4,6 @@
 [submodule "example/client"]
 	path = example/client
 	url = git://github.com/LearnBoost/Socket.IO.git
+[submodule "tests/support/expresso"]
+	path = tests/support/expresso
+	url = git://github.com/visionmedia/expresso.git
