@@ -34,7 +34,7 @@ In your code
 	socket = new io.Socket('localhost');
 	socket.connect();
 	socket.send('some data');
-	socket.addEvent('message', function(data){
+	socket.on('message', function(data){
 		alert('got some data' + data);
 	});
 	
@@ -119,7 +119,7 @@ Methods:
 
 	Closes the connection
 	
-- *addEvent(event, λ)*
+- *on(event, λ)*
 
 	Adds a listener for the event *event*
 	
