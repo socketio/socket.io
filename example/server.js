@@ -47,11 +47,10 @@ var buffer = [],
 		io = io.listen(server);
 		
 io.on('connection', function(client){
-	console.log('test');
 	client.send(json({ buffer: buffer }));
 	client.broadcast(json({ announcement: client.sessionId + ' connected' }));
 
-	client.on('message', function(){
+	client.on('message', function(message){
 		var msg = { message: [client.sessionId, message] };
 		buffer.push(msg);
 		if (buffer.length > 15) buffer.shift();
