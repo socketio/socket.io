@@ -15,7 +15,7 @@
 
 var fs = require('fs'),
 	sys = require('sys'),
-	socket = require('./lib/io'),
+	socket = require('../lib/io'),
 	files = [
 		'io.js',
 		'util.js',
@@ -36,14 +36,14 @@ var fs = require('fs'),
 sys.log('Reading files…');
 
 files.forEach(function(file){
-	var path = __dirname + '/lib/' + file;
+	var path = __dirname + '/../lib/' + file;
 	sys.log (' + ' + path);
 	content += fs.readFileSync(path) + "\n"; 	
 });
 
 sys.log('Generating…');
 
-fs.write(fs.openSync(__dirname + '/socket.io.js', 'w'), content, 0, 'utf8');
-sys.log(' + ' + __dirname + '/socket.io.js');
+fs.write(fs.openSync(__dirname + '/../socket.io.js', 'w'), content, 0, 'utf8');
+sys.log(' + ' + __dirname + '/../socket.io.js');
 
 sys.log('All done!');
