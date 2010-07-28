@@ -1,7 +1,7 @@
 var http = require('http'), 
 		url = require('url'),
 		fs = require('fs'),
-		io = require('../socket.io'),
+		io = require('../'),
 		sys = require('sys'),
 		
 send404 = function(res){
