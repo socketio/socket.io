@@ -171,7 +171,7 @@ io.util = {
 	
 	var empty = new Function,
 	
-	request = io.Transport.XHR.request = function(xdomain){
+	request = function(xdomain){
 		if ('XDomainRequest' in window && xdomain) return new XDomainRequest();
 		if ('XMLHttpRequest' in window) return new XMLHttpRequest();
 		
@@ -262,6 +262,8 @@ io.util = {
 		return false;
 	};
 	
+	XHR.request = request;
+	
 })();
 /**
  * Socket.IO client
@@ -337,7 +339,7 @@ io.util = {
 		io.Transport.call(this);
 	};
 	
-	io.util.inherit(HTMLFile, io.Transport.WebSocket);
+	io.util.inherit(Flashsocket, io.Transport.WebSocket);
 	
 	Flashsocket.prototype.type = 'flashsocket';
 	
@@ -349,7 +351,7 @@ io.util = {
 			this.base.connect();
 			return;
 		}
-		return io.Transport.websocket.prototype._onClose.call(this);
+		return io.Transport.WebSocket.prototype._onClose.call(this);
 	};
 	
 	Flashsocket.check = function(){
