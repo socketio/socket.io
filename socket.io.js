@@ -189,7 +189,7 @@ io.util = {
 	},
 	
 	XHR = io.Transport.XHR = function(){
-		io.Transport.call(this);
+		io.Transport.apply(this, arguments);
 	};
 	
 	io.util.inherit(XHR, io.Transport);
@@ -276,7 +276,7 @@ io.util = {
 (function(){
 	
 	var WS = io.Transport.WebSocket = function(){
-		io.Transport.call(this);
+		io.Transport.apply(this, arguments);
 	};
 	
 	io.util.inherit(WS, io.Transport);
@@ -336,7 +336,7 @@ io.util = {
 (function(){
 	
 	var Flashsocket = io.Transport.flashsocket = function(){
-		io.Transport.call(this);
+		io.Transport.WebSocket.apply(this, arguments);
 	};
 	
 	io.util.inherit(Flashsocket, io.Transport.WebSocket);
@@ -383,7 +383,7 @@ io.util = {
 (function(){
 	
 	var HTMLFile = io.Transport.htmlfile = function(){
-		io.Transport.call(this);
+		io.Transport.XHR.apply(this, arguments);
 	};
 	
 	io.util.inherit(HTMLFile, io.Transport.XHR);
@@ -453,7 +453,7 @@ io.util = {
 (function(){
 	
 	var XHRMultipart = io.Transport['xhr-multipart'] = function(){
-		io.Transport.XHR.call(this);
+		io.Transport.XHR.apply(this, arguments);
 	};
 	
 	io.util.inherit(XHRMultipart, io.Transport.XHR);
@@ -491,7 +491,7 @@ io.util = {
 	var empty = new Function(),
 	
 	XHRPolling = io.Transport['xhr-polling'] = function(){
-		io.Transport.XHR.call(this);
+		io.Transport.XHR.apply(this, arguments);
 	};
 	
 	io.util.inherit(XHRPolling, io.Transport.XHR);
