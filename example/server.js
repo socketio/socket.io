@@ -42,24 +42,22 @@ server.listen(8080);
 		
 // socket.io, I choose you
 // simplest chat application evar
-var buffer = [], json = JSON.stringify;
+var buffer = [], 
+		json = JSON.stringify,
+		io = io.listen(server);
+		
+io.on('connection', function(client){
+	client.send(json({ buffer: buffer }));
+	client.broadcast(json({ announcement: client.sessionId + ' connected' }));
 
-io.listen(server, {
-	
-	onClientConnect: function(client){
-		client.send(json({ buffer: buffer }));
-		client.broadcast(json({ announcement: client.sessionId + ' connected' }));
-	},
-	
-	onClientDisconnect: function(client){
-		client.broadcast(json({ announcement: client.sessionId + ' disconnected' }));
-	},
-	
-	onClientMessage: function(message, client){
+	client.on('message', function(){
 		var msg = { message: [client.sessionId, message] };
 		buffer.push(msg);
 		if (buffer.length > 15) buffer.shift();
 		client.broadcast(json(msg));
-	}
-	
+	});
+
+	client.on('disconnect', function(){
+		client.broadcast(json({ announcement: client.sessionId + ' disconnected' }));
+	});
 });
