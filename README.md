@@ -13,7 +13,7 @@ The `Socket.IO` server provides seamless supports for a variety of transports in
 Requirements
 ------------
 
-- Node v0.1.94+
+- Node v0.1.102+
 - [Socket.IO client](http://github.com/LearnBoost/Socket.IO) to connect from the browser
 
 How to use

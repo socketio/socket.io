@@ -29,7 +29,7 @@ server = http.createServer(function(req, res){
 					res.end();
 				} catch(e){ 
 					send404(res); 
-				}				
+				}
 				break;
 			}
 		
@@ -47,6 +47,7 @@ var buffer = [],
 		io = io.listen(server);
 		
 io.on('connection', function(client){
+	console.log('test');
 	client.send(json({ buffer: buffer }));
 	client.broadcast(json({ announcement: client.sessionId + ' connected' }));
 
