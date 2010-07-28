@@ -604,8 +604,8 @@ io.util = {
 	
 	Socket.prototype.fire = function(name, args){
 		if (name in this._events){
-			for (var i in this._events)
-				this._events[name][i].apply(this._events[name], args);
+			for (var i in this._events[name])
+				this._events[name][i].apply(this, args);
 		}
 		return this;
 	};
