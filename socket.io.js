@@ -44,7 +44,11 @@ io.util = {
 			if (arr[i] === item) return i;
 		}
 		return -1;
-	}
+	},
+	
+	isArray: function(obj){
+		return Object.prototype.toString.call(obj) === '[object Array]';
+	};
 	
 };
 /**
@@ -80,7 +84,7 @@ io.util = {
 	
 	Transport.prototype._encode = function(messages){
 		var ret = '', message,
-				messages = messages instanceof Array ? messages : [];
+				messages = io.util.isArray(messages) ? messages : [messages];
 		for (var i = 0, l = messages.length; i < l; i++){
 			message = String(messages[i]);
 			ret += frame + message.length + frame + message;
