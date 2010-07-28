@@ -117,8 +117,8 @@ io.util = {
 	Transport.prototype._onData = function(data){
 		var msgs = this._decode(data);
 		if (msgs){
-		  for (var i = 0, l = msgs.length; i < l; i++){
-				this._onMessage(msgs.messages[i]);
+			for (var i = 0, l = msgs.length; i < l; i++){
+				this._onMessage(msgs[i]);
 			}
 		}
 	};
