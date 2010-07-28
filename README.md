@@ -178,7 +178,7 @@ One of the design goals is that you should be able to implement whatever protoco
 	
 * Message batching
 
-	In order to optimize the resources, messages are batched. In the event of the server trying to send multiple messages while the client is temporarily disconnected (ie: xhr polling), and messages are stacked, or messages being stacked prior to the handshake being successful, a JSON object containing a list (array) of messages is sent to the client.
+	In order to optimize the resources, messages are buffered. In the event of the server trying to send multiple messages while the client is temporarily disconnected (eg: xhr polling), messages are stacked, then encoded in a lightweight way and sent to the client whenever he becomes available.
 
 Despite this extra layer, your messages are delivered unaltered to the different event listeners. You can JSON.stringify() objects, send XML, or maybe plain text.
 
