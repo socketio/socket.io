@@ -86,7 +86,7 @@ io.util = {
 		var ret = '', message,
 				messages = io.util.isArray(messages) ? messages : [messages];
 		for (var i = 0, l = messages.length; i < l; i++){
-			message = String(messages[i]);
+			message = messages[i] === null || messages[i] === undefined ? '' : String(messages[i]);
 			ret += frame + message.length + frame + message;
 		}
 		return ret;
