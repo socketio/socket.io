@@ -1,3 +1,5 @@
+**Important:** The branch `master` contains the latest additions to the codebase and is unstable. Please use the latest available tag.
+
 Socket.IO Server: Sockets for the rest of us
 ============================================
 
