@@ -275,7 +275,7 @@ io.util = {
 
 (function(){
 	
-	var WS = io.Transport.WebSocket = function(){
+	var WS = io.Transport.websocket = function(){
 		io.Transport.apply(this, arguments);
 	};
 	
@@ -336,10 +336,10 @@ io.util = {
 (function(){
 	
 	var Flashsocket = io.Transport.flashsocket = function(){
-		io.Transport.WebSocket.apply(this, arguments);
+		io.Transport.websocket.apply(this, arguments);
 	};
 	
-	io.util.inherit(Flashsocket, io.Transport.WebSocket);
+	io.util.inherit(Flashsocket, io.Transport.websocket);
 	
 	Flashsocket.prototype.type = 'flashsocket';
 	
@@ -351,7 +351,7 @@ io.util = {
 			this.base.connect();
 			return;
 		}
-		return io.Transport.WebSocket.prototype._onClose.call(this);
+		return io.Transport.websocket.prototype._onClose.call(this);
 	};
 	
 	Flashsocket.check = function(){
