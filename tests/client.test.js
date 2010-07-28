@@ -19,8 +19,10 @@ module.exports = {
 	},
 	
 	'test encoding': function(assert){
-		var client = new Client(listener, {}, {}),
-				encoded = client._encode(['abcde', '123456789']);
-		assert.equal(encoded, '\ufffdm\ufffd5\ufffdm\ufffdabcde' + '\ufffdm\ufffd9\ufffdm\ufffd123456789');
+		var client = new Client(listener, {}, {});
+		assert.equal(client._encode(['abcde', '123456789']), '\ufffdm\ufffd5\ufffdm\ufffdabcde' + '\ufffdm\ufffd9\ufffdm\ufffd123456789');
+		assert.equal(client._encode('asdasdsad'), '\ufffdm\ufffd9\ufffdm\ufffdasdasdsad');
+		assert.equal(client._encode(''), '\ufffdm\ufffd0\ufffdm\ufffd');
+		assert.equal(client._encode(null), '\ufffdm\ufffd0\ufffdm\ufffd');
 	}
 };
