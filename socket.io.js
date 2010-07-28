@@ -48,7 +48,7 @@ io.util = {
 	
 	isArray: function(obj){
 		return Object.prototype.toString.call(obj) === '[object Array]';
-	};
+	}
 	
 };
 /**
@@ -565,7 +565,7 @@ io.util = {
 			match = this.options.document.cookie.match('(?:^|;)\\s*socket\.io=([^;]*)');
 			if (match) transports = [decodeURIComponent(match[1])];
 		} 
-		for (var i = 0; transport = transports[i]; i++){
+		for (var i = 0, transport; transport = transports[i]; i++){
 			if (io.Transport[transport] 
 				&& io.Transport[transport].check() 
 				&& (!this._isXDomain() || io.Transport[transport].xdomainCheck())){
