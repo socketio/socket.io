@@ -19,6 +19,7 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 	- Internet Explorer 7
 	- Internet Explorer 8
 	- iPhone Safari
+	- iPad Safari
 	- Firefox 3
 	- Firefox 4 (Minefield)
 	
