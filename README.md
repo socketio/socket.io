@@ -11,6 +11,18 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 	- ActiveX HTMLFile (IE)
 	- XHR with multipart encoding
 	- XHR with long-polling
+
+- Tested on
+	- Safari 4
+	- Google Chrome 5
+	- Internet Explorer 6
+	- Internet Explorer 7
+	- Internet Explorer 8
+	- iPhone Safari
+	- Firefox 3
+	- Firefox 4 (Minefield)
+	
+	Testing on Safari 3, Chrome 4, Opera and iPhone iPad is pending (although it will probably work). Contributions are welcome!
 	
 - ActionScript Socket is known not to work behind proxies, as it doesn't have access to the user agent proxy settings to implement the CONNECT HTTP method. If it fails, `socket.io` will try something else.
 	
