@@ -20,7 +20,7 @@ The `Socket.IO` server provides seamless supports for a variety of transports in
 By default, the server will intercept requests that contain `socket.io` in the path / resource part of the URI. You can change this (look at the available options below).
 
 	var http = require('http'), 
-			io = require('./socket.io/socket.io.js'),
+			io = require('./path/to/socket.io'),
 			
 	server = http.createServer(function(req, res){
 		// your normal server code
