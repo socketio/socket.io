@@ -207,7 +207,7 @@ io.util = {
 	};
 	
 	XHR.prototype._checkSend = function(){
-		if (!this.posting){
+		if (!this._posting){
 			var encoded = this._encode(this._sendBuffer);
 			this._sendBuffer = [];
 			this._send(encoded);
@@ -216,7 +216,7 @@ io.util = {
 	
 	XHR.prototype._send = function(data){
 		var self = this;
-		this.posting = true;
+		this._posting = true;
 		this._sendXhr = this._request('send', 'POST');
 		this._sendXhr.send('data=' + encodeURIComponent(data));
 		this._sendXhr.onreadystatechange = function(){
@@ -225,6 +225,7 @@ io.util = {
 				self._sendXhr.onreadystatechange = empty;
 				try { status = self._sendXhr.status; } catch(e){}
 				if (status == 200){
+					self._posting = false;
 					self._checkSend();
 				}
 			}
