@@ -8,14 +8,12 @@ The `Socket.IO` server provides seamless supports for a variety of transports in
 - XHR Multipart Streaming
 - Forever Iframe
 
-Requirements
-------------
+## Requirements
 
 - Node v0.1.102+
 - [Socket.IO client](http://github.com/LearnBoost/Socket.IO) to connect from the browser
 
-How to use
-----------
+## How to use
 
 `Socket.IO` is designed not to take over an entire port or Node `http.Server` instance. This means that if you choose your HTTP server to listen on the port 80, `socket.io` can intercept requests directed to it and the normal requests will still be served.
 
@@ -32,7 +30,13 @@ By default, the server will intercept requests that contain `socket.io` in the p
 	});
 			
 	// socket.io, I choose you
-	io.listen(server);
+	var socket = io.listen(server);
+	
+	socket.on('connection', function(client){
+	  // new client is here!
+	  client.on('message', function(){ … })
+	  client.on('disconnect', function(){ … })
+	});
 	
 On the client side, you should use the [Socket.IO client](https://github.com/LearnBoost/Socket.IO) to connect.
 
