@@ -12,8 +12,8 @@
     
       function message(obj){
         var el = document.createElement('p');
-        if ('announcement' in obj) el.innerHTML = '<em>' + obj.announcement; 
-        else if ('message' in obj) el.innerHTML = '<b>' + obj.message[0] + ':</b> ' + obj.message[1];
+        if ('announcement' in obj) el.innerHTML = '<em>' + esc(obj.announcement) + '</em>';
+        else if ('message' in obj) el.innerHTML = '<b>' + esc(obj.message[0]) + ':</b> ' + esc(obj.message[1]);
         document.getElementById('chat').appendChild(el);
         document.getElementById('chat').scrollTop = 1000000;
       }
@@ -24,6 +24,10 @@
         message({ message: ['you', val] });
         document.getElementById('text').value = '';
       }
+      
+      function esc(msg){
+        return msg.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      };
     
       var socket = new io.Socket(null, {rememberTransport: false, port: 8080});
       socket.connect();
