@@ -63,7 +63,7 @@ io.util = {
 
 (function(){
 	
-	var frame = '\uffffm\uffff',
+	var frame = '~m~',
 	
 	Transport = io.Transport = function(base, options){
 		this.base = base;
@@ -127,7 +127,7 @@ io.util = {
 		if (!('sessionid' in this)){
 			this.sessionid = message;
 			this._onConnect();
-		} else if (message.substr(0, 3) == '\uffffh\uffff'){
+		} else if (message.substr(0, 3) == '~h~'){
 			this._onHeartbeat(message.substr(3));
 		} else {
 			this.base._onMessage(message);
@@ -135,7 +135,7 @@ io.util = {
 	},
 	
 	Transport.prototype._onHeartbeat = function(heartbeat){
-		this.send('\uffffh\uffff' + heartbeat); // echo
+		this.send('~h~' + heartbeat); // echo
 	};
 	
 	Transport.prototype._onConnect = function(){
