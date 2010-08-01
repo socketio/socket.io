@@ -206,12 +206,14 @@ io.util = {
 		return this;
 	};
 	
-	XHR.prototype._checkSend = function(){
-		if (!this._posting && this._sendBuffer.length){
-			var encoded = this._encode(this._sendBuffer);
-			this._sendBuffer = [];
-			this._send(encoded);
+	XHR.prototype.send = function(data){
+		if (io.util.isArray(data)){
+			this._sendBuffer.push.apply(this._sendBuffer, data);
+		} else {
+			this._sendBuffer.push(data);
 		}
+		this._checkSend();
+		return this;
 	};
 	
 	XHR.prototype._send = function(data){
@@ -552,7 +554,7 @@ io.util = {
 			resource: 'socket.io',
 			transports: ['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling'],
 			transportOptions: {},
-			rememberTransport: true
+			rememberTransport: false
 		};
 		for (var i in options) this.options[i] = options[i];
 		this.connected = false;
@@ -629,7 +631,7 @@ io.util = {
 	
 	Socket.prototype._doQueue = function(){
 		if (!('_queueStack' in this) || !this._queueStack.length) return this;
-		this.transport.send(JSON.stringify([].concat(this._queueStack)));
+		this.transport.send(this._queueStack);
 		this._queueStack = [];
 		return this;
 	};
