@@ -200,6 +200,14 @@ io.util = {
 		return this;
 	};
 	
+	XHR.prototype._checkSend = function(){
+		if (!this._posting && this._sendBuffer.length){
+			var encoded = this._encode(this._sendBuffer);
+			this._sendBuffer = [];
+			this._send(encoded);
+		}
+	};
+	
 	XHR.prototype.send = function(data){
 		if (io.util.isArray(data)){
 			this._sendBuffer.push.apply(this._sendBuffer, data);
