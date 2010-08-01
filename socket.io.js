@@ -1,4 +1,4 @@
-/** Socket.IO 0.5 - Built with build.js */
+/** Socket.IO 0.5.2 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,7 +8,7 @@
  */
 
 this.io = {
-	version: '0.5',
+	version: '0.5.2',
 	
 	setPath: function(path){
 		this.path = /\/$/.test(path) ? path : path + '/';
