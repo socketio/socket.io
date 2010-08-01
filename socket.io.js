@@ -201,12 +201,6 @@ io.util = {
 	};
 	
 	XHR.prototype.send = function(data){
-		this._sendBuffer.push(data);
-		this._checkSend();
-		return this;
-	};
-	
-	XHR.prototype.send = function(data){
 		if (io.util.isArray(data)){
 			this._sendBuffer.push.apply(this._sendBuffer, data);
 		} else {
