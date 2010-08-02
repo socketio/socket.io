@@ -1,4 +1,4 @@
-/** Socket.IO 0.5.3 - Built with build.js */
+/** Socket.IO 0.5.4 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,7 +8,7 @@
  */
 
 this.io = {
-	version: '0.5.3',
+	version: '0.5.4',
 	
 	setPath: function(path){
 		this.path = /\/$/.test(path) ? path : path + '/';
@@ -30,27 +30,50 @@ if ('jQuery' in this) jQuery.io = this.io;
  * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
  */
 
-io.util = {
-	
-	inherit: function(ctor, superCtor){
-		// no support for `instanceof` for now
-		for (var i in superCtor.prototype){
-			ctor.prototype[i] = superCtor.prototype[i];
+(function(){
+
+	var _pageLoaded = false;
+
+	io.util = {
+
+		ios: false,
+
+		load: function(fn){
+			if (_pageLoaded) return fn();
+			if ('attachEvent' in window){
+				window.attachEvent('onload', fn);
+			} else {
+				window.addEventListener('load', fn, false);
+			}
+		},
+
+		inherit: function(ctor, superCtor){
+			// no support for `instanceof` for now
+			for (var i in superCtor.prototype){
+				ctor.prototype[i] = superCtor.prototype[i];
+			}
+		},
+
+		indexOf: function(arr, item, from){
+			for (var l = arr.length, i = (from < 0) ? Math.max(0, l + from) : from || 0; i < l; i++){
+				if (arr[i] === item) return i;
+			}
+			return -1;
+		},
+
+		isArray: function(obj){
+			return Object.prototype.toString.call(obj) === '[object Array]';
 		}
-	},
-	
-	indexOf: function(arr, item, from){
-		for (var l = arr.length, i = (from < 0) ? Math.max(0, l + from) : from || 0; i < l; i++){
-			if (arr[i] === item) return i;
-		}
-		return -1;
-	},
-	
-	isArray: function(obj){
-		return Object.prototype.toString.call(obj) === '[object Array]';
-	}
-	
-};
+
+	};
+
+	io.util.ios = /iphone|ipad/i.test(navigator.userAgent);
+
+	io.util.load(function(){
+		_pageLoaded = true;
+	});
+
+})();
 /**
  * Socket.IO client
  * 
@@ -222,7 +245,6 @@ io.util = {
 		var self = this;
 		this._posting = true;
 		this._sendXhr = this._request('send', 'POST');
-		this._sendXhr.send('data=' + encodeURIComponent(data));
 		this._sendXhr.onreadystatechange = function(){
 			var status;
 			if (self._sendXhr.readyState == 4){
@@ -234,6 +256,7 @@ io.util = {
 				}
 			}
 		};
+		this._sendXhr.send('data=' + encodeURIComponent(data));
 	},
 	
 	XHR.prototype.disconnect = function(){
@@ -244,8 +267,7 @@ io.util = {
 		if (this._sendXhr){
 			this._sendXhr.onreadystatechange = this._sendXhr.onload = empty;
 			this._sendXhr.abort();
-		} 
-		this._onClose();
+		}
 		this._onDisconnect();
 		return this;
 	}
@@ -492,17 +514,30 @@ io.util = {
  */
 
 (function(){
-	
+
 	var empty = new Function(),
-	
+
 	XHRPolling = io.Transport['xhr-polling'] = function(){
 		io.Transport.XHR.apply(this, arguments);
 	};
-	
+
 	io.util.inherit(XHRPolling, io.Transport.XHR);
-	
+
 	XHRPolling.prototype.type = 'xhr-polling';
-	
+
+	XHRPolling.prototype.connect = function(){
+		if (io.util.ios){
+			var self = this;
+			io.util.load(function(){
+				setTimeout(function(){
+					io.Transport.XHR.prototype.connect.call(self);
+				}, 10);
+			});
+		} else {
+			io.Transport.XHR.prototype.connect.call(this);
+		}
+	};
+
 	XHRPolling.prototype._get = function(){
 		var self = this;
 		this._xhr = this._request(+ new Date, 'GET');
@@ -526,15 +561,15 @@ io.util = {
 		}
 		this._xhr.send();
 	};
-	
+
 	XHRPolling.check = function(){
 		return io.Transport.XHR.check();
 	};
-	
+
 	XHRPolling.xdomainCheck = function(){
 		return 'XDomainRequest' in window || 'XMLHttpRequest' in window;
 	};
-	
+
 })();
 /**
  * Socket.IO client

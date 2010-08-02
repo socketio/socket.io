@@ -1,9 +1,11 @@
-socket.io Client: Sockets for the rest of us
-============================================
+socket.io
+=========
+
+#### Sockets for the rest of us
 
 The `socket.io` client is basically a simple HTTP Socket interface implementation. It allows you to establish a realtime connection with a server (see `socket.io` server [here](http://github.com/LearnBoost/Socket.IO-node)), hiding the complexity of the different transports (WebSocket, Flash, forever iframe, XHR long polling, XHR multipart encoded, etc).
 
-## Features
+### Features
 
 - Supports 
 	- WebSocket
@@ -33,7 +35,7 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 
 - Easy to use! See [socket.io-node](http://github.com/LearnBoost/Socket.IO-node) for the server to connect to.
 
-## How to use
+### How to use
 	
 In your head
 	
@@ -53,7 +55,7 @@ In your code
 	
 For an example, check out the chat [source](https://github.com/LearnBoost/Socket.IO-node/blob/master/test/chat.html).
 
-## Notes
+### Notes
 
 IMPORTANT! When checking out the git repo, make sure to include the submodules. One way to do it is:
 
@@ -63,9 +65,9 @@ Another, once cloned
 
 	git submodule update --init --recursive
 
-## Documentation 
+### Documentation 
 
-### io.Socket
+#### io.Socket
 
 	new io.Socket(host, [options]);
 
@@ -157,12 +159,20 @@ Events:
 - *disconnect*
 
 	Fired when the connection is considered disconnected.
-	
-## Credits
+
+### Changelog
+
+2010 08 02 - **0.5.4** (9.95KB)
+
+* Added io.util.load as a reusable onload handler
+* Added io.util.ios which reports if the UA is running on iPhone or iPad
+* No more loading bar on iPhone: XHR-Polling now connects `onload` for the iOS WebKit, and waits 10 ms to launch the initial connection.
+
+### Credits
 
 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
 
-## License 
+### License 
 
 (The MIT License)
 
