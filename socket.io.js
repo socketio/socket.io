@@ -39,7 +39,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 		ios: false,
 
 		load: function(fn){
-			if (_pageLoaded) return fn();
+			if (document.readyState == 'complete' || _pageLoaded) return fn();
 			if ('attachEvent' in window){
 				window.attachEvent('onload', fn);
 			} else {
@@ -593,7 +593,9 @@ if ('jQuery' in this) jQuery.io = this.io;
 			transportOptions: {},
 			rememberTransport: false
 		};
-		for (var i in options) this.options[i] = options[i];
+		for (var i in options) 
+		    if (this.options.hasOwnProperty(i))
+		        this.options[i] = options[i];
 		this.connected = false;
 		this.connecting = false;
 		this._events = {};
@@ -644,7 +646,8 @@ if ('jQuery' in this) jQuery.io = this.io;
 	
 	Socket.prototype.fire = function(name, args){
 		if (name in this._events){
-			for (var i in this._events[name])
+		    var i, ii; 
+		    for (i = 0, ii = this._events[name].length; i < ii; i++) 
 				this._events[name][i].apply(this, args);
 		}
 		return this;
@@ -652,10 +655,8 @@ if ('jQuery' in this) jQuery.io = this.io;
 	
 	Socket.prototype.removeEvent = function(name, fn){
 		if (name in this._events){
-			for (var i in this._events[name]){
-				for (var a = 0, l = this._events[name].length; a < l; a++)
-					if (this._events[name][a] == fn) this._events[name].splice(a, 1);
-			}
+			for (var a = 0, l = this._events[name].length; a < l; a++)
+				if (this._events[name][a] == fn) this._events[name].splice(a, 1);		
 		}
 		return this;
 	};
