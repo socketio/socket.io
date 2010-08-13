@@ -68,6 +68,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 	};
 
 	io.util.ios = /iphone|ipad/i.test(navigator.userAgent);
+	io.util.android = /android/i.test(navigator.userAgent);
 
 	io.util.load(function(){
 		_pageLoaded = true;
@@ -526,7 +527,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 	XHRPolling.prototype.type = 'xhr-polling';
 
 	XHRPolling.prototype.connect = function(){
-		if (io.util.ios){
+		if (io.util.ios || io.util.android){
 			var self = this;
 			io.util.load(function(){
 				setTimeout(function(){
