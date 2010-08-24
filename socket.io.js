@@ -165,6 +165,8 @@ if ('jQuery' in this) jQuery.io = this.io;
 			this._onConnect();
 		} else if (message.substr(0, 3) == '~h~'){
 			this._onHeartbeat(message.substr(3));
+		} else if (message.substr(0, 3) == '~j~'){
+			this.base._onMessage(JSON.parse(message.substr(3)));
 		} else {
 			this.base._onMessage(message);
 		}
