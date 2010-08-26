@@ -1333,26 +1333,14 @@ ASProxy.prototype =
   var console = window.console;
   if (!console) console = {log: function(){ }, error: function(){ }};
 
-  function hasFlash() {
-    if ('navigator' in window && 'plugins' in navigator && navigator.plugins['Shockwave Flash']) {
-      return !!navigator.plugins['Shockwave Flash'].description;
-    }
-    if ('ActiveXObject' in window) {
-      try {
-        return !!new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version');
-      } catch (e) {}
-    }
-    return false;
-  }
-  
-  if (!hasFlash()) {
+  if (!swfobject.hasFlashPlayerVersion("9.0.0")) {
     console.error("Flash Player is not installed.");
     return;
   }
-  console.log(location.protocol);
   if (location.protocol == "file:") {
     console.error(
-      "web-socket-js doesn't work in file:///... URL (without special configuration). " +
+      "WARNING: web-socket-js doesn't work in file:///... URL " +
+      "unless you set Flash Security Settings properly. " +
       "Open the page via Web server i.e. http://...");
   }
 
@@ -1436,6 +1424,12 @@ ASProxy.prototype =
     if (!this.__flash || this.readyState == WebSocket.CONNECTING) {
       throw "INVALID_STATE_ERR: Web Socket connection has not been established";
     }
+    // We use encodeURIComponent() here, because FABridge doesn't work if
+    // the argument includes some characters. We don't use escape() here
+    // because of this:
+    // https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Functions#escape_and_unescape_Functions
+    // But it looks decodeURIComponent(encodeURIComponent(s)) doesn't
+    // preserve all Unicode characters either e.g. "\uffff" in Firefox.
     var result = this.__flash.send(encodeURIComponent(data));
     if (result < 0) { // success
       return true;
@@ -1633,18 +1627,29 @@ ASProxy.prototype =
     }
     var container = document.createElement("div");
     container.id = "webSocketContainer";
-    // Puts the Flash out of the window. Note that we cannot use display: none or visibility: hidden
-    // here because it prevents Flash from loading at least in IE.
+    // Hides Flash box. We cannot use display: none or visibility: hidden because it prevents
+    // Flash from loading at least in IE. So we move it out of the screen at (-100, -100).
+    // But this even doesn't work with Flash Lite (e.g. in Droid Incredible). So with Flash
+    // Lite, we put it at (0, 0). This shows 1x1 box visible at left-top corner but this is
+    // the best we can do as far as we know now.
     container.style.position = "absolute";
-    container.style.left = "-100px";
-    container.style.top = "-100px";
+    if (WebSocket.__isFlashLite()) {
+      container.style.left = "0px";
+      container.style.top = "0px";
+    } else {
+      container.style.left = "-100px";
+      container.style.top = "-100px";
+    }
     var holder = document.createElement("div");
     holder.id = "webSocketFlash";
     container.appendChild(holder);
     document.body.appendChild(container);
+    // See this article for hasPriority:
+    // http://help.adobe.com/en_US/as3/mobile/WS4bebcd66a74275c36cfb8137124318eebc6-7ffd.html
     swfobject.embedSWF(
-      WEB_SOCKET_SWF_LOCATION, "webSocketFlash", "8", "8", "9.0.0",
-      null, {bridgeName: "webSocket"}, null, null,
+      WEB_SOCKET_SWF_LOCATION, "webSocketFlash",
+      "1" /* width */, "1" /* height */, "9.0.0" /* SWF version */,
+      null, {bridgeName: "webSocket"}, {hasPriority: true}, null,
       function(e) {
         if (!e.success) console.error("[WebSocket] swfobject.embedSWF failed");
       }
@@ -1671,7 +1676,14 @@ ASProxy.prototype =
     } else {
       WebSocket.__tasks.push(task);
     }
-  }
+  };
+  
+  WebSocket.__isFlashLite = function() {
+    if (!window.navigator || !window.navigator.mimeTypes) return false;
+    var mimeType = window.navigator.mimeTypes["application/x-shockwave-flash"];
+    if (!mimeType || !mimeType.enabledPlugin || !mimeType.enabledPlugin.filename) return false;
+    return mimeType.enabledPlugin.filename.match(/flashlite/i) ? true : false;
+  };
 
   // called from Flash
   window.webSocketLog = function(message) {
