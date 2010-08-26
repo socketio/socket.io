@@ -1,4 +1,4 @@
-/** Socket.IO 0.5.4 - Built with build.js */
+/** Socket.IO 0.6 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,7 +8,7 @@
  */
 
 this.io = {
-	version: '0.5.4',
+	version: '0.6',
 	
 	setPath: function(path){
 		this.path = /\/$/.test(path) ? path : path + '/';
@@ -211,29 +211,29 @@ if ('jQuery' in this) jQuery.io = this.io;
 	
 	request = function(xdomain){
 		if ('XDomainRequest' in window && xdomain) return new XDomainRequest();
-		if ('XMLHttpRequest' in window) return new XMLHttpRequest();
+		if ('XMLHttpRequest' in window) return new XMLHttpRequest();		
+		if (!xdomain){
+			try {
+				var a = new ActiveXObject('MSXML2.XMLHTTP');
+				return a;
+			} catch(e){}
 		
-		try {
-			var a = new ActiveXObject('MSXML2.XMLHTTP');
-			return a;
-		} catch(e){}
-		
-		try {
-			var b = new ActiveXObject('Microsoft.XMLHTTP');
-			return b;
-		} catch(e){}
-		
+			try {
+				var b = new ActiveXObject('Microsoft.XMLHTTP');
+				return b;
+			} catch(e){}
+		}
 		return false;
 	},
 	
 	XHR = io.Transport.XHR = function(){
 		io.Transport.apply(this, arguments);
+		this._sendBuffer = [];
 	};
 	
 	io.util.inherit(XHR, io.Transport);
 	
 	XHR.prototype.connect = function(){
-		if (!('_sendBuffer' in this)) this._sendBuffer = [];
 		this._get();
 		return this;
 	};
@@ -297,11 +297,15 @@ if ('jQuery' in this) jQuery.io = this.io;
 		return req;
 	};
 	
-	XHR.check = function(){
+	XHR.check = function(xdomain){
 		try {
 			if (request()) return true;
 		} catch(e){}
 		return false;
+	};
+	
+	XHR.xdomainCheck = function(){
+		return XHR.check(true);
 	};
 	
 	XHR.request = request;
@@ -480,7 +484,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 	};
 
 	HTMLFile.xdomainCheck = function(){
-		return false; // send() is not cross domain. we need to POST to an iframe to fix it
+		return false;
 	};
 	
 })();
@@ -582,10 +586,84 @@ if ('jQuery' in this) jQuery.io = this.io;
 	};
 
 	XHRPolling.xdomainCheck = function(){
-		return 'XDomainRequest' in window || 'XMLHttpRequest' in window;
+		return io.Transport.XHR.xdomainCheck();
 	};
 
 })();
+/**
+ * Socket.IO client
+ * 
+ * @author Guillermo Rauch <guillermo@learnboost.com>
+ * @license The MIT license.
+ * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
+ */
+
+io.JSONP = [];
+
+JSONPPolling = io.Transport['jsonp-polling'] = function(){
+	io.Transport.XHR.apply(this, arguments);
+	this._insertAt = document.getElementsByTagName('script')[0];
+	this._index = io.JSONP.length;
+	io.JSONP.push(this);
+};
+
+JSONPPolling.prototype.type = 'jsonp-polling';
+
+JSONPPolling.prototype._send = function(data){
+	var self = this,
+			form = document.createElement('FORM'),
+			iframe = document.createElement('IFRAME'),
+			area = document.createElement('TEXTAREA');
+	iframe.name = 'socket_io_iframe_' + this._index;
+	iframe.src = 'about:blank';
+	iframe.onload = function(){
+		form.parentNode.removeChild(form);
+		self._posting = false;
+		self._checkSend();
+	};
+	form.style.position = 'absolute';
+	form.style.top = '-1000px';
+	form.style.left = '-1000px';
+	form.target = iframe.name;
+	form.method = 'POST';
+	form.src = this._prepareUrl() + '/' + (+new Date) + '/' + this._index;
+	area.name = 'data';
+	area.value = data;
+	form.appendChild(area);
+	form.appendChild(iframe);
+	this._posting = true;
+	this._insertAt.parentNode.insertBefore(form, this._insertAt);
+	form.submit();
+};
+
+JSONPPolling.prototype._get = function(){
+	var self = this,
+			script = this._script = document.createElement('SCRIPT');
+	if (this._script){
+		this._script.parentNode.removeChild(this._script);
+		this._script = null;
+	}
+	script.async = true;
+	script.src = this._prepareUrl() + '/' + (+new Date) + '/' + this._index;
+	script.onerror = function(){
+		self._onDisconnect();
+	};
+	this._insertAt.parentNode.insertBefore(script, this._insertAt);
+};
+
+JSONPPolling.prototype._ = function(){
+	this._onData.apply(this, arguments);
+	this._get();
+	return this;
+};
+
+JSONPPolling.check = function(){
+	return true;
+};
+
+JSONPPolling.xdomainCheck = function(){
+	return true;
+};
 /**
  * Socket.IO client
  * 
@@ -604,7 +682,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 			heartbeatInterval: 4000,
 			port: document.location.port || 80,
 			resource: 'socket.io',
-			transports: ['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling'],
+			transports: ['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling', 'jsonp-polling'],
 			transportOptions: {},
 			rememberTransport: false
 		};
