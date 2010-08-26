@@ -13,6 +13,7 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 	- ActiveX HTMLFile (IE)
 	- XHR with multipart encoding
 	- XHR with long-polling
+	- JSONP polling (for cross-domain)
 
 - Tested on
 	- Safari 4
