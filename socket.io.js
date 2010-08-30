@@ -627,16 +627,23 @@ JSONPPolling.prototype._send = function(data){
 		area.name = 'data';
 		form.appendChild(area);
 		form.appendChild(iframe);
-		this._posting = true;
 		this._insertAt.parentNode.insertBefore(form, this._insertAt);
 		document.body.appendChild(form);
-		iframe.onload = function(){
+		function complete(){
 			self._posting = false;
 			self._checkSend();
 		};
+		if (iframe.attachEvent){
+			iframe.onreadystatechange = function(){
+				if (iframe.readyState == 'complete') complete();
+			};
+		} else {
+			iframe.onload = complete;
+		}
 		this._form = form;
 		this._area = area;
 	}
+	this._posting = true;
 	this._area.value = data;
 	this._form.submit();
 };
