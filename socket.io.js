@@ -729,8 +729,8 @@ JSONPPolling.xdomainCheck = function(){
 			rememberTransport: false
 		};
 		for (var i in options) 
-		    if (this.options.hasOwnProperty(i))
-		        this.options[i] = options[i];
+			if (this.options.hasOwnProperty(i))
+				this.options[i] = options[i];
 		this.connected = false;
 		this.connecting = false;
 		this._events = {};
@@ -781,9 +781,8 @@ JSONPPolling.xdomainCheck = function(){
 	
 	Socket.prototype.fire = function(name, args){
 		if (name in this._events){
-		    var i, ii; 
-		    for (i = 0, ii = this._events[name].length; i < ii; i++) 
-				this._events[name][i].apply(this, args);
+			for (var i = 0, ii = this._events[name].length; i < ii; i++) 
+				this._events[name][i].apply(this, args === undefined ? [] : args);
 		}
 		return this;
 	};
