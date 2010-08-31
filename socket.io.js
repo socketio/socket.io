@@ -69,6 +69,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 
 	io.util.ios = /iphone|ipad/i.test(navigator.userAgent);
 	io.util.android = /android/i.test(navigator.userAgent);
+	io.util.opera = /opera/i.test(navigator.userAgent);
 
 	io.util.load(function(){
 		_pageLoaded = true;
@@ -402,6 +403,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 	
 	Flashsocket.check = function(){
 		if (!('path' in io)) throw new Error('The `flashsocket` transport requires that you call io.setPath() with the path to the socket.io client dir.');
+		if (io.util.opera) return false; // opera is buggy with this transport
 		if ('navigator' in window && 'plugins' in navigator && navigator.plugins['Shockwave Flash']){
 			return !!navigator.plugins['Shockwave Flash'].description;
 	  }

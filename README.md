@@ -3,7 +3,17 @@ socket.io
 
 #### Sockets for the rest of us
 
-The `socket.io` client is basically a simple HTTP Socket interface implementation. It allows you to establish a realtime connection with a server (see `socket.io` server [here](http://github.com/LearnBoost/Socket.IO-node)), hiding the complexity of the different transports (WebSocket, Flash, forever iframe, XHR long polling, XHR multipart encoded, etc).
+The `socket.io` client is basically a simple HTTP Socket interface implementation. It allows you to establish a realtime connection with a server (see `socket.io` server [here](http://github.com/LearnBoost/Socket.IO-node)), hiding the complexity of the different transports (WebSocket, Flash, forever iframe, XHR long polling, XHR multipart encoded, etc), while retaining a WebSocket-like API:
+
+	socket = new io.Socket('localhost');
+	socket.connect();
+	socket.on('connect', function(){
+		// connected
+	});
+	socket.on('message', function(data){
+		// data here
+	});
+	socket.send('some data');
 
 ### Features
 
@@ -25,6 +35,7 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 	- iPad Safari
 	- Firefox 3
 	- Firefox 4 (Minefield)
+	- Opera 10.61
 	
 	Testing on Safari 3, Chrome 4, Opera and iPhone iPad is pending (although it will probably work). Contributions are welcome!
 	
@@ -40,9 +51,9 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 	
 In your head
 	
-	<script src="/path/to/socket.io.js">
+	<script src="/path/to/the/socket.io/client/socket.io.js">
 	<script>
-		io.setPath('/path/to/socket.io/');
+		io.setPath('/path/to/the/socket.io/client/');
 	</script>
 	
 In your code
@@ -55,6 +66,8 @@ In your code
 	});
 	
 For an example, check out the chat [source](https://github.com/LearnBoost/Socket.IO-node/blob/master/test/chat.html).
+
+`io.setPath` is required in order for socket.io to find the Flash WebSocket files. The path should be the path where you checked out the Socket.IO client repository.
 
 ### Notes
 
