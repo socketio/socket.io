@@ -82,10 +82,6 @@ Public Properties:
 	
 - *clients*
 	
-	An array of clients. Important: disconnected clients are set to null, the array is not spliced.
-	
-- *clientsIndex*
-
 	An object of clients indexed by their session ids.
 	
 Methods:
