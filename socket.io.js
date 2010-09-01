@@ -583,6 +583,8 @@ if ('jQuery' in this) jQuery.io = this.io;
 					if (status == 200){
 						if (self._xhr.responseText.length) self._onData(self._xhr.responseText);
 						self._get();
+					} else {
+						self._onDisconnect();
 					}
 				}
 			};
