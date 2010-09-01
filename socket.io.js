@@ -152,12 +152,25 @@ if ('jQuery' in this) jQuery.io = this.io;
 	};
 	
 	Transport.prototype._onData = function(data){
+		this._setTimeout();
 		var msgs = this._decode(data);
-		if (msgs){
+		if (msgs && msgs.length){
 			for (var i = 0, l = msgs.length; i < l; i++){
 				this._onMessage(msgs[i]);
 			}
 		}
+	};
+	
+	Transport.prototype._setTimeout = function(){
+		var self = this;
+		if (this._timeout) clearTimeout(this._timeout);
+		this._timeout = setTimeout(function(){
+			self._onTimeout();
+		});
+	};
+	
+	Transport.prototype._onTimeout = function(){
+		this._onDisconnect();
 	};
 	
 	Transport.prototype._onMessage = function(message){
@@ -180,6 +193,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 	Transport.prototype._onConnect = function(){
 		this.connected = true;
 		this.base._onConnect();
+		this._setTimeout();
 	};
 
 	Transport.prototype._onDisconnect = function(){
@@ -571,7 +585,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 		this._xhr = this._request(+ new Date, 'GET');
 		if ('onload' in this._xhr){
 			this._xhr.onload = function(){
-				if (this.responseText.length) self._onData(this.responseText);
+				self._onData(this.responseText);
 				self._get();
 			};
 		} else {
@@ -581,7 +595,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 					self._xhr.onreadystatechange = empty;
 					try { status = self._xhr.status; } catch(e){}
 					if (status == 200){
-						if (self._xhr.responseText.length) self._onData(self._xhr.responseText);
+						self._onData(self._xhr.responseText);
 						self._get();
 					} else {
 						self._onDisconnect();
@@ -732,11 +746,18 @@ JSONPPolling.xdomainCheck = function(){
 		this.options = {
 			secure: false,
 			document: document,
-			heartbeatInterval: 4000,
+			timeout: 15000, // based on heartbeat interval default
 			port: document.location.port || 80,
 			resource: 'socket.io',
 			transports: ['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling', 'jsonp-polling'],
-			transportOptions: {},
+			transportOptions: {
+				'xhr-polling': {
+					timeout: 25000 // based on polling duration default
+				},
+				'jsonp-polling': {
+					timeout: 25000
+				}
+			},
 			rememberTransport: false
 		};
 		for (var i in options) 
