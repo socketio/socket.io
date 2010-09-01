@@ -204,6 +204,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 	Transport.prototype._onDisconnect = function(){
 		if (!this.connected) return;
 		this.connected = false;
+		this.sessionid = null;
 		this.base._onDisconnect();
 	};
 
