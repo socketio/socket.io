@@ -166,7 +166,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 		if (this._timeout) clearTimeout(this._timeout);
 		this._timeout = setTimeout(function(){
 			self._onTimeout();
-		});
+		}, this.options.timeout);
 	};
 	
 	Transport.prototype._onTimeout = function(){
@@ -292,6 +292,12 @@ if ('jQuery' in this) jQuery.io = this.io;
 	},
 	
 	XHR.prototype.disconnect = function(){
+		// send disconnection signal
+		this._onDisconnect();
+		return this;
+	}
+	
+	XHR.prototype._onDisconnect = function(){
 		if (this._xhr){
 			this._xhr.onreadystatechange = this._xhr.onload = empty;
 			this._xhr.abort();
@@ -300,11 +306,6 @@ if ('jQuery' in this) jQuery.io = this.io;
 			this._sendXhr.onreadystatechange = this._sendXhr.onload = empty;
 			this._sendXhr.abort();
 		}
-		this._onDisconnect();
-		return this;
-	}
-	
-	XHR.prototype._onDisconnect = function(){
 		this._sendBuffer = [];
 		io.Transport.prototype._onDisconnect.call(this);
 	};
