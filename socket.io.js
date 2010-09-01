@@ -104,7 +104,12 @@ if ('jQuery' in this) jQuery.io = this.io;
 	
 	Transport = io.Transport = function(base, options){
 		this.base = base;
-		this.options = options;
+		this.options = {
+			timeout: 15000 // based on heartbeat interval default
+		};
+		for (var i in options) 
+			if (this.options.hasOwnProperty(i))
+				this.options[i] = options[i];
 	};
 
 	Transport.prototype.send = function(){
@@ -747,7 +752,6 @@ JSONPPolling.xdomainCheck = function(){
 		this.options = {
 			secure: false,
 			document: document,
-			timeout: 15000, // based on heartbeat interval default
 			port: document.location.port || 80,
 			resource: 'socket.io',
 			transports: ['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling', 'jsonp-polling'],
