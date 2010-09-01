@@ -266,9 +266,11 @@ if ('jQuery' in this) jQuery.io = this.io;
 			if (self._sendXhr.readyState == 4){
 				self._sendXhr.onreadystatechange = empty;
 				try { status = self._sendXhr.status; } catch(e){}
+				self._posting = false;
 				if (status == 200){
-					self._posting = false;
 					self._checkSend();
+				} else {
+					self._onDisconnect();
 				}
 			}
 		};
@@ -287,6 +289,11 @@ if ('jQuery' in this) jQuery.io = this.io;
 		this._onDisconnect();
 		return this;
 	}
+	
+	XHR.prototype._onDisconnect = function(){
+		this._sendBuffer = [];
+		io.Transport.prototype._onDisconnect.call(this);
+	};
 	
 	XHR.prototype._request = function(url, method, multipart){
 		var req = request(this.base._isXDomain());
@@ -565,7 +572,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 		if ('onload' in this._xhr){
 			this._xhr.onload = function(){
 				if (this.responseText.length) self._onData(this.responseText);
-				self.connect();
+				self._get();
 			};
 		} else {
 			this._xhr.onreadystatechange = function(){
@@ -575,7 +582,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 					try { status = self._xhr.status; } catch(e){}
 					if (status == 200){
 						if (self._xhr.responseText.length) self._onData(self._xhr.responseText);
-						self.connect();
+						self._get();
 					}
 				}
 			};
@@ -827,6 +834,8 @@ JSONPPolling.xdomainCheck = function(){
 	};
 	
 	Socket.prototype._onDisconnect = function(){
+		this.connected = false;
+		this._queueStack = [];
 		this.fire('disconnect');
 	};
 	
