@@ -37,8 +37,6 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 	- Firefox 4 (Minefield)
 	- Opera 10.61
 	
-	Testing on Safari 3, Chrome 4, Opera and iPhone iPad is pending (although it will probably work). Contributions are welcome!
-	
 - ActionScript Socket is known not to work behind proxies, as it doesn't have access to the user agent proxy settings to implement the CONNECT HTTP method. If it fails, `socket.io` will try something else.
 	
 - On a successful connection, it remembers the transport for next time (stores it in a cookie).
