@@ -306,10 +306,12 @@ if ('jQuery' in this) jQuery.io = this.io;
 		if (this._xhr){
 			this._xhr.onreadystatechange = this._xhr.onload = empty;
 			this._xhr.abort();
+			this._xhr = null;
 		}
 		if (this._sendXhr){
 			this._sendXhr.onreadystatechange = this._sendXhr.onload = empty;
 			this._sendXhr.abort();
+			this._sendXhr = null;
 		}
 		this._sendBuffer = [];
 		io.Transport.prototype._onDisconnect.call(this);
@@ -513,6 +515,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 	};
 
 	HTMLFile.xdomainCheck = function(){
+		// we can probably do handling for sub-domains, we should test that it's cross domain but a subdomain here
 		return false;
 	};
 	
