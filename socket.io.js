@@ -179,7 +179,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 	};
 	
 	Transport.prototype._onMessage = function(message){
-		if (!('sessionid' in this)){
+		if (!this.sessionid){
 			this.sessionid = message;
 			this._onConnect();
 		} else if (message.substr(0, 3) == '~h~'){
