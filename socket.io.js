@@ -868,10 +868,11 @@ JSONPPolling.xdomainCheck = function(){
 	};
 	
 	Socket.prototype._onDisconnect = function(){
+		var wasConnected = this.connected;
 		this.connected = false;
 		this.connecting = false;
 		this._queueStack = [];
-		this.fire('disconnect');
+		if (wasConnected) this.fire('disconnect');
 	};
 	
 	Socket.prototype.addListener = Socket.prototype.addEvent = Socket.prototype.addEventListener = Socket.prototype.on;
