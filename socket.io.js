@@ -798,10 +798,11 @@ JSONPPolling.xdomainCheck = function(){
 	};
 	
 	Socket.prototype.connect = function(){
-		if (this.transport && !this.connected && !this.connecting){
+		if (this.transport && !this.connected){
+			if (this.connecting) this.disconnect();
 			this.connecting = true;
 			this.transport.connect();
-		}      
+		}
 		return this;
 	};
 	
