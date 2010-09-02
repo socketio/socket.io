@@ -203,11 +203,10 @@ if ('jQuery' in this) jQuery.io = this.io;
 	};
 
 	Transport.prototype._onDisconnect = function(){
-		var wasConnected = this.connected;
 		this.connecting = false;
 		this.connected = false;
 		this.sessionid = null;
-		if (wasConnected) this.base._onDisconnect();
+		this.base._onDisconnect();
 	};
 
 	Transport.prototype._prepareUrl = function(){
