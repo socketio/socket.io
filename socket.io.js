@@ -197,15 +197,17 @@ if ('jQuery' in this) jQuery.io = this.io;
 	
 	Transport.prototype._onConnect = function(){
 		this.connected = true;
+		this.connecting = false;
 		this.base._onConnect();
 		this._setTimeout();
 	};
 
 	Transport.prototype._onDisconnect = function(){
-		if (!this.connected) return;
+		var wasConnected = this.connected;
+		this.connecting = false;
 		this.connected = false;
 		this.sessionid = null;
-		this.base._onDisconnect();
+		if (wasConnected) this.base._onDisconnect();
 	};
 
 	Transport.prototype._prepareUrl = function(){
@@ -867,6 +869,7 @@ JSONPPolling.xdomainCheck = function(){
 	
 	Socket.prototype._onDisconnect = function(){
 		this.connected = false;
+		this.connecting = false;
 		this._queueStack = [];
 		this.fire('disconnect');
 	};
