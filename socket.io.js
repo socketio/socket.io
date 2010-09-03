@@ -331,7 +331,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 	
 	XHR.check = function(xdomain){
 		try {
-			if (request()) return true;
+			if (request( xdomain )) return true;
 		} catch(e){}
 		return false;
 	};
@@ -395,7 +395,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 	
 	WS.check = function(){
 		// we make sure WebSocket is not confounded with a previously loaded flash WebSocket
-		return 'WebSocket' in window && !('__initialize' in WebSocket);
+		return 'WebSocket' in window && WebSocket.prototype && ( WebSocket.prototype.send && !!WebSocket.prototype.send.toString().match(/native/i)) && typeof WebSocket !== "undefined";
 	};
 
 	WS.xdomainCheck = function(){
@@ -434,6 +434,9 @@ if ('jQuery' in this) jQuery.io = this.io;
 	
 	Flashsocket.check = function(){
 		if (!('path' in io)) throw new Error('The `flashsocket` transport requires that you call io.setPath() with the path to the socket.io client dir.');
+		
+		// make sure the WebSocket is actually loaded
+		if ( !('WebSocket' in window && WebSocket.__isFlashLite && typeof WebSocket.__isFlashLite == "function") ) return false;
 		if (io.util.opera) return false; // opera is buggy with this transport
 		if ('navigator' in window && 'plugins' in navigator && navigator.plugins['Shockwave Flash']){
 			return !!navigator.plugins['Shockwave Flash'].description;
@@ -1815,7 +1818,7 @@ ASProxy.prototype =
     swfobject.embedSWF(
       WEB_SOCKET_SWF_LOCATION, "webSocketFlash",
       "1" /* width */, "1" /* height */, "9.0.0" /* SWF version */,
-      null, {bridgeName: "webSocket"}, {hasPriority: true}, null,
+      null, {bridgeName: "webSocket"}, {hasPriority: true, allowScriptAccess: "always"}, null,
       function(e) {
         if (!e.success) console.error("[WebSocket] swfobject.embedSWF failed");
       }
