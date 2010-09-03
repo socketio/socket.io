@@ -69,6 +69,9 @@ For an example, check out the chat [source](https://github.com/LearnBoost/Socket
 
 ### Notes
 
+If you are serving you .swf from a other domain than socket.io.js you will need to change the lib/vendor/web-socket-js/WebSocketMain.swf to the insecure version.
+The insecure version can be found [here](http://github.com/gimite/web-socket-js/blob/master/WebSocketMainInsecure.zip).
+
 IMPORTANT! When checking out the git repo, make sure to include the submodules. One way to do it is:
 
 	git clone [repo] --recursive
