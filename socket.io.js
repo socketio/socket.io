@@ -323,7 +323,7 @@ if ('jQuery' in this) jQuery.io = this.io;
 		var req = request(this.base._isXDomain());
 		if (multipart) req.multipart = true;
 		req.open(method || 'GET', this._prepareUrl() + (url ? '/' + url : ''));
-		if (method == 'POST'){
+		if (method == 'POST' && 'setRequestHeader' in req){
 			req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');
 		}
 		return req;
