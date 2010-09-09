@@ -22,6 +22,8 @@ this.io = {
 };
 
 if ('jQuery' in this) jQuery.io = this.io;
+
+if (typeof window != 'undefined') this.io.setPath('/socket.io/');
 /**
  * Socket.IO client
  * 
