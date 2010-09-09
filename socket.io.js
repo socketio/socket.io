@@ -417,11 +417,32 @@ if (typeof window != 'undefined') this.io.setPath('/socket.io/');
 	
 	var Flashsocket = io.Transport.flashsocket = function(){
 		io.Transport.websocket.apply(this, arguments);
+		this._loaded = false;
+		var self = this;
+		WebSocket.__addTask(function(){
+			self._loaded = true;
+		});
 	};
 	
 	io.util.inherit(Flashsocket, io.Transport.websocket);
 	
 	Flashsocket.prototype.type = 'flashsocket';
+	
+	Flashsocket.prototype.send = function(){
+		var self = this, args = arguments,
+		
+		doSend = function(){
+			io.Transport.websocket.prototype.send.apply(self, args);
+		};
+		
+		if (!this._loaded){
+			WebSocket.__addTask(doSend);
+		} else {
+			doSend();
+		}
+		
+		return this;
+	};
 	
 	Flashsocket.prototype._onClose = function(){
 		if (!this.base.connected){
@@ -436,9 +457,6 @@ if (typeof window != 'undefined') this.io.setPath('/socket.io/');
 	
 	Flashsocket.check = function(){
 		if (!('path' in io)) throw new Error('The `flashsocket` transport requires that you call io.setPath() with the path to the socket.io client dir.');
-		
-		// make sure the WebSocket is actually loaded
-		if ( !('WebSocket' in window && WebSocket.__isFlashLite && typeof WebSocket.__isFlashLite == "function") ) return false;
 		if (io.util.opera) return false; // opera is buggy with this transport
 		if ('navigator' in window && 'plugins' in navigator && navigator.plugins['Shockwave Flash']){
 			return !!navigator.plugins['Shockwave Flash'].description;
