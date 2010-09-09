@@ -456,6 +456,7 @@ if (typeof window != 'undefined') this.io.setPath('/socket.io/');
 	};
 	
 	Flashsocket.check = function(){
+		if (typeof WebSocket == 'undefined' || !('__addTask' in WebSocket)) return false;
 		if (!('path' in io)) throw new Error('The `flashsocket` transport requires that you call io.setPath() with the path to the socket.io client dir.');
 		if (io.util.opera) return false; // opera is buggy with this transport
 		if ('navigator' in window && 'plugins' in navigator && navigator.plugins['Shockwave Flash']){
