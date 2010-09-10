@@ -574,7 +574,7 @@ if (typeof window != 'undefined') this.io.setPath('/socket.io/');
 	};
 	
 	XHRMultipart.check = function(){
-		return 'XMLHttpRequest' in window && 'multipart' in XMLHttpRequest.prototype;
+		return 'XMLHttpRequest' in window && 'prototype' in XMLHttpRequest && 'multipart' in XMLHttpRequest.prototype;
 	};
 
 	XHRMultipart.xdomainCheck = function(){
