@@ -1,12 +1,12 @@
 body  {
-  background: url('/images/pattern.png');
+  background: url('../images/pattern.png');
   color: #fff;
   font: 13px "Lucida Grande", Verdana;
   padding-left: 0;
   margin-left: 0;}
 
 #wrap {
-  background: url('/images/sprite.png') no-repeat 0 0;}
+  background: url('../images/sprite.png') no-repeat 0 0;}
 
 #header {
   position: relative;
@@ -35,7 +35,7 @@ body  {
   color: #4a6715;
   width: 86px;
   height: 124px;
-  background: url('/images/ribbon.png');
+  background: url('../images/ribbon.png');
   display: block;
   text-decoration: none;
   text-align: center;
