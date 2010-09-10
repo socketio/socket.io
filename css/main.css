@@ -1,0 +1,139 @@
+body  {
+  background: url('/images/pattern.png');
+  color: #fff;
+  font: 13px "Lucida Grande", Verdana;
+  padding-left: 0;
+  margin-left: 0;}
+
+#wrap {
+  background: url('/images/sprite.png') no-repeat 0 0;}
+
+#header {
+  position: relative;
+  padding-top: 50px;
+  height: 200px;}
+#header .subtext {
+  font: oblique 30px "OFL Sorts Mill Goudy";
+  text-shadow: 0 1px 0 #000;
+  left: 50px;
+  top: 58px;
+  position: absolute;
+  z-index: 5;}
+#header .logo {
+  display: block;
+  width: 368px;
+  height: 108px;
+  top: 78px;
+  left: 85px;
+  z-index: 4;
+  position: absolute;
+  text-indent: -5000em;
+  -webkit-transition: 500ms opacity;}
+#header .logo:hover {
+  opacity: 0.9;}
+#header .download {
+  color: #4a6715;
+  width: 86px;
+  height: 124px;
+  background: url('/images/ribbon.png');
+  display: block;
+  text-decoration: none;
+  text-align: center;
+  position: absolute;
+  padding-top: 23px;
+  top: 71px;
+  left: 475px;
+  -webkit-transition: 500ms opacity;}
+#header .download:active {
+  margin-left: 5px;
+  margin-top: 5px;}
+#header .download:hover {
+  opacity: 0.9;}
+#header .download .version {
+  font: oblique 48px "OFL Sorts Mill Goudy";}
+#header .download .number {
+  font: 48px "ChunkFive";
+  text-shadow: 0 1px 0 #fff;}
+
+#content {
+  text-shadow: 0 1px 0 #000;
+  width: 830px;}
+#content p {
+  line-height: 25px;}
+#content .title {
+  font: 23px Georgia;
+  color: #000;
+  text-shadow: 0 0 0 rgba(0,0,0,0);}
+#content .section {
+  padding-left: 50px;
+  border-bottom: 1px solid #292936;
+  border-top: 1px solid #2993bf;
+  padding-top: 40px;
+  padding-right: 10px;
+  padding-bottom: 30px;}
+#content .section:first-child {
+  border-top-width: 0;}
+#content .subtitle {
+  margin-top: 10px;
+  font-size: 15px;
+  font-family: Georgia;
+  color: #222;
+  text-shadow: none;}
+#content a {
+  color: #E2E7D7;
+  text-shadow: none;
+  text-decoration: none;
+  border-bottom: 1px dotted #E2E7D7;}
+#content a:hover {
+  border-bottom-style: solid;}
+#content b {
+  color: #F7FDCF;}
+#content pre {
+  background: #000;
+  background: rgba(0,0,0,0.3);
+  text-shadow: none;
+  font-family: Monaco;
+  border: none;
+  padding: 15px;}
+#content pre .pun, pre .pln {
+  color: #ccc;}
+#content pre .kwd {
+  color: #ccc;}
+#content pre .typ {
+  color: #ccc;}
+#content pre .str {
+  color: #AABF73;}
+#content pre .atv {
+  color: #AABF73;}
+#content pre .com {
+  color: #999;}
+#content pre .tag {
+  color: #999;}
+#content pre .atn {
+  color: #ccc;}
+#content ul {
+  padding: 0;
+  margin: 10px 0 20px;
+  border-top: 1px solid #2993bf;}
+#content ul li {
+  list-style-type: none;
+  padding: 10px 0 10px;
+  border-bottom: 1px solid #2993bf;}
+#content ul li a {
+  color: #ccc;
+  border-bottom-color: #ccc;}
+#content ul li span {
+  display: block;
+  font-size: 11px;
+  margin-top: 5px;}
+
+#footer {
+  text-align: center;
+  width: 800px;}
+#footer a {
+  color: #E2E7D7;
+  text-shadow: none;
+  text-decoration: none;
+  border-bottom: 1px dotted #E2E7D7;}
+#footer a:hover {
+  border-bottom-style: solid;}
