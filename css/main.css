@@ -1,23 +1,23 @@
 @font-face {
 	font-family: 'ChunkFiveRegular';
-	src: url('/fonts/Chunkfive-webfont.eot');
-	src: local('☺'), url('/fonts/Chunkfive-webfont.woff') format('woff'), url('/fonts/Chunkfive-webfont.ttf') format('truetype'), url('/fonts/Chunkfive-webfont.svg#webfont4CzPTNtF') format('svg');
+	src: url('../fonts/Chunkfive-webfont.eot');
+	src: local('☺'), url('../fonts/Chunkfive-webfont.woff') format('woff'), url('../fonts/Chunkfive-webfont.ttf') format('truetype'), url('../fonts/Chunkfive-webfont.svg#webfont4CzPTNtF') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
 
 @font-face {
 	font-family: 'OFLSortsMillGoudyRegular';
-	src: url('/fonts/OFLGoudyStM-webfont.eot');
-	src: local('☺'), url('/fonts/OFLGoudyStM-webfont.woff') format('woff'), url('/fonts/OFLGoudyStM-webfont.ttf') format('truetype'), url('/fonts/OFLGoudyStM-webfont.svg#webfontbdeuPKEQ') format('svg');
+	src: url('../fonts/OFLGoudyStM-webfont.eot');
+	src: local('☺'), url('../fonts/OFLGoudyStM-webfont.woff') format('woff'), url('../fonts/OFLGoudyStM-webfont.ttf') format('truetype'), url('../fonts/OFLGoudyStM-webfont.svg#webfontbdeuPKEQ') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
 
 @font-face {
 	font-family: 'OFLSortsMillGoudyItalic';
-	src: url('/fonts/OFLGoudyStM-Italic-webfont.eot');
-	src: local('☺'), url('/fonts/OFLGoudyStM-Italic-webfont.woff') format('woff'), url('/fonts/OFLGoudyStM-Italic-webfont.ttf') format('truetype'), url('/fonts/OFLGoudyStM-Italic-webfont.svg#webfont0v2kTw9u') format('svg');
+	src: url('../fonts/OFLGoudyStM-Italic-webfont.eot');
+	src: local('☺'), url('../fonts/OFLGoudyStM-Italic-webfont.woff') format('woff'), url('../fonts/OFLGoudyStM-Italic-webfont.ttf') format('truetype'), url('../fonts/OFLGoudyStM-Italic-webfont.svg#webfont0v2kTw9u') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
