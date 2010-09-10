@@ -15,9 +15,7 @@ this.io = {
 		
 		// this is temporary until we get a fix for injecting Flash WebSocket javascript files dynamically,
 		// as io.js shouldn't be aware of specific transports.
-		if ('WebSocket' in window){
-			WebSocket.__swfLocation = path + 'lib/vendor/web-socket-js/WebSocketMain.swf';
-		}
+		WEB_SOCKET_SWF_LOCATION = path + 'lib/vendor/web-socket-js/WebSocketMain.swf';
 	}
 };
 
@@ -417,30 +415,25 @@ if (typeof window != 'undefined') this.io.setPath('/socket.io/');
 	
 	var Flashsocket = io.Transport.flashsocket = function(){
 		io.Transport.websocket.apply(this, arguments);
-		this._loaded = false;
-		var self = this;
-		WebSocket.__addTask(function(){
-			self._loaded = true;
-		});
 	};
 	
 	io.util.inherit(Flashsocket, io.Transport.websocket);
 	
 	Flashsocket.prototype.type = 'flashsocket';
 	
+	Flashsocket.prototype.connect = function(){
+		var self = this, args = arguments;
+		WebSocket.__addTask(function(){
+			io.Transport.websocket.prototype.connect.apply(self, args);
+		});
+		return this;
+	};
+	
 	Flashsocket.prototype.send = function(){
-		var self = this, args = arguments,
-		
-		doSend = function(){
+		var self = this, args = arguments;
+		WebSocket.__addTask(function(){
 			io.Transport.websocket.prototype.send.apply(self, args);
-		};
-		
-		if (!this._loaded){
-			WebSocket.__addTask(doSend);
-		} else {
-			doSend();
-		}
-		
+		});
 		return this;
 	};
 	
