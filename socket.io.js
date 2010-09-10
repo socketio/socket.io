@@ -230,10 +230,17 @@ if (typeof window != 'undefined') this.io.setPath('/socket.io/');
 (function(){
 	
 	var empty = new Function,
+	    
+	XMLHttpRequestCORS = (function(){
+		if (!('XMLHttpRequest' in window)) return false;
+		// CORS feature detection
+		var a = new XMLHttpRequest();
+		return a.withCredentials != undefined;
+	})(),
 	
 	request = function(xdomain){
 		if ('XDomainRequest' in window && xdomain) return new XDomainRequest();
-		if ('XMLHttpRequest' in window) return new XMLHttpRequest();		
+		if ('XMLHttpRequest' in window && (!xdomain || XMLHttpRequestCORS)) return new XMLHttpRequest();
 		if (!xdomain){
 			try {
 				var a = new ActiveXObject('MSXML2.XMLHTTP');
@@ -331,7 +338,7 @@ if (typeof window != 'undefined') this.io.setPath('/socket.io/');
 	
 	XHR.check = function(xdomain){
 		try {
-			if (request( xdomain )) return true;
+			if (request(xdomain)) return true;
 		} catch(e){}
 		return false;
 	};
