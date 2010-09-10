@@ -50,7 +50,17 @@ By default, the server will intercept requests that contain `socket.io` in the p
 	  client.on('disconnect', function(){ … })
 	});
 	
-On the client side, you should include socket.io.js from [Socket.IO client](https://github.com/LearnBoost/Socket.IO) to connect (follow the link for an explanation of the client-side API).
+On the client side:
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		var socket = new io.Socket();
+		socket.on('connect', function(){ … })
+		socket.on('message', function(){ … })
+		socket.on('disconnect', function(){ … })
+	</script>
+
+The [client side](http://github.com/learnboost/socket.io) files will be served automatically by `Socket.IO-node`.
 
 ## Notes
 

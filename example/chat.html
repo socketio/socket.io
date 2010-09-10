@@ -4,13 +4,11 @@
     <title>socket.io client test</title>
         
     <script src="/json.js"></script> <!-- for ie -->
-    <script src="/client/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
     
     <script>
-      io.setPath('/client/');
-    
       function message(obj){
         var el = document.createElement('p');
         if ('announcement' in obj) el.innerHTML = '<em>' + esc(obj.announcement) + '</em>';

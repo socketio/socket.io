@@ -4,12 +4,6 @@ var http = require('http'),
 		io = require('../'),
 		sys = require('sys'),
 		
-send404 = function(res){
-	res.writeHead(404);
-	res.write('404');
-	res.end();
-},
-		
 server = http.createServer(function(req, res){
 	// your normal server code
 	var path = url.parse(req.url).pathname;
@@ -20,25 +14,25 @@ server = http.createServer(function(req, res){
 			res.end();
 			break;
 			
-		default:
-			if (/\.(js|html|swf)$/.test(path)){
-				try {
-					var swf = path.substr(-4) === '.swf';
-					res.writeHead(200, {'Content-Type': swf ? 'application/x-shockwave-flash' : ('text/' + (path.substr(-3) === '.js' ? 'javascript' : 'html'))});
-					fs.readFile(__dirname + path, swf ? 'binary' : 'utf8', function(err, data){
-						if (!err) res.write(data, swf ? 'binary' : 'utf8');
-						res.end();
-					});
-				} catch(e){ 
-					send404(res); 
-				}
-				break;
-			}
-		
-			send404(res);
+		case '/json.js':
+		case '/chat.html':
+			fs.readFile(__dirname + path, function(err, data){
+				if (err) return send404(res);
+				res.writeHead(200, {'Content-Type': path == 'json.js' ? 'text/javascript' : 'text/html'})
+				res.write(data, 'utf8');
+				res.end();
+			});
 			break;
+			
+		default: send404(res);
 	}
-});
+}),
+
+send404 = function(res){
+	res.writeHead(404);
+	res.write('404');
+	res.end();
+};
 
 server.listen(8080);
 		
