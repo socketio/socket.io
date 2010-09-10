@@ -1,3 +1,27 @@
+@font-face {
+	font-family: 'ChunkFiveRegular';
+	src: url('/fonts/Chunkfive-webfont.eot');
+	src: local('☺'), url('/fonts/Chunkfive-webfont.woff') format('woff'), url('/fonts/Chunkfive-webfont.ttf') format('truetype'), url('/fonts/Chunkfive-webfont.svg#webfont4CzPTNtF') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'OFLSortsMillGoudyRegular';
+	src: url('/fonts/OFLGoudyStM-webfont.eot');
+	src: local('☺'), url('/fonts/OFLGoudyStM-webfont.woff') format('woff'), url('/fonts/OFLGoudyStM-webfont.ttf') format('truetype'), url('/fonts/OFLGoudyStM-webfont.svg#webfontbdeuPKEQ') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'OFLSortsMillGoudyItalic';
+	src: url('/fonts/OFLGoudyStM-Italic-webfont.eot');
+	src: local('☺'), url('/fonts/OFLGoudyStM-Italic-webfont.woff') format('woff'), url('/fonts/OFLGoudyStM-Italic-webfont.ttf') format('truetype'), url('/fonts/OFLGoudyStM-Italic-webfont.svg#webfont0v2kTw9u') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
 body  {
   background: url('../images/pattern.png');
   color: #fff;
@@ -13,7 +37,7 @@ body  {
   padding-top: 50px;
   height: 200px;}
 #header .subtext {
-  font: oblique 30px "OFL Sorts Mill Goudy";
+  font: 30px "OFLSortsMillGoudyItalic";
   text-shadow: 0 1px 0 #000;
   left: 50px;
   top: 58px;
@@ -50,9 +74,9 @@ body  {
 #header .download:hover {
   opacity: 0.9;}
 #header .download .version {
-  font: oblique 48px "OFL Sorts Mill Goudy";}
+  font: 48px "OFLSortsMillGoudyItalic";}
 #header .download .number {
-  font: 48px "ChunkFive";
+  font: 48px "ChunkFiveRegular";
   text-shadow: 0 1px 0 #fff;}
 
 #content {
