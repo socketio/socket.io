@@ -120,11 +120,11 @@ body  {
   border: none;
   padding: 15px;}
 #content pre .pun, pre .pln {
-  color: #ccc;}
+  color: #eee;}
 #content pre .kwd {
-  color: #ccc;}
+  color: #eee;}
 #content pre .typ {
-  color: #ccc;}
+  color: #eee;}
 #content pre .str {
   color: #AABF73;}
 #content pre .atv {
@@ -132,9 +132,9 @@ body  {
 #content pre .com {
   color: #999;}
 #content pre .tag {
-  color: #999;}
+  color: #eee;}
 #content pre .atn {
-  color: #ccc;}
+  color: #eee;}
 #content ul {
   padding: 0;
   margin: 10px 0 20px;
