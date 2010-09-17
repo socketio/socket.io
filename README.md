@@ -196,7 +196,9 @@ Despite this extra layer, your messages are delivered unaltered to the different
 
 ## Credits
 
-Guillermo Rauch &lt;guillermo@learnboost.com&gt;
+- Guillermo Rauch &lt;guillermo@learnboost.com&gt; ([Guille](http://github.com/guille))
+
+- Arnout Kazemier ([3rd-Eden](http://github.com/3rd-Eden))
 
 ## License 
 
