@@ -1,0 +1,109 @@
+<html>
+  <head>
+    <title>socket.io client test</title>
+        
+    <script src="/json.js"></script> <!-- for ie -->
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+
+    <script>
+      function message(obj){
+        var el = document.createElement('p');
+        if ('announcement' in obj) el.innerHTML = '<em>' + esc(obj.announcement) + '</em>';
+        else if ('message' in obj) el.innerHTML = '<b>' + esc(obj.message[0]) + ':</b> ' + esc(obj.message[1]);
+        document.getElementById('chat').appendChild(el);
+        document.getElementById('chat').scrollTop = 1000000;
+      }
+      
+      function send(){
+        var obj = {publish: null, message: null};
+        obj.publish = document.getElementById('channels').value.replace(/[ ]*,[ ]*/g,',').split(',');
+        obj.message = document.getElementById('text').value;
+        socket.send(obj);
+        document.getElementById('text').value = '';
+        if(window.console) console.log(obj);
+      }
+      
+      function esc(msg){
+        return msg.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      };
+      
+      var socket = new io.Socket(null, {port: 8080});
+      socket.connect();
+      socket.on('message', function(obj){
+        if ('subscribed' in obj){
+          handleSubscription(obj);
+        } else if ('json' in obj){
+          handleJSON(obj);
+        } else if ('message' in obj || 'announcement' in obj) {
+          message(obj);
+        }
+      });
+      
+      function handleSubscription(obj) {
+        document.getElementById('chat_form').style.display='block';
+        document.getElementById('chat').innerHTML = '';
+      }
+      
+      function handleJSON(obj){
+        var el = document.createElement('p');
+        if(window.console) console.log("JSON Rx: From - " + obj.message[0] + ", " + obj.message[1]);
+      }
+
+      function subscribe(){
+        var obj = {subscribe: null, username: null};
+        obj.username = document.getElementById('username').value;
+        obj.subscribe = document.getElementById('channels').value.replace(/[ ]*,[ ]*/g,',').split(',');
+      	
+        if(window.console) console.log(obj);
+        socket.send(obj);
+        document.getElementById('chat').style.display='block';
+        document.getElementById('channel_form').style.display='none';
+        return false;
+      }
+      
+      function next(){
+        document.getElementById('channel_form').style.display='block';
+        document.getElementById('name_form').style.display='none';
+      }
+      
+    </script>
+
+    <!-- USER NAME SELECTION -->
+    <form id="name_form" class="form" onsubmit="next(); return false;">
+        Username: <input id="username" class="text"type="text" name="username" value=""/>
+        <input id="nameEnterBtn" class="button" type="submit" name="" value="Next"/>
+    </form>
+
+    <!-- CHANNEL SELECTION -->
+    <form id="channel_form" class="form" onsubmit="subscribe(); return false;">
+        Channels: <input id="channels" class="text"type="text" name="channels" value=""/>
+        <input id="channelEnterBtn" class="button" type="submit" name="" value="Join"/>
+    </form>
+
+    <!-- CHAT UI -->
+    <div id="chat"><p>Connecting...</p></div>
+    <form id="chat_form" class="form" onsubmit="send(); return false;">
+      <input type="text" autocomplete="off" id="text"><input type="submit" value="Send">
+    </form>
+    
+    <style>
+      #chat { display: none;}
+      #chat { height: 300px; overflow: auto; width: 500px; border: 1px solid #eee; font: 13px Helvetica, Arial; }
+      #chat p { padding: 8px; margin: 0; }
+      #chat p:nth-child(odd) { background: #F6F6F6; }
+      #name_form { width: 482px; text-align: right; }
+      #name_form input[type=text] { width: 140px; padding: 5px; background: #fff; border: 1px solid #fff; }
+      #channel_form { display: none; }
+      #channel_form input[type=text] { width: 345px; padding: 5px; background: #fff; border: 1px solid #fff; }
+      #chat_form { display: none; }
+      .form { color: #FFFFFF; width: 482px; background: #333; padding: 5px 10px; }
+      .form input[type=text] { width: 416px; padding: 5px; background: #fff; border: 1px solid #fff; }
+      .form input[type=submit] { cursor: pointer; background: #999; border: none; padding: 6px 8px; -moz-border-radius: 8px; -webkit-border-radius: 8px; margin-left: 5px; text-shadow: 0 1px 0 #fff; }
+      .form input[type=submit]:hover { background: #A2A2A2; }
+      .form input[type=submit]:active { position: relative; top: 2px; }
+    </style>
+    
+  </body>
+</html>

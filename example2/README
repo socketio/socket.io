@@ -1,0 +1,18 @@
+Channel or Chat Room Example.
+===========
+
+This is an extension of the original chat example showcasing how one may want to
+use channels for communication versus a catch all approach.
+
+The user is asked for their username and the channels they want to subscribe to. 
+
+If users are connected to at least one common channel then they can chat with each
+other. Channels can be entered in comma delimeted form.
+
+There is also an example of two APIs
+  /api/who - responds with the usernames of who is connected in JSON 
+  /api/send - Allows you to send data to a channel. You need to specify the
+              following parameters (username, message, publish) where publish is 
+              the channel list.
+
+Note: This example is lacking the buffering that is used in the first example.
