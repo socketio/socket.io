@@ -47,13 +47,14 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 
 ### How to use
 	
-In your head
-	
-	<script src="/path/to/the/socket.io/client/socket.io.js">
-	<script>
-		io.setPath('/path/to/the/socket.io/client/');
-	</script>
-	
+The recommended way of including the Socket.IO client is through the Socket.IO CDN:
+
+In your &lt;head&gt;
+
+	<script src="http://cdn.socket.io/stable/socket.io.js">
+
+That will get you the latest stable release. You can also replace `stable` with any git tag or `master` for the development version.
+
 In your code
 
 	socket = new io.Socket('localhost');
