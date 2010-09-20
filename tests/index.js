@@ -1,22 +1,21 @@
 var io = require('./../'),
 		Listener = io.Listener,
-		port = 8080;
 		Client = require('./../lib/socket.io/client'),
-		WebSocket = require('./support/node-websocket-client/lib/websocket').WebSocket,
+		WebSocket = require('./support/node-websocket-client/lib/websocket').WebSocket;
 
 module.exports = {
 	
 	'test server initialization': function(assert){
 		var server = require('http').createServer(function(){}), sio;
 		server.listen(8080);
-		sio = io.listen(server);
+		sio = io.listen(server, {log: false});
 		assert.ok(sio instanceof Listener);
 		server.close();
 	},
 	
 	'test serving static javascript client': function(assert){
 		var server = require('http').createServer(function(){}), 
-		    sio = io.listen(server);
+		    sio = io.listen(server, {log: false});
 		assert.response(server,
 		  { url: '/socket.io/socket.io.js' },
 		  { body: /setPath/, headers: { 'Content-Type': 'text/javascript' }});
