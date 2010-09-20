@@ -151,6 +151,8 @@ body  {
   display: block;
   font-size: 11px;
   margin-top: 5px;}
+#google-subscribe-link {
+  border-bottom-width: 0 !important; }
 #google-subscribe-input {
   opacity: 0.8; }
 #google-subscribe-input.focus {
