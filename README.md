@@ -51,11 +51,9 @@ The recommended way of including the Socket.IO client is through the Socket.IO C
 
 In your &lt;head&gt;
 
-	<script src="http://cdn.socket.io/stable/socket.io.js">
+	<script src="http://cdn.socket.io/stable/socket.io.js"></script>
 
-That will get you the latest stable release. You can also replace `stable` with any git tag or `master` for the development version.
-
-In your code
+Then, in your code
 
 	socket = new io.Socket('localhost');
 	socket.connect();
@@ -66,11 +64,12 @@ In your code
 	
 For an example, check out the chat [source](https://github.com/LearnBoost/Socket.IO-node/blob/master/test/chat.html).
 
-`io.setPath` is required in order for socket.io to find the Flash WebSocket files. The path should be the path where you checked out the Socket.IO client repository.
-
 ### Notes
 
-If you are serving you .swf from a other domain than socket.io.js you will need to change the lib/vendor/web-socket-js/WebSocketMain.swf to the insecure version.
+If you are serving you .swf from a other domain than socket.io.js you will need to change the WEB_SOCKET_SWF_LOCATION to the insecure version.
+
+	<script>WEB_SOCKET_SWF_LOCATION = '/path/to/WebSocketMainInsecure.swf';</script>
+
 The insecure version can be found [here](http://github.com/gimite/web-socket-js/blob/master/WebSocketMainInsecure.zip).
 
 IMPORTANT! When checking out the git repo, make sure to include the submodules. One way to do it is:
