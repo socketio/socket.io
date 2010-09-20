@@ -157,6 +157,12 @@ body  {
   opacity: 0.8; }
 #google-subscribe-input.focus {
   opacity: 1; }
+#google-members-count {
+  position: relative;
+  left: 10px;
+  bottom: 11px;
+  color: #eee;
+  font-size: 11px; }
 #footer {
   text-align: center;
   width: 800px;}
