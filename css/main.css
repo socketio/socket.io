@@ -96,6 +96,7 @@ body  {
   padding-right: 10px;
   padding-bottom: 30px;}
 #content .section:first-child {
+  padding-top: 20px;
   border-top-width: 0;}
 #content .subtitle {
   margin-top: 10px;
@@ -150,7 +151,10 @@ body  {
   display: block;
   font-size: 11px;
   margin-top: 5px;}
-
+#google-subscribe-input {
+  opacity: 0.8; }
+#google-subscribe-input.focus {
+  opacity: 1; }
 #footer {
   text-align: center;
   width: 800px;}
