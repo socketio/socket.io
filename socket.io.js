@@ -834,7 +834,7 @@ JSONPPolling.xdomainCheck = function(){
 						if (self.options.tryTransportsOnConnectTimeout){
 							var remainingTransports = [], transports = self.options.transports;
 							for (var i = 0, transport; transport = transports[i]; i++){
-								if (transport == self.transport.type) return;
+								if (transport == self.transport.type) break;
 								remainingTransports.push(transport);
 							}
 							if (remainingTransports.length){
