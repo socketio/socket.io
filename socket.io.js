@@ -11,17 +11,17 @@ this.io = {
 	version: '0.6',
 	
 	setPath: function(path){
+		if (window.console && console.error) console.error('io.setPath will be removed. Please set the variable WEB_SOCKET_SWF_LOCATION pointing to WebSocketMain.swf');
 		this.path = /\/$/.test(path) ? path : path + '/';
-		
-		// this is temporary until we get a fix for injecting Flash WebSocket javascript files dynamically,
-		// as io.js shouldn't be aware of specific transports.
 		WEB_SOCKET_SWF_LOCATION = path + 'lib/vendor/web-socket-js/WebSocketMain.swf';
 	}
 };
 
 if ('jQuery' in this) jQuery.io = this.io;
 
-if (typeof window != 'undefined') this.io.setPath('/socket.io/');
+if (typeof window != 'undefined'){
+	WEB_SOCKET_SWF_LOCATION = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//cdn.socket.io/' + this.io.version + '/WebSocketMain.swf';
+}
 /**
  * Socket.IO client
  * 
@@ -457,7 +457,6 @@ if (typeof window != 'undefined') this.io.setPath('/socket.io/');
 	
 	Flashsocket.check = function(){
 		if (typeof WebSocket == 'undefined' || !('__addTask' in WebSocket)) return false;
-		if (!('path' in io)) throw new Error('The `flashsocket` transport requires that you call io.setPath() with the path to the socket.io client dir.');
 		if (io.util.opera) return false; // opera is buggy with this transport
 		if ('navigator' in window && 'plugins' in navigator && navigator.plugins['Shockwave Flash']){
 			return !!navigator.plugins['Shockwave Flash'].description;
@@ -792,7 +791,9 @@ JSONPPolling.xdomainCheck = function(){
 					timeout: 25000
 				}
 			},
-			rememberTransport: false
+			connectTimeout: 5000,
+			tryTransportsOnConnectTimeout: true,
+			rememberTransport: true
 		};
 		for (var i in options) 
 			if (this.options.hasOwnProperty(i))
@@ -804,10 +805,10 @@ JSONPPolling.xdomainCheck = function(){
 		if (!this.transport && 'console' in window) console.error('No transport available');
 	};
 	
-	Socket.prototype.getTransport = function(){
-		var transports = this.options.transports, match;
-		if (this.options.rememberTransport){
-			match = this.options.document.cookie.match('(?:^|;)\\s*socket\.io=([^;]*)');
+	Socket.prototype.getTransport = function(override){
+		var transports = override || this.options.transports, match;
+		if (this.options.rememberTransport && !override){
+			match = this.options.document.cookie.match('(?:^|;)\\s*socketio=([^;]*)');
 			if (match) transports = [decodeURIComponent(match[1])];
 		} 
 		for (var i = 0, transport; transport = transports[i]; i++){
@@ -825,6 +826,25 @@ JSONPPolling.xdomainCheck = function(){
 			if (this.connecting) this.disconnect();
 			this.connecting = true;
 			this.transport.connect();
+			if (this.options.connectTimeout){
+				var self = this;
+				setTimeout(function(){
+					if (!self.connected){
+						self.disconnect();
+						if (self.options.tryTransportsOnConnectTimeout){
+							var remainingTransports = [], transports = self.options.transports;
+							for (var i = 0, transport; transport = transports[i]; i++){
+								if (transport == self.transport.type) return;
+								remainingTransports.push(transport);
+							}
+							if (remainingTransports.length){
+								self.transport = self.getTransport(remainingTransports);
+								self.connect();
+							}
+						}
+					}
+				}, this.options.connectTimeout)
+			}
 		}
 		return this;
 	};
@@ -883,7 +903,7 @@ JSONPPolling.xdomainCheck = function(){
 		this.connected = true;
 		this.connecting = false;
 		this._doQueue();
-		if (this.options.rememberTransport) this.options.document.cookie = 'socket.io=' + encodeURIComponent(this.transport.type);
+		if (this.options.rememberTransport) this.options.document.cookie = 'socketio=' + encodeURIComponent(this.transport.type);
 		this.fire('connect');
 	};
 	
