@@ -9,7 +9,7 @@ module.exports = {
 		var server = require('http').createServer(function(){}), sio, client, clientCount, close;
 		server.listen(8081);
 
-		sio = io.listen(server, {log: false});
+		sio = io.listen(server, {log: function(){}});
 		client;
 		clientCount = 0;
 		close = function(){
