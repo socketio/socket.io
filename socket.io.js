@@ -20,7 +20,8 @@ this.io = {
 if ('jQuery' in this) jQuery.io = this.io;
 
 if (typeof window != 'undefined'){
-	WEB_SOCKET_SWF_LOCATION = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//cdn.socket.io/' + this.io.version + '/WebSocketMain.swf';
+  // WEB_SOCKET_SWF_LOCATION = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//cdn.socket.io/' + this.io.version + '/WebSocketMain.swf';
+  WEB_SOCKET_SWF_LOCATION = '/socket.io/lib/vendor/web-socket-js/WebSocketMain.swf';
 }
 /**
  * Socket.IO client
@@ -1289,7 +1290,7 @@ FABridge.prototype =
     // accepts a type structure, returns a constructed type
     addTypeDataToCache: function(typeData)
     {
-        newType = new ASProxy(this, typeData.name);
+        var newType = new ASProxy(this, typeData.name);
         var accessors = typeData.accessors;
         for (var i = 0; i < accessors.length; i++)
         {
@@ -1649,16 +1650,21 @@ ASProxy.prototype =
   };
 
   WebSocket.prototype.close = function() {
-    if (!this.__flash) return;
-    this.readyState = this.__flash.getReadyState();
-    if (this.readyState != WebSocket.OPEN) return;
-    this.__flash.close();
+    var self = this;
+    if (!self.__flash) return;
+    self.readyState = self.__flash.getReadyState();
+    if (self.readyState == WebSocket.CLOSED || self.readyState == WebSocket.CLOSING) return;
+    self.__flash.close();
     // Sets/calls them manually here because Flash WebSocketConnection.close cannot fire events
     // which causes weird error:
     // > You are trying to call recursively into the Flash Player which is not allowed.
-    this.readyState = WebSocket.CLOSED;
-    if (this.__timer) clearInterval(this.__timer);
-    if (this.onclose) this.onclose();
+    self.readyState = WebSocket.CLOSED;
+    if (self.__timer) clearInterval(self.__timer);
+    if (self.onclose) {
+       // Make it asynchronous so that it looks more like an actual
+       // close event
+       setTimeout(self.onclose, 1);
+     }
   };
 
   /**
