@@ -810,7 +810,10 @@ JSONPPolling.xdomainCheck = function(){
 		var transports = override || this.options.transports, match;
 		if (this.options.rememberTransport && !override){
 			match = this.options.document.cookie.match('(?:^|;)\\s*socketio=([^;]*)');
-			if (match) transports = [decodeURIComponent(match[1])];
+			if (match){
+				this._rememberedTransport = true;
+				transports = [decodeURIComponent(match[1])];
+			}
 		} 
 		for (var i = 0, transport; transport = transports[i]; i++){
 			if (io.Transport[transport] 
@@ -832,7 +835,7 @@ JSONPPolling.xdomainCheck = function(){
 				setTimeout(function(){
 					if (!self.connected){
 						self.disconnect();
-						if (self.options.tryTransportsOnConnectTimeout){
+						if (self.options.tryTransportsOnConnectTimeout && !self._rememberedTransport){
 							var remainingTransports = [], transports = self.options.transports;
 							for (var i = 0, transport; transport = transports[i]; i++){
 								if (transport != self.transport.type) remainingTransports.push(transport);
