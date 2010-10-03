@@ -5,7 +5,7 @@ var io = require('./../'),
     empty = function(){};
 
 module.exports = {
-  
+
   'test server initialization': function(assert){
     var server = require('http').createServer(function(){}), sio;
     server.listen(8080);
