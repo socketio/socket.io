@@ -1,7 +1,7 @@
-var io = require('./../'),
+var io = require('socket.io'),
     Listener = io.Listener,
-    Client = require('./../lib/socket.io/client'),
-    WebSocket = require('./support/node-websocket-client/lib/websocket').WebSocket,
+    Client = require('socket.io/client'),
+    WebSocket = require('../support/node-websocket-client/lib/websocket').WebSocket,
     empty = function(){};
 
 module.exports = {
