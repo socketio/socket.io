@@ -34,9 +34,9 @@ module.exports = {
       client.onopen = function(){
         client.send(encode('from client'));
       };
-      client.onmessage = function(msg){
+      client.onmessage = function(ev){
         if (++messages == 2){ // first message is the session id
-          serverMessage = decode(msg);
+          serverMessage = decode(ev.data);
           check();
         }
       };
