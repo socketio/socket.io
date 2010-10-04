@@ -8,7 +8,7 @@ var io = require('socket.io'),
 module.exports = {
   
   'test connection and handshake': function(assert){
-    var server = require('http').createServer(function(){}), 
+    var server = require('http').createServer(function(){}),
         sio, 
         close = function(){
           client.close();
