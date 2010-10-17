@@ -51,6 +51,68 @@ module.exports = {
       });
       client.send('from server');
     });
+  },
+  
+  'test clients tracking': function(assert){
+    var server = require('http').createServer(function(){})
+      , sio = io.listen(server, {log: function(){}});
+      
+    server.listen(8082, function(){
+      var client = new WebSocket('ws://localhost:8082/socket.io/websocket', 'borf');
+      client.onopen = function(){
+        assert.ok(Object.keys(sio.clients).length == 1);
+  
+        var client2 = new WebSocket('ws://localhost:8082/socket.io/websocket', 'borf');
+        client2.onopen = function(){
+          assert.ok(Object.keys(sio.clients).length == 2);
+          
+          client.close();
+          client2.close();
+          server.close();
+        };
+      }
+    });
+  },
+  
+  'test buffered messages': function(assert){
+    var server = require('http').createServer(function(){})
+      , sio = io.listen(server, {
+          transportOptions: {
+            websocket: {
+              closeTimeout: 5000
+            }
+          },
+          log: function(){}
+        });
+      
+    server.listen(8083, function(){
+      var client = new WebSocket('ws://localhost:8083/socket.io/websocket', 'borf');
+      
+      client.onopen = function(){
+        assert.ok(Object.keys(sio.clients).length == 1);
+        var sessionid = Object.keys(sio.clients)[0]
+          , runOnce = false;
+  
+        sio.clients[sessionid].connection.addListener('end', function(){
+          if (!runOnce){
+            assert.ok(sio.clients[sessionid]._open == false);
+            sio.clients[sessionid].send('should get this');
+  
+            var client2 = new WebSocket('ws://localhost:8083/socket.io/websocket/' + sessionid, 'borf');
+            client2.onmessage = function(ev){
+              assert.ok(Object.keys(sio.clients).length == 1);
+              assert.ok(decode(ev.data), 'should get this');
+              sio.clients[sessionid].options.closeTimeout = 0;
+              client2.close();
+              server.close();
+            };
+            runOnce = true;
+          }
+        });
+        
+        client.close();
+      };
+    });
   }
   
 };
