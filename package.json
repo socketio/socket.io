@@ -1,0 +1,17 @@
+{ "name" : "socket.io"
+, "description" : "Sockets for the rest of us."
+, "version" : "0.5.2"
+, "author" : "LearnBoost"
+, "licenses" :
+  [ { "type" : "MIT"
+    , "url" : "http://github.com/maccman/Socket.IO-node/raw/master/README.md"
+    }
+  ]
+, "repository" :
+  { "type" : "git"
+  , "url" : "http://github.com/maccman/Socket.IO-node.git"
+  }
+, "engine" : [ "node >=0.1.102" ]
+, "main" : "./index"
+, "scripts" : { "test" : "make test" }
+}
