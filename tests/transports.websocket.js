@@ -131,12 +131,18 @@ module.exports = {
           log: null
         });
     server.listen(8084, function(){
-      var client = new WebSocket('ws://localhost:8084/socket.io/websocket', 'borf');
-      client.onmessage = function(){
-        assert.ok(Object.keys(sio.clients).length == 1);
-        setTimeout(function(){
-          assert.ok(Object.keys(sio.clients).length == 0);
-        }, 150);
+      var client = new WebSocket('ws://localhost:8084/socket.io/websocket', 'borf')
+        , messages = 0;
+      client.onmessage = function(ev){
+        ++messages;
+        if (ev.data.substr(0, 3) == '~h~'){
+          assert.ok(messages === 2);
+          assert.ok(Object.keys(sio.clients).length == 1);
+          setTimeout(function(){
+            assert.ok(Object.keys(sio.clients).length == 0);
+          }, 150);
+        }
+        
       };
     });
   }
