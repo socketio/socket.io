@@ -1,8 +1,8 @@
-var io = require('socket.io'),
-    Listener = io.Listener,
-    Client = require('socket.io/client'),
-    WebSocket = require('../support/node-websocket-client/lib/websocket').WebSocket,
-    empty = function(){};
+var io = require('socket.io')
+  , Listener = io.Listener
+  , Client = require('socket.io/client')
+  , WebSocket = require('../support/node-websocket-client/lib/websocket').WebSocket
+  , empty = function(){};
 
 module.exports = {
 
@@ -16,15 +16,15 @@ module.exports = {
     }, 100);
   },
   
-  // 'test serving static javascript client': function(assert){
-  //   var server = require('http').createServer(function(){}), 
-  //       sio = io.listen(server, {log: empty});
-  //   assert.response(server,
-  //     { url: '/socket.io/socket.io.js' },
-  //     { body: /setPath/, headers: { 'Content-Type': 'text/javascript' }});
-  //   assert.response(server,
-  //     { url: '/socket.io/lib/vendor/web-socket-js/WebSocketMain.swf' },
-  //     { headers: { 'Content-Type': 'application/x-shockwave-flash' }});
-  // }
+  'test serving static javascript client': function(assert){
+    var server = require('http').createServer(function(){}), 
+        sio = io.listen(server, {log: empty});
+    assert.response(server,
+      { url: '/socket.io/socket.io.js' },
+      { body: /setPath/, headers: { 'Content-Type': 'text/javascript' }});
+    assert.response(server,
+      { url: '/socket.io/lib/vendor/web-socket-js/WebSocketMain.swf' },
+      { headers: { 'Content-Type': 'application/x-shockwave-flash' }});
+  }
 
 };

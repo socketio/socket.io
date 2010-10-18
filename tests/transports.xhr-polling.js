@@ -24,6 +24,11 @@ function client(s){
 function socket(server, options){
   if (!options) options = {};
   options.log = false;
+  if (!options.transportOptions) options.transportOptions = { 
+    'xhr-polling': {
+      closeTimeout: 100
+    }
+  };
   return io.listen(server, options);
 };
 
