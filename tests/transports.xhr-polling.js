@@ -86,6 +86,46 @@ module.exports = {
         post(client(_server), '/socket.io/xhr-polling/' + sessid + '/send', {data: encode('from client')});
       });
     });
+  },
+  
+  'test clients tracking': function(assert){
+    var _server = server()
+      , _socket = socket(_server);
+    
+    listen(_server, function(){
+      get(client(_server), '/socket.io/xhr-polling', function(){
+        assert.ok(Object.keys(_socket.clients).length == 1);
+        get(client(_server), '/socket.io/xhr-polling', function(){
+          assert.ok(Object.keys(_socket.clients).length == 2);
+          _server.close();
+        });
+      });
+    });
+  },
+  
+  'test buffered messages': function(assert){
+    var _server = server()
+      , _socket = socket(_server, { transportOptions: { 
+        'xhr-polling': {
+          closeTimeout: 100,
+          duration: 200
+        }
+      } });
+      
+    listen(_server, function(){
+      get(client(_server), '/socket.io/xhr-polling', function(data){
+        var sessid = decode(data);
+        assert.ok(_socket.clients[sessid]._open === false);
+        _socket.clients[sessid].send('from server');
+        get(client(_server), '/socket.io/xhr-polling/' + sessid, function(data){
+          assert.ok(decode(data) == 'from server');
+          get(client(_server), '/socket.io/xhr-polling/' + sessid, function(){});
+          setTimeout(function(){
+            assert.ok(_socket.clients[sessid]._open);
+          }, 100);
+        });
+      });
+    });
   }
   
 };
