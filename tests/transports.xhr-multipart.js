@@ -82,14 +82,6 @@ module.exports = {
     var _server = server()
       , _socket = socket(_server)
       , trips = 2;
-      
-    _socket.on('connection', function(client){
-      assert.ok(client instanceof Multipart);
-      client.on('message', function(msg){
-        assert.ok(msg == 'from client');
-        --trips || _server.close();
-      });
-    });
 
     listen(_server, function(){
       var _client = get(_server, '/socket.io/xhr-multipart', function(response){
@@ -102,15 +94,28 @@ module.exports = {
               assert.ok(msg == Object.keys(_socket.clients)[0]);
               assert.ok(_socket.clients[msg] instanceof Multipart);
               _socket.clients[msg].send('from server');
+              post(client(_server), '/socket.io/xhr-multipart/' + msg + '/send', {data: encode('from client')});
               break;
             case 1:
               assert.ok(msg == 'from server');
-              _client.end();
-              _server.close();
+              --trips || close();
           }
         });
-      })
-    });    
+      });
+      
+      _socket.on('connection', function(client){
+        assert.ok(client instanceof Multipart);
+        client.on('message', function(msg){
+          assert.ok(msg == 'from client');
+          --trips || close();
+        });
+      });
+      
+      function close(){
+        _client.end();
+        _server.close();
+      };
+    });
   }
   
 };
