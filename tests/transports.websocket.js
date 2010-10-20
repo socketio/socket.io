@@ -100,6 +100,7 @@ module.exports = {
         sio.clients[sessionid].connection.addListener('end', function(){
           if (!runOnce){
             assert.ok(sio.clients[sessionid]._open == false);
+            assert.ok(sio.clients[sessionid].connected);
             sio.clients[sessionid].send('should get this');
   
             var client2 = new WebSocket('ws://localhost:8083/socket.io/websocket/' + sessionid, 'borf');

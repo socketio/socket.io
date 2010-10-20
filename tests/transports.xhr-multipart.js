@@ -141,6 +141,45 @@ module.exports = {
         });
       });
     });
+  },
+  
+  'test buffered messages': function(assert){
+    var _server = server()
+      , _socket = socket(_server, { transportOptions: { 
+        'xhr-multipart': {
+          closeTimeout: 100
+        }
+      } });
+      
+    listen(_server, function(){
+      var _client = get(_server, '/socket.io/xhr-multipart', function(response){
+        var once = false;
+        response.on('data', function(data){
+          if (!once){
+            var sessid = decode(data);
+            assert.ok(_socket.clients[sessid]._open === true);
+            assert.ok(_socket.clients[sessid].connected);
+            
+            _socket.clients[sessid].connection.addListener('end', function(){
+              assert.ok(_socket.clients[sessid]._open === false);
+              assert.ok(_socket.clients[sessid].connected);
+              
+              _socket.clients[sessid].send('from server');
+              
+              _client = get(_server, '/socket.io/xhr-multipart/' + sessid, function(response){
+                response.on('data', function(data){
+                  assert.ok(decode(data) == 'from server');
+                  _client.end();
+                  _server.close();
+                });
+              });
+            });
+            _client.end();
+            once = true;
+          }
+        });
+      });
+    });
   }
   
 };

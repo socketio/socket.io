@@ -116,12 +116,14 @@ module.exports = {
       get(client(_server), '/socket.io/xhr-polling', function(data){
         var sessid = decode(data);
         assert.ok(_socket.clients[sessid]._open === false);
+        assert.ok(_socket.clients[sessid].connected);
         _socket.clients[sessid].send('from server');
         get(client(_server), '/socket.io/xhr-polling/' + sessid, function(data){
           var durationCheck;
           assert.ok(decode(data) == 'from server');
           setTimeout(function(){
             assert.ok(_socket.clients[sessid]._open);
+            assert.ok(_socket.clients[sessid].connected);
             durationCheck = true;
           }, 100);
           get(client(_server), '/socket.io/xhr-polling/' + sessid, function(){
