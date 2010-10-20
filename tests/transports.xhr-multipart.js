@@ -116,6 +116,31 @@ module.exports = {
         _server.close();
       };
     });
+  },
+  
+  'test clients tracking': function(assert){
+    var _server = server()
+      , _socket = socket(_server);
+    
+    listen(_server, function(){
+      var _client = get(_server, '/socket.io/xhr-multipart', function(response){
+        var once = false
+        response.on('data', function(){
+          if (!once){
+            assert.ok(Object.keys(_socket.clients).length == 1);
+            once = true;
+            var _client2 = get(_server, '/socket.io/xhr-multipart', function(response){
+              response.on('data', function(){
+                assert.ok(Object.keys(_socket.clients).length == 2);
+                _client.end();
+                _client2.end();
+                _server.close();
+              });
+            });
+          }
+        });
+      });
+    });
   }
   
 };
