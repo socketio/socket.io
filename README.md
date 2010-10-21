@@ -40,7 +40,9 @@ By default, the server will intercept requests that contain `socket.io` in the p
 		res.writeBody('<h1>Hello world</h1>');
 		res.finish();
 	});
-			
+	
+	server.listen(8124);
+	
 	// socket.io, I choose you
 	var socket = io.listen(server);
 	
