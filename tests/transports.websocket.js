@@ -57,13 +57,12 @@ module.exports = {
     
     _socket.on('connection', function(conn){
       assert.ok(conn instanceof Client);
-      conn.on('open', function(){
-        conn.send('from server');
-      });
-      conn.on('message', function(msg){
-        assert.ok(msg == 'from client');
-        --trips || close();
-      });
+      conn
+        .on('message', function(msg){
+          assert.ok(msg == 'from client');
+          --trips || close();
+        })
+        .send('from server');
     });
   },
   
