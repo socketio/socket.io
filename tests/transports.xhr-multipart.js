@@ -198,12 +198,13 @@ module.exports = {
         response.on('data', function(data){
           ++messages;
           var msg = decode(data);
-          if (data.substr(0, 3) == '~h~'){
+          if (msg[0].substr(0, 3) == '~h~'){
             assert.ok(messages == 2);
             assert.ok(Object.keys(_socket.clients).length == 1);
             setTimeout(function(){
-              console.log('test');
               assert.ok(Object.keys(_socket.clients).length == 0);
+              client.end();
+              _server.close();
             }, 150);
           }
         });
