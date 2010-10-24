@@ -71,11 +71,11 @@ module.exports = {
       , _socket = socket(_server);
       
     listen(_server, function(){
-      var _client = client(server);
+      var _client = client(_server);
       _client.onopen = function(){
         assert.ok(Object.keys(_socket.clients).length == 1);
   
-        var _client2 = client(server);
+        var _client2 = client(_server);
         _client2.onopen = function(){
           assert.ok(Object.keys(_socket.clients).length == 2);
           
