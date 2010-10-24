@@ -180,6 +180,35 @@ module.exports = {
         });
       });
     });
+  },
+  
+  'test hearbeat timeout': function(assert){
+    var _server = server()
+      , _socket = socket(_server, {
+          transportOptions: {
+            'xhr-multipart': {
+              timeout: 100,
+              heartbeatInterval: 1
+            }
+          }
+        });
+    listen(_server, function(){
+      var client = get(_server, '/socket.io/xhr-multipart', function(response){
+        var messages = 0;
+        response.on('data', function(data){
+          ++messages;
+          var msg = decode(data);
+          if (data.substr(0, 3) == '~h~'){
+            assert.ok(messages == 2);
+            assert.ok(Object.keys(_socket.clients).length == 1);
+            setTimeout(function(){
+              console.log('test');
+              assert.ok(Object.keys(_socket.clients).length == 0);
+            }, 150);
+          }
+        });
+      });
+    });
   }
   
 };
