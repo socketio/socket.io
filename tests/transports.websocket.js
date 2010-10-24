@@ -153,7 +153,7 @@ module.exports = {
         , messages = 0;
       _client.onmessage = function(ev){
         ++messages;
-        if (ev.data.substr(0, 3) == '~h~'){
+        if (decode(ev.data)[0].substr(0, 3) == '~h~'){
           assert.ok(messages === 2);
           assert.ok(Object.keys(_socket.clients).length == 1);
           setTimeout(function(){
