@@ -43,7 +43,7 @@ module.exports = {
     
     listen(_server, function(){
       var messages = 0;
-      _client = client('ws://localhost:8081/socket.io/websocket', 'borf');
+      _client = client(_server);
       _client.onopen = function(){
         _client.send(encode('from client'));
       };
@@ -55,14 +55,15 @@ module.exports = {
       };
     });
     
-    _socket.on('connection', function(client){
-      clientCount++;
-      assert.ok(client instanceof Client);
-      _client.on('message', function(msg){
+    _socket.on('connection', function(conn){
+      assert.ok(conn instanceof Client);
+      conn.on('open', function(){
+        conn.send('from server');
+      });
+      conn.on('message', function(msg){
         assert.ok(msg == 'from client');
         --trips || close();
       });
-      _client.send('from server');
     });
   },
   
