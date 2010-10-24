@@ -128,12 +128,37 @@ module.exports = {
     });
   },
   
-  'test json encoding': function(){
+  'test json encoding': function(assert){
     var _server = server()
-      , _socket = socket(_server);
-      
+      , _socket = socket(_server)
+      , _client
+      , trips = 2;
+    
+    function close(){
+      _server.close();
+      _client.close();
+    };
+    
     listen(_server, function(){
+      _socket.on('connection', function(conn){
+        conn.on('message', function(msg){
+          assert.ok(msg.from == 'client');
+          --trips || close();
+        });
+        conn.send({ from: 'server' });
+      });
       
+      var messages = 0;
+      
+      _client = client(_server);
+      _client.onmessage = function(ev){
+        if (++messages == 2){
+          assert.ok(decode(ev.data)[0].substr(0, 3) == '~j~');
+          assert.ok(JSON.parse(decode(ev.data)[0].substr(3)).from == 'server');
+          _client.send(encode({ from: 'client' }));
+          --trips || close();
+        }
+      };
     });
   },
   
@@ -162,7 +187,6 @@ module.exports = {
             _server.close();
           }, 150);
         }
-        
       };
     });
   }
