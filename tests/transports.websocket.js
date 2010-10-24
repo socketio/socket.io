@@ -1,146 +1,165 @@
-var io = require('socket.io'),
-    Listener = io.Listener,
-    Client = require('socket.io/client'),
-    WebSocket = require('./../support/node-websocket-client/lib/websocket').WebSocket,
-    encode = require('socket.io/utils').encode,
-    decode = require('socket.io/utils').decode;
+var io = require('socket.io')
+  , encode = require('socket.io/utils').encode
+  , decode = require('socket.io/utils').decode
+  , port = 8000
+  , Listener = io.Listener
+  , Client = require('socket.io/client')
+  , WebSocket = require('./../support/node-websocket-client/lib/websocket').WebSocket;
 
-function http(){
+function server(){
   return require('http').createServer(function(){});
+};
+
+function socket(server, options){
+  if (!options) options = {};
+  options.log = false;
+  return io.listen(server, options);
+};
+
+function listen(s, callback){
+  s._port = port;
+  s.listen(port, callback);
+  port++;
+  return s;
+};
+
+function client(server, sessid){
+  sessid = sessid ? '/' + sessid : '';
+  return new WebSocket('ws://localhost:' + server._port + '/socket.io/websocket' + sessid, 'borf');
 };
 
 module.exports = {
   
   'test connection and handshake': function(assert){
-    var server = http()
-      , sio
-      , close = function(){
-          client.close();
-          server.close();
-          assert.ok(clientCount, 1);
-          assert.ok(clientMessage, 'from client');
-          assert.ok(serverMessage, 'from server');
-        }
-      , check = function(){
-          if (++trips == 2) close();
-        }
-      , trips = 0
-      , clientCount = 0
-      , client
-      , clientMessage
-      , serverMessage;
+    var _server = server()
+      , _socket = socket(_server)
+      , _client
+      , trips = 2;
     
-    sio = io.listen(server, { log: false });
+    function close(){
+      _client.close();
+      _server.close();
+    };
     
-    server.listen(8081, function(){
+    listen(_server, function(){
       var messages = 0;
-      client = new WebSocket('ws://localhost:8081/socket.io/websocket', 'borf');
-      client.onopen = function(){
-        client.send(encode('from client'));
+      _client = client('ws://localhost:8081/socket.io/websocket', 'borf');
+      _client.onopen = function(){
+        _client.send(encode('from client'));
       };
-      client.onmessage = function(ev){
+      _client.onmessage = function(ev){
         if (++messages == 2){ // first message is the session id
-          serverMessage = decode(ev.data);
-          check();
+          assert.ok(decode(ev.data), 'from server');
+          --trips || close();
         }
       };
     });
     
-    sio.on('connection', function(client){
+    _socket.on('connection', function(client){
       clientCount++;
       assert.ok(client instanceof Client);
-      client.on('message', function(msg){
-        clientMessage = msg;
-        check();
+      _client.on('message', function(msg){
+        assert.ok(msg == 'from client');
+        --trips || close();
       });
-      client.send('from server');
+      _client.send('from server');
     });
   },
   
   'test clients tracking': function(assert){
-    var server = http()
-      , sio = io.listen(server, { log: false });
+    var _server = server()
+      , _socket = socket(_server);
       
-    server.listen(8082, function(){
-      var client = new WebSocket('ws://localhost:8082/socket.io/websocket', 'borf');
-      client.onopen = function(){
-        assert.ok(Object.keys(sio.clients).length == 1);
+    listen(_server, function(){
+      var _client = client(server);
+      _client.onopen = function(){
+        assert.ok(Object.keys(_socket.clients).length == 1);
   
-        var client2 = new WebSocket('ws://localhost:8082/socket.io/websocket', 'borf');
-        client2.onopen = function(){
-          assert.ok(Object.keys(sio.clients).length == 2);
+        var _client2 = client(server);
+        _client2.onopen = function(){
+          assert.ok(Object.keys(_socket.clients).length == 2);
           
-          client.close();
-          client2.close();
-          server.close();
+          _client.close();
+          _client2.close();
+          _server.close();
         };
       }
     });
   },
   
   'test buffered messages': function(assert){
-    var server = http()
-      , sio = io.listen(server, {
+    var _server = server()
+      , _socket = socket(_server, {
           transportOptions: {
             websocket: {
               closeTimeout: 5000
             }
-          },
-          log: false
+          }
         });
       
-    server.listen(8083, function(){
-      var client = new WebSocket('ws://localhost:8083/socket.io/websocket', 'borf');
+    listen(_server, function(){
+      var _client = client(_server);
       
-      client.onopen = function(){
-        assert.ok(Object.keys(sio.clients).length == 1);
-        var sessionid = Object.keys(sio.clients)[0]
+      _client.onopen = function(){
+        assert.ok(Object.keys(_socket.clients).length == 1);
+        var sessionid = Object.keys(_socket.clients)[0]
           , runOnce = false;
   
-        sio.clients[sessionid].connection.addListener('end', function(){
+        _socket.clients[sessionid].connection.addListener('end', function(){
           if (!runOnce){
-            assert.ok(sio.clients[sessionid]._open == false);
-            assert.ok(sio.clients[sessionid].connected);
-            sio.clients[sessionid].send('should get this');
+            assert.ok(_socket.clients[sessionid]._open == false);
+            assert.ok(_socket.clients[sessionid].connected);
+            _socket.clients[sessionid].send('should get this');
   
-            var client2 = new WebSocket('ws://localhost:8083/socket.io/websocket/' + sessionid, 'borf');
-            client2.onmessage = function(ev){
-              assert.ok(Object.keys(sio.clients).length == 1);
+            var _client2 = client(_server, sessionid);
+            _client2.onmessage = function(ev){
+              assert.ok(Object.keys(_socket.clients).length == 1);
               assert.ok(decode(ev.data), 'should get this');
-              sio.clients[sessionid].options.closeTimeout = 0;
-              client2.close();
-              server.close();
+              _socket.clients[sessionid].options.closeTimeout = 0;
+              _client2.close();
+              _server.close();
             };
             runOnce = true;
           }
         });
         
-        client.close();
+        _client.close();
       };
     });
   },
   
+  'test json encoding': function(){
+    var _server = server()
+      , _socket = socket(_server);
+      
+    listen(_server, function(){
+      
+    });
+  },
+  
   'test hearbeat timeout': function(assert){
-    var server = http()
-      , sio = io.listen(server, {
+    var _server = server()
+      , _socket = socket(_server, {
           transportOptions: {
             websocket: {
               timeout: 100,
               heartbeatInterval: 1
             }
-          },
-          log: null
+          }
         });
-    server.listen(8084, function(){
-      var client = new WebSocket('ws://localhost:8084/socket.io/websocket', 'borf')
+    
+    listen(_server, function(){
+      var _client = client(_server)
         , messages = 0;
-      client.onmessage = function(ev){
+      _client.onmessage = function(ev){
         ++messages;
         if (ev.data.substr(0, 3) == '~h~'){
           assert.ok(messages === 2);
-          assert.ok(Object.keys(sio.clients).length == 1);
+          assert.ok(Object.keys(_socket.clients).length == 1);
           setTimeout(function(){
-            assert.ok(Object.keys(sio.clients).length == 0);
+            assert.ok(Object.keys(_socket.clients).length == 0);
+            _client.close();
+            _server.close();
           }, 150);
         }
         
