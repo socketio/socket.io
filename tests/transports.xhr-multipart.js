@@ -141,6 +141,75 @@ module.exports = {
         });
       });
     });
+  },
+  
+  'test buffered messages': function(assert){
+    var _server = server()
+      , _socket = socket(_server, { transportOptions: { 
+        'xhr-multipart': {
+          closeTimeout: 100
+        }
+      } });
+      
+    listen(_server, function(){
+      var _client = get(_server, '/socket.io/xhr-multipart', function(response){
+        var once = false;
+        response.on('data', function(data){
+          if (!once){
+            var sessid = decode(data);
+            assert.ok(_socket.clients[sessid]._open === true);
+            assert.ok(_socket.clients[sessid].connected);
+            
+            _socket.clients[sessid].connection.addListener('end', function(){
+              assert.ok(_socket.clients[sessid]._open === false);
+              assert.ok(_socket.clients[sessid].connected);
+              
+              _socket.clients[sessid].send('from server');
+              
+              _client = get(_server, '/socket.io/xhr-multipart/' + sessid, function(response){
+                response.on('data', function(data){
+                  assert.ok(decode(data) == 'from server');
+                  _client.end();
+                  _server.close();
+                });
+              });
+            });
+            _client.end();
+            once = true;
+          }
+        });
+      });
+    });
+  },
+  
+  'test hearbeat timeout': function(assert){
+    var _server = server()
+      , _socket = socket(_server, {
+          transportOptions: {
+            'xhr-multipart': {
+              timeout: 100,
+              heartbeatInterval: 1
+            }
+          }
+        });
+    listen(_server, function(){
+      var client = get(_server, '/socket.io/xhr-multipart', function(response){
+        var messages = 0;
+        response.on('data', function(data){
+          ++messages;
+          var msg = decode(data);
+          if (msg[0].substr(0, 3) == '~h~'){
+            assert.ok(messages == 2);
+            assert.ok(Object.keys(_socket.clients).length == 1);
+            setTimeout(function(){
+              assert.ok(Object.keys(_socket.clients).length == 0);
+              client.end();
+              _server.close();
+            }, 150);
+          }
+        });
+      });
+    });
   }
   
 };
