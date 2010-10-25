@@ -1,7 +1,9 @@
 var http = require('http')
   , io = require('socket.io')
+  , decode = require('socket.io/utils').decode
   , port = 7100
-  , Listener = io.Listener;
+  , Listener = io.Listener
+  , WebSocket = require('./../support/node-websocket-client/lib/websocket').WebSocket;
 
 function server(){
   return http.createServer(function(){});
@@ -18,6 +20,10 @@ function listen(s, callback){
   s.listen(port, callback);
   port++;
   return s;
+};
+
+function client(server){
+  return new WebSocket('ws://localhost:' + server._port + '/socket.io/websocket', 'borf');
 };
 
 module.exports = {
@@ -66,6 +72,44 @@ module.exports = {
       })
       request.end();
     });
+  },
+  
+  'test broadcasting to clients': function(assert){
+    var _server = server()
+      , _socket = socket(_server);
+    listen(_server, function(){
+      var _client1 = client(_server)
+        , _client2 = client(_server)
+        , trips = 2
+        , expected = 2;
+      
+      _socket.on('connection', function(conn){
+        --expected || _socket.broadcast('broadcasted msg');
+      });
+        
+      function close(){
+        _client1.close();
+        _client2.close();
+        _server.close();
+      };
+        
+      _client1.onmessage = function(ev){
+        if (!_client1._first){
+          _client1._first = true;
+        } else {
+          assert.ok(decode(ev.data)[0] == 'broadcasted msg');
+          --trips || close();
+        }
+      };
+      _client2.onmessage = function(ev){
+        if (!_client2._first){
+          _client2._first = true;
+        } else {
+          assert.ok(decode(ev.data)[0] == 'broadcasted msg');
+          --trips || close();
+        }
+      };
+    })
   }
   
 };
