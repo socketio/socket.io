@@ -1,7 +1,7 @@
 var io = require('socket.io')
   , encode = require('socket.io/utils').encode
   , decode = require('socket.io/utils').decode
-  , port = 8000
+  , port = 7200
   , Listener = io.Listener
   , Client = require('socket.io/client')
   , WebSocket = require('./../support/node-websocket-client/lib/websocket').WebSocket;

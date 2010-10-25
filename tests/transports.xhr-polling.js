@@ -1,7 +1,7 @@
 var io = require('socket.io')
   , http = require('http')
   , querystring = require('querystring')
-  , port = 9000
+  , port = 7400
   , encode = require('socket.io/utils').encode
   , decode = require('socket.io/utils').decode
   , Polling = require('socket.io/transports/xhr-polling');
