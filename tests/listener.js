@@ -22,8 +22,9 @@ function listen(s, callback){
   return s;
 };
 
-function client(server){
-  return new WebSocket('ws://localhost:' + server._port + '/socket.io/websocket', 'borf');
+function client(server, sessid){
+  sessid = sessid ? '/' + sessid : '';
+  return new WebSocket('ws://localhost:' + server._port + '/socket.io/websocket' + sessid, 'borf');
 };
 
 module.exports = {
@@ -110,6 +111,22 @@ module.exports = {
         }
       };
     })
+  },
+  
+  'test connecting with an invalid sessionid': function(assert){
+    var _server = server()
+      , _socket = socket(_server);
+    listen(_server, function(){
+      var _client = client(_server, 'fake-session-id')
+        , gotMessage = false;
+      _client.onmessage = function(){
+        gotMessage = true;
+      };
+      setTimeout(function(){
+        assert.ok(!gotMessage);
+        _server.close();
+      }, 200);
+    });
   }
   
 };
