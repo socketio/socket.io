@@ -44,6 +44,9 @@ module.exports = {
         , { url: '/socket.io/lib/vendor/web-socket-js/WebSocketMain.swf', headers: { 'If-None-Match': resp.headers.etag } }
         , { status: 304 });
      });
+     assert.response(_server
+      , { url: '/socket.io/WebSocketMain.swf' }
+      , { headers: { 'Content-Type': 'application/x-shockwave-flash' }});
   },
   
   'test serving non-socket.io requests': function(assert){
