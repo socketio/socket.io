@@ -1,4 +1,5 @@
 var http = require('http')
+  , net = require('net')
   , io = require('socket.io')
   , decode = require('socket.io/utils').decode
   , port = 7100
@@ -11,7 +12,7 @@ function server(){
 
 function socket(server, options){
   if (!options) options = {};
-  options.log = false;
+  if (options.log === undefined) options.log = false;
   return io.listen(server, options);
 };
 
@@ -135,6 +136,26 @@ module.exports = {
         assert.ok(!gotMessage);
         _server.close();
       }, 200);
+    });
+  },
+  
+  'test connecting to an invalid transport': function(){
+    var _server = server()
+      , _socket = socket(_server, { log: require('sys').log });
+    
+    listen(_server, function(){
+      var _client = net.createConnection(_server._port)
+        , noData = true;
+      _client.on('connect', function(){
+        _client.write("GET /socket.io/inexistent HTTP/1.1\r\n\r\n");
+        _client.on('data', function(){
+          noData = false;
+        });
+        _client.on('end', function(){
+          assert.ok(noData);
+          _client.end();
+        });
+      });
     });
   }
   
