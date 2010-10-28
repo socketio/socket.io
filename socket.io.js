@@ -64,7 +64,13 @@ if (typeof window != 'undefined'){
 
 		isArray: function(obj){
 			return Object.prototype.toString.call(obj) === '[object Array]';
-		}
+		},
+		
+    merge: function(target, additional){
+      for (var i in additional)
+        if (target.hasOwnProperty(i))
+          target[i] = additional[i];
+    }
 
 	};
 
@@ -108,9 +114,7 @@ if (typeof window != 'undefined'){
 		this.options = {
 			timeout: 15000 // based on heartbeat interval default
 		};
-		for (var i in options) 
-			if (this.options.hasOwnProperty(i))
-				this.options[i] = options[i];
+		io.util.merge(this.options, options);
 	};
 
 	Transport.prototype.send = function(){
@@ -146,7 +150,7 @@ if (typeof window != 'undefined'){
 				if (data.substr(i, 1) == n){
 					number += n;
 				} else {	
-					data = data.substr(number.length + frame.length)
+					data = data.substr(number.length + frame.length);
 					number = Number(number);
 					break;
 				} 
@@ -304,13 +308,13 @@ if (typeof window != 'undefined'){
 			}
 		};
 		this._sendXhr.send('data=' + encodeURIComponent(data));
-	},
+	};
 	
 	XHR.prototype.disconnect = function(){
 		// send disconnection signal
 		this._onDisconnect();
 		return this;
-	}
+	};
 	
 	XHR.prototype._onDisconnect = function(){
 		if (this._xhr){
@@ -378,12 +382,12 @@ if (typeof window != 'undefined'){
 	};
 	
 	WS.prototype.send = function(data){
-		this.socket.send(this._encode(data));
+		if (this.socket) this.socket.send(this._encode(data));
 		return this;
-	}
+	};
 	
 	WS.prototype.disconnect = function(){
-		this.socket.close();
+		if (this.socket) this.socket.close();
 		return this;
 	};
 	
@@ -443,17 +447,6 @@ if (typeof window != 'undefined'){
 			io.Transport.websocket.prototype.send.apply(self, args);
 		});
 		return this;
-	};
-	
-	Flashsocket.prototype._onClose = function(){
-		if (!this.base.connected){
-			// something failed, we might be behind a proxy, so we'll try another transport
-			this.base.options.transports.splice(io.util.indexOf(this.base.options.transports, 'flashsocket'), 1);
-			this.base.transport = this.base.getTransport();
-			this.base.connect();
-			return;
-		}
-		return io.Transport.websocket.prototype._onClose.call(this);
 	};
 	
 	Flashsocket.check = function(){
@@ -796,9 +789,7 @@ JSONPPolling.xdomainCheck = function(){
 			tryTransportsOnConnectTimeout: true,
 			rememberTransport: true
 		};
-		for (var i in options) 
-			if (this.options.hasOwnProperty(i))
-				this.options[i] = options[i];
+		io.util.merge(this.options, options);
 		this.connected = false;
 		this.connecting = false;
 		this._events = {};
@@ -846,7 +837,7 @@ JSONPPolling.xdomainCheck = function(){
 							}
 						}
 					}
-				}, this.options.connectTimeout)
+				}, this.options.connectTimeout);
 			}
 		}
 		return this;
