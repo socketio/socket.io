@@ -37,7 +37,13 @@ module.exports = {
      , { body: /setPath/, headers: { 'Content-Type': 'text/javascript' }});
     assert.response(_server
      , { url: '/socket.io/lib/vendor/web-socket-js/WebSocketMain.swf' }
-     , { headers: { 'Content-Type': 'application/x-shockwave-flash' }});
+     , { headers: { 'Content-Type': 'application/x-shockwave-flash' }}
+     , function(resp){
+       assert.type(resp.headers.etag, 'string');
+       assert.response(_server
+        , { url: '/socket.io/lib/vendor/web-socket-js/WebSocketMain.swf', headers: { 'If-None-Match': resp.headers.etag } }
+        , { status: 304 });
+     });
   },
   
   'test serving non-socket.io requests': function(assert){
