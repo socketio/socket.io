@@ -6,8 +6,8 @@ var http = require('http')
   , Listener = io.Listener
   , WebSocket = require('./../support/node-websocket-client/lib/websocket').WebSocket;
 
-function server(){
-  return http.createServer(function(){});
+function server(callback){
+  return http.createServer(callback || function(){});
 };
 
 function socket(server, options){
@@ -139,24 +139,14 @@ module.exports = {
     });
   },
   
-  'test connecting to an invalid transport': function(){
-    var _server = server()
-      , _socket = socket(_server, { log: require('sys').log });
+  'test connecting to an invalid transport': function(assert){
+    var _server = server(function(req, res){
+          res.writeHead(200);
+          res.end(req.url == '/socket.io/inexistent' ? 'All cool' : '');
+        })
+      , _socket = socket(_server);
     
-    listen(_server, function(){
-      var _client = net.createConnection(_server._port)
-        , noData = true;
-      _client.on('connect', function(){
-        _client.write("GET /socket.io/inexistent HTTP/1.1\r\n\r\n");
-        _client.on('data', function(){
-          noData = false;
-        });
-        _client.on('end', function(){
-          assert.ok(noData);
-          _client.end();
-        });
-      });
-    });
+    assert.response(_server, { url: '/socket.io/inexistent' }, { body: 'All cool' });
   }
   
 };
