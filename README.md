@@ -120,7 +120,7 @@ Options:
 
 - *transports*
 
-		['websocket', 'server-events', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling']
+		['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling', 'jsonp-polling']
 		
 	A list of the accepted transports.
 	
