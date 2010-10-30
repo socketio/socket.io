@@ -1,18 +1,3 @@
 [submodule "example/client"]
 	path = example/client
 	url = git://github.com/LearnBoost/Socket.IO.git
-[submodule "tests/support/expresso"]
-	path = tests/support/expresso
-	url = git://github.com/visionmedia/expresso.git
-[submodule "tests/support/node-websocket-client"]
-	path = tests/support/node-websocket-client
-	url = git://github.com/pgriess/node-websocket-client.git
-[submodule "support/socket.io-client"]
-	path = support/socket.io-client
-	url = git://github.com/LearnBoost/Socket.IO.git
-[submodule "support/node-websocket-client"]
-	path = support/node-websocket-client
-	url = git://github.com/pgriess/node-websocket-client.git
-[submodule "support/expresso"]
-	path = support/expresso
-	url = git://github.com/visionmedia/expresso.git
