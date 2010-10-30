@@ -189,6 +189,57 @@ module.exports = {
         }
       };
     });
+  },
+  
+  'test client broadcast': function(assert){
+    var _server = server()
+      , _socket = socket(_server);
+    
+    listen(_server, function(){
+      var _client = client(_server)
+        , _client2
+        , _client3
+        , _first
+        , _connections = 0;
+        
+      _client.onmessage = function(ev){
+        if (!('messages' in _client)) _client.messages = 0;
+        if (++_client.messages == 2){
+          assert.ok(decode(ev.data)[0] == 'not broadcasted');
+          _client.close();
+          _client2.close();
+          _client3.close();
+          _server.close();
+        }
+      };
+      
+      _client.onopen = function(){
+        _client2 = client(_server);
+        _client2.onmessage = function(ev){
+          if (!('messages' in _client2)) _client2.messages = 0;
+          if (++_client2.messages == 2)
+            assert.ok(decode(ev.data)[0] == 'broadcasted')
+        };
+        _client2.onopen = function(){
+          _client3 = client(_server);
+          _client3.onmessage = function(ev){
+            if (!('messages' in _client3)) _client3.messages = 0;
+            if (++_client3.messages == 2)
+              assert.ok(decode(ev.data)[0] == 'broadcasted')
+          };
+        };
+      };
+      
+      _socket.on('connection', function(conn){
+        if (!_first)
+          _first = conn;
+        if (++_connections == 3){
+          _first.broadcast('broadcasted');
+          _first.send('not broadcasted');
+        }
+      });
+      
+    });
   }
   
 };
