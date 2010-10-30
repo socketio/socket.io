@@ -19,8 +19,8 @@ The `Socket.IO` server provides seamless supports for a variety of transports in
 
 To run the demo:
 
-	git clone git://github.com/LearnBoost/Socket.IO-node.git socket.io-node --recursive
-	cd socket.io-node/example/
+	git clone git://github.com/LearnBoost/Socket.IO-node.git socket.io
+	cd socket.io/example/
 	sudo node server.js
 
 and point your browser to http://localhost:8080. In addition to 8080, if the transport `flashsocket` is enabled, a server will be initialized to listen to requests on the port 843.
@@ -63,16 +63,6 @@ On the client side:
 	</script>
 
 The [client side](http://github.com/learnboost/socket.io) files will be served automatically by `Socket.IO-node`.
-
-## Notes
-
-IMPORTANT! When checking out the git repo, make sure to include the submodules. One way to do it is:
-
-	git clone [repo] --recursive
-  
-Another, once cloned
-
-	git submodule update --init --recursive
 
 ## Documentation
 
