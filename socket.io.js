@@ -68,7 +68,7 @@ if (typeof window != 'undefined'){
 		
     merge: function(target, additional){
       for (var i in additional)
-        if (target.hasOwnProperty(i))
+        if (additional.hasOwnProperty(i))
           target[i] = additional[i];
     }
 
