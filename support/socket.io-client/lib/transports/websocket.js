@@ -25,12 +25,12 @@
 	};
 	
 	WS.prototype.send = function(data){
-		this.socket.send(this._encode(data));
+		if (this.socket) this.socket.send(this._encode(data));
 		return this;
-	}
+	};
 	
 	WS.prototype.disconnect = function(){
-		this.socket.close();
+		if (this.socket) this.socket.close();
 		return this;
 	};
 	

@@ -32,17 +32,6 @@
 		return this;
 	};
 	
-	Flashsocket.prototype._onClose = function(){
-		if (!this.base.connected){
-			// something failed, we might be behind a proxy, so we'll try another transport
-			this.base.options.transports.splice(io.util.indexOf(this.base.options.transports, 'flashsocket'), 1);
-			this.base.transport = this.base.getTransport();
-			this.base.connect();
-			return;
-		}
-		return io.Transport.websocket.prototype._onClose.call(this);
-	};
-	
 	Flashsocket.check = function(){
 		if (typeof WebSocket == 'undefined' || !('__addTask' in WebSocket)) return false;
 		if (io.util.opera) return false; // opera is buggy with this transport

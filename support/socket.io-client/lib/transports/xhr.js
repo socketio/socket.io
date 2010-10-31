@@ -82,13 +82,13 @@
 			}
 		};
 		this._sendXhr.send('data=' + encodeURIComponent(data));
-	},
+	};
 	
 	XHR.prototype.disconnect = function(){
 		// send disconnection signal
 		this._onDisconnect();
 		return this;
-	}
+	};
 	
 	XHR.prototype._onDisconnect = function(){
 		if (this._xhr){
