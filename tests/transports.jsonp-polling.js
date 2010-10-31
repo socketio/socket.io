@@ -135,7 +135,7 @@ module.exports = {
             assert.ok(_socket.clients[sessid]._open);
             assert.ok(_socket.clients[sessid].connected);
             durationCheck = true;
-          }, 100);
+          }, 50);
           get(client(_server), '/socket.io/jsonp-polling/' + sessid, function(){
             assert.ok(durationCheck);
             _server.close();
