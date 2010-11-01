@@ -41,12 +41,14 @@
 		var script = doc.getElementsByTagName('script')[0];
 		script.parentNode.removeChild(script);
 	};
-	
-	HTMLFile.prototype._destroy = function(){
-		this._iframe.src = 'about:blank';
-		this._doc = null;
-		CollectGarbage();
-	};
+
+  HTMLFile.prototype._destroy = function(){
+    if (this._iframe){
+      this._iframe.src = 'about:blank';
+      this._doc = null;
+      CollectGarbage();
+    }
+  };
 	
 	HTMLFile.prototype.disconnect = function(){
 		this._destroy();
