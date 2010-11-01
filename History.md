@@ -28,11 +28,10 @@
 * Inline (same port) flash socket policy request.
 * If the server is not run with root privileges, then the flashsocket
 transport will instead listen to all new connections on the main port
-for policy requests.
-
-Flash policy requests happen to both port 843 and
+for policy requests. Flash policy requests happen to both port 843 and
 the destination port:
 http://www.lightsphere.com/dev/articles/flash_socket_policy.html
+
 * [websocket test] Fix sending message to client upon connecting
 * [websocket test] Fix for connection and handshake test
 * [client files serving] Leverage end() write() call
