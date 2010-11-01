@@ -1,0 +1,701 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<title>JSCoverage user manual</title>
+<link rel="stylesheet" type="text/css" href="sh_nedit.min.css">
+<link rel="stylesheet" type="text/css" href="doc.css">
+<script type="text/javascript" src="sh_main.min.js"></script>
+<script type="text/javascript" src="sh_html.min.js"></script>
+<script type="text/javascript" src="sh_javascript.min.js"></script>
+</head>
+<body onload="sh_highlightDocument();">
+
+<h1>JSCoverage user manual</h1>
+
+<p>
+JSCoverage is a tool that measures code coverage for JavaScript programs.
+</p>
+
+<p>
+JSCoverage works by adding instrumentation to JavaScript code before it is
+executed in a web browser.  JSCoverage provides several alternative ways of doing
+this:
+</p>
+
+<ul>
+<li>The simplest method is to use the <code>jscoverage</code> program to generate
+instrumented JavaScript files.
+</li>
+<li>Alternatively, you can use the <code>jscoverage-server</code> program, a simple web server that instruments
+JavaScript code as it is served.
+</li>
+<li>Finally, <code>jscoverage-server</code> can be run with the <code>--proxy</code> option to
+act as a proxy server which instruments any JavaScript code proxied through it.
+</li>
+</ul>
+
+<p>
+The <code>jscoverage-server</code> program (with or without the <code>--proxy</code>
+option) has the advantage of being able to store coverage reports to the filesystem.
+</p>
+
+<h2>Compiling JSCoverage</h2>
+
+<p>
+You can compile JSCoverage on GNU/Linux or Microsoft Windows, using the GCC C++ compiler (<code>g++</code>). On
+Windows you will require <a href="http://cygwin.com/">Cygwin</a> or <a
+href="http://mingw.org/">MinGW/MSYS</a>.
+</p>
+
+<p>
+You can extract and compile the code with the following commands:
+</p>
+
+<pre>
+tar jxvf jscoverage-0.4.tar.bz2
+cd jscoverage-0.4/
+./configure
+make
+</pre>
+
+<p>
+This will create the <code>jscoverage</code> and <code>jscoverage-server</code>
+executables (<code>jscoverage.exe</code> and <code>jscoverage-server.exe</code>
+on Windows). You can install the executables in <code>/usr/local</code> with the
+command:
+</p>
+
+<pre>
+make install
+</pre>
+
+<p>
+Alternatively, you may simply copy the <code>jscoverage</code> executable and/or
+the <code>jscoverage-server</code> executable to a suitable location in your
+<code>PATH</code>.
+</p>
+
+<h2>Using the <code>jscoverage</code> program</h2>
+
+<p>
+To demonstrate how the <code>jscoverage</code> program works, we will use the
+trivial example JavaScript code located in the
+<code>doc/example/</code> directory of the JSCoverage distribution.  You can run
+this example by viewing the file <code>doc/example/index.html</code> in your web browser.
+</p>
+
+<p>
+Generating code coverage statistics for this example using the
+<code>jscoverage</code> program involves the following steps:
+</p>
+
+<h3>1. Instrumenting code</h3>
+
+<p>
+The first step is to add instrumentation to your JavaScript code.  You do this by
+executing <code>jscoverage</code> with two arguments:
+</p>
+
+<pre>
+jscoverage <var>SOURCE-DIRECTORY</var> <var>DESTINATION-DIRECTORY</var>
+</pre>
+
+<p>
+<var>SOURCE-DIRECTORY</var> is the directory containing the JavaScript code to be instrumented,
+and <var>DESTINATION-DIRECTORY</var> is the name of the
+directory to which <code>jscoverage</code> should output the instrumented code.
+The <code>jscoverage</code> program will create <var>DESTINATION-DIRECTORY</var> if necessary and (recursively) copy
+<var>SOURCE-DIRECTORY</var> to <var>DESTINATION-DIRECTORY</var>, instrumenting
+any files ending with a <code>.js</code> extension.
+</p>
+
+<p>
+The directory structure under <var>SOURCE-DIRECTORY</var> is preserved, so that if you have a file
+<code><var>SOURCE-DIRECTORY</var>/dir/index.html</code> referencing the script
+<code><var>SOURCE-DIRECTORY</var>/dir/script.js</code>, then
+<code>jscoverage</code> will create a copy of the HTML file at
+<code><var>DESTINATION-DIRECTORY</var>/dir/index.html</code> and an instrumented
+version of the script at
+<code><var>DESTINATION-DIRECTORY</var>/dir/script.js</code>.
+In addition, <code>jscoverage</code> creates a file called <code>jscoverage.html</code>
+which is used to execute the instrumented code.
+</p>
+
+<table>
+<tr>
+<td><pre>
+<var>SOURCE-DIRECTORY</var>/
+  dir/
+    index.html
+    script.js
+
+</pre></td>
+<td class="arrow">&rarr;</td>
+<td><pre>
+<var>DESTINATION-DIRECTORY</var>/
+  dir/
+    index.html
+    script.js [instrumented]
+  jscoverage.html
+</pre></td>
+</tr>
+</table>
+
+<p>
+For the example code in the <code>doc/example/</code> directory, you can execute the
+following command line from the top-level directory of the JSCoverage distribution:
+</p>
+
+<pre>
+jscoverage doc/example doc/instrumented
+</pre>
+
+<p>
+This will create the directory <code>doc/instrumented/</code> and place an
+instrumented copy of the code from <code>doc/example/</code> in
+<code>doc/instrumented/</code>.
+</p>
+
+<table>
+<tr>
+<td><pre>
+doc/example/
+  index.html
+  script.js
+
+</pre></td>
+<td class="arrow">&rarr;</td>
+<td><pre>
+doc/instrumented/
+  index.html
+  script.js [instrumented]
+  jscoverage.html
+</pre></td>
+</tr>
+</table>
+
+<h3>2. Executing the instrumented code in a web browser</h3>
+
+<p>
+Open the generated <code>jscoverage.html</code> file
+(<code>doc/instrumented/jscoverage.html</code>) in your web browser.
+The page contains a tabbed user interface:
+</p>
+
+<ul>
+<li>The "Browser" tab is used to display pages with instrumented scripts.
+<li>The "Summary" tab is used to display code coverage data.
+<li>The "Source" tab is used to display JavaScript code, showing the number of times
+each line of code was executed.
+<li>The "About" tab displays information about the current version of JSCoverage.
+</ul>
+
+<p><img src="screenshot.png" alt="Screenshot"></p>
+
+<p>
+The "Browser" tab contains an <code>&lt;iframe&gt;</code>, which is initially empty.
+You can load a page into this frame by
+entering its URL into the "URL" input field.
+You can load any page located in <code><var>DESTINATION-DIRECTORY</var>/</code>
+or a subdirectory underneath <code><var>DESTINATION-DIRECTORY</var>/</code>; loading a page
+from outside <code><var>DESTINATION-DIRECTORY</var>/</code>, or from a foreign web
+server, will give unexpected results.
+</p>
+
+<p>
+For example, you can load the file <code>doc/instrumented/index.html</code> by typing
+<code>index.html</code> in the "URL" input field (relative URLs are acceptable).
+</p>
+
+<p>
+Alternatively, you can load a page into the <code>&lt;iframe&gt;</code> by
+appending the page URL to the query string of the <code>jscoverage.html</code> URL.
+For example, appending <code>?index.html</code> to the <code>jscoverage.html</code> URL
+will cause the <code>index.html</code> file to be loaded automatically.
+</p>
+
+<p><img src="screenshot2.png" alt="Screenshot"></p>
+
+<p>
+For this example, the JavaScript does not execute automatically:
+you have to select one of the radio buttons to execute the code.
+</p>
+
+<p><img src="screenshot3.png" alt="Screenshot"></p>
+
+<h3>3. Generating a coverage report</h3>
+
+<p>
+Once the JavaScript code in the page in the "Browser" tab has been executed, click on
+the "Summary" tab.  This will display the current code coverage statistics.
+</p>
+
+<p><img src="screenshot4.png" alt="Screenshot"></p>
+
+<p>
+You can click the checkbox to show a list of statements missed during execution.
+</p>
+
+<p><img src="screenshot5.png" alt="Screenshot"></p>
+
+<p>
+You can click one of the links to get a detailed view of a JavaScript source file.
+</p>
+
+<p><img src="screenshot6.png" alt="Screenshot"></p>
+
+<p>
+As long as you do not reload the
+<code>jscoverage.html</code> page, the coverage report statistics are
+cumulative.  If you execute more JavaScript in the frame in the "Browser" tab (e.g., by clicking on a link to
+another scripted page, or by reloading the frame containing a scripted
+page) and switch to the "Summary" tab again,
+the coverage report will combine the statistics from the previous report with any newly generated statistics.
+Reloading <code>jscoverage.html</code> resets all code coverage statistics to zero.
+</p>
+
+<h2>Inverted mode</h2>
+
+<p>
+In some situations it may be difficult to execute your code within the
+JSCoverage "Browser" tab. For example, the code may assume that it is running in
+the top-level browser window, generating errors if it is executed from within a
+frame. JSCoverage has an alternative mode of operation, called <dfn>inverted
+mode</dfn>, which may be useful in this case.
+</p>
+
+<p>
+Normally you load <code>jscoverage.html</code> in your web browser, and in its
+"Browser" tab you launch your test code. In inverted mode, you do the
+opposite: you load your test page directly in your web browser, and from there
+you launch JSCoverage. To do this you need to add some code to your test page:
+</p>
+
+<pre class="sh_javascript">
+window.open('path/to/jscoverage.html');
+</pre>
+
+<p>
+The <code>"path/to/jscoverage.html"</code> should be a URL pointing to the
+location of the <code>jscoverage.html</code> file (remember, this will be in the
+top level of the <var>DESTINATION-DIRECTORY</var> you specified when running
+the <code>jscoverage</code> executable).
+</p>
+
+<p>
+You can place this code wherever you like in your page: for example, you could
+attach it to a button:
+</p>
+
+<pre class="sh_html">
+&lt;button onclick="window.open('path/to/jscoverage.html');"&gt;Coverage report&lt;/button&gt;
+</pre>
+
+<p>
+Note that you <em>must</em> use a <code>window.open</code> call; simply making a
+link to <code>jscoverage.html</code> is not sufficient.
+</p>
+
+<p>
+An example is located in the <code>doc/example-inverted</code> directory.
+You can instrument the code with the <code>jscoverage</code> program:
+</p>
+
+<pre>
+jscoverage doc/example-inverted doc/instrumented-inverted
+</pre>
+
+<p>
+You can load the page <code>doc/instrumented-inverted/index.html</code>
+directly in your web browser.
+From this page, you select one of the radio buttons and then click the "Coverage
+report" button to launch the JSCoverage report.
+</p>
+
+<p>
+Another example is located in the <code>doc/example-jsunit</code> directory.
+See the <a href="faq.html#jsunit">FAQ</a> for more information.
+</p>
+
+<h2><code>jscoverage</code> command line options</h2>
+
+<p>
+The <code>jscoverage</code> program accepts the following options:
+</p>
+
+<dl>
+<dt><code>-h</code>, <code>--help</code>
+<dd>Display a brief help message.
+<dt><code>-V</code>, <code>--version</code>
+<dd>Display the version of the program.
+<dt><code>-v</code>, <code>--verbose</code>
+<dd>Explain what is being done.
+<dt><code>--encoding=<var>ENCODING</var></code>
+<dd>Assume that all JavaScript files use the given character encoding.  The
+default is ISO-8859-1.
+<dt><code>--exclude=<var>PATH</var></code>
+<dd>The command
+<pre>
+jscoverage --exclude=<var>PATH</var> <var>SOURCE-DIRECTORY</var> <var>DESTINATION-DIRECTORY</var>
+</pre>
+copies <var>SOURCE-DIRECTORY</var> to <var>DESTINATION-DIRECTORY</var>
+recursively, but does not copy <var>SOURCE-DIRECTORY</var>/<var>PATH</var>.
+<var>PATH</var> must be a complete path relative to <var>SOURCE-DIRECTORY</var>.
+<var>PATH</var> can be a file or a directory (in which case the directory and
+its entire contents are skipped). This option may be given multiple times.
+<dt><code>--js-version=<var>VERSION</var></code>
+<dd>Use the specified JavaScript version; valid values for <var>VERSION</var>
+are <code>1.0</code>, <code>1.1</code>, <code>1.2</code>, ..., <code>1.8</code>,
+or <code>ECMAv3</code> (the default).
+<dt><code>--no-highlight</code>
+<dd>Do not perform syntax highlighting of JavaScript code.
+<dt><code>--no-instrument=<var>PATH</var></code>
+<dd>The command
+<pre>
+jscoverage --no-instrument=<var>PATH</var> <var>SOURCE-DIRECTORY</var> <var>DESTINATION-DIRECTORY</var>
+</pre>
+copies <var>SOURCE-DIRECTORY</var> to <var>DESTINATION-DIRECTORY</var>
+recursively, but does not instrument any JavaScript code in
+<var>SOURCE-DIRECTORY</var>/<var>PATH</var>. <var>PATH</var> must be a complete
+path relative to <var>SOURCE-DIRECTORY</var>. <var>PATH</var> can be a
+(JavaScript) file or a directory (in which case any JavaScript files located
+anywhere underneath the directory are not instrumented). This option may be
+given multiple times.
+</dl>
+
+<h2>Query string options</h2>
+
+<p>
+When accessing <code>jscoverage.html</code> in a web browser, you may provide a
+query string consisting of options separated by ampersand (<code>&amp;</code>)
+or semicolon (<code>;</code>). Any option not containing an equals sign
+(<code>=</code>) is considered to be a URL which will be loaded in the "Browser"
+tab.
+</p>
+
+<dl>
+<dt><code>u=<var>URL</var></code>, <code>url=<var>URL</var></code>
+<dd>Load <var>URL</var> in the "Browser" tab.  (This is the same as specifying
+an option without an equals sign.)
+<dt><code>m=<var>BOOLEAN</var></code>, <code>missing=<var>BOOLEAN</var></code>
+<dd>Determines whether to initially display the "Missing" column in the "Summary"
+tab.  <var>BOOLEAN</var> can be 
+<code>true</code>, <code>t</code>, <code>yes</code>, <code>y</code>, <code>on</code>, <code>1</code>
+(to display the "Missing" column), or
+<code>false</code>, <code>f</code>, <code>no</code>, <code>n</code>, <code>off</code>, <code>0</code>
+(to hide the "Missing" column).  By default, the "Missing" column is not displayed.
+</dl>
+
+<h2>Using the <code>jscoverage-server</code> program</h2>
+
+<p>
+The <code>jscoverage-server</code> program is a simple web server. You can use
+<code>jscoverage-server</code> to serve files from the <code>doc/example/</code>
+directory:
+</p>
+
+<pre>
+  cd doc/example
+  jscoverage-server --verbose
+</pre>
+
+<p>
+Once the server is running, you can access the JSCoverage web interface by
+visiting the URL <code>http://127.0.0.1:8080/jscoverage.html</code>, and you can
+load the <code>doc/example/index.html</code> file by entering
+<code>index.html</code> in the "URL" input field.  (Or you can do this all in
+one step by loading the URL
+<code>http://127.0.0.1:8080/jscoverage.html?index.html</code> in your web
+browser.)  The
+<code>jscoverage-server</code> program automatically instruments any served
+JavaScript code, so that code coverage data will be gathered as the code is
+executed in your browser.
+</p>
+
+<p>
+The web interface is slightly different from that generated by the
+<code>jscoverage</code> program: it has a new tab named "Store".
+To store coverage data, click the "Store" tab.
+</p>
+
+<p><img src="screenshot7.png" alt="Screenshot"></p>
+
+<p>
+When you click the "Store Report" button, the coverage data will be saved to a directory named <code>jscoverage-report/</code>.
+You can view this stored report at any time by opening the file <code>jscoverage-report/jscoverage.html</code> in
+your web browser - you don't need the <code>jscoverage-server</code> running to access it.
+</p>
+
+<p>
+If you use the "Store" tab again to store coverage data, the new data will be merged with
+the previous data in the <code>jscoverage-report/</code> directory.  This can be useful,
+for instance, if you wish to run a set of tests in different browsers and generate an
+aggregate report which combines the data for all of them.
+</p>
+
+<p>
+You can stop the server by running another instance of <code>jscoverage-server</code> with the
+<code>--shutdown</code> option:
+</p>
+
+<pre>
+  jscoverage-server --shutdown
+</pre>
+
+<h2>Using <code>jscoverage-server --proxy</code></h2>
+
+<p>
+To use <code>jscoverage-server</code> as a proxy server, use the <code>--proxy</code> option:
+</p>
+
+<pre>
+  jscoverage-server --verbose --proxy
+</pre>
+
+<p>
+Configure your browser to use an HTTP proxy with address 127.0.0.1 and port 8080.
+You can then generate code coverage data for a web page on the server <code>example.com</code>
+by accessing the JSCoverage web interface at the special URL <code>http://example.com/jscoverage.html</code>.  
+Note that this URL is not provided by the <code>example.com</code> server; it is automatically generated
+by the proxy server whenever a URL with path <code>/jscoverage.html</code> is requested.
+</p>
+
+<h2><code>jscoverage-server</code> command line options</h2>
+
+<dl>
+<dt><code>-h</code>, <code>--help</code>
+<dd>Display a brief help message.
+<dt><code>-V</code>, <code>--version</code>
+<dd>Display the version of the program.
+<dt><code>-v</code>, <code>--verbose</code>
+<dd>Explain what is being done.
+<dt><code>--document-root=<var>PATH</var></code>
+<dd>Serve web content from the directory given by <var>PATH</var>.  The default is
+the current directory.  This option may not be given with the <code>--proxy</code> option.
+<dt><code>--encoding=<var>ENCODING</var></code>
+<dd>Assume that all JavaScript files use the given character encoding.  The
+default is ISO-8859-1.  Note that if you use the <code>--proxy</code> option, the
+character encoding will be determined from the <code>charset</code> parameter in
+the <code>Content-Type</code> HTTP header.
+<dt><code>--ip-address=<var>ADDRESS</var></code>
+<dd>Run the server on the IP address given by <var>ADDRESS</var>.  The default is <code>127.0.0.1</code>.  Specify
+<code>0.0.0.0</code> to use any address.
+<dt><code>--js-version=<var>VERSION</var></code>
+<dd>Use the specified JavaScript version; valid values for <var>VERSION</var>
+are <code>1.0</code>, <code>1.1</code>, <code>1.2</code>, ..., <code>1.8</code>,
+or <code>ECMAv3</code> (the default).
+<dt><code>--no-highlight</code>
+<dd>Do not perform syntax highlighting of JavaScript code.
+<dt><code>--no-instrument=<var>URL</var></code>
+<dd>Do not instrument JavaScript code from <var>URL</var>.  If you are running <code>jscoverage-server</code>
+with the <code>--proxy</code> option, <var>URL</var> should be a full URL.  For example:
+<pre>
+jscoverage-server --proxy --no-instrument=http://example.com/scripts/
+</pre>
+Without <code>--proxy</code>, <var>URL</var> should be only the path portion of a URL:
+<pre>
+jscoverage-server --no-instrument=/scripts/
+</pre>
+This option may be given multiple times.
+<dt><code>--port=<var>PORT</var></code>
+<dd>Run the server on the port given by <var>PORT</var>.  The default is port 8080.
+<dt><code>--proxy</code>
+<dd>Run as a proxy server.
+<dt><code>--report-dir=<var>PATH</var></code>
+<dd>Use the directory given by <var>PATH</var> for storing coverage reports.  The default is
+<code>jscoverage-report/</code> in the current directory.
+<dt><code>--shutdown</code>
+<dd>Stop a running instance of the server.
+</dl>
+
+<h2>Advanced topics</h2>
+
+<h3>Storing coverage reports programmatically</h3>
+
+<p>
+If you are executing a test suite using <code>jscoverage-server</code>, you can
+store a coverage report programmatically by having your test suite call the
+<code>jscoverage_report</code> function (automatically generated by
+<code>jscoverage-server</code>) after all your tests have finished running:
+</p>
+
+<pre class="sh_javascript">
+if (window.jscoverage_report) {
+  jscoverage_report();
+}
+</pre>
+
+<p>
+You can specify the name of the directory in which to store the report by
+passing the name as a parameter to the <code>jscoverage_report</code> function:
+</p>
+
+<pre class="sh_javascript">
+if (window.jscoverage_report) {
+  // determine the directory name based on the browser
+  var directory;
+  if (/MSIE/.test(navigator.userAgent)) {
+    directory = 'IE';
+  }
+  else {
+    directory = 'other';
+  }
+  jscoverage_report(directory);
+}
+</pre>
+
+<p>
+This directory will be a subdirectory under the <code>jscoverage-report/</code>
+directory (or whatever is specified with the <code>--report-dir</code> option).
+Using the above example, the report would be stored to either
+<code>jscoverage-report/IE/</code> or <code>jscoverage-report/other/</code>.
+</p>
+
+<p>
+It is not necessary that your test suite be executed within the
+<code>jscoverage.html</code> web interface to store a coverage report.  The URL
+of the test suite can simply be loaded directly in a web browser.
+</p>
+
+<p>
+The example in <code>doc/example-jsunit/</code> demonstrates storing coverage
+reports programmatically.
+</p>
+
+<h3>Ignoring certain lines of code</h3>
+
+<p>
+Sometimes you may wish to exclude certain lines of code from coverage
+statistics. Some lines of code may be executed only in certain browsers; other
+lines should never be executed at all (they may be present only to detect
+programming errors).  You can use specially formatted comments in your code to
+tell JSCoverage to ignore certain lines of code. These lines will not be
+included in the JSCoverage "Summary" tab; in the "Source" tab, these lines will
+be indicated with the color yellow.
+</p>
+
+<p>
+These comments take the following form:
+</p>
+
+<pre class="sh_javascript">
+//#JSCOVERAGE_IF <var>CONDITION</var>
+...
+//#JSCOVERAGE_ENDIF
+</pre>
+
+<p>
+The comment must be formatted exactly as shown: it must be a line comment
+starting with <code>//</code>, it must start in the first column, and it must be
+followed by <code>#JSCOVERAGE_IF</code> or <code>#JSCOVERAGE_ENDIF</code> in
+uppercase letters with no intervening white space.
+</p>
+
+<p>
+The <var>CONDITION</var> is an ordinary JavaScript expression; if this
+expression evaluates to <code>true</code>, then the lines of code between the
+<code>//#JSCOVERAGE_IF</code> and <code>//#JSCOVERAGE_ENDIF</code> comments are
+included in coverage statistics; otherwise, they are excluded from coverage
+statistics.
+</p>
+
+<p>
+For example:
+</p>
+
+<pre class="sh_javascript">
+function log(s) {
+  if (window.console) {
+//#JSCOVERAGE_IF window.console
+    console.log(s);
+//#JSCOVERAGE_ENDIF
+  }
+}
+</pre>
+
+<p>
+You can exclude code from coverage statistics unconditionally by using
+<code>#JSCOVERAGE_IF 0</code> or <code>#JSCOVERAGE_IF false</code>:
+</p>
+
+<pre class="sh_javascript">
+function f(x) {
+  if (x === null) {
+//#JSCOVERAGE_IF 0
+    throw 'error';
+//#JSCOVERAGE_ENDIF
+  }
+  ...
+</pre>
+
+<p>
+There is also a short form, which must appear on the line preceding an
+<code>if</code> statement:
+</p>
+
+<pre class="sh_javascript">
+//#JSCOVERAGE_IF
+if (...) {
+  ...
+}
+else if (...) {
+  ...
+}
+...
+else {
+  ...
+}
+</pre>
+
+<p>
+
+In this form, there is no condition on the <code>//#JSCOVERAGE_IF</code> line
+and no <code>//#JSCOVERAGE_ENDIF</code>. You use this form to tell JSCoverage
+that you expect only one branch of the <code>if</code> statement to be executed;
+coverage statistics will not be collected for the other branch(es).  For
+example:
+</p>
+
+<pre class="sh_javascript">
+function log(s) {
+//#JSCOVERAGE_IF
+  if (window.console) {
+    console.log(s);
+  }
+  else if (window.opera) {
+    opera.postError(s);
+  }
+  else {
+    throw 'no logging function available';
+  }
+}
+</pre>
+
+<p>
+Currently, <code>//#JSCOVERAGE_IF</code> comments are not recorded in stored coverage reports.
+</p>
+
+<h2>Caveats</h2>
+
+<ul>
+<li>JSCoverage adds instrumentation to JavaScript code, which will slow down execution speed.
+Expect instrumented code to take at least twice as much time to run.
+<li>JSCoverage currently instruments only <code>.js</code> files; it does not instrument code in <code>&lt;script&gt;</code>
+elements in HTML files.
+<li>HTML files must use relative URLs to reference scripts.  If you use an absolute URL, your page will reference
+the original uninstrumented script rather than the instrumented one, and no code coverage data will be collected.
+<li>JSCoverage instruments physical lines of code rather than logical JavaScript statements; it works bests with code
+that has exactly one statement per line.  If you put multiple statements on a line, or  split a line across two or more
+statements, you may get strange results.
+<li>JSCoverage uses frames.  Some web pages that use frames may not function properly when run under JSCoverage, especially
+those which try to access the top-level frame (<code>window.top</code>, <code>target="_top"</code>, etc.).
+<li>JSCoverage is distributed without any warranty.  See the <a href="license.html">license</a> for more details.
+</ul>
+
+<address>
+  Copyright &copy; 2007, 2008 <a href="http://siliconforks.com/"><img src="siliconforks-16x16.png" width="16" height="16" class="icon" alt="Silicon Forks"></a> <a href="http://siliconforks.com/">siliconforks.com</a><br>
+  <a href="mailto:jscoverage@siliconforks.com">jscoverage@siliconforks.com</a>
+</address>
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+#!/bin/sh
+
+prefix='@prefix@'
+mozilla_version='@MOZILLA_VERSION@'
+LIBRARY_NAME='@LIBRARY_NAME@'
+NSPR_CFLAGS='@NSPR_CFLAGS@'
+JS_CONFIG_LIBS='@JS_CONFIG_LIBS@'
+MOZ_JS_LIBS='@MOZ_JS_LIBS@'
+
+usage()
+{
+	cat <<EOF
+Usage: js-config [OPTIONS]
+Options:
+	[--prefix[=DIR]]
+	[--exec-prefix[=DIR]]
+	[--includedir[=DIR]]
+	[--libdir[=DIR]]
+	[--version]
+	[--libs]
+	[--cflags]
+	[--lib-filenames]
+EOF
+	exit $1
+}
+
+if test $# -eq 0; then
+	usage 1 1>&2
+fi
+
+while test $# -gt 0; do
+  case "$1" in
+  -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+  *) optarg= ;;
+  esac
+
+  case $1 in
+    --prefix=*)
+      prefix=$optarg
+      ;;
+    --prefix)
+      echo_prefix=yes
+      ;;
+    --exec-prefix=*)
+      exec_prefix=$optarg
+      ;;
+    --exec-prefix)
+      echo_exec_prefix=yes
+      ;;
+    --includedir=*)
+      includedir=$optarg
+      ;;
+    --includedir)
+      echo_includedir=yes
+      ;;
+    --libdir=*)
+      libdir=$optarg
+      ;;
+    --libdir)
+      echo_libdir=yes
+      ;;
+    --version)
+      echo "$mozilla_version"
+      ;;
+    --cflags)
+      echo_cflags=yes
+      ;;
+    --libs)
+      echo_libs=yes
+      ;;
+    *)
+      usage 1 1>&2
+      ;;
+  esac
+  shift
+done
+
+# Set variables that may be dependent upon other variables
+if test -z "$exec_prefix"; then
+    exec_prefix=@exec_prefix@
+fi
+if test -z "$includedir"; then
+    includedir=@includedir@
+fi
+if test -z "$libdir"; then
+    libdir=@libdir@
+fi
+
+if test "$echo_prefix" = "yes"; then
+    echo $prefix
+fi
+
+if test "$echo_exec_prefix" = "yes"; then
+    echo $exec_prefix
+fi
+
+if test "$echo_includedir" = "yes"; then
+    echo $includedir
+fi
+
+if test "$echo_libdir" = "yes"; then
+    echo $libdir
+fi
+
+if test "$echo_cflags" = "yes"; then
+    echo "-I$includedir/js $NSPR_CFLAGS"
+fi
+
+if test "$echo_libs" = "yes"; then
+    echo "$MOZ_JS_LIBS $JS_CONFIG_LIBS"
+fi      

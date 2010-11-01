@@ -1,0 +1,52 @@
+.TH jscoverage 1 local
+.SH NAME
+jscoverage \- Instrument JavaScript with code coverage information
+
+.SH SYNOPSIS
+jscoverage [OPTION] SOURCE-DIRECTORY DESTINATION-DIRECTORY
+
+.SH DESCRIPTION
+
+Copy JavaScript code from SOURCE-DIRECTORY to DESTINATION-DIRECTORY and add code instrumentation.
+
+.SH OPTIONS
+
+.TP
+.B --encoding=ENCODING
+assume .js files use the given character encoding.
+
+.TP
+.B --exclude=PATH
+do not copy
+.B PATH.
+
+.TP
+.B --js-version=VERSION
+use the specified JavaScript version; valid values for
+.B VERSION
+are 1.0, 1.1, 1.2, ..., 1.8, or ECMAv3 (the default).
+
+.TP
+.B --no-highlight
+do not perform syntax highlighting.
+
+.TP
+.B --no-instrument=PATH
+copy but do not instrument
+.B PATH.
+
+.TP
+.B -v, --verbose
+explain what is being done.
+
+.TP
+.B -h, --help
+display this help and exit.
+
+.TP
+.B -V, --version
+display version information and exit.
+.
+.SH AUTHORS
+
+siliconforks.com

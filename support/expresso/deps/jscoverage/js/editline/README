@@ -1,0 +1,83 @@
+The files in this directory provide simple line-editing and history
+support for the standalone javascript engine, through the 'editline'
+library.
+
+editline has only been enabled for those platforms on which it is
+known to build; to try it on a different platform, define JS_EDITLINE
+before building.  Line editing (and js.c) is not a supported feature
+of the javascript library, so your mileage my vary.
+
+The editline API is a compatible subset of the FSF readline API; if
+you have readline installed and would like to link to that instead,
+define JS_READLINE.  Note that the readline library is distributed
+under the GPL, so any resulting binaries are not legally
+distributable.
+
+The editline files used here have been modified to work with the js
+build system and to quiet some compiler warnings, and also to remove
+filename-completion support.
+
+If anyone knows of a more recent version of these files, or a site on
+which they are being maintained, please let me know!
+
+Mike McCabe, mccabe@netscape.com
+
+
+The original README file distributed with the editline library follows.
+
+
+
+This is a line-editing library.  It can be linked into almost any
+program to provide command-line editing and recall.
+
+It is call-compatible with the FSF readline library, but it is a
+fraction of the size (and offers fewer features).  It does not use
+standard I/O.  It is distributed under a "C News-like" copyright.
+
+Configuration is done in the Makefile.  Type "make testit" to get
+a small slow shell for testing.
+
+An earlier version was distributed with Byron's rc.  Principal
+changes over that version include:
+	Faster.
+	Is eight-bit clean (thanks to brendan@cs.widener.edu)
+	Written in K&R C, but ANSI compliant (gcc all warnings)
+	Propagates EOF properly; rc trip test now passes
+	Doesn't need or use or provide memmove.
+	More robust
+	Calling sequence changed to be compatible with readline.
+	Test program, new manpage, better configuration
+	More system-independant; includes Unix and OS-9 support.
+
+This contains some changes since the posting to comp.sources.misc:
+	Bugfix for completion on absolute pathnames.
+	Better handling of M-n versus showing raw 8bit chars.
+	Better signal handling.
+	Now supports termios/termio/sgttyb ioctl's.
+	Add M-m command to toggle how 8bit data is displayed.
+
+There is one known bug:
+	History-searching redraws the line wrong if the text
+	retrieved is shorter then the prompt.
+
+Enjoy,
+	Rich $alz
+	<rsalz@osf.org>
+
+ Copyright 1992,1993 Simmule Turner and Rich Salz.  All rights reserved.
+
+ This software is not subject to any license of the American Telephone
+ and Telegraph Company or of the Regents of the University of California.
+
+ Permission is granted to anyone to use this software for any purpose on
+ any computer system, and to alter it and redistribute it freely, subject
+ to the following restrictions:
+ 1. The authors are not responsible for the consequences of use of this
+    software, no matter how awful, even if they arise from flaws in it.
+ 2. The origin of this software must not be misrepresented, either by
+    explicit claim or by omission.  Since few users ever read sources,
+    credits must appear in the documentation.
+ 3. Altered versions must be plainly marked as such, and must not be
+    misrepresented as being the original software.  Since few users
+    ever read sources, credits must appear in the documentation.
+ 4. This notice may not be removed or altered.

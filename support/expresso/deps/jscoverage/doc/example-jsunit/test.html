@@ -1,0 +1,25 @@
+<html>
+<head>
+<title>Test</title>
+
+<script type="text/javascript" src="jsunit/app/jsUnitCore.js"></script>
+<script type="text/javascript" src="script.js"></script>
+<script type="text/javascript">
+function test_f() {
+  assert(f());
+}
+
+/*
+This code automatically stores coverage reports when running under
+jscoverage-server.
+*/
+function tearDownPage() {
+  if (window.jscoverage_report) {
+    jscoverage_report();
+  }
+}
+</script>
+</head>
+<body>
+</body>
+</html>

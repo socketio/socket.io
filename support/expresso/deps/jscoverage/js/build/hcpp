@@ -1,0 +1,155 @@
+#!/bin/sh
+#
+# ***** BEGIN LICENSE BLOCK *****
+# Version: MPL 1.1/GPL 2.0/LGPL 2.1
+#
+# The contents of this file are subject to the Mozilla Public License Version
+# 1.1 (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+# http://www.mozilla.org/MPL/
+#
+# Software distributed under the License is distributed on an "AS IS" basis,
+# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+# for the specific language governing rights and limitations under the
+# License.
+#
+# The Original Code is mozilla.org code.
+#
+# The Initial Developer of the Original Code is
+# Netscape Communications Corporation.
+# Portions created by the Initial Developer are Copyright (C) 1998
+# the Initial Developer. All Rights Reserved.
+#
+# Contributor(s):
+#
+# Alternatively, the contents of this file may be used under the terms of
+# either of the GNU General Public License Version 2 or later (the "GPL"),
+# or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+# in which case the provisions of the GPL or the LGPL are applicable instead
+# of those above. If you wish to allow use of your version of this file only
+# under the terms of either the GPL or the LGPL, and not to allow others to
+# use your version of this file under the terms of the MPL, indicate your
+# decision by deleting the provisions above and replace them with the notice
+# and other provisions required by the GPL or the LGPL. If you do not delete
+# the provisions above, a recipient may use your version of this file under
+# the terms of any one of the MPL, the GPL or the LGPL.
+#
+# ***** END LICENSE BLOCK *****
+
+#
+# Wrapper for brain-damaged compilers that don't understand -o and -c together.
+#
+CXX=`echo $1 | sed -e "s|'||g" -e 's|"||g'`
+shift
+DUMMY="XxxXxxX"
+DASH_C=0
+DASH_O=0
+GET_OBJECT=0
+C_SRC="${DUMMY}"
+CC_SRC="${DUMMY}"
+CPP_SRC="${DUMMY}"
+S_SRC="${DUMMY}"
+OBJECT="${DUMMY}"
+NEW_i="${DUMMY}"
+PLATFORM=`uname -s`
+
+for i in $*
+do
+	[ ${GET_OBJECT} -eq 1 ]  && {
+	case $i in
+		./*/*.o)	OBJECT="$i"
+			OPTS="${OPTS} -o"
+   			DASH_O=1
+			;;
+		./*.o)	OBJECT="`basename $i`"
+			i=""
+   			DASH_O=1
+			;;
+		*.o)	if [ $i = `basename $i` ]
+			then
+				i=""
+			else
+				OPTS="${OPTS} -o"
+   				DASH_O=1
+			fi
+			;;
+		*)	OPTS="${OPTS} -o $i"
+   			DASH_O=1
+			i=""
+			;;
+	esac
+	GET_OBJECT=0
+	}
+	case $i in
+		-c)
+			DASH_C=1
+			OPTS="${OPTS} -c"
+			;;
+		-o)
+			GET_OBJECT=1
+			;;
+		*.c)
+			C_SRC="$i"
+			OPTS="${OPTS} $i"
+# cc always creates the .o from the .c name
+			OBJ=`basename ${C_SRC} .c`.o
+			;;
+		+.*)
+			OPTS="${OPTS} $i"
+			;;
+		*.cpp)
+			CPP_SRC="$i"
+			if [ "${PLATFORM}" = "SCO_SV" ]; then
+				OPTS="${OPTS} +.cpp $i"
+			elif [ "${PLATFORM}" = "IRIX" ]; then
+				NEW_i=`basename ${CPP_SRC} .cpp`.C
+				rm -f ${NEW_i}
+				cp $i ${NEW_i}
+				OPTS="${OPTS} ${NEW_i}"
+			else
+				OPTS="${OPTS} $i"
+			fi
+# cc always creates the .o from the .cpp name
+			OBJ=`basename ${CPP_SRC} .cpp`.o
+			;;
+		*.cc)
+			CC_SRC="$i"
+			OPTS="${OPTS} $i"
+# cc always creates the .o from the .cc name
+			OBJ=`basename ${CC_SRC} .cc`.o
+			;;
+		*.s)
+			S_SRC="$i"
+			OPTS="${OPTS} $i"
+# cc always creates the .o from the .s name
+			OBJ=`basename ${S_SRC} .s`.o
+			;;
+   		*.o)    OBJECT=$i
+			OPTS="${OPTS} $i"
+			;;
+   		*) 	OPTS="${OPTS} $i"
+			;;
+	esac
+done
+
+${CXX} ${OPTS} || exit $?
+rm -f ${NEW_i}
+
+# Really only needed for NSPR now.
+if [ "${PLATFORM}" = "IRIX" -a "$OBJ" != "$OBJECT" ]; then
+	OBJ=$OBJECT
+fi
+
+# LAME!!!
+if [ -f -O ]; then
+	mv -f -- -O ${OBJECT}
+fi
+
+# if there was no -c and -o we're done
+[ ${DASH_C} -eq 1 -a ${DASH_O} -eq 1 ] || exit 0
+
+# if $OBJ and $OBJECT are the same we're done
+[ $OBJ = $OBJECT ] && exit 0
+
+[ -f $OBJ ] && mv -f $OBJ $OBJECT
+

@@ -1,0 +1,79 @@
+.TH jscoverage-server 1 local
+.SH NAME
+jscoverage-server \- Run a server for instrumenting JavaScript with code coverage information
+
+.SH SYNOPSIS
+jscoverage-server [OPTION]...
+
+.SH DESCRIPTION
+
+jscoverage-server is a simple web server that instruments JavaScript code as it is served.
+
+.SH OPTIONS
+
+.TP
+.B --document-root=DIR
+serve content from
+.B DIR
+(default: current directory).
+
+.TP
+.B --encoding=ENCODING
+assume .js files use the given character encoding.
+
+.TP
+.B --ip-address=ADDRESS
+bind to
+.B ADDRESS
+(default: 127.0.0.1).
+
+.TP
+.B --js-version=VERSION
+use the specified JavaScript version; valid values for
+.B VERSION
+are 1.0, 1.1, 1.2, ..., 1.8, or ECMAv3 (the default).
+
+.TP
+.B --no-highlight
+do not perform syntax highlighting.
+
+.TP
+.B --no-instrument=URL
+do not instrument
+.B URL.
+
+.TP
+.B --port=PORT
+use
+.B PORT
+for TCP port (default: 8080).
+
+.TP
+.B --proxy
+run as a proxy.
+
+.TP
+.B --report-dir=DIR
+store report to
+.B DIR
+(default: jscoverage-report).
+
+.TP
+.B --shutdown
+stop a running server.
+
+.TP
+.B -v, --verbose
+explain what is being done.
+
+.TP
+.B -h, --help
+display this help and exit.
+
+.TP
+.B -V, --version
+display version information and exit.
+.
+.SH AUTHORS
+
+siliconforks.com

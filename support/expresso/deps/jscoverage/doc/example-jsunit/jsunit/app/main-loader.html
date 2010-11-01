@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>jsUnit External Data Document loader</title>
+    <script language="JavaScript" type="text/javascript">
+
+        var loadStatus;
+        var callback = function () {
+        };
+
+        function buffer() {
+            return window.frames.documentBuffer;
+        }
+
+        function load(uri) {
+            loadStatus = 'loading';
+            buffer().document.location.href = uri;
+        }
+
+        function loadComplete() {
+            top.xbDEBUG.dump('main-loader.html:loadComplete(): loadStatus = ' + loadStatus + ' href=' + buffer().document.location.href);
+            if (loadStatus == 'loading') {
+                loadStatus = 'complete';
+                callback();
+                callback = function () {
+                };
+            }
+        }
+
+        if (top.xbDEBUG.on) {
+            var scopeName = 'main_loader_' + (new Date()).getTime();
+            top[scopeName] = window;
+            top.xbDebugTraceFunction(scopeName, 'buffer');
+            top.xbDebugTraceFunction(scopeName, 'load');
+            top.xbDebugTraceFunction(scopeName, 'loadComplete');
+        }
+
+    </script>
+</head>
+
+<body>
+<iframe name="documentBuffer" onload="loadComplete()"></iframe>
+</body>
+</html>
