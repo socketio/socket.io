@@ -1,6 +1,6 @@
 { "name" : "socket.io"
 , "description" : "The cross-browser WebSocket"
-, "version" : "0.6.2"
+, "version" : "0.6.0"
 , "author" : "LearnBoost"
 , "licenses" :
   [ { "type" : "MIT"
