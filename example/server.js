@@ -34,7 +34,13 @@ send404 = function(res){
 	res.end();
 };
 
-server.listen(8080);
+server.listen(8080, {
+  transportOptions: {
+    'xhr-polling': {
+      closeTimeout: 1000 * 60 * 5
+    }
+  }
+});
 		
 // socket.io, I choose you
 // simplest chat application evar
