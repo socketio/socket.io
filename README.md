@@ -107,6 +107,13 @@ Options:
 		socket.io
 
   The resource is what allows the `socket.io` server to identify incoming connections by `socket.io` clients. Make sure they're in sync.
+  
+- *flashPolicyServer*
+
+		true
+		
+	Create a Flash Policy file server on port 843 ( this is restricted port and you will need to have root permission ). If you disable the FlashPolicy file server Socket.io will automatically fall back to serving the policy file inline.
+		
 
 - *transports*
 
