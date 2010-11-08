@@ -112,3 +112,16 @@ http://www.lightsphere.com/dev/articles/flash_socket_policy.html
 * Removed fs sync call from example
 * Better `how to use`
 * Make sure to send content-type text/plain to `ok` POST responses
+
+0.6.1 / 2010-11-08
+
+* Restored flash policy server, but with these changes:
+  - It's contingent on the listener flashPolicyServer option 
+  - It's started by default if socket.io is started with root access
+  - It correctly closes the netserver upon all the dependent http servers being closed
+  - The handler for the inline request is still there regardless. This is important in the following circumstances, and has no performance hit
+    - The port 843 is filtered
+    - Flash at some point enables us to skip 843 checking altogether
+    - Tests compatibility
+* Fixed connection timeout, noDelay and socket encoding for draft 76 (had been  accidentally moved into the `else` block)
+* Some stylistic fixes
