@@ -1,7 +1,7 @@
 Socket.IO Server: Sockets for the rest of us
 ============================================
 
-The `Socket.IO` server provides seamless supports for a variety of transports intended for realtime communication
+The `Socket.IO` server provides seamless supports for a variety of transports intended for realtime communication.
 
 - WebSocket 
 - WebSocket over Flash (+ XML security policy support)
@@ -13,23 +13,25 @@ The `Socket.IO` server provides seamless supports for a variety of transports in
 ## Requirements
 
 - Node v0.1.103+
-- [Socket.IO client](http://github.com/LearnBoost/Socket.IO) to connect from the browser
+- The [Socket.IO client](http://github.com/LearnBoost/Socket.IO), to connect from the browser
 
 ## How to use
 
-To run the demo:
+To run the demo, execute the following:
 
 	git clone git://github.com/LearnBoost/Socket.IO-node.git socket.io
 	cd socket.io/example/
 	sudo node server.js
 
-and point your browser to http://localhost:8080. In addition to 8080, if the transport `flashsocket` is enabled, a server will be initialized to listen to requests on the port 843.
+and point your browser to `http://localhost:8080`. In addition to `8080`, if the transport `flashsocket` is enabled, a server will be initialized to listen for requests on port `843`.
 
 ### Implementing it on your project
 
-`Socket.IO` is designed not to take over an entire port or Node `http.Server` instance. This means that if you choose your HTTP server to listen on the port 80, `socket.io` can intercept requests directed to it and the normal requests will still be served.
+`Socket.IO` is designed not to take over an entire port or Node `http.Server` instance. This means that if you choose to have your HTTP server listen on port `80`, `socket.io` can intercept requests directed to it, and normal requests will still be served.
 
-By default, the server will intercept requests that contain `socket.io` in the path / resource part of the URI. You can change this (look at the available options below).
+By default, the server will intercept requests that contain `socket.io` in the path / resource part of the URI. You can change this as shown in the available options below.
+
+On the server:
 
 	var http = require('http'), 
 			io = require('./path/to/socket.io'),
@@ -52,7 +54,7 @@ By default, the server will intercept requests that contain `socket.io` in the p
 	  client.on('disconnect', function(){ … })
 	});
 	
-On the client side:
+On the client:
 
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
@@ -62,7 +64,7 @@ On the client side:
 		socket.on('disconnect', function(){ … })
 	</script>
 
-The [client side](http://github.com/learnboost/socket.io) files will be served automatically by `Socket.IO-node`.
+The [client-side](http://github.com/learnboost/socket.io) files are served automatically by `Socket.IO-node`.
 
 ## Documentation
 
@@ -76,15 +78,15 @@ Public Properties:
 
 - *server*
 
-	The instance of _process.http.Server_
+	An instance of _process.http.Server_.
 	
 - *options*
 
-	The passed in options combined with the defaults
+	The passed-in options, combined with the defaults.
 	
 - *clients*
 	
-	An object of clients indexed by their session ids.
+	An object of clients, indexed by session ID.
 	
 Methods:
 
@@ -94,11 +96,11 @@ Methods:
 	
 - *removeListener(event, λ)*	
 
-	Remove a listener from the listener array for the specified event.
+	Removes a listener from the listener array for the specified event.
 	
 - *broadcast(message, [except])*
 
-	Broadcasts a message to all clients. There's an optional second argument which is an array of session ids or a single session id to avoid broadcasting to.
+	Broadcasts a message to all clients. Optionally, you can pass a single session ID or array of session IDs to avoid broadcasting to, as the second argument.
 	
 Options:
 	
@@ -106,13 +108,13 @@ Options:
 
 		socket.io
 
-  The resource is what allows the `socket.io` server to identify incoming connections by `socket.io` clients. Make sure they're in sync.
+  The resource is what allows the `socket.io` server to identify incoming connections from `socket.io` clients. Make sure they're in sync.
   
 - *flashPolicyServer*
 
 		true
 		
-	Create a Flash Policy file server on port 843 ( this is restricted port and you will need to have root permission ). If you disable the FlashPolicy file server Socket.io will automatically fall back to serving the policy file inline.
+	Create a Flash Policy file server on port `843` (this is restricted port and you will need to have root permission). If you disable the FlashPolicy file server, Socket.IO will automatically fall back to serving the policy file inline.
 		
 
 - *transports*
@@ -129,21 +131,21 @@ Options:
 	
 		ƒ(){ sys.log }
 		
-	The logging function. Defaults to outputting to stdout through `sys.log`
+	The logging function. Defaults to outputting to `stdout` through `sys.log`
 
 Events:
 	
 - *clientConnect(client)*
 	
-	Fired when a client is connected. Receives the Client instance as parameter
+	Fired when a client is connected. Receives the Client instance as parameter.
 	
 - *clientMessage(message, client)*
 
-	Fired when a message from a client is received. Receives the message and Client instance as parameter
+	Fired when a message from a client is received. Receives the message and Client instance as parameters.
 	
 - *clientDisconnect(client)*
 
-	Fired when a client is disconnected. Receives the Client instance as parameter
+	Fired when a client is disconnected. Receives the Client instance as a parameter.
 
 Important note: `this` in the event listener refers to the `Listener` instance.
 
@@ -155,43 +157,43 @@ Public Properties:
 
 - *listener*
 
-	The `Listener` instance this client belongs to.
+	The `Listener` instance to which this client belongs.
 
 - *connected*
 
-	Whether the client is connected
+	Whether the client is connected.
 	
 - *connections*
 
-	Number of times the client connected
+	Number of times the client has connected.
 	
 Methods:
 
 - *send(message)*
 
-	Sends a message to the client
+	Sends a message to the client.
 	
 - *broadcast(message)*
 
-	Sends a message to all other clients. Equivalent to Listener::broadcast(message, client.sessionId)
+	Sends a message to all other clients. Equivalent to Listener::broadcast(message, client.sessionId).
 
 ## Protocol
 
-One of the design goals is that you should be able to implement whatever protocol you desire without `Socket.IO` getting in the way. `Socket.IO` has a minimal, unobtrusive protocol layer. It consists of two parts:
+One of the design goals is that you should be able to implement whatever protocol you desire without `Socket.IO` getting in the way. `Socket.IO` has a minimal, unobtrusive protocol layer, consisting of two parts:
 
 * Connection handshake
 	
-	This is required to simulate a full duplex socket with transports such as XHR Polling or Server-sent Events (which is a "one-way socket"). The basic idea is that the first message received from the server will be a JSON object that contains a session id that will be used for further communication exchanged between the client and the server. 
+	This is required to simulate a full duplex socket with transports such as XHR Polling or Server-sent Events (which is a "one-way socket"). The basic idea is that the first message received from the server will be a JSON object that contains a session ID used for further communications exchanged between the client and server. 
 	
-	The concept of session also benefits naturally full-duplex WebSocket, in the event of an accidental disconnection and a quick reconnection. Messages that the server intends to deliver to the client are cached temporarily until the reconnection.
+	The concept of session also naturally benefits a full-duplex WebSocket, in the event of an accidental disconnection and a quick reconnection. Messages that the server intends to deliver to the client are cached temporarily until reconnection.
 	
 	The implementation of reconnection logic (potentially with retries) is left for the user. By default, transports that are keep-alive or open all the time (like WebSocket) have a timeout of 0 if a disconnection is detected.
 	
 * Message batching
 
-	In order to optimize the resources, messages are buffered. In the event of the server trying to send multiple messages while the client is temporarily disconnected (eg: xhr polling), messages are stacked, then encoded in a lightweight way and sent to the client whenever he becomes available.
+	Messages are buffered in order to optimize resources. In the event of the server trying to send multiple messages while a client is temporarily disconnected (eg: xhr polling), the messages are stacked and then encoded in a lightweight way, and sent to the client whenever it becomes available.
 
-Despite this extra layer, your messages are delivered unaltered to the different event listeners. You can JSON.stringify() objects, send XML, or maybe plain text.
+Despite this extra layer, the messages are delivered unaltered to the various event listeners. You can `JSON.stringify()` objects, send XML, or even plain text.
 
 ## Credits
 
