@@ -1,0 +1,89 @@
+#headingDiv {
+  position: static;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding-top: 0.5em;
+}
+
+#tabs {
+  clear: all;
+  position: static;
+  top: auto;
+  left: auto;
+  right: auto;
+  height: auto;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+#tabs div {
+  position: relative;
+  height: auto;
+  line-height: normal;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+#tabs div.selected {
+  padding-bottom: 6px;
+  z-index: 2;
+}
+
+.TabPage {
+  position: relative;
+  top: -1px;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  clear: left;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 10px;
+  z-index: 1;
+}
+
+#locationDiv {
+  margin-bottom: 10px;
+}
+
+#iframeDiv {
+  position: static;
+  width: 100%;
+}
+
+#summaryDiv {
+  position: static;
+  width: 100%;
+}
+
+#fileDiv {
+  margin-bottom: 10px;
+}
+
+#sourceDiv {
+  position: static;
+  width: 100%;
+}
+
+#storeDiv {
+  position: static;
+  width: 100%;
+}
+
+/* some defaults */
+
+.TabPage {
+  height: 650px;
+}
+
+#iframeDiv {
+  height: 600px;
+}
+
+#summaryDiv {
+  height: 600px;
+}
+
+#sourceDiv {
+  height: 600px;
+}

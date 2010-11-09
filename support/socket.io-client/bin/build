@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+
+/**
+ * Socket.IO client
+ * 
+ * @author Guillermo Rauch <guillermo@learnboost.com>
+ * @license The MIT license.
+ * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
+ */
+
+/*
+ * This file will help you take all the Socket.IO client files and build socket.io.js.
+ * You can later use Google Closure Compiler on it.
+ */
+
+var fs = require('fs'),
+	sys = require('sys'),
+	socket = require('../lib/io'),
+	files = [
+		'io.js',
+		'util.js',
+		'transport.js',
+		'transports/xhr.js',
+		'transports/websocket.js',
+		'transports/flashsocket.js',
+		'transports/htmlfile.js',
+		'transports/xhr-multipart.js',
+		'transports/xhr-polling.js',
+		'transports/jsonp-polling.js',
+		'socket.js',
+		'vendor/web-socket-js/swfobject.js',
+		'vendor/web-socket-js/FABridge.js',
+		'vendor/web-socket-js/web_socket.js'
+	],
+	content = "/** Socket.IO "+ socket.io.version +" - Built with build.js */\n";
+
+sys.log('Reading files…');
+
+files.forEach(function(file){
+	var path = __dirname + '/../lib/' + file;
+	sys.log (' + ' + path);
+	content += fs.readFileSync(path) + "\n"; 	
+});
+
+sys.log('Generating…');
+
+fs.write(fs.openSync(__dirname + '/../socket.io.js', 'w'), content, 0, 'utf8');
+sys.log(' + ' + __dirname + '/../socket.io.js');
+
+sys.log('All done!');

@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<title>JSCoverage - news</title>
+<link rel="alternate" type="application/rss+xml" href="http://siliconforks.com/jscoverage/news.xml" title="RSS feed for JSCoverage">
+<link rel="stylesheet" type="text/css" href="reset-fonts-grids.css">
+<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<div id="doc3" class="yui-t5">
+  <div id="hd"><h1><a href="./">JSCoverage</a><br><span class="tag">code coverage for JavaScript</span></h1></div>  
+  <div id="bd">
+    <div id="yui-main"> 
+      <div id="jscoverage-main" class="yui-b">
+        <h2>News <a href="http://siliconforks.com/jscoverage/news.xml" type="application/rss+xml" title="RSS feed for JSCoverage"><img src="feed-icon-14x14.png" alt="RSS feed"></a></h2>
+
+        <h3><a name="20081211">December 11, 2008 - JSCoverage 0.4</a></h3>
+        <p>
+        JSCoverage 0.4 is available for <a href="http://siliconforks.com/jscoverage/download.html">download</a>.
+        </p>
+        <p>
+        This release includes many new features:
+        </p>
+        <ul class="list">
+        <li>
+        The new <code>jscoverage-server</code> program is provided as an
+        alternative to the <code>jscoverage</code> program.  The
+        <code>jscoverage-server</code> program is a simple HTTP server which
+        instruments JavaScript code as it is served; this allows you to execute
+        JavaScript and gather code coverage statistics without a preliminary
+        step of creating instrumented code. The <code>jscoverage-server</code>
+        program can either serve files directly from the filesystem or run as a
+        proxy server (with the <code>--proxy</code> option), instrumenting
+        JavaScript provided by another web server.
+        <li>
+        Using <code>jscoverage-server</code>, coverage reports can now be stored
+        to the filesystem.
+        </li>
+        <li>
+        JSCoverage now recognizes special JavaScript comments which specify that
+        certain lines of code should be ignored in coverage reports.
+        </li>
+        <li>
+        The new <code>--encoding</code> option provides better support for
+        different character encodings.
+        </li>
+        <li>
+        The JSCoverage user interface is now faster and more responsive.
+        </li>
+        <li>
+        The new <code>--no-highlight</code> option can be used to disable syntax
+        highlighting (giving better performance for large JavaScript files).
+        </li>
+        <li>
+        The build system has been modified so that <code>make install</code>
+        only installs the <code>jscoverage</code> and
+        <code>jscoverage-server</code> executables and their manual pages.
+        (Previous versions installed SpiderMonkey library and executable files,
+        which could conflict with other versions of SpiderMonkey installed on
+        your system.)
+        </li>
+        <li>
+        JSCoverage now supports several features beyond those found in the
+        <cite>ECMAScript Language Specification</cite>, including the following:
+        <ul class="list">
+        <li>getters and setters
+        <li><code>for each</code> loops
+        <li>generators and iterators
+        <li>the <code>let</code> keyword
+        <li>destructuring assignment
+        <li>array comprehensions
+        <li>expression closures
+        <li>generator expressions
+        </ul>
+        Use the new <code>--js-version</code> option to enable these features.
+        </li>
+        </ul>
+        <p>
+        The GCC C++ compiler (<code>g++</code>) is now required to compile
+        JSCoverage.  (Previously, only the C compiler was needed.)
+        </p>
+        <p>
+        Please report any bugs you find using the new <a href="http://siliconforks.com/jscoverage/bugs/">bug tracker</a>.
+        </p>
+
+        <h3><a name="20080331">March 31, 2008 - JSCoverage and Firefox 3</a></h3>
+        <p>
+        The <a href="faq.html">JSCoverage FAQ</a> has been updated to address problems using JSCoverage with Firefox 3.
+        </p>
+
+        <h3><a name="20080324">March 24, 2008 - JSCoverage in Debian GNU/Linux</a></h3>
+        <p>
+        JSCoverage is now <a href="http://packages.debian.org/sid/jscoverage">available</a> in the Debian unstable distribution.
+        </p>
+
+        <h3><a name="20071122">November 22, 2007 - JSCoverage 0.3.1</a></h3>
+        <p>
+        JSCoverage 0.3.1 is available for <a href="http://siliconforks.com/jscoverage/download.html">download</a>.
+        </p>
+        <p>
+        This release has a number of bug fixes:
+        </p>
+        <ul class="list">
+        <li>
+        It should now be possible to run the native Windows version of <code>jscoverage</code>
+        with minimal privileges.
+        </li>
+        <li>
+        All files used by JSCoverage now use a <code>jscoverage</code>
+        prefix to avoid name collisions.
+        </li>
+        <li>
+        Compilation bugs which occurred under some versions of MSYS have been fixed.
+        </li>
+        <li>
+        Various documentation improvements.
+        </li>
+        </ul>
+
+        <h3><a name="20070826">August 26, 2007 - JSCoverage 0.3</a></h3>
+        <p>
+        JSCoverage 0.3 is available for <a href="http://siliconforks.com/jscoverage/download.html">download</a>.
+        </p>
+        <p>
+        This release has the following new features:
+        </p>
+        <ul class="list">
+        <li>
+        The coverage summary now displays bar graphs (thanks to Ross Simpson).
+        </li>
+        <li>
+        A progress bar is displayed for lengthy computations.
+        </li>
+        <li>
+        JavaScript syntax highlighting has improved.
+        </li>
+        <li>
+        The display of missed statements can be turned on and off.
+        </li>
+        <li>
+        New "inverted mode" provides better support for working with <a href="http://www.jsunit.net/">JsUnit</a>.
+        </li>
+        </ul>
+
+        <h3><a name="20070823">August 23, 2007 - JSCoverage in Linux Format magazine</a></h3>
+        <p>
+        JSCoverage is in the October 2007 issue of Linux Format magazine
+        (<a href="http://www.linuxformat.co.uk/modules.php?op=modload&amp;name=NewArchives&amp;issue=97">table of contents</a>).
+        </p>
+
+        <h3><a name="20070731">July 31, 2007 - Subversion repository now available</a></h3>
+        <p>
+        See the <a href="http://siliconforks.com/jscoverage/download.html">download page</a> for instructions on accessing the Subversion repository.
+        </p>
+
+        <h3><a name="20070708">July 8, 2007 - JSCoverage 0.2</a></h3>
+        <p>
+        JSCoverage 0.2 is available for <a href="http://siliconforks.com/jscoverage/download.html">download</a>.
+        </p>
+        <p>
+        JSCoverage 0.2 features a new tabbed user interface.
+        </p>
+
+        <h3><a name="20070701">July 1, 2007 - JSCoverage 0.1.1</a></h3>
+        <p>
+        JSCoverage 0.1.1 is available for <a href="http://siliconforks.com/jscoverage/download.html">download</a>.
+        </p>
+        <p>
+        JSCoverage 0.1.1 fixes a bug that can cause large JavaScript files to be truncated when viewed with Opera.
+        </p>
+
+        <h3><a name="20070615">June 15, 2007 - documentation of JSCoverage internals</a></h3>
+        <p>
+        A new document,
+        <a href="http://siliconforks.com/doc/parsing-javascript-with-spidermonkey/">Parsing JavaScript with SpiderMonkey</a>,
+        describes the technique used by JSCoverage to parse JavaScript programs.
+        </p>
+
+        <h3><a name="20070530">May 30, 2007 - new examples</a></h3>
+        <p>
+        Added some <a href="demo.html">examples</a> of running JSCoverage on popular JavaScript libraries.
+        </p>
+
+        <h3><a name="20070526">May 26, 2007 - JSCoverage 0.1</a></h3>
+        <p>
+        JSCoverage 0.1 is available for <a href="http://siliconforks.com/jscoverage/download.html">download</a>.
+        </p>
+      </div>
+    </div>
+    <div id="jscoverage-sidebar" class="yui-b">
+      <ul>
+      <li><a href="./">Home</a>
+      <li>News <a href="http://siliconforks.com/jscoverage/news.xml" type="application/rss+xml" title="RSS feed for JSCoverage"><img src="feed-icon-14x14.png" alt="RSS feed"></a>
+      <li><a href="manual.html">Documentation</a>
+      <li><a href="demo.html">Demo</a>
+      <li><a href="http://siliconforks.com/jscoverage/download.html">Download</a>
+      <li><a href="faq.html">FAQ</a>
+      <li><a href="help.html">Help</a>
+      <li><a href="license.html">License</a>
+      <li><a href="links.html">Links</a>
+      <li><a href="users.html">Users</a>
+      <li><a href="http://siliconforks.com/jscoverage/bugs/">Bug tracker</a>
+      </ul>
+    </div> 
+  </div>
+  <div id="ft">
+    <address>
+      Copyright &copy; 2007, 2008 <a href="http://siliconforks.com/"><img src="siliconforks-16x16.png" width="16" height="16" class="icon" alt="Silicon Forks"></a> <a href="http://siliconforks.com/">siliconforks.com</a><br>
+      <a href="mailto:jscoverage@siliconforks.com">jscoverage@siliconforks.com</a>
+    </address>
+  </div>  
+</div>
+</body>
+</html>

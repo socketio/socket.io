@@ -1,0 +1,124 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+ * vim: set sw=4 ts=8 et tw=80:
+ *
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is Mozilla Communicator client code, released
+ * March 31, 1998.
+ *
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+JS_KEYWORD(break,       TOK_BREAK,      JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(case,        TOK_CASE,       JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(continue,    TOK_CONTINUE,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(default,     TOK_DEFAULT,    JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(delete,      TOK_DELETE,     JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(do,          TOK_DO,         JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(else,        TOK_ELSE,       JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(export,      TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(false,       TOK_PRIMARY,    JSOP_FALSE,     JSVERSION_DEFAULT)
+JS_KEYWORD(for,         TOK_FOR,        JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(function,    TOK_FUNCTION,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(if,          TOK_IF,         JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(in,          TOK_IN,         JSOP_IN,        JSVERSION_DEFAULT)
+JS_KEYWORD(new,         TOK_NEW,        JSOP_NEW,       JSVERSION_DEFAULT)
+JS_KEYWORD(null,        TOK_PRIMARY,    JSOP_NULL,      JSVERSION_DEFAULT)
+JS_KEYWORD(return,      TOK_RETURN,     JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(switch,      TOK_SWITCH,     JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(this,        TOK_PRIMARY,    JSOP_THIS,      JSVERSION_DEFAULT)
+JS_KEYWORD(true,        TOK_PRIMARY,    JSOP_TRUE,      JSVERSION_DEFAULT)
+JS_KEYWORD(typeof,      TOK_UNARYOP,    JSOP_TYPEOF,    JSVERSION_DEFAULT)
+JS_KEYWORD(var,         TOK_VAR,        JSOP_DEFVAR,    JSVERSION_DEFAULT)
+JS_KEYWORD(void,        TOK_UNARYOP,    JSOP_VOID,      JSVERSION_DEFAULT)
+JS_KEYWORD(while,       TOK_WHILE,      JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(with,        TOK_WITH,       JSOP_NOP,       JSVERSION_DEFAULT)
+#if JS_HAS_CONST
+JS_KEYWORD(const,       TOK_VAR,        JSOP_DEFCONST,  JSVERSION_DEFAULT)
+#else
+JS_KEYWORD(const,       TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+#endif
+
+JS_KEYWORD(try,         TOK_TRY,        JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(catch,       TOK_CATCH,      JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(finally,     TOK_FINALLY,    JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(throw,       TOK_THROW,      JSOP_NOP,       JSVERSION_DEFAULT)
+
+JS_KEYWORD(instanceof,  TOK_INSTANCEOF, JSOP_INSTANCEOF,JSVERSION_DEFAULT)
+
+#if JS_HAS_RESERVED_JAVA_KEYWORDS
+JS_KEYWORD(abstract,    TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(boolean,     TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(byte,        TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(char,        TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(class,       TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(double,      TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(extends,     TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(final,       TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(float,       TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(goto,        TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(implements,  TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(import,      TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(int,         TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(interface,   TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(long,        TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(native,      TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(package,     TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(private,     TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(protected,   TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(public,      TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(short,       TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(static,      TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(super,       TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(synchronized,TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(throws,      TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(transient,   TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+JS_KEYWORD(volatile,    TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+#endif
+
+#if JS_HAS_RESERVED_ECMA_KEYWORDS
+JS_KEYWORD(enum,        TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+#endif
+
+#if JS_HAS_DEBUGGER_KEYWORD
+JS_KEYWORD(debugger,    TOK_DEBUGGER,   JSOP_NOP,       JSVERSION_DEFAULT)
+#elif JS_HAS_RESERVED_ECMA_KEYWORDS
+JS_KEYWORD(debugger,    TOK_RESERVED,   JSOP_NOP,       JSVERSION_DEFAULT)
+#endif
+
+#if JS_HAS_GENERATORS
+JS_KEYWORD(yield,       TOK_YIELD,      JSOP_NOP,       JSVERSION_1_7)
+#endif
+
+#if JS_HAS_BLOCK_SCOPE
+JS_KEYWORD(let,         TOK_LET,        JSOP_NOP,       JSVERSION_1_7)
+#endif

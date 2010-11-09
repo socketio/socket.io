@@ -1,0 +1,189 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>JsUnit main-data.html</title>
+    <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+    <script language="JavaScript" type="text/javascript" src="jsUnitCore.js"></script>
+    <script language="JavaScript" type="text/javascript" src="jsUnitVersionCheck.js"></script>
+    <script language="JavaScript" type="text/javascript">
+
+        function pageLoaded() {
+            giveFocusToTestFileNameField();
+        }
+
+        function giveFocusToTestFileNameField() {
+            if (document.testRunnerForm.testFileName.type != "hidden")
+                document.testRunnerForm.testFileName.focus();
+        }
+
+        function kickOffTests() {
+            //
+            //    Check if Init was called by onload handler
+            //
+            if (typeof(top.testManager) == 'undefined') {
+                top.init();
+            }
+
+            if (isBlank(top.testManager.getTestFileName())) {
+                top.testManager.fatalError('No Test Page specified.');
+                return;
+            }
+
+            top.testManager.setup();
+
+            top.testManager._currentSuite().addTestPage(top.testManager.resolveUserEnteredTestFileName());
+            top.tracer.initialize();
+
+            var traceLevel = document.forms.testRunnerForm.traceLevel;
+            if (traceLevel.value != '0')
+            {
+                var traceWindow = top.tracer._getTraceWindow();
+                if (traceWindow) {
+                    traceWindow.focus();
+                }
+                else {
+                    top.testManager.fatalError('Tracing requires popup windows, and popups are blocked in your browser.\n\nPlease enable popups if you wish to use tracing.');
+                }
+            }
+
+            top.testManager.start();
+        }
+
+    </script>
+</head>
+
+<body onload="pageLoaded();">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" summary="jsUnit Information" bgcolor="#DDDDDD">
+    <tr>
+        <td width="1"><a href="http://www.jsunit.net" target="_blank"><img src="../images/logo_jsunit.gif" alt="JsUnit" border="0"/></a></td>
+        <td width="50">&nbsp;</td>
+        <th nowrap align="left">
+            <h4>JsUnit <script language="javascript">document.write(JSUNIT_VERSION);</script> TestRunner</h4>
+            <font size="-2"><i>Running on <script language="javascript" type="text/javascript">document.write(navigator.userAgent);</script>
+            </i></font>
+        </th>
+
+        <td nowrap align="right" valign="middle">
+            <font size="-2">
+                <b><a href="http://www.jsunit.net/" target="_blank">www.jsunit.net</a></b>&nbsp;&nbsp;<br>
+            </font>
+            <a href="http://www.pivotalsf.com/" target="top">
+                <img border="0" src="../images/powerby-transparent.gif" alt="Powered By Pivotal">
+            </a>
+        </td>
+    </tr>
+</table>
+
+<form name="testRunnerForm" action="">
+    <script type="text/javascript" language="javascript">
+        if (!jsUnitGetParm('testpage')) {
+            document.write("<p>Enter the filename of the Test Page to be run:</p>");
+        } else {
+            document.write("<br>");
+        };
+    </script>
+
+    <table cellpadding="0" cellspacing="0" border="0" summary="Form for entering test case location">
+        <tr>
+            <td align="center" valign="middle">
+                <script language="JavaScript" type="text/javascript">
+                    document.write(top.getDocumentProtocol());
+                </script>
+            </td>
+
+            <td nowrap align="center" valign="bottom">
+                &nbsp;
+                <script language="JavaScript" type="text/javascript">
+                    var specifiedTestPage = jsUnitGetParm('testpage');
+                    if (specifiedTestPage) {
+                        var html = '<input type="hidden" name="testFileName" value="';
+                        var valueString = '';
+                        if ((top.getDocumentProtocol() == 'http://' || top.getDocumentProtocol() == 'https://') && jsUnitGetParm('testpage').indexOf('/') == 0)
+                            valueString += top.location.host;
+                        valueString += specifiedTestPage;
+                        var testParms = top.jsUnitConstructTestParms();
+                        if (testParms != '') {
+                            valueString += '?';
+                            valueString += testParms;
+                        }
+                        html += valueString;
+                        html += '">';
+                        html += valueString;
+                        document.write(html);
+                    } else {
+                        if (top.getDocumentProtocol() == 'file:///' && top.browserSupportsReadingFullPathFromFileField())
+                            document.write('<input type="file" name="testFileName" size="60">');
+                        else
+                            document.write('<input type="text" name="testFileName" size="60">');
+                    }
+                </script>
+                <input type="button" name="runButton" value="Run" onclick="kickOffTests()">
+                <script type="text/javascript">
+                    function jscoverageWindow() {
+                        /*
+                        the path may have to be adjusted: it should point to the
+                        jscoverage.html file (relative to the jsunit/app
+                        directory)
+                        */
+                        window.open("../../jscoverage.html");
+                    }
+                </script>
+                <button onclick="jscoverageWindow();">Coverage report</button>
+            </td>
+        </tr>
+    </table>
+    <br>
+    <hr>
+
+    <table cellpadding="0" cellspacing="0" border="0" summary="Choose Trace Level">
+        <tr>
+            <td nowrap>Trace level:</td>
+
+            <td><select name="traceLevel">
+                <option value="0" selected>
+                    no tracing
+                </option>
+
+                <option value="1">
+                    warning (lowest)
+                </option>
+
+                <option value="2">
+                    info
+                </option>
+
+                <option value="3">
+                    debug (highest)
+                </option>
+            </select></td>
+
+            <td>&nbsp;&nbsp;&nbsp;</td>
+
+            <td><input type="checkbox" name="closeTraceWindowOnNewRun" checked></td>
+            <td nowrap>Close old trace window on new run</td>
+
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+
+            <td nowrap>Page load timeout:</td>
+            <td>&nbsp;
+                <script language="javascript" type="text/javascript">
+                    document.write('<input type="text" size="2" name="timeout" value="' + top.jsUnitTestManager.TESTPAGE_WAIT_SEC + '">');
+                </script>
+            </td>
+
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+
+            <td nowrap>Setup page timeout:</td>
+            <td>&nbsp;
+                <script language="javascript" type="text/javascript">
+                    document.write('<input type="text" size="2" name="setUpPageTimeout" value="' + top.jsUnitTestManager.SETUPPAGE_TIMEOUT + '">');
+                </script>
+            </td>
+        </tr>
+    </table>
+    <hr>
+</form>
+</body>
+</html>

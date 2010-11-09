@@ -1,0 +1,2 @@
+content jscoverage jscoverage/
+overlay chrome://browser/content/browser.xul chrome://jscoverage/content/jscoverage.xul

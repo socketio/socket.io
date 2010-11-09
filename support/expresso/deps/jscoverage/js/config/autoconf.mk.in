@@ -1,0 +1,349 @@
+#
+# ***** BEGIN LICENSE BLOCK *****
+# Version: MPL 1.1/GPL 2.0/LGPL 2.1
+#
+# The contents of this file are subject to the Mozilla Public License Version
+# 1.1 (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+# http://www.mozilla.org/MPL/
+#
+# Software distributed under the License is distributed on an "AS IS" basis,
+# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+# for the specific language governing rights and limitations under the
+# License.
+#
+# The Original Code is this file as it was released upon August 6, 1998.
+#
+# The Initial Developer of the Original Code is
+# Christopher Seawood.
+# Portions created by the Initial Developer are Copyright (C) 1998
+# the Initial Developer. All Rights Reserved.
+#
+# Contributor(s):
+#   Benjamin Smedberg <benjamin@smedbergs.us>
+#
+# Alternatively, the contents of this file may be used under the terms of
+# either of the GNU General Public License Version 2 or later (the "GPL"),
+# or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+# in which case the provisions of the GPL or the LGPL are applicable instead
+# of those above. If you wish to allow use of your version of this file only
+# under the terms of either the GPL or the LGPL, and not to allow others to
+# use your version of this file under the terms of the MPL, indicate your
+# decision by deleting the provisions above and replace them with the notice
+# and other provisions required by the GPL or the LGPL. If you do not delete
+# the provisions above, a recipient may use your version of this file under
+# the terms of any one of the MPL, the GPL or the LGPL.
+#
+# ***** END LICENSE BLOCK *****
+
+# A netscape style .mk file for autoconf builds
+
+INCLUDED_AUTOCONF_MK = 1
+USE_AUTOCONF 	= 1
+MOZILLA_CLIENT	= 1
+target          = @target@
+ac_configure_args = @ac_configure_args@
+BUILD_MODULES	= @BUILD_MODULES@
+MOZILLA_VERSION = @MOZILLA_VERSION@
+
+MOZ_BUILD_APP = @MOZ_BUILD_APP@
+MOZ_APP_NAME	= @MOZ_APP_NAME@
+MOZ_APP_DISPLAYNAME = @MOZ_APP_DISPLAYNAME@
+MOZ_APP_VERSION = @MOZ_APP_VERSION@
+
+MOZ_PKG_SPECIAL = @MOZ_PKG_SPECIAL@
+
+prefix		= @prefix@
+exec_prefix	= @exec_prefix@
+bindir		= @bindir@
+includedir	= @includedir@
+libdir		= @libdir@
+datadir		= @datadir@
+mandir		= @mandir@
+
+installdir	= $(libdir)/$(MOZ_APP_NAME)-$(MOZ_APP_VERSION)
+sdkdir		= $(libdir)/$(MOZ_APP_NAME)-devel-$(MOZ_APP_VERSION)
+
+DIST		= $(DEPTH)/dist
+
+MOZ_JS_LIBS		   = @MOZ_JS_LIBS@
+
+MOZ_SYNC_BUILD_FILES = @MOZ_SYNC_BUILD_FILES@
+
+MOZ_DEBUG	= @MOZ_DEBUG@
+MOZ_DEBUG_MODULES = @MOZ_DEBUG_MODULES@
+MOZ_PROFILE_MODULES = @MOZ_PROFILE_MODULES@
+MOZ_DEBUG_ENABLE_DEFS		= @MOZ_DEBUG_ENABLE_DEFS@
+MOZ_DEBUG_DISABLE_DEFS	= @MOZ_DEBUG_DISABLE_DEFS@
+MOZ_DEBUG_FLAGS	= @MOZ_DEBUG_FLAGS@
+MOZ_DEBUG_LDFLAGS=@MOZ_DEBUG_LDFLAGS@
+MOZ_DBGRINFO_MODULES	= @MOZ_DBGRINFO_MODULES@
+MOZ_EXTENSIONS  = @MOZ_EXTENSIONS@
+MOZ_IMG_DECODERS= @MOZ_IMG_DECODERS@
+MOZ_IMG_ENCODERS= @MOZ_IMG_ENCODERS@
+MOZ_JSDEBUGGER  = @MOZ_JSDEBUGGER@
+MOZ_PERF_METRICS = @MOZ_PERF_METRICS@
+MOZ_LEAKY	= @MOZ_LEAKY@
+MOZ_MEMORY      = @MOZ_MEMORY@
+MOZ_JPROF       = @MOZ_JPROF@
+MOZ_SHARK       = @MOZ_SHARK@
+MOZ_CALLGRIND   = @MOZ_CALLGRIND@
+MOZ_VTUNE       = @MOZ_VTUNE@
+DEHYDRA_PATH    = @DEHYDRA_PATH@
+
+ENABLE_EAZEL_PROFILER=@ENABLE_EAZEL_PROFILER@
+EAZEL_PROFILER_CFLAGS=@EAZEL_PROFILER_CFLAGS@
+EAZEL_PROFILER_LIBS=@EAZEL_PROFILER_LIBS@
+GC_LEAK_DETECTOR = @GC_LEAK_DETECTOR@
+NS_TRACE_MALLOC = @NS_TRACE_MALLOC@
+INCREMENTAL_LINKER = @INCREMENTAL_LINKER@
+MACOSX_DEPLOYMENT_TARGET = @MACOSX_DEPLOYMENT_TARGET@
+BUILD_STATIC_LIBS = @BUILD_STATIC_LIBS@
+ENABLE_TESTS	= @ENABLE_TESTS@
+JS_ULTRASPARC_OPTS = @JS_ULTRASPARC_OPTS@
+JS_STATIC_BUILD = @JS_STATIC_BUILD@
+
+TAR=@TAR@
+
+# The MOZ_UI_LOCALE var is used to build a particular locale. Do *not*
+# use the var to change any binary files. Do *not* use this var unless you
+# write rules for the "clean-locale" and "locale" targets.
+MOZ_UI_LOCALE = @MOZ_UI_LOCALE@
+
+MOZ_COMPONENTS_VERSION_SCRIPT_LDFLAGS = @MOZ_COMPONENTS_VERSION_SCRIPT_LDFLAGS@
+MOZ_COMPONENT_NSPR_LIBS=@MOZ_COMPONENT_NSPR_LIBS@
+
+MOZ_FIX_LINK_PATHS=@MOZ_FIX_LINK_PATHS@
+
+XPCOM_FROZEN_LDOPTS=@XPCOM_FROZEN_LDOPTS@
+XPCOM_LIBS=@XPCOM_LIBS@
+MOZ_TIMELINE=@MOZ_TIMELINE@
+
+ENABLE_STRIP	= @ENABLE_STRIP@
+PKG_SKIP_STRIP	= @PKG_SKIP_STRIP@
+
+MOZ_POST_DSO_LIB_COMMAND = @MOZ_POST_DSO_LIB_COMMAND@
+MOZ_POST_PROGRAM_COMMAND = @MOZ_POST_PROGRAM_COMMAND@
+
+MOZ_BUILD_ROOT             = @MOZ_BUILD_ROOT@
+
+MOZ_INSURE = @MOZ_INSURE@
+MOZ_INSURIFYING = @MOZ_INSURIFYING@
+MOZ_INSURE_DIRS = @MOZ_INSURE_DIRS@
+MOZ_INSURE_EXCLUDE_DIRS = @MOZ_INSURE_EXCLUDE_DIRS@
+
+MOZ_NATIVE_NSPR = @MOZ_NATIVE_NSPR@
+
+CROSS_COMPILE   = @CROSS_COMPILE@
+
+WCHAR_CFLAGS	= @WCHAR_CFLAGS@
+
+OS_CPPFLAGS	= @CPPFLAGS@
+OS_CFLAGS	= $(OS_CPPFLAGS) @CFLAGS@
+OS_CXXFLAGS	= $(OS_CPPFLAGS) @CXXFLAGS@
+OS_LDFLAGS	= @LDFLAGS@
+
+OS_COMPILE_CFLAGS = $(OS_CPPFLAGS) @COMPILE_CFLAGS@
+OS_COMPILE_CXXFLAGS = $(OS_CPPFLAGS) @COMPILE_CXXFLAGS@
+
+OS_INCLUDES	= $(NSPR_CFLAGS)
+OS_LIBS		= @LIBS@
+ACDEFINES	= @MOZ_DEFINES@
+
+WARNINGS_AS_ERRORS = @WARNINGS_AS_ERRORS@
+
+MOZ_OPTIMIZE	= @MOZ_OPTIMIZE@
+MOZ_OPTIMIZE_FLAGS = @MOZ_OPTIMIZE_FLAGS@
+MOZ_OPTIMIZE_LDFLAGS = @MOZ_OPTIMIZE_LDFLAGS@
+MOZ_OPTIMIZE_SIZE_TWEAK = @MOZ_OPTIMIZE_SIZE_TWEAK@
+
+MOZ_RTTI_FLAGS_ON = @_MOZ_RTTI_FLAGS_ON@
+
+MOZ_PROFILE_GUIDED_OPTIMIZE_DISABLE = @MOZ_PROFILE_GUIDED_OPTIMIZE_DISABLE@
+PROFILE_GEN_CFLAGS = @PROFILE_GEN_CFLAGS@
+PROFILE_GEN_LDFLAGS = @PROFILE_GEN_LDFLAGS@
+PROFILE_USE_CFLAGS = @PROFILE_USE_CFLAGS@
+PROFILE_USE_LDFLAGS = @PROFILE_USE_LDFLAGS@
+
+WIN_TOP_SRC	= @WIN_TOP_SRC@
+CYGWIN_WRAPPER	= @CYGWIN_WRAPPER@
+AS_PERL         = @AS_PERL@
+CYGDRIVE_MOUNT	= @CYGDRIVE_MOUNT@
+AR		= @AR@
+AR_FLAGS	= @AR_FLAGS@
+AR_EXTRACT	= @AR_EXTRACT@
+AR_LIST		= @AR_LIST@
+AR_DELETE	= @AR_DELETE@
+AS		= @AS@
+ASFLAGS		= @ASFLAGS@
+AS_DASH_C_FLAG	= @AS_DASH_C_FLAG@
+LD		= @LD@
+RC		= @RC@
+RCFLAGS		= @RCFLAGS@
+WINDRES		= @WINDRES@
+USE_SHORT_LIBNAME = @USE_SHORT_LIBNAME@
+IMPLIB		= @IMPLIB@
+FILTER		= @FILTER@
+BIN_FLAGS	= @BIN_FLAGS@
+MIDL		= @MIDL@
+MIDL_FLAGS	= @MIDL_FLAGS@
+_MSC_VER	= @_MSC_VER@
+
+DLL_PREFIX	= @DLL_PREFIX@
+LIB_PREFIX	= @LIB_PREFIX@
+OBJ_SUFFIX	= @OBJ_SUFFIX@
+LIB_SUFFIX	= @LIB_SUFFIX@
+DLL_SUFFIX	= @DLL_SUFFIX@
+BIN_SUFFIX	= @BIN_SUFFIX@
+ASM_SUFFIX	= @ASM_SUFFIX@
+IMPORT_LIB_SUFFIX = @IMPORT_LIB_SUFFIX@
+USE_N32		= @USE_N32@
+HAVE_64BIT_OS	= @HAVE_64BIT_OS@
+
+# Temp hack.  It is not my intention to leave this crap in here for ever.
+# Im talking to fur right now to solve the problem without introducing 
+# NS_USE_NATIVE to the build system -ramiro.
+NS_USE_NATIVE = @NS_USE_NATIVE@
+
+CC		    = @CC@
+CXX		    = @CXX@
+
+CC_VERSION	= @CC_VERSION@
+CXX_VERSION	= @CXX_VERSION@
+
+GNU_AS		= @GNU_AS@
+GNU_LD		= @GNU_LD@
+GNU_CC		= @GNU_CC@
+GNU_CXX		= @GNU_CXX@
+HAVE_GCC3_ABI	= @HAVE_GCC3_ABI@
+INTEL_CC	= @INTEL_CC@
+INTEL_CXX	= @INTEL_CXX@
+
+HOST_CC		= @HOST_CC@
+HOST_CXX	= @HOST_CXX@
+HOST_CFLAGS	= @HOST_CFLAGS@
+HOST_CXXFLAGS	= @HOST_CXXFLAGS@
+HOST_OPTIMIZE_FLAGS = @HOST_OPTIMIZE_FLAGS@
+HOST_NSPR_MDCPUCFG = @HOST_NSPR_MDCPUCFG@
+HOST_AR		= @HOST_AR@
+HOST_AR_FLAGS	= @HOST_AR_FLAGS@
+HOST_LD		= @HOST_LD@
+HOST_RANLIB	= @HOST_RANLIB@
+HOST_BIN_SUFFIX	= @HOST_BIN_SUFFIX@
+
+HOST_OS_ARCH	= @HOST_OS_ARCH@
+host_cpu	= @host_cpu@
+host_vendor	= @host_vendor@
+host_os		= @host_os@
+
+TARGET_NSPR_MDCPUCFG = @TARGET_NSPR_MDCPUCFG@
+TARGET_CPU	= @TARGET_CPU@
+TARGET_VENDOR	= @TARGET_VENDOR@
+TARGET_OS	= @TARGET_OS@
+TARGET_MD_ARCH	= @TARGET_MD_ARCH@
+TARGET_XPCOM_ABI = @TARGET_XPCOM_ABI@
+
+AUTOCONF	= @AUTOCONF@
+PERL		= @PERL@
+PYTHON		= @PYTHON@
+RANLIB		= @RANLIB@
+WHOAMI		= @WHOAMI@
+UNZIP		= @UNZIP@
+ZIP		= @ZIP@
+XARGS		= @XARGS@
+STRIP		= @STRIP@
+DOXYGEN		= @DOXYGEN@
+MAKE		= @MAKE@
+PBBUILD_BIN	= @PBBUILD@
+SDP		= @SDP@
+NSINSTALL_BIN	= @NSINSTALL_BIN@
+
+NSPR_CONFIG	= @NSPR_CONFIG@
+NSPR_CFLAGS	= @NSPR_CFLAGS@
+NSPR_LIBS	= @NSPR_LIBS@
+
+USE_DEPENDENT_LIBS = @USE_DEPENDENT_LIBS@
+
+# MKSHLIB_FORCE_ALL is used to force the linker to include all object
+# files present in an archive. MKSHLIB_UNFORCE_ALL reverts the linker
+# to normal behavior. Makefile's that create shared libraries out of
+# archives use these flags to force in all of the .o files in the
+# archives into the shared library.
+WRAP_MALLOC_LIB         = @WRAP_MALLOC_LIB@
+WRAP_MALLOC_CFLAGS      = @WRAP_MALLOC_CFLAGS@
+DSO_CFLAGS              = @DSO_CFLAGS@
+DSO_PIC_CFLAGS          = @DSO_PIC_CFLAGS@
+MKSHLIB                 = @MKSHLIB@
+MKCSHLIB                = @MKCSHLIB@
+MKSHLIB_FORCE_ALL       = @MKSHLIB_FORCE_ALL@
+MKSHLIB_UNFORCE_ALL     = @MKSHLIB_UNFORCE_ALL@
+DSO_LDOPTS              = @DSO_LDOPTS@
+DLL_SUFFIX              = @DLL_SUFFIX@
+
+NO_LD_ARCHIVE_FLAGS     = @NO_LD_ARCHIVE_FLAGS@
+
+MOZ_TOOLKIT_REGISTRY_CFLAGS = \
+	$(TK_CFLAGS)
+
+MOZ_NATIVE_MAKEDEPEND	= @SYSTEM_MAKEDEPEND@
+
+# Used for LD_LIBRARY_PATH
+LIBS_PATH       = @LIBS_PATH@
+
+MOZ_AUTO_DEPS	= @MOZ_AUTO_DEPS@
+COMPILER_DEPEND = @COMPILER_DEPEND@
+MDDEPDIR        := @MDDEPDIR@
+
+MOZ_DEMANGLE_SYMBOLS = @MOZ_DEMANGLE_SYMBOLS@
+
+# XXX - these need to be cleaned up and have real checks added -cls
+CM_BLDTYPE=dbg
+AWT_11=1
+MOZ_BITS=32
+OS_TARGET=@OS_TARGET@
+OS_ARCH=@OS_ARCH@
+OS_RELEASE=@OS_RELEASE@
+OS_TEST=@OS_TEST@
+
+TARGET_DEVICE = @TARGET_DEVICE@
+
+# For AIX build
+AIX_OBJMODEL = @AIX_OBJMODEL@
+
+# For OS/2 build
+MOZ_OS2_TOOLS = @MOZ_OS2_TOOLS@
+MOZ_OS2_USE_DECLSPEC = @MOZ_OS2_USE_DECLSPEC@
+MOZ_OS2_HIGH_MEMORY = @MOZ_OS2_HIGH_MEMORY@
+
+MOZILLA_OFFICIAL = @MOZILLA_OFFICIAL@
+BUILD_OFFICIAL = @BUILD_OFFICIAL@
+MOZ_MILESTONE_RELEASE = @MOZ_MILESTONE_RELEASE@
+
+# Win32 options
+MOZ_PROFILE	= @MOZ_PROFILE@
+MOZ_BROWSE_INFO	= @MOZ_BROWSE_INFO@
+MOZ_TOOLS_DIR	= @MOZ_TOOLS_DIR@
+MOZ_DEBUG_SYMBOLS = @MOZ_DEBUG_SYMBOLS@
+MOZ_QUANTIFY	= @MOZ_QUANTIFY@
+MSMANIFEST_TOOL = @MSMANIFEST_TOOL@
+WIN32_REDIST_DIR = @WIN32_REDIST_DIR@
+WIN32_CRT_SRC_DIR = @WIN32_CRT_SRC_DIR@
+WIN32_CUSTOM_CRT_DIR = @WIN32_CUSTOM_CRT_DIR@
+
+# Codesighs tools option, enables win32 mapfiles.
+MOZ_MAPINFO	= @MOZ_MAPINFO@
+
+WINCE		= @WINCE@
+
+MACOS_SDK_DIR	= @MACOS_SDK_DIR@
+NEXT_ROOT	= @NEXT_ROOT@
+GCC_VERSION	= @GCC_VERSION@
+XCODEBUILD_VERSION= @XCODEBUILD_VERSION@
+HAS_XCODE_2_1	= @HAS_XCODE_2_1@
+UNIVERSAL_BINARY= @UNIVERSAL_BINARY@
+HAVE_DTRACE= @HAVE_DTRACE@
+
+VISIBILITY_FLAGS = @VISIBILITY_FLAGS@
+WRAP_SYSTEM_INCLUDES = @WRAP_SYSTEM_INCLUDES@
+
+HAVE_ARM_SIMD= @HAVE_ARM_SIMD@

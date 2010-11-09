@@ -1,0 +1,129 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+ * vim: set sw=4 ts=8 et tw=80 ft=c:
+ *
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is SpiderMonkey 1.7 work in progress, released
+ * February 14, 2006.
+ *
+ * The Initial Developer of the Original Code is
+ * Brendan Eich <brendan@mozilla.org>
+ *
+ * Contributor(s):
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#include "jsversion.h"
+
+#if JS_HAS_SCRIPT_OBJECT
+# define SCRIPT_INIT                    js_InitScriptClass
+#else
+# define SCRIPT_INIT                    js_InitNullClass
+#endif
+
+#if JS_HAS_XML_SUPPORT
+# define XML_INIT                       js_InitXMLClass
+# define NAMESPACE_INIT                 js_InitNamespaceClass
+# define QNAME_INIT                     js_InitQNameClass
+# define ANYNAME_INIT                   js_InitAnyNameClass
+# define ATTRIBUTE_INIT                 js_InitAttributeNameClass
+# define XMLFILTER_INIT                 js_InitXMLFilterClass
+#else
+# define XML_INIT                       js_InitNullClass
+# define NAMESPACE_INIT                 js_InitNullClass
+# define QNAME_INIT                     js_InitNullClass
+# define ANYNAME_INIT                   js_InitNullClass
+# define ATTRIBUTE_INIT                 js_InitNullClass
+# define XMLFILTER_INIT                 js_InitNullClass
+#endif
+
+#if JS_HAS_GENERATORS
+# define GENERATOR_INIT                 js_InitIteratorClasses
+#else
+# define GENERATOR_INIT                 js_InitNullClass
+#endif
+
+#if JS_HAS_NO_SUCH_METHOD
+# define NO_SUCH_METHOD_INIT            js_InitNoSuchMethodClass
+#else
+# define NO_SUCH_METHOD_INIT            js_InitNullClass
+#endif
+
+#if JS_HAS_FILE_OBJECT
+# define FILE_INIT                      js_InitFileClass
+#else
+# define FILE_INIT                      js_InitNullClass
+#endif
+
+/*
+ * Enumerator codes in the second column must not change -- they are part of
+ * the JS XDR API.  Client modules including jsproto.tbl should consider
+ * wrapping the inclusion with JS_BEGIN_EXTERN_C and JS_END_EXTERN_C.
+ */
+JS_PROTO(Null,                   0,     js_InitNullClass)
+JS_PROTO(Object,                 1,     js_InitFunctionAndObjectClasses)
+JS_PROTO(Function,               2,     js_InitFunctionAndObjectClasses)
+JS_PROTO(Array,                  3,     js_InitArrayClass)
+JS_PROTO(Boolean,                4,     js_InitBooleanClass)
+JS_PROTO(Call,                   5,     js_InitCallClass)
+JS_PROTO(Date,                   6,     js_InitDateClass)
+JS_PROTO(Math,                   7,     js_InitMathClass)
+JS_PROTO(Number,                 8,     js_InitNumberClass)
+JS_PROTO(String,                 9,     js_InitStringClass)
+JS_PROTO(RegExp,                10,     js_InitRegExpClass)
+JS_PROTO(Script,                11,     SCRIPT_INIT)
+JS_PROTO(XML,                   12,     XML_INIT)
+JS_PROTO(Namespace,             13,     NAMESPACE_INIT)
+JS_PROTO(QName,                 14,     QNAME_INIT)
+JS_PROTO(AnyName,               15,     ANYNAME_INIT)
+JS_PROTO(AttributeName,         16,     ATTRIBUTE_INIT)
+JS_PROTO(Error,                 17,     js_InitExceptionClasses)
+JS_PROTO(InternalError,         18,     js_InitExceptionClasses)
+JS_PROTO(EvalError,             19,     js_InitExceptionClasses)
+JS_PROTO(RangeError,            20,     js_InitExceptionClasses)
+JS_PROTO(ReferenceError,        21,     js_InitExceptionClasses)
+JS_PROTO(SyntaxError,           22,     js_InitExceptionClasses)
+JS_PROTO(TypeError,             23,     js_InitExceptionClasses)
+JS_PROTO(URIError,              24,     js_InitExceptionClasses)
+JS_PROTO(Generator,             25,     GENERATOR_INIT)
+JS_PROTO(Iterator,              26,     js_InitIteratorClasses)
+JS_PROTO(StopIteration,         27,     js_InitIteratorClasses)
+JS_PROTO(UnusedProto28,         28,     js_InitNullClass)
+JS_PROTO(File,                  29,     FILE_INIT)
+JS_PROTO(Block,                 30,     js_InitBlockClass)
+JS_PROTO(XMLFilter,             31,     XMLFILTER_INIT)
+JS_PROTO(NoSuchMethod,          32,     NO_SUCH_METHOD_INIT)
+JS_PROTO(JSON,                  33,     js_InitJSONClass)
+
+#undef SCRIPT_INIT
+#undef XML_INIT
+#undef NAMESPACE_INIT
+#undef QNAME_INIT
+#undef ANYNAME_INIT
+#undef ATTRIBUTE_INIT
+#undef GENERATOR_INIT
+#undef FILE_INIT
+#undef NO_SUCH_METHOD_INIT

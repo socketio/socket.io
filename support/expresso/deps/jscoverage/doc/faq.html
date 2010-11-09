@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<title>JSCoverage - FAQ</title>
+<link rel="stylesheet" type="text/css" href="reset-fonts-grids.css">
+<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<div id="doc3" class="yui-t5"> 
+  <div id="hd"><h1><a href="./">JSCoverage</a><br><span class="tag">code coverage for JavaScript</span></h1></div>  
+  <div id="bd">
+    <div id="yui-main"> 
+      <div id="jscoverage-main" class="yui-b">
+        <h2><abbr title="Frequently Asked Questions">FAQ</abbr></h2>
+
+        <h3>Can I use JSCoverage to measure code coverage for a page on <code>http://example.com/</code>?</h3>
+
+        <p>
+        In order to measure the code coverage of a page on <code>http://example.com/</code>,
+        you must run <code>jscoverage</code> to create a <code>jscoverage.html</code> file on the
+        <code>example.com</code> server.  You cannot use <code>http://example.org/jscoverage.html</code>
+        to measure the code coverage of a page located on <code>http://example.com/</code>.
+        </p>
+
+        <p>
+        The fundamental reason for this limitation is the
+        <a href="http://www.mozilla.org/projects/security/components/same-origin.html">Same Origin Policy</a>
+        for untrusted JavaScript.
+        </p>
+
+        <p>
+        (In fact, the current version of JSCoverage is slightly more restrictive
+        than this: it requires that the JavaScript being measured reside under the
+        same <strong>directory</strong> as the <code>jscoverage.html</code> file.)
+        </p>
+
+        <h3>Why doesn't my test suite run under JSCoverage in Firefox 3?</h3>
+
+        <p>
+        Firefox 3 introduces <a
+        href="http://tech.groups.yahoo.com/group/jsunit/message/1075">new
+        security restrictions</a> on local files.  Depending on the way your
+        test suite is organized, this may cause problems for JSCoverage.
+        (You may get the error "uncaught exception: Permission denied to get property Window._$jscoverage".)
+        There are several workarounds:
+        </p>
+
+        <ul class="list">
+        <li><p>Place your files on a web server instead of loading them from the file system.
+            This is usually the simplest solution.</p>
+        <li><p>Organize your HTML files in your test suite in a flat directory structure.  For example, suppose that
+            you instrument your test suite with this command:</p>
+<pre>
+jscoverage src instrumented
+</pre>
+            <p>If all your HTML files are located directly under the <code>src/</code> directory (i.e., not in a
+            subdirectory of <code>src/</code>), then you should not have any problems using Firefox 3.</p>
+        <li><p>Set the <a href="http://kb.mozillazine.org/Editing_configuration">Firefox preference</a> named 
+            <code><a href="http://kb.mozillazine.org/Security.fileuri.origin_policy">security.fileuri.origin_policy</a></code>
+            to 3.</p>
+        </ul>
+
+        <h3>I'm trying to load my code with the URL
+        <code>file:///C:/foo/bar/jscoverage.html?foo/bar.html</code>
+        and I'm getting all kinds of JavaScript errors.</h3>
+
+        <p>
+        Internet Explorer 6 seems to have problems with a <code>file:</code> URL
+        that has a query string with a slash in it.
+        </p>
+        <p>
+        As a workaround:
+        </p>
+        <ul class="list">
+        <li><p>Place your files on a web server instead of loading them from the file system.
+            (<code>http:</code> URLs work fine.)</p>
+        <li><p>Do not use a query string; enter your URL in the "URL" field in the "Browser" tab.</p>
+        <li><p>Rearrange your directory structure so that <code>bar.html</code>
+            ends up in the same directory as <code>jscoverage.html</code>; then
+            you can use the URL
+            <code>file:///C:/foo/bar/jscoverage.html?bar.html</code>
+            with no slash in the query string.</p>
+        <li><p>Use a different browser.  (IE 7 seems to work.)</p>
+        </ul>
+
+        <h3>JSCoverage changes my cursor to a busy cursor, and it never changes back!</h3>
+
+        <p>
+        Certain browsers (<i>e. g</i>., Internet Explorer 6, Opera, Safari) have trouble changing
+        the cursor.  Try moving the mouse and your cursor should change back to normal.
+        </p>
+
+        <p>
+        See <a href="http://groups.google.com/group/Google-Web-Toolkit/browse_thread/thread/631908bd63241136/783c307480f95d8c">this discussion</a> for more information.
+        </p>
+
+        <h3>JSCoverage hangs sometimes when rendering the coverage report.</h3>
+
+        <p>
+        With Internet Explorer 6 (I think I see a pattern here), garbage collection can cause performance problems.
+        (More information <a href="http://ajaxian.com/archives/garbage-collection-in-ie6">here</a>.)
+        </p>
+
+        <h3 id="jsunit">Can JSCoverage be used with <a href="http://www.jsunit.net/">JsUnit</a>?</h3>
+
+        <p>
+        It is necessary to run JSCoverage in <dfn>inverted mode</dfn>.  You will have to
+        modify JsUnit to launch JSCoverage.
+        </p>
+
+        <p>
+        See the directory <code>doc/example-jsunit</code> for an example. It
+        contains a copy of JsUnit version 2.2alpha11, with the file
+        <code>jsunit/app/main-data.html</code> slightly modified to add a button
+        which launches JSCoverage.  It also contains a simple unit test file <code>test.html</code>.  You
+        can instrument this example as follows:
+        </p>
+
+<pre>
+jscoverage --no-instrument=jsunit doc/example-jsunit doc/instrumented-jsunit
+</pre>
+
+       <p>
+       You can then run the <code>test.html</code> file in JsUnit's <code>jsunit/testRunner.html</code>.
+       The simplest way to do this is probably to copy the contents of <code>doc/instrumented-jsunit</code>
+       to the root of a web server and then access the URL
+       </p>
+
+<pre>
+http://127.0.0.1/jsunit/testRunner.html?testPage=http://127.0.0.1/test.html&amp;autoRun=true
+</pre>
+
+      <p>
+      After the test suite has been run, click on the "Coverage report" button
+      to get a coverage report.
+      </p>
+
+      </div>
+    </div> 
+    <div id="jscoverage-sidebar" class="yui-b">
+      <ul>
+      <li><a href="./">Home</a>
+      <li><a href="news.html">News</a> <a href="http://siliconforks.com/jscoverage/news.xml" type="application/rss+xml" title="RSS feed for JSCoverage"><img src="feed-icon-14x14.png" alt="RSS feed"></a>
+      <li><a href="manual.html">Documentation</a>
+      <li><a href="demo.html">Demo</a>
+      <li><a href="http://siliconforks.com/jscoverage/download.html">Download</a>
+      <li>FAQ
+      <li><a href="help.html">Help</a>
+      <li><a href="license.html">License</a>
+      <li><a href="links.html">Links</a>
+      <li><a href="users.html">Users</a>
+      <li><a href="http://siliconforks.com/jscoverage/bugs/">Bug tracker</a>
+      </ul>
+    </div> 
+  </div>  
+  <div id="ft">
+    <address>
+      Copyright &copy; 2007, 2008 <a href="http://siliconforks.com/"><img src="siliconforks-16x16.png" width="16" height="16" class="icon" alt="Silicon Forks"></a> <a href="http://siliconforks.com/">siliconforks.com</a><br>
+      <a href="mailto:jscoverage@siliconforks.com">jscoverage@siliconforks.com</a>
+    </address>
+  </div>  
+</div>
+</body>
+</html>

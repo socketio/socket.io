@@ -1,0 +1,2 @@
+jscoverage: refusing to overwrite directory: bar
+Try `jscoverage --help' for more information.

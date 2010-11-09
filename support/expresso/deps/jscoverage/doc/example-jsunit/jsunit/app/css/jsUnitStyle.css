@@ -1,0 +1,50 @@
+body {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    color: #000;
+    font-size: 0.8em;
+    background-color: #fff;
+}
+
+a:link, a:visited {
+    color: #00F;
+}
+
+a:hover {
+    color: #F00;
+}
+
+h1 {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #039;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+h2 {
+    font-weight: bold;
+    color: #039;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+h3 {
+    font-weight: bold;
+    color: #039;
+    text-decoration: underline;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+h4 {
+    font-weight: bold;
+    color: #039;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+.jsUnitTestResultSuccess {
+    color: #000;
+}
+
+.jsUnitTestResultNotSuccess {
+    color: #F00;
+}

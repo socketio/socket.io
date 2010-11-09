@@ -1,0 +1,14 @@
+{
+  "http://127.0.0.1:8000/script.js":{
+    "coverage":[null,1,null,null,1,0],
+    "source":[]
+  },
+  "http://127.0.0.1:8000/1/1.js":{
+    "coverage":[null,1],
+    "source":[]
+  },
+  "http://127.0.0.1:8000/1/2/2.js":{
+    "coverage":[null,1],
+    "source":[]
+  }
+}
