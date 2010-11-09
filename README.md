@@ -1,7 +1,7 @@
 Socket.IO Server: Sockets for the rest of us
 ============================================
 
-The `Socket.IO` server provides seamless supports for a variety of transports intended for realtime communication.
+The `Socket.IO` server provides seamless support for a variety of transports intended for realtime communication.
 
 - WebSocket 
 - WebSocket over Flash (+ XML security policy support)
