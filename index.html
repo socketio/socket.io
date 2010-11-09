@@ -52,15 +52,17 @@ socket.on('connect', function(){
   socket.send('hi!'); 
 }) 
 socket.on('message', function(data){ 
-  alert(data); 
-}) socket.on('disconnect', function(){}) </pre><p>Under the hoods, Socket.IO will use  <b>feature detection </b>to decide if the connection will be established with WebSocket, AJAX long polling, etc  (see <a href="#transports">supported transports</a>), making creating realtime apps that work everywhere a snap. </p></div><div class="section"><div class="title">How to use (Node.JS)</div><p>1. Install `Socket.IO` with <a href="http://npmjs.org/">npm</a></p><pre class="prettyprint">npm install socket.io </pre><p>Or check out the repository with git and all its submodules</p><pre class="prettyprint">git clone git://github.com/LearnBoost/Socket.IO-node.git socket.io --recursive </pre><p>Then require() it and attach it to a node <a href="http://nodejs.org/api.html#http-server-157">http.Server</a></p><pre class="prettyprint">var http = require('http'),  
+  alert(data);
+})
+socket.on('disconnect', function(){}) </pre><p>Under the hoods, Socket.IO will use  <b>feature detection </b>to decide if the connection will be established with WebSocket, AJAX long polling, etc  (see <a href="#transports">supported transports</a>), making creating realtime apps that work everywhere a snap. </p></div><div class="section"><div class="title">How to use (Node.JS)</div><p>1. Install `Socket.IO` with <a href="http://npmjs.org/">npm</a></p><pre class="prettyprint">npm install socket.io </pre><p>Or check out the repository with git and all its submodules</p><pre class="prettyprint">git clone git://github.com/LearnBoost/Socket.IO-node.git socket.io --recursive </pre><p>Then require() it and attach it to a node <a href="http://nodejs.org/api.html#http-server-157">http.Server</a></p><pre class="prettyprint">var http = require('http'),  
     io = require('socket.io'), // for npm, otherwise use require('./path/to/socket.io') 
 server = http.createServer(function(req, res){ 
  // your normal server code 
  res.writeHeader(200, {'Content-Type': 'text/html'}); 
  res.writeBody('&lt;h1&gt;Hello world&lt;/h1&gt;'); 
  res.finish(); 
-}); 
+});
+server.listen(80);
   
 // socket.io 
 var socket = io.listen(server); 

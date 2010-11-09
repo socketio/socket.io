@@ -136,6 +136,8 @@ body  {
   color: #eee;}
 #content pre .atn {
   color: #eee;}
+#content pre .lit {
+  color: #AABF73;}
 #content ul {
   padding: 0;
   margin: 10px 0 20px;
