@@ -17,7 +17,7 @@ module.exports = {
     assert.ok(Array.isArray(disconnection));
     assert.ok(disconnection[0] === '0');
     assert.ok(disconnection[1] === '');
-    assert.ok(Array.isArray(message);
+    assert.ok(Array.isArray(message));
     assert.ok(message[0] === '1');
     assert.ok(message[1] === 'Hello world');
     assert.ok(-1 === incomplete === incomplete2 === incomplete3);
