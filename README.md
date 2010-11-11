@@ -179,21 +179,51 @@ Methods:
 
 ## Protocol
 
-One of the design goals is that you should be able to implement whatever protocol you desire without `Socket.IO` getting in the way. `Socket.IO` has a minimal, unobtrusive protocol layer, consisting of two parts:
+In order to make polling transports simulate the behavior of a full-duplex WebSocket, a session protocol and a message framing mechanism are required.
 
-* Connection handshake
-	
-	This is required to simulate a full duplex socket with transports such as XHR Polling or Server-sent Events (which is a "one-way socket"). The basic idea is that the first message received from the server will be a JSON object that contains a session ID used for further communications exchanged between the client and server. 
-	
-	The concept of session also naturally benefits a full-duplex WebSocket, in the event of an accidental disconnection and a quick reconnection. Messages that the server intends to deliver to the client are cached temporarily until reconnection.
-	
-	The implementation of reconnection logic (potentially with retries) is left for the user. By default, transports that are keep-alive or open all the time (like WebSocket) have a timeout of 0 if a disconnection is detected.
-	
-* Message batching
+The session protocol consists of the generation of a session id that is passed to the client when the communication starts. Subsequent connections to the server within that session send that session id in the URI along with the transport type.
 
-	Messages are buffered in order to optimize resources. In the event of the server trying to send multiple messages while a client is temporarily disconnected (eg: xhr polling), the messages are stacked and then encoded in a lightweight way, and sent to the client whenever it becomes available.
+### Message encoding
 
-Despite this extra layer, the messages are delivered unaltered to the various event listeners. You can `JSON.stringify()` objects, send XML, or even plain text.
+    (message type)":"(content length)":"(data)","
+
+(message type) is a single digit that represents one of the known message types (described below).
+
+(content length) is the number of characters of (data)
+
+(data) is the message
+
+    0 = force disconnection
+      No data or annotations are sent with this message (it's thus always sent as "0:0:,")
+      
+    1 = message
+      Data format:
+      (annotations)":"(message)
+
+      Annotations are meta-information associated with a message to make the Socket.IO protocol extensible. They're conceptually similar to HTTP headers. They take this format:
+  
+        [key[:value][\n key[:value][\n ...]]]
+
+      For example, when you `.send('Hello world')` within the realm `'chat'`, Socket.IO really is sending:
+
+        1:18:r:chat:Hello world,
+  
+      Two annotations are used by the Socket.IO client: `r` (for `realm`) and `j` (for automatic `json` encoding / decoding of the message).
+    
+    2 = heartbeat
+      Data format:
+      (heartbeat numeric index)
+      
+      Example:
+        2:1:0,
+        2:1:1,
+
+    3 = session id handshake
+      Data format:
+      (session id)
+
+      Example:
+        3:3:253,
 
 ## Credits
 
