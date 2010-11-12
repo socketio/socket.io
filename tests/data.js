@@ -165,6 +165,11 @@ module.exports = {
       assert.ok(errors === 1);
       assert.ok(error === 'Termination character "," expected');
     });
+  },
+
+  'test encoding': function(assert){
+    assert.ok(encode([3,'Testing']) == '3:7:Testing,');
+    assert.ok(encode([[1,''],[2,'tobi']]) == '1:0:,2:4:tobi,');
   }
 
 };
