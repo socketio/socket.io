@@ -182,6 +182,29 @@ module.exports = {
   'test message encoding with annotations': function(assert){
     assert.ok(encodeMessage('', {j: null}) === 'j\n:');
     assert.ok(encodeMessage('Test', {j: null, re: 'test'}) === 'j\nre:test\n:Test');
+  },
+
+  'test message decoding without annotations': function(assert){
+    var decoded1 = decodeMessage(':')
+      , decoded2 = decodeMessage(':Testing');
+    
+    assert.ok(decoded1[0] === '');
+    assert.ok(Object.keys(decoded1[1]).length === 0);
+
+    assert.ok(decoded2[0] === 'Testing');
+    assert.ok(Object.keys(decoded2[1]).length === 0);
+  },
+
+  'test message decoding with annotations': function(assert){
+    var decoded1 = decodeMessage('j\n:')
+      , decoded2 = decodeMessage('j\nre:test\n:Test');
+    
+    assert.ok(decoded1[0] === '');
+    assert.ok('j' in decoded1[1]);
+
+    assert.ok(decoded2[0] === 'Test');
+    assert.ok('j' in decoded2[1]);
+    assert.ok(decoded2[1].re === 'test');
   }
 
 };
