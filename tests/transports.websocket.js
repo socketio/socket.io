@@ -1,6 +1,8 @@
 var io = require('socket.io')
   , encode = require('socket.io/utils').encode
-  , decode = require('socket.io/utils').decode
+  , Decoder = require('socket.io/utils').Decoder
+  , decodeMessage = require('socket.io/utils').decodeMessage
+  , encodeMessage = require('socket.io/utils').encodeMessage
   , port = 7200
   , Listener = io.Listener
   , Client = require('socket.io/client')
@@ -28,6 +30,18 @@ function client(server, sessid){
   return new WebSocket('ws://localhost:' + server._port + '/socket.io/websocket' + sessid, 'borf');
 };
 
+function encode(msg){
+  return encode('1', encodeMessage(msg));
+}
+
+function decode(data, fn){
+  var decoder = new Decoder();
+  decoder.on('data', function(type, msg){
+    fn(type == '1' ? decodeMessage(msg) : msg);
+  });
+  decoder.add(data);
+}
+
 module.exports = {
   
   'test connection and handshake': function(assert){
@@ -49,7 +63,9 @@ module.exports = {
       };
       _client.onmessage = function(ev){
         if (++messages == 2){ // first message is the session id
-          assert.ok(decode(ev.data), 'from server');
+          decode(ev.data, function(msg){
+            assert.ok(msg === 'from server');
+          });
           --trips || close();
         }
       };
@@ -114,7 +130,9 @@ module.exports = {
             var _client2 = client(_server, sessionid);
             _client2.onmessage = function(ev){
               assert.ok(Object.keys(_socket.clients).length == 1);
-              assert.ok(decode(ev.data), 'should get this');
+              decode(ev.data, function(msg){
+                assert.ok(msg === 'should get this');
+              });
               _socket.clients[sessionid].options.closeTimeout = 0;
               _client2.close();
               _server.close();
@@ -154,7 +172,9 @@ module.exports = {
       _client.onmessage = function(ev){
         if (++messages == 2){
           assert.ok(decode(ev.data)[0].substr(0, 3) == '~j~');
-          assert.ok(JSON.parse(decode(ev.data)[0].substr(3)).from == 'server');
+          decode(ev.data, function(msg){
+            assert.ok(msg.indexOf("j\n" === 0);
+          });
           _client.send(encode({ from: 'client' }));
           --trips || close();
         }
