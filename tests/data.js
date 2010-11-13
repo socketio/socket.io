@@ -1,5 +1,7 @@
 var Decoder = require('socket.io/data').Decoder
-  , encode = require('socket.io/data').encode;
+  , encode = require('socket.io/data').encode
+  , encodeMessage = require('socket.io/data').encodeMessage
+  , decodeMessage = require('socket.io/data').decodeMessage;
 
 module.exports = {
   
@@ -170,6 +172,16 @@ module.exports = {
   'test encoding': function(assert){
     assert.ok(encode([3,'Testing']) == '3:7:Testing,');
     assert.ok(encode([[1,''],[2,'tobi']]) == '1:0:,2:4:tobi,');
+  },
+
+  'test message encoding without annotations': function(assert){
+    assert.ok(encodeMessage('') === ':');
+    assert.ok(encodeMessage('Testing') === ':Testing');
+  },
+
+  'test message encoding with annotations': function(assert){
+    assert.ok(encodeMessage('', {j: null}) === 'j\n:');
+    assert.ok(encodeMessage('Test', {j: null, re: 'test'}) === 'j\nre:test\n:Test');
   }
 
 };
