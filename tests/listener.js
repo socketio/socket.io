@@ -7,6 +7,13 @@ var http = require('http')
 
 require('socket.io/tests');
 
+function listen(s, callback){
+  s._port = port;
+  s.listen(port, callback);
+  port++;
+  return s;
+};
+
 module.exports = {
   
   'test serving static javascript client': function(assert){
@@ -88,7 +95,7 @@ module.exports = {
           _client1._first = true;
         } else {
           decode(ev.data, function(msg){
-            assert.ok(msg === 'broadcasted msg');
+            assert.ok(msg[0] === 'broadcasted msg');
             --trips || close();
           });
         }
@@ -98,9 +105,9 @@ module.exports = {
           _client2._first = true;
         } else {
           decode(ev.data, function(msg){
-            assert.ok(msg === 'broadcasted msg');
+            assert.ok(msg[0] === 'broadcasted msg');
             --trips || close();
-          }):
+          });
         }
       };
     })

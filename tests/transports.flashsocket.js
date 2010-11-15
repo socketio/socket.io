@@ -6,6 +6,13 @@ var io = require('socket.io')
 
 require('socket.io/tests');
 
+function listen(s, callback){
+  s._port = port;
+  s.listen(port, callback);
+  port++;
+  return s;
+};
+
 module.exports = {
   
   'test xml policy added to connection': function(assert){
