@@ -6,7 +6,7 @@ var io = require('socket.io')
 
 require('socket.io/tests');
 
-function jsonp_decode(data, fn){
+function jsonp_decode(data, fn, alert){
   var io = {
     JSONP: [{
       '_': function(msg){
@@ -45,7 +45,7 @@ function socket(server, options){
 };
 
 function get(client, url, callback, origin){
-  var headers = {host: 'localhost', origin: origin}
+  var headers = {host: 'localhost', origin: origin || ''}
     , request = client.request('GET', url + '/' + (+new Date) + '/0', headers);
   request.end();
   request.on('response', function(response){
@@ -152,6 +152,30 @@ module.exports = {
           });
         });
       });
+    });
+  },
+
+  'test origin through domain mismatch': function(assert){
+    var _server = server()
+      , _socket = socket(_server, {
+          origins: 'localhost:*'
+        });
+    
+    listen(_server, function(){
+      get(client(_server), '/socket.io/jsonp-polling/',
+        function(data){
+          jsonp_decode(data, 
+            function(){
+              assert.ok(false);
+            },
+            function(msg){
+              assert.ok(/security/i.test(msg));
+              _server.close();
+            }
+          );
+        },
+        'test.localhost'
+      );
     });
   }
   
