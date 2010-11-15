@@ -44,8 +44,9 @@ function socket(server, options){
   return io.listen(server, options);
 };
 
-function get(client, url, callback){
-  var request = client.request('GET', url + '/' + (+new Date) + '/0', {host: 'localhost'});
+function get(client, url, callback, headers){
+  var headers = {host: 'localhost'}
+    , request = client.request('GET', url + '/' + (+new Date) + '/0');
   request.end();
   request.on('response', function(response){
     var data = '';
