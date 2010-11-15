@@ -1,48 +1,15 @@
 var io = require('socket.io')
-  , Encode = require('socket.io/data').encode
-  , Decoder = require('socket.io/data').Decoder
-  , decodeMessage = require('socket.io/data').decodeMessage
-  , encodeMessage = require('socket.io/data').encodeMessage
   , port = 7200
   , Listener = io.Listener
-  , Client = require('socket.io/client')
-  , WebSocket = require('./../support/node-websocket-client/lib/websocket').WebSocket;
+  , Client = require('socket.io/client');
 
-function server(){
-  return require('http').createServer(function(){});
-};
-
-function socket(server, options){
-  if (!options) options = {};
-  options.log = false;
-  return io.listen(server, options);
-};
+require('socket.io/tests');
 
 function listen(s, callback){
   s._port = port;
   s.listen(port, callback);
   port++;
   return s;
-};
-
-function client(server, sessid){
-  sessid = sessid ? '/' + sessid : '';
-  return new WebSocket('ws://localhost:' + server._port + '/socket.io/websocket' + sessid, 'borf');
-};
-
-function encode(msg){
-  var atts = {};
-  if (typeof msg == 'object') atts['j'] = null;
-  msg = typeof msg == 'object' ? JSON.stringify(msg) : msg;
-  return Encode(['1', encodeMessage(msg, atts)]);
-};
-
-function decode(data, fn){
-  var decoder = new Decoder();
-  decoder.on('data', function(type, msg){
-    fn(type == '1' ? decodeMessage(msg) : msg, type);
-  });
-  decoder.add(data);
 };
 
 module.exports = {

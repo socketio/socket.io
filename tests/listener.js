@@ -1,32 +1,11 @@
 var http = require('http')
   , net = require('net')
   , io = require('socket.io')
-  , decode = require('socket.io/utils').decode
   , port = 7100
   , Listener = io.Listener
   , WebSocket = require('./../support/node-websocket-client/lib/websocket').WebSocket;
 
-function server(callback){
-  return http.createServer(callback || function(){});
-};
-
-function socket(server, options){
-  if (!options) options = {};
-  if (options.log === undefined) options.log = false;
-  return io.listen(server, options);
-};
-
-function listen(s, callback){
-  s._port = port;
-  s.listen(port, callback);
-  port++;
-  return s;
-};
-
-function client(server, sessid){
-  sessid = sessid ? '/' + sessid : '';
-  return new WebSocket('ws://localhost:' + server._port + '/socket.io/websocket' + sessid, 'borf');
-};
+require('socket.io/tests');
 
 module.exports = {
   
@@ -108,16 +87,20 @@ module.exports = {
         if (!_client1._first){
           _client1._first = true;
         } else {
-          assert.ok(decode(ev.data)[0] == 'broadcasted msg');
-          --trips || close();
+          decode(ev.data, function(msg){
+            assert.ok(msg === 'broadcasted msg');
+            --trips || close();
+          });
         }
       };
       _client2.onmessage = function(ev){
         if (!_client2._first){
           _client2._first = true;
         } else {
-          assert.ok(decode(ev.data)[0] == 'broadcasted msg');
-          --trips || close();
+          decode(ev.data, function(msg){
+            assert.ok(msg === 'broadcasted msg');
+            --trips || close();
+          }):
         }
       };
     })

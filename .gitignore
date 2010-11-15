@@ -8,3 +8,4 @@ lib-cov
 *.pid.swp
 *.swp
 *.swo
+*.swn
