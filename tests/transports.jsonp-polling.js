@@ -177,6 +177,36 @@ module.exports = {
         'test.localhost'
       );
     });
+  },
+
+  'test disallowance because of empty origin': function(assert){
+    var _server = server()
+      , _socket = socket(_server, {
+          origins: 'localhost:*',
+          transportOptions: {
+            'jsonp-polling': {
+              ignoreEmptyOrigin: false,
+              closeTimeout: 100
+            }
+          }
+        });
+    
+    listen(_server, function(){
+      get(client(_server), '/socket.io/jsonp-polling/',
+        function(data){
+          jsonp_decode(data, 
+            function(){
+              assert.ok(false);
+            },
+            function(msg){
+              assert.ok(/security/i.test(msg));
+              _server.close();
+            }
+          );
+        },
+        ''
+      );
+    });
   }
   
 };
