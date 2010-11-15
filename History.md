@@ -125,3 +125,14 @@ http://www.lightsphere.com/dev/articles/flash_socket_policy.html
     - Tests compatibility
 * Fixed connection timeout, noDelay and socket encoding for draft 76 (had been  accidentally moved into the `else` block)
 * Some stylistic fixes
+
+0.7.0 /
+
+* [DEPRECATE] onClientConnect / onClientMessage / onClientDisconnect events. Please use .on('connection', function(conn){ conn.on('message', function(){}); conn.on('disconnect', function(){}); }); instead
+* [DEPRECATE} .clientsIndex accessor. Please use .clients intead
+* Improved session id generation mechanism
+* Implemented new message encoding mechanism (read more about it in the README)
+    - Implemented message types properly
+    - Implemented new message encoder/decoder with annotations support
+* Added `tests.js` set of testing helpers
+* Added `.json()` and `.broadcastJSON()` to send and brodcast messages in JSON. For just encoding objects as json you can continue to use `.send({ your: 'object' })`, but if you wish to force the JSON encoding of other types (like Number), use `.json`
