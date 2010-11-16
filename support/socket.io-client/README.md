@@ -183,6 +183,74 @@ Events:
 * Added io.util.ios which reports if the UA is running on iPhone or iPad
 * No more loading bar on iPhone: XHR-Polling now connects `onload` for the iOS WebKit, and waits 10 ms to launch the initial connection.
 
+2010 11 01 - **0.6.0** 
+
+* Make sure to only destroy if the _iframe was created
+* Removed flashsocket onClose logic since its handled by connectTimeout
+* Added socket checks when disconnecting / sending messages
+* Fixed semicolons (thanks SINPacifist)
+* Added io.util.merge for options merging. Thanks SINPacifist
+* Removed unnecessary onClose handling, since this is taken care by Socket (thanks SINPacifist)
+* Make sure not to try other transports if the socket.io cookie was there
+* Updated web-socket-js
+* Make sure not to abort the for loop when skipping the transport
+* Connect timeout (fixes #34)
+* Try different transports upon connect timeout (fixes #35)
+* Restored rememberTransport to default
+* Removed io.setPath check
+* Make sure IE7 doesn't err on the multipart feature detection. Thanks Davin Lunz
+* CORS feature detection. Fixes IE7 attempting cross domain requests through their incomplete XMLHttpRequest implementation.
+* Now altering WEB_SOCKET_SWF_LOCATION (this way we don't need the web-socket-js WebSocket object to be there)
+* Flashsocket .connect() and .send() call addTask.
+* Make sure flashsocket can only be loaded on browsers that don't have a native websocket
+* Leveraging __addTask to delay sent messages until WebSocket through SWF is fully loaded.
+* Removed __isFlashLite check
+* Leverage node.js serving of the client side files
+* Make sure we can load io.js from node (window check)
+* Fix for XDomain send() on IE8 (thanks Eric Zhang)
+* Added a note about cross domain .swf files
+* Made sure no errors where thrown in IE if there isn't a flash fallback available.
+* Make sure disconnect event is only fired if the socket was completely connected, and it's not a reconnection attempt that was interrupted.
+* Force disconnection if .connect() is called and a connection attempt is ongoing
+* Upon socket disconnection, also mark `connecting` as false
+* .connecting flag in transport instance
+* Make sure .connecting is cleared in transport
+* Correct sessionid checking
+* Clear sessionid upon disconnection
+* Remove _xhr and _sendXhr objects
+* Moved timeout default into Transport
+* Remove callbacks on _onDisconnect and call abort()
+* Added placeholder for direct disconnect in XHR
+* Timeout logic (fixes #31)
+* Don't check for data length to trigger _onData, since most transports are not doing it
+* Set timeout defaults based on heartbeat interval and polling duration (since we dont do heartbeats for polling)
+* Check for msgs.length _onData
+* Removed unused client option (heartbeatInterval)
+* Added onDisconnect call if long poll is interrupted
+* Polling calls _get directly as opposed to connect()
+* Disconnection handling upon failure to send a message through xhr-* transports.
+* Clean up internal xhr buffer upon disconnection
+* Clean up general buffer in Socket upon disconnection
+* Mark socket as disconnected
+* Opera 10 support
+* Fix for .fire on IE being called without arguments (fixes #28)
+* JSONP polling transport
+* Android compatibility.
+* Automatic JSON decoding support
+* Automatic JSON encoding support for objects
+* Adding test for android for delaying the connection (fixes spinner)
+* Fixing a few dangerous loops that otherwise loop into properties that have been added to the prototype elsewhere.
+* Support for initializing io.Socket after the page has been loaded
+
+2010 11 ?? - **0.7.0**
+
+* Fixed, improved and added missing Transport#disconnect methods
+* Implemented data.js (data and message encoding and decoding with buffering)
+  - Fixes edge cases with multipart not sending the entirety of a message and
+    firing the data event
+* Implemented forced disconnect call from server
+* Added warning if JSON.parse is not available and a JSON message is received
+
 ### Credits
 
 Guillermo Rauch &lt;guillermo@learnboost.com&gt;

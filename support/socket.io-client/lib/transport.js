@@ -10,30 +10,21 @@
 
 (function(){
 	
-	var frame = '~m~',
-	
-	stringify = function(message){
-		if (Object.prototype.toString.call(message) == '[object Object]'){
-			if (!('JSON' in window)){
-				if ('console' in window && console.error) console.error('Trying to encode as JSON, but JSON.stringify is missing.');
-				return '{ "$error": "Invalid message" }';
-			}
-			return '~j~' + JSON.stringify(message);
-		} else {
-			return String(message);
-		}
-	};
-	
 	Transport = io.Transport = function(base, options){
+    var self = this;
 		this.base = base;
 		this.options = {
 			timeout: 15000 // based on heartbeat interval default
 		};
 		io.util.merge(this.options, options);
+    this._decoder = new io.data.Decoder();
+    this._decoder.on('data', function(type, message){
+      self._onMessage(type, message);
+    });
 	};
 
-	Transport.prototype.send = function(){
-		throw new Error('Missing send() implementation');
+	Transport.prototype.write = function(){
+		throw new Error('Missing write() implementation');
 	};
 
 	Transport.prototype.connect = function(){
@@ -44,46 +35,9 @@
 		throw new Error('Missing disconnect() implementation');
 	};
 	
-	Transport.prototype._encode = function(messages){
-		var ret = '', message,
-				messages = io.util.isArray(messages) ? messages : [messages];
-		for (var i = 0, l = messages.length; i < l; i++){
-			message = messages[i] === null || messages[i] === undefined ? '' : stringify(messages[i]);
-			ret += frame + message.length + frame + message;
-		}
-		return ret;
-	};
-	
-	Transport.prototype._decode = function(data){
-		var messages = [], number, n;
-		do {
-			if (data.substr(0, 3) !== frame) return messages;
-			data = data.substr(3);
-			number = '', n = '';
-			for (var i = 0, l = data.length; i < l; i++){
-				n = Number(data.substr(i, 1));
-				if (data.substr(i, 1) == n){
-					number += n;
-				} else {	
-					data = data.substr(number.length + frame.length);
-					number = Number(number);
-					break;
-				} 
-			}
-			messages.push(data.substr(0, number)); // here
-			data = data.substr(number);
-		} while(data !== '');
-		return messages;
-	};
-	
 	Transport.prototype._onData = function(data){
 		this._setTimeout();
-		var msgs = this._decode(data);
-		if (msgs && msgs.length){
-			for (var i = 0, l = msgs.length; i < l; i++){
-				this._onMessage(msgs[i]);
-			}
-		}
+		this._decoder.add(data);
 	};
 	
 	Transport.prototype._setTimeout = function(){
@@ -98,21 +52,37 @@
 		this._onDisconnect();
 	};
 	
-	Transport.prototype._onMessage = function(message){
-		if (!this.sessionid){
-			this.sessionid = message;
-			this._onConnect();
-		} else if (message.substr(0, 3) == '~h~'){
-			this._onHeartbeat(message.substr(3));
-		} else if (message.substr(0, 3) == '~j~'){
-			this.base._onMessage(JSON.parse(message.substr(3)));
-		} else {
-			this.base._onMessage(message);
-		}
+	Transport.prototype._onMessage = function(type, message){
+    switch (type){
+      case '0':
+        this.disconnect();
+        break;
+
+      case '1':
+        var msg = io.data.decodeMessage(message);
+        // handle json decoding
+        if ('j' in msg[1]){
+          if (!window.JSON || !JSON.parse)
+            alert('`JSON.parse` is not available, but Socket.IO is trying to parse'
+                + 'JSON. Please include json2.js in your <head>');
+          msg[0] = JSON.parse(msg[0]);
+        }
+        this.base._onMessage(msg[0], msg[1]);
+        break;
+
+      case '2':
+        this._onHeartbeat(message);
+        break;
+
+      case '3':
+        this.sessionid = message;
+        this._onConnect();
+        break;
+    }
 	},
 	
 	Transport.prototype._onHeartbeat = function(heartbeat){
-		this.send('~h~' + heartbeat); // echo
+		this.write('2', heartbeat); // echo
 	};
 	
 	Transport.prototype._onConnect = function(){
