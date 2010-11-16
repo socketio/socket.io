@@ -25,7 +25,7 @@
       }
       
       function esc(msg){
-        return msg.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return String(msg).replace(/</g, '&lt;').replace(/>/g, '&gt;');
       };
       
       var socket = new io.Socket(null, {port: 8080, rememberTransport: false});
