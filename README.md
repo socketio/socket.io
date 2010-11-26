@@ -38,9 +38,9 @@ On the server:
 			
 	server = http.createServer(function(req, res){
 		// your normal server code
-		res.writeHeader(200, {'Content-Type': 'text/html'});
-		res.writeBody('<h1>Hello world</h1>');
-		res.finish();
+		res.writeHead(200, {'Content-Type': 'text/html'});
+		res.write('<h1>Hello world</h1>');
+		res.end();
 	});
 	
 	server.listen(80);
