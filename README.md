@@ -39,8 +39,8 @@ On the server:
 	server = http.createServer(function(req, res){
 		// your normal server code
 		res.writeHeader(200, {'Content-Type': 'text/html'});
-		res.writeBody('<h1>Hello world</h1>');
-		res.finish();
+		res.write('<h1>Hello world</h1>');
+		res.end();
 	});
 	
 	server.listen(80);
@@ -50,8 +50,8 @@ On the server:
 	
 	socket.on('connection', function(client){
 	  // new client is here!
-	  client.on('message', function(){ … })
-	  client.on('disconnect', function(){ … })
+	  client.on('message', function(){ //… })
+	  client.on('disconnect', function(){ //… })
 	});
 	
 On the client:
