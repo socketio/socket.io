@@ -101,6 +101,15 @@ JSONPPolling.prototype._get = function(){
 	this._script = script;
 };
 
+JSONPPolling.prototype.disconnect = function(){
+	if (this._script){
+		this._script.parentNode.removeChild(this._script);
+		this._script = null;
+	}
+  io.Transport['xhr-polling'].prototype.disconnect.call(this);
+  return this;
+};
+
 JSONPPolling.prototype._ = function(){
 	this._onData.apply(this, arguments);
 	this._get();

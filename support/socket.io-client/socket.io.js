@@ -1,4 +1,4 @@
-/** Socket.IO 0.6 - Built with build.js */
+/** Socket.IO 0.7pre - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,7 +8,7 @@
  */
 
 this.io = {
-	version: '0.6',
+	version: '0.7pre',
 	
 	setPath: function(path){
 		if (window.console && console.error) console.error('io.setPath will be removed. Please set the variable WEB_SOCKET_SWF_LOCATION pointing to WebSocketMain.swf');
@@ -23,6 +23,7 @@ if (typeof window != 'undefined'){
   // WEB_SOCKET_SWF_LOCATION = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//cdn.socket.io/' + this.io.version + '/WebSocketMain.swf';
   WEB_SOCKET_SWF_LOCATION = '/socket.io/lib/vendor/web-socket-js/WebSocketMain.swf';
 }
+
 /**
  * Socket.IO client
  * 
@@ -91,34 +92,258 @@ if (typeof window != 'undefined'){
  * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
  */
 
+io.data = {};
+
+/**
+ * Data decoder class
+ *
+ * @api public
+ */
+
+io.data.Decoder = function(){
+  this.reset();
+  this.buffer = '';
+  this.events = {};
+};
+
+io.data.Decoder.prototype = {
+
+  /**
+   * Add data to the buffer for parsing
+   *
+   * @param {String} data
+   * @api public
+   */
+  add: function(data){
+    this.buffer += data;
+    this.parse();
+  },
+
+  /**
+   * Parse the current buffer
+   *
+   * @api private
+   */
+  parse: function(){
+    for (var l = this.buffer.length; this.i < l; this.i++){
+      var chr = this.buffer[this.i];
+      if (this.type === undefined){
+        if (chr == ':') return this.error('Data type not specified');
+        this.type = '' + chr;
+        continue;
+      }
+      if (this.length === undefined && chr == ':'){
+        this.length = '';
+        continue;
+      }
+      if (this.data === undefined){
+        if (chr != ':'){
+          this.length += chr;
+        } else { 
+          if (this.length.length === 0)
+            return this.error('Data length not specified');
+          this.length = Number(this.length);
+          this.data = '';
+        }
+        continue;
+      }
+      if (this.data.length === this.length){
+        if (chr == ','){
+          this.emit('data', this.type, this.data);
+          this.buffer = this.buffer.substr(this.i + 1);
+          this.reset();
+          return this.parse();
+        } else {
+          return this.error('Termination character "," expected');
+        }
+      } else {
+        this.data += chr;
+      }
+    }
+  },
+
+  /**
+   * Reset the parser state
+   *
+   * @api private
+   */
+
+  reset: function(){
+    this.i = 0;
+    this.type = this.data = this.length = undefined;
+  },
+
+  /**
+   * Error handling functions
+   *
+   * @param {String} reason to report
+   * @api private
+   */
+
+  error: function(reason){
+    this.reset();
+    this.emit('error', reason);
+  },
+
+  /**
+   * Emits an event
+   *
+   * @param {String} ev name
+   * @api public
+   */
+
+  emit: function(ev){
+    if (!(ev in this.events))
+      return this;
+    for (var i = 0, l = this.events[ev].length; i < l; i++)
+      if (this.events[ev][i])
+        this.events[ev][i].apply(this, Array.prototype.slice.call(arguments).slice(1));
+    return this;
+  },
+
+  /**
+   * Adds an event listener
+   *
+   * @param {String} ev name
+   * @param {Function} callback
+   * @api public
+   */
+
+  on: function(ev, fn){
+    if (!(ev in this.events))
+      this.events[ev] = [];
+    this.events[ev].push(fn);
+    return this;
+  },
+
+  /**
+   * Removes an event listener
+   *
+   * @param {String} ev name
+   * @param {Function} callback
+   * @api public
+   */
+
+  removeListener: function(ev, fn){
+    if (!(ev in this.events))
+      return this;
+    for (var i = 0, l = this.events[ev].length; i < l; i++)
+      if (this.events[ev][i] == fn)
+        this.events[ev].splice(i, 1);
+    return this;
+  }
+
+};
+
+/**
+ * Encode function
+ * 
+ * Examples:
+ *      encode([3, 'Message of type 3']);
+ *      encode([[1, 'Message of type 1], [2, 'Message of type 2]]);
+ * 
+ * @param {Array} list of messages
+ * @api public
+ */
+
+io.data.encode = function(messages){
+  messages = io.util.isArray(messages[0]) ? messages : [messages];
+  var ret = '';
+  for (var i = 0, str; i < messages.length; i++){
+   str = String(messages[i][1]);
+   if (str === undefined || str === null) str = '';
+   ret += messages[i][0] + ':' + str.length + ':' + str + ',';
+  }
+  return ret;
+};
+
+/**
+ * Encode message function
+ *
+ * @param {String} message
+ * @param {Object} annotations
+ * @api public
+ */
+
+io.data.encodeMessage = function(msg, annotations){
+  var data = ''
+    , anns = annotations || {};
+  for (var k in anns){
+    v = anns[k];
+    data += k + (v !== null && v !== undefined ? ':' + v : '') + "\n";
+  }
+  data += ':' + (msg === undefined || msg === null ? '' : msg);
+  return data;
+};
+
+/**
+ * Decode message function
+ *
+ * @param {String} message
+ * @api public
+ */
+
+io.data.decodeMessage = function(msg){
+  var anns = {}
+    , data;
+  for (var i = 0, chr, key, value, l = msg.length; i < l; i++){
+    chr = msg[i];
+    if (i === 0 && chr === ':'){
+      data = msg.substr(1);
+      break;
+    }
+    if (key == null && value == null && chr == ':'){
+      data = msg.substr(i + 1);
+      break;
+    }
+    if (chr === "\n"){
+      anns[key] = value;
+      key = value = undefined;
+      continue;
+    }
+    if (key === undefined){
+      key = chr;
+      continue;
+    }
+    if (value === undefined && chr == ':'){
+      value = '';
+      continue;
+    }
+    if (value !== undefined)
+      value += chr;
+    else
+      key += chr;
+  }
+  return [data, anns];
+};
+
+/**
+ * Socket.IO client
+ * 
+ * @author Guillermo Rauch <guillermo@learnboost.com>
+ * @license The MIT license.
+ * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
+ */
+
 // abstract
 
 (function(){
 	
-	var frame = '~m~',
-	
-	stringify = function(message){
-		if (Object.prototype.toString.call(message) == '[object Object]'){
-			if (!('JSON' in window)){
-				if ('console' in window && console.error) console.error('Trying to encode as JSON, but JSON.stringify is missing.');
-				return '{ "$error": "Invalid message" }';
-			}
-			return '~j~' + JSON.stringify(message);
-		} else {
-			return String(message);
-		}
-	};
-	
 	Transport = io.Transport = function(base, options){
+    var self = this;
 		this.base = base;
 		this.options = {
 			timeout: 15000 // based on heartbeat interval default
 		};
 		io.util.merge(this.options, options);
+    this._decoder = new io.data.Decoder();
+    this._decoder.on('data', function(type, message){
+      self._onMessage(type, message);
+    });
 	};
 
-	Transport.prototype.send = function(){
-		throw new Error('Missing send() implementation');
+	Transport.prototype.write = function(){
+		throw new Error('Missing write() implementation');
 	};
 
 	Transport.prototype.connect = function(){
@@ -129,46 +354,9 @@ if (typeof window != 'undefined'){
 		throw new Error('Missing disconnect() implementation');
 	};
 	
-	Transport.prototype._encode = function(messages){
-		var ret = '', message,
-				messages = io.util.isArray(messages) ? messages : [messages];
-		for (var i = 0, l = messages.length; i < l; i++){
-			message = messages[i] === null || messages[i] === undefined ? '' : stringify(messages[i]);
-			ret += frame + message.length + frame + message;
-		}
-		return ret;
-	};
-	
-	Transport.prototype._decode = function(data){
-		var messages = [], number, n;
-		do {
-			if (data.substr(0, 3) !== frame) return messages;
-			data = data.substr(3);
-			number = '', n = '';
-			for (var i = 0, l = data.length; i < l; i++){
-				n = Number(data.substr(i, 1));
-				if (data.substr(i, 1) == n){
-					number += n;
-				} else {	
-					data = data.substr(number.length + frame.length);
-					number = Number(number);
-					break;
-				} 
-			}
-			messages.push(data.substr(0, number)); // here
-			data = data.substr(number);
-		} while(data !== '');
-		return messages;
-	};
-	
 	Transport.prototype._onData = function(data){
 		this._setTimeout();
-		var msgs = this._decode(data);
-		if (msgs && msgs.length){
-			for (var i = 0, l = msgs.length; i < l; i++){
-				this._onMessage(msgs[i]);
-			}
-		}
+		this._decoder.add(data);
 	};
 	
 	Transport.prototype._setTimeout = function(){
@@ -183,21 +371,37 @@ if (typeof window != 'undefined'){
 		this._onDisconnect();
 	};
 	
-	Transport.prototype._onMessage = function(message){
-		if (!this.sessionid){
-			this.sessionid = message;
-			this._onConnect();
-		} else if (message.substr(0, 3) == '~h~'){
-			this._onHeartbeat(message.substr(3));
-		} else if (message.substr(0, 3) == '~j~'){
-			this.base._onMessage(JSON.parse(message.substr(3)));
-		} else {
-			this.base._onMessage(message);
-		}
+	Transport.prototype._onMessage = function(type, message){
+    switch (type){
+      case '0':
+        this.disconnect();
+        break;
+
+      case '1':
+        var msg = io.data.decodeMessage(message);
+        // handle json decoding
+        if ('j' in msg[1]){
+          if (!window.JSON || !JSON.parse)
+            alert('`JSON.parse` is not available, but Socket.IO is trying to parse'
+                + 'JSON. Please include json2.js in your <head>');
+          msg[0] = JSON.parse(msg[0]);
+        }
+        this.base._onMessage(msg[0], msg[1]);
+        break;
+
+      case '2':
+        this._onHeartbeat(message);
+        break;
+
+      case '3':
+        this.sessionid = message;
+        this._onConnect();
+        break;
+    }
 	},
 	
 	Transport.prototype._onHeartbeat = function(heartbeat){
-		this.send('~h~' + heartbeat); // echo
+		this.write('2', heartbeat); // echo
 	};
 	
 	Transport.prototype._onConnect = function(){
@@ -224,6 +428,7 @@ if (typeof window != 'undefined'){
 	};
 
 })();
+
 /**
  * Socket.IO client
  * 
@@ -274,18 +479,17 @@ if (typeof window != 'undefined'){
 	
 	XHR.prototype._checkSend = function(){
 		if (!this._posting && this._sendBuffer.length){
-			var encoded = this._encode(this._sendBuffer);
+			var encoded = io.data.encode(this._sendBuffer);
 			this._sendBuffer = [];
 			this._send(encoded);
 		}
 	};
 	
-	XHR.prototype.send = function(data){
-		if (io.util.isArray(data)){
-			this._sendBuffer.push.apply(this._sendBuffer, data);
-		} else {
-			this._sendBuffer.push(data);
-		}
+	XHR.prototype.write = function(type, data){
+    if (io.util.isArray(type))
+      this._sendBuffer.push.apply(this._sendBuffer, type);
+    else
+      this._sendBuffer.push([type, data]);
 		this._checkSend();
 		return this;
 	};
@@ -355,6 +559,7 @@ if (typeof window != 'undefined'){
 	XHR.request = request;
 	
 })();
+
 /**
  * Socket.IO client
  * 
@@ -381,13 +586,15 @@ if (typeof window != 'undefined'){
 		return this;
 	};
 	
-	WS.prototype.send = function(data){
-		if (this.socket) this.socket.send(this._encode(data));
+	WS.prototype.write = function(type, data){
+		if (this.socket)
+      this.socket.send(io.data.encode(io.util.isArray(type) ? type : [type, data]));
 		return this;
 	};
 	
 	WS.prototype.disconnect = function(){
 		if (this.socket) this.socket.close();
+    this._onDisconnect();
 		return this;
 	};
 	
@@ -415,6 +622,7 @@ if (typeof window != 'undefined'){
 	};
 	
 })();
+
 /**
  * Socket.IO client
  * 
@@ -748,6 +956,15 @@ JSONPPolling.prototype._get = function(){
 	this._script = script;
 };
 
+JSONPPolling.prototype.disconnect = function(){
+	if (this._script){
+		this._script.parentNode.removeChild(this._script);
+		this._script = null;
+	}
+  io.Transport['xhr-polling'].prototype.disconnect.call(this);
+  return this;
+};
+
 JSONPPolling.prototype._ = function(){
 	this._onData.apply(this, arguments);
 	this._get();
@@ -761,6 +978,7 @@ JSONPPolling.check = function(){
 JSONPPolling.xdomainCheck = function(){
 	return true;
 };
+
 /**
  * Socket.IO client
  * 
@@ -845,12 +1063,28 @@ JSONPPolling.xdomainCheck = function(){
 		return this;
 	};
 	
-	Socket.prototype.send = function(data){
-		if (!this.transport || !this.transport.connected) return this._queue(data);
-		this.transport.send(data);
+	Socket.prototype.write = function(message, atts){
+		if (!this.transport || !this.transport.connected) return this._queue(message, atts);
+		this.transport.write(message, atts);
 		return this;
 	};
 	
+  Socket.prototype.send = function(message, atts){
+    atts = atts || {};
+    if (typeof message == 'object'){
+      atts['j'] = null;
+      message = JSON.stringify(message);
+    }
+    this.write('1', io.data.encodeMessage(message, atts));
+    return this;
+  };
+
+  Socket.prototype.json = function(obj, atts){
+    atts = atts || {};
+    atts['j'] = null
+    return this.send(JSON.stringify(obj), atts);
+  }
+
 	Socket.prototype.disconnect = function(){
 		this.transport.disconnect();
 		return this;
@@ -862,7 +1096,7 @@ JSONPPolling.xdomainCheck = function(){
 		return this;
 	};
 	
-	Socket.prototype.fire = function(name, args){
+	Socket.prototype.emit = function(name, args){
 		if (name in this._events){
 			for (var i = 0, ii = this._events[name].length; i < ii; i++) 
 				this._events[name][i].apply(this, args === undefined ? [] : args);
@@ -878,15 +1112,15 @@ JSONPPolling.xdomainCheck = function(){
 		return this;
 	};
 	
-	Socket.prototype._queue = function(message){
+	Socket.prototype._queue = function(message, atts){
 		if (!('_queueStack' in this)) this._queueStack = [];
-		this._queueStack.push(message);
+		this._queueStack.push([message, atts]);
 		return this;
 	};
 	
 	Socket.prototype._doQueue = function(){
 		if (!('_queueStack' in this) || !this._queueStack.length) return this;
-		this.transport.send(this._queueStack);
+		this.transport.write(this._queueStack);
 		this._queueStack = [];
 		return this;
 	};
@@ -900,11 +1134,11 @@ JSONPPolling.xdomainCheck = function(){
 		this.connecting = false;
 		this._doQueue();
 		if (this.options.rememberTransport) this.options.document.cookie = 'socketio=' + encodeURIComponent(this.transport.type);
-		this.fire('connect');
+		this.emit('connect');
 	};
 	
 	Socket.prototype._onMessage = function(data){
-		this.fire('message', [data]);
+		this.emit('message', [data]);
 	};
 	
 	Socket.prototype._onDisconnect = function(){
@@ -912,12 +1146,15 @@ JSONPPolling.xdomainCheck = function(){
 		this.connected = false;
 		this.connecting = false;
 		this._queueStack = [];
-		if (wasConnected) this.fire('disconnect');
+		if (wasConnected) this.emit('disconnect');
 	};
 	
 	Socket.prototype.addListener = Socket.prototype.addEvent = Socket.prototype.addEventListener = Socket.prototype.on;
 	
+  Socket.prototype.fire = Socket.prototype.emit;
+
 })();
+
 /*	SWFObject v2.2 <http://code.google.com/p/swfobject/> 
 	is released under the MIT License <http://www.opensource.org/licenses/mit-license.php> 
 */

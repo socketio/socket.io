@@ -3,13 +3,13 @@ var io = require('socket.io')
   , http = require('http')
   , querystring = require('querystring')
   , port = 7600
-  , encode = require('socket.io/utils').encode
-  , decode = require('socket.io/utils').decode
   , EventEmitter = require('events').EventEmitter
   , HTMLFile = require('socket.io/transports/htmlfile');
-  
-function server(callback){
-  return http.createServer(function(){});
+
+require('socket.io/tests');
+
+function client(s){
+  return http.createClient(s._port, 'localhost');
 };
 
 function listen(s, callback){
@@ -17,10 +17,6 @@ function listen(s, callback){
   s.listen(port, callback);
   port++;
   return s;
-};
-
-function client(s){
-  return http.createClient(s._port, 'localhost');
 };
 
 function socket(server, options){
@@ -86,19 +82,20 @@ module.exports = {
       var _client = get(_server, '/socket.io/htmlfile', assert, function(response){
         var i = 0;
         response.on('data', function(data){
-          var msg = decode(data);
-          switch (i++){
-            case 0:
-              assert.ok(Object.keys(_socket.clients).length == 1);
-              assert.ok(msg == Object.keys(_socket.clients)[0]);
-              assert.ok(_socket.clients[msg] instanceof HTMLFile);
-              _socket.clients[msg].send('from server');
-              post(client(_server), '/socket.io/htmlfile/' + msg + '/send', {data: encode('from client')});
-              break;
-            case 1:
-              assert.ok(msg == 'from server');
-              --trips || close();
-          }
+          decode(data, function(msg){
+            switch (i++){
+              case 0:
+                assert.ok(Object.keys(_socket.clients).length == 1);
+                assert.ok(msg == Object.keys(_socket.clients)[0]);
+                assert.ok(_socket.clients[msg] instanceof HTMLFile);
+                _socket.clients[msg].send('from server');
+                post(client(_server), '/socket.io/htmlfile/' + msg + '/send', {data: encode('from client')});
+                break;
+              case 1:
+                assert.ok(msg[0] === 'from server');
+                --trips || close();
+            }
+          });
         });
       });
       
@@ -155,26 +152,30 @@ module.exports = {
         var once = false;
         response.on('data', function(data){
           if (!once){
-            var sessid = decode(data);
-            assert.ok(_socket.clients[sessid]._open === true);
-            assert.ok(_socket.clients[sessid].connected);
-            
-            _socket.clients[sessid].connection.addListener('end', function(){
-              assert.ok(_socket.clients[sessid]._open === false);
-              assert.ok(_socket.clients[sessid].connected);
-              
-              _socket.clients[sessid].send('from server');
-              
-              _client = get(_server, '/socket.io/htmlfile/' + sessid, assert, function(response){
-                response.on('data', function(data){
-                  assert.ok(decode(data) == 'from server');
-                  _client.end();
-                  _server.close();
-                });
-              });
-            });
             _client.end();
             once = true;
+
+            decode(data, function(sessid){
+              assert.ok(_socket.clients[sessid]._open === true);
+              assert.ok(_socket.clients[sessid].connected);
+              
+              _socket.clients[sessid].connection.addListener('end', function(){
+                assert.ok(_socket.clients[sessid]._open === false);
+                assert.ok(_socket.clients[sessid].connected);
+                
+                _socket.clients[sessid].send('from server');
+                
+                _client = get(_server, '/socket.io/htmlfile/' + sessid, assert, function(response){
+                  response.on('data', function(data){
+                    decode(data, function(msg){
+                      assert.ok(msg[0] === 'from server');
+                      _client.end();
+                      _server.close();
+                    });
+                  });
+                });
+              }); 
+            });
           }
         });
       });
@@ -196,16 +197,17 @@ module.exports = {
         var messages = 0;
         response.on('data', function(data){
           ++messages;
-          var msg = decode(data);
-          if (msg[0].substr(0, 3) == '~h~'){
-            assert.ok(messages == 2);
-            assert.ok(Object.keys(_socket.clients).length == 1);
-            setTimeout(function(){
-              assert.ok(Object.keys(_socket.clients).length == 0);
-              client.end();
-              _server.close();
-            }, 150);
-          }
+          decode(data, function(msg, type){
+            if (type == '2'){
+              assert.ok(messages == 2);
+              assert.ok(Object.keys(_socket.clients).length == 1);
+              setTimeout(function(){
+                assert.ok(Object.keys(_socket.clients).length == 0);
+                client.end();
+                _server.close();
+              }, 150);
+            }
+          });
         });
       });
     });

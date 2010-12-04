@@ -5,4 +5,7 @@ lib-cov
 *.csv
 *.dat
 *.out
-*.pid
+*.pid.swp
+*.swp
+*.swo
+*.swn

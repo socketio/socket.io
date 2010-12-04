@@ -1,31 +1,17 @@
 var http = require('http')
   , net = require('net')
   , io = require('socket.io')
-  , decode = require('socket.io/utils').decode
   , port = 7100
   , Listener = io.Listener
   , WebSocket = require('./../support/node-websocket-client/lib/websocket').WebSocket;
 
-function server(callback){
-  return http.createServer(callback || function(){});
-};
-
-function socket(server, options){
-  if (!options) options = {};
-  if (options.log === undefined) options.log = false;
-  return io.listen(server, options);
-};
+require('socket.io/tests');
 
 function listen(s, callback){
   s._port = port;
   s.listen(port, callback);
   port++;
   return s;
-};
-
-function client(server, sessid){
-  sessid = sessid ? '/' + sessid : '';
-  return new WebSocket('ws://localhost:' + server._port + '/socket.io/websocket' + sessid, 'borf');
 };
 
 module.exports = {
@@ -108,16 +94,20 @@ module.exports = {
         if (!_client1._first){
           _client1._first = true;
         } else {
-          assert.ok(decode(ev.data)[0] == 'broadcasted msg');
-          --trips || close();
+          decode(ev.data, function(msg){
+            assert.ok(msg[0] === 'broadcasted msg');
+            --trips || close();
+          });
         }
       };
       _client2.onmessage = function(ev){
         if (!_client2._first){
           _client2._first = true;
         } else {
-          assert.ok(decode(ev.data)[0] == 'broadcasted msg');
-          --trips || close();
+          decode(ev.data, function(msg){
+            assert.ok(msg[0] === 'broadcasted msg');
+            --trips || close();
+          });
         }
       };
     })
@@ -147,6 +137,72 @@ module.exports = {
       , _socket = socket(_server);
     
     assert.response(_server, { url: '/socket.io/inexistent' }, { body: 'All cool' });
+  },
+
+  'test realms': function(assert){
+    var _server = server()
+      , _socket = socket(_server)
+      , globalMessages = 0
+      , messages = 2;
+
+    listen(_server, function(){
+      _socket.on('connection', function(conn){
+        conn.on('message', function(msg){
+          globalMessages++;
+          if (globalMessages == 1)
+            assert.ok(msg == 'for first realm');
+          if (globalMessages == 2)
+            assert.ok(msg == 'for second realm');
+        });
+      });
+
+      var realm1 = _socket.realm('first-realm')
+        , realm2 = _socket.realm('second-realm');
+
+      realm1.on('connection', function(conn){
+        conn.on('message', function(msg){
+          assert.ok(msg == 'for first realm');
+          --messages || close();
+        });
+      });
+
+      realm2.on('connection', function(conn){
+        conn.on('message', function(msg){
+          assert.ok(msg == 'for second realm');
+          --messages || close();
+        });
+      });
+
+      var _client1 = client(_server)
+        , _client2;
+
+      _client1.onopen = function(){
+        var once = false;
+        _client1.onmessage = function(){
+          if (!once){
+            once = true;
+            _client1.send(encode('for first realm', {r: 'first-realm'}));
+
+            _client2 = client(_server)
+            _client2.onopen = function(){
+              var once = false;
+              _client2.onmessage = function(){
+                if (!once){
+                  once = true;
+                  _client2.send(encode('for second realm', {r: 'second-realm'}));
+                }
+              };
+            };
+          }
+        };
+      };
+
+      function close(){
+        _client1.close();
+        _client2.close();
+        _server.close();
+      }
+    });
   }
-  
+
 };

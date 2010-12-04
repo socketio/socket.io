@@ -2,25 +2,9 @@ var io = require('socket.io')
   , net = require('net')
   , http = require('http')
   , querystring = require('querystring')
-  , port = 7700
-  , encode = require('socket.io/utils').encode
-  , decode = require('socket.io/utils').decode;
+  , port = 7700;
 
-function server(callback){
-  return http.createServer(function(){});
-};
-
-function socket(server, options){
-  if (!options) options = {};
-  options.log = false;
-  if (!options.transportOptions) options.transportOptions = { 
-    'flashsocket': {
-      // disable heartbeats for tests, re-enabled in heartbeat test below
-      timeout: null 
-    }
-  };
-  return io.listen(server, options);
-};
+require('socket.io/tests');
 
 function listen(s, callback){
   s._port = port;

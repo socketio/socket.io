@@ -1,31 +1,15 @@
 var io = require('socket.io')
-  , encode = require('socket.io/utils').encode
-  , decode = require('socket.io/utils').decode
   , port = 7200
   , Listener = io.Listener
-  , Client = require('socket.io/client')
-  , WebSocket = require('./../support/node-websocket-client/lib/websocket').WebSocket;
+  , Client = require('socket.io/client');
 
-function server(){
-  return require('http').createServer(function(){});
-};
-
-function socket(server, options){
-  if (!options) options = {};
-  options.log = false;
-  return io.listen(server, options);
-};
+require('socket.io/tests');
 
 function listen(s, callback){
   s._port = port;
   s.listen(port, callback);
   port++;
   return s;
-};
-
-function client(server, sessid){
-  sessid = sessid ? '/' + sessid : '';
-  return new WebSocket('ws://localhost:' + server._port + '/socket.io/websocket' + sessid, 'borf');
 };
 
 module.exports = {
@@ -48,10 +32,15 @@ module.exports = {
         _client.send(encode('from client'));
       };
       _client.onmessage = function(ev){
-        if (++messages == 2){ // first message is the session id
-          assert.ok(decode(ev.data), 'from server');
-          --trips || close();
-        }
+        decode(ev.data, function(msg, type){
+          messages++;
+          if (messages == 1){
+            assert.ok(type == '3');
+          } else if (messages == 2){
+            assert.ok(msg[0] === 'from server');
+            --trips || close();
+          }
+        });
       };
     });
     
@@ -69,7 +58,7 @@ module.exports = {
   'test clients tracking': function(assert){
     var _server = server()
       , _socket = socket(_server);
-      
+    
     listen(_server, function(){
       var _client = client(_server);
       _client.onopen = function(){
@@ -114,10 +103,12 @@ module.exports = {
             var _client2 = client(_server, sessionid);
             _client2.onmessage = function(ev){
               assert.ok(Object.keys(_socket.clients).length == 1);
-              assert.ok(decode(ev.data), 'should get this');
-              _socket.clients[sessionid].options.closeTimeout = 0;
-              _client2.close();
-              _server.close();
+              decode(ev.data, function(msg){
+                assert.ok(msg[0] === 'should get this');
+                _socket.clients[sessionid].options.closeTimeout = 0;
+                _client2.close();
+                _server.close();
+              });
             };
             runOnce = true;
           }
@@ -153,10 +144,11 @@ module.exports = {
       _client = client(_server);
       _client.onmessage = function(ev){
         if (++messages == 2){
-          assert.ok(decode(ev.data)[0].substr(0, 3) == '~j~');
-          assert.ok(JSON.parse(decode(ev.data)[0].substr(3)).from == 'server');
-          _client.send(encode({ from: 'client' }));
-          --trips || close();
+          decode(ev.data, function(msg){
+            assert.ok('j' in msg[1]);
+            _client.send(encode({ from: 'client' }));
+            --trips || close();
+          });
         }
       };
     });
@@ -178,15 +170,18 @@ module.exports = {
         , messages = 0;
       _client.onmessage = function(ev){
         ++messages;
-        if (decode(ev.data)[0].substr(0, 3) == '~h~'){
-          assert.ok(messages === 2);
-          assert.ok(Object.keys(_socket.clients).length == 1);
-          setTimeout(function(){
-            assert.ok(Object.keys(_socket.clients).length == 0);
-            _client.close();
-            _server.close();
-          }, 150);
-        }
+        decode(ev.data, function(msg, type){
+          if (type === '2'){
+            assert.ok(messages === 2);
+            assert.ok(msg === '1');
+            assert.ok(Object.keys(_socket.clients).length == 1);
+            setTimeout(function(){
+              assert.ok(Object.keys(_socket.clients).length == 0);
+              _client.close();
+              _server.close();
+            }, 150);
+          }
+        });
       };
     });
   },
@@ -205,11 +200,13 @@ module.exports = {
       _client.onmessage = function(ev){
         if (!('messages' in _client)) _client.messages = 0;
         if (++_client.messages == 2){
-          assert.ok(decode(ev.data)[0] == 'not broadcasted');
-          _client.close();
-          _client2.close();
-          _client3.close();
-          _server.close();
+          decode(ev.data, function(msg){
+            assert.ok(msg[0] === 'not broadcasted');
+            _client.close();
+            _client2.close();
+            _client3.close();
+            _server.close();
+          });
         }
       };
       
@@ -218,14 +215,18 @@ module.exports = {
         _client2.onmessage = function(ev){
           if (!('messages' in _client2)) _client2.messages = 0;
           if (++_client2.messages == 2)
-            assert.ok(decode(ev.data)[0] == 'broadcasted')
+            decode(ev.data, function(msg){
+              assert.ok(msg[0] === 'broadcasted');
+            });
         };
         _client2.onopen = function(){
           _client3 = client(_server);
           _client3.onmessage = function(ev){
             if (!('messages' in _client3)) _client3.messages = 0;
             if (++_client3.messages == 2)
-              assert.ok(decode(ev.data)[0] == 'broadcasted')
+              decode(ev.data, function(msg){
+                assert.ok(msg[0] === 'broadcasted');
+              });
           };
         };
       };
@@ -241,5 +242,5 @@ module.exports = {
       
     });
   }
-  
+
 };

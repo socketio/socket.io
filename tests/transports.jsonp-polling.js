@@ -2,18 +2,20 @@ var io = require('socket.io')
   , http = require('http')
   , querystring = require('querystring')
   , port = 7500
-  , encode = require('socket.io/utils').encode
-  , _decode = require('socket.io/utils').decode
   , Polling = require('socket.io/transports/jsonp-polling');
 
-function decode(data){
+require('socket.io/tests');
+
+function jsonp_decode(data, fn, alert){
   var io = {
     JSONP: [{
-      '_': _decode
+      '_': function(msg){
+        decode(msg, fn);
+      }
     }]
   };
   // the decode function simulates a browser executing the javascript jsonp call
-  return eval(data);
+  eval(data);
 };
 
 function server(callback){
@@ -42,8 +44,9 @@ function socket(server, options){
   return io.listen(server, options);
 };
 
-function get(client, url, callback){
-  var request = client.request('GET', url + '/' + (+new Date) + '/0', {host: 'localhost'});
+function get(client, url, callback, origin){
+  var headers = {host: 'localhost', origin: origin || ''}
+    , request = client.request('GET', url + '/' + (+new Date) + '/0', headers);
   request.end();
   request.on('response', function(response){
     var data = '';
@@ -81,19 +84,23 @@ module.exports = {
 
     listen(_server, function(){
       get(client(_server), '/socket.io/jsonp-polling/', function(data){
-        var sessid = decode(data);
-        assert.ok(Object.keys(_socket.clients).length == 1);
-        assert.ok(sessid == Object.keys(_socket.clients)[0]);
-        assert.ok(_socket.clients[sessid] instanceof Polling);
-        
-        _socket.clients[sessid].send('from server');
-        
-        get(client(_server), '/socket.io/jsonp-polling/' + sessid, function(data){
-          assert.ok(decode(data), 'from server');
-          --trips || _server.close();
+        jsonp_decode(data, function(sessid){
+          assert.ok(Object.keys(_socket.clients).length == 1);
+          assert.ok(sessid == Object.keys(_socket.clients)[0]);
+          assert.ok(_socket.clients[sessid] instanceof Polling);
+          
+          _socket.clients[sessid].send('from server');
+          
+          get(client(_server), '/socket.io/jsonp-polling/' + sessid, function(data){
+            jsonp_decode(data, function(msg){
+              assert.ok(msg[0] === 'from server');
+              --trips || _server.close();
+            });
+          });
+          
+          post(client(_server), '/socket.io/jsonp-polling/' + sessid
+            + '/send//0', {data: encode('from client')});
         });
-        
-        post(client(_server), '/socket.io/jsonp-polling/' + sessid + '/send//0', {data: encode('from client')});
       });
     });
   },
@@ -124,24 +131,81 @@ module.exports = {
       
     listen(_server, function(){
       get(client(_server), '/socket.io/jsonp-polling/', function(data){
-        var sessid = decode(data);
-        assert.ok(_socket.clients[sessid]._open === false);
-        assert.ok(_socket.clients[sessid].connected);
-        _socket.clients[sessid].send('from server');
-        get(client(_server), '/socket.io/jsonp-polling/' + sessid, function(data){
-          var durationCheck;
-          assert.ok(decode(data) == 'from server');
-          setTimeout(function(){
-            assert.ok(_socket.clients[sessid]._open);
-            assert.ok(_socket.clients[sessid].connected);
-            durationCheck = true;
-          }, 50);
-          get(client(_server), '/socket.io/jsonp-polling/' + sessid, function(){
-            assert.ok(durationCheck);
-            _server.close();
+        jsonp_decode(data, function(sessid){
+          assert.ok(_socket.clients[sessid]._open === false);
+          assert.ok(_socket.clients[sessid].connected);
+          _socket.clients[sessid].send('from server');
+          get(client(_server), '/socket.io/jsonp-polling/' + sessid, function(data){
+            var durationCheck;
+            jsonp_decode(data, function(msg){
+              assert.ok(msg[0] === 'from server');
+              setTimeout(function(){
+                assert.ok(_socket.clients[sessid]._open);
+                assert.ok(_socket.clients[sessid].connected);
+                durationCheck = true;
+              }, 50);
+              get(client(_server), '/socket.io/jsonp-polling/' + sessid, function(){
+                assert.ok(durationCheck);
+                _server.close();
+              });
+            });
           });
         });
       });
+    });
+  },
+
+  'test origin through domain mismatch': function(assert){
+    var _server = server()
+      , _socket = socket(_server, {
+          origins: 'localhost:*'
+        });
+    
+    listen(_server, function(){
+      get(client(_server), '/socket.io/jsonp-polling/',
+        function(data){
+          jsonp_decode(data, 
+            function(){
+              assert.ok(false);
+            },
+            function(msg){
+              assert.ok(/security/i.test(msg));
+              _server.close();
+            }
+          );
+        },
+        'test.localhost'
+      );
+    });
+  },
+
+  'test disallowance because of empty origin': function(assert){
+    var _server = server()
+      , _socket = socket(_server, {
+          origins: 'localhost:*',
+          transportOptions: {
+            'jsonp-polling': {
+              ignoreEmptyOrigin: false,
+              closeTimeout: 100
+            }
+          }
+        });
+    
+    listen(_server, function(){
+      get(client(_server), '/socket.io/jsonp-polling/',
+        function(data){
+          jsonp_decode(data, 
+            function(){
+              assert.ok(false);
+            },
+            function(msg){
+              assert.ok(/security/i.test(msg));
+              _server.close();
+            }
+          );
+        },
+        ''
+      );
     });
   }
   

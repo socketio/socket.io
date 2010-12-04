@@ -19,6 +19,7 @@ var fs = require('fs'),
 	files = [
 		'io.js',
 		'util.js',
+		'data.js',
 		'transport.js',
 		'transports/xhr.js',
 		'transports/websocket.js',
