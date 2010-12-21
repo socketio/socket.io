@@ -101,8 +101,9 @@
 	
 	Socket.prototype.fire = function(name, args){
 		if (name in this._events){
-			for (var i = 0, ii = this._events[name].length; i < ii; i++) 
-				this._events[name][i].apply(this, args === undefined ? [] : args);
+			var events = this._events[name].concat();
+			for (var i = 0, ii = events.length; i < ii; i++) 
+				events[i].apply(this, args === undefined ? [] : args);
 		}
 		return this;
 	};
