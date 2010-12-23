@@ -6,7 +6,7 @@ var http = require('http')
   , url = require('url')
   , fs = require('fs')
   , io = require('../')
-  , sys = require('sys')
+  , sys = require(process.binding('natives').util ? 'util' : 'sys'))
   , server;
     
 server = http.createServer(function(req, res){
