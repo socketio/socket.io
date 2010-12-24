@@ -825,7 +825,7 @@ JSONPPolling.xdomainCheck = function(){
 			this.transport.connect();
 			if (this.options.connectTimeout){
 				var self = this;
-				setTimeout(function(){
+				this.connectTimeoutTimer = setTimeout(function(){
 					if (!self.connected){
 						self.disconnect();
 						if (self.options.tryTransportsOnConnectTimeout && !self._rememberedTransport){
@@ -852,6 +852,7 @@ JSONPPolling.xdomainCheck = function(){
 	};
 	
 	Socket.prototype.disconnect = function(){
+    if (this.connectTimeoutTimer) clearTimeout(this.connectTimeoutTimer);
 		this.transport.disconnect();
 		return this;
 	};
@@ -862,14 +863,15 @@ JSONPPolling.xdomainCheck = function(){
 		return this;
 	};
 	
-	Socket.prototype.fire = function(name, args){
-		if (name in this._events){
-			for (var i = 0, ii = this._events[name].length; i < ii; i++) 
-				this._events[name][i].apply(this, args === undefined ? [] : args);
-		}
-		return this;
-	};
-	
+  Socket.prototype.emit = function(name, args){
+    if (name in this._events){
+      var events = this._events[name].concat();
+      for (var i = 0, ii = events.length; i < ii; i++)
+        events[i].apply(this, args === undefined ? [] : args);
+    }
+    return this;
+  };
+
 	Socket.prototype.removeEvent = function(name, fn){
 		if (name in this._events){
 			for (var a = 0, l = this._events[name].length; a < l; a++)
@@ -900,11 +902,11 @@ JSONPPolling.xdomainCheck = function(){
 		this.connecting = false;
 		this._doQueue();
 		if (this.options.rememberTransport) this.options.document.cookie = 'socketio=' + encodeURIComponent(this.transport.type);
-		this.fire('connect');
+		this.emit('connect');
 	};
 	
 	Socket.prototype._onMessage = function(data){
-		this.fire('message', [data]);
+		this.emit('message', [data]);
 	};
 	
 	Socket.prototype._onDisconnect = function(){
@@ -912,12 +914,15 @@ JSONPPolling.xdomainCheck = function(){
 		this.connected = false;
 		this.connecting = false;
 		this._queueStack = [];
-		if (wasConnected) this.fire('disconnect');
+		if (wasConnected) this.emit('disconnect');
 	};
+
+  Socket.prototype.fire = Socket.prototype.emit;
 	
 	Socket.prototype.addListener = Socket.prototype.addEvent = Socket.prototype.addEventListener = Socket.prototype.on;
 	
 })();
+
 /*	SWFObject v2.2 <http://code.google.com/p/swfobject/> 
 	is released under the MIT License <http://www.opensource.org/licenses/mit-license.php> 
 */
