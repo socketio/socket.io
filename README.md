@@ -12,7 +12,8 @@ The `Socket.IO` server provides seamless support for a variety of transports int
 
 ## Requirements
 
-- Node v0.1.103+
+- Node v0.1.103+ with `crypto` module support (make sure you have OpenSSL
+  headers when installing Node to get it)
 - The [Socket.IO client](http://github.com/LearnBoost/Socket.IO), to connect from the browser
 
 ## How to use
