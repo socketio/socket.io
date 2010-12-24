@@ -21,6 +21,7 @@
 		this.socket = new WebSocket(this._prepareUrl());
 		this.socket.onmessage = function(ev){ self._onData(ev.data); };
 		this.socket.onclose = function(ev){ self._onClose(); };
+    this.socket.onerror = function(e){ self._onError(e); };
 		return this;
 	};
 	
@@ -38,6 +39,10 @@
 		this._onDisconnect();
 		return this;
 	};
+
+  WS.prototype._onError = function(e){
+    this.base.emit('error', [e]);
+  };
 	
 	WS.prototype._prepareUrl = function(){
 		return (this.base.options.secure ? 'wss' : 'ws') 
