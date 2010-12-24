@@ -13,7 +13,7 @@ this.io = {
 	setPath: function(path){
 		if (window.console && console.error) console.error('io.setPath will be removed. Please set the variable WEB_SOCKET_SWF_LOCATION pointing to WebSocketMain.swf');
 		this.path = /\/$/.test(path) ? path : path + '/';
-		WEB_SOCKET_SWF_LOCATION = path + 'lib/vendor/web-socket-js/WebSocketMain.swf';
+    WEB_SOCKET_SWF_LOCATION = path + 'lib/vendor/web-socket-js/WebSocketMain.swf';
 	}
 };
 
@@ -21,8 +21,10 @@ if ('jQuery' in this) jQuery.io = this.io;
 
 if (typeof window != 'undefined'){
   // WEB_SOCKET_SWF_LOCATION = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//cdn.socket.io/' + this.io.version + '/WebSocketMain.swf';
-  WEB_SOCKET_SWF_LOCATION = '/socket.io/lib/vendor/web-socket-js/WebSocketMain.swf';
+  if (typeof WEB_SOCKET_SWF_LOCATION === 'undefined')
+    WEB_SOCKET_SWF_LOCATION = '/socket.io/lib/vendor/web-socket-js/WebSocketMain.swf';
 }
+
 /**
  * Socket.IO client
  * 
@@ -384,6 +386,7 @@ if (typeof window != 'undefined'){
 		this.socket = new WebSocket(this._prepareUrl());
 		this.socket.onmessage = function(ev){ self._onData(ev.data); };
 		this.socket.onclose = function(ev){ self._onClose(); };
+    this.socket.onerror = function(e){ self._onError(e); };
 		return this;
 	};
 	
@@ -401,6 +404,10 @@ if (typeof window != 'undefined'){
 		this._onDisconnect();
 		return this;
 	};
+
+  WS.prototype._onError = function(e){
+    this.base.emit('error', [e]);
+  };
 	
 	WS.prototype._prepareUrl = function(){
 		return (this.base.options.secure ? 'wss' : 'ws') 
@@ -421,6 +428,7 @@ if (typeof window != 'undefined'){
 	};
 	
 })();
+
 /**
  * Socket.IO client
  * 
