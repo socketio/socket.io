@@ -1,4 +1,4 @@
-/** Socket.IO 0.6 - Built with build.js */
+/** Socket.IO 0.6.1 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,7 +8,7 @@
  */
 
 this.io = {
-	version: '0.6',
+	version: '0.6.1',
 	
 	setPath: function(path){
 		if (window.console && console.error) console.error('io.setPath will be removed. Please set the variable WEB_SOCKET_SWF_LOCATION pointing to WebSocketMain.swf');
