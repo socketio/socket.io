@@ -59,6 +59,7 @@ On the client:
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
 		var socket = new io.Socket();
+		socket.connect();
 		socket.on('connect', function(){ … })
 		socket.on('message', function(){ … })
 		socket.on('disconnect', function(){ … })
