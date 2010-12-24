@@ -40,7 +40,7 @@ if (typeof window != 'undefined'){
 		ios: false,
 
 		load: function(fn){
-			if (document.readyState == 'complete' || _pageLoaded) return fn();
+			if (/loaded|complete/.test(document.readyState) || _pageLoaded) return fn();
 			if ('attachEvent' in window){
 				window.attachEvent('onload', fn);
 			} else {
@@ -83,6 +83,7 @@ if (typeof window != 'undefined'){
 	});
 
 })();
+
 /**
  * Socket.IO client
  * 
@@ -318,13 +319,17 @@ if (typeof window != 'undefined'){
 	
 	XHR.prototype._onDisconnect = function(){
 		if (this._xhr){
-			this._xhr.onreadystatechange = this._xhr.onload = empty;
-			this._xhr.abort();
+			this._xhr.onreadystatechange = empty;
+      try {
+        this._xhr.abort();
+      } catch(e){}
 			this._xhr = null;
 		}
 		if (this._sendXhr){
-			this._sendXhr.onreadystatechange = this._sendXhr.onload = empty;
-			this._sendXhr.abort();
+      this._sendXhr.onreadystatechange = empty;
+      try {
+        this._sendXhr.abort();
+      } catch(e){}
 			this._sendXhr = null;
 		}
 		this._sendBuffer = [];
@@ -355,6 +360,7 @@ if (typeof window != 'undefined'){
 	XHR.request = request;
 	
 })();
+
 /**
  * Socket.IO client
  * 
@@ -565,7 +571,7 @@ if (typeof window != 'undefined'){
 		this._xhr.onreadystatechange = function(){
 			if (self._xhr.readyState == 3) self._onData(self._xhr.responseText);
 		};
-		this._xhr.send();
+		this._xhr.send(null);
 	};
 	
 	XHRMultipart.check = function(){
@@ -577,6 +583,7 @@ if (typeof window != 'undefined'){
 	};
 	
 })();
+
 /**
  * Socket.IO client
  * 
@@ -613,27 +620,20 @@ if (typeof window != 'undefined'){
 	XHRPolling.prototype._get = function(){
 		var self = this;
 		this._xhr = this._request(+ new Date, 'GET');
-		if ('onload' in this._xhr){
-			this._xhr.onload = function(){
-				self._onData(this.responseText);
-				self._get();
-			};
-		} else {
-			this._xhr.onreadystatechange = function(){
-				var status;
-				if (self._xhr.readyState == 4){
-					self._xhr.onreadystatechange = empty;
-					try { status = self._xhr.status; } catch(e){}
-					if (status == 200){
-						self._onData(self._xhr.responseText);
-						self._get();
-					} else {
-						self._onDisconnect();
-					}
-				}
-			};
-		}
-		this._xhr.send();
+    this._xhr.onreadystatechange = function(){
+      var status;
+      if (self._xhr.readyState == 4){
+        self._xhr.onreadystatechange = empty;
+        try { status = self._xhr.status; } catch(e){}
+        if (status == 200){
+          self._onData(self._xhr.responseText);
+          self._get();
+        } else {
+          self._onDisconnect();
+        }
+      }
+    };
+		this._xhr.send(null);
 	};
 
 	XHRPolling.check = function(){
@@ -645,6 +645,7 @@ if (typeof window != 'undefined'){
 	};
 
 })();
+
 /**
  * Socket.IO client
  * 
