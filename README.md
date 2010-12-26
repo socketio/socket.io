@@ -163,6 +163,17 @@ Events:
 
 	Fired when the connection is established and the handshake successful
 	
+- *connecting(transport_type)*
+
+  Fired when a connection is attempted, passing the transport name
+	
+- *connect_failed*
+
+  Fired when the connection timeout occurs after the last connection attempt.
+	This only fires if the `connectTimeout` option is set.
+	If the `tryTransportsOnConnectTimeout` option is set, this only fires once all
+	possible transports have been tried.
+	
 - *message(message)*
 	
 	Fired when a message arrives from the server
