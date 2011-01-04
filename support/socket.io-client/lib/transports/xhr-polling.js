@@ -34,27 +34,20 @@
 	XHRPolling.prototype._get = function(){
 		var self = this;
 		this._xhr = this._request(+ new Date, 'GET');
-		if ('onload' in this._xhr){
-			this._xhr.onload = function(){
-				self._onData(this.responseText);
-				self._get();
-			};
-		} else {
-			this._xhr.onreadystatechange = function(){
-				var status;
-				if (self._xhr.readyState == 4){
-					self._xhr.onreadystatechange = empty;
-					try { status = self._xhr.status; } catch(e){}
-					if (status == 200){
-						self._onData(self._xhr.responseText);
-						self._get();
-					} else {
-						self._onDisconnect();
-					}
-				}
-			};
-		}
-		this._xhr.send();
+    this._xhr.onreadystatechange = function(){
+      var status;
+      if (self._xhr.readyState == 4){
+        self._xhr.onreadystatechange = empty;
+        try { status = self._xhr.status; } catch(e){}
+        if (status == 200){
+          self._onData(self._xhr.responseText);
+          self._get();
+        } else {
+          self._onDisconnect();
+        }
+      }
+    };
+		this._xhr.send(null);
 	};
 
 	XHRPolling.check = function(){
