@@ -1,4 +1,11 @@
 
+0.6.4 / 2011-01-05 
+==================
+
+  * Don't destroy the connection in _onClose. Destroying it will prevent the buffers from being flushed and will result in corrupted responses for the xhr-polling transport.
+  * Added try/catch block around JSON.parse and return an empty object literal if JSON parsing fails.
+  * Added missing .connect() to example
+
 0.6.3 / 2010-12-23 
 ==================
 
