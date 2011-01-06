@@ -9,7 +9,7 @@
 (function(){
 	
 	var empty = new Function,
-	    
+			
 	XMLHttpRequestCORS = (function(){
 		if (!('XMLHttpRequest' in window)) return false;
 		// CORS feature detection
@@ -93,16 +93,16 @@
 	XHR.prototype._onDisconnect = function(){
 		if (this._xhr){
 			this._xhr.onreadystatechange = empty;
-      try {
-        this._xhr.abort();
-      } catch(e){}
+			try {
+				this._xhr.abort();
+			} catch(e){}
 			this._xhr = null;
 		}
 		if (this._sendXhr){
-      this._sendXhr.onreadystatechange = empty;
-      try {
-        this._sendXhr.abort();
-      } catch(e){}
+			this._sendXhr.onreadystatechange = empty;
+			try {
+				this._sendXhr.abort();
+			} catch(e){}
 			this._sendXhr = null;
 		}
 		this._sendBuffer = [];

@@ -41,11 +41,11 @@
 			return Object.prototype.toString.call(obj) === '[object Array]';
 		},
 		
-    merge: function(target, additional){
-      for (var i in additional)
-        if (additional.hasOwnProperty(i))
-          target[i] = additional[i];
-    }
+		merge: function(target, additional){
+			for (var i in additional)
+				if (additional.hasOwnProperty(i))
+					target[i] = additional[i];
+		}
 
 	};
 

@@ -89,7 +89,7 @@
 	};
 	
 	Socket.prototype.disconnect = function(){
-    if (this.connectTimeoutTimer) clearTimeout(this.connectTimeoutTimer);
+		if (this.connectTimeoutTimer) clearTimeout(this.connectTimeoutTimer);
 		this.transport.disconnect();
 		return this;
 	};
@@ -100,14 +100,14 @@
 		return this;
 	};
 	
-  Socket.prototype.emit = function(name, args){
-    if (name in this._events){
-      var events = this._events[name].concat();
-      for (var i = 0, ii = events.length; i < ii; i++)
-        events[i].apply(this, args === undefined ? [] : args);
-    }
-    return this;
-  };
+	Socket.prototype.emit = function(name, args){
+		if (name in this._events){
+			var events = this._events[name].concat();
+			for (var i = 0, ii = events.length; i < ii; i++)
+				events[i].apply(this, args === undefined ? [] : args);
+		}
+		return this;
+	};
 
 	Socket.prototype.removeEvent = function(name, fn){
 		if (name in this._events){
@@ -154,7 +154,7 @@
 		if (wasConnected) this.emit('disconnect');
 	};
 
-  Socket.prototype.fire = Socket.prototype.emit;
+	Socket.prototype.fire = Socket.prototype.emit;
 	
 	Socket.prototype.addListener = Socket.prototype.addEvent = Socket.prototype.addEventListener = Socket.prototype.on;
 	
