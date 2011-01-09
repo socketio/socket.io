@@ -666,7 +666,7 @@ io.JSONP = [];
 
 JSONPPolling = io.Transport['jsonp-polling'] = function(){
 	io.Transport.XHR.apply(this, arguments);
-	this._insertAt = document.getElementsByTagName('script')[0];
+	this._insertAt = document.getElementsByTagName('head')[0];
 	this._index = io.JSONP.length;
 	io.JSONP.push(this);
 };
@@ -691,7 +691,7 @@ JSONPPolling.prototype._send = function(data){
 		form.action = this._prepareUrl() + '/' + (+new Date) + '/' + this._index;
 		area.name = 'data';
 		form.appendChild(area);
-		this._insertAt.parentNode.insertBefore(form, this._insertAt);
+		this._insertAt.insertBefore(form, null);
 		document.body.appendChild(form);
 
 		this._form = form;
@@ -753,7 +753,7 @@ JSONPPolling.prototype._get = function(){
 	script.onerror = function(){
 		self._onDisconnect();
 	};
-	this._insertAt.parentNode.insertBefore(script, this._insertAt);
+	this._insertAt.insertBefore(script, null);
 	this._script = script;
 };
 
