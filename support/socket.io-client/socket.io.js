@@ -424,7 +424,7 @@ if (typeof window != 'undefined'){
 	};
 
 	WS.xdomainCheck = function(){
-		return true;
+		return !io.util.opera; // cross-domain does not work for opera 10
 	};
 	
 })();
