@@ -85,8 +85,8 @@ app.get('/', function(req, res){
 app.listen(3000); 
   
 var io = require('socket.io'); 
-io.listen(app); 
-io.on('connection', function(){ 
+var socket = io.listen(app); 
+socket.on('connection', function(){ 
   // … 
 }) </pre></div></div><div id="footer"><p>Socket.IO by  <a href="http://devthought.com">Guillermo Rauch</a> at  <a href="http://github.com/learnboost/">LearnBoost Labs</a>. Released under the MIT license -  Copyright <a href="http://learnboost.com">LearnBoost 2010</a></p></div></div>
 
