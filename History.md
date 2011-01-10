@@ -1,4 +1,10 @@
 
+0.6.5 / 2011-01-09 
+==================
+
+  * Make sure not to trigger multiple timeouts when closing
+  * Important fix for polling transports.
+
 0.6.4 / 2011-01-05 
 ==================
 
