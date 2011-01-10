@@ -1,4 +1,11 @@
 
+0.6.7 / 2011-01-09 
+==================
+
+  * Fixed situation where the connection drops but the client can still autoreconnect
+    through a different socket. In this case we still want to clear the FD but not
+    call onDisconnect immediately.
+
 0.6.6 / 2011-01-09 
 ==================
 
