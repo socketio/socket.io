@@ -1,4 +1,11 @@
 
+0.6.6 / 2011-01-09 
+==================
+
+  * Note for Flash socket and inline policy on Firefox
+  * Destroy the fds on disconnect
+  * Restored 20 secs of polling so that node doesn't timeout the connections
+
 0.6.5 / 2011-01-09 
 ==================
 
