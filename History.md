@@ -1,4 +1,9 @@
 
+0.6.8 / 2011-01-10 
+==================
+
+  * Fixed issue with terminating connection twice
+
 0.6.7 / 2011-01-09 
 ==================
 
