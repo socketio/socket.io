@@ -74,6 +74,7 @@ socket.on('connection', function(client){
 &lt;script src=&quot;http://{node_server_url}/socket.io/socket.io.js&quot;&gt;&lt;/script&gt; 
 &lt;script&gt; 
  var socket = new io.Socket({node_server_url}); 
+ socket.connect();
  socket.on('connect', function(){ … }) 
  socket.on('message', function(){ … }) 
  socket.on('disconnect', function(){ … }) 
