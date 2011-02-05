@@ -46,14 +46,6 @@ The `socket.io` client is basically a simple HTTP Socket interface implementatio
 - Easy to use! See [socket.io-node](http://github.com/LearnBoost/Socket.IO-node) for the server to connect to.
 
 ### How to use
-	
-The recommended way of including the Socket.IO client is through the Socket.IO CDN:
-
-In your &lt;head&gt;
-
-	<script src="http://cdn.socket.io/stable/socket.io.js"></script>
-
-Then, in your code
 
 	socket = new io.Socket('localhost');
 	socket.connect();
@@ -185,14 +177,6 @@ Events:
 - *disconnect*
 
 	Fired when the connection is considered disconnected.
-
-### Changelog
-
-2010 08 02 - **0.5.4** (9.95KB)
-
-* Added io.util.load as a reusable onload handler
-* Added io.util.ios which reports if the UA is running on iPhone or iPad
-* No more loading bar on iPhone: XHR-Polling now connects `onload` for the iOS WebKit, and waits 10 ms to launch the initial connection.
 
 ### Credits
 
