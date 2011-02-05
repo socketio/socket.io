@@ -8,8 +8,10 @@
   if (window.WebSocket) return;
 
   var console = window.console;
-  if (!console) console = {log: function(){ }, error: function(){ }};
-
+  if (!console || !console.log || !console.error) {
+    console = {log: function(){ }, error: function(){ }};
+  }
+  
   if (!swfobject.hasFlashPlayerVersion("9.0.0")) {
     console.error("Flash Player is not installed.");
     return;
@@ -31,73 +33,22 @@
       WebSocket.__addTask(function() {
         self.__createFlash(url, protocol, proxyHost, proxyPort, headers);
       });
-    }, 1);
-  }
+    }, 0);
+  };
   
   WebSocket.prototype.__createFlash = function(url, protocol, proxyHost, proxyPort, headers) {
     var self = this;
     self.__flash =
       WebSocket.__flash.create(url, protocol, proxyHost || null, proxyPort || 0, headers || null);
-
-    self.__flash.addEventListener("open", function(fe) {
-      try {
-        self.readyState = self.__flash.getReadyState();
-        if (self.__timer) clearInterval(self.__timer);
-        if (window.opera) {
-          // Workaround for weird behavior of Opera which sometimes drops events.
-          self.__timer = setInterval(function () {
-            self.__handleMessages();
-          }, 500);
-        }
-        if (self.onopen) self.onopen();
-      } catch (e) {
-        console.error(e.toString());
-      }
+    self.__flash.addEventListener("event", function(fe) {
+      // Uses setTimeout() to workaround the error:
+      // > You are trying to call recursively into the Flash Player which is not allowed.
+      setTimeout(function() { self.__handleEvents(); }, 0);
     });
-
-    self.__flash.addEventListener("close", function(fe) {
-      try {
-        self.readyState = self.__flash.getReadyState();
-        if (self.__timer) clearInterval(self.__timer);
-        if (self.onclose) self.onclose();
-      } catch (e) {
-        console.error(e.toString());
-      }
-    });
-
-    self.__flash.addEventListener("message", function() {
-      try {
-        self.__handleMessages();
-      } catch (e) {
-        console.error(e.toString());
-      }
-    });
-
-    self.__flash.addEventListener("error", function(fe) {
-      try {
-        if (self.__timer) clearInterval(self.__timer);
-        if (self.onerror) self.onerror();
-      } catch (e) {
-        console.error(e.toString());
-      }
-    });
-
-    self.__flash.addEventListener("stateChange", function(fe) {
-      try {
-        self.readyState = self.__flash.getReadyState();
-        self.bufferedAmount = fe.getBufferedAmount();
-      } catch (e) {
-        console.error(e.toString());
-      }
-    });
-
     //console.log("[WebSocket] Flash object is ready");
   };
 
   WebSocket.prototype.send = function(data) {
-    if (this.__flash) {
-      this.readyState = this.__flash.getReadyState();
-    }
     if (!this.__flash || this.readyState == WebSocket.CONNECTING) {
       throw "INVALID_STATE_ERR: Web Socket connection has not been established";
     }
@@ -111,7 +62,7 @@
     if (result < 0) { // success
       return true;
     } else {
-      this.bufferedAmount = result;
+      this.bufferedAmount += result;
       return false;
     }
   };
@@ -119,7 +70,6 @@
   WebSocket.prototype.close = function() {
     var self = this;
     if (!self.__flash) return;
-    self.readyState = self.__flash.getReadyState();
     if (self.readyState == WebSocket.CLOSED || self.readyState == WebSocket.CLOSING) return;
     self.__flash.close();
     // Sets/calls them manually here because Flash WebSocketConnection.close cannot fire events
@@ -130,7 +80,7 @@
     if (self.onclose) {
        // Make it asynchronous so that it looks more like an actual
        // close event
-       setTimeout(self.onclose, 1);
+       setTimeout(self.onclose, 0);
      }
   };
 
@@ -199,30 +149,62 @@
     }
   };
 
-  WebSocket.prototype.__handleMessages = function() {
-    // Gets data using readSocketData() instead of getting it from event object
+  WebSocket.prototype.__handleEvents = function() {
+    // Gets events using receiveEvents() instead of getting it from event object
     // of Flash event. This is to make sure to keep message order.
     // It seems sometimes Flash events don't arrive in the same order as they are sent.
-    var arr = this.__flash.readSocketData();
-    for (var i = 0; i < arr.length; i++) {
-      var data = decodeURIComponent(arr[i]);
+    var events = this.__flash.receiveEvents();
+    for (var i = 0; i < events.length; i++) {
       try {
-        if (this.onmessage) {
-          var e;
-          if (window.MessageEvent) {
-            e = document.createEvent("MessageEvent");
-            e.initMessageEvent("message", false, false, data, null, null, window, null);
-          } else { // IE
-            e = {data: data};
+        var event = events[i];
+        if ("readyState" in event) {
+          this.readyState = event.readyState;
+        }
+        if (event.type == "open") {
+          
+          if (this.__timer) clearInterval(this.__timer);
+          if (window.opera) {
+            // Workaround for weird behavior of Opera which sometimes drops events.
+            this.__timer = setInterval(function () {
+              this.__handleEvents();
+            }, 500);
           }
-          this.onmessage(e);
+          if (this.onopen) this.onopen();
+          
+        } else if (event.type == "close") {
+          
+          if (this.__timer) clearInterval(this.__timer);
+          if (this.onclose) this.onclose();
+          
+        } else if (event.type == "message") {
+          
+          if (this.onmessage) {
+            var data = decodeURIComponent(event.data);
+            var e;
+            if (window.MessageEvent && !window.opera) {
+              e = document.createEvent("MessageEvent");
+              e.initMessageEvent("message", false, false, data, null, null, window, null);
+            } else {
+              // IE and Opera, the latter one truncates the data parameter after any 0x00 bytes.
+              e = {data: data};
+            }
+            this.onmessage(e);
+          }
+          
+        } else if (event.type == "error") {
+          
+          if (this.__timer) clearInterval(this.__timer);
+          if (this.onerror) this.onerror();
+          
+        } else {
+          throw "unknown event type: " + event.type;
         }
       } catch (e) {
         console.error(e.toString());
       }
     }
   };
-
+  
   /**
    * @param {object} object
    * @param {string} type
@@ -237,7 +219,7 @@
       }
       object.dispatchEvent(event, arguments);
     };
-  }
+  };
 
   /**
    * Basic implementation of {@link <a href="http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-interface">DOM 2 EventInterface</a>}
@@ -297,6 +279,12 @@
   WebSocket.CLOSED = 3;
 
   WebSocket.__tasks = [];
+
+  WebSocket.loadFlashPolicyFile = function(url) {
+    WebSocket.__addTask(function() {
+      WebSocket.__flash.loadManualPolicyFile(url);
+    });
+  }
 
   WebSocket.__initialize = function() {
     if (WebSocket.__swfLocation) {
