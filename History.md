@@ -1,4 +1,13 @@
 
+0.6.9 / 2011-02-06 
+==================
+
+  * 0.3 compatibility
+  * Updated socket.io client to 0.6.2
+  * Fixed Flash inline policy serving for Firefox 4
+  * Updated expresso
+  * Added comments and version number to socket.io/index
+
 0.6.8 / 2011-01-10 
 ==================
 
