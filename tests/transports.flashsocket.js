@@ -1,6 +1,7 @@
 var io = require('socket.io')
   , net = require('net')
   , http = require('http')
+  , assert = require('assert')
   , querystring = require('querystring')
   , port = 7700
   , encode = require('socket.io/utils').encode
@@ -31,7 +32,7 @@ function listen(s, callback){
 
 module.exports = {
   
-  'test xml policy added to connection': function(assert){
+  'test xml policy added to connection': function(){
     var _server = server()
       , _socket = socket(_server);
     listen(_server, function(){

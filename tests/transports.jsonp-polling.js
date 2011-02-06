@@ -1,6 +1,7 @@
 var io = require('socket.io')
   , http = require('http')
   , querystring = require('querystring')
+  , assert = require('assert')
   , port = 7500
   , encode = require('socket.io/utils').encode
   , _decode = require('socket.io/utils').decode
@@ -66,7 +67,7 @@ function post(client, url, data, callback){
 
 module.exports = {
   
-  'test connection and handshake': function(assert){
+  'test connection and handshake': function(){
     var _server = server()
       , _socket = socket(_server)
       , trips = 2;
@@ -98,7 +99,7 @@ module.exports = {
     });
   },
   
-  'test clients tracking': function(assert){
+  'test clients tracking': function(){
     var _server = server()
       , _socket = socket(_server);
     
@@ -113,7 +114,7 @@ module.exports = {
     });
   },
   
-  'test buffered messages': function(assert){
+  'test buffered messages': function(){
     var _server = server()
       , _socket = socket(_server, { transportOptions: { 
         'jsonp-polling': {

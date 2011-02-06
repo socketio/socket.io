@@ -1,4 +1,5 @@
 var io = require('socket.io')
+  , assert = require('assert')
   , encode = require('socket.io/utils').encode
   , decode = require('socket.io/utils').decode
   , port = 7200
@@ -30,7 +31,7 @@ function client(server, sessid){
 
 module.exports = {
   
-  'test connection and handshake': function(assert){
+  'test connection and handshake': function(){
     var _server = server()
       , _socket = socket(_server)
       , _client
@@ -66,7 +67,7 @@ module.exports = {
     });
   },
   
-  'test clients tracking': function(assert){
+  'test clients tracking': function(){
     var _server = server()
       , _socket = socket(_server);
       
@@ -87,7 +88,7 @@ module.exports = {
     });
   },
   
-  'test buffered messages': function(assert){
+  'test buffered messages': function(){
     var _server = server()
       , _socket = socket(_server, {
           transportOptions: {
@@ -128,7 +129,7 @@ module.exports = {
     });
   },
   
-  'test json encoding': function(assert){
+  'test json encoding': function(){
     var _server = server()
       , _socket = socket(_server)
       , _client
@@ -162,7 +163,7 @@ module.exports = {
     });
   },
   
-  'test hearbeat timeout': function(assert){
+  'test hearbeat timeout': function(){
     var _server = server()
       , _socket = socket(_server, {
           transportOptions: {
@@ -191,7 +192,7 @@ module.exports = {
     });
   },
   
-  'test client broadcast': function(assert){
+  'test client broadcast': function(){
     var _server = server()
       , _socket = socket(_server);
     

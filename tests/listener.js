@@ -1,6 +1,7 @@
 var http = require('http')
   , net = require('net')
   , io = require('socket.io')
+  , assert = require('assert')
   , decode = require('socket.io/utils').decode
   , port = 7100
   , Listener = io.Listener
@@ -30,7 +31,7 @@ function client(server, sessid){
 
 module.exports = {
   
-  'test serving static javascript client': function(assert){
+  'test serving static javascript client': function(){
     var _server = server()
       , _socket = socket(_server);
     assert.response(_server
@@ -50,7 +51,7 @@ module.exports = {
       , { headers: { 'Content-Type': 'application/x-shockwave-flash' }});
   },
   
-  'test serving non-socket.io requests': function(assert){
+  'test serving non-socket.io requests': function(){
     var _server = server()
       , _socket = socket(_server);
     _server.on('request', function(req, res){
@@ -64,8 +65,9 @@ module.exports = {
      , { body: 'Hello world' });
   },
   
-  'test destroying an upgrade connection that is not WebSocket': function(assert){
+  'test destroying an upgrade connection that is not WebSocket': function(){
     var _server = server()
+
       , _socket = socket(_server);
     listen(_server, function(){
       var client = http.createClient(_server._port)
@@ -80,12 +82,15 @@ module.exports = {
       client.addListener('end', function(){
         assert.ok(! upgraded);
         _server.close();
-      })
+      });
+      client.on('error', function (e) {
+        // ignore errors
+      });
       request.end();
     });
   },
   
-  'test broadcasting to clients': function(assert){
+  'test broadcasting to clients': function(){
     var _server = server()
       , _socket = socket(_server);
     listen(_server, function(){
@@ -123,7 +128,7 @@ module.exports = {
     })
   },
   
-  'test connecting with an invalid sessionid': function(assert){
+  'test connecting with an invalid sessionid': function(){
     var _server = server()
       , _socket = socket(_server);
     listen(_server, function(){
@@ -139,7 +144,7 @@ module.exports = {
     });
   },
   
-  'test connecting to an invalid transport': function(assert){
+  'test connecting to an invalid transport': function(){
     var _server = server(function(req, res){
           res.writeHead(200);
           res.end(req.url == '/socket.io/inexistent' ? 'All cool' : '');

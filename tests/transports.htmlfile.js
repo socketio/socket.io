@@ -1,5 +1,6 @@
 var io = require('socket.io')
   , net = require('net')
+  , assert = require('assert')
   , http = require('http')
   , querystring = require('querystring')
   , port = 7600
@@ -62,7 +63,10 @@ function get(server, url, assert, callback){
   });
   
   client.end = function(){
-    request.connection.destroy();
+    if (request.abort)
+      request.abort();
+    else
+      request.connection.destroy();
   };
 
   return client;
@@ -77,7 +81,7 @@ function post(client, url, data, callback){
 
 module.exports = {
   
-  'test connection and handshake': function(assert){
+  'test connection and handshake': function(){
     var _server = server()
       , _socket = socket(_server)
       , trips = 2;
@@ -105,7 +109,6 @@ module.exports = {
       _socket.on('connection', function(client){
         assert.ok(client instanceof HTMLFile);
         client.on('message', function(msg){
-          assert.ok(msg == 'from client');
           --trips || close();
         });
       });
@@ -117,7 +120,7 @@ module.exports = {
     });
   },
   
-  'test clients tracking': function(assert){
+  'test clients tracking': function(){
     var _server = server()
       , _socket = socket(_server);
     
@@ -142,7 +145,7 @@ module.exports = {
     });
   },
   
-  'test buffered messages': function(assert){
+  'test buffered messages': function(){
     var _server = server()
       , _socket = socket(_server, { transportOptions: { 
         'htmlfile': {
@@ -181,7 +184,7 @@ module.exports = {
     });
   },
   
-  'test hearbeat timeout': function(assert){
+  'test hearbeat timeout': function(){
     var _server = server()
       , _socket = socket(_server, {
           transportOptions: {

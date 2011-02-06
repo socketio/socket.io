@@ -1,9 +1,10 @@
 var io = require('socket.io')
+  , assert = require('assert')
   , Listener = io.Listener;
 
 module.exports = {
 
-  'test server initialization': function(assert){
+  'test server initialization': function(){
     var _server = require('http').createServer(function(){})
       , _socket = io.listen(_server, { log: null });
     assert.ok(_socket instanceof Listener);
