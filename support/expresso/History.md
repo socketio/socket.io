@@ -1,4 +1,35 @@
 
+0.7.2 / 2010-12-29 
+==================
+
+  * Fixed problem with `listen()` sometimes firing on the same tick [guillermo]
+
+0.7.1 / 2010-12-28 
+==================
+
+  * Fixed `assert.request()` client logic into an issue() function, fired upon the `listen()` callback if the server doesn't have an assigned fd. [guillermo]
+  * Removed `--watch`
+
+0.7.0 / 2010-11-19 
+==================
+
+  * Removed `assert` from test function signature
+    Just use `require('assert')` :) this will make integration
+    with libraries like [should](http://github.com/visionmedia/should) cleaner.
+
+0.6.4 / 2010-11-02 
+==================
+
+  * Added regexp support to `assert.response()` headers
+  * Removed `waitForExit` code, causing issues
+
+0.6.3 / 2010-11-02 
+==================
+
+  * Added `assert.response()` body RegExp support
+  * Fixed issue with _--serial_ not executing files sequentially. Closes #42
+  * Fixed hang when modules use `setInterval` - monitor running tests & force the process to quit after all have completed + timeout [Steve Mason]
+
 0.6.2 / 2010-09-17 
 ==================
 

@@ -3,7 +3,8 @@
  * Module dependencies.
  */
 
-var http = require('http');
+var assert = require('assert')
+  , http = require('http');
 
 var server = http.createServer(function(req, res){
     if (req.method === 'GET') {
@@ -32,7 +33,7 @@ var server = http.createServer(function(req, res){
 });
 
 module.exports = {
-    'test assert.response()': function(assert, done){
+    'test assert.response()': function(done){
         assert.response(server, {
             url: '/',
             method: 'GET'

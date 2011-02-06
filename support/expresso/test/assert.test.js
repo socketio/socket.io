@@ -1,9 +1,16 @@
+
+/**
+ * Module dependencies.
+ */
+
+var assert = require('assert');
+
 module.exports = {
-    'assert.eql()': function(assert){
+    'assert.eql()': function(){
         assert.equal(assert.deepEqual, assert.eql);
     },
     
-    'assert.type()': function(assert){
+    'assert.type()': function(){
         assert.type('foobar', 'string');
         assert.type(2, 'number');
         assert.throws(function(){
@@ -11,7 +18,7 @@ module.exports = {
         });
     },
     
-    'assert.includes()': function(assert){
+    'assert.includes()': function(){
         assert.includes('some random string', 'dom');
         assert.throws(function(){
            assert.include('some random string', 'foobar');
@@ -31,7 +38,7 @@ module.exports = {
         });
     },
     
-    'assert.isNull()': function(assert){
+    'assert.isNull()': function(){
         assert.isNull(null);
         assert.throws(function(){
             assert.isNull(undefined);
@@ -41,7 +48,7 @@ module.exports = {
         });
     },
     
-    'assert.isUndefined()': function(assert){
+    'assert.isUndefined()': function(){
         assert.isUndefined(undefined);
         assert.throws(function(){
             assert.isUndefined(null);
@@ -51,7 +58,7 @@ module.exports = {
         });
     },
     
-    'assert.isNotNull()': function(assert){
+    'assert.isNotNull()': function(){
         assert.isNotNull(false);
         assert.isNotNull(undefined);
         assert.throws(function(){
@@ -59,7 +66,7 @@ module.exports = {
         });
     },
     
-    'assert.isDefined()': function(assert){
+    'assert.isDefined()': function(){
         assert.isDefined(false);
         assert.isDefined(null);
         assert.throws(function(){
@@ -67,14 +74,14 @@ module.exports = {
         });
     },
     
-    'assert.match()': function(assert){
+    'assert.match()': function(){
         assert.match('foobar', /foo(bar)?/);
         assert.throws(function(){
             assert.match('something', /rawr/);
         });
     },
     
-    'assert.length()': function(assert){
+    'assert.length()': function(){
         assert.length('test', 4);
         assert.length([1,2,3,4], 4);
         assert.throws(function(){

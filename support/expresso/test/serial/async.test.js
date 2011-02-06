@@ -1,6 +1,7 @@
 
-var setup = 0,
-    order = [];
+var assert = require('assert')
+  , setup = 0
+  , order = [];
 
 module.exports = {
     setup: function(done){
@@ -8,7 +9,7 @@ module.exports = {
         done();
     },
 
-    a: function(assert, done){
+    a: function(done){
         assert.equal(1, setup);
         order.push('a');
         setTimeout(function(){
@@ -16,7 +17,7 @@ module.exports = {
         }, 500);
     },
     
-    b: function(assert, done){
+    b: function(done){
         assert.equal(2, setup);
         order.push('b');
         setTimeout(function(){
@@ -24,7 +25,7 @@ module.exports = {
         }, 200);
     },
     
-    c: function(assert, done){
+    c: function(done){
         assert.equal(3, setup);
         order.push('c');
         setTimeout(function(){
@@ -32,7 +33,7 @@ module.exports = {
         }, 1000);
     },
 
-    d: function(assert){
+    d: function(){
         assert.eql(order, ['a', 'b', 'c']);
     }
 };

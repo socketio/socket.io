@@ -3,10 +3,11 @@
  * Module dependencies.
  */
 
-var foo = require('foo');
+var assert = require('assert')
+  , foo = require('foo');
 
 module.exports = {
-    'foo()': function(assert){
+    'foo()': function(){
         assert.equal('foo', foo.foo());
         assert.equal('foo', foo.foo());
     }

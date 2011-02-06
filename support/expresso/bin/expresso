@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/*!
+/*
  * Expresso
  * Copyright(c) TJ Holowaychuk <tj@vision-media.ca>
  * (MIT Licensed)
@@ -23,7 +23,7 @@ var assert = require('assert'),
  * Expresso version.
  */
 
-var version = '0.6.2';
+var version = '0.7.2';
 
 /**
  * Failure count.
@@ -63,12 +63,6 @@ var growl = false;
 var port = 5555;
 
 /**
- * Watch mode.
- */
-
-var watch = false;
-
-/**
  * Execute serially.
  */
 
@@ -81,6 +75,12 @@ var serial = false;
 var timeout = 2000;
 
 /**
+ * Quiet output.
+ */
+
+var quiet = false;
+
+/**
  * Usage documentation.
  */
 
@@ -88,9 +88,9 @@ var usage = ''
     + '[bold]{Usage}: expresso [options] <file ...>'
     + '\n'
     + '\n[bold]{Options}:'
-    + '\n  -w, --watch          Watch for modifications and re-execute tests'
     + '\n  -g, --growl          Enable growl notifications'
     + '\n  -c, --coverage       Generate and report test coverage'
+    + '\n  -q, --quiet          Suppress coverage report if 100%'
     + '\n  -t, --timeout MS     Timeout in milliseconds, defaults to 2000'
     + '\n  -r, --require PATH   Require the given module path'
     + '\n  -o, --only TESTS     Execute only the comma sperated TESTS (can be set several times)'
@@ -171,14 +171,14 @@ while (args.length) {
                 run(files);
             })
             break;
+        case '-q':
+        case '--quiet':
+            quiet = true;
+            break;
         case '-b':
         case '--boring':
         	boring = true;
         	break;
-        case '-w':
-        case '--watch':
-            watch = true;
-            break;
         case '-g':
         case '--growl':
             growl = true;
@@ -339,6 +339,27 @@ assert.length = function(val, n, msg) {
  */
 
 assert.response = function(server, req, res, msg){
+    // Check that the server is ready or defer
+    if (!server.fd) {
+        if (!('__deferred' in server)) {
+            server.__deferred = [];
+        }
+        server.__deferred.push(arguments);
+        if (!server.__started) {
+            server.listen(server.__port = port++, '127.0.0.1', function(){
+                if (server.__deferred) {
+                    process.nextTick(function(){
+                        server.__deferred.forEach(function(args){
+                          assert.response.apply(assert, args);
+                        });
+                    });
+                }
+            });
+            server.__started = true;
+        }
+        return;
+    }
+
     // Callback as third or fourth arg
     var callback = typeof res === 'function'
         ? res
@@ -357,84 +378,92 @@ assert.response = function(server, req, res, msg){
 
     // Create client
     if (!server.fd) {
-        server.listen(server.__port = port++, '127.0.0.1');
-        server.client = http.createClient(server.__port);
+        server.listen(server.__port = port++, '127.0.0.1', issue);
+    } else {
+        issue();
     }
 
-    // Issue request
-    var timer,
-        client = server.client,
-        method = req.method || 'GET',
-        status = res.status || res.statusCode,
-        data = req.data || req.body,
-        timeout = req.timeout || 0;
+    function issue(){
+        if (!server.client)
+            server.client = http.createClient(server.__port);
 
-    var request = client.request(method, req.url, req.headers);
+        // Issue request
+        var timer,
+            client = server.client,
+            method = req.method || 'GET',
+            status = res.status || res.statusCode,
+            data = req.data || req.body,
+            requestTimeout = req.timeout || 0;
 
-    // Timeout
-    if (timeout) {
-        timer = setTimeout(function(){
-            --server.__pending || server.close();
-            delete req.timeout;
-            assert.fail(msg + 'Request timed out after ' + timeout + 'ms.');
-        }, timeout);
-    }
+        var request = client.request(method, req.url, req.headers);
 
-    if (data) request.write(data);
-    request.addListener('response', function(response){
-        response.body = '';
-        response.setEncoding('utf8');
-        response.addListener('data', function(chunk){ response.body += chunk; });
-        response.addListener('end', function(){
-            --server.__pending || server.close();
-            if (timer) clearTimeout(timer);
+        // Timeout
+        if (requestTimeout) {
+            timer = setTimeout(function(){
+                --server.__pending || server.close();
+                delete req.timeout;
+                assert.fail(msg + 'Request timed out after ' + requestTimeout + 'ms.');
+            }, requestTimeout);
+        }
 
-            // Assert response body
-            if (res.body !== undefined) {
-                var eql = res.body instanceof RegExp
-                  ? res.body.test(response.body)
-                  : res.body === response.body;
-                assert.ok(
-                    eql,
-                    msg + 'Invalid response body.\n'
-                        + '    Expected: ' + sys.inspect(res.body) + '\n'
-                        + '    Got: ' + sys.inspect(response.body)
-                );
-            }
+        if (data) request.write(data);
+        request.on('response', function(response){
+            response.body = '';
+            response.setEncoding('utf8');
+            response.on('data', function(chunk){ response.body += chunk; });
+            response.on('end', function(){
+                --server.__pending || server.close();
+                if (timer) clearTimeout(timer);
 
-            // Assert response status
-            if (typeof status === 'number') {
-                assert.equal(
-                    response.statusCode,
-                    status,
-                    msg + colorize('Invalid response status code.\n'
-                        + '    Expected: [green]{' + status + '}\n'
-                        + '    Got: [red]{' + response.statusCode + '}')
-                );
-            }
-
-            // Assert response headers
-            if (res.headers) {
-                var keys = Object.keys(res.headers);
-                for (var i = 0, len = keys.length; i < len; ++i) {
-                    var name = keys[i],
-                        actual = response.headers[name.toLowerCase()],
-                        expected = res.headers[name];
-                    assert.equal(
-                        actual,
-                        expected,
-                        msg + colorize('Invalid response header [bold]{' + name + '}.\n'
-                            + '    Expected: [green]{' + expected + '}\n'
-                            + '    Got: [red]{' + actual + '}')
+                // Assert response body
+                if (res.body !== undefined) {
+                    var eql = res.body instanceof RegExp
+                      ? res.body.test(response.body)
+                      : res.body === response.body;
+                    assert.ok(
+                        eql,
+                        msg + 'Invalid response body.\n'
+                            + '    Expected: ' + sys.inspect(res.body) + '\n'
+                            + '    Got: ' + sys.inspect(response.body)
                     );
                 }
-            }
 
-            // Callback
-            callback(response);
+                // Assert response status
+                if (typeof status === 'number') {
+                    assert.equal(
+                        response.statusCode,
+                        status,
+                        msg + colorize('Invalid response status code.\n'
+                            + '    Expected: [green]{' + status + '}\n'
+                            + '    Got: [red]{' + response.statusCode + '}')
+                    );
+                }
+
+                // Assert response headers
+                if (res.headers) {
+                    var keys = Object.keys(res.headers);
+                    for (var i = 0, len = keys.length; i < len; ++i) {
+                        var name = keys[i],
+                            actual = response.headers[name.toLowerCase()],
+                            expected = res.headers[name],
+                            eql = expected instanceof RegExp
+                              ? expected.test(actual)
+                              : expected == actual;
+                        assert.ok(
+                            eql,
+                            msg + colorize('Invalid response header [bold]{' + name + '}.\n'
+                                + '    Expected: [green]{' + expected + '}\n'
+                                + '    Got: [red]{' + actual + '}')
+                        );
+                    }
+                }
+
+                // Callback
+                callback(response);
+            });
         });
-    });
-    request.end();
+        request.end();
+      }
 };
 
 /**
@@ -476,7 +505,6 @@ function rpad(str, width) {
  */
 
 function reportCoverage(cov) {
-    populateCoverage(cov);
     // Stats
     print('\n   [bold]{Test Coverage}\n');
     var sep = '   +------------------------------------------+----------+------+------+--------+',
@@ -507,9 +535,11 @@ function reportCoverage(cov) {
     for (var name in cov) {
         if (name.match(/\.js$/)) {
             var file = cov[name];
-            print('\n   [bold]{' + name + '}:');
-            print(file.source);
-            sys.print('\n');
+            if ((file.coverage < 100) || !quiet) {
+               print('\n   [bold]{' + name + '}:'); 
+               print(file.source);
+               sys.print('\n');
+            }
         }
     }
 }
@@ -575,12 +605,32 @@ function coverage(data, val) {
 }
 
 /**
+ * Test if all files have 100% coverage
+ *
+ * @param  {Object} cov
+ * @return {Boolean}
+ */
+
+function hasFullCoverage(cov) {
+  for (var name in cov) {
+    var file = cov[name];
+    if (file instanceof Array) {
+      if (file.coverage !== 100) {
+	      return false;
+      }
+    }
+  }
+  return true;
+}
+
+/**
  * Run the given test `files`, or try _test/*_.
  *
  * @param  {Array} files
  */
 
 function run(files) {
+    cursor(false);
     if (!files.length) {
         try {
             files = fs.readdirSync('test').map(function(file){
@@ -592,7 +642,6 @@ function run(files) {
             process.exit(1);
         }
     }
-    if (watch) watchFiles(files);
     runFiles(files);
 }
 
@@ -617,16 +666,25 @@ function cursor(show) {
  */
 
 function runFiles(files) {
-    files.forEach(runFile);
+    if (serial) {
+        (function next(){
+            if (files.length) {
+                runFile(files.shift(), next);
+            }
+        })();
+    } else {
+      files.forEach(runFile);
+    }
 }
 
 /**
- * Run tests for the given `file`.
+ * Run tests for the given `file`, callback `fn()` when finished.
  *
  * @param {String} file
+ * @param {Function} fn
  */
 
-function runFile(file) {
+function runFile(file, fn) {
     if (file.match(/\.js$/)) {
         var title = path.basename(file),
             file = path.join(cwd, file),
@@ -634,55 +692,12 @@ function runFile(file) {
         (function check(){
            var len = Object.keys(mod).length;
            if (len) {
-               runSuite(title, mod);
+               runSuite(title, mod, fn);
            } else {
                setTimeout(check, 20);
            }
         })();
     }
-}
-
-/**
- * Clear the module cache for the given `file`.
- *
- * @param {String} file
- */
-
-function clearCache(file) {
-    var keys = Object.keys(module.moduleCache);
-    for (var i = 0, len = keys.length; i < len; ++i) {
-        var key = keys[i];
-        if (key.indexOf(file) === key.length - file.length) {
-            delete module.moduleCache[key];
-        }
-    }
-}
-
-/**
- * Watch the given `files` for changes.
- *
- * @param {Array} files
- */
-
-function watchFiles(files) {
-    var p = 0,
-        c = ['▫   ', '▫▫  ', '▫▫▫ ', ' ▫▫▫',
-             '  ▫▫', '   ▫', '   ▫', '  ▫▫',
-             '▫▫▫ ', '▫▫  ', '▫   '],
-        l = c.length;
-    cursor(false);
-    setInterval(function(){
-        sys.print(colorize('  [green]{' + c[p++ % l] + '} watching\r'));
-    }, 100);
-    files.forEach(function(file){
-        fs.watchFile(file, { interval: 100 }, function(curr, prev){
-            if (curr.mtime > prev.mtime) {
-                print('  [yellow]{◦} ' + file);
-                clearCache(file);
-                runFile(file);
-            }
-        });
-    });
 }
 
 /**
@@ -696,23 +711,23 @@ function watchFiles(files) {
 function error(suite, test, err) {
     ++failures;
     var name = err.name,
-        stack = err.stack.replace(err.name, ''),
+        stack = err.stack ? err.stack.replace(err.name, '') : '',
         label = test === 'uncaught'
             ? test
             : suite + ' ' + test;
     print('\n   [bold]{' + label + '}: [red]{' + name + '}' + stack + '\n');
-    if (watch) notify(label + ' failed');
 }
 
 /**
- * Run the given tests.
+ * Run the given tests, callback `fn()` when finished.
  *
  * @param  {String} title
  * @param  {Object} tests
+ * @param  {Function} fn
  */
 
 var dots = 0;
-function runSuite(title, tests) {
+function runSuite(title, tests, fn) {
     // Keys
     var keys = only.length
         ? only.slice(0)
@@ -720,7 +735,7 @@ function runSuite(title, tests) {
 
     // Setup
     var setup = tests.setup || function(fn){ fn(); };
-    
+
     // Iterate tests
     (function next(){
         if (keys.length) {
@@ -735,27 +750,25 @@ function runSuite(title, tests) {
                     ++testcount;
                     assert.testTitle = key;
                     if (serial) {
-                        if (!watch) {
-                            sys.print('.');
-                            if (++dots % 25 === 0) sys.print('\n');
-                        }
+                        sys.print('.');
+                        if (++dots % 25 === 0) sys.print('\n');
                         setup(function(){
-                            if (test.length < 2) {
-                                test(assert);
+                            if (test.length < 1) {
+                                test();
                                 next();
                             } else {
                                 var id = setTimeout(function(){
                                     throw new Error("'" + key + "' timed out");
                                 }, timeout);
-                                test(assert, function(){
+                                test(function(){
                                     clearTimeout(id);
                                     next();
                                 });
                             } 
                         });
                     } else {
-                        test(assert, function(fn){
-                            process.addListener('beforeExit', function(){
+                        test(function(fn){
+                            process.on('beforeExit', function(){
                                 try {
                                     fn();
                                 } catch (err) {
@@ -769,6 +782,8 @@ function runSuite(title, tests) {
                 }
             }
             if (!serial) next();
+        } else if (serial) {
+          fn();
         }
     })();
 }
@@ -778,6 +793,7 @@ function runSuite(title, tests) {
  */
 
 function report() {
+    cursor(true);
     process.emit('beforeExit');
     if (failures) {
         print('\n   [bold]{Failures}: [red]{' + failures + '}\n\n');
@@ -788,7 +804,10 @@ function report() {
         notify('100% ok');
     }
     if (typeof _$jscoverage === 'object') {
-        reportCoverage(_$jscoverage);
+        populateCoverage(_$jscoverage);
+        if (!hasFullCoverage(_$jscoverage) || !quiet) {
+            reportCoverage(_$jscoverage);
+        }
     }
 }
 
@@ -806,14 +825,14 @@ function notify(msg) {
 
 // Report uncaught exceptions
 
-process.addListener('uncaughtException', function(err){
+process.on('uncaughtException', function(err){
     error('uncaught', 'uncaught', err);
 });
 
 // Show cursor
 
 ['INT', 'TERM', 'QUIT'].forEach(function(sig){
-    process.addListener('SIG' + sig, function(){
+    process.on('SIG' + sig, function(){
         cursor(true);
         process.exit(1);
     });

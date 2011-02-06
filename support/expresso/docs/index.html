@@ -41,6 +41,10 @@
 		<div id="wrapper">
 			<h1>Expresso</h1>
 <div class='mp'>
+<h2 id="NAME">NAME</h2>
+<p class="man-name">
+  <code>index</code>
+</p>
 <p><a href="http://github.com/visionmedia/expresso">Expresso</a> is a JavaScript <a href="http://en.wikipedia.org/wiki/Test-driven_development">TDD</a> framework written for <a href="http://nodejs.org">nodejs</a>. Expresso is extremely fast, and is packed with features such as additional assertion methods, code coverage reporting, CI support, and more.</p>
 
 <h2 id="Features">Features</h2>
@@ -85,7 +89,7 @@ the command below, which will first compile node-jscoverage:</p>
 
 <p>To define tests we simply export several functions:</p>
 
-<pre><code>exports['test String#length'] = function(assert){
+<pre><code>exports['test String#length'] = function(){
     assert.equal(6, 'foobar'.length);
 };
 </code></pre>
@@ -95,7 +99,7 @@ export your own object containing the tests, however this
 is essentially the as above:</p>
 
 <pre><code>module.exports = {
-    'test String#length': function(assert){
+    'test String#length': function(){
         assert.equal(6, 'foobar'.length);
     }
 };
@@ -103,16 +107,16 @@ is essentially the as above:</p>
 
 <p>If you prefer not to use quoted keys:</p>
 
-<pre><code>exports.testsStringLength = function(assert){
+<pre><code>exports.testsStringLength = function(){
     assert.equal(6, 'foobar'.length);
 };
 </code></pre>
 
-<p>The second argument passed to each callback is <em>beforeExit</em>,
+<p>The argument passed to each callback is <em>beforeExit</em>,
 which is typically used to assert that callbacks have been
 invoked.</p>
 
-<pre><code>exports.testAsync = function(assert, beforeExit){
+<pre><code>exports.testAsync = function(beforeExit){
     var n = 0;
     setTimeout(function(){
         ++n;
@@ -229,9 +233,9 @@ which is then used to perform several assertions
 on the response with the following properties:</p>
 
 <ul>
-<li><em>body</em> assert response body</li>
+<li><em>body</em> assert response body (regexp or string)</li>
 <li><em>status</em> assert response status code</li>
-<li><em>header</em> assert that all given headers match (unspecified are ignored)</li>
+<li><em>header</em> assert that all given headers match (unspecified are ignored, use a regexp or string)</li>
 </ul>
 
 
@@ -361,7 +365,7 @@ future <code>--cov</code> will most likely accept a path.</p>
 <p>Sometimes it is useful to postpone running of tests until a callback or event has fired, currently the <em>exports.foo = function(){};</em> syntax is supported for this:</p>
 
 <pre><code>setTimeout(function(){
-    exports['test async exports'] = function(assert){
+    exports['test async exports'] = function(){
         assert.ok('wahoo');
     };
 }, 100);

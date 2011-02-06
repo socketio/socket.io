@@ -37,7 +37,7 @@ Install via npm:
 
 To define tests we simply export several functions:
 
-	exports['test String#length'] = function(assert){
+	exports['test String#length'] = function(){
 		assert.equal(6, 'foobar'.length);
 	};
 
@@ -46,22 +46,22 @@ export your own object containing the tests, however this
 is essentially the as above:
 
     module.exports = {
-      	'test String#length': function(assert){
+      	'test String#length': function(){
         	assert.equal(6, 'foobar'.length);
       	}
     };
 
 If you prefer not to use quoted keys:
 
-	exports.testsStringLength = function(assert){
+	exports.testsStringLength = function(){
 		assert.equal(6, 'foobar'.length);
 	};
 
-The second argument passed to each callback is _beforeExit_,
+The argument passed to each callback is _beforeExit_,
 which is typically used to assert that callbacks have been
 invoked.
 
-    exports.testAsync = function(assert, beforeExit){
+    exports.testAsync = function(beforeExit){
 		var n = 0;
       	setTimeout(function(){
         	++n;
@@ -164,9 +164,9 @@ receives the response for assertions, or an object
 which is then used to perform several assertions
 on the response with the following properties:
 
-  - _body_ assert response body
+  - _body_ assert response body (regexp or string)
   - _status_ assert response status code
-  - _header_ assert that all given headers match (unspecified are ignored)
+  - _header_ assert that all given headers match (unspecified are ignored, use a regexp or string)
 
 When providing _res_ you may then also pass a callback function
 as the fourth argument for additional assertions.
@@ -284,7 +284,7 @@ future `--cov` will most likely accept a path.
 Sometimes it is useful to postpone running of tests until a callback or event has fired, currently the _exports.foo = function(){};_ syntax is supported for this:
     
 	setTimeout(function(){
-	    exports['test async exports'] = function(assert){
+	    exports['test async exports'] = function(){
 	        assert.ok('wahoo');
 	    };
 	}, 100);
