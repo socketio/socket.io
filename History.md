@@ -1,4 +1,10 @@
 
+0.6.10 / 2011-02-09 
+===================
+
+  * Added SSL chat example (`make example-ssl`)
+  * Fixed; possible write errors when a connection error event fires
+
 0.6.9 / 2011-02-06 
 ==================
 
