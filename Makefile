@@ -7,4 +7,7 @@ test-cov:
 example:
 	node ./example/server.js
 
+example-ssl:
+	node ./example/server-ssl.js
+
 .PHONY: example
