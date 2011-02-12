@@ -913,7 +913,7 @@ JSONPPolling.xdomainCheck = function(){
 		this.connecting = false;
 		this._doQueue();
 		if (this.options.rememberTransport) this.options.document.cookie = 'socketio=' + encodeURIComponent(this.transport.type);
-		this.emit('connect');
+		this.emit('connect', [this.transport]);
 	};
 	
 	Socket.prototype._onMessage = function(data){
