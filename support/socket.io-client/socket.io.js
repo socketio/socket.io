@@ -696,7 +696,9 @@ JSONPPolling.prototype._send = function(data){
 
 		this._form = form;
 		this._area = area;
-	}
+    } else {
+        this._form.action = this._prepareUrl() + '/' + (+new Date) + '/' + this._index;
+    }
 
 	function complete(){
 		initIframe();
