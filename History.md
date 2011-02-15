@@ -1,4 +1,11 @@
 
+0.6.11 / 2011-02-15
+===================
+
+  * Fixed; Make sure to not execute any other connection operations after WebSocket
+    write error.
+  * Added more error logging
+
 0.6.10 / 2011-02-09 
 ===================
 
