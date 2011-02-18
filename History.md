@@ -1,4 +1,9 @@
 
+0.6.12 / 2011-02-18
+===================
+
+  * Fixed noDelay missing file descriptor problem
+
 0.6.11 / 2011-02-15
 ===================
 
