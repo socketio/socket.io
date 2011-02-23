@@ -1,4 +1,9 @@
 
+0.6.15 / 2011-02-23
+===================
+
+  * Fixed memory leak in WebSocket transport [belorion]
+
 0.6.14 / 2011-02-18
 ===================
 
