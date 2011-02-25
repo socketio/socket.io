@@ -335,6 +335,7 @@ if (typeof window != 'undefined'){
 			this._sendXhr = null;
 		}
 		this._sendBuffer = [];
+        this._posting = false;
 		io.Transport.prototype._onDisconnect.call(this);
 	};
 	

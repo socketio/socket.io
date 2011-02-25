@@ -106,6 +106,7 @@
 			this._sendXhr = null;
 		}
 		this._sendBuffer = [];
+        this._polling = false;
 		io.Transport.prototype._onDisconnect.call(this);
 	};
 	
