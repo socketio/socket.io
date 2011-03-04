@@ -797,6 +797,9 @@ JSONPPolling.xdomainCheck = function(){
 				}
 			},
 			connectTimeout: 5000,
+			reconnect: true,
+			reconnectionDelay: 500,
+			maxReconnectionAttempts: 10,
 			tryTransportsOnConnectTimeout: true,
 			rememberTransport: true
 		};
@@ -829,7 +832,7 @@ JSONPPolling.xdomainCheck = function(){
 	
 	Socket.prototype.connect = function(){
 		if (this.transport && !this.connected){
-			if (this.connecting) this.disconnect();
+			if (this.connecting) this.disconnect(true);
 			this.connecting = true;
 			this.emit('connecting', [this.transport.type]);
 			this.transport.connect();
@@ -837,7 +840,7 @@ JSONPPolling.xdomainCheck = function(){
 				var self = this;
 				this.connectTimeoutTimer = setTimeout(function(){
 					if (!self.connected){
-						self.disconnect();
+						self.disconnect(true);
 						if (self.options.tryTransportsOnConnectTimeout && !self._rememberedTransport){
 							if(!self._remainingTransports) self._remainingTransports = self.options.transports.slice(0);
 							var transports = self._remainingTransports;
@@ -862,8 +865,9 @@ JSONPPolling.xdomainCheck = function(){
 		return this;
 	};
 	
-	Socket.prototype.disconnect = function(){
+	Socket.prototype.disconnect = function(reconnect){
     if (this.connectTimeoutTimer) clearTimeout(this.connectTimeoutTimer);
+		if (!reconnect) this.options.reconnect = false;
 		this.transport.disconnect();
 		return this;
 	};
@@ -871,6 +875,15 @@ JSONPPolling.xdomainCheck = function(){
 	Socket.prototype.on = function(name, fn){
 		if (!(name in this._events)) this._events[name] = [];
 		this._events[name].push(fn);
+		return this;
+	};
+	
+	Socket.prototype.once = function(name, fn){
+		var self = this;
+		self.on(name, function one(){
+			self.removeEvent(name, one);
+			fn && fn.apply(this, arguments);
+		});
 		return this;
 	};
 	
@@ -925,15 +938,77 @@ JSONPPolling.xdomainCheck = function(){
 		this.connected = false;
 		this.connecting = false;
 		this._queueStack = [];
-		if (wasConnected) this.emit('disconnect');
+		if (wasConnected){
+			this.emit('disconnect');
+			if (this.options.reconnect && !this.reconnecting) this._onReconnect();
+		}
 	};
-
-  Socket.prototype.fire = Socket.prototype.emit;
 	
+	Socket.prototype._onReconnect = function(){
+		if (!this.lastSucessfullTransport) this.lastSucessfullTransport = this.transport.type;
+		this.reconnecting = true;
+		this.reconnectionAttempts = 0;
+		this.reconnectionDelay = this.options.reconnectionDelay;
+		
+		var self = this
+			, tryTransportsOnConnectTimeout = this.options.tryTransportsOnConnectTimeout
+			, rememberTransport = this.options.rememberTransport;
+		
+		function reset(){
+			delete self.reconnecting;
+			delete self.reconnectionAttempts;
+			delete self.reconnectionDelay;
+			delete self.reconnectionTimer;
+			self.options.tryTransportsOnConnectTimeout = tryTransportsOnConnectTimeout;
+			self.options.rememberTransport = rememberTransport;
+			
+			if(self.connected) self.emit('reconnect',[self.transport.type]);
+			
+			return;
+		}
+		
+		function maybeReconnect(){
+			if (!self.reconnecting) return;
+			if (!self.connected){
+				if (self.connecting && self.reconnecting) return self.reconnectionTimer = setTimeout(maybeReconnect, 1000);
+				
+				if (self.reconnectionAttempts++ >= self.options.maxReconnectionAttempts){
+					if (!self.redoTransports){
+						self.once('connect_failed', maybeReconnect);
+						self.options.tryTransportsOnConnectTimeout = true;
+						self.transport = self.getTransport(self.options.transports); // overwrite with all enabled transports
+						self.redoTransports = true;
+						self.connect();
+					} else {
+						self.emit('reconnect_failed');
+						reset();
+					}
+				} else {
+					self.reconnectionDelay *= 2; // exponential backoff
+					self.connect();
+					self.reconnectionTimer = setTimeout(maybeReconnect, self.reconnectionDelay);
+				}
+			} else {
+				reset();
+			}
+		}
+		this.options.tryTransportsOnConnectTimeout = false;
+		this.reconnectionTimer = setTimeout(maybeReconnect, this.reconnectionDelay);
+		
+		this.once('connect', maybeReconnect);
+	};
+	/*
+		@TODO
+		re-try all transports if all we cannot reconnect to server anymore and we have used out all our attempts
+		cache the last known good transport, even if rememberTransport is set to false
+		use exponential backoff to reduce server stress.
+		re-use same session id
+	*/
+  Socket.prototype.fire = Socket.prototype.emit;
 	Socket.prototype.addListener = Socket.prototype.addEvent = Socket.prototype.addEventListener = Socket.prototype.on;
+	Socket.prototype.removeListener = Socket.prototype.removeEventListener = Socket.prototype.removeEvent;
 	
 })();
-
 /*	SWFObject v2.2 <http://code.google.com/p/swfobject/> 
 	is released under the MIT License <http://www.opensource.org/licenses/mit-license.php> 
 */

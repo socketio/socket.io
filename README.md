@@ -64,14 +64,6 @@ If you are serving you .swf from a other domain than socket.io.js you will need 
 
 The insecure version can be found [here](http://github.com/gimite/web-socket-js/blob/master/WebSocketMainInsecure.zip).
 
-IMPORTANT! When checking out the git repo, make sure to include the submodules. One way to do it is:
-
-	git clone [repo] --recursive
-  
-Another, once cloned
-
-	git submodule update --init --recursive
-
 ### Documentation 
 
 #### io.Socket
@@ -94,7 +86,7 @@ Options:
 
 - *transports*
 
-		['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling']
+		['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling', 'jsonp-polling']
 
 	A list of the transports to attempt to utilize (in order of preference)
 	
@@ -108,6 +100,25 @@ Options:
 		}
 				
 	An object containing (optional) options to pass to each transport.
+	
+- *reconnect*
+
+		true
+
+  Do we need to reconnect to the server again after we are disconnected.
+  
+- *reconnectionDelay*
+
+		500
+
+  We are using a exponential backoff algorithm for the reconnections. What is the inital delay after we are disconnected. Keep in mind that this value is multiplied each time after a reconnection has failed.
+  
+
+- *maxReconnectionAttempts*
+
+		10
+
+  Howmany attempts should we make using the current transport to connect to the server? After this we will do one final attempt, and re-try with all enabled transport methods before we give up.
 
 Properties:
 
@@ -177,6 +188,14 @@ Events:
 - *disconnect*
 
 	Fired when the connection is considered disconnected.
+	
+- *reconnect*
+
+	Fired when the connection has been re-established. This only fires if the `reconnect` option is set.
+
+- *reconnect_failed*
+
+	Fired when all reconnection attempts have failed and we where unsucessfull in reconnecting to the server.  
 
 ### Credits
 
