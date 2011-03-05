@@ -133,6 +133,10 @@ Properties:
 - *connecting*
 
 	Whether the socket is connecting or not.
+
+- *reconnecting*
+
+	Whether we are reconnecting or not
 	
 - *transport*	
 
@@ -142,7 +146,7 @@ Methods:
 	
 - *connect*
 
-	Establishes a connection	
+	Establishes a connection.
 	
 - *send(message)*
 	
@@ -150,29 +154,29 @@ Methods:
 	
 - *disconnect*
 
-	Closes the connection
+	Closes the connection.
 	
 - *on(event, λ)*
 
-	Adds a listener for the event *event*
+	Adds a listener for the event *event*.
 	
 - *removeEvent(event, λ)*
 
-	Removes the listener λ for the event *event*
+	Removes the listener λ for the event *event*.
 	
 Events:
 
 - *connect*
 
-	Fired when the connection is established and the handshake successful
+	Fired when the connection is established and the handshake successful.
 	
 - *connecting(transport_type)*
 
-  Fired when a connection is attempted, passing the transport name
+    Fired when a connection is attempted, passing the transport name.
 	
 - *connect_failed*
 
-  Fired when the connection timeout occurs after the last connection attempt.
+    Fired when the connection timeout occurs after the last connection attempt.
 	This only fires if the `connectTimeout` option is set.
 	If the `tryTransportsOnConnectTimeout` option is set, this only fires once all
 	possible transports have been tried.
@@ -192,6 +196,11 @@ Events:
 - *reconnect*
 
 	Fired when the connection has been re-established. This only fires if the `reconnect` option is set.
+
+- *reconnecting(reconnectionDelay)*
+
+	Fired when a reconnection is attempted, passing the next delay for the next reconnection.
+
 
 - *reconnect_failed*
 

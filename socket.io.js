@@ -945,7 +945,6 @@ JSONPPolling.xdomainCheck = function(){
 	};
 	
 	Socket.prototype._onReconnect = function(){
-		if (!this.lastSucessfullTransport) this.lastSucessfullTransport = this.transport.type;
 		this.reconnecting = true;
 		this.reconnectionAttempts = 0;
 		this.reconnectionDelay = this.options.reconnectionDelay;
@@ -986,6 +985,7 @@ JSONPPolling.xdomainCheck = function(){
 				} else {
 					self.reconnectionDelay *= 2; // exponential backoff
 					self.connect();
+					self.emit('reconnecting', [self.reconnectionDelay]);
 					self.reconnectionTimer = setTimeout(maybeReconnect, self.reconnectionDelay);
 				}
 			} else {
@@ -997,13 +997,7 @@ JSONPPolling.xdomainCheck = function(){
 		
 		this.once('connect', maybeReconnect);
 	};
-	/*
-		@TODO
-		re-try all transports if all we cannot reconnect to server anymore and we have used out all our attempts
-		cache the last known good transport, even if rememberTransport is set to false
-		use exponential backoff to reduce server stress.
-		re-use same session id
-	*/
+
   Socket.prototype.fire = Socket.prototype.emit;
 	Socket.prototype.addListener = Socket.prototype.addEvent = Socket.prototype.addEventListener = Socket.prototype.on;
 	Socket.prototype.removeListener = Socket.prototype.removeEventListener = Socket.prototype.removeEvent;
