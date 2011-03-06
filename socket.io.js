@@ -918,7 +918,8 @@ if (typeof window != 'undefined'){
 	};
 	
 	Socket.prototype._isXDomain = function(){
-		return this.host !== document.domain;
+    var locPort = window.location.port || 80;
+		return this.host !== document.domain || this.options.port != locPort;
 	};
 	
 	Socket.prototype._onConnect = function(){
