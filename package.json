@@ -1,0 +1,18 @@
+{ "name": "socket.io-browser"
+, "description": "Browser-side code for Socket.IO"
+, "version": "0.6.2"
+, "main" : "./socket.io.js"
+,  "homepage": "http://socket.io"
+, "repository":
+  { "type": "git"
+  , "url": "git://github.com/LearnBoost/Socket.IO.git"
+  }
+, "author": "LearnBoost"
+, "licenses" :
+  [ { "type" : "MIT"
+    , "url" : "http://github.com/learnboost/Socket.IO/raw/master/README.md"
+  } ]
+, "engines": { "node": "*" }
+, "scripts" :
+  { "install" : "bin/build" }
+}

@@ -14,7 +14,6 @@
  */
 
 var fs = require('fs'),
-	sys = require('sys'),
 	socket = require('../lib/io'),
 	files = [
 		'io.js',
@@ -34,17 +33,17 @@ var fs = require('fs'),
 	],
 	content = "/** Socket.IO "+ socket.io.version +" - Built with build.js */\n";
 
-sys.log('Reading files…');
+console.log('Reading files…');
 
 files.forEach(function(file){
 	var path = __dirname + '/../lib/' + file;
-	sys.log (' + ' + path);
+	console.log (' + ' + path);
 	content += fs.readFileSync(path) + "\n"; 	
 });
 
-sys.log('Generating…');
+console.log('Generating…');
 
 fs.write(fs.openSync(__dirname + '/../socket.io.js', 'w'), content, 0, 'utf8');
-sys.log(' + ' + __dirname + '/../socket.io.js');
+console.log(' + ' + __dirname + '/../socket.io.js');
 
-sys.log('All done!');
+console.log('All done!');
