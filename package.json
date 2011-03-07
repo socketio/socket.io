@@ -1,17 +1,21 @@
-{ "name" : "socket.io"
-, "description" : "The cross-browser WebSocket"
-, "version" : "0.6.16"
-, "author" : "LearnBoost"
-, "licenses" :
-  [ { "type" : "MIT"
-    , "url" : "http://github.com/learnboost/Socket.IO-node/raw/master/README.md"
+{
+    "name": "socket.io"
+  , "description": "The cross-browser WebSocket"
+  , "version": "0.6.16"
+  , "author": "Guillermo Rauch <guillermo@learnboost.com>"
+  , "contributors": [
+        { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" }
+      , { "name": "Arnout Kazemier", "email": "info@3rd-eden.com" }
+    ]
+  , "licenses": [{
+        "type": "MIT"
+      , "url": "http://github.com/learnboost/Socket.IO-node/raw/master/README.md"
+    }]
+  , "repository": {
+        "type": "git"
+      , "url": "http://github.com/learnboost/Socket.IO-node.git"
     }
-  ]
-, "repository" :
-  { "type" : "git"
-  , "url" : "http://github.com/learnboost/Socket.IO-node.git"
-  }
-, "engine" : [ "node >=0.1.102" ]
-, "main" : "./index"
-, "scripts" : { "test" : "make test" }
+  , "engine": [ "node >=0.1.102" ]
+  , "main": "./index"
+  , "scripts": { "test" : "make test" }
 }
