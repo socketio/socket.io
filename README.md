@@ -70,13 +70,19 @@ The insecure version can be found [here](http://github.com/gimite/web-socket-js/
 
 	new io.Socket(host, [options]);
 
-Options:
+##### Options:
+
+- *secure*
+
+		false
+	
+	Use secure connections
 
 - *port*
 
 		Current port or 80
 	
-	The port `socket.io` server is attached to (defaults to the document.location port)
+	The port `socket.io` server is attached to (defaults to the document.location port).
 
 - *resource*
 
@@ -88,7 +94,7 @@ Options:
 
 		['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling', 'jsonp-polling']
 
-	A list of the transports to attempt to utilize (in order of preference)
+	A list of the transports to attempt to utilize (in order of preference).
 	
 - *transportOptions*
 	
@@ -100,31 +106,49 @@ Options:
 		}
 				
 	An object containing (optional) options to pass to each transport.
+
+- *rememberTransport*
+
+		true
+	
+	A boolean indicating if the utilized transport should be remembered in a cookie.
+
+- *connectTimeout*
+
+		5000
+	
+	The amount of miliseconds a transport has to create a connection before we consider it timed out.
+	
+- *tryTransportsOnConnectTimeout*
+
+		true
+
+	A boolean indicating if we should try other transports when the  connectTimeout occurs.
 	
 - *reconnect*
 
 		true
 
-  Do we need to reconnect to the server again after we are disconnected.
+	A boolean indicating if we should automatically reconnect if a connection is disconnected. 
   
 - *reconnectionDelay*
 
 		500
 
-  We are using a exponential backoff algorithm for the reconnections. What is the inital delay after we are disconnected. Keep in mind that this value is multiplied each time after a reconnection has failed.
+	The amount of milliseconds before we try to connect to the server again. We are using a exponential back off algorithm for the following reconnections, on each reconnect attempt this value will get multiplied (500 > 1000 > 2000 > 4000 > 8000).
   
 
 - *maxReconnectionAttempts*
 
 		10
 
-  Howmany attempts should we make using the current transport to connect to the server? After this we will do one final attempt, and re-try with all enabled transport methods before we give up.
+	The amount of attempts should we make using the current transport to connect to the server? After this we will do one final attempt, and re-try with all enabled transport methods before we give up.
 
-Properties:
+##### Properties:
 
 - *options*
 
-	The passed in options combined with the defaults
+	The passed in options combined with the defaults.
 
 - *connected*
 
@@ -136,13 +160,13 @@ Properties:
 
 - *reconnecting*
 
-	Whether we are reconnecting or not
+	Whether we are reconnecting or not.
 	
 - *transport*	
 
 	The transport instance.
 
-Methods:
+##### Methods:
 	
 - *connect*
 
@@ -164,7 +188,7 @@ Methods:
 
 	Removes the listener λ for the event *event*.
 	
-Events:
+##### Events:
 
 - *connect*
 
