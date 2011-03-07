@@ -1,4 +1,14 @@
 
+0.7.0 / 2011-??-??
+==================
+
+  * Fixed JSONP interaction with jQuery. [saschagehlich]
+  * Fixed; different port now considered cross-domain.
+  * Added compatibility for inclusion in non-browser environments.
+  * Added package.json.
+  * Added noConflict support. [kreichgauer]
+  * Added reconnection support with exponential backoff. [3rd-Eden]
+
 0.6.2 / 2011-02-05 
 ==================
 
