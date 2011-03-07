@@ -230,9 +230,11 @@ The insecure version can be found [here](http://github.com/gimite/web-socket-js/
 
 	Fired when all reconnection attempts have failed and we where unsucessfull in reconnecting to the server.  
 
-### Credits
+### Contributors
 
 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
+
+Arnout Kazemier &lt;info@3rd-eden.com&gt;
 
 ### License 
 
