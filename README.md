@@ -193,11 +193,11 @@ Events:
 
 	Fired when the connection is considered disconnected.
 	
-- *reconnect*
+- *reconnect(transport_type,reconnectionAttempts)*
 
 	Fired when the connection has been re-established. This only fires if the `reconnect` option is set.
 
-- *reconnecting(reconnectionDelay)*
+- *reconnecting(reconnectionDelay,reconnectionAttempts)*
 
 	Fired when a reconnection is attempted, passing the next delay for the next reconnection.
 

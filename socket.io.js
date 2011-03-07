@@ -891,15 +891,6 @@ if (typeof window != 'undefined'){
 		return this;
 	};
 	
-	Socket.prototype.once = function(name, fn){
-		var self = this;
-		self.on(name, function one(){
-			self.removeEvent(name, one);
-			fn && fn.apply(this, arguments);
-		});
-		return this;
-	};
-	
   Socket.prototype.emit = function(name, args){
     if (name in this._events){
       var events = this._events[name].concat();
@@ -931,7 +922,8 @@ if (typeof window != 'undefined'){
 	};
 	
 	Socket.prototype._isXDomain = function(){
-		return this.host !== document.domain;
+    var locPort = window.location.port || 80;
+		return this.host !== document.domain || this.options.port != locPort;
 	};
 	
 	Socket.prototype._onConnect = function(){
@@ -967,17 +959,18 @@ if (typeof window != 'undefined'){
 			, rememberTransport = this.options.rememberTransport;
 		
 		function reset(){
+			if(self.connected) self.emit('reconnect',[self.transport.type,self.reconnectionAttempts]);
+			self.removeEvent('connect_failed', maybeReconnect).removeEvent('connect', maybeReconnect);
 			delete self.reconnecting;
 			delete self.reconnectionAttempts;
 			delete self.reconnectionDelay;
 			delete self.reconnectionTimer;
+			delete self.redoTransports;
 			self.options.tryTransportsOnConnectTimeout = tryTransportsOnConnectTimeout;
 			self.options.rememberTransport = rememberTransport;
 			
-			if(self.connected) self.emit('reconnect',[self.transport.type]);
-			
 			return;
-		}
+		};
 		
 		function maybeReconnect(){
 			if (!self.reconnecting) return;
@@ -986,7 +979,7 @@ if (typeof window != 'undefined'){
 				
 				if (self.reconnectionAttempts++ >= self.options.maxReconnectionAttempts){
 					if (!self.redoTransports){
-						self.once('connect_failed', maybeReconnect);
+						self.on('connect_failed', maybeReconnect);
 						self.options.tryTransportsOnConnectTimeout = true;
 						self.transport = self.getTransport(self.options.transports); // overwrite with all enabled transports
 						self.redoTransports = true;
@@ -998,17 +991,17 @@ if (typeof window != 'undefined'){
 				} else {
 					self.reconnectionDelay *= 2; // exponential backoff
 					self.connect();
-					self.emit('reconnecting', [self.reconnectionDelay]);
+					self.emit('reconnecting', [self.reconnectionDelay,self.reconnectionAttempts]);
 					self.reconnectionTimer = setTimeout(maybeReconnect, self.reconnectionDelay);
 				}
 			} else {
 				reset();
 			}
-		}
+		};
 		this.options.tryTransportsOnConnectTimeout = false;
 		this.reconnectionTimer = setTimeout(maybeReconnect, this.reconnectionDelay);
 		
-		this.once('connect', maybeReconnect);
+		this.on('connect', maybeReconnect);
 	};
 
   Socket.prototype.fire = Socket.prototype.emit;
