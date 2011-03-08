@@ -102,8 +102,13 @@ if (typeof window != 'undefined'){
   stringify = function(message){
     if (Object.prototype.toString.call(message) == '[object Object]'){
       if (!('JSON' in window)){
-        if ('console' in window && console.error) console.error('Trying to encode as JSON, but JSON.stringify is missing.');
-        return '{ "$error": "Invalid message" }';
+        var error = 'Socket.IO Error: Trying to encode as JSON, but JSON.stringify is missing.';
+        if ('console' in window && console.error){
+          console.error(error);
+        } else {
+          throw new Error(error);
+        }
+        return '{ "$error": "'+ error +'" }';
       }
       return '~j~' + JSON.stringify(message);
     } else {
@@ -132,8 +137,8 @@ if (typeof window != 'undefined'){
   };
   
   Transport.prototype.encode = function(messages){
-    var ret = '', message,
-        messages = io.util.isArray(messages) ? messages : [messages];
+    var ret = '', message;
+    messages = io.util.isArray(messages) ? messages : [messages];
     for (var i = 0, l = messages.length; i < l; i++){
       message = messages[i] === null || messages[i] === undefined ? '' : stringify(messages[i]);
       ret += frame + message.length + frame + message;
