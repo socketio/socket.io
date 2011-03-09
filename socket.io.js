@@ -114,7 +114,7 @@ if (typeof window != 'undefined'){
     } else {
       return String(message);
     }
-  };
+  },
   
   Transport = io.Transport = function(base, options){
     this.base = base;
@@ -665,9 +665,7 @@ if (typeof window != 'undefined'){
  */
 
 (function(){
-  var io = this.io;
-  
-  io.JSONP = [];
+  var io = this.io,
   
   JSONPPolling = io.Transport['jsonp-polling'] = function(){
     io.Transport.XHR.apply(this, arguments);
@@ -675,6 +673,8 @@ if (typeof window != 'undefined'){
     this.index = io.JSONP.length;
     io.JSONP.push(this);
   };
+  
+  io.JSONP = [];
   
   io.util.inherit(JSONPPolling, io.Transport['xhr-polling']);
   
