@@ -168,9 +168,9 @@ The insecure version can be found [here](http://github.com/gimite/web-socket-js/
 
 ##### Methods:
 	
-- *connect*
+- *connect(λ)*
 
-	Establishes a connection.
+	Establishes a connection. If λ is supplied as argument, it will be called once the connection is established.
 	
 - *send(message)*
 	
@@ -183,6 +183,10 @@ The insecure version can be found [here](http://github.com/gimite/web-socket-js/
 - *on(event, λ)*
 
 	Adds a listener for the event *event*.
+
+- *once(event, λ)*
+
+	Adds a one time listener for the event *event*. The listener is removed after the first time the event is fired.
 	
 - *removeEvent(event, λ)*
 

@@ -845,7 +845,7 @@ if (typeof window != 'undefined'){
     return null;
   };
   
-  Socket.prototype.connect = function(){
+  Socket.prototype.connect = function(fn){
     if (this.transport && !this.connected){
       if (this.connecting) this.disconnect(true);
       this.connecting = true;
@@ -871,6 +871,7 @@ if (typeof window != 'undefined'){
         }, this.options.connectTimeout);
       }
     }
+    if (fn && typeof fn == 'function') this.once('connect',fn);
     return this;
   };
   
@@ -893,6 +894,17 @@ if (typeof window != 'undefined'){
     return this;
   };
   
+  Socket.prototype.once = function(name, fn){
+    var self = this
+      , once = function(){
+        self.removeEvent(name, once);
+        fn.apply(self, arguments);
+      };
+    once.ref = fn;
+    self.on(name, once);
+    return this;
+  };
+  
   Socket.prototype.emit = function(name, args){
     if (name in this.events){
       var events = this.events[name].concat();
@@ -905,7 +917,7 @@ if (typeof window != 'undefined'){
   Socket.prototype.removeEvent = function(name, fn){
     if (name in this.events){
       for (var a = 0, l = this.events[name].length; a < l; a++)
-        if (this.events[name][a] == fn) this.events[name].splice(a, 1);    
+        if (this.events[name][a] == fn || this.events[name][a].ref && this.events[name][a].ref == fn) this.events[name].splice(a, 1);    
     }
     return this;
   };
