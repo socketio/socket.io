@@ -33,9 +33,9 @@ if (typeof window != 'undefined'){
  */
 
 (function(){
-  var io = this.io;
-
-  var pageLoaded = false;
+  var io = this.io,
+  
+  pageLoaded = false;
 
   io.util = {
 
@@ -95,9 +95,9 @@ if (typeof window != 'undefined'){
 // abstract
 
 (function(){
-  var io = this.io;
+  var io = this.io,
   
-  var frame = '~m~',
+  frame = '~m~',
   
   stringify = function(message){
     if (Object.prototype.toString.call(message) == '[object Object]'){
@@ -240,10 +240,10 @@ if (typeof window != 'undefined'){
  */
 
 (function(){
-  var io = this.io;
+  var io = this.io,
   
-  var empty = new Function,
-      
+  empty = new Function,
+   
   XMLHttpRequestCORS = (function(){
     if (!('XMLHttpRequest' in window)) return false;
     // CORS feature detection
@@ -377,9 +377,9 @@ if (typeof window != 'undefined'){
  */
 
 (function(){
-  var io = this.io;
+  var io = this.io,
   
-  var WS = io.Transport.websocket = function(){
+  WS = io.Transport.websocket = function(){
     io.Transport.apply(this, arguments);
   };
   
@@ -444,9 +444,9 @@ if (typeof window != 'undefined'){
  */
 
 (function(){
-  var io = this.io;
+  var io = this.io,
   
-  var Flashsocket = io.Transport.flashsocket = function(){
+  Flashsocket = io.Transport.flashsocket = function(){
     io.Transport.websocket.apply(this, arguments);
   };
   
@@ -489,9 +489,9 @@ if (typeof window != 'undefined'){
  */
 
 (function(){
-  var io = this.io;
+  var io = this.io,
   
-  var HTMLFile = io.Transport.htmlfile = function(){
+  HTMLFile = io.Transport.htmlfile = function(){
     io.Transport.XHR.apply(this, arguments);
   };
   
@@ -565,9 +565,9 @@ if (typeof window != 'undefined'){
  */
 
 (function(){
-  var io = this.io;
+  var io = this.io,
   
-  var XHRMultipart = io.Transport['xhr-multipart'] = function(){
+  XHRMultipart = io.Transport['xhr-multipart'] = function(){
     io.Transport.XHR.apply(this, arguments);
   };
   
@@ -602,9 +602,9 @@ if (typeof window != 'undefined'){
  */
 
 (function(){
-  var io = this.io;
-
-  var empty = new Function(),
+  var io = this.io,
+  
+  empty = new Function(),
 
   XHRPolling = io.Transport['xhr-polling'] = function(){
     io.Transport.XHR.apply(this, arguments);
