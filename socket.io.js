@@ -471,16 +471,8 @@ if (typeof window != 'undefined'){
   };
   
   Flashsocket.check = function(){
-    if (typeof WebSocket == 'undefined' || !('__addTask' in WebSocket)) return false;
-    if ('navigator' in window && 'plugins' in navigator && navigator.plugins['Shockwave Flash']){
-      return !!navigator.plugins['Shockwave Flash'].description;
-    }
-    if ('ActiveXObject' in window) {
-      try {
-        return !!new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version');
-      } catch (e) {}
-    }
-    return false;
+    if (typeof WebSocket == 'undefined' || !('__addTask' in WebSocket) || !swfobject) return false;
+    return swfobject.hasFlashPlayerVersion("10.0.0");
   };
   
   Flashsocket.xdomainCheck = function(){
