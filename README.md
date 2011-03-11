@@ -229,10 +229,9 @@ The insecure version can be found [here](http://github.com/gimite/web-socket-js/
 
 	Fired when a reconnection is attempted, passing the next delay for the next reconnection.
 
-
 - *reconnect_failed*
 
-	Fired when all reconnection attempts have failed and we where unsucessfull in reconnecting to the server.  
+	Fired when all reconnection attempts have failed and we where unsuccessful in reconnecting to the server.  
 
 ### Contributors
 
