@@ -34,7 +34,13 @@ function socket(server, options){
 };
 
 function get(client, url, legacy, callback){
-  // decode the server response based on EventSource API
+  /**
+   * Decodes the EventSource response that we receive from the
+   * server in to a readable JavaScript object / data message.
+   *
+   * @param {String} response The response from the server
+   * @returns {Object} The event / message
+   */
   function decode(response){
    var boundary = '\n'
      , queue = response.split(boundary)
@@ -90,13 +96,13 @@ function get(client, url, legacy, callback){
         lastEventId:lastEventId
       , data: data.replace(/^(\s|\u00A0)+|(\s|\u00A0)+$/g, '')
       , retry: retry
-      , name: name
+      , name: name.replace(/^(\s|\u00A0)+|(\s|\u00A0)+$/g, '')
       }
     return;
   };
   
   
-  var request = client.request('GET', url, {host: 'localhost'})
+  var request = client.request('GET', url + (legacy ? '/legacy/' : ''), {host: 'localhost'})
     , emitter = new EventEmitter
     , messages = 0;
   
@@ -126,6 +132,10 @@ function post(client, url, data, callback){
 };
 
 module.exports = {
+  /**
+   * Test if we can connect succesfully and send and understand the messages
+   * that we receive from the server.
+   */
   'test connection and handshake': function(){
     var _server = server()
       , _socket = socket(_server)
@@ -165,6 +175,10 @@ module.exports = {
       };
     });
   },
+  
+  /**
+   * Check if we can connect using the old specification of the EventSource.
+   */
   'test connection and handshake legacy connection': function(){
     var _server = server()
       , _socket = socket(_server)
@@ -196,6 +210,80 @@ module.exports = {
                 assert.ok(_decode(event.data)[0], 'from server');
                 --trips || close();
             }
+        });
+      });
+      function close(){
+        _client.end();
+        _server.close();
+      };
+    });
+  },
+  
+  /**
+   * Test if we send the correct content-type for the EventSource.
+   */
+  'test correct content-type': function(){
+    var _server = server()
+      , _socket = socket(_server);
+    
+    listen(_server, function(){
+      var _client = client(_server)
+        , req = _client.request('get', '/socket.io/event-source/', {host: 'localhost'});
+      
+      req.end();
+      req.on('response', function(resp){
+        assert.equal(resp.headers['content-type'], 'text/event-stream', 'event-stream header');
+        assert.equal(resp.headers['connection'], 'keep-alive', 'keep alive');
+        req.abort && req.abort();
+        req.connection && req.connection.destroy();
+        _server.close();
+      })
+      
+    });
+  },
+  
+  /**
+   * The legacy implementation of Opera 8 requires a different header than
+   * the one that is currently specified in the HTML5 specification. If we
+   * send the incorrect content-type, the EventSource transport will not be able
+   * to connect to the server.
+   */
+  'test correct content-type legacy': function(){
+    var _server = server()
+      , _socket = socket(_server);
+    
+    listen(_server, function(){
+      var _client = client(_server)
+        , req = _client.request('get', '/socket.io/event-source//legacy', {host: 'localhost'});
+      
+      req.end();
+      req.on('response', function(resp){
+        assert.ok(resp.headers['content-type'], 'application/x-dom-event-stream', 'x-dom-event-stream header');
+        assert.ok(resp.headers['connection'], 'keep-alive');
+        req.abort && req.abort();
+        req.connection && req.connection.destroy();
+        _server.close();
+      });
+      
+    });
+  },
+  
+  /**
+   * The legacy implementation of Opera 8 requires the data stream to be added
+   * in a Event: namespace. So we can actually read it out :).
+   */
+  'test event namespace legacy': function(){
+    var _server = server()
+      , _socket = socket(_server)
+      , trips = 2
+      , _client;
+
+    listen(_server, function(){
+      _client = get(client(_server), '/socket.io/event-source/', true, function(response){
+        response.on('data', function(event){
+          assert.equal(event.name, 'io', 'use the IO event for messages');
+          close();
+          
         });
       });
       function close(){
