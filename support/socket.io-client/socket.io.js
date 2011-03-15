@@ -783,9 +783,9 @@ JSONPPolling.xdomainCheck = function(){
 	var Socket = io.Socket = function(host, options){
 		this.host = host || document.domain;
 		this.options = {
-			secure: false,
+			secure: document.location.protocol == 'https:',
 			document: document,
-			port: document.location.port || 80,
+			port: document.location.port || (document.location.protocol == 'https:' ? 443 : 80),
 			resource: 'socket.io',
 			transports: ['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling', 'jsonp-polling'],
 			transportOptions: {
