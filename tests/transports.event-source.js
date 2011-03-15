@@ -1,3 +1,6 @@
+/**
+ * Test dependencies
+ */
 var io = require('socket.io')
   , http = require('http')
   , querystring = require('querystring')
@@ -291,6 +294,61 @@ module.exports = {
         _server.close();
       };
     });
+  },
+  
+  /**
+   * Test if multiple clients are handled okay.
+   */
+  'test clients tracking': function(){
+    var _server = server()
+      , _socket = socket(_server);
+    
+    listen(_server, function(){
+      var _client = get(client(_server), '/socket.io/event-source/', false, function(response){
+        var once = false;
+        response.on('data', function(event){
+          if(!once){
+            assert.ok(Object.keys(_socket.clients).length == 1);
+            once = true;
+            var _client2 = get(client(_server), '/socket.io/event-source/', false, function(response){
+              response.on('data',function(){
+                assert.ok(Object.keys(_socket.clients).length == 2);
+                _client.end();
+                _client2.end();
+                _server.close();
+              })
+            });
+          }
+        })
+      })
+    })
+  },
+  
+  /**
+   * Test if multiple clients are handled okay on the legacy connection.
+   */
+  'test clients tracking legacy': function(){
+    var _server = server()
+      , _socket = socket(_server);
+    
+    listen(_server, function(){
+      var _client = get(client(_server), '/socket.io/event-source/', true, function(response){
+        var once = false;
+        response.on('data', function(event){
+          if(!once){
+            assert.ok(Object.keys(_socket.clients).length == 1);
+            once = true;
+            var _client2 = get(client(_server), '/socket.io/event-source/', true, function(response){
+              response.on('data',function(){
+                assert.ok(Object.keys(_socket.clients).length == 2);
+                _client.end();
+                _client2.end();
+                _server.close();
+              })
+            });
+          }
+        })
+      })
+    })
   }
- 
 };
