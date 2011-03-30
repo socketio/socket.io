@@ -9,6 +9,7 @@
 // abstract
 
 (function(){
+	var io = this.io;
 	
 	var frame = '~m~',
 	

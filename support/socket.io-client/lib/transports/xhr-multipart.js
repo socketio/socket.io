@@ -7,6 +7,7 @@
  */
 
 (function(){
+	var io = this.io;
 	
 	var XHRMultipart = io.Transport['xhr-multipart'] = function(){
 		io.Transport.XHR.apply(this, arguments);

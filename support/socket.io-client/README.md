@@ -64,27 +64,25 @@ If you are serving you .swf from a other domain than socket.io.js you will need 
 
 The insecure version can be found [here](http://github.com/gimite/web-socket-js/blob/master/WebSocketMainInsecure.zip).
 
-IMPORTANT! When checking out the git repo, make sure to include the submodules. One way to do it is:
-
-	git clone [repo] --recursive
-  
-Another, once cloned
-
-	git submodule update --init --recursive
-
 ### Documentation 
 
 #### io.Socket
 
 	new io.Socket(host, [options]);
 
-Options:
+##### Options:
+
+- *secure*
+
+		false
+	
+	Use secure connections
 
 - *port*
 
 		Current port or 80
 	
-	The port `socket.io` server is attached to (defaults to the document.location port)
+	The port `socket.io` server is attached to (defaults to the document.location port).
 
 - *resource*
 
@@ -94,9 +92,9 @@ Options:
 
 - *transports*
 
-		['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling']
+		['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling', 'jsonp-polling']
 
-	A list of the transports to attempt to utilize (in order of preference)
+	A list of the transports to attempt to utilize (in order of preference).
 	
 - *transportOptions*
 	
@@ -109,11 +107,48 @@ Options:
 				
 	An object containing (optional) options to pass to each transport.
 
-Properties:
+- *rememberTransport*
+
+		true
+	
+	A boolean indicating if the utilized transport should be remembered in a cookie.
+
+- *connectTimeout*
+
+		5000
+	
+	The amount of miliseconds a transport has to create a connection before we consider it timed out.
+	
+- *tryTransportsOnConnectTimeout*
+
+		true
+
+	A boolean indicating if we should try other transports when the  connectTimeout occurs.
+	
+- *reconnect*
+
+		true
+
+	A boolean indicating if we should automatically reconnect if a connection is disconnected. 
+  
+- *reconnectionDelay*
+
+		500
+
+	The amount of milliseconds before we try to connect to the server again. We are using a exponential back off algorithm for the following reconnections, on each reconnect attempt this value will get multiplied (500 > 1000 > 2000 > 4000 > 8000).
+  
+
+- *maxReconnectionAttempts*
+
+		10
+
+	The amount of attempts should we make using the current transport to connect to the server? After this we will do one final attempt, and re-try with all enabled transport methods before we give up.
+
+##### Properties:
 
 - *options*
 
-	The passed in options combined with the defaults
+	The passed in options combined with the defaults.
 
 - *connected*
 
@@ -122,16 +157,20 @@ Properties:
 - *connecting*
 
 	Whether the socket is connecting or not.
+
+- *reconnecting*
+
+	Whether we are reconnecting or not.
 	
 - *transport*	
 
 	The transport instance.
 
-Methods:
+##### Methods:
 	
 - *connect*
 
-	Establishes a connection	
+	Establishes a connection.
 	
 - *send(message)*
 	
@@ -139,29 +178,29 @@ Methods:
 	
 - *disconnect*
 
-	Closes the connection
+	Closes the connection.
 	
 - *on(event, λ)*
 
-	Adds a listener for the event *event*
+	Adds a listener for the event *event*.
 	
 - *removeEvent(event, λ)*
 
-	Removes the listener λ for the event *event*
+	Removes the listener λ for the event *event*.
 	
-Events:
+##### Events:
 
 - *connect*
 
-	Fired when the connection is established and the handshake successful
+	Fired when the connection is established and the handshake successful.
 	
 - *connecting(transport_type)*
 
-  Fired when a connection is attempted, passing the transport name
+    Fired when a connection is attempted, passing the transport name.
 	
 - *connect_failed*
 
-  Fired when the connection timeout occurs after the last connection attempt.
+    Fired when the connection timeout occurs after the last connection attempt.
 	This only fires if the `connectTimeout` option is set.
 	If the `tryTransportsOnConnectTimeout` option is set, this only fires once all
 	possible transports have been tried.
@@ -177,10 +216,25 @@ Events:
 - *disconnect*
 
 	Fired when the connection is considered disconnected.
+	
+- *reconnect(transport_type,reconnectionAttempts)*
 
-### Credits
+	Fired when the connection has been re-established. This only fires if the `reconnect` option is set.
+
+- *reconnecting(reconnectionDelay,reconnectionAttempts)*
+
+	Fired when a reconnection is attempted, passing the next delay for the next reconnection.
+
+
+- *reconnect_failed*
+
+	Fired when all reconnection attempts have failed and we where unsucessfull in reconnecting to the server.  
+
+### Contributors
 
 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
+
+Arnout Kazemier &lt;info@3rd-eden.com&gt;
 
 ### License 
 

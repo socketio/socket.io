@@ -47,7 +47,7 @@ http://www.adobe.com/support/flashplayer/downloads.html
 
 It should work on:
 - Google Chrome 4 or later (just uses native implementation)
-- Firefox 3.x, Internet Explorer 8 + Flash Player 9 or later
+- Firefox 3.x, Internet Explorer 8 + Flash Player 10 or later
 
 It may or may not work on other browsers such as Safari, Opera or IE 6. Patch for these browsers are appreciated, but I will not work on fixing issues specific to these browsers by myself.
 
