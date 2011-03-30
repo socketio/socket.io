@@ -1,4 +1,9 @@
 
+0.7.0 / 2011-??-??
+==================
+
+  * Reconnection support added to chat example. [3rd-Eden]
+
 0.6.16 / 2011-03-04
 ===================
 

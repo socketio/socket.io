@@ -13,6 +13,8 @@
         var el = document.createElement('p');
         if ('announcement' in obj) el.innerHTML = '<em>' + esc(obj.announcement) + '</em>';
         else if ('message' in obj) el.innerHTML = '<b>' + esc(obj.message[0]) + ':</b> ' + esc(obj.message[1]);
+        
+        if( obj.message && window.console && console.log ) console.log(obj.message[0], obj.message[1]);
         document.getElementById('chat').appendChild(el);
         document.getElementById('chat').scrollTop = 1000000;
       }
@@ -38,11 +40,17 @@
           for (var i in obj.buffer) message(obj.buffer[i]);
         } else message(obj);
       });
+      
+      socket.on('connect', function(){ message({ message: ['System', 'Connected']})});
+      socket.on('disconnect', function(){ message({ message: ['System', 'Disconnected']})});
+      socket.on('reconnect', function(){ message({ message: ['System', 'Reconnected to server']})});
+      socket.on('reconnecting', function( nextRetry ){ message({ message: ['System', 'Attempting to re-connect to the server, next attempt in ' + nextRetry + 'ms']})});
+      socket.on('reconnect_failed', function(){ message({ message: ['System', 'Reconnected to server FAILED.']})});
     </script>
     
     <h1>Sample chat client</h1>
     <div id="chat"><p>Connecting...</p></div>
-    <form id="form" onsubmit="send(); return false">
+    <form id="form" onSubmit="send(); return false">
       <input type="text" autocomplete="off" id="text"><input type="submit" value="Send">
     </form>
     
