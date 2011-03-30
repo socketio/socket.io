@@ -1,7 +1,8 @@
 
-0.7.0 / 2011-??-??
+0.6.17 / 2011-03-30 
 ==================
 
+  * Fixed the 'possible EventEmitter memory leak detected' bug for the XHR transport
   * Reconnection support added to chat example. [3rd-Eden]
 
 0.6.16 / 2011-03-04
