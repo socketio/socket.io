@@ -11,7 +11,7 @@
     <script>
       function message(obj){
         var el = document.createElement('p');
-        if ('announcement' in obj) el.innerHTML = '<em>' + esc(obj.announcement) + '</em>';
+        if ('announcement' in obj) el.innerHTML = '<em>' + esc(obj.announcement[0]) + ' ' + esc(obj.announcement[1]) + '</em>';
         else if ('message' in obj) el.innerHTML = '<b>' + esc(obj.message[0]) + ':</b> ' + esc(obj.message[1]);
         document.getElementById('chat').appendChild(el);
         document.getElementById('chat').scrollTop = 1000000;

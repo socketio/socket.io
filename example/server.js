@@ -48,7 +48,7 @@ var io = io.listen(server)
   
 io.on('connection', function(client){
   client.send({ buffer: buffer });
-  client.broadcast({ announcement: client.sessionId + ' connected' });
+  client.broadcast({ announcement: [client.sessionId, 'connected'] });
   
   client.on('message', function(message){
     var msg = { message: [client.sessionId, message] };
@@ -58,6 +58,6 @@ io.on('connection', function(client){
   });
 
   client.on('disconnect', function(){
-    client.broadcast({ announcement: client.sessionId + ' disconnected' });
+    client.broadcast({ announcement: [client.sessionId, 'disconnected'] });
   });
 });
