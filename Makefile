@@ -1,5 +1,7 @@
+
 test:
-	@./support/expresso/bin/expresso -I lib $(TESTFLAGS) tests/*.js
+	@./support/expresso/bin/expresso \
+		-I lib $(TESTFLAGS) tests/*.js
 
 test-cov:
 	@TESTFLAGS=--cov $(MAKE) test
@@ -10,4 +12,4 @@ example:
 example-ssl:
 	node ./example/server-ssl.js
 
-.PHONY: example
+.PHONY: test test-cov example example-ssl
