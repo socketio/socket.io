@@ -11,6 +11,11 @@ module.exports = {
   },
   
   'test decoding of invalid data length recovery': function(){
+    var decoded = decode('~m~2~m~hello there' + '~m~5~m~again');
+    assert.equal(decoded.length, 2);
+    assert.equal(decoded[0], 'he');
+    assert.equal(decoded[1], 'again');
+
     var decoded = decode('~m~5~m~hello there' + '~m~5~m~again');
     assert.equal(decoded.length, 2);
     assert.equal(decoded[0], 'hello');
