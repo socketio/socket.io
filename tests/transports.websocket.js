@@ -116,7 +116,7 @@ module.exports = {
             _client2.onmessage = function(ev){
               assert.ok(Object.keys(_socket.clients).length == 1);
               assert.ok(decode(ev.data), 'should get this');
-              _socket.clients[sessionid].options.closeTimeout = 0;
+              _socket.clients[sessionid].closeTimeout = 0;
               _client2.close();
               _server.close();
             };
