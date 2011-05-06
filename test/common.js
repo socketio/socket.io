@@ -9,10 +9,10 @@
  * Test dependencies.
  */
 
-const io = require('socket.io')
-    , should = module.exports = require('should')
-    , http = require('http')
-    , https = require('https');
+var io = require('socket.io')
+  , should = module.exports = require('should')
+  , http = require('http')
+  , https = require('https');
 
 /**
  * Get utility.

@@ -3,9 +3,9 @@
  * Test dependencies.
  */
 
-const parser = require('socket.io').parser
-    , decode = parser.decode
-    , should = require('./common');
+var parser = require('socket.io').parser
+  , decode = parser.decode
+  , should = require('./common');
 
 /**
  * Test.
