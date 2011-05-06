@@ -1,9 +1,9 @@
 {
-    "name": "socket.io-node",
-  , "version": "0.7.0",
-  , "description": "WebSockets everywhere",
-  , "keywords": ["websocket", "socket", "realtime"],
-  , "author": "Guillermo Rauch <guillermo@learnboost.com>",
+    "name": "socket.io-node"
+  , "version": "0.7.0"
+  , "description": "Realtime apps made cross-browser & easy with a WebSocket-like API"
+  , "keywords": ["websocket", "socket", "realtime"]
+  , "author": "Guillermo Rauch <guillermo@learnboost.com>"
   , "contributors": [
         { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" }
       , { "name": "Arnout Kazemier", "email": "info@3rd-eden.com" }
