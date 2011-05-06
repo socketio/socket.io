@@ -19,11 +19,11 @@ Next, attach it to a HTTP/HTTPS server. If you're using the fantastic `express`
 web framework:
 
     var app = express.createServer();
-      , sockets = io.listen(app);
+      , io = io.listen(app);
 
     app.listen(80);
 
-    sockets.on('connection', function (socket) {
+    io.sockets.on('connection', function (socket) {
       socket.send({ hello: 'world' });
     });
 
@@ -47,11 +47,10 @@ Socket.IO allows you to emit and receive custom events.
 Besides `connect`, `message` and `disconnect`, you can emit custom events:
 
     // note, io.listen(<port>) will create a http server for you
-    var io = require('socket.io');
-      , sockets = io.listen(80);
+    var io = require('socket.io').listen(80);
 
-    sockets.on('connection', function (socket) {
-      sockets.emit('this', { will: 'be received by everyone');
+    io.sockets.on('connection', function (socket) {
+      io.sockets.emit('this', { will: 'be received by everyone');
 
       socket.on('private message', function (from, msg) {
         console.log('I received a private message by ', from, ' saying ', msg);
@@ -69,10 +68,9 @@ necessary for the duration of the session.
 
 #### Server side
 
-    var io = require('socket.io')
-      , sockets = io.listen(80);
+    var io = require('socket.io').listen(80);
 
-    sockets.on('connection', function (socket) {
+    io.sockets.on('connection', function (socket) {
       socket.on('set nickname', function (name) {
         socket.set('nickname', name, function () { socket.emit('ready'); });
       });
@@ -114,17 +112,16 @@ The following example defines a socket that listens on '/chat' and one for
 
 #### Server side
 
-    var io = require('socket.io')
-      , sockets = io.listen(80);
+    var io = require('socket.io').listen(80);
 
-    var chat = sockets
+    var chat = io
       .for('/chat');
       .on('connection', function (socket) {
         socket.emit('a message', { that: 'only', '/chat': 'will get' });
         chat.emit('a message', { everyone: 'in', '/chat': 'will get' });
       });
 
-    var news = sockets
+    var news = io
       .for('/news');
       .on('connection', function (socket) {
         socket.emit('item', { news: 'item' });
@@ -160,10 +157,9 @@ In that case, you might want to send those messages as volatile messages.
 
 #### Server side
 
-    var io = require('socket.io')
-      , sockets = io.listen(80);
+    var io = require('socket.io').listen(80);
 
-    sockets.on('connection', function (socket) {
+    io.sockets.on('connection', function (socket) {
       var tweets = setInterval(function () {
         getBieberTweet(function (tweet) {
           socket.volatile.emit('bieber tweeet', tweet);
@@ -192,10 +188,9 @@ function is `0` when you `emit` or `send`.
 
 #### Server side
 
-    var io = require('socket.io')
-      , sockets = io.listen(80);
+    var io = require('socket.io').listen(80);
 
-    sockets.on('connection', function (socket) {
+    io.sockets.on('connection', function (socket) {
       socket.on('ferret', function (name, fn) {
         fn('woot');
       });
@@ -221,8 +216,12 @@ Simply leverage `send` and listen on the `message` event:
 
 #### Server side
 
-    var io = require('socket.io')
-      , sockets = io.listen(80);
+    var io = require('socket.io').listen(80);
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('message', function () { });
+      socket.on('disconnect', function () { });
+    });
 
 #### Client side
 
@@ -243,16 +242,15 @@ Configuration in socket.io is TJ-style:
 
 #### Server side
 
-    var io = require('socket.io')
-      , sockets = io.listen(80);
+    var io = require('socket.io').listen(80);
 
-    sockets.configure(function () {
-      sockets.set('transports', ['websocket', 'flashsocket', 'xhr-polling']);
+    io.configure(function () {
+      io.set('transports', ['websocket', 'flashsocket', 'xhr-polling']);
     });
 
-    sockets.configure('development', function () {
-      sockets.set('transports', ['websocket', 'xhr-polling']);
-      sockets.enable('log');
+    io.configure('development', function () {
+      io.set('transports', ['websocket', 'xhr-polling']);
+      io.enable('log');
     });
 
 ## [API docs](http://socket.io/api.html)
