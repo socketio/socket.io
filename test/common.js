@@ -49,6 +49,16 @@ req = function (opts, fn) {
 get = function (opts, fn) {
   opts = opts || {};
   opts.method = 'GET';
+
+  // parser that might be necessary for transport-specific framing
+  var transportParser = opts.parser;
+
+  // override the parser
+  opts.parser = function (data) {
+    data = transportParser ? transportParser(data) : data;
+    return parser.decodePayload(data);
+  };
+
   return req(opts, fn);
 };
 
