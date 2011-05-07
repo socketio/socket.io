@@ -35,20 +35,15 @@ module.exports = {
       done();
     };
 
-    var req = get({
-        port: port
-      , path: '/socket.io/{protocol}/'
-    }, function (res, data) {
-      var sessid = data.split(':')[0]
+    var req = get('/socket.io/{protocol}/', port, function (res, data) {
+      var sid = data.split(':')[0]
         , total = 2;
-      
-      get({
-          port: port
-        , path: '/socket.io/{protocol}/xhr-polling/jiasdasjid'
-      }, function (res, data) {
+
+      get('/socket.io/{protocol}/xhr-polling/tobi', port, function (res, packets) {
         res.statusCode.should.eql(200);
 
-        data.should.eql(parser.encodePacket({
+        packets.should.have.length(1);
+        packets[0].should.eql(parser.encodePacket({
             type: 'error'
           , reason: 'client not handshaken'
         }));
@@ -56,10 +51,7 @@ module.exports = {
         --total || finish();
       });
 
-      get({
-          port: port
-        , path: '/socket.io/{protocol}/xhr-polling/' + sessid
-      }, function (res, data) {
+      get('/socket.io/{protocol}/xhr-polling/' + sid, port, function (res, data) {
         res.statusCode.should.eql(200);
         data.should.eql('');
         --total || finish();
@@ -70,7 +62,7 @@ module.exports = {
   'test the connection event': function (done) {
     var port = ++ports
       , io = sio.listen(port)
-      , sessid, req;
+      , sid, req;
 
     io.configure(function () {
       io.set('polling duration', .2);
@@ -78,21 +70,31 @@ module.exports = {
     });
 
     io.sockets.on('connection', function (socket) {
-      socket.id.should.eql(sessid);
+      socket.id.should.eql(sid);
       io.server.close();
       done();
     });
 
-    handshake(port, function (sid) {
-      sessid = sid;
-      req = get({
-          port: port
-        , path: '/socket.io/{protocol}/xhr-polling/' + sid
-      }, function() {});
+    handshake(port, function (sessid) {
+      sid = sessid;
+      req = get('/socket.io/{protocol}/xhr-polling/' + sid, port);
     });
   },
 
-  'test sending back data': function (data) {
+  'test the disconnection event after a close timeout': function (done) {
+    
+  },
+
+  'test the disconnection event when the client sends ?disconnect req':
+  function () {
+    
+  },
+
+  'test the disconnection event': function () {
+
+  },
+
+  'test sending back data': function (done) {
     var port = ++ports
       , io = sio.listen(port);
 
@@ -106,15 +108,20 @@ module.exports = {
     });
 
     handshake(port, function (sid) {
-      get({
-          port: port
-        , path: '/socket.io/{protocol}/xhr-polling/' + sid
-      }, function (res, data) {
-        var packet = parser.decodePacket(data);
-        packet.type.should.eql('message');
-        packet.data.should.eql('woot');
+      get('/socket.io/{protocol}/xhr-polling/' + sid, port, function (res, packs) {
+        packs.should.have.length(1);
+        packs[0].type.should.eql('message');
+        packs[0].data.should.eql('woot');
+        done();
       });
     });
-  }
+  },
+
+  'test message buffering between a response and a request': function () {
+  },
+
+  'test message buffering between a connection close and a request': function () {
+    
+  },
 
 };
