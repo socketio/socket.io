@@ -15,10 +15,10 @@ var io = require('socket.io')
   , https = require('https');
 
 /**
- * Get utility.
+ * Request utility.
  */
 
-get = function (opts, fn) {
+req = function (opts, fn) {
   opts = opts || {};
   opts.path = opts.path.replace(/{protocol}/g, io.protocol);
   opts.headers = {
@@ -34,12 +34,32 @@ get = function (opts, fn) {
     });
 
     res.on('end', function () {
-      fn(res, buf);
+      fn(res, opts.parse ? opts.parse(buf) : buf);
     });
   });
 
   req.end();
   return req;
+};
+
+/**
+ * GET request utility.
+ */
+
+get = function (opts, fn) {
+  opts = opts || {};
+  opts.method = 'GET';
+  return req(opts, fn);
+};
+
+/**
+ * POST request utility.
+ */
+
+post = function (opts, fn) {
+  opts = opts || {};
+  opts.method = 'POST';
+  return req(opts, fn);
 };
 
 /**
