@@ -76,17 +76,11 @@ module.exports = {
 
     server.listen(ports);
     
-    get({
-        port: port
-      , path: '/socket.io'
-    }, function (res, data) {
+    get('/socket.io', port, function (res, data) {
       res.statusCode.should.eql(200);
       data.should.eql('Welcome to socket.io.');
 
-      get({
-          port: port
-        , path: '/woot'
-      }, function (res, data) {
+      get('/woot', port, function (res, data) {
         server.close();
         done();
       });
@@ -97,10 +91,7 @@ module.exports = {
     var port = ++ports
       , io = sio.listen(port);
 
-    get({
-        port: port
-      , path: '/socket.io/socket.io.js'
-    }, function (res, data) {
+    get('/socket.io/socket.io.js', port, function (res, data) {
       res.headers['content-type'].should.eql('application/javascript');
       res.headers['content-length'].should.be.match(/([0-9]+)/);
       res.headers.etag.should.match(/([0-9]+)\.([0-9]+)\.([0-9]+)/);
@@ -121,10 +112,7 @@ module.exports = {
       io.set('browser client etag', '1.0');
     });
 
-    get({
-        port: port
-      , path: '/socket.io/socket.io.js'
-    }, function (res, data) {
+    get('/socket.io/socket.io.js', port, function (res, data) {
       res.headers['content-type'].should.eql('application/javascript');
       res.headers['content-length'].should.eql(13);
       res.headers.etag.should.eql('1.0');
@@ -140,10 +128,7 @@ module.exports = {
     var port = ++ports
       , io = sio.listen(port);
 
-    get({
-        port: port
-      , path: '/socket.io/{protocol}/'
-    }, function (res, data) {
+    get('/socket.io/{protocol}/', port, function (res, data) {
       res.statusCode.should.eql(200);
       data.should.match(/([^:]+):([0-9]+)?:([0-9]+)?:(.+)/);
       io.server.close();
@@ -155,10 +140,7 @@ module.exports = {
     var port = ++ports
       , io = sio.listen(port);
 
-    get({
-        port: port
-      , path: '/socket.io/-1/'
-    }, function (res, data) {
+    get('/socket.io/-1/', port, function (res, data) {
       res.statusCode.should.eql(500);
       data.should.match(/Protocol version not supported/);
       io.server.close();
@@ -178,10 +160,7 @@ module.exports = {
       io.set('authorization', auth);
     });
 
-    get({
-        port: port
-      , path: '/socket.io/{protocol}/'
-    }, function (res, data) {
+    get('/socket.io/{protocol}/', port, function (res, data) {
       res.statusCode.should.eql(403);
       data.should.match(/Handshake unauthorized/);
       io.server.close();
@@ -201,10 +180,7 @@ module.exports = {
       io.set('authorization', auth);
     });
 
-    get({
-        port: port
-      , path: '/socket.io/{protocol}/'
-    }, function (res, data) {
+    get('/socket.io/{protocol}/', port, function (res, data) {
       res.statusCode.should.eql(500);
       data.should.match(/Handshake error/);
       io.server.close();
@@ -220,10 +196,7 @@ module.exports = {
       io.set('transports', ['tobi', 'jane']);
     });
 
-    get({
-        port: port
-      , path: '/socket.io/{protocol}/'
-    }, function (res, data) {
+    get('/socket.io/{protocol}/', port, function (res, data) {
       res.statusCode.should.eql(200);
       data.should.match(/([^:]+):([0-9]+)?:([0-9]+)?:tobi,jane/);
       io.server.close();
@@ -239,10 +212,7 @@ module.exports = {
       io.set('close timeout', 66);
     });
 
-    get({
-        port: port
-      , path: '/socket.io/{protocol}/'
-    }, function (res, data) {
+    get('/socket.io/{protocol}/', port, function (res, data) {
       res.statusCode.should.eql(200);
       data.should.match(/([^:]+):([0-9]+)?:66?:(.*)/);
       io.server.close();
@@ -258,10 +228,7 @@ module.exports = {
       io.set('heartbeat timeout', 33);
     });
 
-    get({
-        port: port
-      , path: '/socket.io/{protocol}/'
-    }, function (res, data) {
+    get('/socket.io/{protocol}/', port, function (res, data) {
       res.statusCode.should.eql(200);
       data.should.match(/([^:]+):33:([0-9]+)?:(.*)/);
       io.server.close();
@@ -278,10 +245,7 @@ module.exports = {
       io.set('close timeout', '');
     });
 
-    get({
-        port: port
-      , path: '/socket.io/{protocol}/'
-    }, function (res, data) {
+    get('/socket.io/{protocol}/', port, function (res, data) {
       res.statusCode.should.eql(200);
       data.should.match(/([^:]+)::?:(.*)/);
       io.server.close();
