@@ -2,13 +2,17 @@
     "name": "socket.io-node"
   , "version": "0.7.0"
   , "description": "Realtime apps made cross-browser & easy with a WebSocket-like API"
-  , "keywords": ["websocket", "socket", "realtime"]
+  , "keywords": ["websocket", "socket", "realtime", "socket.io", "comet", "ajax"]
   , "author": "Guillermo Rauch <guillermo@learnboost.com>"
   , "contributors": [
         { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" }
       , { "name": "Arnout Kazemier", "email": "info@3rd-eden.com" }
     ]
+  , "repository":{
+        "type": "git"
+      , "url": "https://github.com/LearnBoost/Socket.IO-node.git"
+    }
   , "dependencies": {}
   , "main": "index"
-  , "engines": { "node": "0.4.x" }
+  , "engines": { "node": ">= 0.4.0" }
 }
