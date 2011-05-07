@@ -10,9 +10,15 @@
  */
 
 var io = require('socket.io')
-  , should = module.exports = require('should')
+  , parser = io.parser
   , http = require('http')
   , https = require('https');
+
+/**
+ * Exports should.
+ */
+
+var should = module.exports = require('should');
 
 /**
  * Request utility.
@@ -69,8 +75,10 @@ get = function (url, port, opts, fn) {
   // override the parser for transport requests
   if (/\/(xhr-polling|htmlfile|jsonp-polling)\//.test(opts.url)) {
     // parser that might be necessary for transport-specific framing
-    var transportParser = opts.parser;
-    opts.parser = function (data) {
+    var transportParse = opts.parse;
+    opts.parse = function (data) {
+      if (data === '') return data;
+
       data = transportParser ? transportParser(data) : data;
       return parser.decodePayload(data);
     };
