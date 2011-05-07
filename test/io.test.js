@@ -43,10 +43,7 @@ module.exports = {
 
     io.server.should.be.an.instanceof(http.Server);
 
-    get({
-        port: port
-      , path: '/'
-    }, function (res, data) {
+    get('/', port, function (res, data) {
       res.statusCode.should.eql(200);
       data.should.eql('Welcome to socket.io.');
       io.server.close();
@@ -61,10 +58,7 @@ module.exports = {
 
     server.listen(port);
 
-    get({
-        port: port
-      , path: '/socket.io'
-    }, function (res, data) {
+    get('/socket.io', port, function (res, data) {
       res.statusCode.should.eql(200);
       data.should.eql('Welcome to socket.io.');
       
@@ -83,11 +77,7 @@ module.exports = {
 
     server.listen(port);
 
-    get({
-        port: port
-      , path: '/socket.io'
-      , secure: true
-    }, function (res, data) {
+    get('/socket.io', port, { secure: true }, function (res, data) {
       res.statusCode.should.eql(200);
       data.should.eql('Welcome to socket.io.');
       
@@ -99,10 +89,7 @@ module.exports = {
   'test listening with no arguments listens on 80': function (done) {
     try {
       var io = sio.listen();
-      get({
-          post: 80
-        , path: '/socket.io'
-      }, function (res) {
+      get('/socket.io', 80, function (res) {
         res.statusCode.should.eql(200);
         io.server.close();
         done();

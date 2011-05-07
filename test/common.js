@@ -18,9 +18,15 @@ var io = require('socket.io')
  * Request utility.
  */
 
-req = function (opts, fn) {
+req = function (path, port, opts, fn) {
+  if ('function' == typeof opts) {
+    fn = opts;
+    opts = {};
+  }
+
   opts = opts || {};
-  opts.path = opts.path.replace(/{protocol}/g, io.protocol);
+  opts.port = port;
+  opts.path = path.replace(/{protocol}/g, io.protocol);
   opts.headers = {
       'Host': 'localhost'
     , 'Connection': 'Keep-Alive'
@@ -34,11 +40,16 @@ req = function (opts, fn) {
     });
 
     res.on('end', function () {
-      fn(res, opts.parse ? opts.parse(buf) : buf);
+      fn && fn(res, opts.parse ? opts.parse(buf) : buf);
     });
   });
 
+  req.on('error', function (err) {
+    console.error(err);
+  });
+
   req.end();
+
   return req;
 };
 
@@ -46,42 +57,56 @@ req = function (opts, fn) {
  * GET request utility.
  */
 
-get = function (opts, fn) {
+get = function (url, port, opts, fn) {
+  if ('function' == typeof opts) {
+    fn = opts;
+    opts = {};
+  }
+
   opts = opts || {};
   opts.method = 'GET';
 
-  // parser that might be necessary for transport-specific framing
-  var transportParser = opts.parser;
+  // override the parser for transport requests
+  if (/\/(xhr-polling|htmlfile|jsonp-polling)\//.test(opts.url)) {
+    // parser that might be necessary for transport-specific framing
+    var transportParser = opts.parser;
+    opts.parser = function (data) {
+      data = transportParser ? transportParser(data) : data;
+      return parser.decodePayload(data);
+    };
+  }
 
-  // override the parser
-  opts.parser = function (data) {
-    data = transportParser ? transportParser(data) : data;
-    return parser.decodePayload(data);
-  };
-
-  return req(opts, fn);
+  return req(url, port, opts, fn);
 };
 
 /**
  * POST request utility.
  */
 
-post = function (opts, fn) {
+post = function (url, port, opts, fn) {
+  if ('function' == typeof opts) {
+    fn = opts;
+    opts = {};
+  }
+
   opts = opts || {};
-  opts.method = 'POST';
-  return req(opts, fn);
+  opts.method = 'METHOD';
+
+  return req(url, ports, opts, fn);
 };
 
 /**
  * Handshake utility
  */
 
-handshake = function (port, fn) {
-  get({
-      port: port
-    , path: '/socket.io/{protocol}'
-  }, function (res, data) {
-    fn.apply(null, data.split(':'));
+handshake = function (port, opts, fn) {
+  if ('function' == typeof opts) {
+    fn = opts;
+    opts = {};
+  }
+
+  get('/socket.io/{protocol}', port, opts, function (res, data) {
+    fn && fn.apply(null, data.split(':'));
   });
 };
 
