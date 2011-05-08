@@ -67,7 +67,6 @@ module.exports = {
       , sid, req;
 
     io.configure(function () {
-      io.set('polling duration', .2);
       io.set('close timeout', .2);
     });
 
@@ -84,7 +83,28 @@ module.exports = {
   },
 
   'test the disconnection event after a close timeout': function (done) {
-    
+    var port = ++ports
+      , io = sio.listen(port)
+      , sid;
+
+    io.configure(function () {
+      io.set('close timeout', .2);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.id.should.eql(sid);
+
+      socket.on('disconnect', function () {
+        console.log('disconnected');
+        io.server.close();
+        done();
+      });
+    });
+
+    handshake(port, function (sessid) {
+      sid = sessid;
+      get('/socket.io/{protocol}/xhr-polling/' + sid, port);
+    });
   },
 
   'test the disconnection event when the client sends ?disconnect req':
