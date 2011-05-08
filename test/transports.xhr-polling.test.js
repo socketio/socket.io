@@ -43,10 +43,12 @@ module.exports = {
         res.statusCode.should.eql(200);
 
         packets.should.have.length(1);
-        packets[0].should.eql(parser.encodePacket({
+        packets[0].should.eql({
             type: 'error'
           , reason: 'client not handshaken'
-        }));
+          , endpoint: ''
+          , advice: ''
+        });
 
         --total || finish();
       });
