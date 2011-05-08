@@ -63,7 +63,7 @@ req = function (path, port, opts, fn) {
  * GET request utility.
  */
 
-get = function (url, port, opts, fn) {
+get = function (path, port, opts, fn) {
   if ('function' == typeof opts) {
     fn = opts;
     opts = {};
@@ -73,25 +73,25 @@ get = function (url, port, opts, fn) {
   opts.method = 'GET';
 
   // override the parser for transport requests
-  if (/\/(xhr-polling|htmlfile|jsonp-polling)\//.test(opts.url)) {
+  if (/\/(xhr-polling|htmlfile|jsonp-polling)\//.test(path)) {
     // parser that might be necessary for transport-specific framing
     var transportParse = opts.parse;
     opts.parse = function (data) {
       if (data === '') return data;
 
-      data = transportParser ? transportParser(data) : data;
+      data = transportParse ? transportParse(data) : data;
       return parser.decodePayload(data);
     };
   }
 
-  return req(url, port, opts, fn);
+  return req(path, port, opts, fn);
 };
 
 /**
  * POST request utility.
  */
 
-post = function (url, port, opts, fn) {
+post = function (path, port, opts, fn) {
   if ('function' == typeof opts) {
     fn = opts;
     opts = {};
@@ -100,7 +100,7 @@ post = function (url, port, opts, fn) {
   opts = opts || {};
   opts.method = 'METHOD';
 
-  return req(url, ports, opts, fn);
+  return req(path, ports, opts, fn);
 };
 
 /**
