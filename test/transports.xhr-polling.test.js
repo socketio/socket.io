@@ -25,8 +25,8 @@ module.exports = {
       , io = sio.listen(port);
 
     io.configure(function () {
-      io.set('polling duration', .2);
       io.set('close timeout', .2);
+      io.set('polling duration', .2);
     });
 
     function finish () {
@@ -53,6 +53,7 @@ module.exports = {
         --total || finish();
       });
 
+      // we rely on a small poll duration to close this request quickly
       get('/socket.io/{protocol}/xhr-polling/' + sid, port, function (res, data) {
         res.statusCode.should.eql(200);
         data.should.eql('');
@@ -95,7 +96,6 @@ module.exports = {
       socket.id.should.eql(sid);
 
       socket.on('disconnect', function () {
-        console.log('disconnected');
         io.server.close();
         done();
       });
@@ -103,20 +103,57 @@ module.exports = {
 
     handshake(port, function (sessid) {
       sid = sessid;
-      get('/socket.io/{protocol}/xhr-polling/' + sid, port);
+      var req = get('/socket.io/{protocol}/xhr-polling/' + sid, port);
+
+      // here we close the request instead of relying on a small poll timeout
+      setTimeout(function () {
+        req.abort();
+      }, 50);
     });
   },
 
   'test the disconnection event when the client sends ?disconnect req':
-  function () {
+  function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , disconnected = false
+      , sid;
+
+    io.configure(function () {
+      io.set('close timeout', .2);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      get('/socket.io/{protocol}/xhr-polling/' + sid + '/?disconnect', port);
+
+      socket.on('disconnect', function () {
+        disconnected = true;
+      });
+    });
+
+    handshake(port, function (sessid) {
+      sid = sessid;
+      get('/socket.io/{protocol}/xhr-polling/' + sid, port, function (res, data) {
+        data.should.eql('');
+        disconnected.should.be.true;
+        io.server.close();
+        done();
+      });
+    });
+  },
+
+  'test the disconnection event booting a client': function (done) {
+    var port = ++ports
+      , io = sio.listen(port);
+
+  },
+
+  'test the disconnection event with client disconnect packet': function (done) {
     
   },
 
-  'test the disconnection event': function () {
-
-  },
-
   'test sending back data': function (done) {
+    return;
     var port = ++ports
       , io = sio.listen(port);
 
