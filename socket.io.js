@@ -88,6 +88,23 @@ if (typeof window != 'undefined'){
     },
     
     /**
+     * Defers the function untill it's the function can be executed without
+     * blocking the load process. This is especially needed for WebKit based
+     * browsers. If a long running connection is made before the onload event
+     * a loading indicator spinner will be present at all times untill a
+     * reconnect has been made.
+     *
+     * @param {Function} fn
+     * @api public
+     */
+    defer: function(fn){
+      if (!io.util.webkit) return fn();
+      io.util.load(function(){
+        setTimeout(fn,100);
+      });
+    },
+    
+    /**
      * Inherit the prototype methods from one constructor into another.
      *
      * Example:
@@ -176,21 +193,14 @@ if (typeof window != 'undefined'){
   };
   
   /**
-   * Detect the iOS platform based on the userAgent string.
+   * Detect the Webkit platform based on the userAgent string.
+   * This includes Mobile Webkit.
    *
    * @type {Boolean}
    * @api public
    */
-  io.util.ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  io.util.webkit = /webkit/i.test(navigator.userAgent);
   
-  /**
-   * Detect the Android platform based on the userAgent string.
-   *
-   * @type {Boolean}
-   * @api public
-   */
-  io.util.android = /android/i.test(navigator.userAgent);
-
   io.util.load(function(){
     pageLoaded = true;
   });
@@ -1174,16 +1184,8 @@ if (typeof window != 'undefined'){
    * @api public
    */
   XHRPolling.prototype.connect = function(){
-    if (io.util.ios || io.util.android){
-      var self = this;
-      io.util.load(function(){
-        setTimeout(function(){
-          io.Transport.XHR.prototype.connect.call(self);
-        }, 10);
-      });
-    } else {
-      io.Transport.XHR.prototype.connect.call(this);
-    }
+    var self = this;
+    io.util.defer(function(){ io.Transport.XHR.prototype.connect.call(self) });
     return false;
   };
   
