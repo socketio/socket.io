@@ -70,6 +70,7 @@ public class WebSocketMain extends Sprite implements IWebSocketLogger{
     eventObj.type = event.type;
     eventObj.webSocketId = webSocket.getId();
     eventObj.readyState = webSocket.getReadyState();
+    eventObj.protocol = webSocket.getAcceptedProtocol();
     if (event.message !== null) {
       eventObj.message = event.message;
     }
@@ -78,14 +79,14 @@ public class WebSocketMain extends Sprite implements IWebSocketLogger{
   
   public function create(
       webSocketId:int,
-      url:String, protocol:String,
+      url:String, protocols:Array,
       proxyHost:String = null, proxyPort:int = 0,
       headers:String = null):void {
     if (!manualPolicyFileLoaded) {
       loadDefaultPolicyFile(url);
     }
     var newSocket:WebSocket = new WebSocket(
-        webSocketId, url, protocol, getOrigin(), proxyHost, proxyPort,
+        webSocketId, url, protocols, getOrigin(), proxyHost, proxyPort,
         getCookie(url), headers, this);
     newSocket.addEventListener("open", onSocketEvent);
     newSocket.addEventListener("close", onSocketEvent);
