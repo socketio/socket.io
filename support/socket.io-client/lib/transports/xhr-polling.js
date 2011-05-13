@@ -1,62 +1,97 @@
 /**
- * Socket.IO client
- * 
- * @author Guillermo Rauch <guillermo@learnboost.com>
- * @license The MIT license.
- * @copyright Copyright (c) 2010 LearnBoost <dev@learnboost.com>
+ * socket.io-node-client
+ * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
+ * MIT Licensed
  */
 
 (function(){
-	var io = this.io;
-
-	var empty = new Function(),
-
-	XHRPolling = io.Transport['xhr-polling'] = function(){
-		io.Transport.XHR.apply(this, arguments);
-	};
-
-	io.util.inherit(XHRPolling, io.Transport.XHR);
-
-	XHRPolling.prototype.type = 'xhr-polling';
-
-	XHRPolling.prototype.connect = function(){
-		if (io.util.ios || io.util.android){
-			var self = this;
-			io.util.load(function(){
-				setTimeout(function(){
-					io.Transport.XHR.prototype.connect.call(self);
-				}, 10);
-			});
-		} else {
-			io.Transport.XHR.prototype.connect.call(this);
-		}
-	};
-
-	XHRPolling.prototype._get = function(){
-		var self = this;
-		this._xhr = this._request(+ new Date, 'GET');
-    this._xhr.onreadystatechange = function(){
+  var io = this.io,
+  
+  /**
+   * A small stub function that will be used to reduce memory leaks.
+   *
+   * @type {Function}
+   * @api private
+   */
+  empty = new Function(),
+  
+  /**
+   * The XHR-polling transport uses long polling XHR requests to create a
+   * "persistent" connection with the server.
+   *
+   * @constructor
+   * @extends {io.Transport.XHR}
+   * @api public
+   */
+  XHRPolling = io.Transport['xhr-polling'] = function(){
+    io.Transport.XHR.apply(this, arguments);
+  };
+  
+  io.util.inherit(XHRPolling, io.Transport.XHR);
+  
+  /**
+   * The transport type, you use this to identify which transport was chosen.
+   *
+   * @type {string}
+   * @api public
+   */
+  XHRPolling.prototype.type = 'xhr-polling';
+  
+  /** 
+   * Establish a connection, for iPhone and Android this will be done once the page
+   * is loaded.
+   *
+   * @returns {Transport} Chaining.
+   * @api public
+   */
+  XHRPolling.prototype.connect = function(){
+    var self = this;
+    io.util.defer(function(){ io.Transport.XHR.prototype.connect.call(self) });
+    return false;
+  };
+  
+   /**
+   * Starts a XHR request to wait for incoming messages.
+   *
+   * @api private
+   */
+  XHRPolling.prototype.get = function(){
+    var self = this;
+    this.xhr = this.request(+ new Date, 'GET');
+    this.xhr.onreadystatechange = function(){
       var status;
-      if (self._xhr.readyState == 4){
-        self._xhr.onreadystatechange = empty;
-        try { status = self._xhr.status; } catch(e){}
+      if (self.xhr.readyState == 4){
+        self.xhr.onreadystatechange = empty;
+        try { status = self.xhr.status; } catch(e){}
         if (status == 200){
-          self._onData(self._xhr.responseText);
-          self._get();
+          self.onData(self.xhr.responseText);
+          self.get();
         } else {
-          self._onDisconnect();
+          self.onDisconnect();
         }
       }
     };
-		this._xhr.send(null);
-	};
-
-	XHRPolling.check = function(){
-		return io.Transport.XHR.check();
-	};
-
-	XHRPolling.xdomainCheck = function(){
-		return io.Transport.XHR.xdomainCheck();
-	};
+    this.xhr.send(null);
+  };
+  
+  /**
+   * Checks if browser supports this transport.
+   *
+   * @return {Boolean}
+   * @api public
+   */
+  XHRPolling.check = function(){
+    return io.Transport.XHR.check();
+  };
+  
+  /**
+   * Check if cross domain requests are supported
+   *
+   * @returns {Boolean}
+   * @api public
+   */
+  XHRPolling.xdomainCheck = function(){
+    return io.Transport.XHR.xdomainCheck();
+  };
 
 })();
