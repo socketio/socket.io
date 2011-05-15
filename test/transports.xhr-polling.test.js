@@ -181,12 +181,11 @@ module.exports = {
         , function (res, data) {
             res.statusCode.should.eql(200);
             data.should.eql('');
-            io.server.close();
-            done();
           }
       );
 
-      client.on('disonnect', function () {
+      client.on('disconnect', function () {
+        io.server.close();
         done();
       });
     });
