@@ -54,6 +54,9 @@ req = function (path, port, opts, fn) {
     console.error(err);
   });
 
+  if (undefined !== opts.data)
+    req.write(opts.data);
+
   req.end();
 
   return req;
@@ -91,16 +94,17 @@ get = function (path, port, opts, fn) {
  * POST request utility.
  */
 
-post = function (path, port, opts, fn) {
+post = function (path, port, data, opts, fn) {
   if ('function' == typeof opts) {
     fn = opts;
     opts = {};
   }
 
   opts = opts || {};
-  opts.method = 'METHOD';
+  opts.method = 'POST';
+  opts.data = data;
 
-  return req(path, ports, opts, fn);
+  return req(path, port, opts, fn);
 };
 
 /**
