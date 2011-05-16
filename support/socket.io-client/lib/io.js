@@ -12,7 +12,7 @@ var io = this.io = {
   /**
    * Library version.
    */
-  version: '0.6.2',
+  version: '0.6.3',
   
   /**
    * Updates the location of the WebSocketMain.swf file that is required for the Flashsocket transport.
