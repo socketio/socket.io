@@ -1,4 +1,10 @@
 
+0.6.18 / 2011-05-16
+===================
+
+  * Updated client with multiple fixes.
+  * Fixed returning 'ws' for location even when the client connects via 'wss'.
+
 0.6.17 / 2011-03-30 
 ==================
 
