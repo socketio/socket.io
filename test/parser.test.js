@@ -329,7 +329,17 @@ module.exports = {
   },
 
   'test decoding a payload': function () {
-    parser.decodePayload('3:::5')
+    parser.decodePayload('\ufffd5\ufffd3:::5\ufffd7\ufffd3:::53d').should.eql([
+        { type: 'message', data: '5', endpoint: '' }
+      , { type: 'message', data: '53d', endpoint: '' }
+    ]);
+  },
+
+  'test encoding a payload': function () {
+    parser.encodePayload([
+        parser.encodePacket({ type: 'message', data: '5', endpoint: '' })
+      , parser.encodePacket({ type: 'message', data: '53d', endpoint: '' })
+    ]).should.eql('\ufffd5\ufffd3:::5\ufffd7\ufffd3:::53d')
   }
 
 };
