@@ -20,7 +20,7 @@ var io = require('socket.io')
 
 var should = module.exports = require('should');
 
-exports.HTTPClient = HTTPClient;
+should.HTTPClient = HTTPClient;
 
 /**
  * Client utility.
