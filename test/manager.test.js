@@ -72,15 +72,17 @@ module.exports = {
     });
 
     var io = sio.listen(server)
-      , port = ++ports;
+      , port = ++ports
+      , cl = client(port);
 
     server.listen(ports);
     
-    get('/socket.io', port, function (res, data) {
+    cl.get('/socket.io', function (res, data) {
       res.statusCode.should.eql(200);
       data.should.eql('Welcome to socket.io.');
 
-      get('/woot', port, function (res, data) {
+      cl.get('/woot', function (res, data) {
+        cl.end();
         server.close();
         done();
       });
@@ -89,15 +91,17 @@ module.exports = {
 
   'test that the client is served': function (done) {
     var port = ++ports
-      , io = sio.listen(port);
+      , io = sio.listen(port)
+      , cl = client(port);
 
-    get('/socket.io/socket.io.js', port, function (res, data) {
+    cl.get('/socket.io/socket.io.js', function (res, data) {
       res.headers['content-type'].should.eql('application/javascript');
       res.headers['content-length'].should.be.match(/([0-9]+)/);
       res.headers.etag.should.match(/([0-9]+)\.([0-9]+)\.([0-9]+)/);
 
       data.should.match(/XMLHttpRequest/);
 
+      cl.end();
       io.server.close();
       done();
     });
@@ -105,20 +109,22 @@ module.exports = {
 
   'test that you can serve custom clients': function (done) {
     var port = ++ports
-      , io = sio.listen(port);
+      , io = sio.listen(port)
+      , cl = client(port);
 
     io.configure(function () {
       io.set('browser client', 'custom_client');
       io.set('browser client etag', '1.0');
     });
 
-    get('/socket.io/socket.io.js', port, function (res, data) {
+    cl.get('/socket.io/socket.io.js', function (res, data) {
       res.headers['content-type'].should.eql('application/javascript');
       res.headers['content-length'].should.eql(13);
       res.headers.etag.should.eql('1.0');
 
       data.should.eql('custom_client');
 
+      cl.end();
       io.server.close();
       done();
     });
@@ -126,11 +132,14 @@ module.exports = {
 
   'test handshake': function (done) {
     var port = ++ports
-      , io = sio.listen(port);
+      , io = sio.listen(port)
+      , cl = client(port);
 
-    get('/socket.io/{protocol}/', port, function (res, data) {
+    cl.get('/socket.io/{protocol}/', function (res, data) {
       res.statusCode.should.eql(200);
       data.should.match(/([^:]+):([0-9]+)?:([0-9]+)?:(.+)/);
+
+      cl.end();
       io.server.close();
       done();
     });
@@ -138,11 +147,14 @@ module.exports = {
 
   'test handshake with unsupported protocol version': function (done) {
     var port = ++ports
-      , io = sio.listen(port);
+      , io = sio.listen(port)
+      , cl = client(port);
 
-    get('/socket.io/-1/', port, function (res, data) {
+    cl.get('/socket.io/-1/', function (res, data) {
       res.statusCode.should.eql(500);
       data.should.match(/Protocol version not supported/);
+
+      cl.end();
       io.server.close();
       done();
     });
@@ -150,7 +162,8 @@ module.exports = {
 
   'test authorization failure in handshake': function (done) {
     var port = ++ports
-      , io = sio.listen(port);
+      , io = sio.listen(port)
+      , cl = client(port);
 
     io.configure(function () {
       function auth (data, fn) {
@@ -160,9 +173,11 @@ module.exports = {
       io.set('authorization', auth);
     });
 
-    get('/socket.io/{protocol}/', port, function (res, data) {
+    cl.get('/socket.io/{protocol}/', function (res, data) {
       res.statusCode.should.eql(403);
       data.should.match(/Handshake unauthorized/);
+
+      cl.end();
       io.server.close();
       done();
     });
@@ -170,7 +185,8 @@ module.exports = {
 
   'test a handshake error': function (done) {
     var port = ++ports
-      , io = sio.listen(port);
+      , io = sio.listen(port)
+      , cl = client(port);
 
     io.configure(function () {
       function auth (data, fn) {
@@ -180,9 +196,11 @@ module.exports = {
       io.set('authorization', auth);
     });
 
-    get('/socket.io/{protocol}/', port, function (res, data) {
+    cl.get('/socket.io/{protocol}/', function (res, data) {
       res.statusCode.should.eql(500);
       data.should.match(/Handshake error/);
+
+      cl.end();
       io.server.close();
       done();
     });
@@ -190,15 +208,18 @@ module.exports = {
 
   'test limiting the supported transports for a manager': function (done) {
     var port = ++ports
-      , io = sio.listen(port);
+      , io = sio.listen(port)
+      , cl = client(port);
 
     io.configure(function () {
       io.set('transports', ['tobi', 'jane']);
     });
 
-    get('/socket.io/{protocol}/', port, function (res, data) {
+    cl.get('/socket.io/{protocol}/', function (res, data) {
       res.statusCode.should.eql(200);
       data.should.match(/([^:]+):([0-9]+)?:([0-9]+)?:tobi,jane/);
+
+      cl.end();
       io.server.close();
       done();
     });
@@ -206,15 +227,18 @@ module.exports = {
 
   'test setting a custom close timeout': function (done) {
     var port = ++ports
-      , io = sio.listen(port);
+      , io = sio.listen(port)
+      , cl = client(port);
 
     io.configure(function () {
       io.set('close timeout', 66);
     });
 
-    get('/socket.io/{protocol}/', port, function (res, data) {
+    cl.get('/socket.io/{protocol}/', function (res, data) {
       res.statusCode.should.eql(200);
       data.should.match(/([^:]+):([0-9]+)?:66?:(.*)/);
+
+      cl.end();
       io.server.close();
       done();
     });
@@ -222,15 +246,18 @@ module.exports = {
 
   'test setting a custom heartbeat timeout': function (done) {
     var port = ++ports
-      , io = sio.listen(port);
+      , io = sio.listen(port)
+      , cl = client(port);
 
     io.configure(function () {
       io.set('heartbeat timeout', 33);
     });
 
-    get('/socket.io/{protocol}/', port, function (res, data) {
+    cl.get('/socket.io/{protocol}/', function (res, data) {
       res.statusCode.should.eql(200);
       data.should.match(/([^:]+):33:([0-9]+)?:(.*)/);
+
+      cl.end();
       io.server.close();
       done();
     });
@@ -238,16 +265,19 @@ module.exports = {
 
   'test disabling timeouts': function (done) {
     var port = ++ports
-      , io = sio.listen(port);
+      , io = sio.listen(port)
+      , cl = client(port);
 
     io.configure(function () {
       io.set('heartbeat timeout', null);
       io.set('close timeout', '');
     });
 
-    get('/socket.io/{protocol}/', port, function (res, data) {
+    cl.get('/socket.io/{protocol}/', function (res, data) {
       res.statusCode.should.eql(200);
       data.should.match(/([^:]+)::?:(.*)/);
+
+      cl.end();
       io.server.close();
       done();
     });

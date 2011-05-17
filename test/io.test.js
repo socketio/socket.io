@@ -38,14 +38,16 @@ module.exports = {
   },
 
   'test listening with a port': function (done) {
-    var port = ++ports
-      , io = sio.listen(port);
+    var cl = client(++ports)
+      , io = create(cl);
 
     io.server.should.be.an.instanceof(http.Server);
 
-    get('/', port, function (res, data) {
+    cl.get('/', function (res, data) {
       res.statusCode.should.eql(200);
       data.should.eql('Welcome to socket.io.');
+
+      cl.end();
       io.server.close();
       done();
     });
@@ -54,14 +56,16 @@ module.exports = {
   'test listening with a server': function (done) {
     var server = http.createServer()
       , io = sio.listen(server)
-      , port = ++ports;
+      , port = ++ports
+      , cl = client(port);
 
     server.listen(port);
 
-    get('/socket.io', port, function (res, data) {
+    cl.get('/socket.io', function (res, data) {
       res.statusCode.should.eql(200);
       data.should.eql('Welcome to socket.io.');
-      
+
+      cl.end();
       server.close();
       done();
     });
@@ -77,20 +81,38 @@ module.exports = {
 
     server.listen(port);
 
-    get('/socket.io', port, { secure: true }, function (res, data) {
+    var req = require('https').get({
+        host: 'localhost'
+      , port: port
+      , path: '/socket.io'
+    }, function (res) {
       res.statusCode.should.eql(200);
-      data.should.eql('Welcome to socket.io.');
-      
-      server.close();
-      done();
+
+      var buf = '';
+
+      res.on('data', function (data) {
+        buf += data;
+      });
+
+      res.on('end', function () {
+        buf.should.eql('Welcome to socket.io.');
+
+        res.socket.end();
+        server.close();
+        done();
+      });
     });
   },
 
   'test listening with no arguments listens on 80': function (done) {
     try {
-      var io = sio.listen();
-      get('/socket.io', 80, function (res) {
+      var io = sio.listen()
+        , cl = client(80);
+
+      cl.get('/socket.io', function (res) {
         res.statusCode.should.eql(200);
+
+        cl.end();
         io.server.close();
         done();
       });

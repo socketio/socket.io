@@ -56,7 +56,7 @@ HTTPClient.prototype.request = function (path, opts, fn) {
     , 'Connection': 'keep-alive'
   };
 
-  var req = (opts.secure ? https : http).request(opts, function (res) {
+  var req = http.request(opts, function (res) {
     var buf = '';
 
     res.on('data', function (chunk) {
