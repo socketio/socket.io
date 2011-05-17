@@ -15,27 +15,45 @@ var io = require('socket.io')
   , https = require('https');
 
 /**
- * Exports should.
+ * Exports `should`.
  */
 
 var should = module.exports = require('should');
 
 /**
- * Request utility.
+ * Client utility.
+ *
+ * @api publiC
  */
 
-req = function (path, port, opts, fn) {
+function HTTPClient (port) {
+  this.port = port;
+  this.agent = new http.Agent({
+      host: 'localhost'
+    , port: port
+  });
+};
+
+/**
+ * Issue a request
+ *
+ * @api private
+ */
+
+HTTPClient.prototype.request = function (path, opts, fn) {
   if ('function' == typeof opts) {
     fn = opts;
     opts = {};
   }
 
   opts = opts || {};
-  opts.port = port;
+  opts.agent = this.agent;
+  opts.host = 'localhost';
+  opts.port = this.port;
   opts.path = path.replace(/{protocol}/g, io.protocol);
   opts.headers = {
       'Host': 'localhost'
-    , 'Connection': 'Keep-Alive'
+    , 'Connection': 'keep-alive'
   };
 
   var req = (opts.secure ? https : http).request(opts, function (res) {
@@ -50,9 +68,7 @@ req = function (path, port, opts, fn) {
     });
   });
 
-  req.on('error', function (err) {
-    console.error(err);
-  });
+  req.on('error', function (err) { });
 
   if (undefined !== opts.data)
     req.write(opts.data);
@@ -63,10 +79,24 @@ req = function (path, port, opts, fn) {
 };
 
 /**
- * GET request utility.
+ * Terminates the client and associated connections.
+ *
+ * @api public
  */
 
-get = function (path, port, opts, fn) {
+HTTPClient.prototype.end = function () {
+  this.agent.sockets.forEach(function (socket) {
+    socket.end();
+  });
+};
+
+/**
+ * Issue a GET request
+ *
+ * @api public
+ */
+
+HTTPClient.prototype.get = function (path, opts, fn) {
   if ('function' == typeof opts) {
     fn = opts;
     opts = {};
@@ -87,14 +117,16 @@ get = function (path, port, opts, fn) {
     };
   }
 
-  return req(path, port, opts, fn);
+  return this.request(path, opts, fn);
 };
 
 /**
- * POST request utility.
+ * Issue a POST request
+ *
+ * @api private
  */
 
-post = function (path, port, data, opts, fn) {
+HTTPClient.prototype.post = function (path, data, opts, fn) {
   if ('function' == typeof opts) {
     fn = opts;
     opts = {};
@@ -104,31 +136,41 @@ post = function (path, port, data, opts, fn) {
   opts.method = 'POST';
   opts.data = data;
 
-  return req(path, port, opts, fn);
+  return this.request(path, opts, fn);
 };
 
 /**
- * Handshake utility
+ * Performs a handshake (GET) request
+ *
+ * @api private
  */
 
-handshake = function (port, opts, fn) {
+HTTPClient.prototype.handshake = function (opts, fn) {
   if ('function' == typeof opts) {
     fn = opts;
     opts = {};
   }
 
-  get('/socket.io/{protocol}', port, opts, function (res, data) {
+  return this.get('/socket.io/{protocol}', opts, function (res, data) {
     fn && fn.apply(null, data.split(':'));
   });
 };
 
 /**
- * Silence logging.
+ * Generates a new client for the given port.
+ *
+ * @api private
  */
 
-var old = io.listen;
+client = function (port) {
+  return new HTTPClient(port);
+};
 
-io.listen = function () {
-  console.log('');
-  return old.apply(this, arguments);
+/**
+ * Create a socket.io server.
+ */
+
+create = function (cl) {
+  console.error('');
+  return io.listen(cl.port);
 };
