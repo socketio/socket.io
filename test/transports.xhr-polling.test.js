@@ -299,6 +299,7 @@ module.exports = {
 
       socket.on('disconnect', function () {
         messages.should.be.true;
+
         cl.end();
         io.server.close();
         done();
