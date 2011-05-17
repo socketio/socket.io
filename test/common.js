@@ -15,10 +15,12 @@ var io = require('socket.io')
   , https = require('https');
 
 /**
- * Exports `should`.
+ * Exports.
  */
 
 var should = module.exports = require('should');
+
+exports.HTTPClient = HTTPClient;
 
 /**
  * Client utility.
@@ -57,6 +59,9 @@ HTTPClient.prototype.request = function (path, opts, fn) {
   };
 
   var req = http.request(opts, function (res) {
+    if (false === opts.buffer)
+      return fn && fn(res);
+
     var buf = '';
 
     res.on('data', function (chunk) {
