@@ -32,10 +32,14 @@ and point your browser to `http://localhost:8080`. In addition to `8080`, if the
 
 By default, the server will intercept requests that contain `socket.io` in the path / resource part of the URI. You can change this as shown in the available options below.
 
-On the server:
+On the server, install socket.io with NPM:
+
+    npm install socket.io
+
+Then:
 
 	var http = require('http'), 
-			io = require('./path/to/socket.io'),
+			io = require('socket.io'),
 			
 	server = http.createServer(function(req, res){
 		// your normal server code
