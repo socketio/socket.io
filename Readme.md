@@ -1,4 +1,3 @@
-
 # Socket.IO
 
 Socket.IO is a Node.JS project that makes WebSockets and realtime possible in
@@ -7,14 +6,14 @@ horizontal scalability, automatic JSON encoding/decoding, and more.
 
 ## How to Install
 
-    npm install socket.io-node
+    npm install socket.io
 
 ## How to use
 
-First, require `socket.io-node`:
+First, require `socket.io`:
 
 ``` js
-var io = require('socket.io-node');
+var io = require('socket.io');
 ```
 
 Next, attach it to a HTTP/HTTPS server. If you're using the fantastic `express`
@@ -77,7 +76,7 @@ necessary for the duration of the session.
 #### Server side
 
 ```js
-var io = require('socket.io-node').listen(80);
+var io = require('socket.io').listen(80);
 
 io.sockets.on('connection', function (socket) {
   socket.on('set nickname', function (name) {
@@ -125,7 +124,7 @@ The following example defines a socket that listens on '/chat' and one for
 #### Server side
 
 ```js
-var io = require('socket.io-node').listen(80);
+var io = require('socket.io').listen(80);
 
 var chat = io
   .for('/chat');
@@ -174,7 +173,7 @@ In that case, you might want to send those messages as volatile messages.
 #### Server side
 
 ```js
-var io = require('socket.io-node').listen(80);
+var io = require('socket.io').listen(80);
 
 io.sockets.on('connection', function (socket) {
   var tweets = setInterval(function () {
@@ -207,7 +206,7 @@ function is `0` when you `emit` or `send`.
 #### Server side
 
 ```js
-var io = require('socket.io-node').listen(80);
+var io = require('socket.io').listen(80);
 
 io.sockets.on('connection', function (socket) {
   socket.on('ferret', function (name, fn) {
@@ -239,7 +238,7 @@ Simply leverage `send` and listen on the `message` event:
 #### Server side
 
 ```js
-var io = require('socket.io-node').listen(80);
+var io = require('socket.io').listen(80);
 
 io.sockets.on('connection', function (socket) {
   socket.on('message', function () { });
@@ -269,7 +268,7 @@ Configuration in socket.io is TJ-style:
 #### Server side
 
 ```js
-var io = require('socket.io-node').listen(80);
+var io = require('socket.io').listen(80);
 
 io.configure(function () {
   io.set('transports', ['websocket', 'flashsocket', 'xhr-polling']);

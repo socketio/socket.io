@@ -1,5 +1,5 @@
 {
-    "name": "socket.io-node"
+    "name": "socket.io"
   , "version": "0.7.0"
   , "description": "Realtime apps made cross-browser & easy with a WebSocket-like API"
   , "keywords": ["websocket", "socket", "realtime", "socket.io", "comet", "ajax"]
