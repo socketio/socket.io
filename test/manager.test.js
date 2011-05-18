@@ -75,6 +75,7 @@ module.exports = {
     });
     
     io.set('foo', 'bar');
+    done();
   },
 
   'test that normal requests are still served': function (done) {
