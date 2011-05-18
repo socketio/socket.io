@@ -64,6 +64,18 @@ module.exports = {
     io.get('ferret').should.eql('jane');
     done();
   },
+  
+  'test configuration change notifications': function (done){
+    var port = ++ports
+      , io = sio.listen(http.createServer());
+    
+    io.on('set:foo', function(value, key){
+      value.should.equal('bar');
+      key.should.equal('foo');
+    });
+    
+    io.set('foo', 'bar');
+  },
 
   'test that normal requests are still served': function (done) {
     var server = http.createServer(function (req, res) {
