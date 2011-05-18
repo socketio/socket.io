@@ -7,14 +7,14 @@ horizontal scalability, automatic JSON encoding/decoding, and more.
 
 ## How to Install
 
-    npm install socket.io-node
+    npm install socket.io
 
 ## How to use
 
-First, require `socket.io-node`:
+First, require `socket.io`:
 
 ``` js
-var io = require('socket.io-node');
+var io = require('socket.io');
 ```
 
 Next, attach it to a HTTP/HTTPS server. If you're using the fantastic `express`
