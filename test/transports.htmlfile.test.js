@@ -104,6 +104,10 @@ function client (port) {
   return new HTMLFile(port);
 };
 
+/**
+ * Tests.
+ */
+
 module.exports = {
 
   'test that not responding to a heartbeat drops client': function (done) {
