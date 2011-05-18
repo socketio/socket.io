@@ -124,7 +124,7 @@ module.exports = {
     io.sockets.on('connection', function (socket) {
       socket.on('disconnect', function (reason) {
         reason.should.eql('heartbeat timeout');
-        
+
         cl.end();
         io.server.close();
         done();
