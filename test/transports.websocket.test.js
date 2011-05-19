@@ -49,10 +49,10 @@ WSClient.prototype.emit = function (name) {
   var args = arguments;
 
   if (name == 'message' || name == 'data') {
-    args[1] = parse.decodePacket(args[1]);
+    args[1] = parser.decodePacket(args[1].toString());
   }
 
-  return WebSocket.prototype.emit.apply(this, args);
+  return WebSocket.prototype.emit.apply(this, arguments);
 };
 
 /**
@@ -83,40 +83,50 @@ module.exports = {
   'test message buffering and websocket payload': function (done) {
     var cl = client(++ports)
       , io = create(cl)
-      , sid, ws;
+      , messages = 0
+      , sid, sock;
+
+    io.configure(function () {
+      io.set('close timeout', .05);
+    });
 
     io.sockets.on('connection', function (socket) {
-      var messages = 0;
+      setTimeout(function () {
+        socket.send('buffered a');
+        socket.send('buffered b');
+      }, 10);
 
-      ws.close();
+      setTimeout(function () {
+        ws = websocket(cl, sid);
+        ws.on('message', function (msg) {
+          messages++;
 
-      socket.send('buffered a');
-      socket.send('buffered b');
+          if (messages == 1) {
+            msg.should.eql({ type: 'message', endpoint: '', data: 'buffered a' });
+          } else if (messages === 2) {
+            msg.should.eql({ type: 'message', endpoint: '', data: 'buffered b' });
+            ws.close();
+          }
+        });
+      }, 20);
 
       socket.on('disconnect', function () {
         messages.should.eql(2);
 
-        ws.close();
         cl.end();
         io.server.close();
         done();
-      });
-
-      ws = websocket(cl, sid);
-      ws.on('message', function (msg) {
-        messages++;
-
-        if (messages == 1) {
-          msg.should.eql({ type: 'message', endpoint: '', data: 'buffered a' });
-        } else if (messages === 2) {
-          msg.should.eql({ type: 'message', endpoint: '', data: 'buffered b' });
-        }
       });
     });
 
     cl.handshake(function (sessid) {
       sid = sessid;
+
       ws = websocket(cl, sid);
+
+      ws.onopen = function () {
+        ws.finishClose();
+      };
     });
   }
 
