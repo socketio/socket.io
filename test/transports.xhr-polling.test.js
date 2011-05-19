@@ -324,49 +324,49 @@ module.exports = {
     });
   },
 
-  //'test message buffering between a conn close and a request': function (done) {
-    //var cl = client(++ports)
-      //, io = create(cl)
-      //, messages = false
-      //, sid, res;
+  'test message buffering between a conn close and a request': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messages = false
+      , sid, res;
 
-    //io.configure(function () {
-      //io.set('close timeout', .1);
-    //});
+    io.configure(function () {
+      io.set('close timeout', .1);
+    });
 
-    //io.sockets.on('connection', function (socket) {
-      //cl.end();
+    io.sockets.on('connection', function (socket) {
+      cl.end();
 
-      //setTimeout(function () {
-        //socket.send('a');
-        //socket.send('b');
-        //socket.send('c');
+      setTimeout(function () {
+        socket.send('a');
+        socket.send('b');
+        socket.send('c');
 
-        //cl = client(cl.port);
-        //cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
-          //msgs.should.have.length(3);
-          //msgs[0].should.eql({ type: 'message', endpoint: '', data: 'a' });
-          //msgs[1].should.eql({ type: 'message', endpoint: '', data: 'b' });
-          //msgs[2].should.eql({ type: 'message', endpoint: '', data: 'c' });
-          //messages = true;
-        //});
-      //}, 50);
+        cl = client(cl.port);
+        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+          msgs.should.have.length(3);
+          msgs[0].should.eql({ type: 'message', endpoint: '', data: 'a' });
+          msgs[1].should.eql({ type: 'message', endpoint: '', data: 'b' });
+          msgs[2].should.eql({ type: 'message', endpoint: '', data: 'c' });
+          messages = true;
+        });
+      }, 50);
 
-      //socket.on('disconnect', function () {
-        //messages.should.be.true;
-        //cl.end();
-        //io.server.close();
-        //done();
-      //});
-    //});
+      socket.on('disconnect', function () {
+        messages.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
 
-    //cl.handshake(function (sessid) {
-      //sid = sessid;
-      //cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (resp) {
-        //res = resp;
-      //});
-    //});
-  //},
+    cl.handshake(function (sessid) {
+      sid = sessid;
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (resp) {
+        res = resp;
+      });
+    });
+  },
 
   'test connecting to a specific endpoint': function (done) {
     var cl = client(++ports)
