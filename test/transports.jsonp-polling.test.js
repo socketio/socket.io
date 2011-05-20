@@ -11,8 +11,66 @@
 
 var sio = require('socket.io')
   , should = require('./common')
+  , HTTPClient = should.HTTPClient
   , parser = sio.parser
-  , ports = 15200;
+  , ports = 15500;
+
+/**
+ * HTTPClient for jsonp-polling transport.
+ */
+
+function JSONPPolling (port) {
+  HTTPClient.call(this, port);
+};
+
+/**
+ * Inhertis from HTTPClient.
+ */
+
+JSONPPolling.prototype.__proto__ = HTTPClient.prototype;
+
+/**
+ * Override GET requests.
+ *
+ * @api public
+ */
+
+JSONPPolling.prototype.get = function (path, opts, fn) {
+  if ('function' == typeof opts) {
+    fn = opts;
+    opts = {};
+  }
+
+  opts = opts || {};
+
+  opts.parse = function (data) {
+    var head = 'io.j('
+      , foot = ');';
+
+    if (~path.indexOf('?i=1')) {
+      head = 'io[1](';
+    }
+
+    data.substr(0, head.length).should.eql(head);
+    data.substr(-foot.length).should.eql(foot);
+
+    data = data.substr(head.length, data.length - head.length - foot.length);
+
+    return JSON.parse(data);
+  };
+
+  return HTTPClient.prototype.get.call(this, path, opts, fn);
+};
+
+/**
+ * Create client for this transport.
+ *
+ * @api public
+ */
+
+function client (port) {
+  return new JSONPPolling(port);
+};
 
 /**
  * Test.
@@ -38,7 +96,7 @@ module.exports = {
     cl.handshake(function (sid) {
       var total = 2;
 
-      cl.get('/socket.io/{protocol}/xhr-polling/tobi', function (res, msgs) {
+      cl.get('/socket.io/{protocol}/jsonp-polling/tobi', function (res, msgs) {
         res.statusCode.should.eql(200);
 
         msgs.should.have.length(1);
@@ -53,7 +111,7 @@ module.exports = {
       });
 
       // we rely on a small poll duration to close this request quickly
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, data) {
         res.statusCode.should.eql(200);
         data.should.eql('');
         --total || finish();
@@ -83,7 +141,7 @@ module.exports = {
 
     cl.handshake(function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid);
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid);
     });
   },
 
@@ -107,7 +165,7 @@ module.exports = {
 
     cl.handshake(function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid);
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid);
 
       // here we close the request instead of relying on a small poll timeout
       setTimeout(function () {
@@ -128,7 +186,7 @@ module.exports = {
     });
 
     io.sockets.on('connection', function (socket) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid + '/?disconnect');
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid + '/?disconnect');
 
       socket.on('disconnect', function () {
         disconnected = true;
@@ -137,7 +195,7 @@ module.exports = {
 
     cl.handshake(function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
         msgs.should.have.length(1);
         msgs[0].should.eql({ type: 'disconnect', endpoint: '' });
         disconnected.should.be.true;
@@ -165,7 +223,7 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
         msgs.should.have.length(1);
         msgs[0].should.eql({ type: 'disconnect', endpoint: '' });
 
@@ -181,7 +239,7 @@ module.exports = {
 
     io.sockets.on('connection', function (client) {
       cl.post(
-          '/socket.io/{protocol}/xhr-polling/' + sid
+          '/socket.io/{protocol}/jsonp-polling/' + sid
         , parser.encodePacket({ type: 'disconnect' })
         , function (res, data) {
             res.statusCode.should.eql(200);
@@ -198,7 +256,7 @@ module.exports = {
 
     cl.handshake(function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid);
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid);
     });
   },
 
@@ -222,7 +280,7 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, packs) {
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, packs) {
         packs.should.have.length(1);
         packs[0].type.should.eql('message');
         packs[0].data.should.eql('woot');
@@ -243,7 +301,7 @@ module.exports = {
       var messages = 0;
 
       cl.post(
-          '/socket.io/{protocol}/xhr-polling/' + sid
+          '/socket.io/{protocol}/jsonp-polling/' + sid
         , parser.encodePayload([
               parser.encodePacket({ type: 'message', data: 'a' })
             , parser.encodePacket({ type: 'message', data: 'b' })
@@ -275,7 +333,7 @@ module.exports = {
 
     cl.handshake(function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid);
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid);
     });
   },
 
@@ -308,12 +366,12 @@ module.exports = {
 
     cl.handshake(function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, data) {
         data.should.eql('');
 
         tobi();
 
-        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
           msgs.should.have.length(3);
           msgs[0].should.eql({ type: 'message', endpoint: '', data: 'a' });
           msgs[1].should.eql({ type: 'message', endpoint: '', data: 'b' });
@@ -343,7 +401,7 @@ module.exports = {
         socket.send('c');
 
         cl = client(cl.port);
-        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
           msgs.should.have.length(3);
           msgs[0].should.eql({ type: 'message', endpoint: '', data: 'a' });
           msgs[1].should.eql({ type: 'message', endpoint: '', data: 'b' });
@@ -362,7 +420,7 @@ module.exports = {
 
     cl.handshake(function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (resp) {
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (resp) {
         res = resp;
       });
     });
@@ -390,13 +448,13 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        cl.get('/socket.io/{protocol}/xhr-polling/' + sid);
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, data) {
+        cl.get('/socket.io/{protocol}/jsonp-polling/' + sid);
 
         connectMessage = true;
 
         cl.post(
-            '/socket.io/{protocol}/xhr-polling/' + sid
+            '/socket.io/{protocol}/jsonp-polling/' + sid
           , parser.encodePacket({ type: 'connect', endpoint: '/woot' })
           , function (res, data) {
               res.statusCode.should.eql(200);
@@ -435,7 +493,7 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid);
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid);
     });
   },
 
@@ -475,23 +533,23 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function () {
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function () {
         cl.post(
-            '/socket.io/{protocol}/xhr-polling/' + sid
+            '/socket.io/{protocol}/jsonp-polling/' + sid
           , parser.encodePacket({ type: 'connect', endpoint: '/woot' })
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('');
 
               cl.post(
-                  '/socket.io/{protocol}/xhr-polling/' + sid
+                  '/socket.io/{protocol}/jsonp-polling/' + sid
                 , parser.encodePacket({ type: 'disconnect', endpoint: '/woot' })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
                     data.should.eql('');
 
                     cl.post(
-                        '/socket.io/{protocol}/xhr-polling/' + sid
+                        '/socket.io/{protocol}/jsonp-polling/' + sid
                       , parser.encodePacket({ type: 'message', data: 'ferret' })
                       , function (res, data) {
                           res.statusCode.should.eql(200);
@@ -542,12 +600,12 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, data) {
         res.statusCode.should.eql(200);
         data.should.eql('');
 
         cl.post(
-            '/socket.io/{protocol}/xhr-polling/' + sid
+            '/socket.io/{protocol}/jsonp-polling/' + sid
           , parser.encodePacket({ type: 'connect', endpoint: '/a' })
           , function (res, data) {
               res.statusCode.should.eql(200);
@@ -556,7 +614,7 @@ module.exports = {
         );
 
         cl.post(
-            '/socket.io/{protocol}/xhr-polling/' + sid
+            '/socket.io/{protocol}/jsonp-polling/' + sid
           , parser.encodePacket({ type: 'connect', endpoint: '/b' })
           , function (res, data) {
               res.statusCode.should.eql(200);
@@ -610,9 +668,9 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, data) {
         cl.post(
-            '/socket.io/{protocol}/xhr-polling/' + sid
+            '/socket.io/{protocol}/jsonp-polling/' + sid
           , parser.encodePacket({ type: 'message', data: '' })
           , function (res, data) {
               res.statusCode.should.eql(200);
@@ -621,14 +679,14 @@ module.exports = {
         );
 
         cl.post(
-            '/socket.io/{protocol}/xhr-polling/' + sid
+            '/socket.io/{protocol}/jsonp-polling/' + sid
           , parser.encodePacket({ type: 'connect', endpoint: '/a' })
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('');
 
               cl.post(
-                  '/socket.io/{protocol}/xhr-polling/' + sid
+                  '/socket.io/{protocol}/jsonp-polling/' + sid
                 , parser.encodePacket({ type: 'message', endpoint: '/a', data: 'a' })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
@@ -639,14 +697,14 @@ module.exports = {
         );
 
         cl.post(
-            '/socket.io/{protocol}/xhr-polling/' + sid
+            '/socket.io/{protocol}/jsonp-polling/' + sid
           , parser.encodePacket({ type: 'connect', endpoint: '/b' })
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('');
 
               cl.post(
-                  '/socket.io/{protocol}/xhr-polling/' + sid
+                  '/socket.io/{protocol}/jsonp-polling/' + sid
                 , parser.encodePacket({ type: 'message', endpoint: '/b', data: 'b' })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
