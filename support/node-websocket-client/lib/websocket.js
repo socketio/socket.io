@@ -345,7 +345,7 @@ var WebSocket = function(url, proto, opts) {
 
     // Finish the closing process; destroy the socket and tell the application
     // that we've closed.
-    var finishClose = function() {
+    var finishClose = self.finishClose = function() {
         readyState = CLOSED;
 
         if (stream) {

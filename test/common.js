@@ -120,6 +120,8 @@ HTTPClient.prototype.get = function (path, opts, fn) {
       data = transportParse ? transportParse(data) : data;
       return parser.decodePayload(data);
     };
+  } else {
+    opts.parse = undefined;
   }
 
   return this.request(path, opts, fn);
