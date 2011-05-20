@@ -139,6 +139,26 @@ module.exports = {
     });
   },
 
+  'decoding a message packet with unicode characters':function () {
+    parser.decodePacket('3:::разъем').should.eql({
+        type: 'message'
+      , endpoint: ''
+      , data: 'разъем'
+    });
+  },
+
+  'decoding a message packet with whitespace character':function () {
+    var whitespace = String.fromCharCode(56361)
+      , packet = parser.decodePacket('3:::' + whitespace );
+    
+    packet.data[0].charCodeAt(0).should.eql(56361);
+    packet.should.eql({
+        type: 'message'
+      , endpoint: ''
+      , data: whitespace
+    })
+  },
+
   'decoding a message packet with id and endpoint': function () {
     parser.decodePacket('3:5:/tobi').should.eql({
         type: 'message'
@@ -286,6 +306,26 @@ module.exports = {
       , endpoint: ''
       , data: 'woot'
     }).should.eql('3:::woot');
+  },
+
+  'encoding a message packet with unicode characters':function () {
+    parser.encodePacket({
+        type: 'message'
+      , endpoint: ''
+      , data: 'разъем'
+    }).should.eql('3:::разъем');
+  },
+
+  'encoding a message packet with whitespace character':function () {
+    var whitespace = String.fromCharCode(56361)
+      , packet = parser.encodePacket({
+          type: 'message'
+        , endpoint: ''
+        , data: whitespace
+      });
+    
+    packet[4].charCodeAt(0).should.eql(56361);
+    packet.should.eql('3:::' + whitespace );
   },
 
   'encoding a message packet with id and endpoint': function () {
