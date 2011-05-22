@@ -330,6 +330,40 @@ module.exports = {
         messaged = true;
       });
     });
+  },
+
+  'test sending deliverable volatile messages': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messaged = false;
+
+    io.configure(function () {
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.volatile.send('tobi');
+
+      socket.on('disconnect', function () {
+        messaged.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      var ws = websocket(cl, sid);
+      ws.on('message', function (msg) {
+        msg.should.eql({
+            type: 'message'
+          , data: 'tobi'
+          , endpoint: ''
+        });
+        messaged = true;
+        ws.finishClose();
+      });
+    });
   }
 
 };
