@@ -238,6 +238,52 @@ module.exports = {
         messaged = true;
       });
     });
+  },
+
+  'test sending undeliverable volatile json': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messaged = false
+      , s;
+
+    io.configure(function () {
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      s = socket;
+
+      socket.on('disconnect', function () {
+        messaged.should.be.false;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      var ws = websocket(cl, sid);
+      ws.onopen = function () {
+        ws.finishClose();
+
+        setTimeout(function () {
+          s.volatile.json.send({ a: 'b' });
+
+          ws = websocket(cl, sid);
+          ws.on('message', function () {
+            messaged = true;
+          });
+
+          setTimeout(function () {
+            ws.finishClose();
+          }, 10);
+        }, 10);
+      };
+
+      ws.on('message', function () {
+        messaged = true;
+      });
+    });
   }
 
 };
