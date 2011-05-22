@@ -157,6 +157,41 @@ module.exports = {
         beat = true;
       });
     });
+  },
+
+  'test that responding to a heartbeat maintains session': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , heartbeats = 0;
+
+    io.configure(function () {
+      io.set('heartbeat interval', .05);
+      io.set('heartbeat timeout', .05);
+      io.set('close timeout', 0);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('disconnect', function (reason) {
+        heartbeats.should.eql(2);
+        reason.should.eql('heartbeat timeout');
+
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      var ws = websocket(cl, sid);
+      ws.on('message', function (packet) {
+        packet.type.should.eql('heartbeat');
+        heartbeats++;
+
+        if (heartbeats == 1) {
+          ws.packet({ type: 'heartbeat' });
+        }
+      });
+    });
   }
 
 };
