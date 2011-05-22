@@ -2230,7 +2230,68 @@ module.exports = {
   },
 
   'test endpoint manual data acks sent from the client': function (done) {
-    
+    var cl = client(++ports)
+      , io = server(cl)
+      , acked = false;
+
+    io.for('/rapture').on('connection', function (socket) {
+      socket.send('woot', function (a, b, c) {
+        a.should.eql(5);
+        b.should.eql('hello');
+        c.should.eql([1, 2, 3]);
+
+        acked = true;
+      });
+
+      socket.on('disconnect', function () {
+        acked.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        res.statusCode.should.eql(200);
+        data.should.eql('');
+
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/rapture' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.get(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , function (res, msgs) {
+                    res.statusCode.should.eql(200);
+                    msgs.should.have.length(1);
+                    msgs[0].should.eql({
+                        type: 'message'
+                      , id: '1+'
+                      , data: 'woot'
+                    });
+
+                    cl.post(
+                        '/socket.io/{protocol}/xhr-polling/' + sid
+                      , parser.encodePacket({
+                            type: 'ack'
+                          , ackId: '1'
+                          , args: [5, 'hello', [1, 2, 3]]
+                        })
+                      , function (res, data) {
+                          res.statusCode.should.eql(200);
+                          data.should.eql('');
+                        }
+                    );
+                  }
+              );
+            }
+        );
+      });
+    });
   },
 
   'test endpoint manual data event acks sent from the client': function (done) {
