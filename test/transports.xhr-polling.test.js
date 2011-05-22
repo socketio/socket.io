@@ -657,6 +657,1646 @@ module.exports = {
         );
       });
     });
+  },
+
+  'test sending json from the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messages = 0
+      , s;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      s = socket;
+
+      socket.on('disconnect', function () {
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        res.statusCode.should.eql(200);
+        data.should.eql('');
+
+        s.json.send(['a', 'b', 'c']);
+        s.json.send({
+            a: 'b'
+          , c: 'd'
+        });
+
+        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+          res.statusCode.should.eql(200);
+
+          msgs.should.have.length(2);
+          msgs[0].should.eql(['a', 'b', 'c']);
+          msgs[1].should.eql({
+              a: 'b'
+            , c: 'd'
+          });
+        });
+      })
+    });
+  },
+
+  'test sending json to the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messages = 0;
+    
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .1);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('message', function (msg) {
+        messages++;
+
+        if (messages == 1) {
+          msg.should.eql({ tobi: 'rocks' });
+        } else if (messages == 2) {
+          msg.should.eql(5000);
+        }
+      });
+
+      socket.on('disconnect', function () {
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        res.statusCode.should.eql(200);
+        data.should.eql('');
+
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({
+                type: 'json'
+              , data: { tobi: 'rocks' }
+            })
+          , function (res) {
+              res.statusCode.should.eql(200);
+
+              cl.post(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , parser.encodePacket({
+                      type: 'json'
+                    , data: 5000
+                  })
+                , function (res) {
+                    res.statusCode.should.eql(200);
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test emitting an event from the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , s;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      s = socket;
+
+      socket.on('disconnect', function () {
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        res.statusCode.should.eql(200);
+        data.should.eql('');
+
+        s.emit('tobi is playing');
+
+        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+          res.statusCode.should.eql(200);
+
+          msgs.should.have.length(1);
+          msgs[0].should.eql({
+              type: 'event'
+            , name: 'tobi is playing'
+            , endpoint: ''
+            , args: []
+          });
+        });
+      });
+    });
+  },
+
+  'test emitting an event with data from the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , s;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      s = socket;
+
+      socket.on('disconnect', function () {
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        res.statusCode.should.eql(200);
+        data.should.eql('');
+
+        s.emit('edwald');
+
+        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+          res.statusCode.should.eql(200);
+
+          msgs.should.have.length(1);
+          msgs[0].should.eql({
+              type: 'event'
+            , name: 'edwald'
+            , endpoint: ''
+            , args: [{ woot: 'woot' }, [1, 2, 3]]
+          });
+        });
+      });
+    });
+  },
+
+  'test emitting an event to the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messaged = false;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('jane', function (a, b, c) {
+        messaged = true;
+      });
+
+      socket.on('disconnect', function () {
+        messaged.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        res.statusCode.should.eql(200);
+        data.should.eql('');
+
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({
+                type: 'event'
+              , name: 'jane'
+            })
+          , function (res) {
+              res.statusCode.should.eql(200);
+            }
+        );
+      });
+    });
+  },
+
+  'test emitting an event to the server with data': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messaged = false;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('woot', function (a, b, c) {
+        a.should.eql('a');
+        b.should.eql(2);
+        c.should.eql([1, 2]);
+
+        messaged = true;
+      });
+
+      socket.on('disconnect', function () {
+        messaged.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        res.statusCode.should.eql(200);
+        data.should.eql('');
+
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({
+                type: 'event'
+              , name: 'woot'
+              , args: ['a', 2, [1, 2]]
+            })
+          , function (res) {
+              res.statusCode.should.eql(200);
+            }
+        );
+      });
+    });
+  },
+
+  'test sending undeliverable volatile messages': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , s;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      s = socket;
+      
+      socket.on('disconnect', function () {
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        res.statusCode.should.eql(200);
+        data.should.eql('');
+
+        s.volatile.send('woooot');
+
+        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+          res.statusCode.should.eql(200);
+          data.should.eql('');
+        });
+      });
+    });
+  },
+
+  'test sending undeliverable volatile json': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , s;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      s = socket;
+      
+      socket.on('disconnect', function () {
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        res.statusCode.should.eql(200);
+        data.should.eql('');
+
+        s.volatile.json.send('woooot');
+
+        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+          res.statusCode.should.eql(200);
+          data.should.eql('');
+        });
+      });
+    });
+  },
+
+  'test sending undeliverable volatile events': function () {
+    var cl = client(++ports)
+      , io = create(cl)
+      , s;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      s = socket;
+      
+      socket.on('disconnect', function () {
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        res.statusCode.should.eql(200);
+        data.should.eql('');
+
+        s.volatile.emit('woooot');
+
+        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+          res.statusCode.should.eql(200);
+          data.should.eql('');
+        });
+      });
+    });
+  },
+
+  'test sending deliverable volatile messages': function (done) {
+    var cl = client(++ports)
+      , io = create(cl);
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.volatile.send('woooot');
+
+      socket.on('disconnect', function () {
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+
+        msgs.should.have.length(1);
+        msgs[0].should.eql({
+            type: 'message'
+          , data: 'woooot'
+        });
+      });
+    });
+  },
+
+  'test sending deliverable volatile json': function (done) {
+    var cl = client(++ports)
+      , io = create(cl);
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.volatile.json.send(5);
+
+      socket.on('disconnect', function () {
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+
+        msgs.should.have.length(1);
+        msgs[0].should.eql({
+            type: 'json'
+          , data: 5
+        });
+      });
+    });
+  },
+
+  'test sending deliverable volatile events': function (done) {
+    var cl = client(++ports)
+      , io = create(cl);
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.volatile.json.emit('tobi');
+
+      socket.on('disconnect', function () {
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+
+        msgs.should.have.length(1);
+        msgs[0].should.eql({
+            type: 'event'
+          , name: 'tobi'
+          , args: []
+        });
+      });
+    });
+  },
+
+  'test automatic acknowledgements sent from the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , received = false;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('message', function (msg) {
+        msg.should.eql('woot');
+        received = true;
+      });
+
+      socket.on('disconnect', function () {
+        received.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+
+        msgs.should.have.length(1);
+        msgs[0].should.eql({
+            type: 'ack'
+          , ackId: 1
+        });
+      });
+
+      post(
+          '/socket.io/{protocol}/xhr-polling/' + sid
+        , parser.encodePacket({
+              type: 'message'
+            , data: 'woot'
+            , id: 1
+            , endpoint: ''
+          })
+        , function (res, data) {
+            res.statusCode.should.eql(200);
+            data.should.eql('');
+          }
+      );
+    });
+  },
+
+  'test manual data acknowledgement sent from the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , acknowledged = false;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function () {
+      socket.on('message', function (data, fn) {
+        data.should.eql('tobi');
+        fn('woot');
+        acknowledged = true;
+      });
+
+      socket.on('disconnect', function () {
+        acknowledged.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({
+            type: 'ack'
+          , args: 'woot'
+          , endpoint: ''
+          , ackId: '3'
+        });
+      });
+
+      cl.post(
+          '/socket.io/{protocol}/xhr-polling/' + sid
+        , parser.encodePacket({
+              type: 'message'
+            , data: 'tobi'
+            , id: '3+'
+          })
+        , function (res, data) {
+            res.statusCode.should.eql(200);
+            data.should.eql('');
+          }
+      );
+    });
+  },
+
+  'test acknowledgements sent from the client': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , acknowledged = false;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('conneciton', function (socket) {
+      socket.send('aaaa', function () {
+        acknowledged = true;
+      });
+
+      socket.on('disconnect', function () {
+        acknowledged.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({
+            type: 'message'
+          , id: '1'
+          , data: 'aaaa'
+          , endpoint: ''
+        });
+
+        post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({
+                type: 'ack'
+              , ackId: '1'
+            })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+            }
+        );
+      });
+    });
+  },
+
+  'test manual data acknowledgements sent from the client': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , acknowledged = false;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.send('woot', function (a, b, c) {
+        a.should.eql(1);
+        b.should.eql('a');
+        c.should.eql([1, 2, 3]);
+
+        acknowledged = true;
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({
+            type: 'message'
+          , id: '1+'
+          , data: 'woot'
+          , endpoint: ''
+        });
+
+        post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({
+                type: 'ack'
+              , ackId: '1'
+              , args: [1, 'a', [1, 2, 3]]
+            })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint sending json from the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , received = false;;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('disconnect', function () {
+        received.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    io.for('/chrislee').on('connection', function (socket) {
+      socket.json.send([1, 2, { 3: 4 }]);
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.get(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , function (res, msgs) {
+                    res.statusCode.should.eql(200);
+                    msgs.should.have.length(1);
+                    msgs[0].should.eql({
+                        type: 'json'
+                      , data: [1, 2, { 3: 4 }]
+                      , endpoint: ''
+                    });
+
+                    received = true;
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint sending json to the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messaged = false
+      , subMessaged = false;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('message', function (msg) {
+        messaged = true;
+      });
+
+      socket.on('disconnect', function () {
+        messaged.should.be.false;
+        subMessaged.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    io.for('/a').on('connection', function (socket) {
+      socket.on('message', function (msg) {
+        msg.should.eql(['a', 'b', { c: 'd' }]);
+        subMessaged = true;
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/a' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.post(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , parser.encodePacket({
+                      type: 'json'
+                    , endpoint: '/a'
+                    , data: ['a', 'b', { c: 'd' }]
+                  })
+                , function (res, data) {
+                    res.statusCode.should.eql(200);
+                    data.should.eql('');
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint emitting an event from the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , received = false;;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('disconnect', function () {
+        received.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    io.for('/chrislee').on('connection', function (socket) {
+      socket.emit('tj');
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.get(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , function (res, msgs) {
+                    res.statusCode.should.eql(200);
+                    msgs.should.have.length(1);
+                    msgs[0].should.eql({
+                        type: 'event'
+                      , name: 'tj'
+                      , args: []
+                      , endpoint: ''
+                    });
+
+                    received = true;
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint emitting an event with data from the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , received = false;;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('disconnect', function () {
+        received.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    io.for('/chrislee').on('connection', function (socket) {
+      socket.emit('tj', 1, 2, 3, 4);
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.get(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , function (res, msgs) {
+                    res.statusCode.should.eql(200);
+                    msgs.should.have.length(1);
+                    msgs[0].should.eql({
+                        type: 'event'
+                      , name: 'tj'
+                      , args: [1, 2, 3, 4]
+                      , endpoint: ''
+                    });
+
+                    received = true;
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint emitting an event to the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messaged = false
+      , subMessaged = false;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('message', function (msg) {
+        messaged = true;
+      });
+
+      socket.on('disconnect', function () {
+        messaged.should.be.false;
+        subMessaged.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    io.for('/a').on('connection', function (socket) {
+      socket.on('tj', function () {
+        subMessaged = true;
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/a' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.post(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , parser.encodePacket({
+                      type: 'event'
+                    , name: 'tj'
+                    , endpoint: '/a'
+                  })
+                , function (res, data) {
+                    res.statusCode.should.eql(200);
+                    data.should.eql('');
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint emitting an event to the server with data': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messaged = false
+      , subMessaged = false;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('message', function (msg) {
+        messaged = true;
+      });
+
+      socket.on('disconnect', function () {
+        messaged.should.be.false;
+        subMessaged.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    io.for('/a').on('connection', function (socket) {
+      socket.on('tj', function (ferret, age) {
+        ferret.should.eql('tobi');
+        age.should.eql(23);
+        subMessaged = true;
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/a' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.post(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , parser.encodePacket({
+                      type: 'event'
+                    , name: 'tj'
+                    , endpoint: '/a'
+                    , args: ['tobi', 23]
+                  })
+                , function (res, data) {
+                    res.statusCode.should.eql(200);
+                    data.should.eql('');
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint sending undeliverable volatile messages': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , empty = false
+      , s;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.for('/chrislee').on('connection', function (socket) {
+      s = socket;
+
+      socket.on('disconnect', function () {
+        empty.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              s.volatile.send('woot');
+
+              cl.get(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , function (res, data) {
+                    res.statusCode.should.eql(200);
+                    data.should.eql('');
+                    empty = true;
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint sending undeliverable volatile json': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , empty = false
+      , s;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.for('/chrislee').on('connection', function (socket) {
+      s = socket;
+
+      socket.on('disconnect', function () {
+        empty.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              s.volatile.json.send(15);
+
+              cl.get(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , function (res, data) {
+                    res.statusCode.should.eql(200);
+                    data.should.eql('');
+                    empty = true;
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint sending undeliverable volatile events': function () {
+    var cl = client(++ports)
+      , io = create(cl)
+      , empty = false
+      , s;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.for('/chrislee').on('connection', function (socket) {
+      s = socket;
+
+      socket.on('disconnect', function () {
+        empty.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              s.volatile.json.emit('woot');
+
+              cl.get(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , function (res, data) {
+                    res.statusCode.should.eql(200);
+                    data.should.eql('');
+                    empty = true;
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint sending deliverable volatile messages': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , received = false;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.for('/chrislee').on('connection', function (socket) {
+      socket.volatile.send('edwald');
+
+      socket.on('disconnect', function () {
+        received.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.get(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , function (res, msgs) {
+                    res.statusCode.should.eql(200);
+                    msgs.should.have.length(1);
+                    msgs[0].shoudl.eql({
+                        type: 'message'
+                      , data: 'edwald'
+                      , endpoint: '/chrislee'
+                    });
+
+                    received = true;
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint sending deliverable volatile json': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , received = false;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.for('/chrislee').on('connection', function (socket) {
+      socket.volatile.json.send(152);
+
+      socket.on('disconnect', function () {
+        received.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.get(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , function (res, msgs) {
+                    res.statusCode.should.eql(200);
+                    msgs.should.have.length(1);
+                    msgs[0].shoudl.eql({
+                        type: 'json'
+                      , data: 152
+                      , endpoint: '/chrislee'
+                    });
+
+                    received = true;
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint sending deliverable volatile events': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , received = false;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.for('/chrislee').on('connection', function (socket) {
+      socket.volatile.emit('woooo', [1, 2]);
+
+      socket.on('disconnect', function () {
+        received.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.get(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , function (res, msgs) {
+                    res.statusCode.should.eql(200);
+                    msgs.should.have.length(1);
+                    msgs[0].shoudl.eql({
+                        type: 'event'
+                      , name: 'woooo'
+                      , data: [1, 2]
+                      , endpoint: '/chrislee'
+                    });
+
+                    received = true;
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint automatic acks sent from the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messaged = false
+      , acked = false;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.for('/tobi').on('connection', function (socket) {
+      socke.ton('message', function (msg) {
+        msg.should.eql('woot');
+        messaged = true;
+      });
+
+      socket.on('disconnect', function () {
+        acked.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.post(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , parser.encodePacket({
+                      type: 'message'
+                    , id: '3'
+                    , data: 'woot'
+                    , endpoint: '/tobi'
+                  })
+                , function (res, data) {
+                    res.statusCode.should.eql(200);
+                    data.should.eql('');
+
+                    cl.get(
+                        '/socket.io/{protocol}/xhr-polling/' + sid
+                      , function (res, msgs) {
+                          res.statusCode.should.eql(200);
+                          msgs.should.have.length(1);
+                          msgs[0].shoudl.eql({
+                              type: 'ack'
+                            , ackId: '3'
+                            , endpoint: '/chrislee'
+                          });
+                          received = true;
+                        }
+                    );
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint manual data ack sent from the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messaged = false
+      , acked = false;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.for('/tobi').on('connection', function (socket) {
+      socket.on('message', function (msg, fn) {
+        msg.should.eql('woot');
+        fn();
+        messaged = true;
+      });
+
+      socket.on('disconnect', function () {
+        acked.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.post(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , parser.encodePacket({
+                      type: 'message'
+                    , id: '3'
+                    , data: 'woot'
+                    , endpoint: '/tobi'
+                  })
+                , function (res, data) {
+                    res.statusCode.should.eql(200);
+                    data.should.eql('');
+
+                    cl.get(
+                        '/socket.io/{protocol}/xhr-polling/' + sid
+                      , function (res, msgs) {
+                          res.statusCode.should.eql(200);
+                          msgs.should.have.length(1);
+                          msgs[0].shoudl.eql({
+                              type: 'ack'
+                            , ackId: '3'
+                            , args: []
+                            , endpoint: '/chrislee'
+                          });
+                          received = true;
+                        }
+                    );
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint manual data event ack sent from the server': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messaged = false
+      , acked = false;
+
+    io.configure(function () {
+      io.set('polling duration', 0);
+      io.set('close timeout', .05);
+    });
+
+    io.for('/tobi').on('connection', function (socket) {
+      socket.on('woot', function (msg, fn) {
+        msg.should.eql(1);
+        fn('aaaa');
+        messaged = true;
+      });
+
+      socket.on('disconnect', function () {
+        acked.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/tobi' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.post(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , parser.encodePacket({
+                      type: 'event'
+                    , id: '3+'
+                    , data: 'woot'
+                    , endpoint: '/tobi'
+                  })
+                , function (res, data) {
+                    res.statusCode.should.eql(200);
+                    data.should.eql('');
+
+                    cl.get(
+                        '/socket.io/{protocol}/xhr-polling/' + sid
+                      , function (res, msgs) {
+                          res.statusCode.should.eql(200);
+                          msgs.should.have.length(1);
+                          msgs[0].shoudl.eql({
+                              type: 'ack'
+                            , ackId: '3'
+                            , args: ['aaaa']
+                            , endpoint: '/tobi'
+                          });
+                          received = true;
+                        }
+                    );
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint acknowledgements sent from the client': function (done) {
+    var io = client(++ports)
+      , cl = create(io)
+      , acked = false;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.for('/woot').on('connection', function (socket) {
+      socket.send('aaa', function () {
+        acked = true;
+      });
+
+      socket.on('disconnect', function () {
+        acked.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({
+            type: 'message'
+          , data: 'aaa'
+          , endpoint: '/woot'
+          , id: '1'
+        });
+
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/woot' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.post(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , parser.encodePacket({
+                      type: 'ack'
+                    , ackId: '1'
+                    , endpoint: '/woot'
+                  })
+                , function (res, data) {
+                    res.statusCode.should.eql(200);
+                    data.should.eql('');
+                  }
+              );
+            }
+        );
+      });
+    });
+  },
+
+  'test endpoint manual data acks sent from the client': function (done) {
+    
+  },
+
+  'test endpoint manual data event acks sent from the client': function (done) {
+    var cl = client(++ports)
+      , io = server(cl)
+      , acked = false;
+
+    io.for('/rapture').on('connection', function (socket) {
+      socket.emit('woot', 'a', function (a, b, c) {
+        a.should.eql(5);
+        b.should.eql('hello');
+        c.should.eql([1, 2, 3]);
+
+        acked = true;
+      });
+
+      socket.on('disconnect', function () {
+        acked.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+        res.statusCode.should.eql(200);
+        data.should.eql('');
+
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/rapture' })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.get(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , function (res, msgs) {
+                    res.statusCode.should.eql(200);
+                    msgs.should.have.length(1);
+                    msgs[0].should.eql({
+                        type: 'event'
+                      , id: '1+'
+                      , name: 'woot'
+                      , args: ['a']
+                    });
+
+                    cl.post(
+                        '/socket.io/{protocol}/xhr-polling/' + sid
+                      , parser.encodePacket({
+                            type: 'ack'
+                          , ackId: '1'
+                          , args: [5, 'hello', [1, 2, 3]]
+                        })
+                      , function (res, data) {
+                          res.statusCode.should.eql(200);
+                          data.should.eql('');
+                        }
+                    );
+                  }
+              );
+            }
+        );
+      });
+    });
   }
 
 };
