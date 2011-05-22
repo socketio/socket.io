@@ -127,6 +127,36 @@ module.exports = {
         ws.finishClose();
       };
     });
+  },
+
+  'test that not responding to a heartbeat drops client': function (done) {
+    var cl = client(++ports)
+      , io = create(cl);
+
+    io.configure(function () {
+      io.set('heartbeat interval', .05);
+      io.set('heartbeat timeout', .05);
+      io.set('close timeout', 0);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('disconnect', function (reason) {
+        beat.should.be.true;
+        reason.should.eql('heartbeat timeout');
+
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      var ws = websocket(cl, sid);
+      ws.on('message', function (packet) {
+        packet.type.should.eql('heartbeat');
+        beat = true;
+      });
+    });
   }
 
 };
