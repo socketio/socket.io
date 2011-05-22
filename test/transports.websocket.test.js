@@ -29,7 +29,7 @@ function WSClient (port, sid) {
   WebSocket.call(
       this
     , 'ws://localhost:' + port + '/socket.io/' 
-      + sio.protocol + '/websocket/' + sid
+        + sio.protocol + '/websocket/' + sid
   );
 };
 
@@ -84,7 +84,7 @@ module.exports = {
     var cl = client(++ports)
       , io = create(cl)
       , messages = 0
-      , sid, sock;
+      , sid, sock, ws;
 
     io.configure(function () {
       io.set('close timeout', .05);
@@ -123,7 +123,6 @@ module.exports = {
       sid = sessid;
 
       ws = websocket(cl, sid);
-
       ws.onopen = function () {
         ws.finishClose();
       };
