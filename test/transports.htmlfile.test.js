@@ -113,7 +113,8 @@ module.exports = {
   'test that not responding to a heartbeat drops client': function (done) {
     var port = ++ports
       , cl = client(port)
-      , io = create(cl);
+      , io = create(cl)
+      , beat = false;
 
     io.configure(function () {
       io.set('heartbeat interval', .05);
@@ -123,6 +124,7 @@ module.exports = {
 
     io.sockets.on('connection', function (socket) {
       socket.on('disconnect', function (reason) {
+        beat.should.be.true;
         reason.should.eql('heartbeat timeout');
 
         cl.end();
@@ -135,6 +137,7 @@ module.exports = {
       cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs) {
         msgs.should.have.length(1);
         msgs[0].type.should.eql('heartbeat');
+        beat = true;
       });
     });
   },
