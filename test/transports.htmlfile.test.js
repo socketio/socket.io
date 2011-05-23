@@ -146,7 +146,7 @@ module.exports = {
     var port = ++ports
       , cl = client(port)
       , io = create(cl)
-      , beat = false;
+      , heartbeats = 0;
 
     io.configure(function () {
       io.set('heartbeat interval', .05);
@@ -156,7 +156,7 @@ module.exports = {
 
     io.sockets.on('connection', function (socket) {
       socket.on('disconnect', function (reason) {
-        beat.should.be.true;
+        heartbeats.should.eql(2);
         reason.should.eql('heartbeat timeout');
 
         cl.end();
@@ -166,8 +166,6 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      var heartbeats = 0;
-
       cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs) {
         heartbeats++;
 
@@ -175,10 +173,6 @@ module.exports = {
           cl.post('/socket.io/{protocol}/htmlfile/' + sid, parser.encodePacket({
             type: 'heartbeat'
           }));
-        }
-
-        if (heartbeats == 2) {
-          beat = true;
         }
       });
     });
