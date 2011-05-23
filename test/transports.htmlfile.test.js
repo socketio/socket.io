@@ -371,6 +371,39 @@ module.exports = {
         cl.end();
       });
     });
+  },
+
+  'test sending deliverable volatile events': function (done) {
+    var port = ++ports
+      , cl = client(port)
+      , io = create(cl)
+      , messaged = false;
+
+    io.configure(function () {
+      io.set('close timeout', 0);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.volatile.emit('aaa');
+
+      socket.on('disconnect', function () {
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs) {
+        msgs.should.have.length(1);
+        msgs[0].should.eql({
+            type: 'event'
+          , name: 'aaa'
+          , endpoint: ''
+          , args: []
+        });
+        cl.end();
+      });
+    });
   }
 
 };
