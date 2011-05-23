@@ -263,6 +263,50 @@ module.exports = {
         }, 10);
       }, 10);
     });
+  },
+
+  'test sending undeliverable volatile events': function (done) {
+    var port = ++ports
+      , cl = client(port)
+      , io = create(cl)
+      , messaged = false
+      , s;
+
+    io.configure(function () {
+      io.set('close timeout', 0);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      s = socket;
+
+      socket.on('disconnect', function () {
+        messaged.should.be.false;
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function () { });
+
+      setTimeout(function () {
+        cl.end();
+
+        setTimeout(function () {
+          s.volatile.emit('tobi');
+
+          cl = client(port);
+          cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs) {
+            if (msgs && msgs.length)
+              messaged = true;
+          });
+
+          setTimeout(function () {
+            cl.end();
+          }, 10);
+        }, 10);
+      }, 10);
+    });
   }
 
 };
