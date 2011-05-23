@@ -617,7 +617,7 @@ if (typeof window != 'undefined'){
   
   /**
    * Posts a encoded message to the Socket.IO server.
-   *
+	 *
    * @param {String} data A encoded message.
    * @api private
    */
@@ -625,19 +625,32 @@ if (typeof window != 'undefined'){
     var self = this;
     this.posting = true;
     this.sendXHR = this.request('send', 'POST');
-    this.sendXHR.onreadystatechange = function(){
-      var status;
-      if (self.sendXHR.readyState == 4){
-        self.sendXHR.onreadystatechange = empty;
-        try { status = self.sendXHR.status; } catch(e){}
-        self.posting = false;
-        if (status == 200){
-          self.checkSend();
-        } else {
-          self.onDisconnect();
-        }
-      }
-    };
+		/*
+		 * Handle XDomainRequest separately as it has an
+		 * onload event instead of onreadystatechange.
+		 * Disconnect is handled by onerror event as 
+		 * there is no provision for checking status code.
+		 */
+		if('XDomainRequest' in window) {
+	    this.sendXHR.onload = function(){
+				 self.posting = false;
+	       self.checkSend();
+	    };
+		} else {
+	    this.sendXHR.onreadystatechange = function(){
+	      var status;
+	      if (self.sendXHR.readyState == 4){
+	        self.sendXHR.onreadystatechange = empty;
+	        try { status = self.sendXHR.status; } catch(e){}
+	        self.posting = false;
+	        if (status == 200){
+	          self.checkSend();
+	        } else {
+	          self.onDisconnect();
+	        }
+	      }
+	    };
+		};
     this.sendXHR.send('data=' + encodeURIComponent(data));
   };
   
@@ -687,13 +700,14 @@ if (typeof window != 'undefined'){
    * @api private
    */
   XHR.prototype.request = function(url, method, multipart){
-    var req = request(this.base.isXDomain());
+    var self = this;
+		var req = request(this.base.isXDomain());
     if (multipart) req.multipart = true;
 		
 		// Need to handle various events for IE8/IE9 else xhr-polling doesn't work.
 		// @see <a href="http://msdn.microsoft.com/en-us/library/cc288060(v=vs.85).aspx">XDomainRequest Object</a>
     if ('XDomainRequest' in window) {
-      req.onerror = function() {/* do nothing */};
+      req.onerror = function() {self.onDisconnect();};
       req.ontimeout = function() {/* do nothing */};
       req.onprogress = function() {/* do nothing */};
       req.timeout = 25000;
