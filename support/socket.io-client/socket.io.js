@@ -689,7 +689,16 @@ if (typeof window != 'undefined'){
   XHR.prototype.request = function(url, method, multipart){
     var req = request(this.base.isXDomain());
     if (multipart) req.multipart = true;
-    req.open(method || 'GET', this.prepareUrl() + (url ? '/' + url : ''));
+		
+		// Need to handle various events for IE8/IE9 else xhr-polling doesn't work.
+		// @see <a href="http://msdn.microsoft.com/en-us/library/cc288060(v=vs.85).aspx">XDomainRequest Object</a>
+    if ('XDomainRequest' in window) {
+      req.onerror = function() {/* do nothing */};
+      req.ontimeout = function() {/* do nothing */};
+      req.onprogress = function() {/* do nothing */};
+      req.timeout = 25000;
+		};
+		req.open(method || 'GET', this.prepareUrl() + (url ? '/' + url : ''));
     if (method == 'POST' && 'setRequestHeader' in req){
       req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded; charset=utf-8');
     }
@@ -1198,19 +1207,28 @@ if (typeof window != 'undefined'){
   XHRPolling.prototype.get = function(){
     var self = this;
     this.xhr = this.request(+ new Date, 'GET');
-    this.xhr.onreadystatechange = function(){
-      var status;
-      if (self.xhr.readyState == 4){
-        self.xhr.onreadystatechange = empty;
-        try { status = self.xhr.status; } catch(e){}
-        if (status == 200){
-          self.onData(self.xhr.responseText);
-          self.get();
-        } else {
-          self.onDisconnect();
-        }
-      }
-    };
+
+		// For IE8/IE9 to enable cross domain communication.
+		if('XDomainRequest' in window) {
+	    this.xhr.onload = function(){
+	          self.onData(self.xhr.responseText);
+	          self.get();
+	    };
+	  } else {
+	    this.xhr.onreadystatechange = function(){
+	      var status;
+	      if (self.xhr.readyState == 4){
+	        self.xhr.onreadystatechange = empty;
+	        try { status = self.xhr.status; } catch(e){}
+	        if (status == 200){
+	          self.onData(self.xhr.responseText);
+	          self.get();
+	        } else {
+	          self.onDisconnect();
+	        }
+	      }
+	    };
+		};
     this.xhr.send(null);
   };
   
