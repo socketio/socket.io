@@ -307,6 +307,38 @@ module.exports = {
         }, 10);
       }, 10);
     });
+  },
+
+  'test sending deliverable volatile messages': function (done) {
+    var port = ++ports
+      , cl = client(port)
+      , io = create(cl)
+      , messaged = false;
+
+    io.configure(function () {
+      io.set('close timeout', 0);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.volatile.send('woot');
+
+      socket.on('disconnect', function () {
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs) {
+        msgs.should.have.length(1);
+        msgs[0].should.eql({
+            type: 'message'
+          , data: 'woot'
+          , endpoint: ''
+        });
+        cl.end();
+      });
+    });
   }
 
 };
