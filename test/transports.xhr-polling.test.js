@@ -1368,6 +1368,105 @@ module.exports = {
     });
   },
 
+  'test automatic ack with event sent from the client': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , acked = false;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.emit('woot', 1, 2, '3', function () {
+        acked = true;
+      });
+
+      socket.on('disconnect', function () {
+        acked.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({
+            type: 'event'
+          , name: 'woot'
+          , args: [1, 2, '3']
+          , id: '1'
+          , ack: true
+          , endpoint: ''
+        });
+
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({
+                type: 'ack'
+              , ackId: '1'
+              , args: []
+              , endpoint: ''
+            })
+        );
+      });
+    });
+  },
+
+  'test manual data ack with event sent from the client': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , acked = false;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.emit('woot', 1, 2, '3', function (a) {
+        a.should.eql('1');
+        acked = true;
+      });
+
+      socket.on('disconnect', function () {
+        acked.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({
+            type: 'event'
+          , name: 'woot'
+          , args: [1, 2, '3']
+          , id: '1'
+          , ack: 'data'
+          , endpoint: ''
+        });
+
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({
+                type: 'ack'
+              , ackId: '1'
+              , args: ['1']
+              , endpoint: ''
+            })
+        );
+      });
+    });
+  },
+
   'test endpoint sending json from the server': function (done) {
     var cl = client(++ports)
       , io = create(cl)
