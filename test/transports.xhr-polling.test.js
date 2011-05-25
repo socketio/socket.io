@@ -695,10 +695,18 @@ module.exports = {
           res.statusCode.should.eql(200);
 
           msgs.should.have.length(2);
-          msgs[0].should.eql(['a', 'b', 'c']);
+          msgs[0].should.eql({
+              type: 'json'
+            , data: ['a', 'b', 'c']
+            , endpoint: ''
+          });
           msgs[1].should.eql({
-              a: 'b'
-            , c: 'd'
+              type: 'json'
+            , data: {
+                  a: 'b'
+                , c: 'd'
+              }
+            , endpoint: ''
           });
         });
       })
