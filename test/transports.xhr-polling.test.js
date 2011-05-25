@@ -1408,7 +1408,7 @@ module.exports = {
                     msgs[0].should.eql({
                         type: 'json'
                       , data: [1, 2, { 3: 4 }]
-                      , endpoint: ''
+                      , endpoint: '/chrislee'
                     });
 
                     received = true;
