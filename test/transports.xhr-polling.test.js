@@ -1220,7 +1220,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.sockets.on('connection', function () {
+    io.sockets.on('connection', function (socket) {
       socket.on('message', function (data, fn) {
         data.should.eql('tobi');
         fn('woot');
