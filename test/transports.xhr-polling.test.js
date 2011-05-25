@@ -1143,6 +1143,7 @@ module.exports = {
             type: 'event'
           , name: 'tobi'
           , args: []
+          , endpoint: ''
         });
       });
     });
