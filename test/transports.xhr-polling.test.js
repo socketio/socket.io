@@ -1174,29 +1174,37 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
         res.statusCode.should.eql(200);
+        data.should.eql('');
 
-        msgs.should.have.length(1);
-        msgs[0].should.eql({
-            type: 'ack'
-          , ackId: 1
-        });
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({
+                type: 'message'
+              , data: 'woot'
+              , id: 1
+              , endpoint: ''
+            })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('');
+
+              cl.get(
+                  '/socket.io/{protocol}/xhr-polling/' + sid
+                , function (res, msgs) {
+                    res.statusCode.should.eql(200);
+                    msgs.should.have.length(1);
+                    msgs[0].should.eql({
+                        type: 'ack'
+                      , ackId: 1
+                    });
+                  }
+              );
+            }
+        );
       });
 
-      cl.post(
-          '/socket.io/{protocol}/xhr-polling/' + sid
-        , parser.encodePacket({
-              type: 'message'
-            , data: 'woot'
-            , id: 1
-            , endpoint: ''
-          })
-        , function (res, data) {
-            res.statusCode.should.eql(200);
-            data.should.eql('');
-          }
-      );
     });
   },
 
