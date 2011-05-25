@@ -108,7 +108,7 @@ module.exports = {
             ws.close();
           }
         });
-      }, 20);
+      }, 30);
 
       socket.on('disconnect', function () {
         messages.should.eql(2);
@@ -514,11 +514,13 @@ module.exports = {
       connections++;
 
       if (connections == 2) {
+        console.log('sending json');
         io.sockets.json.send({ a: 'b' });
       }
 
       socket.on('disconnect', function () {
         disconnections++;
+        console.log('disconnecitng');
 
         if (disconnections == 2) {
           messages.should.eql(2);
@@ -701,7 +703,7 @@ module.exports = {
 
       setTimeout(function () {
         ws3.finishClose();
-      }, 20);
+      }, 50);
     });
   },
 
@@ -783,7 +785,7 @@ module.exports = {
 
       setTimeout(function () {
         ws3.finishClose();
-      }, 20);
+      }, 50);
     });
   },
 
@@ -867,7 +869,7 @@ module.exports = {
 
       setTimeout(function () {
         ws3.finishClose();
-      }, 20);
+      }, 50);
     });
   },
 
@@ -942,7 +944,7 @@ module.exports = {
 
         setTimeout(function () {
           ws3.finishClose();
-        }, 20);
+        }, 50);
       });
 
       ws3.on('message', function (msg) {
@@ -1022,7 +1024,7 @@ module.exports = {
 
         setTimeout(function () {
           ws3.finishClose();
-        }, 20);
+        }, 50);
       });
 
       ws3.on('message', function (msg) {
@@ -1104,7 +1106,7 @@ module.exports = {
 
         setTimeout(function () {
           ws3.finishClose();
-        }, 20);
+        }, 50);
       });
 
       ws3.on('message', function (msg) {
@@ -1184,7 +1186,7 @@ module.exports = {
                   ws1.finishClose();
                   ws2.finishClose();
                   ws3.finishClose();
-                }, 20);
+                }, 50);
               });
 
               ws3.on('message', function (msg) {
@@ -1268,7 +1270,7 @@ module.exports = {
                   ws1.finishClose();
                   ws2.finishClose();
                   ws3.finishClose();
-                }, 20);
+                }, 50);
               });
 
               ws3.on('message', function (msg) {
@@ -1353,7 +1355,7 @@ module.exports = {
                   ws1.finishClose();
                   ws2.finishClose();
                   ws3.finishClose();
-                }, 20);
+                }, 50);
               });
 
               ws3.on('message', function (msg) {
