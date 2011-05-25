@@ -1958,15 +1958,16 @@ module.exports = {
   'test endpoint sending deliverable volatile events': function (done) {
     var cl = client(++ports)
       , io = create(cl)
-      , received = false;
+      , received = false
+      , s;
 
     io.configure(function () {
-      io.set('polling duration', 0);
+      io.set('polling duration', .05);
       io.set('close timeout', .05);
     });
 
     io.for('/chrislee').on('connection', function (socket) {
-      socket.volatile.emit('woooo', [1, 2]);
+      s = socket;
 
       socket.on('disconnect', function () {
         received.should.be.true;
@@ -1990,16 +1991,20 @@ module.exports = {
                 , function (res, msgs) {
                     res.statusCode.should.eql(200);
                     msgs.should.have.length(1);
-                    msgs[0].shoudl.eql({
+                    msgs[0].should.eql({
                         type: 'event'
                       , name: 'woooo'
-                      , data: [1, 2]
+                      , args: [[1, 2]]
                       , endpoint: '/chrislee'
                     });
 
                     received = true;
                   }
               );
+
+              setTimeout(function () {
+                s.volatile.emit('woooo', [1, 2]);
+              }, 20);
             }
         );
       });
