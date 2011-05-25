@@ -1198,6 +1198,8 @@ module.exports = {
                     msgs[0].should.eql({
                         type: 'ack'
                       , ackId: 1
+                      , endpoint: ''
+                      , args: []
                     });
                   }
               );
