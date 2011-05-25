@@ -433,6 +433,68 @@ module.exports = {
         ws.finishClose();
       });
     });
+  },
+
+  'test sending to all clients in a namespace': function (done) {
+    var port = ++ports
+      , cl1 = client(port)
+      , cl2 = client(port)
+      , io = create(cl1)
+      , messages = 0
+      , connections = 0
+      , disconnections = 0;
+
+    io.configure(function () {
+      io.set('close timeout', 0);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      connections++;
+
+      if (connections == 2) {
+        io.sockets.send('yup');
+      }
+
+      socket.on('disconnect', function () {
+        disconnections++;
+
+        if (disconnections == 2) {
+          messages.should.eql(2);
+          cl1.end();
+          cl2.end();
+          io.server.close();
+          done();
+        }
+      });
+    });
+
+    cl1.handshake(function (sid) {
+      var ws1 = websocket(cl1, sid);
+      ws1.on('message', function (msg) {
+        msg.should.eql({
+            type: 'message'
+          , data: 'yup'
+          , endpoint: ''
+        });
+
+        messages++;
+        ws1.finishClose();
+      });
+    });
+
+    cl2.handshake(function (sid) {
+      var ws2 = websocket(cl2, sid);
+      ws2.on('message', function (msg) {
+        msg.should.eql({
+            type: 'message'
+          , data: 'yup'
+          , endpoint: ''
+        });
+
+        messages++;
+        ws2.finishClose();
+      });
+    });
   }
 
 };
