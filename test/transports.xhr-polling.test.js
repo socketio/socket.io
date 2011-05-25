@@ -1241,7 +1241,7 @@ module.exports = {
         msgs.should.have.length(1);
         msgs[0].should.eql({
             type: 'ack'
-          , args: 'woot'
+          , args: ['woot']
           , endpoint: ''
           , ackId: '3'
         });
@@ -1252,7 +1252,8 @@ module.exports = {
         , parser.encodePacket({
               type: 'message'
             , data: 'tobi'
-            , id: '3+'
+            , ack: 'data'
+            , id: '3'
           })
         , function (res, data) {
             res.statusCode.should.eql(200);
