@@ -1014,7 +1014,7 @@ module.exports = {
     });
   },
 
-  'test sending undeliverable volatile events': function () {
+  'test sending undeliverable volatile events': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , s;
