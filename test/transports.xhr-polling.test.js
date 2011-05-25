@@ -1109,6 +1109,7 @@ module.exports = {
         msgs[0].should.eql({
             type: 'json'
           , data: 5
+          , endpoint: ''
         });
       });
     });
