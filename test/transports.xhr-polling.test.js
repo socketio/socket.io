@@ -1573,7 +1573,7 @@ module.exports = {
                         type: 'event'
                       , name: 'tj'
                       , args: [1, 2, 3, 4]
-                      , endpoint: ''
+                      , endpoint: '/chrislee'
                     });
 
                     received = true;
