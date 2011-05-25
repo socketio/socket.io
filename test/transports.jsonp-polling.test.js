@@ -30,6 +30,34 @@ function JSONPPolling (port) {
 JSONPPolling.prototype.__proto__ = HTTPClient.prototype;
 
 /**
+ * Performs a json-p (cross domain) handshake
+ *
+ * @api public
+ */
+
+JSONPPolling.prototype.handshake = function (opts, fn) {
+  if ('function' == typeof opts) {
+    fn = opts;
+    opts = {};
+  }
+
+  return this.get(
+      '/socket.io/{protocol}?jsonp=59'
+    , opts
+    , function (res, data) {
+        var head = 'io[59]('
+          , foot = ');';
+
+        data.substr(0, head.length).should.eql(head);
+        data.substr(-foot.length).should.eql(foot);
+        data = data.slice(head.length, data.length - foot.length);
+
+        fn && fn.apply(null, JSON.parse(data).split(':'));
+      }
+  );
+};
+
+/**
  * Override GET requests.
  *
  * @api public
@@ -78,7 +106,7 @@ function client (port) {
 
 module.exports = {
 
-  'test handshake': function (done) {
+  'test jsonp handshake': function (done) {
     var cl = client(++ports)
       , io = create(cl);
 
