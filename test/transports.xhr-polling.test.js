@@ -1903,15 +1903,16 @@ module.exports = {
   'test endpoint sending deliverable volatile json': function (done) {
     var cl = client(++ports)
       , io = create(cl)
-      , received = false;
+      , received = false
+      , s;
 
     io.configure(function () {
-      io.set('polling duration', 0);
+      io.set('polling duration', .05);
       io.set('close timeout', .05);
     });
 
     io.for('/chrislee').on('connection', function (socket) {
-      socket.volatile.json.send(152);
+      s = socket;
 
       socket.on('disconnect', function () {
         received.should.be.true;
@@ -1935,7 +1936,7 @@ module.exports = {
                 , function (res, msgs) {
                     res.statusCode.should.eql(200);
                     msgs.should.have.length(1);
-                    msgs[0].shoudl.eql({
+                    msgs[0].should.eql({
                         type: 'json'
                       , data: 152
                       , endpoint: '/chrislee'
@@ -1944,6 +1945,10 @@ module.exports = {
                     received = true;
                   }
               );
+
+              setTimeout(function () {
+                s.volatile.json.send(152);
+              }, 20);
             }
         );
       });
