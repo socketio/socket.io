@@ -1331,6 +1331,13 @@ module.exports = {
 
         acknowledged = true;
       });
+
+      socket.on('disconnect', function () {
+        acknowledged.should.be.true;
+        cl.end();
+        io.server.close();
+        done();
+      });
     });
 
     cl.handshake(function (sid) {
@@ -1339,12 +1346,13 @@ module.exports = {
         msgs.should.have.length(1);
         msgs[0].should.eql({
             type: 'message'
-          , id: '1+'
+          , id: '1'
           , data: 'woot'
+          , ack: 'data'
           , endpoint: ''
         });
 
-        post(
+        cl.post(
             '/socket.io/{protocol}/xhr-polling/' + sid
           , parser.encodePacket({
                 type: 'ack'
