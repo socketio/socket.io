@@ -1184,7 +1184,7 @@ module.exports = {
         });
       });
 
-      post(
+      cl.post(
           '/socket.io/{protocol}/xhr-polling/' + sid
         , parser.encodePacket({
               type: 'message'
