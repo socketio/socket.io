@@ -1076,6 +1076,7 @@ module.exports = {
         msgs[0].should.eql({
             type: 'message'
           , data: 'woooot'
+          , endpoint: ''
         });
       });
     });
