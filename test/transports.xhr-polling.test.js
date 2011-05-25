@@ -2023,7 +2023,7 @@ module.exports = {
     });
 
     io.for('/tobi').on('connection', function (socket) {
-      socke.ton('message', function (msg) {
+      socket.on('message', function (msg) {
         msg.should.eql('woot');
         messaged = true;
       });
@@ -2040,7 +2040,7 @@ module.exports = {
       cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
         cl.post(
             '/socket.io/{protocol}/xhr-polling/' + sid
-          , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
+          , parser.encodePacket({ type: 'connect', endpoint: '/tobi' })
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('');
@@ -2062,12 +2062,14 @@ module.exports = {
                       , function (res, msgs) {
                           res.statusCode.should.eql(200);
                           msgs.should.have.length(1);
-                          msgs[0].shoudl.eql({
+                          msgs[0].should.eql({
                               type: 'ack'
                             , ackId: '3'
-                            , endpoint: '/chrislee'
+                            , endpoint: '/tobi'
+                            , args: []
                           });
-                          received = true;
+
+                          acked = true;
                         }
                     );
                   }
@@ -2105,16 +2107,16 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+      cl.get('/socket.io/{protocol}/polling/' + sid, function (res, data) {
         cl.post(
-            '/socket.io/{protocol}/xhr-polling/' + sid
-          , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
+            '/socket.io/{protocol}/polling/' + sid
+          , parser.encodePacket({ type: 'connect', endpoint: '/tobi' })
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('');
 
               cl.post(
-                  '/socket.io/{protocol}/xhr-polling/' + sid
+                  '/socket.io/{protocol}/polling/' + sid
                 , parser.encodePacket({
                       type: 'message'
                     , id: '3'
@@ -2126,7 +2128,7 @@ module.exports = {
                     data.should.eql('');
 
                     cl.get(
-                        '/socket.io/{protocol}/xhr-polling/' + sid
+                        '/socket.io/{protocol}/polling/' + sid
                       , function (res, msgs) {
                           res.statusCode.should.eql(200);
                           msgs.should.have.length(1);
@@ -2134,7 +2136,7 @@ module.exports = {
                               type: 'ack'
                             , ackId: '3'
                             , args: []
-                            , endpoint: '/chrislee'
+                            , endpoint: '/tobi'
                           });
                           received = true;
                         }
@@ -2174,16 +2176,16 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+      cl.get('/socket.io/{protocol}/polling/' + sid, function (res, data) {
         cl.post(
-            '/socket.io/{protocol}/xhr-polling/' + sid
+            '/socket.io/{protocol}/polling/' + sid
           , parser.encodePacket({ type: 'connect', endpoint: '/tobi' })
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('');
 
               cl.post(
-                  '/socket.io/{protocol}/xhr-polling/' + sid
+                  '/socket.io/{protocol}/polling/' + sid
                 , parser.encodePacket({
                       type: 'event'
                     , id: '3+'
@@ -2195,7 +2197,7 @@ module.exports = {
                     data.should.eql('');
 
                     cl.get(
-                        '/socket.io/{protocol}/xhr-polling/' + sid
+                        '/socket.io/{protocol}/polling/' + sid
                       , function (res, msgs) {
                           res.statusCode.should.eql(200);
                           msgs.should.have.length(1);
