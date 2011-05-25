@@ -869,6 +869,89 @@ module.exports = {
         ws3.finishClose();
       }, 20);
     });
-  }
+  },
+
+  'test message with broadcast flag': function (done) {
+    var port = ++ports
+      , cl1 = client(port)
+      , cl2 = client(port)
+      , cl3 = client(port)
+      , io = create(cl1)
+      , messages = 0
+      , connections = 0
+      , disconnections = 0;
+
+    io.configure(function () {
+      io.set('close timeout', 0);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      connections++;
+
+      socket.on('trigger broadcast', function () {
+        socket.broadcast.send('boom');
+      });
+
+      socket.on('disconnect', function () {
+        disconnections++;
+
+        if (disconnections == 3) {
+          messages.should.eql(2);
+          cl1.end();
+          cl2.end();
+          cl3.end();
+          io.server.close();
+          done();
+        }
+      });
+    });
+
+    cl1.handshake(function (sid) {
+      var ws1 = websocket(cl1, sid);
+      ws1.on('message', function (msg) {
+        msg.should.eql({
+            type: 'message'
+          , data: 'boom'
+          , endpoint: ''
+        });
+
+        messages++;
+        ws1.finishClose();
+      });
+    });
+
+    cl2.handshake(function (sid) {
+      var ws2 = websocket(cl2, sid);
+      ws2.on('message', function (msg) {
+        msg.should.eql({
+            type: 'message'
+          , data: 'boom'
+          , endpoint: ''
+        });
+
+        messages++;
+        ws2.finishClose();
+      });
+    });
+
+    cl3.handshake(function (sid) {
+      var ws3 = websocket(cl2, sid);
+      ws3.on('open', function () {
+        ws3.packet({
+            type: 'event'
+          , name: 'trigger broadcast'
+          , endpoint: ''
+        });
+
+        setTimeout(function () {
+          ws3.finishClose();
+        }, 20);
+      });
+
+      ws3.on('message', function (msg) {
+        throw new Error('we shouldnt get a message here');
+      });
+    });
+  },
 
 };
