@@ -2291,8 +2291,13 @@ module.exports = {
 
   'test endpoint manual data acks sent from the client': function (done) {
     var cl = client(++ports)
-      , io = server(cl)
+      , io = create(cl)
       , acked = false;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
 
     io.for('/rapture').on('connection', function (socket) {
       socket.send('woot', function (a, b, c) {
@@ -2330,8 +2335,10 @@ module.exports = {
                     msgs.should.have.length(1);
                     msgs[0].should.eql({
                         type: 'message'
-                      , id: '1+'
+                      , id: '1'
                       , data: 'woot'
+                      , endpoint: '/rapture'
+                      , ack: 'data'
                     });
 
                     cl.post(
@@ -2340,6 +2347,7 @@ module.exports = {
                             type: 'ack'
                           , ackId: '1'
                           , args: [5, 'hello', [1, 2, 3]]
+                          , endpoint: '/rapture'
                         })
                       , function (res, data) {
                           res.statusCode.should.eql(200);
