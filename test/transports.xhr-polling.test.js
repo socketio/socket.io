@@ -2107,20 +2107,21 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/polling/' + sid, function (res, data) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
         cl.post(
-            '/socket.io/{protocol}/polling/' + sid
+            '/socket.io/{protocol}/xhr-polling/' + sid
           , parser.encodePacket({ type: 'connect', endpoint: '/tobi' })
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('');
 
               cl.post(
-                  '/socket.io/{protocol}/polling/' + sid
+                  '/socket.io/{protocol}/xhr-polling/' + sid
                 , parser.encodePacket({
                       type: 'message'
                     , id: '3'
                     , data: 'woot'
+                    , ack: 'data'
                     , endpoint: '/tobi'
                   })
                 , function (res, data) {
@@ -2128,17 +2129,18 @@ module.exports = {
                     data.should.eql('');
 
                     cl.get(
-                        '/socket.io/{protocol}/polling/' + sid
+                        '/socket.io/{protocol}/xhr-polling/' + sid
                       , function (res, msgs) {
                           res.statusCode.should.eql(200);
                           msgs.should.have.length(1);
-                          msgs[0].shoudl.eql({
+                          msgs[0].should.eql({
                               type: 'ack'
                             , ackId: '3'
                             , args: []
                             , endpoint: '/tobi'
                           });
-                          received = true;
+
+                          acked = true;
                         }
                     );
                   }
