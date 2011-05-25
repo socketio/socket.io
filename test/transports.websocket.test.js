@@ -514,13 +514,11 @@ module.exports = {
       connections++;
 
       if (connections == 2) {
-        console.log('sending json');
         io.sockets.json.send({ a: 'b' });
       }
 
       socket.on('disconnect', function () {
         disconnections++;
-        console.log('disconnecitng');
 
         if (disconnections == 2) {
           messages.should.eql(2);
