@@ -2224,8 +2224,8 @@ module.exports = {
   },
 
   'test endpoint acknowledgements sent from the client': function (done) {
-    var io = client(++ports)
-      , cl = create(io)
+    var cl = client(++ports)
+      , io = create(cl)
       , acked = false;
 
     io.configure(function () {
@@ -2249,13 +2249,6 @@ module.exports = {
     cl.handshake(function (sid) {
       cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
         res.statusCode.should.eql(200);
-        msgs.should.have.length(1);
-        msgs[0].should.eql({
-            type: 'message'
-          , data: 'aaa'
-          , endpoint: '/woot'
-          , id: '1'
-        });
 
         cl.post(
             '/socket.io/{protocol}/xhr-polling/' + sid
@@ -2264,16 +2257,30 @@ module.exports = {
               res.statusCode.should.eql(200);
               data.should.eql('');
 
-              cl.post(
+              cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
-                , parser.encodePacket({
-                      type: 'ack'
-                    , ackId: '1'
-                    , endpoint: '/woot'
-                  })
-                , function (res, data) {
-                    res.statusCode.should.eql(200);
-                    data.should.eql('');
+                , function (res, msgs) {
+                    msgs.should.have.length(1);
+                    msgs[0].should.eql({
+                        type: 'message'
+                      , data: 'aaa'
+                      , endpoint: '/woot'
+                      , id: '1'
+                      , ack: true
+                    });
+
+                    cl.post(
+                        '/socket.io/{protocol}/xhr-polling/' + sid
+                      , parser.encodePacket({
+                            type: 'ack'
+                          , ackId: '1'
+                          , endpoint: '/woot'
+                        })
+                      , function (res, data) {
+                          res.statusCode.should.eql(200);
+                          data.should.eql('');
+                        }
+                    );
                   }
               );
             }
