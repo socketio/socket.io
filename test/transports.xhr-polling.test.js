@@ -838,7 +838,7 @@ module.exports = {
         res.statusCode.should.eql(200);
         data.should.eql('');
 
-        s.emit('edwald');
+        s.emit('edwald', { woot: 'woot' }, [1, 2, 3]);
 
         cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
           res.statusCode.should.eql(200);
