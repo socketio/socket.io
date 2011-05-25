@@ -1263,7 +1263,7 @@ module.exports = {
     });
   },
 
-  'test acknowledgements sent from the client': function (done) {
+  'test automatic acknowledgements sent from the client': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , acknowledged = false;
@@ -1273,7 +1273,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.sockets.on('conneciton', function (socket) {
+    io.sockets.on('connection', function (socket) {
       socket.send('aaaa', function () {
         acknowledged = true;
       });
@@ -1294,10 +1294,11 @@ module.exports = {
             type: 'message'
           , id: '1'
           , data: 'aaaa'
+          , ack: true
           , endpoint: ''
         });
 
-        post(
+        cl.post(
             '/socket.io/{protocol}/xhr-polling/' + sid
           , parser.encodePacket({
                 type: 'ack'
