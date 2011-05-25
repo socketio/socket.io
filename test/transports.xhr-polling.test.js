@@ -1798,7 +1798,7 @@ module.exports = {
     });
   },
 
-  'test endpoint sending undeliverable volatile events': function () {
+  'test endpoint sending undeliverable volatile events': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , empty = false
