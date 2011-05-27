@@ -27,6 +27,7 @@
    *   - `maxReconnectionDelay` Maximum reconnection delay in milliseconds. The reconnectionDelay will never become greater
    *      than this value. Default is -1 which means no limit.
    *   - `maxReconnectionAttempts`  Number of attempts we should make before seizing the reconnect operation, defaulting to 10.
+   *      A value of -1 means no limit.
    *   - `rememberTransport` Should the successfully connected transport be remembered in a cookie, defaulting to true.
    *
    * Examples:
@@ -428,7 +429,7 @@
       if (!self.connected){
         if (self.connecting && self.reconnecting) return self.reconnectionTimer = setTimeout(maybeReconnect, 1000);
         
-        if (self.reconnectionAttempts++ >= self.options.maxReconnectionAttempts){
+        if (self.reconnectionAttempts++ >= self.options.maxReconnectionAttempts && self.options.maxReconnectionAttempts != -1){
           if (!self.redoTransports){
             self.on('connect_failed', maybeReconnect);
             self.options.tryTransportsOnConnectTimeout = true;
