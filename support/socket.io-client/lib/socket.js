@@ -24,6 +24,8 @@
    *   - `reconnect`  Should reconnection happen automatically, defaulting to true.
    *   - `reconnectionDelay`  The delay in milliseconds before we attempt to establish a working connection. This value will
    *      increase automatically using a exponential back off algorithm. Defaulting to 500.
+   *   - `maxReconnectionDelay` Maximum reconnection delay in milliseconds. The reconnectionDelay will never become greater
+   *      than this value. Default is -1 which means no limit.
    *   - `maxReconnectionAttempts`  Number of attempts we should make before seizing the reconnect operation, defaulting to 10.
    *   - `rememberTransport` Should the successfully connected transport be remembered in a cookie, defaulting to true.
    *
@@ -76,6 +78,7 @@
       tryTransportsOnConnectTimeout: true,
       reconnect: true,
       reconnectionDelay: 500,
+      maxReconnectionDelay: -1,
       maxReconnectionAttempts: 10,
       rememberTransport: true
     };
@@ -438,6 +441,9 @@
           }
         } else {
           self.reconnectionDelay *= 2; // exponential back off
+          if (self.options.maxReconnectionDelay != -1 && self.reconnectionDelay > self.options.maxReconnectionDelay){
+        	self.reconnectionDelay = self.options.maxReconnectionDelay;
+          }
           self.connect();
           self.emit('reconnecting', [self.reconnectionDelay,self.reconnectionAttempts]);
           self.reconnectionTimer = setTimeout(maybeReconnect, self.reconnectionDelay);
