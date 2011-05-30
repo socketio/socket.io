@@ -3,86 +3,62 @@ socket.io
 
 #### Sockets for the rest of us
 
-The `socket.io` client is basically a simple HTTP Socket interface implementation. It allows you to establish a realtime connection with a server (see `socket.io` server [here](http://github.com/LearnBoost/Socket.IO-node)), hiding the complexity of the different transports (WebSocket, Flash, forever iframe, XHR long polling, XHR multipart encoded, etc), while retaining a WebSocket-like API:
+The `socket.io` client is basically a simple HTTP Socket interface implementation.
+It looks similar to WebSocket while providing additional features and
+leveraging other transports when WebSocket is not supported by the user's
+browser.
 
-	socket = new io.Socket('localhost');
-	socket.connect();
-	socket.on('connect', function(){
-		// connected
-	});
-	socket.on('message', function(data){
-		// data here
-	});
-	socket.send('some data');
+    var socket = io.connect('http://domain.com');
+    socket.on('connect', function () {
+      // socket connected
+    });
+    socket.on('custom event', function () {
+      // server emitted a custom event
+    });
+    socket.on('disconnect', function () {
+      // socket disconnected
+    });
+    socket.send('hi there');
 
-### Features
+### Recipes
 
-- Supports 
-	- WebSocket
-	- Adobe Flash Socket
-	- ActiveX HTMLFile (IE)
-	- XHR with multipart encoding
-	- XHR with long-polling
-	- JSONP polling (for cross-domain)
+#### Utilizing namespaces (ie: multiple sockets)
 
-- Tested on
-	- Safari 4
-	- Google Chrome 5
-	- Internet Explorer 6
-	- Internet Explorer 7
-	- Internet Explorer 8
-	- iPhone Safari
-	- iPad Safari
-	- Firefox 3
-	- Firefox 4 (Minefield)
-	- Opera 10.61
-	
-- ActionScript Socket is known not to work behind proxies, as it doesn't have access to the user agent proxy settings to implement the CONNECT HTTP method. If it fails, `socket.io` will try something else.
-	
-- On a successful connection, it remembers the transport for next time (stores it in a cookie).
+If you want to namespace all the messages and events emitted to a particular
+endpoint, simply specify it as part of the `connect` uri:
 
-- Small. Closure Compiled with all deps: 5.82kb (gzipped).
+    var chat = io.connect('http://localhost/chat');
+    chat.on('connect', function () {
+      // chat socket connected
+    });
 
-- Easy to use! See [socket.io-node](http://github.com/LearnBoost/Socket.IO-node) for the server to connect to.
+    var news = io.connect('/news'); // io.connect auto-detects host
+    chat.on('connect', function () {
+      // news socket connected
+    });
 
-### How to use
+#### Emitting custom events
 
-	socket = new io.Socket('localhost');
-	socket.connect();
-	socket.send('some data');
-	socket.on('message', function(data){
-		alert('got some data' + data);
-	});
-	
-For an example, check out the chat [source](https://github.com/LearnBoost/Socket.IO-node/blob/master/test/chat.html).
+To ease with the creation of applications, you can emit custom events outside
+of the global `message` event.
 
-### Notes
+    var socket = io.connect();
+    socket.emit('server custom event', { my: 'data' });
 
-If you are serving you .swf from a other domain than socket.io.js you will need to change the WEB_SOCKET_SWF_LOCATION to the insecure version.
+#### Forcing disconnection
 
-	<script>WEB_SOCKET_SWF_LOCATION = '/path/to/WebSocketMainInsecure.swf';</script>
-
-The insecure version can be found [here](http://github.com/gimite/web-socket-js/blob/master/WebSocketMainInsecure.zip).
+    var socket = io.connect();
+    socket.on('connect', function () {
+      socket.disconnect();
+    });
 
 ### Documentation 
 
-#### io.Socket
+#### io#connect
 
-	new io.Socket(host, [options]);
+    io.connect(uri, [options]);
 
 ##### Options:
-
-- *secure*
-
-		false
-	
-	Use secure connections
-
-- *port*
-
-		Current port or 80
-	
-	The port `socket.io` server is attached to (defaults to the document.location port).
 
 - *resource*
 
@@ -95,31 +71,14 @@ The insecure version can be found [here](http://github.com/gimite/web-socket-js/
 		['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling', 'jsonp-polling']
 
 	A list of the transports to attempt to utilize (in order of preference).
-	
-- *transportOptions*
-	
-		{
-			someTransport: {
-				someOption: true
-			},
-			...
-		}
-				
-	An object containing (optional) options to pass to each transport.
 
-- *rememberTransport*
-
-		true
-	
-	A boolean indicating if the utilized transport should be remembered in a cookie.
-
-- *connectTimeout*
+- *'connect timeout'*
 
 		5000
 	
 	The amount of miliseconds a transport has to create a connection before we consider it timed out.
 	
-- *tryTransportsOnConnectTimeout*
+- *'try multiple transports'*
 
 		true
 
@@ -131,14 +90,14 @@ The insecure version can be found [here](http://github.com/gimite/web-socket-js/
 
 	A boolean indicating if we should automatically reconnect if a connection is disconnected. 
   
-- *reconnectionDelay*
+- *'reconnection delay'*
 
 		500
 
 	The amount of milliseconds before we try to connect to the server again. We are using a exponential back off algorithm for the following reconnections, on each reconnect attempt this value will get multiplied (500 > 1000 > 2000 > 4000 > 8000).
   
 
-- *maxReconnectionAttempts*
+- *'max reconnection attempts'*
 
 		10
 
