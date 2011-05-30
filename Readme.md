@@ -131,8 +131,8 @@ The following example defines a socket that listens on '/chat' and one for
 
     <script>
       var socket = io.connect('http://localhost/')
-        , chat = socket.for('/chat')
-        , news = socket.for('/news');
+        , chat = socket.of('/chat')
+        , news = socket.of('/news');
 
       chat.on('connect', function () {
         chat.emit('hi!');
