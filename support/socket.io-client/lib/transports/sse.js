@@ -35,8 +35,9 @@
    * @api private
    */
   SSE.prototype.get = function(){
-    var src = new EventSource(this.prepareUrl()), self = this;
-    src.onmessage = function(event){
+    var self = this;
+    self.src = new EventSource(this.prepareUrl());
+    self.src.onmessage = function(event){
       self.onData(event.data);
     }
   };
@@ -61,4 +62,14 @@
     return true;
   };
   
+  /**
+   * Close the connection properly, stopping
+   * auto-reconnection.
+   *
+   * @api public
+   */
+   SSE.onDisconnect = function(){
+     this.src.close();
+     io.Transport.prototype.onDisconnect.call(this);
+   }
 })();
