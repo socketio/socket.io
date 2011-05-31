@@ -3,7 +3,8 @@ Socket.IO Server: Sockets for the rest of us
 
 The `Socket.IO` server provides seamless support for a variety of transports intended for realtime communication.
 
-- WebSocket 
+- WebSocket
+- Server-Sent Events
 - WebSocket over Flash (+ XML security policy support)
 - XHR Polling
 - XHR Multipart Streaming
@@ -124,8 +125,8 @@ Options:
 
 - *transports*
 
-		['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling',
-    'jsonp-polling']
+		['websocket', 'sse', 'flashsocket', 'htmlfile', 'xhr-multipart',
+    'xhr-polling', 'jsonp-polling']
 		
 	A list of the accepted transports.
 	

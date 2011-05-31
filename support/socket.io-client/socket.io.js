@@ -856,6 +856,71 @@ if (typeof window != 'undefined'){
   var io = this.io,
   
   /**
+   * The Server-Sent Events transport uses an EventSource object to
+   * stream in the data from the Socket.IO server
+   *
+   * @constructor
+   * @extends {io.Transport.XHR}
+   * @api public
+   */
+  SSE = io.Transport['sse'] = function(){
+    io.Transport.XHR.apply(this, arguments);
+  };
+  
+  io.util.inherit(SSE, io.Transport.XHR);
+  
+   /**
+   * The transport type, you use this to identify which transport was chosen.
+   *
+   * @type {String}
+   * @api public
+   */
+  SSE.prototype.type = 'sse';
+  
+  /**
+   * Starts the multipart stream for incomming messages.
+   *
+   * @api private
+   */
+  SSE.prototype.get = function(){
+    var src = new EventSource(this.prepareUrl()), self = this;
+    src.onmessage = function(event){
+      self.onData(event.data);
+    }
+  };
+  
+  /**
+   * Checks if browser supports this transport.
+   *
+   * @return {Boolean}
+   * @api public
+   */
+  SSE.check = function(){
+    return !!EventSource;
+  };
+  
+  /**
+   * Check if cross domain requests are supported.
+   *
+   * @returns {Boolean}
+   * @api public
+   */
+  SSE.xdomainCheck = function(){
+    return true;
+  };
+  
+})();
+
+/**
+ * socket.io-node-client
+ * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
+ * MIT Licensed
+ */
+
+(function(){
+  var io = this.io,
+  
+  /**
    * The Flashsocket transport. This is a API wrapper for the HTML5 WebSocket specification.
    * It uses a .swf file to communicate with the server. If you want to serve the .swf file
    * from a other server than where the Socket.IO script is coming from you need to use the
@@ -1476,7 +1541,7 @@ if (typeof window != 'undefined'){
       document: document,
       port: document.location.port || 80,
       resource: 'socket.io',
-      transports: ['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling', 'jsonp-polling'],
+      transports: ['websocket', 'sse', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling', 'jsonp-polling'],
       transportOptions: {
         'xhr-polling': {
           timeout: 25000 // based on polling duration default
@@ -1873,6 +1938,7 @@ if (typeof window != 'undefined'){
   Socket.prototype.removeListener = Socket.prototype.removeEventListener = Socket.prototype.removeEvent;
   
 })();
+
 /*	SWFObject v2.2 <http://code.google.com/p/swfobject/> 
 	is released under the MIT License <http://www.opensource.org/licenses/mit-license.php> 
 */
