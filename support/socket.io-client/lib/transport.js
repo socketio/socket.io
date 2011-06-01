@@ -289,7 +289,7 @@
       + ':' + this.base.options.port
       + '/' + this.base.options.resource
       + '/' + this.type
-      + (this.sessionid ? ('/' + this.sessionid) : '/');
+      + (this.sessionid ? ('/' + this.sessionid) : '/handshake');
   };
 
 })();
