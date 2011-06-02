@@ -175,7 +175,7 @@ module.exports = {
 
     cl.get('/socket.io/{protocol}/', function (res, data) {
       res.statusCode.should.eql(403);
-      data.should.match(/Handshake unauthorized/);
+      data.should.match(/handshake unauthorized/);
 
       cl.end();
       io.server.close();
@@ -198,7 +198,7 @@ module.exports = {
 
     cl.get('/socket.io/{protocol}/', function (res, data) {
       res.statusCode.should.eql(500);
-      data.should.match(/Handshake error/);
+      data.should.match(/handshake error/);
 
       cl.end();
       io.server.close();

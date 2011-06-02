@@ -533,6 +533,7 @@ module.exports = {
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
+        console.error('received message');
         msg.should.eql({
             type: 'json'
           , data: { a: 'b' }
@@ -547,6 +548,7 @@ module.exports = {
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
+        console.error('received message');
         msg.should.eql({
             type: 'json'
           , data: { a: 'b' }
