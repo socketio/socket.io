@@ -58,7 +58,7 @@
    */
 
   // if node
-  if ('undefined' != typeof module && 'undefined' != typeof require) {
+  if ('object' === typeof module && 'function' === typeof require) {
 
     /**
      * Expose utils
@@ -131,7 +131,7 @@
     return socket.of(uri.path.length > 1 ? uri.path : '');
   };
 
-})('undefined' != typeof module ? module.exports : (window.io = {}));
+})('object' === typeof module ? module.exports : (window.io = {}));
 
 
 /**
@@ -195,7 +195,7 @@
       port = 80;
     }
 
-    return (protocol || 'http://') + host + ':' + (port || 80);
+    return (protocol || 'http') + '://' + host + ':' + (port || protocol && protocol === 'https' ? 443 : 80);
   };
 
   /**
@@ -210,7 +210,7 @@
   var pageLoaded = false;
 
   util.load = function (fn) {
-    if (/loaded|complete/.test(document.readyState) || pageLoaded) {
+    if (document.readyState === 'complete' || pageLoaded) {
       return fn();
     }
 
@@ -322,13 +322,25 @@
    * @api public
    */
   
-  util.merge = function (obj, obj2) {
-    for (var i in obj) {
-      if (obj.hasOwnProperty(i))
-        obj2[i] = obj[i];
+  util.merge = function merge(target, additional, deep, lastseen){
+    var seen = lastseen || []
+      , depth = typeof deep == 'undefined' ? 2 : deep
+      , prop;
+    
+    for (prop in additional){
+      if (additional.hasOwnProperty(prop) && this.indexOf(seen, prop) < 0){
+        if (typeof target[prop] !== 'object' || !depth){
+          target[prop] = additional[prop];
+          seen.push(additional[prop]);
+        } else {
+          this.merge(target[prop], additional[prop], depth - 1, seen);
+        }
+      }
     }
+    
+    return target;
   };
-
+  
   /**
    * Merges prototypes from objects
    *
@@ -360,7 +372,7 @@
    * @api public
    */
 
-  util.isArray = function (obj) {
+  util.isArray = Array.isArray || function (obj) {
     return Object.prototype.toString.call(obj) === '[object Array]';
   };
 
@@ -464,6 +476,8 @@
 
     return this;
   };
+  
+  EventEmitter.prototype.addListener = EventEmitter.prototype.on;
 
   /**
    * Adds a volatile listener.
