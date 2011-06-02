@@ -1451,6 +1451,8 @@
    * @api private
    */
 
+  function empty () { };
+
   XHR.prototype.post = function (data) {
     var self = this;
     this.posting = true;
@@ -1517,7 +1519,7 @@
    */
 
   XHR.prototype.request = function (method) {
-    var req = io.util.request(this.base.isXDomain());
+    var req = io.util.request(this.socket.isXDomain());
     req.open(method || 'GET', this.prepareUrl() + '?t' + (+ new Date));
 
     if (method == 'POST') {
@@ -2486,6 +2488,7 @@
           }
         }
       };
+      xhr.send(null);
     }
   };
 
