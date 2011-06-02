@@ -246,8 +246,20 @@
     return a.withCredentials != undefined;
   })();
 
+  function stdXHR() {
+    try {
+      return new window.XMLHttpRequest();
+    } catch(e) {}
+  }
+  function activeXHR() {
+    try {
+      return new window.ActiveXObject('Microsoft.XMLHTTP');
+    } catch(e) {}
+  }
+
   util.request = function (xdomain) {
-    if ('XDomainRequest' in window && xdomain) {
+    return stdXHR() || window.ActiveXObject && activeXHR();
+    /*if ('XDomainRequest' in window && xdomain) {
       return new XDomainRequest();
     };
 
@@ -267,7 +279,7 @@
       } catch(e){}
     }
 
-    return false;
+    return false;*/
   };
 
   /**
@@ -1211,7 +1223,7 @@
     this.clearCloseTimeout();
 
     if (data !== '') {
-      var msgs = parser.decodePayload(data);
+      var msgs = io.decodePayload(data);
       if (msgs && msgs.length){
         for (var i = 0, l = msgs.length; i < l; i++){
           this.onPacket(msgs[i]);
@@ -1603,6 +1615,8 @@
 
   function XHRPolling () {
     io.Transport.XHR.apply(this, arguments);
+    // The transport type, you use this to identify which transport was chosen.
+    this.name = 'xhr-polling';
   };
 
   /**
@@ -1610,15 +1624,6 @@
    */
 
   io.util.inherit(XHRPolling, io.Transport.XHR);
-
-  /**
-   * The transport type, you use this to identify which transport was chosen.
-   *
-   * @type {string}
-   * @api public
-   */
-
-  XHRPolling.prototype.name = 'xhr-polling';
 
   /** 
    * Establish a connection, for iPhone and Android this will be done once the page
@@ -1709,6 +1714,8 @@
     if (!socket) return;
 
     io.Transport['xhr-polling'].apply(this, arguments);
+    // The transport type, you use this to identify which transport was chosen.
+    this.name = 'jsonp-polling';
     this.insertAt = document.getElementsByTagName('script')[0];
     this.index = io.j.length;
 
@@ -1724,15 +1731,6 @@
    */
 
   io.util.inherit(JSONPPolling, io.Transport['xhr-polling']);
-
-  /**
-   * The transport type, you use this to identify which transport was chosen.
-   *
-   * @type {String}
-   * @api public
-   */
-
-  JSONPPolling.prototype.name = 'jsonp-polling';
 
   /**
    * Posts a encoded message to the Socket.IO server using an iframe.
@@ -1907,6 +1905,8 @@
 
   function WS (socket) {
     io.Transport.apply(this, arguments);
+    // The transport type, you use this to identify which transport was chosen.
+    this.name = 'websocket';
   };
 
   /**
@@ -1914,15 +1914,6 @@
    */
 
   io.util.inherit(WS, io.Transport);
-
-  /**
-   * The transport type, you use this to identify which transport was chosen.
-   *
-   * @type {String}
-   * @api public
-   */
-
-  WS.prototype.name = 'websocket';
 
   /**
    * Initializes a new `WebSocket` connection with the Socket.IO server. We attach
@@ -2052,6 +2043,8 @@
 
   function HTMLFile (socket) {
     io.Transport.XHR.apply(this, arguments);
+    // The transport type, you use this to identify which transport was chosen.
+    this.name = 'htmlfile';
   };
 
   /**
@@ -2059,15 +2052,6 @@
    */
 
   io.util.inherit(HTMLFile, io.Transport.XHR);
-
-  /**
-   * The transport type, you use this to identify which transport was chosen.
-   *
-   * @type {String}
-   * @api public
-   */
-
-  HTMLFile.prototype.name = 'htmlfile';
 
   /**
    * Starts the HTMLFile data stream for incoming messages. And registers a
@@ -2239,7 +2223,7 @@
    * @api private
    */
 
-  SocketNamespace.prototype.$emit = io.EventEmitter.emit;
+  SocketNamespace.prototype.$emit = io.EventEmitter.prototype.emit;
 
   /**
    * Sends a packet.
@@ -2435,6 +2419,7 @@
    */
 
   Socket.prototype.of = function (name) {
+    if (!this.namespaces) this.namespaces = {};
     if (!this.namespaces[name]) {
       this.namespaces[name] = new io.SocketNamespace(this, name);
     }
