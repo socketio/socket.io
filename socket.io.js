@@ -627,8 +627,16 @@
  * Based on JSON2 (http://www.JSON.org/js.html).
  */
 
-(function (exports) {
+(function (exports, nativeJSON) {
   "use strict";
+  
+  // use native JSON if it's available
+  if (nativeJSON && nativeJSON.parse){
+    return exports.JSON = {
+      parse: nativeJSON.parse
+    , stringify: nativeJSON.stringify
+    }
+  }
 
   var JSON = exports.JSON = {};
 
@@ -926,7 +934,7 @@
       throw new SyntaxError('JSON.parse');
   };
 
-}('undefined' != typeof io ? io : module.exports));
+}('undefined' != typeof io ? io : module.exports, JSON));
 
 
 /**
@@ -1237,7 +1245,7 @@
     this.clearCloseTimeout();
 
     if (data !== '') {
-      var msgs = io.decodePayload(data);
+      var msgs = io.parser.decodePayload(data);
       if (msgs && msgs.length){
         for (var i = 0, l = msgs.length; i < l; i++){
           this.onPacket(msgs[i]);

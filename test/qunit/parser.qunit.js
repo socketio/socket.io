@@ -3,11 +3,8 @@
  * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
  * MIT Licensed
  */
-(function(nativeJSON){
+(function(){
   module('parser.js');
-  
-  // use the correct JSON decoder
-  var JSON = nativeJSON ? nativeJSON : io.JSON;
   
   test('decoding error packet', function(){
     deepEqual(
@@ -76,7 +73,7 @@
   
   test('decoding ack packet with args', function(){
     deepEqual(
-      io.parser.decodePacket('6:::12+' + JSON.stringify(['woot', 'wa']))
+      io.parser.decodePacket('6:::12+' + io.JSON.stringify(['woot', 'wa']))
     , {
         type: 'ack'
       , ackId: '12'
@@ -339,7 +336,7 @@
       , endpoint: ''
       , args: ['woot', 'wa']
       })
-    , '6:::12+' + JSON.stringify(['woot', 'wa'])
+    , '6:::12+' + io.JSON.stringify(['woot', 'wa'])
     , 'encoding ack packet with args'
     );
   });
@@ -534,4 +531,4 @@
     );
   });
   
-}(window.JSON))
+}())
