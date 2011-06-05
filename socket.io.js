@@ -1060,7 +1060,7 @@
    * @api private
    */
 
-  exports.encodePayload = function (packets) {
+  parser.encodePayload = function (packets) {
     var decoded = '';
 
     if (packets.length == 1)
@@ -1082,7 +1082,7 @@
 
   var regexp = /^([^:]+):([0-9]+)?(\+)?:([^:]+)?:?(.*)?$/;
 
-  exports.decodePacket = function (data) {
+  parser.decodePacket = function (data) {
     var pieces = data.match(regexp);
 
     if (!pieces) return {};
@@ -1166,13 +1166,13 @@
    * @api public
    */
 
-  exports.decodePayload = function (data) {
+  parser.decodePayload = function (data) {
     if (data[0] == '\ufffd') {
       var ret = [];
 
       for (var i = 1, length = ''; i < data.length; i++) {
         if (data[i] == '\ufffd') {
-          ret.push(exports.decodePacket(data.substr(i + 1).substr(0, length)));
+          ret.push(parser.decodePacket(data.substr(i + 1).substr(0, length)));
           i += Number(length) + 1;
           length = '';
         } else {

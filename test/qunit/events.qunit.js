@@ -12,13 +12,13 @@
     
     event.on('test', function(a, b){
       ++calls;
-      ok(a === 'a');
-      ok(b === 'b');
+      equals(a, 'a', 'argument a should be a');
+      equals(b, 'b', 'argument a should be b');
     });
     
     event.emit('test', 'a', 'b');
-    ok(calls === 1);
-    ok(event.on === event.addListener);
+    equals(calls, 1, 'emit fires only once');
+    ok(event.on === event.addListener, 'addListener is an alias for on');
   });
   
   test('remove listener', function(){
@@ -29,8 +29,8 @@
     event.on('test:more', empty);
     event.removeAllListeners('test');
     
-    deepEqual([], event.listeners('test'));
-    deepEqual([empty], event.listeners('test:more'));
+    deepEqual([], event.listeners('test'), '`test` has no event listeners');
+    deepEqual([empty], event.listeners('test:more'), '`test` did not remove the event listener for `test:more`');
   });
   
   test('remove all listeners', function(){
@@ -41,11 +41,11 @@
     event.on('test:more', empty);
     event.removeAllListeners();
     
-    deepEqual([], event.listeners('test'));
-    deepEqual([], event.listeners('test:more'));
+    deepEqual([], event.listeners('test'), '`test` has no event listeners');
+    deepEqual([], event.listeners('test:more'), '`test:more` has no event listeners');
   });
   
-  test('remove incorrect listeners', function(){
+  test('remove listeners functions', function(){
     var event = new io.EventEmitter
       , calls = 0;
     
@@ -55,16 +55,16 @@
     
     event.on('one', one);
     event.removeListener('one', one);
-    deepEqual([], event.listeners('one'));
+    deepEqual([], event.listeners('one'), 'one has no event listeners');
     
     event.on('two', two);
     event.removeListener('two', one);
-    deepEqual([two], event.listeners('two'));
+    deepEqual([two], event.listeners('two'), 'removing `two` with function one should not work');
     
     event.on('three', three);
     event.on('three', two);
     event.removeListener('three', three);
-    deepEqual([two], event.listeners('three'));
+    deepEqual([two], event.listeners('three'), 'removing `thee` should not remove all events for `three`');
   });
   
   test('number of arguments', function(){
@@ -82,7 +82,7 @@
     event.emit('test', null, null, null, null);
     event.emit('test', null, null, null, null, null);
     
-    deepEqual([0, 1, 2, 3, 4, 5], number);
+    deepEqual([0, 1, 2, 3, 4, 5], number, 'receive all arguments, not just one or two');
   });
   
   test('once', function(){
@@ -105,7 +105,7 @@
     event.removeListener('test:removed', removed);
     event.emit('test:removed');
     
-    ok(calls === 1);
+    equal(calls, 1, 'event should only be called once');
   })
   
 }())
