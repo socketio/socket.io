@@ -58,7 +58,7 @@
    */
 
   // if node
-  if ('undefined' != typeof module && 'undefined' != typeof require) {
+  if ('object' === typeof module && 'function' === typeof require) {
 
     /**
      * Expose utils
@@ -131,7 +131,7 @@
     return socket.of(uri.path.length > 1 ? uri.path : '');
   };
 
-})('undefined' != typeof module ? module.exports : (window.io = {}));
+})('object' === typeof module ? module.exports : (window.io = {}));
 
 
 /**
@@ -195,7 +195,7 @@
       port = 80;
     }
 
-    return (protocol || 'http://') + host + ':' + (port || 80);
+    return (protocol || 'http') + '://' + host + ':' + (port || protocol && protocol === 'https' ? 443 : 80);
   };
 
   /**
@@ -210,7 +210,7 @@
   var pageLoaded = false;
 
   util.load = function (fn) {
-    if (/loaded|complete/.test(document.readyState) || pageLoaded) {
+    if (document.readyState === 'complete' || pageLoaded) {
       return fn();
     }
 
@@ -322,13 +322,25 @@
    * @api public
    */
   
-  util.merge = function (obj, obj2) {
-    for (var i in obj) {
-      if (obj.hasOwnProperty(i))
-        obj2[i] = obj[i];
+  util.merge = function merge(target, additional, deep, lastseen){
+    var seen = lastseen || []
+      , depth = typeof deep == 'undefined' ? 2 : deep
+      , prop;
+    
+    for (prop in additional){
+      if (additional.hasOwnProperty(prop) && this.indexOf(seen, prop) < 0){
+        if (typeof target[prop] !== 'object' || !depth){
+          target[prop] = additional[prop];
+          seen.push(additional[prop]);
+        } else {
+          this.merge(target[prop], additional[prop], depth - 1, seen);
+        }
+      }
     }
+    
+    return target;
   };
-
+  
   /**
    * Merges prototypes from objects
    *
@@ -360,7 +372,7 @@
    * @api public
    */
 
-  util.isArray = function (obj) {
+  util.isArray = Array.isArray || function (obj) {
     return Object.prototype.toString.call(obj) === '[object Array]';
   };
 
@@ -464,6 +476,8 @@
 
     return this;
   };
+  
+  EventEmitter.prototype.addListener = EventEmitter.prototype.on;
 
   /**
    * Adds a volatile listener.
@@ -613,8 +627,16 @@
  * Based on JSON2 (http://www.JSON.org/js.html).
  */
 
-(function (exports) {
+(function (exports, nativeJSON) {
   "use strict";
+  
+  // use native JSON if it's available
+  if (nativeJSON && nativeJSON.parse){
+    return exports.JSON = {
+      parse: nativeJSON.parse
+    , stringify: nativeJSON.stringify
+    }
+  }
 
   var JSON = exports.JSON = {};
 
@@ -912,7 +934,7 @@
       throw new SyntaxError('JSON.parse');
   };
 
-}('undefined' != typeof io ? io : module.exports));
+}('undefined' != typeof io ? io : module.exports, JSON));
 
 
 /**
@@ -1046,7 +1068,7 @@
    * @api private
    */
 
-  exports.encodePayload = function (packets) {
+  parser.encodePayload = function (packets) {
     var decoded = '';
 
     if (packets.length == 1)
@@ -1068,7 +1090,7 @@
 
   var regexp = /^([^:]+):([0-9]+)?(\+)?:([^:]+)?:?(.*)?$/;
 
-  exports.decodePacket = function (data) {
+  parser.decodePacket = function (data) {
     var pieces = data.match(regexp);
 
     if (!pieces) return {};
@@ -1152,13 +1174,13 @@
    * @api public
    */
 
-  exports.decodePayload = function (data) {
+  parser.decodePayload = function (data) {
     if (data[0] == '\ufffd') {
       var ret = [];
 
       for (var i = 1, length = ''; i < data.length; i++) {
         if (data[i] == '\ufffd') {
-          ret.push(exports.decodePacket(data.substr(i + 1).substr(0, length)));
+          ret.push(parser.decodePacket(data.substr(i + 1).substr(0, length)));
           i += Number(length) + 1;
           length = '';
         } else {
@@ -1223,7 +1245,7 @@
     this.clearCloseTimeout();
 
     if (data !== '') {
-      var msgs = io.decodePayload(data);
+      var msgs = io.parser.decodePayload(data);
       if (msgs && msgs.length){
         for (var i = 0, l = msgs.length; i < l; i++){
           this.onPacket(msgs[i]);
