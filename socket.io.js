@@ -1973,10 +1973,7 @@
    */
 
   WS.prototype.send = function (data) {
-    if (this.websocket) {
-      this.websocket.send(io.parser.encodePacket(data));
-    }
-
+    this.websocket.send(io.parser.encodePacket(data));
     return this;
   };
 
@@ -1988,10 +1985,7 @@
    */
 
   WS.prototype.close = function(){
-    if (this.websocket) {
-      this.websocket.close();
-    }
-
+    this.websocket.close();
     return this;
   };
 
@@ -2556,7 +2550,7 @@
       self.connecting = true;
       self.emit('connecting', self.transport.name);
 
-      if (self.transport.open) self.transport.open(); // DVV: WS has no `.open()`, so far?
+      if (self.transport.open) self.transport.open();
 
       if (self.options.connectTimeout) {
         self.connectTimeoutTimer = setTimeout(function () {
