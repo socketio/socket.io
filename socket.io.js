@@ -1952,7 +1952,7 @@
    * @api public
    */
 
-  WS.prototype.connect = function(){
+  WS.prototype.open = function(){
     this.websocket = new WebSocket(this.prepareUrl());
 
     var self = this;
@@ -1998,7 +1998,7 @@
    */
 
   WS.prototype.onError = function(e){
-    this.websocket.onError(e);
+    this.socket.onError(e);
   };
 
   /**
@@ -2550,7 +2550,7 @@
       self.connecting = true;
       self.emit('connecting', self.transport.name);
 
-      if (self.transport.open) self.transport.open();
+      self.transport.open();
 
       if (self.options.connectTimeout) {
         self.connectTimeoutTimer = setTimeout(function () {
