@@ -52,6 +52,13 @@
    */
 
   io.j = [];
+  
+  /**
+   * Keep track of our io.Sockets
+   *
+   * @api private
+   */
+  io.sockets = {};
 
   /**
    * Expose constructors if in Node
@@ -359,7 +366,7 @@
 
   util.inherit = function (ctor, ctor2) {
     ctor.prototype = new ctor2;
-    util.merge(ctor2, ctor);
+    util.merge(ctor, ctor2);
   };
 
   /**
@@ -1230,7 +1237,7 @@
    * Apply EventEmitter mixin.
    */
 
-  io.util.mixin(io.EventEmitter, Transport);
+  io.util.mixin(Transport, io.EventEmitter);
 
   /**
    * Handles the response from the server. When a new response is received
@@ -1452,7 +1459,7 @@
 
   XHR.prototype.checkSend = function () {
     if (!this.posting && this.sendBuffer.length){
-      var encoded = io.encodePayload(this.sendBuffer);
+      var encoded = io.parser.encodePayload(this.sendBuffer);
       this.sendBuffer = [];
       this.post(encoded);
     }
@@ -1946,13 +1953,13 @@
    */
 
   WS.prototype.connect = function(){
-    this.socket = new WebSocket(this.prepareUrl());
+    this.websocket = new WebSocket(this.prepareUrl());
 
     var self = this;
-    this.socket.onopen = function () { self.onOpen(); };
-    this.socket.onmessage = function (ev) { self.onData(ev.data); };
-    this.socket.onclose = function () { self.onClose(); };
-    this.socket.onerror = function (e) { self.onError(e); };
+    this.websocket.onopen = function () { self.onOpen(); };
+    this.websocket.onmessage = function (ev) { self.onData(ev.data); };
+    this.websocket.onclose = function () { self.onClose(); };
+    this.websocket.onerror = function (e) { self.onError(e); };
 
     return this;
   };
@@ -1966,8 +1973,8 @@
    */
 
   WS.prototype.send = function (data) {
-    if (this.socket) {
-      this.socket.send(this.encode(data));
+    if (this.websocket) {
+      this.websocket.send(io.parser.encodePacket(data));
     }
 
     return this;
@@ -1981,8 +1988,8 @@
    */
 
   WS.prototype.close = function(){
-    if (this.socket) {
-      this.socket.close();
+    if (this.websocket) {
+      this.websocket.close();
     }
 
     return this;
@@ -1997,7 +2004,7 @@
    */
 
   WS.prototype.onError = function(e){
-    this.socket.onError(e);
+    this.websocket.onError(e);
   };
 
   /**
@@ -2237,7 +2244,7 @@
    * Apply EventEmitter mixin.
    */
 
-  io.util.mixin(io.EventEmitter, SocketNamespace);
+  io.util.mixin(SocketNamespace, io.EventEmitter);
 
   /**
    * Copies emit since we override it
@@ -2408,7 +2415,7 @@
       , 'auto connect': true
     };
 
-    io.util.merge(options, this.options);
+    io.util.merge(this.options, options);
 
     this.connected = false;
     this.open = false;
@@ -2432,7 +2439,7 @@
    * Apply EventEmitter mixin.
    */
 
-  io.util.mixin(io.EventEmitter, Socket);
+  io.util.mixin(Socket, io.EventEmitter);
 
   /**
    * Returns a namespace listener/emitter for this socket
@@ -2458,9 +2465,11 @@
   function empty () { };
 
   Socket.prototype.handshake = function (fn) {
+    var self = this;
+
     function complete (data) {
       if (data instanceof Error) {
-        this.onError(data.message);
+        self.onError(data.message);
       } else {
         fn.apply(null, data.split(':'));
       }
@@ -2480,8 +2489,7 @@
         script.parentNode.removeChild(script);
       });
     } else {
-      var xhr = io.util.request()
-        , self = this;
+      var xhr = io.util.request();
 
       xhr.open('GET', url);
       xhr.onreadystatechange = function () {
@@ -2580,7 +2588,8 @@
         }, self.options['connect timeout']);
       }
 
-      if (fn && typeof fn == 'function') this.once('connect',fn);
+      if (fn && typeof fn == 'function') self.once('connect',fn);
+      self.onConnect();
     });
 
     return this;
