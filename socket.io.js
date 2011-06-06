@@ -52,13 +52,20 @@
    */
 
   io.j = [];
+  
+  /**
+   * Keep track of our io.Sockets
+   *
+   * @api private
+   */
+  io.sockets = {};
 
   /**
    * Expose constructors if in Node
    */
 
   // if node
-  if ('undefined' != typeof module && 'undefined' != typeof require) {
+  if ('object' === typeof module && 'function' === typeof require) {
 
     /**
      * Expose utils
@@ -131,7 +138,7 @@
     return socket.of(uri.path.length > 1 ? uri.path : '');
   };
 
-})('undefined' != typeof module ? module.exports : (window.io = {}));
+})('object' === typeof module ? module.exports : (window.io = {}));
 
 
 /**
@@ -195,7 +202,7 @@
       port = 80;
     }
 
-    return (protocol || 'http://') + host + ':' + (port || 80);
+    return (protocol || 'http') + '://' + host + ':' + (port || protocol && protocol === 'https' ? 443 : 80);
   };
 
   /**
@@ -210,7 +217,7 @@
   var pageLoaded = false;
 
   util.load = function (fn) {
-    if (/loaded|complete/.test(document.readyState) || pageLoaded) {
+    if (document.readyState === 'complete' || pageLoaded) {
       return fn();
     }
 
@@ -322,13 +329,25 @@
    * @api public
    */
   
-  util.merge = function (obj, obj2) {
-    for (var i in obj) {
-      if (obj.hasOwnProperty(i))
-        obj2[i] = obj[i];
+  util.merge = function merge(target, additional, deep, lastseen){
+    var seen = lastseen || []
+      , depth = typeof deep == 'undefined' ? 2 : deep
+      , prop;
+    
+    for (prop in additional){
+      if (additional.hasOwnProperty(prop) && this.indexOf(seen, prop) < 0){
+        if (typeof target[prop] !== 'object' || !depth){
+          target[prop] = additional[prop];
+          seen.push(additional[prop]);
+        } else {
+          this.merge(target[prop], additional[prop], depth - 1, seen);
+        }
+      }
     }
+    
+    return target;
   };
-
+  
   /**
    * Merges prototypes from objects
    *
@@ -347,7 +366,7 @@
 
   util.inherit = function (ctor, ctor2) {
     ctor.prototype = new ctor2;
-    util.merge(ctor2, ctor);
+    util.merge(ctor, ctor2);
   };
 
   /**
@@ -360,7 +379,7 @@
    * @api public
    */
 
-  util.isArray = function (obj) {
+  util.isArray = Array.isArray || function (obj) {
     return Object.prototype.toString.call(obj) === '[object Array]';
   };
 
@@ -464,6 +483,8 @@
 
     return this;
   };
+  
+  EventEmitter.prototype.addListener = EventEmitter.prototype.on;
 
   /**
    * Adds a volatile listener.
@@ -613,8 +634,16 @@
  * Based on JSON2 (http://www.JSON.org/js.html).
  */
 
-(function (exports) {
+(function (exports, nativeJSON) {
   "use strict";
+  
+  // use native JSON if it's available
+  if (nativeJSON && nativeJSON.parse){
+    return exports.JSON = {
+      parse: nativeJSON.parse
+    , stringify: nativeJSON.stringify
+    }
+  }
 
   var JSON = exports.JSON = {};
 
@@ -912,7 +941,7 @@
       throw new SyntaxError('JSON.parse');
   };
 
-}('undefined' != typeof io ? io : module.exports));
+}('undefined' != typeof io ? io : module.exports, JSON));
 
 
 /**
@@ -1046,7 +1075,7 @@
    * @api private
    */
 
-  exports.encodePayload = function (packets) {
+  parser.encodePayload = function (packets) {
     var decoded = '';
 
     if (packets.length == 1)
@@ -1068,7 +1097,7 @@
 
   var regexp = /^([^:]+):([0-9]+)?(\+)?:([^:]+)?:?(.*)?$/;
 
-  exports.decodePacket = function (data) {
+  parser.decodePacket = function (data) {
     var pieces = data.match(regexp);
 
     if (!pieces) return {};
@@ -1152,13 +1181,13 @@
    * @api public
    */
 
-  exports.decodePayload = function (data) {
+  parser.decodePayload = function (data) {
     if (data[0] == '\ufffd') {
       var ret = [];
 
       for (var i = 1, length = ''; i < data.length; i++) {
         if (data[i] == '\ufffd') {
-          ret.push(exports.decodePacket(data.substr(i + 1).substr(0, length)));
+          ret.push(parser.decodePacket(data.substr(i + 1).substr(0, length)));
           i += Number(length) + 1;
           length = '';
         } else {
@@ -1208,7 +1237,7 @@
    * Apply EventEmitter mixin.
    */
 
-  io.util.mixin(io.EventEmitter, Transport);
+  io.util.mixin(Transport, io.EventEmitter);
 
   /**
    * Handles the response from the server. When a new response is received
@@ -1223,7 +1252,7 @@
     this.clearCloseTimeout();
 
     if (data !== '') {
-      var msgs = io.decodePayload(data);
+      var msgs = io.parser.decodePayload(data);
       if (msgs && msgs.length){
         for (var i = 0, l = msgs.length; i < l; i++){
           this.onPacket(msgs[i]);
@@ -1430,7 +1459,7 @@
 
   XHR.prototype.checkSend = function () {
     if (!this.posting && this.sendBuffer.length){
-      var encoded = io.encodePayload(this.sendBuffer);
+      var encoded = io.parser.encodePayload(this.sendBuffer);
       this.sendBuffer = [];
       this.post(encoded);
     }
@@ -1923,14 +1952,14 @@
    * @api public
    */
 
-  WS.prototype.connect = function(){
-    this.socket = new WebSocket(this.prepareUrl());
+  WS.prototype.open = function(){
+    this.websocket = new WebSocket(this.prepareUrl());
 
     var self = this;
-    this.socket.onopen = function () { self.onOpen(); };
-    this.socket.onmessage = function (ev) { self.onData(ev.data); };
-    this.socket.onclose = function () { self.onClose(); };
-    this.socket.onerror = function (e) { self.onError(e); };
+    this.websocket.onopen = function () { self.onOpen(); };
+    this.websocket.onmessage = function (ev) { self.onData(ev.data); };
+    this.websocket.onclose = function () { self.onClose(); };
+    this.websocket.onerror = function (e) { self.onError(e); };
 
     return this;
   };
@@ -1944,10 +1973,7 @@
    */
 
   WS.prototype.send = function (data) {
-    if (this.socket) {
-      this.socket.send(this.encode(data));
-    }
-
+    this.websocket.send(io.parser.encodePacket(data));
     return this;
   };
 
@@ -1959,10 +1985,7 @@
    */
 
   WS.prototype.close = function(){
-    if (this.socket) {
-      this.socket.close();
-    }
-
+    this.websocket.close();
     return this;
   };
 
@@ -1985,6 +2008,21 @@
    */
   WS.prototype.scheme = function(){
     return (this.socket.options.secure ? 'wss' : 'ws');
+  };
+
+  /**
+   * Generates a connection url based on the Socket.IO URL Protocol.
+   * See <https://github.com/learnboost/socket.io-node/> for more details.
+   *
+   * @returns {String} Connection url
+   * @api private
+   */
+
+  WS.prototype.prepareUrl = function () {
+    return this.scheme() + '://'
+      + this.socket.options.host + ':' + this.socket.options.port + '/'
+      + this.socket.options.resource + '/' + io.protocol
+      + '/' + this.name + '/' + this.sessid;
   };
 
   /**
@@ -2215,7 +2253,7 @@
    * Apply EventEmitter mixin.
    */
 
-  io.util.mixin(io.EventEmitter, SocketNamespace);
+  io.util.mixin(SocketNamespace, io.EventEmitter);
 
   /**
    * Copies emit since we override it
@@ -2386,7 +2424,7 @@
       , 'auto connect': true
     };
 
-    io.util.merge(options, this.options);
+    io.util.merge(this.options, options);
 
     this.connected = false;
     this.open = false;
@@ -2410,7 +2448,7 @@
    * Apply EventEmitter mixin.
    */
 
-  io.util.mixin(io.EventEmitter, Socket);
+  io.util.mixin(Socket, io.EventEmitter);
 
   /**
    * Returns a namespace listener/emitter for this socket
@@ -2436,9 +2474,11 @@
   function empty () { };
 
   Socket.prototype.handshake = function (fn) {
+    var self = this;
+
     function complete (data) {
       if (data instanceof Error) {
-        this.onError(data.message);
+        self.onError(data.message);
       } else {
         fn.apply(null, data.split(':'));
       }
@@ -2458,8 +2498,7 @@
         script.parentNode.removeChild(script);
       });
     } else {
-      var xhr = io.util.request()
-        , self = this;
+      var xhr = io.util.request();
 
       xhr.open('GET', url);
       xhr.onreadystatechange = function () {
@@ -2526,7 +2565,7 @@
       self.connecting = true;
       self.emit('connecting', self.transport.name);
 
-      if (self.transport.open) self.transport.open(); // DVV: WS has no `.open()`, so far?
+      self.transport.open();
 
       if (self.options.connectTimeout) {
         self.connectTimeoutTimer = setTimeout(function () {
@@ -2558,7 +2597,8 @@
         }, self.options['connect timeout']);
       }
 
-      if (fn && typeof fn == 'function') this.once('connect',fn);
+      if (fn && typeof fn == 'function') self.once('connect',fn);
+      self.onConnect();
     });
 
     return this;
