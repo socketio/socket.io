@@ -42,10 +42,10 @@ JSONPPolling.prototype.handshake = function (opts, fn) {
   }
 
   return this.get(
-      '/socket.io/{protocol}?jsonp=59'
+      '/socket.io/{protocol}?jsonp=0'
     , opts
     , function (res, data) {
-        var head = 'io[59]('
+        var head = 'io.j[0]('
           , foot = ');';
 
         data.substr(0, head.length).should.eql(head);
@@ -72,11 +72,11 @@ JSONPPolling.prototype.get = function (path, opts, fn) {
   opts = opts || {};
 
   opts.parse = function (data) {
-    var head = 'io.j('
+    var head = 'io.j[0]('
       , foot = ');';
 
     if (~path.indexOf('?i=1')) {
-      head = 'io[1](';
+      head = 'io.j[1](';
     }
 
     data.substr(0, head.length).should.eql(head);
