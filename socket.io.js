@@ -1945,7 +1945,7 @@
 
   WS.prototype.send = function (data) {
     if (this.socket) {
-      this.socket.send(this.encode(data));
+      this.socket.send(io.encodePayload([data]));
     }
 
     return this;
@@ -2436,9 +2436,11 @@
   function empty () { };
 
   Socket.prototype.handshake = function (fn) {
+    var self = this;
+
     function complete (data) {
       if (data instanceof Error) {
-        this.onError(data.message);
+        self.onError(data.message);
       } else {
         fn.apply(null, data.split(':'));
       }
@@ -2458,8 +2460,7 @@
         script.parentNode.removeChild(script);
       });
     } else {
-      var xhr = io.util.request()
-        , self = this;
+      var xhr = io.util.request();
 
       xhr.open('GET', url);
       xhr.onreadystatechange = function () {
@@ -2558,7 +2559,7 @@
         }, self.options['connect timeout']);
       }
 
-      if (fn && typeof fn == 'function') this.once('connect',fn);
+      if (fn && typeof fn == 'function') self.once('connect',fn); else self.onConnect();
     });
 
     return this;
