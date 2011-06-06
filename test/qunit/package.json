@@ -1,0 +1,21 @@
+{
+	"name": "qunit",
+	"author": {
+		"name": "John Resig",
+		"email": "jeresig@gmail.com",
+		"url": "http://ejohn.org/"
+	},
+	"maintainer": {
+		"name": "Jörn Zaefferer",
+		"email": "joern.zaefferer@googlemail.com",
+		"url": "http://bassistance.de/"
+	},
+	"url": "http://docs.jquery.com/QUnit",
+	"license": {
+		"name": "MIT",
+		"url": "http://www.opensource.org/licenses/mit-license.php"
+	},
+	"description": "An easy-to-use JavaScript Unit Testing framework.",
+	"keywords": [ "testing", "unit", "jquery" ],
+	"lib": "qunit"
+}
