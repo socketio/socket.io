@@ -1339,6 +1339,17 @@
   };
 
   /**
+   * Sends a packet
+   *
+   * @param {Object} packet object.
+   * @api private
+   */
+
+  Transport.prototype.packet = function (packet) {
+    this.send(io.parser.encodePacket(packet));
+  };
+
+  /**
    * Send the received heartbeat message back to server. So the server
    * knows we are still connected.
    *
@@ -1347,7 +1358,7 @@
    */
 
   Transport.prototype.onHeartbeat = function (heartbeat) {
-    this.send({ type: 'heartbeat' });
+    this.packet({ type: 'heartbeat' });
   };
  
   /**
@@ -1458,7 +1469,7 @@
    */
 
   XHR.prototype.checkSend = function () {
-    if (!this.posting && this.sendBuffer.length){
+    if (!this.posting && this.sendBuffer.length) {
       var encoded = io.parser.encodePayload(this.sendBuffer);
       this.sendBuffer = [];
       this.post(encoded);
@@ -1474,7 +1485,7 @@
    */
 
   XHR.prototype.send = function (data) {
-    if (io.util.isArray(data)){
+    if (io.util.isArray(data)) {
       this.sendBuffer.push.apply(this.sendBuffer, data);
     } else {
       this.sendBuffer.push(data);
@@ -1973,7 +1984,7 @@
    */
 
   WS.prototype.send = function (data) {
-    this.websocket.send(io.parser.encodePacket(data));
+    this.websocket.send(data);
     return this;
   };
 
@@ -2271,7 +2282,7 @@
 
   SocketNamespace.prototype.packet = function (packet) {
     packet.endpoint = this.name;
-    this.socket.send(io.parser.encodePacket(packet));
+    this.socket.packet(packet);
     this.flags = {};
     return this;
   };
@@ -2612,8 +2623,8 @@
    * @api public
    */
 
-  Socket.prototype.send = function (data) {
-    this.transport.send(data);
+  Socket.prototype.packet = function (data) {
+    this.transport.packet(data);
     return this;
   };
 
@@ -2668,6 +2679,10 @@
     this.connected = true;
     this.connecting = false;
     this.emit('connect');
+    
+    for (var i in this.namespaces) {
+      this.of(i).$emit('connect');
+    }
   };
 
   /**
