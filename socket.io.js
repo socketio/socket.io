@@ -1197,7 +1197,7 @@
 
       return ret;
     } else {
-      return [exports.decodePacket(data)];
+      return [parser.decodePacket(data)];
     }
   };
 
@@ -1347,9 +1347,9 @@
    */
 
   Transport.prototype.onHeartbeat = function (heartbeat) {
-    this.packet({ type: 'heartbeat' });
+    this.send({ type: 'heartbeat' });
   };
-
+ 
   /**
    * Called when the transport opens.
    *
@@ -2269,7 +2269,7 @@
    * @api private
    */
 
-  SocketNamespace.prototype.packet = function () {
+  SocketNamespace.prototype.packet = function (packet) {
     packet.endpoint = this.name;
     this.socket.send(io.parser.encodePacket(packet));
     this.flags = {};
@@ -2678,7 +2678,7 @@
 
   Socket.prototype.onOpen = function () {
     if (!this.connected) {
-      
+      this.onConnect();
     }
 
     this.open = true;
@@ -2715,7 +2715,7 @@
     this.emit('error', err);
 
     for (var i in this.namespaces) {
-      this.of(i).emit('error', err);
+      this.of(i).$emit('error', err);
     }
   };
 
@@ -2725,7 +2725,7 @@
    * @api private
    */
 
-  Socket.prototype.onDisconnect = function () {
+  Socket.prototype.onDisconnect = function (reason) {
     var wasConnected = this.connected;
 
     this.connected = false;
@@ -2738,7 +2738,7 @@
       this.transport.clearTimeouts();
 
       for (var i in this.namespaces) {
-        this.of(i).emit('error', err);
+        this.of(i).$emit('disconnect', reason);
       }
 
       if (this.options.reconnect && !this.reconnecting) {
