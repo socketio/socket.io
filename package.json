@@ -2,7 +2,8 @@
     "name": "socket.io-client"
   , "description": "Socket.IO client for the browser and node.js"
   , "version": "0.7.0"
-  , "main" : "./socket.io.js"
+  , "main" : "./lib/io.js"
+  , "browserify": "./dist/socket.io.js"
   , "homepage": "http://socket.io"
   , "description": "Realtime apps made cross-browser & easy with a WebSocket-like API"
   , "keywords": ["websocket", "socket", "realtime", "socket.io", "comet", "ajax"]
@@ -16,7 +17,4 @@
       , "url": "https://github.com/LearnBoost/Socket.IO.git"
     }
   , "engines": { "node": ">= 0.4.0" }
-  , "scripts": {
-      "install": "bin/build"
-    }
 }
