@@ -1,18 +1,22 @@
-{ "name": "socket.io-browser"
-, "description": "Browser-side code for Socket.IO"
-, "version": "0.6.2"
-, "main" : "./socket.io.js"
-,  "homepage": "http://socket.io"
-, "repository":
-  { "type": "git"
-  , "url": "git://github.com/LearnBoost/Socket.IO.git"
-  }
-, "author": "LearnBoost"
-, "licenses" :
-  [ { "type" : "MIT"
-    , "url" : "http://github.com/learnboost/Socket.IO/raw/master/README.md"
-  } ]
-, "engines": { "node": "*" }
-, "scripts" :
-  { "install" : "bin/build" }
+{
+    "name": "socket.io-client"
+  , "description": "Socket.IO client for the browser and node.js"
+  , "version": "0.7.0"
+  , "main" : "./socket.io.js"
+  , "homepage": "http://socket.io"
+  , "description": "Realtime apps made cross-browser & easy with a WebSocket-like API"
+  , "keywords": ["websocket", "socket", "realtime", "socket.io", "comet", "ajax"]
+  , "author": "Guillermo Rauch <guillermo@learnboost.com>"
+  , "contributors": [
+        { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" }
+      , { "name": "Arnout Kazemier", "email": "info@3rd-eden.com" }
+    ]
+  , "repository": {
+        "type": "git"
+      , "url": "https://github.com/LearnBoost/Socket.IO.git"
+    }
+  , "engines": { "node": ">= 0.4.0" }
+  , "scripts": {
+      "install": "bin/build"
+    }
 }
