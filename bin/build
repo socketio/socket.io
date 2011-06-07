@@ -46,14 +46,14 @@ files.forEach(function(file){
 
 console.log('Generating…');
 
-fs.write(fs.openSync(__dirname + '/../socket.io.js', 'w'), content, 0, 'utf8');
-console.log(' + ' + __dirname + '/../socket.io.js');
+fs.write(fs.openSync(__dirname + '/../dist/socket.io.js', 'w'), content, 0, 'utf8');
+console.log(' + ' + __dirname + '/../dist/socket.io.js');
 
 console.log('Uglyfying…');
 ast = jsp.parse(content);
 ast = pro.ast_mangle(ast); // get a new AST with mangled names
 ast = pro.ast_squeeze(ast);
-fs.write(fs.openSync(__dirname + '/../socket.io.min.js', 'w'), license + pro.gen_code(ast), 0, 'utf8');
-console.log(' + ' + __dirname + '/../socket.io.min.js');
+fs.write(fs.openSync(__dirname + '/../dist/socket.io.min.js', 'w'), license + pro.gen_code(ast), 0, 'utf8');
+console.log(' + ' + __dirname + '/../dist/socket.io.min.js');
 
 console.log('All done!');
