@@ -167,9 +167,6 @@ var builder = module.exports = function(){
         })
       }
       
-      // update the socket.io code with a list of the available transports
-      code = code.replace(/['"]@@AVAILABLE-TRANSPORTS@@['"]/g, JSON.stringify(transports));
-      
       // Search for conditional code blocks that need to be removed as they where designed for
       // a server side env. but only if we don't want to make this build node compatible
       if (!settings.node){
