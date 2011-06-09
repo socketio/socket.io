@@ -60,10 +60,6 @@
    */
   io.sockets = {};
 
-  /**
-   * Expose constructors if in Node
-   */
-
 
   /**
    * Manages connections to hosts.
