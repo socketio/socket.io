@@ -379,7 +379,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.for('/woot').on('connection', function (socket) {
+    io.of('/woot').on('connection', function (socket) {
       connectMessage.should.be.true;
 
       socket.on('disconnect', function () {
@@ -430,7 +430,7 @@ module.exports = {
       });
     });
 
-    io.for('/tobi').on('connection', function () {
+    io.of('/tobi').on('connection', function () {
       tobiConnected = true;
     });
 
@@ -468,7 +468,7 @@ module.exports = {
       });
     });
 
-    io.for('/woot').on('connection', function (socket) {
+    io.of('/woot').on('connection', function (socket) {
       socket.on('disconnect', function () {
         wootDisconnected = true;
       });
@@ -529,13 +529,13 @@ module.exports = {
       });
     });
 
-    io.for('/a').on('connection', function (socket) {
+    io.of('/a').on('connection', function (socket) {
       socket.on('disconnect', function (msg) {
         aDisconnected = true;
       });
     });
 
-    io.for('/b').on('connection', function (socket) {
+    io.of('/b').on('connection', function (socket) {
       socket.on('disconnect', function (msg) {
         bDisconnected = true;
       });
@@ -595,14 +595,14 @@ module.exports = {
       });
     });
 
-    io.for('/a').on('connection', function (socket) {
+    io.of('/a').on('connection', function (socket) {
       socket.on('message', function (msg) {
         msg.should.eql('a');
         aMessaged = true;
       });
     });
 
-    io.for('/b').on('connection', function (socket) {
+    io.of('/b').on('connection', function (socket) {
       socket.on('message', function (msg) {
         msg.should.eql('b');
         bMessaged = true;
@@ -1486,7 +1486,7 @@ module.exports = {
       });
     });
 
-    io.for('/chrislee').on('connection', function (socket) {
+    io.of('/chrislee').on('connection', function (socket) {
       socket.json.send([1, 2, { 3: 4 }]);
     });
 
@@ -1544,7 +1544,7 @@ module.exports = {
       });
     });
 
-    io.for('/a').on('connection', function (socket) {
+    io.of('/a').on('connection', function (socket) {
       socket.on('message', function (msg) {
         msg.should.eql(['a', 'b', { c: 'd' }]);
         subMessaged = true;
@@ -1597,7 +1597,7 @@ module.exports = {
       });
     });
 
-    io.for('/chrislee').on('connection', function (socket) {
+    io.of('/chrislee').on('connection', function (socket) {
       socket.emit('tj');
     });
 
@@ -1650,7 +1650,7 @@ module.exports = {
       });
     });
 
-    io.for('/chrislee').on('connection', function (socket) {
+    io.of('/chrislee').on('connection', function (socket) {
       socket.emit('tj', 1, 2, 3, 4);
     });
 
@@ -1709,7 +1709,7 @@ module.exports = {
       });
     });
 
-    io.for('/a').on('connection', function (socket) {
+    io.of('/a').on('connection', function (socket) {
       socket.on('tj', function () {
         subMessaged = true;
       });
@@ -1767,7 +1767,7 @@ module.exports = {
       });
     });
 
-    io.for('/a').on('connection', function (socket) {
+    io.of('/a').on('connection', function (socket) {
       socket.on('tj', function (ferret, age) {
         ferret.should.eql('tobi');
         age.should.eql(23);
@@ -1814,7 +1814,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.for('/chrislee').on('connection', function (socket) {
+    io.of('/chrislee').on('connection', function (socket) {
       s = socket;
 
       socket.on('disconnect', function () {
@@ -1861,7 +1861,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.for('/chrislee').on('connection', function (socket) {
+    io.of('/chrislee').on('connection', function (socket) {
       s = socket;
 
       socket.on('disconnect', function () {
@@ -1908,7 +1908,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.for('/chrislee').on('connection', function (socket) {
+    io.of('/chrislee').on('connection', function (socket) {
       s = socket;
 
       socket.on('disconnect', function () {
@@ -1955,7 +1955,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.for('/chrislee').on('connection', function (socket) {
+    io.of('/chrislee').on('connection', function (socket) {
       s = socket;
 
       socket.on('disconnect', function () {
@@ -2010,7 +2010,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.for('/chrislee').on('connection', function (socket) {
+    io.of('/chrislee').on('connection', function (socket) {
       s = socket;
 
       socket.on('disconnect', function () {
@@ -2065,7 +2065,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.for('/chrislee').on('connection', function (socket) {
+    io.of('/chrislee').on('connection', function (socket) {
       s = socket;
 
       socket.on('disconnect', function () {
@@ -2121,7 +2121,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.for('/tobi').on('connection', function (socket) {
+    io.of('/tobi').on('connection', function (socket) {
       socket.on('message', function (msg) {
         msg.should.eql('woot');
         messaged = true;
@@ -2190,7 +2190,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.for('/tobi').on('connection', function (socket) {
+    io.of('/tobi').on('connection', function (socket) {
       socket.on('message', function (msg, fn) {
         msg.should.eql('woot');
         fn();
@@ -2261,7 +2261,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.for('/tobi').on('connection', function (socket) {
+    io.of('/tobi').on('connection', function (socket) {
       socket.on('woot', function (msg, fn) {
         msg.should.eql(1);
         fn('aaaa');
@@ -2332,7 +2332,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.for('/woot').on('connection', function (socket) {
+    io.of('/woot').on('connection', function (socket) {
       socket.send('aaa', function () {
         acked = true;
       });
@@ -2398,7 +2398,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.for('/rapture').on('connection', function (socket) {
+    io.of('/rapture').on('connection', function (socket) {
       socket.send('woot', function (a, b, c) {
         a.should.eql(5);
         b.should.eql('hello');
@@ -2471,7 +2471,7 @@ module.exports = {
       io.set('close timeout', .05);
     });
 
-    io.for('/rapture').on('connection', function (socket) {
+    io.of('/rapture').on('connection', function (socket) {
       socket.emit('woot', 'a', function (a, b, c) {
         a.should.eql(5);
         b.should.eql('hello');
