@@ -107,6 +107,34 @@ module.exports = {
     });
   },
 
+  'test that the cached client is served': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    cl.get('/socket.io/socket.io.js', function (res, data) {
+      res.headers['content-type'].should.eql('application/javascript');
+      res.headers['content-length'].should.be.match(/([0-9]+)/);
+      res.headers.etag.should.match(/([0-9]+)\.([0-9]+)\.([0-9]+)/);
+
+      data.should.match(/XMLHttpRequest/);
+      io.client.should.match(/XMLHttpRequest/);
+
+
+      cl.get('/socket.io/socket.io.js', function (res, data) {
+        res.headers['content-type'].should.eql('application/javascript');
+        res.headers['content-length'].should.be.match(/([0-9]+)/);
+        res.headers.etag.should.match(/([0-9]+)\.([0-9]+)\.([0-9]+)/);
+
+        data.should.match(/XMLHttpRequest/);
+
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+  },
+
   'test that you can serve custom clients': function (done) {
     var port = ++ports
       , io = sio.listen(port)
