@@ -1,0 +1,18 @@
+doctype 5
+html
+  head
+    link(href='/stylesheets/main.css', rel='stylesheet', media='all')
+    script(src='/socket.io/socket.io.js')
+    script(src='/javascript/jquery.js')
+    script(src='/javascript/should.js')
+    script(src='/javascript/script.js')
+    script(src='/javascript/runner.js')
+
+    script
+      $(function () {
+        run('io.test.js', 'parser.test.js', 'util.test.js', 'events.test.js');
+      });
+
+    title Socket.IO tests runner
+  body
+    h2 Socket.IO test runner
