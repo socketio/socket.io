@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /*!
  * socket.io-node
  * Copyright(c) 2011 LearnBoost <dev@learnboost.com>

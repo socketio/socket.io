@@ -2,7 +2,7 @@ build:
 	./bin/build
 
 builder:
-	./bin/builder
+	node ./bin/builder.js
 
 test:
 	expresso -I lib test/builder.node.js
