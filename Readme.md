@@ -115,14 +115,14 @@ The following example defines a socket that listens on '/chat' and one for
     var io = require('socket.io').listen(80);
 
     var chat = io
-      .for('/chat');
+      .of('/chat');
       .on('connection', function (socket) {
         socket.emit('a message', { that: 'only', '/chat': 'will get' });
         chat.emit('a message', { everyone: 'in', '/chat': 'will get' });
       });
 
     var news = io
-      .for('/news');
+      .of('/news');
       .on('connection', function (socket) {
         socket.emit('item', { news: 'item' });
       });
