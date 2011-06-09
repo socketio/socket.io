@@ -15,4 +15,7 @@ test:
 build:
 	./bin/build
 
+builder:
+	node ./bin/builder.js
+
 .PHONY: test
