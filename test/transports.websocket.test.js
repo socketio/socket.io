@@ -101,7 +101,9 @@ module.exports = {
         ws.on('message', function (msg) {
           messages++;
 
-          if (messages == 1) {
+          if (messages == 0) {
+            msg.should.eql({ type: 'connect', endpoint: '', qs: '' });
+          } else if (messages == 1) {
             msg.should.eql({ type: 'message', endpoint: '', data: 'buffered a' });
           } else if (messages === 2) {
             msg.should.eql({ type: 'message', endpoint: '', data: 'buffered b' });
@@ -131,7 +133,8 @@ module.exports = {
 
   'test that not responding to a heartbeat drops client': function (done) {
     var cl = client(++ports)
-      , io = create(cl);
+      , io = create(cl)
+      , messages = 0;
 
     io.configure(function () {
       io.set('heartbeat interval', .05);
@@ -153,8 +156,12 @@ module.exports = {
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function (packet) {
-        packet.type.should.eql('heartbeat');
-        beat = true;
+        if (++messages == 1) {
+          packet.type.should.eql('connect');
+        } else {
+          packet.type.should.eql('heartbeat');
+          beat = true;
+        }
       });
     });
   },
@@ -162,6 +169,7 @@ module.exports = {
   'test that responding to a heartbeat maintains session': function (done) {
     var cl = client(++ports)
       , io = create(cl)
+      , messages = 0
       , heartbeats = 0;
 
     io.configure(function () {
@@ -184,11 +192,15 @@ module.exports = {
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function (packet) {
-        packet.type.should.eql('heartbeat');
-        heartbeats++;
+        if (++messages == 1) {
+          packet.type.should.eql('connect');
+        } else {
+          packet.type.should.eql('heartbeat');
+          heartbeats++;
 
-        if (heartbeats == 1) {
-          ws.packet({ type: 'heartbeat' });
+          if (heartbeats == 1) {
+            ws.packet({ type: 'heartbeat' });
+          }
         }
       });
     });
@@ -197,6 +209,7 @@ module.exports = {
   'test sending undeliverable volatile messages': function (done) {
     var cl = client(++ports)
       , io = create(cl)
+      , messages = 0
       , messaged = false
       , s;
 
@@ -217,7 +230,8 @@ module.exports = {
 
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
-      ws.onopen = function () {
+      ws.on('message', function (msg) {
+        msg.type.should.eql('connect');
         ws.finishClose();
 
         setTimeout(function () {
@@ -232,10 +246,6 @@ module.exports = {
             ws.finishClose();
           }, 10);
         }, 10);
-      };
-
-      ws.on('message', function () {
-        messaged = true;
       });
     });
   },
@@ -263,7 +273,7 @@ module.exports = {
 
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
-      ws.onopen = function () {
+      ws.on('message', function () {
         ws.finishClose();
 
         setTimeout(function () {
@@ -278,10 +288,6 @@ module.exports = {
             ws.finishClose();
           }, 10);
         }, 10);
-      };
-
-      ws.on('message', function () {
-        messaged = true;
       });
     });
   },
@@ -309,7 +315,7 @@ module.exports = {
 
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
-      ws.onopen = function () {
+      ws.on('message', function () {
         ws.finishClose();
 
         setTimeout(function () {
@@ -324,10 +330,6 @@ module.exports = {
             ws.finishClose();
           }, 10);
         }, 10);
-      };
-
-      ws.on('message', function () {
-        messaged = true;
       });
     });
   },
@@ -335,6 +337,7 @@ module.exports = {
   'test sending deliverable volatile messages': function (done) {
     var cl = client(++ports)
       , io = create(cl)
+      , messages = 0
       , messaged = false;
 
     io.configure(function () {
@@ -355,13 +358,17 @@ module.exports = {
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function (msg) {
-        msg.should.eql({
-            type: 'message'
-          , data: 'tobi'
-          , endpoint: ''
-        });
-        messaged = true;
-        ws.finishClose();
+        if (++messages == 1) {
+          msg.type.should.eql('connect');
+        } else {
+          msg.should.eql({
+              type: 'message'
+            , data: 'tobi'
+            , endpoint: ''
+          });
+          messaged = true;
+          ws.finishClose();
+        }
       });
     });
   },
@@ -389,13 +396,18 @@ module.exports = {
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function (msg) {
-        msg.should.eql({
-            type: 'json'
-          , data: [1, 2, 3]
-          , endpoint: ''
-        });
-        messaged = true;
-        ws.finishClose();
+        if (!ws.connected) {
+          msg.type.should.eql('connect');
+          ws.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'json'
+            , data: [1, 2, 3]
+            , endpoint: ''
+          });
+          messaged = true;
+          ws.finishClose();
+        }
       });
     });
   },
@@ -423,14 +435,19 @@ module.exports = {
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function (msg) {
-        msg.should.eql({
-            type: 'event'
-          , name: 'tobi'
-          , endpoint: ''
-          , args: []
-        });
-        messaged = true;
-        ws.finishClose();
+        if (!ws.connected) {
+          msg.type.should.eql('connect');
+          ws.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'event'
+            , name: 'tobi'
+            , endpoint: ''
+            , args: []
+          });
+          messaged = true;
+          ws.finishClose();
+        }
       });
     });
   },
@@ -471,28 +488,38 @@ module.exports = {
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
-        msg.should.eql({
-            type: 'message'
-          , data: 'yup'
-          , endpoint: ''
-        });
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'message'
+            , data: 'yup'
+            , endpoint: ''
+          });
 
-        messages++;
-        ws1.finishClose();
+          messages++;
+          ws1.finishClose();
+        }
       });
     });
 
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
-        msg.should.eql({
-            type: 'message'
-          , data: 'yup'
-          , endpoint: ''
-        });
+        if (!ws2.connected) {
+          msg.type.should.eql('connect');
+          ws2.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'message'
+            , data: 'yup'
+            , endpoint: ''
+          });
 
-        messages++;
-        ws2.finishClose();
+          messages++;
+          ws2.finishClose();
+        }
       });
     });
   },
@@ -533,30 +560,38 @@ module.exports = {
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
-        console.error('received message');
-        msg.should.eql({
-            type: 'json'
-          , data: { a: 'b' }
-          , endpoint: ''
-        });
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'json'
+            , data: { a: 'b' }
+            , endpoint: ''
+          });
 
-        messages++;
-        ws1.finishClose();
+          messages++;
+          ws1.finishClose();
+        }
       });
     });
 
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
-        console.error('received message');
-        msg.should.eql({
-            type: 'json'
-          , data: { a: 'b' }
-          , endpoint: ''
-        });
+        if (!ws2.connected) {
+          msg.type.should.eql('connect');
+          ws2.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'json'
+            , data: { a: 'b' }
+            , endpoint: ''
+          });
 
-        messages++;
-        ws2.finishClose();
+          messages++;
+          ws2.finishClose();
+        }
       });
     });
   },
@@ -597,30 +632,40 @@ module.exports = {
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
-        msg.should.eql({
-            type: 'event'
-          , name: 'tobi'
-          , args: ['rapture']
-          , endpoint: ''
-        });
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'event'
+            , name: 'tobi'
+            , args: ['rapture']
+            , endpoint: ''
+          });
 
-        messages++;
-        ws1.finishClose();
+          messages++;
+          ws1.finishClose();
+        }
       });
     });
 
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
-        msg.should.eql({
-            type: 'event'
-          , name: 'tobi'
-          , args: ['rapture']
-          , endpoint: ''
-        });
+        if (!ws2.connected) {
+          msg.type.should.eql('connect');
+          ws2.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'event'
+            , name: 'tobi'
+            , args: ['rapture']
+            , endpoint: ''
+          });
 
-        messages++;
-        ws2.finishClose();
+          messages++;
+          ws2.finishClose();
+        }
       });
     });
   },
@@ -670,35 +715,50 @@ module.exports = {
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
-        msg.should.eql({
-            type: 'message'
-          , data: 'hahaha'
-          , endpoint: ''
-        });
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'message'
+            , data: 'hahaha'
+            , endpoint: ''
+          });
 
-        messages++;
-        ws1.finishClose();
+          messages++;
+          ws1.finishClose();
+        }
       });
     });
 
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
-        msg.should.eql({
-            type: 'message'
-          , data: 'hahaha'
-          , endpoint: ''
-        });
+        if (!ws2.connected) {
+          msg.type.should.eql('connect');
+          ws2.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'message'
+            , data: 'hahaha'
+            , endpoint: ''
+          });
 
-        messages++;
-        ws2.finishClose();
+          messages++;
+          ws2.finishClose();
+        }
       });
     });
 
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl2, sid);
       ws3.on('message', function (msg) {
-        messages++;
+        if (!ws3.connected) {
+          msg.type.should.eql('connect');
+          ws3.connected = true;
+        } else {
+          messages++;
+        }
       });
 
       setTimeout(function () {
@@ -752,35 +812,50 @@ module.exports = {
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
-        msg.should.eql({
-            type: 'json'
-          , data: 123
-          , endpoint: ''
-        });
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'json'
+            , data: 123
+            , endpoint: ''
+          });
 
-        messages++;
-        ws1.finishClose();
+          messages++;
+          ws1.finishClose();
+        }
       });
     });
 
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
-        msg.should.eql({
-            type: 'json'
-          , data: 123
-          , endpoint: ''
-        });
+        if (!ws2.connected) {
+          msg.type.should.eql('connect');
+          ws2.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'json'
+            , data: 123
+            , endpoint: ''
+          });
 
-        messages++;
-        ws2.finishClose();
+          messages++;
+          ws2.finishClose();
+        }
       });
     });
 
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl2, sid);
       ws3.on('message', function (msg) {
-        messages++;
+        if (!ws3.connected) {
+          msg.type.should.eql('connect');
+          ws3.connected = true;
+        } else {
+          messages++;
+        }
       });
 
       setTimeout(function () {
@@ -834,37 +909,52 @@ module.exports = {
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
-        msg.should.eql({
-            type: 'event'
-          , name: 'locki'
-          , args: []
-          , endpoint: ''
-        });
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'event'
+            , name: 'locki'
+            , args: []
+            , endpoint: ''
+          });
 
-        messages++;
-        ws1.finishClose();
+          messages++;
+          ws1.finishClose();
+        }
       });
     });
 
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
-        msg.should.eql({
-            type: 'event'
-          , name: 'locki'
-          , args: []
-          , endpoint: ''
-        });
+        if (!ws2.connected) {
+          msg.type.should.eql('connect');
+          ws2.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'event'
+            , name: 'locki'
+            , args: []
+            , endpoint: ''
+          });
 
-        messages++;
-        ws2.finishClose();
+          messages++;
+          ws2.finishClose();
+        }
       });
     });
 
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl2, sid);
       ws3.on('message', function (msg) {
-        messages++;
+        if (!ws3.connected) {
+          msg.type.should.eql('connect');
+          ws3.connected = true;
+        } else {
+          messages++;
+        }
       });
 
       setTimeout(function () {
@@ -908,28 +998,38 @@ module.exports = {
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
-        msg.should.eql({
-            type: 'message'
-          , data: 'boom'
-          , endpoint: ''
-        });
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'message'
+            , data: 'boom'
+            , endpoint: ''
+          });
 
-        messages++;
-        ws1.finishClose();
+          messages++;
+          ws1.finishClose();
+        }
       });
     });
 
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
-        msg.should.eql({
-            type: 'message'
-          , data: 'boom'
-          , endpoint: ''
-        });
+        if (!ws2.connected) {
+          msg.type.should.eql('connect');
+          ws2.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'message'
+            , data: 'boom'
+            , endpoint: ''
+          });
 
-        messages++;
-        ws2.finishClose();
+          messages++;
+          ws2.finishClose();
+        }
       });
     });
 
@@ -948,7 +1048,12 @@ module.exports = {
       });
 
       ws3.on('message', function (msg) {
-        throw new Error('we shouldnt get a message here');
+        if (!ws3.connected) {
+          msg.type.should.eql('connect');
+          ws3.connected = true;
+        } else {
+          throw new Error('we shouldnt get a message here');
+        }
       });
     });
   },
@@ -988,28 +1093,38 @@ module.exports = {
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
-        msg.should.eql({
-            type: 'json'
-          , data: [1, 2, 3]
-          , endpoint: ''
-        });
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'json'
+            , data: [1, 2, 3]
+            , endpoint: ''
+          });
 
-        messages++;
-        ws1.finishClose();
+          messages++;
+          ws1.finishClose();
+        }
       });
     });
 
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
-        msg.should.eql({
-            type: 'json'
-          , data: [1, 2, 3]
-          , endpoint: ''
-        });
+        if (!ws2.connected) {
+          msg.type.should.eql('connect');
+          ws2.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'json'
+            , data: [1, 2, 3]
+            , endpoint: ''
+          });
 
-        messages++;
-        ws2.finishClose();
+          messages++;
+          ws2.finishClose();
+        }
       });
     });
 
@@ -1028,7 +1143,12 @@ module.exports = {
       });
 
       ws3.on('message', function (msg) {
-        throw new Error('we shouldnt get a message here');
+        if (!ws3.connected) {
+          msg.type.should.eql('connect');
+          ws3.connected = true;
+        } else {
+          throw new Error('we shouldnt get a message here');
+        }
       });
     });
   },
@@ -1068,30 +1188,40 @@ module.exports = {
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
-        msg.should.eql({
-            type: 'event'
-          , name: 'hey'
-          , args: ['arnold']
-          , endpoint: ''
-        });
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'event'
+            , name: 'hey'
+            , args: ['arnold']
+            , endpoint: ''
+          });
 
-        messages++;
-        ws1.finishClose();
+          messages++;
+          ws1.finishClose();
+        }
       });
     });
 
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
-        msg.should.eql({
-            type: 'event'
-          , name: 'hey'
-          , args: ['arnold']
-          , endpoint: ''
-        });
+        if (!ws2.connected) {
+          msg.type.should.eql('connect');
+          ws2.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'event'
+            , name: 'hey'
+            , args: ['arnold']
+            , endpoint: ''
+          });
 
-        messages++;
-        ws2.finishClose();
+          messages++;
+          ws2.finishClose();
+        }
       });
     });
 
@@ -1110,7 +1240,12 @@ module.exports = {
       });
 
       ws3.on('message', function (msg) {
-        throw new Error('we shouldnt get a message here');
+        if (!ws3.connected) {
+          msg.type.should.eql('connect');
+          ws3.connected = true;
+        } else {
+          throw new Error('we shouldnt get a message here');
+        }
       });
     });
   },
@@ -1156,20 +1291,30 @@ module.exports = {
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
-        msg.should.eql({
-            type: 'message'
-          , data: 'boom'
-          , endpoint: ''
-        });
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'message'
+            , data: 'boom'
+            , endpoint: ''
+          });
 
-        messages++;
+          messages++;
+        }
       });
 
       ws1.on('open', function () {
         cl2.handshake(function (sid) {
           var ws2 = websocket(cl2, sid);
           ws2.on('message', function (msg) {
-            throw new Error('This socket shouldnt get a message');
+            if (!ws2.connected) {
+              msg.type.should.eql('connect');
+              ws2.connected = true;
+            } else {
+              throw new Error('This socket shouldnt get a message');
+            }
           });
 
           ws2.on('open', function () {
@@ -1190,7 +1335,12 @@ module.exports = {
               });
 
               ws3.on('message', function (msg) {
-                throw new Error('we shouldnt get a message here');
+                if (!ws3.connected) {
+                  msg.type.should.eql('connect');
+                  ws3.connected = true;
+                } else {
+                  throw new Error('we shouldnt get a message here');
+                }
               });
             });
           });
@@ -1240,20 +1390,30 @@ module.exports = {
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
-        msg.should.eql({
-            type: 'json'
-          , data: { hello: 'world' }
-          , endpoint: ''
-        });
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'json'
+            , data: { hello: 'world' }
+            , endpoint: ''
+          });
 
-        messages++;
+          messages++;
+        }
       });
 
       ws1.on('open', function () {
         cl2.handshake(function (sid) {
           var ws2 = websocket(cl2, sid);
           ws2.on('message', function (msg) {
-            throw new Error('This socket shouldnt get a message');
+            if (!ws2.connected) {
+              msg.type.should.eql('connect');
+              ws2.connected = true;
+            } else {
+              throw new Error('This socket shouldnt get a message');
+            }
           });
 
           ws2.on('open', function () {
@@ -1274,7 +1434,12 @@ module.exports = {
               });
 
               ws3.on('message', function (msg) {
-                throw new Error('we shouldnt get a message here');
+                if (!ws3.connected) {
+                  msg.type.should.eql('connect');
+                  ws3.connected = true;
+                } else {
+                  throw new Error('we shouldnt get a message here');
+                }
               });
             });
           });
@@ -1300,8 +1465,9 @@ module.exports = {
     io.sockets.on('connection', function (socket) {
       connections++;
 
-      if (connections == 1)
+      if (connections == 1) {
         socket.join('losers');
+      }
 
       socket.on('trigger broadcast', function () {
         socket.broadcast.to('losers').emit('victory');
@@ -1324,21 +1490,31 @@ module.exports = {
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
-        msg.should.eql({
-            type: 'event'
-          , name: 'victory'
-          , args: []
-          , endpoint: ''
-        });
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+        } else {
+          msg.should.eql({
+              type: 'event'
+            , name: 'victory'
+            , args: []
+            , endpoint: ''
+          });
 
-        messages++;
+          messages++;
+        }
       });
 
       ws1.on('open', function () {
         cl2.handshake(function (sid) {
           var ws2 = websocket(cl2, sid);
           ws2.on('message', function (msg) {
-            throw new Error('This socket shouldnt get a message');
+            if (!ws2.connected) {
+              msg.type.should.eql('connect');
+              ws2.connected = true;
+            } else {
+              throw new Error('This socket shouldnt get a message');
+            };
           });
 
           ws2.on('open', function () {
@@ -1359,13 +1535,18 @@ module.exports = {
               });
 
               ws3.on('message', function (msg) {
-                throw new Error('we shouldnt get a message here');
+                if (!ws3.connected) {
+                  msg.type.should.eql('connect');
+                  ws3.connected = true;
+                } else {
+                  throw new Error('we shouldnt get a message here');
+                }
               });
             });
           });
         });
       });
     });
-  },
+  }
 
 };
