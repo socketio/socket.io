@@ -51,6 +51,7 @@ HTMLFile.prototype.data = function (path, opts, fn) {
 
   return this.request(path, opts, function (res) {
     var buf = ''
+      , messages = 0
       , state = 0;
 
     res.on('data', function (chunk) {
@@ -79,7 +80,7 @@ HTMLFile.prototype.data = function (path, opts, fn) {
               var data = buf.slice(0, buf.indexOf(foot))
                 , obj = JSON.parse(data);
 
-              fn(obj === '' ? obj : parser.decodePayload(obj));
+              fn(obj === '' ? obj : parser.decodePayload(obj), ++messages);
 
               buf = buf.substr(data.length + foot.length);
               state = 1;
@@ -134,10 +135,19 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs) {
-        msgs.should.have.length(1);
-        msgs[0].type.should.eql('heartbeat');
-        beat = true;
+      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs, i) {
+        switch (i) {
+          case 1:
+            msgs.should.have.length(1);
+            msgs[0].type.should.eql('connect');
+            msgs[0].endpoint.should.eql('');
+            break;
+
+          case 2:
+            msgs.should.have.length(1);
+            msgs[0].type.should.eql('heartbeat');
+            beat = true;
+        };
       });
     });
   },
@@ -166,13 +176,25 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs) {
-        heartbeats++;
+      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs, i) {
+        switch (i) {
+          case 1:
+            msgs.should.have.length(1);
+            msgs[0].type.should.eql('connect');
+            msgs[0].endpoint.should.eql('');
+            break;
 
-        if (heartbeats == 1) {
-          cl.post('/socket.io/{protocol}/htmlfile/' + sid, parser.encodePacket({
-            type: 'heartbeat'
-          }));
+          default:
+            msgs.should.have.length(1);
+            msgs[0].type.should.eql('heartbeat');
+
+            heartbeats++;
+
+            if (heartbeats == 1) {
+              cl.post('/socket.io/{protocol}/htmlfile/' + sid, parser.encodePacket({
+                type: 'heartbeat'
+              }));
+            }
         }
       });
     });
@@ -215,9 +237,9 @@ module.exports = {
 
           setTimeout(function () {
             cl.end();
-          }, 10);
-        }, 10);
-      }, 10);
+          }, 20);
+        }, 20);
+      }, 20);
     });
   },
 
@@ -259,9 +281,9 @@ module.exports = {
 
           setTimeout(function () {
             cl.end();
-          }, 10);
-        }, 10);
-      }, 10);
+          }, 20);
+        }, 20);
+      }, 20);
     });
   },
 
@@ -303,9 +325,9 @@ module.exports = {
 
           setTimeout(function () {
             cl.end();
-          }, 10);
-        }, 10);
-      }, 10);
+          }, 20);
+        }, 20);
+      }, 20);
     });
   },
 
@@ -329,14 +351,23 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs) {
-        msgs.should.have.length(1);
-        msgs[0].should.eql({
-            type: 'message'
-          , data: 'woot'
-          , endpoint: ''
-        });
-        cl.end();
+      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs, i) {
+        switch (i) {
+          case 1:
+            msgs.should.have.length(1);
+            msgs[0].type.should.eql('connect');
+            msgs[0].endpoint.should.eql('');
+            break;
+
+          case 2:
+            msgs.should.have.length(1);
+            msgs[0].should.eql({
+                type: 'message'
+              , data: 'woot'
+              , endpoint: ''
+            });
+            cl.end();
+        }
       });
     });
   },
@@ -361,14 +392,23 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs) {
-        msgs.should.have.length(1);
-        msgs[0].should.eql({
-            type: 'json'
-          , data: ['woot']
-          , endpoint: ''
-        });
-        cl.end();
+      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs, i) {
+        switch (i) {
+          case 1:
+            msgs.should.have.length(1);
+            msgs[0].type.should.eql('connect');
+            msgs[0].endpoint.should.eql('');
+            break;
+
+          case 2:
+            msgs.should.have.length(1);
+            msgs[0].should.eql({
+                type: 'json'
+              , data: ['woot']
+              , endpoint: ''
+            });
+            cl.end();
+        }
       });
     });
   },
@@ -393,15 +433,24 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs) {
-        msgs.should.have.length(1);
-        msgs[0].should.eql({
-            type: 'event'
-          , name: 'aaa'
-          , endpoint: ''
-          , args: []
-        });
-        cl.end();
+      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs, i) {
+        switch (i) {
+          case 1:
+            msgs.should.have.length(1);
+            msgs[0].type.should.eql('connect');
+            msgs[0].endpoint.should.eql('');
+            break;
+
+          case 2:
+            msgs.should.have.length(1);
+            msgs[0].should.eql({
+                type: 'event'
+              , name: 'aaa'
+              , endpoint: ''
+              , args: []
+            });
+            cl.end();
+        }
       });
     });
   }
