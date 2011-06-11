@@ -7,9 +7,13 @@ run-tests:
 		-I support \
 		-I lib \
 		--serial \
+		$(TESTFLAGS) \
 		$(TESTS)
 
 test:
 	@$(MAKE) TESTS="$(ALL_TESTS)" run-tests
+
+test-cov:
+	@TESTFLAGS=--cov $(MAKE) test
 
 .PHONY: test
