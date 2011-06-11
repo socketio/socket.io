@@ -11,8 +11,69 @@
 
 var sio = require('socket.io')
   , should = require('./common')
+  , HTTPClient = should.HTTPClient
   , parser = sio.parser
   , ports = 15200;
+
+/**
+ * HTTPClient for xhr-polling transport.
+ */
+
+function XHRPolling (port) {
+  HTTPClient.call(this, port);
+};
+
+/**
+ * Inhertis from HTTPClient.
+ */
+
+XHRPolling.prototype.__proto__ = HTTPClient.prototype;
+
+/**
+ * Performs the handshake and expects the connect echo packet.
+ *
+ * @api public
+ */
+
+XHRPolling.prototype.handshake = function (opts, fn) {
+  if ('function' == typeof opts) {
+    fn = opts;
+    opts = {};
+  }
+
+  var self = this;
+
+  return this.get('/socket.io/{protocol}', opts, function (res, data) {
+    var parts = data.split(':');
+
+    if (opts.ignoreConnect) {
+      return fn && fn.apply(null, parts);
+    }
+
+    // expect connect packet right after handshake
+    self.get(
+        '/socket.io/{protocol}/xhr-polling/' + parts[0]
+      , function (res, msgs) {
+          res.statusCode.should.eql(200);
+
+          msgs.should.have.length(1);
+          msgs[0].should.eql({ type: 'connect', endpoint: '', qs: '' });
+
+          fn && fn.apply(null, parts);
+        }
+    );
+  });
+};
+
+/**
+ * Create client for this transport.
+ *
+ * @api public
+ */
+
+function client (port) {
+  return new XHRPolling(port);
+};
 
 /**
  * Test.
@@ -25,7 +86,7 @@ module.exports = {
       , io = create(cl);
 
     io.configure(function () {
-      io.set('close timeout', 0);
+      io.set('close timeout', .05);
       io.set('polling duration', 0);
     });
 
@@ -68,7 +129,7 @@ module.exports = {
 
     io.configure(function () {
       io.set('polling duration', 0);
-      io.set('close timeout', 0);
+      io.set('close timeout', .05);
     });
 
     io.sockets.on('connection', function (socket) {
@@ -81,9 +142,14 @@ module.exports = {
       });
     });
 
-    cl.handshake(function (sessid) {
+    cl.handshake({ ignoreConnect: true }, function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid);
+
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].type.should.eql('connect');
+      });
     });
   },
 
@@ -93,7 +159,7 @@ module.exports = {
       , sid;
 
     io.configure(function () {
-      io.set('close timeout', 0);
+      io.set('close timeout', .05);
     });
 
     io.sockets.on('connection', function (socket) {
@@ -105,14 +171,19 @@ module.exports = {
       });
     });
 
-    cl.handshake(function (sessid) {
+    cl.handshake({ ignoreConnect: true }, function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid);
 
-      // here we close the request instead of relying on a small poll timeout
-      setTimeout(function () {
-        cl.end();
-      }, 10);
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].type.should.eql('connect');
+
+        // here we close the request instead of relying on a small poll timeout
+        setTimeout(function () {
+          cl.end();
+        }, 10);
+      });
     });
   },
 
@@ -124,26 +195,33 @@ module.exports = {
       , sid;
 
     io.configure(function () {
-      io.set('close timeout', 0);
+      io.set('close timeout', .05);
     });
 
     io.sockets.on('connection', function (socket) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid + '/?disconnect');
-
       socket.on('disconnect', function () {
         disconnected = true;
       });
     });
 
-    cl.handshake(function (sessid) {
+    cl.handshake({ ignoreConnect: true }, function (sessid) {
       sid = sessid;
+
       cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
         msgs.should.have.length(1);
-        msgs[0].should.eql({ type: 'disconnect', endpoint: '' });
-        disconnected.should.be.true;
-        cl.end();
-        io.server.close();
-        done();
+        msgs[0].type.should.eql('connect');
+
+        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+          msgs.should.have.length(1);
+          msgs[0].should.eql({ type: 'disconnect', endpoint: '' });
+          disconnected.should.be.true;
+          cl.end();
+          io.server.close();
+          done();
+        });
+
+        cl.get('/socket.io/{protocol}/xhr-polling/' + sid + '/?disconnect');
       });
     });
   },
@@ -196,9 +274,14 @@ module.exports = {
       });
     });
 
-    cl.handshake(function (sessid) {
+    cl.handshake({ ignoreConnect: true }, function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid);
+
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].type.should.eql('connect');
+      });
     });
   },
 
@@ -273,9 +356,14 @@ module.exports = {
       });
     });
 
-    cl.handshake(function (sessid) {
+    cl.handshake({ ignoreConnect: true }, function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid);
+
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].type.should.eql('connect');
+      });
     });
   },
 
@@ -283,7 +371,7 @@ module.exports = {
     var cl = client(++ports)
       , io = create(cl)
       , messages = false
-      , sid, tobi;
+      , tobi;
 
     io.configure(function () {
       io.set('polling duration', .1);
@@ -306,8 +394,7 @@ module.exports = {
       });
     });
 
-    cl.handshake(function (sessid) {
-      sid = sessid;
+    cl.handshake(function (sid) {
       cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
         data.should.eql('');
 
@@ -328,7 +415,7 @@ module.exports = {
     var cl = client(++ports)
       , io = create(cl)
       , messages = false
-      , sid, res;
+      , sid;
 
     io.configure(function () {
       io.set('close timeout', .1);
@@ -360,10 +447,13 @@ module.exports = {
       });
     });
 
-    cl.handshake(function (sessid) {
+    cl.handshake({ ignoreConnect: true }, function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (resp) {
-        res = resp;
+
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].type.should.eql('connect');
       });
     });
   },
@@ -956,7 +1046,7 @@ module.exports = {
 
     io.sockets.on('connection', function (socket) {
       s = socket;
-      
+
       socket.on('disconnect', function () {
         cl.end();
         io.server.close();
@@ -991,7 +1081,7 @@ module.exports = {
 
     io.sockets.on('connection', function (socket) {
       s = socket;
-      
+
       socket.on('disconnect', function () {
         cl.end();
         io.server.close();
@@ -1026,7 +1116,7 @@ module.exports = {
 
     io.sockets.on('connection', function (socket) {
       s = socket;
-      
+
       socket.on('disconnect', function () {
         cl.end();
         io.server.close();
@@ -1051,7 +1141,8 @@ module.exports = {
 
   'test sending deliverable volatile messages': function (done) {
     var cl = client(++ports)
-      , io = create(cl);
+      , io = create(cl)
+      , s;
 
     io.configure(function () {
       io.set('polling duration', .05);
@@ -1059,7 +1150,7 @@ module.exports = {
     });
 
     io.sockets.on('connection', function (socket) {
-      socket.volatile.send('woooot');
+      s = socket;
 
       socket.on('disconnect', function () {
         cl.end();
@@ -1079,12 +1170,17 @@ module.exports = {
           , endpoint: ''
         });
       });
+
+      setTimeout(function () {
+        s.volatile.send('woooot');
+      }, 10);
     });
   },
 
   'test sending deliverable volatile json': function (done) {
     var cl = client(++ports)
-      , io = create(cl);
+      , io = create(cl)
+      , s;
 
     io.configure(function () {
       io.set('polling duration', .05);
@@ -1092,7 +1188,7 @@ module.exports = {
     });
 
     io.sockets.on('connection', function (socket) {
-      socket.volatile.json.send(5);
+      s = socket;
 
       socket.on('disconnect', function () {
         cl.end();
@@ -1112,12 +1208,17 @@ module.exports = {
           , endpoint: ''
         });
       });
+
+      setTimeout(function () {
+        s.volatile.json.send(5);
+      }, 10);
     });
   },
 
   'test sending deliverable volatile events': function (done) {
     var cl = client(++ports)
-      , io = create(cl);
+      , io = create(cl)
+      , s;
 
     io.configure(function () {
       io.set('polling duration', .05);
@@ -1125,7 +1226,7 @@ module.exports = {
     });
 
     io.sockets.on('connection', function (socket) {
-      socket.volatile.json.emit('tobi');
+      s = socket;
 
       socket.on('disconnect', function () {
         cl.end();
@@ -1146,6 +1247,10 @@ module.exports = {
           , endpoint: ''
         });
       });
+
+      setTimeout(function () {
+        s.volatile.json.emit('tobi');
+      }, 10);
     });
   },
 
