@@ -41,6 +41,8 @@ JSONPPolling.prototype.handshake = function (opts, fn) {
     opts = {};
   }
 
+  var self = this;
+
   return this.get(
       '/socket.io/{protocol}?jsonp=0'
     , opts
@@ -52,7 +54,24 @@ JSONPPolling.prototype.handshake = function (opts, fn) {
         data.substr(-foot.length).should.eql(foot);
         data = data.slice(head.length, data.length - foot.length);
 
-        fn && fn.apply(null, JSON.parse(data).split(':'));
+        var parts = JSON.parse(data).split(':');
+
+        if (opts.ignoreConnect) {
+          return fn && fn.apply(null, parts);
+        }
+
+        // expect connect packet right after handshake
+        self.get(
+            '/socket.io/{protocol}/jsonp-polling/' + parts[0]
+          , function (res, msgs) {
+              res.statusCode.should.eql(200);
+
+              msgs.should.have.length(1);
+              msgs[0].should.eql({ type: 'connect', endpoint: '', qs: '' });
+
+              fn && fn.apply(null, parts);
+            }
+        );
       }
   );
 };
@@ -111,7 +130,7 @@ module.exports = {
       , io = create(cl);
 
     io.configure(function () {
-      io.set('close timeout', 0);
+      io.set('close timeout', .05);
       io.set('polling duration', 0);
     });
 
@@ -154,7 +173,7 @@ module.exports = {
 
     io.configure(function () {
       io.set('polling duration', 0);
-      io.set('close timeout', 0);
+      io.set('close timeout', .05);
     });
 
     io.sockets.on('connection', function (socket) {
@@ -167,9 +186,14 @@ module.exports = {
       });
     });
 
-    cl.handshake(function (sessid) {
+    cl.handshake({ ignoreConnect: true }, function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid);
+
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].type.should.eql('connect');
+      });
     });
   },
 
@@ -191,14 +215,20 @@ module.exports = {
       });
     });
 
-    cl.handshake(function (sessid) {
+    cl.handshake({ ignoreConnect: true }, function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid);
 
-      // here we close the request instead of relying on a small poll timeout
-      setTimeout(function () {
-        cl.end();
-      }, 10);
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].type.should.eql('connect');
+
+        // here we close the request instead of relying on a small poll timeout
+        setTimeout(function () {
+          cl.end();
+        }, 10);
+      });
+
     });
   },
 
@@ -210,26 +240,33 @@ module.exports = {
       , sid;
 
     io.configure(function () {
-      io.set('close timeout', 0);
+      io.set('close timeout', .05);
     });
 
     io.sockets.on('connection', function (socket) {
-      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid + '/?disconnect');
-
       socket.on('disconnect', function () {
         disconnected = true;
       });
     });
 
-    cl.handshake(function (sessid) {
+    cl.handshake({ ignoreConnect: true }, function (sessid) {
       sid = sessid;
+
       cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
         msgs.should.have.length(1);
-        msgs[0].should.eql({ type: 'disconnect', endpoint: '' });
-        disconnected.should.be.true;
-        cl.end();
-        io.server.close();
-        done();
+        msgs[0].type.should.eql('connect');
+
+        cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
+          msgs.should.have.length(1);
+          msgs[0].should.eql({ type: 'disconnect', endpoint: '' });
+          disconnected.should.be.true;
+          cl.end();
+          io.server.close();
+          done();
+        });
+
+        cl.get('/socket.io/{protocol}/jsonp-polling/' + sid + '/?disconnect');
       });
     });
   },
@@ -282,9 +319,14 @@ module.exports = {
       });
     });
 
-    cl.handshake(function (sessid) {
+    cl.handshake({ ignoreConnect: true }, function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid);
+
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].type.should.eql('connect');
+      });
     });
   },
 
@@ -359,9 +401,14 @@ module.exports = {
       });
     });
 
-    cl.handshake(function (sessid) {
+    cl.handshake({ ignoreConnect: true }, function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid);
+
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].type.should.eql('connect');
+      });
     });
   },
 
@@ -369,7 +416,7 @@ module.exports = {
     var cl = client(++ports)
       , io = create(cl)
       , messages = false
-      , sid, tobi;
+      , tobi;
 
     io.configure(function () {
       io.set('polling duration', .1);
@@ -392,8 +439,7 @@ module.exports = {
       });
     });
 
-    cl.handshake(function (sessid) {
-      sid = sessid;
+    cl.handshake(function (sid) {
       cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, data) {
         data.should.eql('');
 
@@ -414,7 +460,7 @@ module.exports = {
     var cl = client(++ports)
       , io = create(cl)
       , messages = false
-      , sid, res;
+      , sid;
 
     io.configure(function () {
       io.set('close timeout', .1);
@@ -446,10 +492,13 @@ module.exports = {
       });
     });
 
-    cl.handshake(function (sessid) {
+    cl.handshake({ ignoreConnect: true }, function (sessid) {
       sid = sessid;
-      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (resp) {
-        res = resp;
+
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.eql(200);
+        msgs.should.have.length(1);
+        msgs[0].type.should.eql('connect');
       });
     });
   },
