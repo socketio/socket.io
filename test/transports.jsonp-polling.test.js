@@ -228,7 +228,6 @@ module.exports = {
           cl.end();
         }, 10);
       });
-
     });
   },
 
