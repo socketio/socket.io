@@ -455,53 +455,6 @@ module.exports = {
     });
   },
 
-  'test message buffering between a conn close and a request': function (done) {
-    var cl = client(++ports)
-      , io = create(cl)
-      , messages = false
-      , sid;
-
-    io.configure(function () {
-      io.set('close timeout', .1);
-    });
-
-    io.sockets.on('connection', function (socket) {
-      cl.end();
-
-      setTimeout(function () {
-        socket.send('a');
-        socket.send('b');
-        socket.send('c');
-
-        cl = client(cl.port);
-        cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
-          msgs.should.have.length(3);
-          msgs[0].should.eql({ type: 'message', endpoint: '', data: 'a' });
-          msgs[1].should.eql({ type: 'message', endpoint: '', data: 'b' });
-          msgs[2].should.eql({ type: 'message', endpoint: '', data: 'c' });
-          messages = true;
-        });
-      }, 50);
-
-      socket.on('disconnect', function () {
-        messages.should.be.true;
-        cl.end();
-        io.server.close();
-        done();
-      });
-    });
-
-    cl.handshake({ ignoreConnect: true }, function (sessid) {
-      sid = sessid;
-
-      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
-        res.statusCode.should.eql(200);
-        msgs.should.have.length(1);
-        msgs[0].type.should.eql('connect');
-      });
-    });
-  },
-
   'test connecting to a specific endpoint': function (done) {
     var cl = client(++ports)
       , io = create(cl)

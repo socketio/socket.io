@@ -80,57 +80,6 @@ function websocket (cl, sid) {
 
 module.exports = {
 
-  'test message buffering and websocket payload': function (done) {
-    var cl = client(++ports)
-      , io = create(cl)
-      , messages = 0
-      , sid, sock, ws;
-
-    io.configure(function () {
-      io.set('close timeout', .05);
-    });
-
-    io.sockets.on('connection', function (socket) {
-      setTimeout(function () {
-        socket.send('buffered a');
-        socket.send('buffered b');
-      }, 10);
-
-      setTimeout(function () {
-        ws = websocket(cl, sid);
-        ws.on('message', function (msg) {
-          messages++;
-
-          if (messages == 0) {
-            msg.should.eql({ type: 'connect', endpoint: '', qs: '' });
-          } else if (messages == 1) {
-            msg.should.eql({ type: 'message', endpoint: '', data: 'buffered a' });
-          } else if (messages === 2) {
-            msg.should.eql({ type: 'message', endpoint: '', data: 'buffered b' });
-            ws.close();
-          }
-        });
-      }, 30);
-
-      socket.on('disconnect', function () {
-        messages.should.eql(2);
-
-        cl.end();
-        io.server.close();
-        done();
-      });
-    });
-
-    cl.handshake(function (sessid) {
-      sid = sessid;
-
-      ws = websocket(cl, sid);
-      ws.onopen = function () {
-        ws.finishClose();
-      };
-    });
-  },
-
   'test that not responding to a heartbeat drops client': function (done) {
     var cl = client(++ports)
       , io = create(cl)
