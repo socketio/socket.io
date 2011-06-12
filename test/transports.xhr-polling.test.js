@@ -1608,8 +1608,13 @@ module.exports = {
                   '/socket.io/{protocol}/xhr-polling/' + sid
                 , function (res, msgs) {
                     res.statusCode.should.eql(200);
-                    msgs.should.have.length(1);
+                    msgs.should.have.length(2);
                     msgs[0].should.eql({
+                        type: 'connect'
+                      , endpoint: '/chrislee'
+                      , qs: ''
+                    });
+                    msgs[1].should.eql({
                         type: 'json'
                       , data: [1, 2, { 3: 4 }]
                       , endpoint: '/chrislee'
@@ -1719,8 +1724,13 @@ module.exports = {
                   '/socket.io/{protocol}/xhr-polling/' + sid
                 , function (res, msgs) {
                     res.statusCode.should.eql(200);
-                    msgs.should.have.length(1);
+                    msgs.should.have.length(2);
                     msgs[0].should.eql({
+                        type: 'connect'
+                      , endpoint: '/chrislee'
+                      , qs: ''
+                    });
+                    msgs[1].should.eql({
                         type: 'event'
                       , name: 'tj'
                       , args: []
@@ -1772,8 +1782,13 @@ module.exports = {
                   '/socket.io/{protocol}/xhr-polling/' + sid
                 , function (res, msgs) {
                     res.statusCode.should.eql(200);
-                    msgs.should.have.length(1);
+                    msgs.should.have.length(2);
                     msgs[0].should.eql({
+                        type: 'connect'
+                      , endpoint: '/chrislee'
+                      , qs: ''
+                    });
+                    msgs[1].should.eql({
                         type: 'event'
                       , name: 'tj'
                       , args: [1, 2, 3, 4]
@@ -1943,9 +1958,14 @@ module.exports = {
 
               cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
-                , function (res, data) {
+                , function (res, msgs) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    msgs.length.should.eql(1);
+                    msgs[0].should.eql({
+                        type: 'connect'
+                      , endpoint: '/chrislee'
+                      , qs: ''
+                    });
                     empty = true;
                   }
               );
@@ -1990,9 +2010,14 @@ module.exports = {
 
               cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
-                , function (res, data) {
+                , function (res, msgs) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    msgs.length.should.eql(1);
+                    msgs[0].should.eql({
+                        type: 'connect'
+                      , endpoint: '/chrislee'
+                      , qs: ''
+                    });
                     empty = true;
                   }
               );
@@ -2037,9 +2062,14 @@ module.exports = {
 
               cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
-                , function (res, data) {
+                , function (res, msgs) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    msgs.length.should.eql(1);
+                    msgs[0].should.eql({
+                        type: 'connect'
+                      , endpoint: '/chrislee'
+                      , qs: ''
+                    });
                     empty = true;
                   }
               );
@@ -2086,18 +2116,30 @@ module.exports = {
                     res.statusCode.should.eql(200);
                     msgs.should.have.length(1);
                     msgs[0].should.eql({
-                        type: 'message'
-                      , data: 'edwald'
+                        type: 'connect'
                       , endpoint: '/chrislee'
+                      , qs: ''
                     });
 
-                    received = true;
+                    cl.get(
+                        '/socket.io/{protocol}/xhr-polling/' + sid
+                      , function (res, msgs) {
+                          msgs.should.have.length(1);
+                          msgs[0].should.eql({
+                              type: 'message'
+                            , data: 'edwald'
+                            , endpoint: '/chrislee'
+                          });
+
+                          received = true;
+                        }
+                    );
+
+                    setTimeout(function () {
+                      s.volatile.send('edwald');
+                    }, 20);
                   }
               );
-
-              setTimeout(function () {
-                s.volatile.send('edwald');
-              }, 20);
             }
         );
       });
@@ -2141,18 +2183,30 @@ module.exports = {
                     res.statusCode.should.eql(200);
                     msgs.should.have.length(1);
                     msgs[0].should.eql({
-                        type: 'json'
-                      , data: 152
+                        type: 'connect'
                       , endpoint: '/chrislee'
+                      , qs: ''
                     });
 
-                    received = true;
+                    cl.get(
+                        '/socket.io/{protocol}/xhr-polling/' + sid
+                      , function (res, msgs) {
+                          msgs.should.have.length(1);
+                          msgs[0].should.eql({
+                              type: 'json'
+                            , data: 152
+                            , endpoint: '/chrislee'
+                          });
+
+                          received = true;
+                        }
+                    );
+
+                    setTimeout(function () {
+                      s.volatile.json.send(152);
+                    }, 20);
                   }
               );
-
-              setTimeout(function () {
-                s.volatile.json.send(152);
-              }, 20);
             }
         );
       });
@@ -2196,19 +2250,31 @@ module.exports = {
                     res.statusCode.should.eql(200);
                     msgs.should.have.length(1);
                     msgs[0].should.eql({
-                        type: 'event'
-                      , name: 'woooo'
-                      , args: [[1, 2]]
+                        type: 'connect'
                       , endpoint: '/chrislee'
+                      , qs: ''
                     });
 
-                    received = true;
+                    cl.get(
+                        '/socket.io/{protocol}/xhr-polling/' + sid
+                      , function (res, msgs) {
+                          msgs.should.have.length(1);
+                          msgs[0].should.eql({
+                              type: 'event'
+                            , name: 'woooo'
+                            , args: [[1, 2]]
+                            , endpoint: '/chrislee'
+                          });
+
+                          received = true;
+                        }
+                    );
+
+                    setTimeout(function () {
+                      s.volatile.emit('woooo', [1, 2]);
+                    }, 20);
                   }
               );
-
-              setTimeout(function () {
-                s.volatile.emit('woooo', [1, 2]);
-              }, 20);
             }
         );
       });
@@ -2265,8 +2331,13 @@ module.exports = {
                         '/socket.io/{protocol}/xhr-polling/' + sid
                       , function (res, msgs) {
                           res.statusCode.should.eql(200);
-                          msgs.should.have.length(1);
+                          msgs.should.have.length(2);
                           msgs[0].should.eql({
+                              type: 'connect'
+                            , endpoint: '/tobi'
+                            , qs: ''
+                          });
+                          msgs[1].should.eql({
                               type: 'ack'
                             , ackId: '3'
                             , endpoint: '/tobi'
@@ -2336,8 +2407,13 @@ module.exports = {
                         '/socket.io/{protocol}/xhr-polling/' + sid
                       , function (res, msgs) {
                           res.statusCode.should.eql(200);
-                          msgs.should.have.length(1);
+                          msgs.should.have.length(2);
                           msgs[0].should.eql({
+                              type: 'connect'
+                            , endpoint: '/tobi'
+                            , qs: ''
+                          });
+                          msgs[1].should.eql({
                               type: 'ack'
                             , ackId: '3'
                             , args: []
@@ -2408,8 +2484,13 @@ module.exports = {
                         '/socket.io/{protocol}/xhr-polling/' + sid
                       , function (res, msgs) {
                           res.statusCode.should.eql(200);
-                          msgs.should.have.length(1);
+                          msgs.should.have.length(2);
                           msgs[0].should.eql({
+                              type: 'connect'
+                            , endpoint: '/tobi'
+                            , qs: ''
+                          });
+                          msgs[1].should.eql({
                               type: 'ack'
                             , ackId: '3'
                             , args: ['aaaa']
@@ -2464,8 +2545,13 @@ module.exports = {
               cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
                 , function (res, msgs) {
-                    msgs.should.have.length(1);
+                    msgs.should.have.length(2);
                     msgs[0].should.eql({
+                        type: 'connect'
+                      , endpoint: '/woot'
+                      , qs: ''
+                    });
+                    msgs[1].should.eql({
                         type: 'message'
                       , data: 'aaa'
                       , endpoint: '/woot'
@@ -2536,8 +2622,13 @@ module.exports = {
                   '/socket.io/{protocol}/xhr-polling/' + sid
                 , function (res, msgs) {
                     res.statusCode.should.eql(200);
-                    msgs.should.have.length(1);
+                    msgs.should.have.length(2);
                     msgs[0].should.eql({
+                        type: 'connect'
+                      , endpoint: '/rapture'
+                      , qs: ''
+                    });
+                    msgs[1].should.eql({
                         type: 'message'
                       , id: '1'
                       , data: 'woot'
@@ -2609,8 +2700,13 @@ module.exports = {
                   '/socket.io/{protocol}/xhr-polling/' + sid
                 , function (res, msgs) {
                     res.statusCode.should.eql(200);
-                    msgs.should.have.length(1);
+                    msgs.should.have.length(2);
                     msgs[0].should.eql({
+                        type: 'connect'
+                      , endpoint: '/rapture'
+                      , qs: ''
+                    });
+                    msgs[1].should.eql({
                         type: 'event'
                       , id: '1'
                       , name: 'woot'
