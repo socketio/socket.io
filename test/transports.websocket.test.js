@@ -729,9 +729,12 @@ module.exports = {
           });
 
           messages++;
-          ws1.finishClose();
         }
       });
+
+      setTimeout(function () {
+        ws1.finishClose();
+      }, 50);
     });
 
     cl2.handshake(function (sid) {
@@ -748,9 +751,12 @@ module.exports = {
           });
 
           messages++;
-          ws2.finishClose();
         }
       });
+
+      setTimeout(function () {
+        ws2.finishClose();
+      }, 50);
     });
 
     cl3.handshake(function (sid) {
@@ -760,6 +766,12 @@ module.exports = {
           msg.type.should.eql('connect');
           ws3.connected = true;
         } else {
+          msg.should.eql({
+              type: 'message'
+            , data: 'hahaha'
+            , endpoint: ''
+          });
+
           messages++;
         }
       });
@@ -829,9 +841,12 @@ module.exports = {
           });
 
           messages++;
-          ws1.finishClose();
         }
       });
+
+      setTimeout(function () {
+        ws1.finishClose();
+      }, 50);
     });
 
     cl2.handshake(function (sid) {
@@ -848,9 +863,12 @@ module.exports = {
           });
 
           messages++;
-          ws2.finishClose();
         }
       });
+
+      setTimeout(function () {
+        ws2.finishClose();
+      }, 50);
     });
 
     cl3.handshake(function (sid) {
@@ -860,6 +878,12 @@ module.exports = {
           msg.type.should.eql('connect');
           ws3.connected = true;
         } else {
+          msg.should.eql({
+              type: 'json'
+            , data: 123
+            , endpoint: ''
+          });
+
           messages++;
         }
       });
@@ -930,9 +954,12 @@ module.exports = {
           });
 
           messages++;
-          ws1.finishClose();
         }
       });
+
+      setTimeout(function () {
+        ws1.finishClose();
+      }, 50);
     });
 
     cl2.handshake(function (sid) {
@@ -950,9 +977,12 @@ module.exports = {
           });
 
           messages++;
-          ws2.finishClose();
         }
       });
+
+      setTimeout(function () {
+        ws2.finishClose();
+      }, 50);
     });
 
     cl3.handshake(function (sid) {
@@ -962,6 +992,13 @@ module.exports = {
           msg.type.should.eql('connect');
           ws3.connected = true;
         } else {
+          msg.should.eql({
+              type: 'event'
+            , name: 'locki'
+            , args: []
+            , endpoint: ''
+          });
+
           messages++;
         }
       });
