@@ -751,7 +751,7 @@ module.exports = {
     });
 
     cl3.handshake(function (sid) {
-      var ws3 = websocket(cl2, sid);
+      var ws3 = websocket(cl3, sid);
       ws3.on('message', function (msg) {
         if (!ws3.connected) {
           msg.type.should.eql('connect');
@@ -848,7 +848,7 @@ module.exports = {
     });
 
     cl3.handshake(function (sid) {
-      var ws3 = websocket(cl2, sid);
+      var ws3 = websocket(cl3, sid);
       ws3.on('message', function (msg) {
         if (!ws3.connected) {
           msg.type.should.eql('connect');
@@ -947,7 +947,7 @@ module.exports = {
     });
 
     cl3.handshake(function (sid) {
-      var ws3 = websocket(cl2, sid);
+      var ws3 = websocket(cl3, sid);
       ws3.on('message', function (msg) {
         if (!ws3.connected) {
           msg.type.should.eql('connect');
@@ -1034,7 +1034,7 @@ module.exports = {
     });
 
     cl3.handshake(function (sid) {
-      var ws3 = websocket(cl2, sid);
+      var ws3 = websocket(cl3, sid);
       ws3.on('open', function () {
         ws3.packet({
             type: 'event'
@@ -1129,7 +1129,7 @@ module.exports = {
     });
 
     cl3.handshake(function (sid) {
-      var ws3 = websocket(cl2, sid);
+      var ws3 = websocket(cl3, sid);
       ws3.on('open', function () {
         ws3.packet({
             type: 'event'
@@ -1226,7 +1226,7 @@ module.exports = {
     });
 
     cl3.handshake(function (sid) {
-      var ws3 = websocket(cl2, sid);
+      var ws3 = websocket(cl3, sid);
       ws3.on('open', function () {
         ws3.packet({
             type: 'event'
@@ -1319,7 +1319,7 @@ module.exports = {
 
           ws2.on('open', function () {
             cl3.handshake(function (sid) {
-              var ws3 = websocket(cl2, sid);
+              var ws3 = websocket(cl3, sid);
               ws3.on('open', function () {
                 ws3.packet({
                     type: 'event'
@@ -1418,7 +1418,7 @@ module.exports = {
 
           ws2.on('open', function () {
             cl3.handshake(function (sid) {
-              var ws3 = websocket(cl2, sid);
+              var ws3 = websocket(cl3, sid);
               ws3.on('open', function () {
                 ws3.packet({
                     type: 'event'
@@ -1519,7 +1519,7 @@ module.exports = {
 
           ws2.on('open', function () {
             cl3.handshake(function (sid) {
-              var ws3 = websocket(cl2, sid);
+              var ws3 = websocket(cl3, sid);
               ws3.on('open', function () {
                 ws3.packet({
                     type: 'event'
