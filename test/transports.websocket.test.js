@@ -693,7 +693,10 @@ module.exports = {
           joins++;
 
           if (joins == 2) {
-            io.sockets.in('woot').send('hahaha');
+            setTimeout(function () {
+              connections.should.eql(3);
+              io.sockets.in('woot').send('hahaha');
+            }, 20);
           }
         });
       }
@@ -790,7 +793,10 @@ module.exports = {
           joins++;
 
           if (joins == 2) {
-            io.sockets.in('woot').json.send(123);
+            setTimeout(function () {
+              connections.should.eql(3);
+              io.sockets.in('woot').json.send(123);
+            }, 20);
           }
         });
       }
@@ -887,7 +893,10 @@ module.exports = {
           joins++;
 
           if (joins == 2) {
-            io.sockets.in('woot').emit('locki');
+            setTimeout(function () {
+              connections.should.eql(3);
+              io.sockets.in('woot').emit('locki');
+            }, 20);
           }
         });
       }
