@@ -182,9 +182,8 @@ Sometimes, you might want to get a callback when the client confirmed the messag
 reception.
 
 To do this, simply pass a function as the last parameter of `.send` or `.emit`.
-What's more, you can also perform a manual acknowledgement, like in the example
-below. Socket.IO won't perform a manual acknowledgement when the arity of the
-function is `0` when you `emit` or `send`.
+What's more, when you use `.emit`, the acknowledgement is done by you, which
+means you can also pass data along:
 
 #### Server side
 
@@ -202,8 +201,6 @@ function is `0` when you `emit` or `send`.
       var socket = io.connect(); // TIP: .connect with no args does auto-discovery
       socket.on('connection', function () {
         socket.emit('ferret', 'tobi', function (data) {
-          // if the function arity here was 0 (ie: if no parameters were defined),
-          // socket.io would handle the acknowledgement automatically.
           console.log(data); // data will be 'woot'
         });
       });
