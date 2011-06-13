@@ -9,6 +9,9 @@ horizontal scalability, automatic JSON encoding/decoding, and more.
 
     npm install socket.io
 
+**Note:** this is the documentation for the upcoming release **0.7**. The latest
+tag on NPM is [0.6](https://github.com/LearnBoost/Socket.IO-node/tree/06).
+
 ## How to use
 
 First, require `socket.io`:
