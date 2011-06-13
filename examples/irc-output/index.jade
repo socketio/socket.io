@@ -1,0 +1,28 @@
+doctype 5
+html
+  head
+    link(href='/stylesheets/style.css', rel='stylesheet')
+    script(src='http://code.jquery.com/jquery-1.6.1.min.js')
+    script(src='/socket.io/socket.io.js')
+    script
+      var socket = io.connect();
+
+      socket.on('connect', function () {
+        $('#irc').addClass('connected');
+      });
+
+      socket.on('announcement', function (msg) {
+        $('#messages').append($('<p>').append($('<em>').text(msg)));
+        $('#messages').get(0).scrollTop = 10000000;
+      });
+
+      socket.on('irc message', function (user, msg) {
+        $('#messages').append($('<p>').append($('<b>').text(user), msg));
+        $('#messages').get(0).scrollTop = 10000000;
+      });
+  body
+    h2 Node.JS IRC
+    #irc
+      #connecting
+        .wrap Connecting to socket.io server
+      #messages
