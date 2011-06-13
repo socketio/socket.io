@@ -1,4 +1,4 @@
-/*! Socket.IO.js build:0.7.0, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
+/** Socket.IO 0.7.0 - Built with build.js */
 
 /**
  * socket.io
@@ -52,7 +52,7 @@
    */
 
   io.j = [];
-  
+
   /**
    * Keep track of our io.Sockets
    *
@@ -60,6 +60,76 @@
    */
   io.sockets = {};
 
+
+  // if node
+  if ('object' === typeof module && 'function' === typeof require) {
+
+    /**
+     * Expose utils
+     *
+     * @api private
+     */
+
+    io.util = require('./util').util;
+
+    /**
+     * Expose JSON.
+     *
+     * @api private
+     */
+
+    io.JSON = require('./json').JSON;
+
+    /**
+     * Expose parser.
+     *
+     * @api private
+     */
+
+    io.parser = require('./parser').parser;
+
+    /**
+     * Expose EventEmitter
+     *
+     * @api private
+     */
+
+    io.EventEmitter = process.EventEmitter;
+
+    /**
+     * Expose Transport
+     *
+     * @api public
+     */
+
+    io.Transport = require('./transport').Transport;
+
+    /**
+     * Expose all transports
+     */
+    
+    io.transports.forEach(function (t) {
+      //io.Transport[t] = require('./transports/node/' + t);
+    });
+
+    /**
+     * Expose Socket
+     *
+     * @api public
+     */
+
+    io.Socket = require('./socket').Socket;
+
+    /**
+     * Location of `dist/` directory.
+     *
+     * @api private
+     */
+
+    io.dist = __dirname + '/../dist';
+
+  }
+  // end node
 
   /**
    * Manages connections to hosts.
@@ -70,8 +140,14 @@
    */
 
   io.connect = function (host, forceNew) {
-    var uri = io.util.parseUri(host)
-      , uuri = io.util.uniqueUri(uri);
+    var uri = io.util.parseUri(host);
+
+    if ('undefined' != typeof document) {
+      uri.host = uri.host || document.domain;
+      uri.port = uri.port || document.location.port;
+    }
+
+    var uuri = io.util.uniqueUri(uri);
 
     if (forceNew || !io.sockets[uuri]) {
       var socket = new io.Socket({
@@ -351,6 +427,21 @@
         ; i < j && arr[i] !== o; i++);
 
     return j <= i ? -1 : i;
+  };
+
+  /**
+   * Converts enumerables to array.
+   *
+   * @api public
+   */
+
+  util.toArray = function (enu) {
+    var arr = [];
+
+    for (var i = 0, l = enu.length; i < l; i++)
+      arr.push(enu[i]);
+
+    return arr;
   };
 
   /**
@@ -959,9 +1050,13 @@
         break;
 
       case 'event':
-        var params = packet.args && packet.args.length
-          ? JSON.stringify(packet.args) : '';
-        data = packet.name + (params !== '' ? ('\ufffd' + params) : '');
+        var ev = { name: packet.name };
+
+        if (packet.args && packet.args.length) {
+          ev.args = packet.args;
+        }
+
+        data = JSON.stringify(ev);
         break;
 
       case 'json':
@@ -1061,15 +1156,13 @@
         break;
 
       case 'event':
-        var pieces = data.match(/([^\ufffd]+)(\ufffd)?(.*)/);
-        packet.name = pieces[1] || '';
-        packet.args = [];
+        try {
+          var opts = JSON.parse(data);
+          packet.name = opts.name;
+          packet.args = opts.args;
+        } catch (e) { }
 
-        if (pieces[3]) {
-          try {
-            packet.args = JSON.parse(pieces[3]);
-          } catch (e) { }
-        }
+        packet.args = packet.args || [];
         break;
 
       case 'json':
@@ -1181,9 +1274,11 @@
     this.clearCloseTimeout();
 
     if (data !== '') {
+      // todo: we should only do decodePayload for xhr transports
       var msgs = io.parser.decodePayload(data);
-      if (msgs && msgs.length){
-        for (var i = 0, l = msgs.length; i < l; i++){
+
+      if (msgs && msgs.length) {
+        for (var i = 0, l = msgs.length; i < l; i++) {
           this.onPacket(msgs[i]);
         }
       }
@@ -1373,7 +1468,9 @@
       , 'auto connect': true
     };
 
-    io.util.merge(this.options, options);
+    io.Transport.apply(this, arguments);
+    this.sendBuffer = [];
+  };
 
     this.connected = false;
     this.open = false;
@@ -2496,10 +2593,13 @@
    * @api public
    */
 
-  function XHRPolling () {
-    io.Transport.XHR.apply(this, arguments);
-    // The transport type, you use this to identify which transport was chosen.
-    this.name = 'xhr-polling';
+  function SocketNamespace (socket, name) {
+    this.socket = socket;
+    this.name = name || '';
+    this.flags = {};
+    this.json = new Flag(this, 'json');
+    this.ackPackets = 0;
+    this.acks = {};
   };
 
   /**
@@ -2552,11 +2652,56 @@
 
     this.xhr = this.request();
 
-    if (window.XDomainRequest && this.xhr instanceof XDomainRequest) {
-      this.xhr.onload = stateChange;
-      this.xhr.onerror = function (e) { self.onError(e); };
-    } else {
-      this.xhr.onreadystatechange = stateChange;
+    return this.packet(packet);
+  };
+
+  /**
+   * Handles a packet
+   *
+   * @api private
+   */
+
+  SocketNamespace.prototype.onPacket = function (packet) {
+    var dataAck = packet.ack == 'data'
+      , self = this;
+
+    function ack () {
+      self.packet({
+          type: 'ack'
+        , args: io.util.toArray(arguments)
+        , ackId: packet.id
+      });
+    };
+
+    switch (packet.type) {
+      case 'connect':
+      case 'disconnect':
+        this.$emit(packet.type);
+        break;
+
+      case 'message':
+      case 'json':
+        var params = ['message', packet.data];
+
+        if (dataAck)
+          params.push(ack);
+
+        this.emit.apply(socket, params);
+        break;
+
+      case 'event':
+        var params = [packet.name].concat(packet.args);
+
+        if (dataAck)
+          params.push(ack);
+
+        this.$emit.apply(this, params);
+        break;
+
+      case 'ack':
+        if (this.acks[packet.ackId]) {
+          this.acks[packet.ackId].apply(this, packet.args);
+        }
     }
 
     this.xhr.send(null);
@@ -2716,8 +2861,73 @@
       self.onClose();
     };
 
-    this.insertAt.parentNode.insertBefore(script, this.insertAt);
-    this.script = script;
+  /**
+   * Connects to the server.
+   *
+   * @param {Function} [fn] Callback.
+   * @returns {io.Socket}
+   * @api public
+   */
+
+  Socket.prototype.connect = function (fn) {
+    if (this.connecting) {
+      return this;
+    }
+
+    var self = this;
+
+    this.handshake(function (sid, close, heartbeat, transports) {
+      self.sessionid = sid;
+      self.closeTimeout = close;
+      self.heartbeatTimeout = heartbeat;
+      self.transports = io.util.intersect(transports.split(','), self.options.transports);
+      self.transport = self.getTransport();
+
+      if (!self.transport) {
+        return;
+      }
+
+      self.connecting = true;
+      self.emit('connecting', self.transport.name);
+
+      self.transport.open();
+
+      if (self.options.connectTimeout) {
+        self.connectTimeoutTimer = setTimeout(function () {
+          if (!self.connected) {
+            if (self.options['try multiple transports']){
+              if (!self.remainingTransports) {
+                self.remainingTransports = self.transports.slice(0);
+              }
+
+              var transports = self.remainingTransports;
+
+              while (transports.length > 0 && transports.splice(0,1)[0] !=
+                self.transport.name) {}
+
+              if (transports.length) {
+                self.transport = self.getTransport(transports);
+                self.connect();
+              }
+            }
+
+            if (!self.remainingTransports || self.remainingTransports.length == 0) {
+              self.emit('connect_failed');
+            }
+          }
+
+          if(self.remainingTransports && self.remainingTransports.length == 0) {
+            delete self.remainingTransports;
+          }
+        }, self.options['connect timeout']);
+      }
+
+      if (fn && typeof fn == 'function') {
+        self.once('connect', fn);
+      }
+    });
+
+    return this;
   };
 
   /**
@@ -2753,6 +2963,165 @@
 
   JSONPPolling.xdomainCheck = function () {
     return true;
+  };
+
+  /**
+   * Called upon handshake.
+   *
+   * @api private
+   */
+
+  Socket.prototype.onConnect = function(){
+    this.connected = true;
+    this.connecting = false;
+    this.emit('connect');
+
+    for (var i in this.namespaces) {
+      this.of(i).$emit('connect');
+    }
+  };
+
+  /**
+   * Called when the transport opens
+   *
+   * @api private
+   */
+
+  Socket.prototype.onOpen = function () {
+    this.open = true;
+  };
+
+  /**
+   * Called when the transport closes.
+   *
+   * @api private
+   */
+
+  Socket.prototype.onClose = function () {
+    this.open = false;
+  };
+
+  /**
+   * Called when the transport first opens a connection
+   *
+   * @param text
+   */
+
+  Socket.prototype.onPacket = function (packet) {
+    this.of(packet.endpoint).onPacket(packet);
+  };
+
+  /**
+   * Handles an error.
+   *
+   * @api private
+   */
+
+  Socket.prototype.onError = function (err) {
+    this.emit('error', err);
+
+    for (var i in this.namespaces) {
+      this.of(i).$emit('error', err);
+    }
+  };
+
+  /**
+   * Called when the transport disconnects.
+   *
+   * @api private
+   */
+
+  Socket.prototype.onDisconnect = function (reason) {
+    var wasConnected = this.connected;
+
+    this.connected = false;
+    this.connecting = false;
+    this.open = false;
+
+    if (wasConnected) {
+      this.emit('disconnect');
+
+      this.transport.clearTimeouts();
+
+      for (var i in this.namespaces) {
+        this.of(i).$emit('disconnect', reason);
+      }
+
+      if (this.options.reconnect && !this.reconnecting) {
+        this.reconnect();
+      }
+    }
+  };
+
+  /**
+   * Called upon reconnection.
+   *
+   * @api private
+   */
+
+  Socket.prototype.reconnect = function () {
+    this.reconnecting = true;
+    this.reconnectionAttempts = 0;
+    this.reconnectionDelay = this.options['reconnection delay'];
+
+    var self = this
+      , maxAttempts = this.options['max reconnection attempts']
+      , tryMultiple = this.options['try multiple transports']
+
+    function reset () {
+      if (self.connected) {
+        self.emit('reconnect', self.transport.name, self.reconnectionAttempts);
+      }
+
+      self.removeListener('connect_failed', maybeReconnect);
+      self.removeListener('connect', maybeReconnect);
+
+      self.reconnecting = false;
+
+      delete self.reconnectionAttempts;
+      delete self.reconnectionDelay;
+      delete self.reconnectionTimer;
+      delete self.redoTransports;
+
+      self.options['try multiple transports'] = tryMultiple;
+    };
+
+    function maybeReconnect () {
+      if (!self.reconnecting) {
+        return;
+      }
+
+      if (self.connected) {
+        return reset();
+      };
+
+      if (self.connecting && self.reconnecting) {
+        return self.reconnectionTimer = setTimeout(maybeReconnect, 1000);
+      }
+
+      if (self.reconnectionAttempts++ >= maxAttempts) {
+        if (!self.redoTransports) {
+          self.on('connect_failed', maybeReconnect);
+          self.options['try multiple transports'] = true;
+          self.transport = self.getTransport();
+          self.redoTransports = true;
+          self.connect();
+        } else {
+          self.emit('reconnect_failed');
+          reset();
+        }
+      } else {
+        self.reconnectionDelay *= 2; // exponential back off
+        self.connect();
+        self.emit('reconnecting', self.reconnectionDelay, self.reconnectionAttempts);
+        self.reconnectionTimer = setTimeout(maybeReconnect, self.reconnectionDelay);
+      }
+    };
+
+    this.options['try multiple transports'] = false;
+    this.reconnectionTimer = setTimeout(maybeReconnect, this.reconnectionDelay);
+
+    this.on('connect', maybeReconnect);
   };
 
 })(

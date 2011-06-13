@@ -57,7 +57,7 @@
     },
 
     'decoding ack packet with args': function () {
-      parser.decodePacket('6:::12+' + JSON.stringify(['woot', 'wa'])).should().eql({
+      parser.decodePacket('6:::12+["woot","wa"]').should().eql({
           type: 'ack'
         , ackId: '12'
         , endpoint: ''
@@ -101,7 +101,7 @@
     },
 
     'decoding an event packet': function () {
-      parser.decodePacket('5:::woot').should().eql({
+      parser.decodePacket('5:::{"name":"woot"}').should().eql({
           type: 'event'
         , name: 'woot'
         , endpoint: ''
@@ -110,7 +110,7 @@
     },
 
     'decoding an event packet with message id and ack': function () {
-      parser.decodePacket('5:1+::tobi').should().eql({
+      parser.decodePacket('5:1+::{"name":"tobi"}').should().eql({
           type: 'event'
         , id: 1
         , ack: 'data'
@@ -121,7 +121,8 @@
     },
 
     'decoding an event packet with data': function () {
-      parser.decodePacket('5:::edwald\ufffd[{"a": "b"},2,"3"]').should().eql({
+      parser.decodePacket('5:::{"name":"edwald","args":[{"a": "b"},2,"3"]}')
+      .should().eql({
           type: 'event'
         , name: 'edwald'
         , endpoint: ''
@@ -228,7 +229,7 @@
         , ackId: '12'
         , endpoint: ''
         , args: ['woot', 'wa']
-      }).should().eql('6:::12+' + JSON.stringify(['woot', 'wa']));
+      }).should().eql('6:::12+["woot","wa"]');
     },
 
     'encoding json packet': function () {
@@ -255,7 +256,7 @@
         , name: 'woot'
         , endpoint: ''
         , args: []
-      }).should().eql('5:::woot');
+      }).should().eql('5:::{"name":"woot"}');
     },
 
     'encoding an event packet with message id and ack': function () {
@@ -266,7 +267,7 @@
         , endpoint: ''
         , name: 'tobi'
         , args: []
-      }).should().eql('5:1+::tobi');
+      }).should().eql('5:1+::{"name":"tobi"}');
     },
 
     'encoding an event packet with data': function () {
@@ -275,7 +276,7 @@
         , name: 'edwald'
         , endpoint: ''
         , args: [{a: 'b'}, 2, '3']
-      }).should().eql('5:::edwald\ufffd[{"a":"b"},2,"3"]');
+      }).should().eql('5:::{"name":"edwald","args":[{"a":"b"},2,"3"]}');
     },
 
     'encoding a message packet': function () {
