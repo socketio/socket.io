@@ -55,20 +55,22 @@ For more thorough examples, look at the `examples/` directory.
 Socket.IO allows you to emit and receive custom events.
 Besides `connect`, `message` and `disconnect`, you can emit custom events:
 
-    // note, io.listen(<port>) will create a http server for you
-    var io = require('socket.io').listen(80);
+```js
+// note, io.listen(<port>) will create a http server for you
+var io = require('socket.io').listen(80);
 
-    io.sockets.on('connection', function (socket) {
-      io.sockets.emit('this', { will: 'be received by everyone');
+io.sockets.on('connection', function (socket) {
+  io.sockets.emit('this', { will: 'be received by everyone');
 
-      socket.on('private message', function (from, msg) {
-        console.log('I received a private message by ', from, ' saying ', msg);
-      });
+  socket.on('private message', function (from, msg) {
+    console.log('I received a private message by ', from, ' saying ', msg);
+  });
 
-      socket.on('disconnect', function () {
-        sockets.emit('user disconnected');
-      });
-    });
+  socket.on('disconnect', function () {
+    sockets.emit('user disconnected');
+  });
+});
+```
 
 ### Storing data associated to a client
 
@@ -77,33 +79,37 @@ necessary for the duration of the session.
 
 #### Server side
 
-    var io = require('socket.io').listen(80);
+```js
+var io = require('socket.io').listen(80);
 
-    io.sockets.on('connection', function (socket) {
-      socket.on('set nickname', function (name) {
-        socket.set('nickname', name, function () { socket.emit('ready'); });
-      });
+io.sockets.on('connection', function (socket) {
+  socket.on('set nickname', function (name) {
+    socket.set('nickname', name, function () { socket.emit('ready'); });
+  });
 
-      socket.on('msg', function () {
-        socket.get('nickname', function (name) {
-          console.log('Chat message by ', name);
-        });
-      });
+  socket.on('msg', function () {
+    socket.get('nickname', function (name) {
+      console.log('Chat message by ', name);
     });
+  });
+});
+```
 
 #### Client side
 
-    <script>
-      var socket = io.connect('http://localhost');
+```html
+<script>
+  var socket = io.connect('http://localhost');
 
-      socket.on('connect', function () {
-        socket.emit('set nickname', confirm('What is your nickname?'));
-        socket.on('ready', function () {
-          console.log('Connected !');
-          socket.emit('msg', confirm('What is your message?'));
-        });
-      });
-    </script>
+  socket.on('connect', function () {
+    socket.emit('set nickname', confirm('What is your nickname?'));
+    socket.on('ready', function () {
+      console.log('Connected !');
+      socket.emit('msg', confirm('What is your message?'));
+    });
+  });
+</script>
+```
 
 ### Restricting yourself to a namespace
 
@@ -121,36 +127,40 @@ The following example defines a socket that listens on '/chat' and one for
 
 #### Server side
 
-    var io = require('socket.io').listen(80);
+```js
+var io = require('socket.io').listen(80);
 
-    var chat = io
-      .of('/chat');
-      .on('connection', function (socket) {
-        socket.emit('a message', { that: 'only', '/chat': 'will get' });
-        chat.emit('a message', { everyone: 'in', '/chat': 'will get' });
-      });
+var chat = io
+  .of('/chat');
+  .on('connection', function (socket) {
+    socket.emit('a message', { that: 'only', '/chat': 'will get' });
+    chat.emit('a message', { everyone: 'in', '/chat': 'will get' });
+  });
 
-    var news = io
-      .of('/news');
-      .on('connection', function (socket) {
-        socket.emit('item', { news: 'item' });
-      });
+var news = io
+  .of('/news');
+  .on('connection', function (socket) {
+    socket.emit('item', { news: 'item' });
+  });
+```
 
 #### Client side:
 
-    <script>
-      var socket = io.connect('http://localhost/')
-        , chat = socket.of('/chat')
-        , news = socket.of('/news');
+```html
+<script>
+  var socket = io.connect('http://localhost/')
+    , chat = socket.of('/chat')
+    , news = socket.of('/news');
 
-      chat.on('connect', function () {
-        chat.emit('hi!');
-      });
+  chat.on('connect', function () {
+    chat.emit('hi!');
+  });
 
-      news.on('news', function () {
-        news.emit('woot');
-      });
-    </script>
+  news.on('news', function () {
+    news.emit('woot');
+  });
+</script>
+```
 
 ### Sending volatile messages.
 
@@ -166,19 +176,21 @@ In that case, you might want to send those messages as volatile messages.
 
 #### Server side
 
-    var io = require('socket.io').listen(80);
+```js
+var io = require('socket.io').listen(80);
 
-    io.sockets.on('connection', function (socket) {
-      var tweets = setInterval(function () {
-        getBieberTweet(function (tweet) {
-          socket.volatile.emit('bieber tweet', tweet);
-        });
-      }, 100);
-
-      socket.on('disconnect', function () {
-        clearInterval(tweets);
-      });
+io.sockets.on('connection', function (socket) {
+  var tweets = setInterval(function () {
+    getBieberTweet(function (tweet) {
+      socket.volatile.emit('bieber tweet', tweet);
     });
+  }, 100);
+
+  socket.on('disconnect', function () {
+    clearInterval(tweets);
+  });
+});
+```
 
 #### Client side
 
@@ -196,24 +208,28 @@ means you can also pass data along:
 
 #### Server side
 
-    var io = require('socket.io').listen(80);
+```js
+var io = require('socket.io').listen(80);
 
-    io.sockets.on('connection', function (socket) {
-      socket.on('ferret', function (name, fn) {
-        fn('woot');
-      });
-    });
+io.sockets.on('connection', function (socket) {
+  socket.on('ferret', function (name, fn) {
+    fn('woot');
+  });
+});
+```
 
 #### Client side
 
-    <script>
-      var socket = io.connect(); // TIP: .connect with no args does auto-discovery
-      socket.on('connection', function () {
-        socket.emit('ferret', 'tobi', function (data) {
-          console.log(data); // data will be 'woot'
-        });
-      });
-    </script>
+```html
+<script>
+  var socket = io.connect(); // TIP: .connect with no args does auto-discovery
+  socket.on('connection', function () {
+    socket.emit('ferret', 'tobi', function (data) {
+      console.log(data); // data will be 'woot'
+    });
+  });
+</script>
+```
 
 ### Broadcasting messages
 
@@ -221,12 +237,14 @@ To broadcast, simply add a `broadcast` flag to `emit` and `send` method calls.
 
 #### Server side
 
-    var io = require('socket.io').listen(80);
+```js
+var io = require('socket.io').listen(80);
 
-    io.sockets.on('connection', function (socket) {
-      socket.broadcast.emit('user connected');
-      socket.broadcast.json.send({ a: 'message' });
-    });
+io.sockets.on('connection', function (socket) {
+  socket.broadcast.emit('user connected');
+  socket.broadcast.json.send({ a: 'message' });
+});
+```
 
 ### Using it just as a cross-browser WebSocket
 
@@ -235,25 +253,29 @@ Simply leverage `send` and listen on the `message` event:
 
 #### Server side
 
-    var io = require('socket.io-node').listen(80);
+```js
+var io = require('socket.io-node').listen(80);
 
-    io.sockets.on('connection', function (socket) {
-      socket.on('message', function () { });
-      socket.on('disconnect', function () { });
-    });
+io.sockets.on('connection', function (socket) {
+  socket.on('message', function () { });
+  socket.on('disconnect', function () { });
+});
+```
 
 #### Client side
 
-    <script>
-      var socket = io.connect('http://localhost/');
-      socket.on('connect', function () {
-        socket.send('hi');
+```html
+<script>
+  var socket = io.connect('http://localhost/');
+  socket.on('connect', function () {
+    socket.send('hi');
 
-        socket.on('message', function (msg) {
-          // my msg
-        });
-      });
-    </script>
+    socket.on('message', function (msg) {
+      // my msg
+    });
+  });
+</script>
+```
 
 ### Changing configuration
 
@@ -261,16 +283,18 @@ Configuration in socket.io is TJ-style:
 
 #### Server side
 
-    var io = require('socket.io-node').listen(80);
+```js
+var io = require('socket.io-node').listen(80);
 
-    io.configure(function () {
-      io.set('transports', ['websocket', 'flashsocket', 'xhr-polling']);
-    });
+io.configure(function () {
+  io.set('transports', ['websocket', 'flashsocket', 'xhr-polling']);
+});
 
-    io.configure('development', function () {
-      io.set('transports', ['websocket', 'xhr-polling']);
-      io.enable('log');
-    });
+io.configure('development', function () {
+  io.set('transports', ['websocket', 'xhr-polling']);
+  io.enable('log');
+});
+```
 
 ## [API docs](http://socket.io/api.html)
 
