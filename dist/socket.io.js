@@ -2689,7 +2689,12 @@
    */
 
   Socket.prototype.packet = function (data) {
-    this.transport.packet(data);
+    if (this.open) {
+      this.transport.packet(data);
+    } else {
+      this.buffer.push(data);
+    }
+
     return this;
   };
 
