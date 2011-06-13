@@ -23,7 +23,7 @@ var io = require('socket.io');
 Next, attach it to a HTTP/HTTPS server. If you're using the fantastic `express`
 web framework:
 
-```html
+```js
 var app = express.createServer();
   , io = io.listen(app);
 
@@ -36,13 +36,15 @@ io.sockets.on('connection', function (socket) {
 
 Finally, load it from the client side code:
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      var socket = io.connect('http://localhost');
-      socket.on('news', function () {
-        socket.emit('myOtherEvent', { my: 'data' });
-      });
-    </script>
+```html
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect('http://localhost');
+  socket.on('news', function () {
+    socket.emit('myOtherEvent', { my: 'data' });
+  });
+</script>
+```
 
 For more thorough examples, look at the `examples/` directory.
 
