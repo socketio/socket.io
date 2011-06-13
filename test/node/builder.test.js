@@ -4,7 +4,7 @@
  * MIT Licensed
  */
  
-var builder = require('../bin/builder')
+var builder = require('../../bin/builder')
   , common = require('./builder.common')
   , assert = require('assert');
 
