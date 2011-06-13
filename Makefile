@@ -2,7 +2,7 @@
 ALL_TESTS = $(shell find test/ -name '*.test.js')
 
 run-tests:
-	@npm link
+	@npm link > /dev/null
 	@./node_modules/.bin/expresso \
 		-I support \
 		-I lib \
