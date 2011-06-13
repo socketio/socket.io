@@ -60,6 +60,9 @@
    */
   io.sockets = {};
 
+  /**
+   * Expose constructors if in Node
+   */
 
   // if node
   if ('object' === typeof module && 'function' === typeof require) {
@@ -1485,9 +1488,15 @@
       }, false);
     }
 
-    if (this.options['auto connect']) {
-      this.connect();
-    }
+  XHR.prototype.open = function () {
+    this.get();
+    this.onOpen();
+
+    // we need to make sure the request succeeds since we have no indication
+    // whether the request opened or not until it succeeded.
+    this.setCloseTimeout();
+
+    return this;
   };
 
   /**
@@ -2746,7 +2755,12 @@
     this.insertAt = document.getElementsByTagName('script')[0];
     this.index = io.j.length;
 
-    var self = this;
+    this.connected = false;
+    this.open = false;
+    this.connecting = false;
+    this.reconnecting = false;
+    this.namespaces = {};
+    this.buffer = [];
 
     io.j.push(function (msg) {
       self._(msg);
@@ -2769,8 +2783,14 @@
    * @api private
    */
 
-  JSONPPolling.prototype.post = function (data) {
-    var self = this;
+  Socket.prototype.of = function (name) {
+    if (!this.namespaces[name]) {
+      this.namespaces[name] = new io.SocketNamespace(this, name);
+
+      if (name !== '') {
+        this.namespaces[name].packet({ type: 'connect' });
+      }
+    }
 
     if (!this.form) {
       var form = document.createElement('FORM')
@@ -2937,9 +2957,13 @@
    * @api private
    */
 
-  JSONPPolling.prototype._ = function (msg) {
-    this.onData(msg);
-    this.get();
+  Socket.prototype.packet = function (data) {
+    if (this.open) {
+      this.transport.packet(data);
+    } else {
+      this.buffer.push(data);
+    }
+
     return this;
   };
 
@@ -2989,6 +3013,14 @@
 
   Socket.prototype.onOpen = function () {
     this.open = true;
+
+    if (this.buffer.length) {
+      for (var i = 0, l = this.buffer.length; i < l; i++) {
+        this.packet(this.buffer[i]);
+      }
+
+      this.buffer = [];
+    }
   };
 
   /**

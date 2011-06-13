@@ -8,6 +8,9 @@ It looks similar to WebSocket while providing additional features and
 leveraging other transports when WebSocket is not supported by the user's
 browser.
 
+**Note:** this is the documentation for the upcoming release **0.7**. The latest
+stable version is [0.6](https://github.com/LearnBoost/Socket.IO/tree/06).
+
 ```js
 var socket = io.connect('http://domain.com');
 socket.on('connect', function () {
