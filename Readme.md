@@ -16,19 +16,23 @@ tag on NPM is [0.6](https://github.com/LearnBoost/Socket.IO-node/tree/06).
 
 First, require `socket.io`:
 
-    var io = require('socket.io');
+```js
+var io = require('socket.io');
+```
 
 Next, attach it to a HTTP/HTTPS server. If you're using the fantastic `express`
 web framework:
 
-    var app = express.createServer();
-      , io = io.listen(app);
+```html
+var app = express.createServer();
+  , io = io.listen(app);
 
-    app.listen(80);
+app.listen(80);
 
-    io.sockets.on('connection', function (socket) {
-      socket.send({ hello: 'world' });
-    });
+io.sockets.on('connection', function (socket) {
+  socket.send({ hello: 'world' });
+});
+```
 
 Finally, load it from the client side code:
 
