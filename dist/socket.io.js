@@ -52,7 +52,7 @@
    */
 
   io.j = [];
-  
+
   /**
    * Keep track of our io.Sockets
    *
@@ -72,8 +72,24 @@
      *
      * @api private
      */
-    
+
     io.util = require('./util').util;
+
+    /**
+     * Expose JSON.
+     *
+     * @api private
+     */
+
+    io.JSON = require('./json').JSON;
+
+    /**
+     * Expose parser.
+     *
+     * @api private
+     */
+
+    io.parser = require('./parser').parser;
 
     /**
      * Expose EventEmitter
@@ -104,8 +120,16 @@
      *
      * @api public
      */
-    
+
     io.Socket = require('./socket').Socket;
+
+    /**
+     * Location of `dist/` directory.
+     *
+     * @api private
+     */
+
+    io.dist = __dirname + '/../dist';
 
   }
   // end node
@@ -119,8 +143,14 @@
    */
 
   io.connect = function (host, forceNew) {
-    var uri = io.util.parseUri(host)
-      , uuri = io.util.uniqueUri(uri);
+    var uri = io.util.parseUri(host);
+
+    if ('undefined' != typeof document) {
+      uri.host = uri.host || document.domain;
+      uri.port = uri.port || document.location.port;
+    }
+
+    var uuri = io.util.uniqueUri(uri);
 
     if (forceNew || !io.sockets[uuri]) {
       var socket = new io.Socket({
@@ -198,11 +228,11 @@
       host = host || document.domain;
       port = port || document.location.port;
     } else {
-      host = 'localhost';
-      port = 80;
+      host = host || 'localhost';
     }
 
-    return (protocol || 'http') + '://' + host + ':' + (port || protocol && protocol === 'https' ? 443 : 80);
+    return (protocol || 'http') + '://' + host + ':' +
+      (port || protocol && protocol === 'https' ? 443 : 80);
   };
 
   /**
@@ -242,51 +272,34 @@
    * Generates the correct `XMLHttpRequest` for regular and cross domain requests.
    *
    * @param {Boolean} [xdomain] Create a request that can be used cross domain.
-   * @returns {XMLHttpRequest|false} If we can create a XMLHttpRequest we will return that.
+   * @returns {XMLHttpRequest|false} If we can create a XMLHttpRequest.
    * @api private
    */
 
-  var hasCORS = 'undefined' != typeof window && (function () {
-    if (!('XMLHttpRequest' in window)) return false;
-    // CORS feature detection
+  var hasCORS = 'undefined' != typeof window && window.XMLHttpRequest &&
+  (function () {
     var a = new XMLHttpRequest();
     return a.withCredentials != undefined;
   })();
 
-  function stdXHR() {
-    try {
-      return new window.XMLHttpRequest();
-    } catch(e) {}
-  }
-  function activeXHR() {
-    try {
-      return new window.ActiveXObject('Microsoft.XMLHTTP');
-    } catch(e) {}
-  }
-
   util.request = function (xdomain) {
-    return stdXHR() || window.ActiveXObject && activeXHR();
-    /*if ('XDomainRequest' in window && xdomain) {
-      return new XDomainRequest();
-    };
+    if ('undefined' != typeof window) {
+      if (xdomain && window.XDomainRequest) {
+        return new XDomainRequest();
+      };
 
-    if ('XMLHttpRequest' in window && (!xdomain || hasCORS)) {
-      return new XMLHttpRequest();
+      if (window.XMLHttpRequest && (!xdomain || hasCORS)) {
+        return new XMLHttpRequest();
+      };
+
+      if (!xdomain) {
+        try {
+          return new window.ActiveXObject('Microsoft.XMLHTTP');
+        } catch(e) { }
+      }
     }
 
-    if (!xdomain){
-      try {
-        var a = new ActiveXObject('MSXML2.XMLHTTP');
-        return a;
-      } catch(e){}
-
-      try {
-        var b = new ActiveXObject('Microsoft.XMLHTTP');
-        return b;
-      } catch(e){}
-    }
-
-    return false;*/
+    return null;
   };
 
   /**
@@ -418,6 +431,21 @@
         ; i < j && arr[i] !== o; i++);
 
     return j <= i ? -1 : i;
+  };
+
+  /**
+   * Converts enumerables to array.
+   *
+   * @api public
+   */
+
+  util.toArray = function (enu) {
+    var arr = [];
+
+    for (var i = 0, l = enu.length; i < l; i++)
+      arr.push(enu[i]);
+
+    return arr;
   };
 
   /**
@@ -994,7 +1022,7 @@
   ];
 
   /**
-   * Shorcuts.
+   * Shortcuts.
    */
 
   var JSON = io.JSON
@@ -1029,9 +1057,13 @@
         break;
 
       case 'event':
-        var params = packet.args && packet.args.length
-          ? JSON.stringify(packet.args) : '';
-        data = packet.name + (params !== '' ? ('\ufffd' + params) : '');
+        var ev = { name: packet.name };
+
+        if (packet.args && packet.args.length) {
+          ev.args = packet.args;
+        }
+
+        data = JSON.stringify(ev);
         break;
 
       case 'json':
@@ -1131,15 +1163,13 @@
         break;
 
       case 'event':
-        var pieces = data.match(/([^\ufffd]+)(\ufffd)?(.*)/);
-        packet.name = pieces[1] || '';
-        packet.args = [];
+        try {
+          var opts = JSON.parse(data);
+          packet.name = opts.name;
+          packet.args = opts.args;
+        } catch (e) { }
 
-        if (pieces[3]) {
-          try {
-            packet.args = JSON.parse(pieces[3]);
-          } catch (e) { }
-        }
+        packet.args = packet.args || [];
         break;
 
       case 'json':
@@ -1252,9 +1282,11 @@
     this.clearCloseTimeout();
 
     if (data !== '') {
+      // todo: we should only do decodePayload for xhr transports
       var msgs = io.parser.decodePayload(data);
-      if (msgs && msgs.length){
-        for (var i = 0, l = msgs.length; i < l; i++){
+
+      if (msgs && msgs.length) {
+        for (var i = 0, l = msgs.length; i < l; i++) {
           this.onPacket(msgs[i]);
         }
       }
@@ -1435,7 +1467,6 @@
 
     io.Transport.apply(this, arguments);
     this.sendBuffer = [];
-    this.onOpen();
   };
 
   /**
@@ -2252,7 +2283,8 @@
    * @api public
    */
 
-  function SocketNamespace (name) {
+  function SocketNamespace (socket, name) {
+    this.socket = socket;
     this.name = name || '';
     this.flags = {};
     this.json = new Flag(this, 'json');
@@ -2341,6 +2373,17 @@
    */
 
   SocketNamespace.prototype.onPacket = function (packet) {
+    var dataAck = packet.ack == 'data'
+      , self = this;
+
+    function ack () {
+      self.packet({
+          type: 'ack'
+        , args: io.util.toArray(arguments)
+        , ackId: packet.id
+      });
+    };
+
     switch (packet.type) {
       case 'connect':
       case 'disconnect':
@@ -2349,12 +2392,27 @@
 
       case 'message':
       case 'json':
-        this.$emit('message', packet.data);
+        var params = ['message', packet.data];
+
+        if (dataAck)
+          params.push(ack);
+
+        this.emit.apply(socket, params);
         break;
 
       case 'event':
-        this.$emit.apply(this, [packet.name].concat(packet.args));
+        var params = [packet.name].concat(packet.args);
+
+        if (dataAck)
+          params.push(ack);
+
+        this.$emit.apply(this, params);
         break;
+
+      case 'ack':
+        if (this.acks[packet.ackId]) {
+          this.acks[packet.ackId].apply(this, packet.args);
+        }
     }
   };
 
@@ -2608,8 +2666,9 @@
         }, self.options['connect timeout']);
       }
 
-      if (fn && typeof fn == 'function') self.once('connect',fn);
-      self.onConnect();
+      if (fn && typeof fn == 'function') {
+        self.once('connect', fn);
+      }
     });
 
     return this;
@@ -2679,7 +2738,7 @@
     this.connected = true;
     this.connecting = false;
     this.emit('connect');
-    
+
     for (var i in this.namespaces) {
       this.of(i).$emit('connect');
     }
@@ -2692,10 +2751,6 @@
    */
 
   Socket.prototype.onOpen = function () {
-    if (!this.connected) {
-      this.onConnect();
-    }
-
     this.open = true;
   };
 
@@ -2707,7 +2762,6 @@
 
   Socket.prototype.onClose = function () {
     this.open = false;
-    
   };
 
   /**
