@@ -1484,6 +1484,7 @@
 
   XHR.prototype.open = function () {
     this.get();
+    this.onOpen();
 
     // we need to make sure the request succeeds since we have no indication
     // whether the request opened or not until it succeeded.
@@ -2499,6 +2500,8 @@
     this.open = false;
     this.connecting = false;
     this.reconnecting = false;
+    this.namespaces = {};
+    this.buffer = [];
 
     if (this.options['sync disconnect on unload']) {
       var self = this;
@@ -2526,9 +2529,12 @@
    */
 
   Socket.prototype.of = function (name) {
-    if (!this.namespaces) this.namespaces = {};
     if (!this.namespaces[name]) {
       this.namespaces[name] = new io.SocketNamespace(this, name);
+
+      if (name !== '') {
+        this.namespaces[name].packet({ type: 'connect' });
+      }
     }
 
     return this.namespaces[name];
@@ -2752,6 +2758,14 @@
 
   Socket.prototype.onOpen = function () {
     this.open = true;
+
+    if (this.buffer.length) {
+      for (var i = 0, l = this.buffer.length; i < l; i++) {
+        this.packet(this.buffer[i]);
+      }
+
+      this.buffer = [];
+    }
   };
 
   /**
