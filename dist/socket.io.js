@@ -664,7 +664,7 @@
 
 (function (exports, nativeJSON) {
   "use strict";
-  
+
   // use native JSON if it's available
   if (nativeJSON && nativeJSON.parse){
     return exports.JSON = {
@@ -969,7 +969,10 @@
       throw new SyntaxError('JSON.parse');
   };
 
-}('undefined' != typeof io ? io : module.exports, JSON));
+})(
+    'undefined' != typeof io ? io : module.exports
+  , typeof JSON !== 'undefined' ? JSON : undefined
+);
 
 
 /**
