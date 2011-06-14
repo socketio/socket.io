@@ -1,0 +1,26 @@
+<!doctype html>
+<head>
+	<meta charset="utf-8">
+	<script type="text/javascript" src="/socket.io/socket.io.js" charset="utf-8"></script>
+</head>
+<body>
+<p>Scenario: Client connects, server emits 'ready' event with manual ack, client in turns emits while processing 'ready' event.</p>
+<p>Expecting: If xhr-polling is OK for this browser, you should see an alert.</p>
+	<script type="text/javascript" charset="utf-8">
+if (!window.console) console = {log: alert, error: alert};
+console.log('APPLOADED');
+// socket
+var s = io.connect();
+s.on('ready', function(cb) {
+	console.log('EVENT:ready', arguments);
+	s.emit('update', {foo: 'bar'}, function(ack) {
+		// N.B. htmlfile seems to work fine ;)
+		// i suppose because it first flushes the queue, only then closes the transport
+		alert('WE HAVE FIXED XHR ISSUE FOR _THIS_ BROWSER');
+		console.log(ack);
+	});
+	cb && cb('READY OK');
+});
+	</script>
+</body>
+</html>
