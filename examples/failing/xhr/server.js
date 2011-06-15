@@ -69,6 +69,7 @@ console.log('Listening to http://*:3000. Use Ctrl+C to stop.');
 var io = require('socket.io');
 var ws = io.listen(http);
 ws.set('transports', ['htmlfile', 'xhr-polling']);
+//ws.set('transports', ['jsonp-polling']);
 
 ws.sockets.on('connection', function(client) {
 
