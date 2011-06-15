@@ -11,7 +11,7 @@ var builder = require('../../bin/builder')
 module.exports = {
   'version number': function(){
     builder.version.should.match(/([0-9]+)\.([0-9]+)\.([0-9]+)/);
-    builder.version.should.equal(require('../lib/io').version);
+    builder.version.should.equal(require('../../lib/io').version);
   }
 , 'transports replacement production build': function(){
     builder(function(error, result){
