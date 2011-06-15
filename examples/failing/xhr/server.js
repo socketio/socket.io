@@ -68,8 +68,8 @@ console.log('Listening to http://*:3000. Use Ctrl+C to stop.');
 
 var io = require('socket.io');
 var ws = io.listen(http);
-ws.set('transports', ['htmlfile', 'xhr-multipart', 'xhr-polling']);
-//ws.set('transports', ['xhr-multipart']);
+//ws.set('transports', ['htmlfile', 'xhr-multipart', 'xhr-polling']);
+ws.set('transports', ['flashsocket']);
 
 ws.sockets.on('connection', function(client) {
 
