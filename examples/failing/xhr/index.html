@@ -16,7 +16,7 @@ s.on('ready', function(cb) {
 	s.emit('update', {foo: 'bar'}, function(ack) {
 		// N.B. htmlfile seems to work fine ;)
 		// i suppose because it first flushes the queue, only then closes the transport
-		alert('WE HAVE FIXED XHR ISSUE FOR _THIS_ BROWSER');
+		alert('WE HAVE FIXED TRANSPORT ISSUE FOR _THIS_ BROWSER');
 		console.log(ack);
 	});
 	cb && cb('READY OK');
