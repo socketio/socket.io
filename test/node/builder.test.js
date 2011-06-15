@@ -56,7 +56,8 @@ module.exports = {
       var transports = Object.keys(io.Transport)
         , defaults = Object.keys(builder.transports);
       
-      transports.length.should.be.equal(defaults.length + 1 /* XHR transport is private, but still available */);
+      /* XHR transport is private, but still available */
+      transports.length.should.be.equal(defaults.length + 1);
       defaults.forEach(function(transport){
         transports.indexOf(transport).should.be.above(-1);
       })
@@ -82,7 +83,9 @@ module.exports = {
     });
   }
 , 'node if': function(){
-    var custom = '// if node \nvar hello = "world";\n// end node\nvar pew = "pew";';
+    var custom = '// if node \nvar hello = "world";\n'
+      + '// end node\nvar pew = "pew";';
+    
     builder({custom:[custom], minify:false}, function(error, result){
       assert.ok(!error);
       

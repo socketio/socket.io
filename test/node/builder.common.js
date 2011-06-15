@@ -61,11 +61,13 @@ exports.env = function env(){
   details.window = details.self = details.contentWindow = details;
   
   // callable methods
-  details.Image = details.scrollTo = details.scrollBy = details.scroll = details.resizeTo =
-  details.resizeBy = details.prompt = details.print = details.open = details.moveTo = details.moveBy =
-  details.focus = details.createPopup = details.confirm = details.close = details.blur = details.alert =
-  details.clearTimeout = details.clearInterval = details.setInterval = details.setTimeout =
-  details.XMLHttpRequest = details.getComputedStyle = details.trigger = details.dispatchEvent =
+  details.Image = details.scrollTo = details.scrollBy = details.scroll = 
+  details.resizeTo = details.resizeBy = details.prompt = details.print = 
+  details.open = details.moveTo = details.moveBy = details.focus = 
+  details.createPopup = details.confirm = details.close = details.blur = 
+  details.alert = details.clearTimeout = details.clearInterval = 
+  details.setInterval = details.setTimeout = details.XMLHttpRequest = 
+  details.getComputedStyle = details.trigger = details.dispatchEvent = 
   details.removeEventListener = details.addEventListener = function(){};
   
   // frames
