@@ -43,7 +43,7 @@ module.exports = {
 
     io.get('a').should.eql('b');
     io.enabled('tobi').should.be.true;
-    
+
     done();
   },
 
@@ -65,6 +65,27 @@ module.exports = {
     done();
   },
 
+  'test configuration callbacks conserve scope': function (done) {
+    var port = ++ports
+      , io = sio.listen(http.createServer())
+      , calls = 0;
+
+    process.env.NODE_ENV = 'development';
+
+    io.configure(function () {
+      this.should.eql(io);
+      calls++;
+    });
+
+    io.configure('development', function () {
+      this.should.eql(io);
+      calls++;
+    });
+
+    calls.should.eql(2);
+    done();
+  },
+
   'test that normal requests are still served': function (done) {
     var server = http.createServer(function (req, res) {
       res.writeHead(200);
@@ -76,12 +97,15 @@ module.exports = {
       , cl = client(port);
 
     server.listen(ports);
-    
+
     cl.get('/socket.io', function (res, data) {
       res.statusCode.should.eql(200);
       data.should.eql('Welcome to socket.io.');
 
       cl.get('/woot', function (res, data) {
+        res.statusCode.should.eql(200);
+        data.should.eql('woot');
+
         cl.end();
         server.close();
         done();
@@ -96,7 +120,29 @@ module.exports = {
 
     cl.get('/socket.io/socket.io.js', function (res, data) {
       res.headers['content-type'].should.eql('application/javascript');
-      res.headers['content-length'].should.be.match(/([0-9]+)/);
+      res.headers['content-length'].should.match(/([0-9]+)/);
+      should.strictEqual(res.headers.etag, undefined);
+
+      data.should.match(/XMLHttpRequest/);
+
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that the client etag is served': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.enable('browser client etag');
+    });
+
+    cl.get('/socket.io/socket.io.js', function (res, data) {
+      res.headers['content-type'].should.eql('application/javascript');
+      res.headers['content-length'].should.match(/([0-9]+)/);
       res.headers.etag.should.match(/([0-9]+)\.([0-9]+)\.([0-9]+)/);
 
       data.should.match(/XMLHttpRequest/);
@@ -114,16 +160,46 @@ module.exports = {
 
     cl.get('/socket.io/socket.io.js', function (res, data) {
       res.headers['content-type'].should.eql('application/javascript');
-      res.headers['content-length'].should.be.match(/([0-9]+)/);
+      res.headers['content-length'].should.match(/([0-9]+)/);
+      should.strictEqual(res.headers.etag, undefined);
+
+      data.should.match(/XMLHttpRequest/);
+      io.client.should.match(/XMLHttpRequest/);
+
+      cl.get('/socket.io/socket.io.js', function (res, data) {
+        res.headers['content-type'].should.eql('application/javascript');
+        res.headers['content-length'].should.match(/([0-9]+)/);
+        should.strictEqual(res.headers.etag, undefined);
+
+        data.should.match(/XMLHttpRequest/);
+
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+  },
+
+  'test that the cached client etag is served': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.enable('browser client etag');
+    });
+
+    cl.get('/socket.io/socket.io.js', function (res, data) {
+      res.headers['content-type'].should.eql('application/javascript');
+      res.headers['content-length'].should.match(/([0-9]+)/);
       res.headers.etag.should.match(/([0-9]+)\.([0-9]+)\.([0-9]+)/);
 
       data.should.match(/XMLHttpRequest/);
       io.client.should.match(/XMLHttpRequest/);
 
-
       cl.get('/socket.io/socket.io.js', function (res, data) {
         res.headers['content-type'].should.eql('application/javascript');
-        res.headers['content-length'].should.be.match(/([0-9]+)/);
+        res.headers['content-length'].should.match(/([0-9]+)/);
         res.headers.etag.should.match(/([0-9]+)\.([0-9]+)\.([0-9]+)/);
 
         data.should.match(/XMLHttpRequest/);
@@ -135,14 +211,55 @@ module.exports = {
     });
   },
 
+  'test that client minification works': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.enable('browser client minification');
+    });
+
+    cl.get('/socket.io/socket.io.js', function (res, data) {
+      var length = data.length;
+
+      cl.end();
+      io.server.close();
+
+      // start a new server with minification enabled and compare lengths
+      var port = ++ports
+        , io2 = sio.listen(port)
+        , cl2 = client(port);
+
+      cl2.get('/socket.io/socket.io.js', function (res, data) {
+        res.headers['content-type'].should.eql('application/javascript');
+        res.headers['content-length'].should.match(/([0-9]+)/);
+        should.strictEqual(res.headers.etag, undefined);
+
+        data.should.match(/XMLHttpRequest/);
+        data.length.should.be.greaterThan(length);
+
+        cl2.end();
+        io2.server.close();
+        done();
+      });
+    });
+  },
+
   'test that you can serve custom clients': function (done) {
     var port = ++ports
       , io = sio.listen(port)
       , cl = client(port);
 
     io.configure(function () {
-      io.set('browser client', 'custom_client');
-      io.set('browser client etag', '1.0');
+      io.set('browser client handler', function (req, res) {
+        res.writeHead(200, {
+            'Content-Type': 'application/javascript'
+          , 'Content-Length': 13
+          , 'ETag': '1.0'
+        });
+        res.end('custom_client');
+      });
     });
 
     cl.get('/socket.io/socket.io.js', function (res, data) {
@@ -151,6 +268,25 @@ module.exports = {
       res.headers.etag.should.eql('1.0');
 
       data.should.eql('custom_client');
+
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that you can disable clients': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.disable('browser client');
+    });
+
+    cl.get('/socket.io/socket.io.js', function (res, data) {
+      res.statusCode.should.eql(200);
+      data.should.eql('Welcome to socket.io.');
 
       cl.end();
       io.server.close();
