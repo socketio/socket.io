@@ -1,0 +1,117 @@
+   [33mwarn  -[39m Your node instance does not have root privileges. This means that the flash XML policy file will be served inline instead of on port 843. This will slow down initial connections slightly.
+   [36minfo  -[39m flash policy inline server started
+   [36minfo  -[39m socket.io started
+   [90mdebug -[39m client authorized
+   [36minfo  -[39m handshake authorized
+   [36minfo  -[39m handshaken fee6ddf99346bc6181c8ee8ab2c5a688
+HTTPREQ GET /socket.io/1/xhr-polling/fee6ddf99346bc6181c8ee8ab2c5a688?t1308241126559
+   [90mdebug -[39m setting request GET /socket.io/1/xhr-polling/fee6ddf99346bc6181c8ee8ab2c5a688?t1308241126559
+   [90mdebug -[39m publishing that fee6ddf99346bc6181c8ee8ab2c5a688 connected
+   [90mdebug -[39m setting poll timeout
+   [90mdebug -[39m initializing client store for fee6ddf99346bc6181c8ee8ab2c5a688
+   [90mdebug -[39m subscribing fee6ddf99346bc6181c8ee8ab2c5a688
+PUBLISHCONSUME 1::
+CONSUMEPACKET 1::
+   [90mdebug -[39m clearing poll timeout
+   [90mdebug -[39m xhr-polling writing 1::
+   [90mdebug -[39m set close timeout for client fee6ddf99346bc6181c8ee8ab2c5a688
+   [36minfo  -[39m unsubscribing fee6ddf99346bc6181c8ee8ab2c5a688
+PUBLISHBUFFER 5:1+::{"name":"ready"}
+HTTPREQ GET /socket.io/1/xhr-polling/fee6ddf99346bc6181c8ee8ab2c5a688?t1308241126572
+   [90mdebug -[39m setting request GET /socket.io/1/xhr-polling/fee6ddf99346bc6181c8ee8ab2c5a688?t1308241126572
+   [90mdebug -[39m publishing that fee6ddf99346bc6181c8ee8ab2c5a688 connected
+   [36minfo  -[39m request for existing session connection change
+   [90mdebug -[39m cleared close timeout for client fee6ddf99346bc6181c8ee8ab2c5a688
+   [90mdebug -[39m setting poll timeout
+   [90mdebug -[39m subscribing fee6ddf99346bc6181c8ee8ab2c5a688
+CONSUMEPAYLOAD [ '5:1+::{"name":"ready"}' ]
+   [90mdebug -[39m clearing poll timeout
+   [90mdebug -[39m xhr-polling writing 5:1+::{"name":"ready"}
+   [90mdebug -[39m set close timeout for client fee6ddf99346bc6181c8ee8ab2c5a688
+HTTPREQ POST /socket.io/1/xhr-polling/fee6ddf99346bc6181c8ee8ab2c5a688?t1308241126731
+   [90mdebug -[39m setting request POST /socket.io/1/xhr-polling/fee6ddf99346bc6181c8ee8ab2c5a688?t1308241126731
+   [90mdebug -[39m transport not writeable, not subscribing
+   [90mdebug -[39m xhr received data packet 5:2+::{"name":"update","args":[{"foo":"bar"}]}
+   [90mdebug -[39m got packet
+   [90mdebug -[39m sending data ack packet
+PUBLISHCONSUME 6:::2+["UPDATED OK"]
+CONSUMEPACKET 6:::2+["UPDATED OK"]
+   [90mdebug -[39m xhr-polling writing 6:::2+["UPDATED OK"]
+HTTPREQ GET /socket.io/1/xhr-polling/fee6ddf99346bc6181c8ee8ab2c5a688?t1308241126732
+   [90mdebug -[39m setting request GET /socket.io/1/xhr-polling/fee6ddf99346bc6181c8ee8ab2c5a688?t1308241126732
+   [90mdebug -[39m publishing that fee6ddf99346bc6181c8ee8ab2c5a688 connected
+   [36minfo  -[39m request for existing session connection change
+   [90mdebug -[39m cleared close timeout for client fee6ddf99346bc6181c8ee8ab2c5a688
+   [90mdebug -[39m setting poll timeout
+   [90mdebug -[39m subscribing fee6ddf99346bc6181c8ee8ab2c5a688
+HTTPREQ POST /socket.io/1/xhr-polling/fee6ddf99346bc6181c8ee8ab2c5a688?t1308241126736
+   [90mdebug -[39m setting request POST /socket.io/1/xhr-polling/fee6ddf99346bc6181c8ee8ab2c5a688?t1308241126736
+   [90mdebug -[39m transport not writeable, not subscribing
+   [90mdebug -[39m xhr received data packet 6:::1+["READY OK"]
+   [90mdebug -[39m got packet
+HTTPREQ POST /socket.io/1/xhr-polling/fee6ddf99346bc6181c8ee8ab2c5a688?t1308241127371
+   [90mdebug -[39m setting request POST /socket.io/1/xhr-polling/fee6ddf99346bc6181c8ee8ab2c5a688?t1308241127371
+   [90mdebug -[39m transport not writeable, not subscribing
+   [90mdebug -[39m xhr received data packet 0::
+   [90mdebug -[39m got disconnection packet
+   [90mdebug -[39m destroying dispatcher for fee6ddf99346bc6181c8ee8ab2c5a688
+   [36minfo  -[39m transport end by forced client disconnection
+   [90mdebug -[39m clearing poll timeout
+   [90mdebug -[39m xhr-polling writing 0::
+   [90mdebug -[39m set close timeout for client fee6ddf99346bc6181c8ee8ab2c5a688
+   [36minfo  -[39m unsubscribing fee6ddf99346bc6181c8ee8ab2c5a688
+   [90mdebug -[39m initializing client store for fee6ddf99346bc6181c8ee8ab2c5a688
+   [36minfo  -[39m ending socket
+   [90mdebug -[39m cleared close timeout for client fee6ddf99346bc6181c8ee8ab2c5a688
+   [90mdebug -[39m ignoring request outside socket.io namespace
+   [90mdebug -[39m caching 0.7.0 client
+   [90mdebug -[39m served client
+   [90mdebug -[39m client authorized
+   [36minfo  -[39m handshake authorized
+   [36minfo  -[39m handshaken f56d760a63e35e6531eebaa91c9a6cb7
+   [90mdebug -[39m ignoring request outside socket.io namespace
+HTTPREQ GET /socket.io/1/xhr-polling/f56d760a63e35e6531eebaa91c9a6cb7?t1308241127625
+   [90mdebug -[39m setting request GET /socket.io/1/xhr-polling/f56d760a63e35e6531eebaa91c9a6cb7?t1308241127625
+   [90mdebug -[39m publishing that f56d760a63e35e6531eebaa91c9a6cb7 connected
+   [90mdebug -[39m setting poll timeout
+   [90mdebug -[39m initializing client store for f56d760a63e35e6531eebaa91c9a6cb7
+   [90mdebug -[39m subscribing f56d760a63e35e6531eebaa91c9a6cb7
+PUBLISHCONSUME 1::
+CONSUMEPACKET 1::
+   [90mdebug -[39m clearing poll timeout
+   [90mdebug -[39m xhr-polling writing 1::
+   [90mdebug -[39m set close timeout for client f56d760a63e35e6531eebaa91c9a6cb7
+   [36minfo  -[39m unsubscribing f56d760a63e35e6531eebaa91c9a6cb7
+PUBLISHBUFFER 5:1+::{"name":"ready"}
+HTTPREQ GET /socket.io/1/xhr-polling/f56d760a63e35e6531eebaa91c9a6cb7?t1308241127632
+   [90mdebug -[39m setting request GET /socket.io/1/xhr-polling/f56d760a63e35e6531eebaa91c9a6cb7?t1308241127632
+   [90mdebug -[39m publishing that f56d760a63e35e6531eebaa91c9a6cb7 connected
+   [36minfo  -[39m request for existing session connection change
+   [90mdebug -[39m cleared close timeout for client f56d760a63e35e6531eebaa91c9a6cb7
+   [90mdebug -[39m setting poll timeout
+   [90mdebug -[39m subscribing f56d760a63e35e6531eebaa91c9a6cb7
+CONSUMEPAYLOAD [ '5:1+::{"name":"ready"}' ]
+   [90mdebug -[39m clearing poll timeout
+   [90mdebug -[39m xhr-polling writing 5:1+::{"name":"ready"}
+   [90mdebug -[39m set close timeout for client f56d760a63e35e6531eebaa91c9a6cb7
+HTTPREQ POST /socket.io/1/xhr-polling/f56d760a63e35e6531eebaa91c9a6cb7?t1308241127643
+   [90mdebug -[39m setting request POST /socket.io/1/xhr-polling/f56d760a63e35e6531eebaa91c9a6cb7?t1308241127643
+   [90mdebug -[39m transport not writeable, not subscribing
+   [90mdebug -[39m xhr received data packet 5:1+::{"name":"update","args":[{"foo":"bar"}]}
+   [90mdebug -[39m got packet
+   [90mdebug -[39m sending data ack packet
+PUBLISHCONSUME 6:::1+["UPDATED OK"]
+CONSUMEPACKET 6:::1+["UPDATED OK"]
+   [90mdebug -[39m xhr-polling writing 6:::1+["UPDATED OK"]
+HTTPREQ GET /socket.io/1/xhr-polling/f56d760a63e35e6531eebaa91c9a6cb7?t1308241127644
+   [90mdebug -[39m setting request GET /socket.io/1/xhr-polling/f56d760a63e35e6531eebaa91c9a6cb7?t1308241127644
+   [90mdebug -[39m publishing that f56d760a63e35e6531eebaa91c9a6cb7 connected
+   [36minfo  -[39m request for existing session connection change
+   [90mdebug -[39m cleared close timeout for client f56d760a63e35e6531eebaa91c9a6cb7
+   [90mdebug -[39m setting poll timeout
+   [90mdebug -[39m subscribing f56d760a63e35e6531eebaa91c9a6cb7
+HTTPREQ POST /socket.io/1/xhr-polling/f56d760a63e35e6531eebaa91c9a6cb7?t1308241127647
+   [90mdebug -[39m setting request POST /socket.io/1/xhr-polling/f56d760a63e35e6531eebaa91c9a6cb7?t1308241127647
+   [90mdebug -[39m transport not writeable, not subscribing
+   [90mdebug -[39m xhr received data packet 6:::1+["READY OK"]
+   [90mdebug -[39m got packet
