@@ -86,6 +86,27 @@ module.exports = {
     done();
   },
 
+  'test configuration update notifications': function (done) {
+    var port = ++ports
+      , io = sio.listen(http.createServer())
+      , calls = 0;
+
+    io.on('update:foo', function () {
+      calls++;
+    });
+
+    io.set('foo', 'bar');
+    io.set('baz', 'bar');
+
+    calls.should.eql(1);
+
+    io.enable('foo');
+    io.disable('foo');
+
+    calls.should.eql(3);
+    done();
+  },
+
   'test that normal requests are still served': function (done) {
     var server = http.createServer(function (req, res) {
       res.writeHead(200);
