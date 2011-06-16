@@ -43,7 +43,7 @@ module.exports = {
 
     io.get('a').should.eql('b');
     io.enabled('tobi').should.be.true;
-    
+
     done();
   },
 
@@ -62,6 +62,27 @@ module.exports = {
     });
 
     io.get('ferret').should.eql('jane');
+    done();
+  },
+
+  'test configuration callbacks conserve scope': function (done) {
+    var port = ++ports
+      , io = sio.listen(http.createServer())
+      , calls = 0;
+
+    process.env.NODE_ENV = 'development';
+
+    io.configure(function () {
+      this.should.eql(io);
+      calls++;
+    });
+
+    io.configure('development', function () {
+      this.should.eql(io);
+      calls++;
+    });
+
+    calls.should.eql(2);
     done();
   },
 
