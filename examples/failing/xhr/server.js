@@ -69,7 +69,8 @@ console.log('Listening to http://*:' + port + '. Use Ctrl+C to stop.');
 
 var io = require('socket.io');
 var ws = io.listen(http);
-ws.set('transports', ['xhr-polling']);
+//ws.set('transports', ['xhr-polling']);
+ws.set('transports', ['jsonp-polling']);
 //ws.set('transports', ['htmlfile']);
 //ws.set('transports', ['htmlfile', 'xhr-multipart', 'xhr-polling']);
 //ws.set('transports', ['websocket', 'flashsocket']);
@@ -90,4 +91,4 @@ ws.sockets.on('connection', function(client) {
 
 }
 
-node('10.0.2.15', 3001); node('127.0.0.1', 3002);
+node('127.0.0.1', 3001); node('127.0.0.1', 3002);
