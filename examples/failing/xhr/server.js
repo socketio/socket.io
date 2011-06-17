@@ -44,6 +44,7 @@ function mime(url) {
 	return 'text/plain';
 }
 
+function node(host, port) {
 var http = require('http').createServer(function(req, res) {
 	if (req.url === '/') req.url = '/index.html';
 	Fs.readFile(pwd + req.url, function(err, data) {
@@ -63,15 +64,17 @@ var http = require('http').createServer(function(req, res) {
 			res.end(data);
 		}
 	});
-}); http.listen(3000);
-console.log('Listening to http://*:3000. Use Ctrl+C to stop.');
+}); http.listen(port, host);
+console.log('Listening to http://*:' + port + '. Use Ctrl+C to stop.');
 
 var io = require('socket.io');
 var ws = io.listen(http);
-//ws.set('transports', ['xhr-polling']);
+ws.set('transports', ['xhr-polling']);
 //ws.set('transports', ['htmlfile']);
 //ws.set('transports', ['htmlfile', 'xhr-multipart', 'xhr-polling']);
-ws.set('transports', ['websocket1', 'flashsocket']);
+//ws.set('transports', ['websocket', 'flashsocket']);
+//ws.set('transports', ['flashsocket','websocket']);
+//ws.set('transports', ['flashsocket']);
 
 ws.sockets.on('connection', function(client) {
 
@@ -84,3 +87,7 @@ ws.sockets.on('connection', function(client) {
 	});
 
 });
+
+}
+
+node('10.0.2.15', 3001); node('127.0.0.1', 3002);
