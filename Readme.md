@@ -1,4 +1,3 @@
-
 # Socket.IO
 
 Socket.IO is a Node.JS project that makes WebSockets and realtime possible in
@@ -10,7 +9,11 @@ horizontal scalability, automatic JSON encoding/decoding, and more.
     npm install socket.io
 
 **Note:** this is the documentation for the upcoming release **0.7**. The latest
-tag on NPM is [0.6](https://github.com/LearnBoost/Socket.IO-node/tree/06).
+tag on NPM is [0.6](https://github.com/LearnBoost/Socket.IO-node/tree/06) (see docs at that link too). ``npm install socket.io`` will install 0.6. To install 0.7 until it's tagged on NPM:
+
+    git clone https://github.com/LearnBoost/Socket.IO-node.git socket_07 && cd socket_07 && npm install .
+
+... then ``require(./socket_07)`` instead of ``require('socket.io')`` until 0.7 is officially out/tagged.
 
 ## How to use
 
