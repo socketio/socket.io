@@ -1318,6 +1318,10 @@
       return this.onDisconnect();
     }
 
+    if (packet.type == 'connect' && packet.endpoint == ''){
+      return this.onConnect();
+    }
+
     this.socket.onPacket(packet);
     return this;
   };
@@ -1350,6 +1354,17 @@
     this.socket.onDisconnect();
     return this;
   };
+
+  /**
+   * Called when transport connects
+   *
+   * @api private
+   */
+
+  Transport.prototype.onConnect = function () {
+    this.socket.onConnect();
+    return this;
+  }
 
   /**
    * Clears close timeout
@@ -2024,7 +2039,7 @@
 
     var self = this;
     this.websocket.onopen = function () { self.onOpen(); };
-    this.websocket.onmessage = function (ev) { self.onData(ev.data); };
+    this.websocket.onmessage = function (ev) { console.log(ev.data); self.onData(ev.data); };
     this.websocket.onclose = function () { self.onClose(); };
     this.websocket.onerror = function (e) { self.onError(e); };
 
@@ -2554,7 +2569,7 @@
     if (this.options['auto connect']) {
       this.connect();
     }
-  };
+};
 
   /**
    * Apply EventEmitter mixin.
@@ -2578,6 +2593,22 @@
     }
 
     return this.namespaces[name];
+  };
+
+  /**
+   * Emits the given event to the Socket and all namespaces
+   *
+   * @api private
+   */
+
+  Socket.prototype.publish = function(){
+    console.log('publish called', arguments);
+    this.emit.apply(this, arguments);
+    
+    for (var namespace in this.namespaces) {
+      namespace = this.of(namespace);
+      namespace.$emit.apply(namespace, arguments);
+    }
   };
 
   /**
@@ -2678,7 +2709,7 @@
       }
 
       self.connecting = true;
-      self.emit('connecting', self.transport.name);
+      self.publish('connecting', self.transport.name);
 
       self.transport.open();
 
@@ -2702,7 +2733,7 @@
             }
 
             if (!self.remainingTransports || self.remainingTransports.length == 0) {
-              self.emit('connect_failed');
+              self.publish('connect_failed');
             }
           }
 
@@ -2788,11 +2819,7 @@
   Socket.prototype.onConnect = function(){
     this.connected = true;
     this.connecting = false;
-    this.emit('connect');
-
-    for (var i in this.namespaces) {
-      this.of(i).$emit('connect');
-    }
+    this.publish('connect');
   };
 
   /**
@@ -2840,11 +2867,7 @@
    */
 
   Socket.prototype.onError = function (err) {
-    this.emit('error', err);
-
-    for (var i in this.namespaces) {
-      this.of(i).$emit('error', err);
-    }
+    this.publish('error', err);
   };
 
   /**
@@ -2855,19 +2878,17 @@
 
   Socket.prototype.onDisconnect = function (reason) {
     var wasConnected = this.connected;
+    
+    console.log(this.connected, 'onDisconnect');
 
     this.connected = false;
     this.connecting = false;
     this.open = false;
 
     if (wasConnected) {
-      this.emit('disconnect');
-
       this.transport.clearTimeouts();
 
-      for (var i in this.namespaces) {
-        this.of(i).$emit('disconnect', reason);
-      }
+      this.publish('disconnect', reason);
 
       if (this.options.reconnect && !this.reconnecting) {
         this.reconnect();
@@ -2892,7 +2913,7 @@
 
     function reset () {
       if (self.connected) {
-        self.emit('reconnect', self.transport.name, self.reconnectionAttempts);
+        self.publish('reconnect', self.transport.name, self.reconnectionAttempts);
       }
 
       self.removeListener('connect_failed', maybeReconnect);
@@ -2929,13 +2950,13 @@
           self.redoTransports = true;
           self.connect();
         } else {
-          self.emit('reconnect_failed');
+          self.publish('reconnect_failed');
           reset();
         }
       } else {
         self.reconnectionDelay *= 2; // exponential back off
         self.connect();
-        self.emit('reconnecting', self.reconnectionDelay, self.reconnectionAttempts);
+        self.publish('reconnecting', self.reconnectionDelay, self.reconnectionAttempts);
         self.reconnectionTimer = setTimeout(maybeReconnect, self.reconnectionDelay);
       }
     };
