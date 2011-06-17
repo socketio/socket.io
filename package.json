@@ -8,13 +8,15 @@
   , "contributors": [
         { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" }
       , { "name": "Arnout Kazemier", "email": "info@3rd-eden.com" }
+      , { "name": "Vladimir Dronnikov", "email": "dronnikov@gmail.com" }
     ]
   , "repository":{
         "type": "git"
       , "url": "https://github.com/LearnBoost/Socket.IO-node.git"
     }
   , "dependencies": {
-      "socket.io-client": "0.7.0"
+        "socket.io-client": "0.7.0"
+      , "policyfile": ">= 0.0.1"
     }
   , "devDependencies": {
         "expresso": "0.7.7"
