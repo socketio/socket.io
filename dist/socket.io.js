@@ -148,26 +148,30 @@
    */
 
   io.connect = function (host, forceNew) {
-    var uri = io.util.parseUri(host);
+    var uri = io.util.parseUri(host)
+      , uuri
+      , socket;
 
     if ('undefined' != typeof document) {
       uri.host = uri.host || document.domain;
       uri.port = uri.port || document.location.port;
     }
 
-    var uuri = io.util.uniqueUri(uri);
+    uuri = io.util.uniqueUri(uri);
 
     if (forceNew || !io.sockets[uuri]) {
-      var socket = new io.Socket({
+      socket = new io.Socket({
           host: uri.host
         , secure: uri.protocol == 'https://'
         , port: uri.port || 80
       });
     }
 
-    if (!forceNew) {
+    if (!forceNew && socket) {
       this.sockets[uuri] = socket;
     }
+
+    socket = socket || this.sockets[uuri];
 
     // if path is different from '' or /
     return socket.of(uri.path.length > 1 ? uri.path : '');
@@ -237,7 +241,7 @@
     }
 
     return (protocol || 'http') + '://' + host + ':' +
-      (port || protocol && protocol === 'https' ? 443 : 80);
+      (port || (protocol === 'https' ? 443 : 80));
   };
 
   /**
@@ -283,7 +287,12 @@
 
   var hasCORS = 'undefined' != typeof window && window.XMLHttpRequest &&
   (function () {
-    var a = new XMLHttpRequest();
+    try {
+      var a = new XMLHttpRequest();
+    } catch (e) {
+      return false;
+    }
+
     return a.withCredentials != undefined;
   })();
 
@@ -1517,8 +1526,8 @@
   };
 
   /**
-   * Check if we need to send data to the Socket.IO server, if we have data in our buffer
-   * we encode it and forward it to the `post` method.
+   * Check if we need to send data to the Socket.IO server, if we have data in our
+   * buffer we encode it and forward it to the `post` method.
    *
    * @api private
    */
@@ -1565,11 +1574,11 @@
     this.posting = true;
 
     function stateChange () {
-      if (self.sendXHR.readyState == 4) {
-        self.sendXHR.onreadystatechange = self.sendXHR.onload = empty;
+      if (this.readyState == 4) {
+        this.onreadystatechange = this.onload = empty;
         self.posting = false;
 
-        if (self.sendXHR.status == 200){
+        if (this.status == 200){
           self.checkSend();
         } else {
           self.onClose();
@@ -1750,11 +1759,11 @@
     var self = this;
 
     function stateChange () {
-      if (self.xhr.readyState == 4) {
-        self.xhr.onreadystatechange = self.xhr.onload = empty;
+      if (this.readyState == 4) {
+        this.onreadystatechange = this.onload = empty;
 
-        if (self.xhr.status == 200) {
-          self.onData(self.xhr.responseText);
+        if (this.status == 200) {
+          self.onData(this.responseText);
           self.get();
         } else {
           self.onClose();
@@ -2039,7 +2048,7 @@
 
     var self = this;
     this.websocket.onopen = function () { self.onOpen(); };
-    this.websocket.onmessage = function (ev) { console.log(ev.data); self.onData(ev.data); };
+    this.websocket.onmessage = function (ev) { self.onData(ev.data); };
     this.websocket.onclose = function () { self.onClose(); };
     this.websocket.onerror = function (e) { self.onError(e); };
 
@@ -2116,7 +2125,7 @@
    */
 
   WS.check = function(){
-    return !! window.WebSocket;
+    return 'WebSocket' in window && !('__addTask' in WebSocket);
   };
 
   /**
@@ -2468,6 +2477,7 @@
       case 'ack':
         if (this.acks[packet.ackId]) {
           this.acks[packet.ackId].apply(this, packet.args);
+          delete this.acks[packet.ackId];
         }
     }
   };
@@ -2602,7 +2612,6 @@
    */
 
   Socket.prototype.publish = function(){
-    console.log('publish called', arguments);
     this.emit.apply(this, arguments);
     
     for (var namespace in this.namespaces) {
@@ -2878,8 +2887,6 @@
 
   Socket.prototype.onDisconnect = function (reason) {
     var wasConnected = this.connected;
-    
-    console.log(this.connected, 'onDisconnect');
 
     this.connected = false;
     this.connecting = false;
