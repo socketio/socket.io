@@ -11,6 +11,7 @@
 
 var sio = require('socket.io')
   , should = require('./common')
+  , qs = require('querystring')
   , HTTPClient = should.HTTPClient
   , parser = sio.parser
   , ports = 15500;
@@ -107,6 +108,25 @@ JSONPPolling.prototype.get = function (path, opts, fn) {
   };
 
   return HTTPClient.prototype.get.call(this, path, opts, fn);
+};
+
+/**
+ * Issue an encoded POST request
+ *
+ * @api private
+ */
+
+JSONPPolling.prototype.post = function (path, data, opts, fn) {
+  if ('function' == typeof opts) {
+    fn = opts;
+    opts = {};
+  }
+
+  opts = opts || {};
+  opts.method = 'POST';
+  opts.data = qs.stringify({ d: data });
+
+  return this.request(path, opts, fn);
 };
 
 /**
