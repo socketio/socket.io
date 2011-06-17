@@ -41,7 +41,7 @@ exports = module.exports = function(manager) {
     answer(stream);
   });
   try {
-    var port = manager.get('flash policy port') || 843;
+    var port = manager.get('flash policy server port') || 843;
     server.listen(port);
     manager.log.info('flash policy server started on port', port);
   } catch(err) {
@@ -55,12 +55,10 @@ exports = module.exports = function(manager) {
       manager.log.info('flash policy inline server started');
       manager.server.on('connection', function(stream) {
         stream.once('data', function (data) {
-          // Only check the initial data
-          if (data[0] === 60) {
-            if (data.toString() === '<policy-file-request/>\0') {
-              manager.log.debug('answering flash policy request inline');
-              answer(stream);
-            }
+          // only check the initial data
+          if (data && data[0] === 60 && data.toString() === '<policy-file-request/>\0') {
+            manager.log.debug('answering flash policy request inline');
+            answer(stream);
           }
         });
       });
