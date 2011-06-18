@@ -64,13 +64,12 @@ var base = [
  
  var baseTransports = {
     'websocket': ['transports/websocket.js']
-   /* FIXME: re-enable me once we have flashsocket
   , 'flashsocket': [
       'transports/websocket.js'
     , 'vendor/web-socket-js/swfobject.js'
     , 'vendor/web-socket-js/web_socket.js'
     , 'transports/flashsocket.js'
-    ] */
+    ] 
   , 'htmlfile': ['transports/xhr.js', 'transports/htmlfile.js']
   /* FIXME: re-enable me once we have multi-part support
   , 'xhr-multipart': ['transports/xhr.js', 'transports/xhr-multipart.js'] */
@@ -79,8 +78,8 @@ var base = [
   };
 
 /**
- * Builds a custom Socket.IO distribution based on the transports that you need. You can configure the build to create a
- * development build or production build (minified).
+ * Builds a custom Socket.IO distribution based on the transports that you need. You
+ * can configure the build to create development build or production build (minified).
  *
  * @param {Array} transports The transports that needs to be bundled.
  * @param {Object} [options] Options to configure the building process.
