@@ -218,7 +218,7 @@
    * @param {Object} uri
    * @api public
    */
-  
+
   util.uniqueUri = function (uri) {
     var protocol = uri.protocol
       , host = uri.host
@@ -226,13 +226,13 @@
 
     if ('undefined' != typeof document) {
       host = host || document.domain;
-      port = port || document.location.port;
+      port = port || (protocol == 'https'
+        && document.location.protocol !== 'https:' ? 443 : document.location.port);
     } else {
       host = host || 'localhost';
     }
 
-    return (protocol || 'http') + '://' + host + ':' +
-      (port || (protocol === 'https' ? 443 : 80));
+    return (protocol || 'http') + '://' + host + ':' + (port || 80);
   };
 
   /**
