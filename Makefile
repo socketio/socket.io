@@ -16,9 +16,6 @@ test-acceptance:
 	@node support/test-runner/app
 
 build:
-	./bin/build
-
-builder:
-	node ./bin/builder.js
+	@node ./bin/builder.js
 
 .PHONY: test
