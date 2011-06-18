@@ -155,6 +155,10 @@
         && document.location.protocol !== 'https:' ? 443 : document.location.port);
     } else {
       host = host || 'localhost';
+
+      if (!port && protocol == 'https') {
+        port = 443;
+      }
     }
 
     return (protocol || 'http') + '://' + host + ':' + (port || 80);
@@ -507,10 +511,11 @@
    */
 
   EventEmitter.prototype.removeAllListeners = function (name) {
-    if (name === undefined) {
-      this.$events = {};
-      return this;
-    }
+    // TODO: enable this when node 0.5 is stable
+    //if (name === undefined) {
+      //this.$events = {};
+      //return this;
+    //}
 
     if (this.$events && this.$events[name]) {
       this.$events[name] = null;
