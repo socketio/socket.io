@@ -555,7 +555,7 @@
       }
 
       // Dates without properties can be shortcutted
-      if (isDate(value) && keys.length === 0) {
+      if (isDate(value) && $keys.length === 0) {
         return stylize(value.toUTCString(), 'date');
       }
 
@@ -582,7 +582,7 @@
         base = ' ' + value.toUTCString();
       }
 
-      if (keys.length === 0) {
+      if ($keys.length === 0) {
         return braces[0] + base + braces[1];
       }
 
@@ -596,7 +596,7 @@
 
       seen.push(value);
 
-      var output = map(keys, function(key) {
+      var output = map($keys, function(key) {
         var name, str;
         if (value.__lookupGetter__) {
           if (value.__lookupGetter__(key)) {
