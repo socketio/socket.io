@@ -11,20 +11,20 @@
 
 var sio = require('socket.io')
   , net = require('net')
-  , assert = require('assert')
+  , http = require('http')
   , should = require('./common')
-  , HTTPClient = should.HTTPClient
   , WebSocket = require('../support/node-websocket-client/lib/websocket').WebSocket
+  , WSClient = require('./transports.websocket.test')
   , parser = sio.parser
   , ports = 15600;
 
 /**
- * WebSocket socket.io client.
+ * FlashSocket client constructor.
  *
  * @api private
  */
 
-function FSClient (port, sid) {
+function FlashSocket (port, sid) {
   this.sid = sid;
   this.port = port;
 
@@ -36,62 +36,28 @@ function FSClient (port, sid) {
 };
 
 /**
- * Inherits from WebSocket.
+ * Inherits from WSClient.
  */
 
-FSClient.prototype.__proto__ = WebSocket.prototype;
+FlashSocket.prototype.__proto__ = WebSocket.prototype;
 
 /**
- * Overrides message event emission.
- *
- * @api private
- */
-
-FSClient.prototype.emit = function (name) {
-  var args = arguments;
-
-  if (name == 'message' || name == 'data') {
-    args[1] = parser.decodePacket(args[1].toString());
-  }
-
-  return WebSocket.prototype.emit.apply(this, arguments);
-};
-
-/**
- * Writes a packet
- */
-
-FSClient.prototype.packet = function (pack) {
-  this.write(parser.encodePacket(pack));
-  return this;
-};
-
-/**
- * Creates a flashsocket client.
- *
- * @api public
- */
-
-function flashsocket (cl, sid) {
-  return new FSClient(cl.port, sid);
-};
-
-/**
- * Creates a netConnection to a port
+ * Creates a TCP connection to a port.
  *
  * @api public
  */
 
 function netConnection (port, callback){
   var nclient = net.createConnection(port);
+
   nclient.on('data', function (data) {
-    callback.call(nclient,false, data);
+    callback.call(nclient, null, data);
   });
 
   nclient.on('error', function (e){
-    callback.call(nclient,e);
+    callback.call(nclient, e);
   });
-  
+
   nclient.write('<policy-file-request/>\0');
 }
 
@@ -100,65 +66,55 @@ function netConnection (port, callback){
  */
 
 module.exports = {
-  'flashsocket disabled by default': function(done){
-     var cl = client(++ports)
-      , io = create(cl);
 
-    io.get('transports').indexOf('flashsocket').should.eql(-1);
-
-    cl.end();
-    io.server.close();
+  'flashsocket disabled by default': function (done) {
+    var io = sio.listen(http.createServer());
+    io.get('transports').should.not.contain('flashsocket');
     done();
-  }
+  },
 
-, 'flash policy port': function (done){
-     var cl = client(++ports)
-      , io = create(cl)
+  'flash policy port': function (done) {
+    var io = sio.listen(http.createServer())
       , port = ++ports;
 
     io.get('flash policy port').should.eql(843);
     io.set('flash policy port', port);
     io.get('flash policy port').should.eql(port);
-    (!!io.flashPolicyServer).should.eql(false);
+
+    should.strictEqual(io.flashPolicyServer, undefined);
 
     netConnection(port, function (err, data){
-      assert.ok(!!err)
+      err.should.be.an.instanceof(Error);
+      err.code.should.eql('ECONNREFUSED');
 
       this.destroy();
-      cl.end();
-      io.server.close();
       done();
     })
-    
-  }
+  },
 
-, 'start flash policy': function (done){
-     var cl = client(++ports)
-      , io = create(cl)
+  'start flash policy': function (done) {
+    var io = sio.listen(http.createServer())
       , port = ++ports;
 
     io.set('flash policy port', port);
     io.set('transports', ['flashsocket']);
-    (!!io.flashPolicyServer).should.eql(true);
+
+    io.flashPolicyServer.should.be.a('object');
 
     netConnection(port, function (err, data){
-      assert.ok(!err);
-      assert.ok(!!data);
-      
-      data.toString().indexOf('<cross-domain-policy>').should.be.above(0);
+      should.strictEqual(err, null);
+
+      data.toString().should.include.string('<cross-domain-policy>');
 
       this.destroy();
-      cl.end();
-      io.server.close();
       io.flashPolicyServer.close();
       done();
     })
-    
-  }
 
-, 'change running flash server port': function (done){
-     var cl = client(++ports)
-      , io = create(cl)
+  },
+
+  'change running flash server port': function (done) {
+    var io = sio.listen(http.createServer())
       , port = ++ports
       , next = ++ports;
 
@@ -168,46 +124,43 @@ module.exports = {
     io.flashPolicyServer.port.should.eql(next);
 
     netConnection(port, function (err, data){
-      assert.ok(!!err);
+      err.should.be.an.instanceof(Error);
+      err.code.should.eql('ECONNREFUSED');
+
       this.destroy();
 
       // should work
       netConnection(next, function (err, data){
-        assert.ok(!err);
-        assert.ok(!!data);
+        should.strictEqual(err, null);
 
-        data.toString().indexOf('<cross-domain-policy>').should.be.above(-1);
-  
+        data.toString().should.include.string('<cross-domain-policy>');
+
         this.destroy();
-        cl.end();
-        io.server.close();
         io.flashPolicyServer.close();
         done();
       });
     });
-    
-  }
+  },
 
-, 'different origins': function(done){
-     var cl = client(++ports)
-      , io = create(cl)
+  'different origins': function(done) {
+    var io = sio.listen(http.createServer())
       , port = ++ports;
 
     io.set('flash policy port', port);
     io.set('transports', ['flashsocket']);
-
     io.set('origins', 'google.com:80');
-    io.flashPolicyServer.origins.indexOf('google.com:80').should.be.above(-1);
-    io.flashPolicyServer.origins.indexOf('*.*').should.eql(-1);
+
+    var server = io.flashPolicyServer;
+
+    server.origins.should.contain('google.com:80');
+    server.origins.should.not.contain('*.*');
 
     io.set('origins', ['foo.bar:80', 'socket.io:1337']);
-    io.flashPolicyServer.origins.indexOf('google.com:80').should.eql(-1);
-    io.flashPolicyServer.origins.indexOf('foo.bar:80').should.be.above(-1);
-    io.flashPolicyServer.origins.indexOf('socket.io:1337').should.be.above(-1);
-    io.flashPolicyServer.buffer.toString('utf8').indexOf('socket.io').should.be.above(-1);
+    server.origins.should.not.contain('google.com:80');
+    server.origins.should.contain('foo.bar:80');
+    server.origins.should.contain('socket.io:1337');
+    server.buffer.toString('utf8').should.include.string('socket.io');
 
-    cl.end();
-    io.server.close();
     io.flashPolicyServer.close();
     done();
   }
