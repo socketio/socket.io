@@ -10,7 +10,7 @@
 
 var builder = require('../../bin/builder')
   , common = require('./builder.common')
-  , assert = require('assert');
+  , should = require('should');
 
 /**
  * Tests.
