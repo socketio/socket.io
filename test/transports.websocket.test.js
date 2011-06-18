@@ -17,6 +17,12 @@ var sio = require('socket.io')
   , ports = 15400;
 
 /**
+ * Exports WSClient.
+ */
+
+module.exports = exports = WSClient;
+
+/**
  * WebSocket socket.io client.
  *
  * @api private
