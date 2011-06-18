@@ -395,7 +395,7 @@
    */
 
   Assertion.prototype.contain = function (obj) {
-    this.obj.should.be.an.instance.of(Array);
+    this.obj.should().be.an.instance.of(Array);
     this.assert(
         ~this.obj.indexOf(obj)
       , 'expected ' + i(this.obj) + ' to contain ' + i(obj)
