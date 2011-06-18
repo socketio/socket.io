@@ -114,13 +114,9 @@ module.exports = {
 
         // the global is not allowed!
         if (!~index) {
-          console.log(global);
-          globals++;
+          throw new Error('Global leak: ' + global);
         }
       });
-
-      // don't polute the globals
-      globals.should.be.equal(0);
     })
   }
 
