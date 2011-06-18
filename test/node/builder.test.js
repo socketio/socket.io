@@ -19,24 +19,8 @@ var builder = require('../../bin/builder')
 module.exports = {
 
   'version number': function () {
-    builder.version.should.match(/([0-9]+)\.([0-9]+)\.([0-9]+)/);
-    builder.version.should.equal(require('../../lib/io').version);
-  },
-
-  'transports replacement production build': function () {
-    builder(function(error, result){
-      assert.ok(!error);
-
-      result.indexOf("'@@AVAILABLE-TRANSPORTS@@'").should.equal(-1);
-    })
-  },
-
-  'transports replacement development build': function () {
-    builder({ minify: false }, function (error, result) {
-      assert.ok(!error);
-
-      result.indexOf("'@@AVAILABLE-TRANSPORTS@@'").should.equal(-1);
-    })
+    builder.version.should().match(/([0-9]+)\.([0-9]+)\.([0-9]+)/);
+    builder.version.should().equal(require('../../lib/io').version);
   },
 
   'production build LOC': function () {
