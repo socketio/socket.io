@@ -66,7 +66,7 @@ var io = sio.listen(app)
  */
 
 var client = new irc.Client('irc.freenode.net', 6667);
-client.connect('woot' + Date.now());
+client.connect('socketio\\test\\' + String(Math.random()).substr(-3));
 client.on('001', function () {
   this.send('JOIN', '#node.js');
 });
