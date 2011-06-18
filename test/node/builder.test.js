@@ -105,7 +105,7 @@ module.exports = {
 
       var io = common.execute(result)
         , env = common.env()
-        , globals = 0;
+        , allowed = ['io', 'swfobject', 'WEB_SOCKET_DISABLE_AUTO_INITIALIZATION'];
 
       // allowed globals
       var allowed = ['io'];
