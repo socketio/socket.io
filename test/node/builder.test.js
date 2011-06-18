@@ -28,9 +28,9 @@ module.exports = {
       should.strictEqual(err, null)
 
       var lines = result.split('\n');
-      lines.length.should.be.below(5);
-      lines[0].should.match(/production/gi);
-      Buffer.byteLength(result).should.be.below(35000);
+      lines.length.should().be.below(5);
+      lines[0].should().match(/production/gi);
+      Buffer.byteLength(result).should().be.below(40000);
     });
   },
 
@@ -39,9 +39,9 @@ module.exports = {
       should.strictEqual(err, null)
 
       var lines = result.split('\n');
-      lines.length.should.be.above(5);
-      lines[0].should.match(/development/gi);
-      Buffer.byteLength(result).should.be.above(35000);
+      lines.length.should().be.above(5);
+      lines[0].should().match(/development/gi);
+      Buffer.byteLength(result).should().be.above(35000);
     });
   },
 
@@ -54,10 +54,10 @@ module.exports = {
         , defaults = Object.keys(builder.transports);
 
       /* XHR transport is private, but still available */
-      transports.length.should.be.equal(defaults.length + 1);
+      transports.length.should().be.equal(defaults.length + 1);
 
       defaults.forEach(function (transport) {
-        transports.indexOf(transport).should.be.above(-1);
+        transports.indexOf(transport).should().be.above(-1);
       })
     });
   },
@@ -69,8 +69,8 @@ module.exports = {
       var io = common.execute(result).io
         , transports = Object.keys(io.Transport);
 
-      transports.length.should.be.equal(1);
-      transports[0].should.be.equal('websocket');
+      transports.should().have.length(1);
+      transports[0].should().eql('websocket');
     });
   },
 
@@ -79,7 +79,7 @@ module.exports = {
     builder({ custom: [custom], minify: false }, function (err, result) {
       should.strictEqual(err, null);
 
-      result.indexOf(custom).should.be.above(-1);
+      result.should().include.string(custom);
     });
   },
 
