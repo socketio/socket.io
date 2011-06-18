@@ -2,7 +2,7 @@
 ALL_TESTS = $(shell find test/ -name '*.test.js')
 
 run-tests:
-	@npm link > /dev/null
+	@npm link --local > /dev/null
 	@./node_modules/.bin/expresso \
 		-I lib \
 		-I support \
@@ -17,5 +17,8 @@ test-acceptance:
 
 build:
 	./bin/build
+
+builder:
+	node ./bin/builder.js
 
 .PHONY: test
