@@ -24,8 +24,8 @@ module.exports = {
   },
 
   'production build LOC': function () {
-    builder(function (error, result) {
-      assert.ok(!error)
+    builder(function (err, result) {
+      should.strictEqual(err, null)
 
       var lines = result.split('\n');
       lines.length.should.be.below(5);
@@ -35,8 +35,8 @@ module.exports = {
   },
 
   'development build LOC': function () {
-    builder({ minify: false }, function (error, result) {
-      assert.ok(!error)
+    builder({ minify: false }, function (err, result) {
+      should.strictEqual(err, null)
 
       var lines = result.split('\n');
       lines.length.should.be.above(5);
@@ -46,8 +46,8 @@ module.exports = {
   },
 
   'default builds': function () {
-    builder(function (error, result) {
-      assert.ok(!error);
+    builder(function (err, result) {
+      should.strictEqual(err, null);
 
       var io = common.execute(result).io
         , transports = Object.keys(io.Transport)
@@ -63,8 +63,8 @@ module.exports = {
   },
 
   'custom build': function () {
-    builder(['websocket'], function (error, result) {
-      assert.ok(!error);
+    builder(['websocket'], function (err, result) {
+      should.strictEqual(err, null);
 
       var io = common.execute(result).io
         , transports = Object.keys(io.Transport);
@@ -76,8 +76,8 @@ module.exports = {
 
   'custom code': function () {
     var custom = 'var hello = "world";';
-    builder({ custom: [custom], minify: false }, function (error, result) {
-      assert.ok(!error);
+    builder({ custom: [custom], minify: false }, function (err, result) {
+      should.strictEqual(err, null);
 
       result.indexOf(custom).should.be.above(-1);
     });
