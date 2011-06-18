@@ -17,7 +17,7 @@
       , "url": "https://github.com/LearnBoost/Socket.IO.git"
     }
   , "devDependencies": {
-        "expresso": "0.7.7"
+      "expresso": "0.7.7"
     }
   , "engines": { "node": ">= 0.4.0" }
 }
