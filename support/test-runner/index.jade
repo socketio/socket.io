@@ -10,7 +10,13 @@ html
 
     script
       $(function () {
-        run('io.test.js', 'parser.test.js', 'util.test.js', 'events.test.js');
+        run(
+            'io.test.js'
+          , 'parser.test.js'
+          , 'util.test.js'
+          , 'events.test.js'
+          , 'socket.test.js'
+        );
       });
 
     title Socket.IO tests runner

@@ -66,7 +66,8 @@ function suite (file, fn) {
     var start = new Date;
 
     function complete () {
-      var ok = !keys(failed).length;
+      var ok = !keys(failed).length
+        , elapsed = Math.round((new Date - start) / 1000);
 
       // update dom
       li.removeClass('loading');
@@ -84,7 +85,7 @@ function suite (file, fn) {
           .html(
               'Passed: ' + keys(passed).length
             + ' &mdash; Failed: <em>' + keys(failed).length
-            + '</em> &mdash; Elapsed: <em>' + Math.round((new Date - start) / 1000)
+            + '</em> &mdash; Elapsed: <em>' + elapsed
             + '</em> seconds &mdash; '
           )
           .append(
