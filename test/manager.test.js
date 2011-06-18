@@ -91,7 +91,7 @@ module.exports = {
       , io = sio.listen(http.createServer())
       , calls = 0;
 
-    io.on('update:foo', function () {
+    io.on('set:foo', function () {
       calls++;
     });
 

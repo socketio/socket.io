@@ -14,7 +14,8 @@
       , "url": "https://github.com/LearnBoost/Socket.IO-node.git"
     }
   , "dependencies": {
-      "socket.io-client": "0.7.0"
+        "socket.io-client": "0.7.0"
+      , "policyfile": ">= 0.0.3"
     }
   , "devDependencies": {
         "expresso": "0.7.7"
