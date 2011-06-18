@@ -87,14 +87,15 @@ module.exports = {
     var custom = '// if node \nvar hello = "world";\n'
       + '// end node\nvar pew = "pew";';
 
-    builder({ custom: [custom], minify: false }, function (error, result) {
-      assert.ok(!error);
+    builder({ custom: [custom], minify: false }, function (err, result) {
+      should.strictEqual(err, null);
 
-      result.indexOf(custom).should.be.equal(-1);
-      result.indexOf('// if node').should.be.equal(-1);
-      result.indexOf('// end node').should.be.equal(-1);
-      result.indexOf('"world"').should.be.equal(-1);
-      result.indexOf('var pew = "pew"').should.be.above(-1);
+      result.should().not.include.string(custom);
+      result.should().not.include.string('// if node');
+      result.should().not.include.string('// end node');
+      result.should().not.include.string('"world"');
+
+      result.should().include.string('var pew = "pew"');
     });
   },
 
