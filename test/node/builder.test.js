@@ -107,8 +107,6 @@ module.exports = {
         , env = common.env()
         , allowed = ['io', 'swfobject', 'WEB_SOCKET_DISABLE_AUTO_INITIALIZATION'];
 
-      // allowed globals
-      var allowed = ['io'];
       Array.prototype.push.apply(allowed, Object.keys(env));
 
       Object.keys(io).forEach(function (global) {
