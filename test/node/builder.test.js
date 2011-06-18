@@ -100,7 +100,9 @@ module.exports = {
   },
 
   'globals': function () {
-    builder(function (error, result) {
+    builder(function (err, result) {
+      should.strictEqual(err, null);
+
       var io = common.execute(result)
         , env = common.env()
         , globals = 0;
