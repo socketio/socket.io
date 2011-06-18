@@ -232,7 +232,7 @@
     }
 
     return (protocol || 'http') + '://' + host + ':' +
-      (port || protocol && protocol === 'https' ? 443 : 80);
+      (port || (protocol === 'https' ? 443 : 80));
   };
 
   /**
@@ -278,7 +278,12 @@
 
   var hasCORS = 'undefined' != typeof window && window.XMLHttpRequest &&
   (function () {
-    var a = new XMLHttpRequest();
+    try {
+      var a = new XMLHttpRequest();
+    } catch (e) {
+      return false;
+    }
+
     return a.withCredentials != undefined;
   })();
 
@@ -511,7 +516,7 @@
 
     return this;
   };
-  
+
   EventEmitter.prototype.addListener = EventEmitter.prototype.on;
 
   /**
@@ -1497,8 +1502,8 @@
   };
 
   /**
-   * Check if we need to send data to the Socket.IO server, if we have data in our buffer
-   * we encode it and forward it to the `post` method.
+   * Check if we need to send data to the Socket.IO server, if we have data in our
+   * buffer we encode it and forward it to the `post` method.
    *
    * @api private
    */
@@ -1545,11 +1550,11 @@
     this.posting = true;
 
     function stateChange () {
-      if (self.sendXHR.readyState == 4) {
-        self.sendXHR.onreadystatechange = self.sendXHR.onload = empty;
+      if (this.readyState == 4) {
+        this.onreadystatechange = this.onload = empty;
         self.posting = false;
 
-        if (self.sendXHR.status == 200){
+        if (this.status == 200){
           self.checkSend();
         } else {
           self.onClose();
@@ -1730,11 +1735,11 @@
     var self = this;
 
     function stateChange () {
-      if (self.xhr.readyState == 4) {
-        self.xhr.onreadystatechange = self.xhr.onload = empty;
+      if (this.readyState == 4) {
+        this.onreadystatechange = this.onload = empty;
 
-        if (self.xhr.status == 200) {
-          self.onData(self.xhr.responseText);
+        if (this.status == 200) {
+          self.onData(this.responseText);
           self.get();
         } else {
           self.onClose();
@@ -1825,7 +1830,7 @@
         , area = document.createElement('TEXTAREA')
         , id = this.iframeId = 'socketio_iframe_' + this.index
         , iframe;
-  
+
       form.className = 'socketio';
       form.style.position = 'absolute';
       form.style.top = '-1000px';
@@ -1833,7 +1838,7 @@
       form.target = id;
       form.method = 'POST';
       form.action = this.prepareUrl() + '?t=' + (+new Date) + '&i=' + this.index;
-      area.name = 'data';
+      area.name = 'd';
       form.appendChild(area);
       this.insertAt.parentNode.insertBefore(form, this.insertAt);
       document.body.appendChild(form);
@@ -2416,6 +2421,7 @@
       case 'ack':
         if (this.acks[packet.ackId]) {
           this.acks[packet.ackId].apply(this, packet.args);
+          delete this.acks[packet.ackId];
         }
     }
   };
