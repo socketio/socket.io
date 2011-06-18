@@ -12,6 +12,9 @@ run-tests:
 test:
 	@$(MAKE) TESTS="$(ALL_TESTS)" run-tests
 
+test-acceptance:
+	@node support/test-runner/app
+
 build:
 	./bin/build
 

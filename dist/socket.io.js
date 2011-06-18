@@ -227,7 +227,7 @@
    * @param {Object} uri
    * @api public
    */
-  
+
   util.uniqueUri = function (uri) {
     var protocol = uri.protocol
       , host = uri.host
@@ -235,13 +235,13 @@
 
     if ('undefined' != typeof document) {
       host = host || document.domain;
-      port = port || document.location.port;
+      port = port || (protocol == 'https'
+        && document.location.protocol !== 'https:' ? 443 : document.location.port);
     } else {
       host = host || 'localhost';
     }
 
-    return (protocol || 'http') + '://' + host + ':' +
-      (port || (protocol === 'https' ? 443 : 80));
+    return (protocol || 'http') + '://' + host + ':' + (port || 80);
   };
 
   /**
@@ -525,7 +525,7 @@
 
     return this;
   };
-  
+
   EventEmitter.prototype.addListener = EventEmitter.prototype.on;
 
   /**
@@ -1862,7 +1862,7 @@
         , area = document.createElement('TEXTAREA')
         , id = this.iframeId = 'socketio_iframe_' + this.index
         , iframe;
-  
+
       form.className = 'socketio';
       form.style.position = 'absolute';
       form.style.top = '-1000px';
@@ -1870,7 +1870,7 @@
       form.target = id;
       form.method = 'POST';
       form.action = this.prepareUrl() + '?t=' + (+new Date) + '&i=' + this.index;
-      area.name = 'data';
+      area.name = 'd';
       form.appendChild(area);
       this.insertAt.parentNode.insertBefore(form, this.insertAt);
       document.body.appendChild(form);

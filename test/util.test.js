@@ -32,8 +32,14 @@
         , https = io.util.parseUri('https://google.com')
         , path = io.util.parseUri('https://google.com/google.com/com/?foo=bar');
 
-      io.util.uniqueUri(protocol).should().eql('http://google.com:80');
-      io.util.uniqueUri(noprotocol).should().eql('http://google.com:80');
+      if ('object' == typeof window) {
+        io.util.uniqueUri(protocol).should().eql('http://google.com:3000');
+        io.util.uniqueUri(noprotocol).should().eql('http://google.com:3000');
+      } else {
+        io.util.uniqueUri(protocol).should().eql('http://google.com:80');
+        io.util.uniqueUri(noprotocol).should().eql('http://google.com:80');
+      }
+
       io.util.uniqueUri(https).should().eql('https://google.com:443');
       io.util.uniqueUri(path).should().eql('https://google.com:443');
     },

@@ -6,7 +6,8 @@
 var express = require('express')
   , stylus = require('stylus')
   , sio = require('socket.io')
-  , path = require('path');
+  , path = require('path')
+  , fs = require('fs');
 
 /**
  * App.
@@ -54,8 +55,25 @@ app.listen(3000, function () {
  * Socket.IO server (single process only)
  */
 
-var io = sio.listen(app)
-  , nicknames = {};
+var io = sio.listen(app);
+
+// override handler to simplify development
+function handler (req, res) {
+  fs.readFile(__dirname + '/../../dist/socket.io.js', 'utf8', function (err, b) {
+    if (err) {
+      res.writeHead(404);
+      res.end('Error');
+      return;
+    }
+
+    res.writeHead(200, { 'Content-Type': 'application/javascript' });
+    res.end(b);
+  });
+};
+
+io.configure(function () {
+  io.set('browser client handler', handler);
+});
 
 io.sockets.on('connection', function (socket) {
 
