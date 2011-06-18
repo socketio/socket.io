@@ -24,16 +24,22 @@ html
       });
 
       socket.on('user message', message);
-      socket.on('reconnect', function(){
+      socket.on('reconnect', function () {
         $('#lines').remove();
         message('System', 'Reconnected to the server');
       });
-      
-      socket.on('reconnecting', function(){
+
+      socket.on('reconnecting', function () {
         message('System', 'Attempting to re-connect to the server');
       });
 
+      socket.on('error', function (e) {
+        message('System', e ? e : 'A unknown error occurred');
+        window.console && console.trace && console.trace();
+      });
+
       function message (from, msg) {
+        window.console && console.log && console.log(from, msg);
         $('#lines').append($('<p>').append($('<b>').text(from), msg));
       }
 
