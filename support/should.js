@@ -6,7 +6,7 @@
 (function (should) {
 
   if ('undefined' != typeof exports) {
-    exports = module.exports = should = require('assert');
+    module.exports = exports = should = require('assert');
   }
 
   /**
