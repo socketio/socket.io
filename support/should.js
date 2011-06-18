@@ -48,6 +48,7 @@
 
               if ('undefined' != typeof exports) {
                 fn.__proto__ = exports;
+                fn.exports = exports;
               }
 
               return fn;
