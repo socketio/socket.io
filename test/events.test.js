@@ -44,8 +44,8 @@
       event.on('test:more', empty);
       event.removeAllListeners();
 
-      event.listeners('test').should().eql([empty]);
-      event.listeners('test:more').should().eql([empty]);
+      event.listeners('test').should().eql([]);
+      event.listeners('test:more').should().eql([]);
     },
 
     'remove listeners functions': function () {
