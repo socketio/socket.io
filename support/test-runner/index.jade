@@ -8,6 +8,10 @@ html
     script(src='/javascript/script.js')
     script(src='/javascript/runner.js')
 
+    - var json = JSON.stringify(testsPorts);
+    script
+      var testsPorts = !{json}
+
     script
       $(function () {
         run(
