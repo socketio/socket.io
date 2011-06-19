@@ -1980,7 +1980,7 @@
         if (dataAck)
           params.push(ack);
 
-        this.emit.apply(socket, params);
+        this.$emit.apply(socket, params);
         break;
 
       case 'event':
