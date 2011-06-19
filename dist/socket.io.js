@@ -79,7 +79,7 @@
     if (forceNew || !io.sockets[uuri]) {
       socket = new io.Socket({
           host: uri.host
-        , secure: uri.protocol == 'https://'
+        , secure: uri.protocol == 'https'
         , port: uri.port || 80
       });
     }
@@ -205,24 +205,13 @@
    * @api private
    */
 
-  var hasCORS = 'undefined' != typeof window && window.XMLHttpRequest &&
-  (function () {
-    try {
-      var a = new XMLHttpRequest();
-    } catch (e) {
-      return false;
-    }
-
-    return a.withCredentials != undefined;
-  })();
-
   util.request = function (xdomain) {
     if ('undefined' != typeof window) {
       if (xdomain && window.XDomainRequest) {
         return new XDomainRequest();
       };
 
-      if (window.XMLHttpRequest && (!xdomain || hasCORS)) {
+      if (window.XMLHttpRequest && (!xdomain || util.ua.hasCORS)) {
         return new XMLHttpRequest();
       };
 
@@ -280,7 +269,7 @@
     var seen = lastseen || []
       , depth = typeof deep == 'undefined' ? 2 : deep
       , prop;
-    
+
     for (prop in additional){
       if (additional.hasOwnProperty(prop) && this.indexOf(seen, prop) < 0){
         if (typeof target[prop] !== 'object' || !depth){
@@ -291,10 +280,10 @@
         }
       }
     }
-    
+
     return target;
   };
-  
+
   /**
    * Merges prototypes from objects
    *
@@ -355,7 +344,7 @@
    * @see bit.ly/a5Dxa2
    * @api public
    */
-  
+
   util.indexOf = function (arr, o, i) {
     if (Array.prototype.indexOf) {
       return Array.prototype.indexOf.call(arr, o, i);
@@ -387,8 +376,25 @@
    *
    * @namespace
    */
-  
+
   util.ua = {};
+
+  /**
+   * Whether the UA supports CORS for XHR.
+   *
+   * @api public
+   */
+
+  util.ua.hasCORS = 'undefined' != typeof window && window.XMLHttpRequest &&
+  (function () {
+    try {
+      var a = new XMLHttpRequest();
+    } catch (e) {
+      return false;
+    }
+
+    return a.withCredentials != undefined;
+  })();
 
   /**
    * Detect webkit.
@@ -1240,15 +1246,12 @@
       return this.onHeartbeat();
     }
 
-    if (packet.type == 'disconnect' && packet.endpoint == '') {
-      return this.onDisconnect();
-    }
-
     if (packet.type == 'connect' && packet.endpoint == ''){
       return this.onConnect();
     }
 
     this.socket.onPacket(packet);
+
     return this;
   };
 
@@ -1297,7 +1300,7 @@
    *
    * @api private
    */
-  
+
   Transport.prototype.clearCloseTimeout = function () {
     if (this.closeTimeout) {
       clearTimeout(this.closeTimeout);
@@ -1310,7 +1313,7 @@
    *
    * @api private
    */
-  
+
   Transport.prototype.clearTimeouts = function () {
     this.clearCloseTimeout();
 
@@ -1434,11 +1437,12 @@
     this.namespaces = {};
     this.buffer = [];
 
-    if (this.options['sync disconnect on unload']) {
+    if (this.options['sync disconnect on unload'] &&
+        (!this.isXDomain() || io.util.ua.hasCORS)) {
       var self = this;
 
       io.util.on(window, 'beforeunload', function () {
-        self.disconnect(true);
+        self.disconnectSync();
       }, false);
     }
 
@@ -1479,7 +1483,7 @@
 
   Socket.prototype.publish = function(){
     this.emit.apply(this, arguments);
-    
+
     for (var namespace in this.namespaces) {
       namespace = this.of(namespace);
       namespace.$emit.apply(namespace, arguments);
@@ -1495,7 +1499,8 @@
   function empty () { };
 
   Socket.prototype.handshake = function (fn) {
-    var self = this;
+    var self = this
+      , options = this.options;
 
     function complete (data) {
       if (data instanceof Error) {
@@ -1505,7 +1510,12 @@
       }
     };
 
-    var url = this.options.resource + '/' + io.protocol + '/?t=' + (+ new Date);
+    var url = [
+        'http' + (options.secure ? 's' : '' ) + '://' + options.host + ':' + options.port
+      , this.options.resource
+      , io.protocol
+      , '?t=' + + new Date
+    ].join('/');
 
     if (this.isXDomain()) {
       var insertAt = document.getElementsByTagName('script')[0]
@@ -1629,7 +1639,7 @@
   /**
    * Sends a message.
    *
-   * @param {Mixed} data The data that needs to be send to the Socket.IO server.
+   * @param {Object} data packet.
    * @returns {io.Socket}
    * @api public
    */
@@ -1651,25 +1661,34 @@
    * @api public
    */
 
-  Socket.prototype.disconnect = function (sync) {
+  Socket.prototype.disconnect = function () {
     if (this.connected) {
       if (this.open) {
         this.of('').packet({ type: 'disconnect' });
       }
 
-      // ensure disconnection
-      var xhr = io.util.request();
-      xhr.open('GET', this.resource + '/' + io.protocol + '/' + this.sessionid);
-
-      if (sync) {
-        xhr.sync = true;
-      }
-
       // handle disconnection immediately
-      this.onDisconnect();
+      this.onDisconnect('booted');
     }
 
     return this;
+  };
+
+  /**
+   * Disconnects the socket with a sync XHR.
+   *
+   * @api private
+   */
+
+  Socket.prototype.disconnectSync = function () {
+    // ensure disconnection
+    var xhr = io.util.request()
+      , uri = this.resource + '/' + io.protocol + '/' + this.sessionid;
+
+    xhr.open('GET', uri, true);
+
+    // handle disconnection immediately
+    this.onDisconnect('booted');
   };
 
   /**
@@ -1760,10 +1779,9 @@
 
     if (wasConnected) {
       this.transport.clearTimeouts();
-
       this.publish('disconnect', reason);
 
-      if (this.options.reconnect && !this.reconnecting) {
+      if ('booted' != reason && this.options.reconnect && !this.reconnecting) {
         this.reconnect();
       }
     }
@@ -1950,6 +1968,23 @@
   };
 
   /**
+   * Disconnects the namespace
+   *
+   * @api private
+   */
+
+  SocketNamespace.prototype.disconnect = function () {
+    if (this.name === '') {
+      this.socket.disconnect();
+    } else {
+      this.packet({ type: 'disconnect' });
+      this.$emit('disconnect');
+    }
+
+    return this;
+  };
+
+  /**
    * Handles a packet
    *
    * @api private
@@ -1969,8 +2004,15 @@
 
     switch (packet.type) {
       case 'connect':
+        this.$emit('connect');
+        break;
+
       case 'disconnect':
-        this.$emit(packet.type);
+        if (this.name === '') {
+          this.socket.onDisconnect(packet.reason || 'booted');
+        } else {
+          this.$emit('disconnect', packet.reason);
+        }
         break;
 
       case 'message':
@@ -1980,7 +2022,7 @@
         if (dataAck)
           params.push(ack);
 
-        this.$emit.apply(socket, params);
+        this.$emit.apply(this, params);
         break;
 
       case 'event':
