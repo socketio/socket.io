@@ -13,6 +13,7 @@ test:
 	@$(MAKE) TESTS="$(ALL_TESTS)" run-tests
 
 test-acceptance:
+	@npm link --local > /dev/null
 	@node support/test-runner/app
 
 build:
