@@ -40,6 +40,20 @@
         reason.should().eql('booted');
         next();
       });
+    },
+
+    'test sending messages': function (next) {
+      var socket = create();
+
+      socket.on('connect', function () {
+        socket.send('echo');
+
+        socket.on('message', function (msg) {
+          msg.should().equal('echo');
+          socket.disconnect();
+          next();
+        });
+      });
     }
 
   };
