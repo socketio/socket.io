@@ -1024,10 +1024,6 @@
           + (packet.args && packet.args.length
               ? '+' + JSON.stringify(packet.args) : '');
         break;
-
-      case 'heartbeat':
-      case 'disconect':
-        break;
     }
 
     // construct packet with required fragments
@@ -1764,7 +1760,14 @@
    */
 
   Socket.prototype.onError = function (err) {
-    this.publish('error', err);
+    if (err && err.advice){
+      if (err.advice === 'reconnect'){
+        this.disconnect();
+        this.reconnect();
+      }
+    }
+
+    this.publish('error', err && err.reason ? err.reason : err);
   };
 
   /**
@@ -2041,6 +2044,13 @@
         if (this.acks[packet.ackId]) {
           this.acks[packet.ackId].apply(this, packet.args);
           delete this.acks[packet.ackId];
+        }
+
+      case 'error':
+        if (packet.advice){
+          this.socket.onError(packet);
+        } else {
+          this.$emit('error', packet.reason);
         }
     }
   };
