@@ -30,7 +30,7 @@ module.exports = {
       var lines = result.split('\n');
       lines.length.should().be.below(5);
       lines[0].should().match(/production/gi);
-      Buffer.byteLength(result).should().be.below(40000);
+      Buffer.byteLength(result).should().be.below(41000);
     });
   },
 
