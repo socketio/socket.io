@@ -109,8 +109,9 @@ function suite (name, fn) {
  */
 
 function server (name, fn) {
-  currentSuite[name] = port++;
+  currentSuite[name] = port;
   fn(sio.listen(port));
+  port++;
 };
 
 /**
