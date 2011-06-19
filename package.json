@@ -18,6 +18,10 @@
     }
   , "devDependencies": {
       "expresso": "0.7.7"
+    , "express": "2.3.11"
+    , "jade": "0.12.1"
+    , "stylus": "0.13.3"
+    , "socket.io": ">= 0.7"
     }
   , "engines": { "node": ">= 0.4.0" }
 }
