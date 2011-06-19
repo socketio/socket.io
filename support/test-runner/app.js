@@ -16,6 +16,18 @@ var express = require('express')
 var app = express.createServer();
 
 /**
+ * Initial port to listen to.
+ */
+
+var port = 3000;
+
+/**
+ * A map of tests to socket.io ports we're listening on.
+ */
+
+var testsPorts = {};
+
+/**
  * App configuration.
  */
 
@@ -31,7 +43,10 @@ app.configure(function () {
  */
 
 app.get('/', function (req, res) {
-  res.render('index', { layout: false });
+  res.render('index', {
+      layout: false
+    , testsPorts: testsPorts
+  });
 });
 
 /**
@@ -46,18 +61,16 @@ app.get('/test/:file', function (req, res) {
  * App listen.
  */
 
-app.listen(3000, function () {
+app.listen(port++, function () {
   var addr = app.address();
   console.error('   listening on http://' + addr.address + ':' + addr.port);
 });
 
+
 /**
- * Socket.IO server (single process only)
+ * Override handler to simplify development
  */
 
-var io = sio.listen(app);
-
-// override handler to simplify development
 function handler (req, res) {
   fs.readFile(__dirname + '/../../dist/socket.io.js', 'utf8', function (err, b) {
     if (err) {
@@ -71,10 +84,46 @@ function handler (req, res) {
   });
 };
 
+/**
+ * Socket.IO default server (to serve client)
+ */
+
+var io = sio.listen(app);
+
 io.configure(function () {
   io.set('browser client handler', handler);
 });
 
-io.sockets.on('connection', function (socket) {
+/**
+ * Scopes servers for a given test suite.
+ */
+
+var currentSuite;
+
+function suite (name, fn) {
+  currentSuite = testsPorts[name] = {};
+  fn();
+};
+
+/**
+ * Creates a socket io server
+ */
+
+function server (name, fn) {
+  currentSuite[name] = port++;
+  fn(sio.listen(port));
+};
+
+/**
+ * Socket.IO servers.
+ */
+
+suite('socket.test.js', function () {
+
+  server('test connecting the socket and disconnecting', function (io) {
+    io.on('connection', function () {
+      console.error('woot');
+    });
+  });
 
 });

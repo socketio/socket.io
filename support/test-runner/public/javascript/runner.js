@@ -1,3 +1,7 @@
+// useful globals
+
+var currentSuite, currentCase;
+
 // loads common.js module
 function load (test, fn) {
   module = {};
@@ -51,6 +55,9 @@ function keys (obj) {
 function suite (file, fn) {
   var passed = {}
     , failed = {};
+
+  // register current suite
+  currentSuite = file;
 
   // inject test case
   var li = $('<li class="loading">').append(
@@ -130,6 +137,8 @@ function suite (file, fn) {
       return complete();
     }
 
+    currentCase = cases[i];
+
     test(suite[cases[i]], function check (err) {
       if (err) {
         failed[cases[i]] = err;
@@ -138,6 +147,7 @@ function suite (file, fn) {
       }
 
       if (cases[++i]) {
+        currentCase = cases[i];
         test(suite[cases[i]], check);
       } else {
         complete();
@@ -178,3 +188,20 @@ function test (testcase, fn) {
   }
 };
 
+// exposes a function to easily create a server for the current test
+
+function create (nsp) {
+  if (!testsPorts[currentSuite]) {
+    throw new Error('No socket server defined for suite "' + currentSuite + '"');
+  }
+
+  if (!testsPorts[currentSuite][currentCase]) {
+    throw new Error('No socket server defined for suite "' + currentSuite
+      + '" and case "' + currentCase + '"');
+  }
+
+  return io.connect(
+      document.location.protocol + '//' + document.location.hostname
+    + ':' + testsPorts[currentSuite][currentCase] + (nsp || '')
+  );
+};

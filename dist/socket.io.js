@@ -970,7 +970,7 @@
    */
 
   parser.encodePacket = function (packet) {
-    var type = packets.indexOf(packet.type)
+    var type = indexOf(packets, packet.type)
       , id = packet.id || ''
       , endpoint = packet.endpoint || ''
       , ack = packet.ack
@@ -978,8 +978,8 @@
 
     switch (packet.type) {
       case 'error':
-        var reason = packet.reason ? reasons.indexOf(packet.reason) : ''
-          , adv = packet.advice ? advice.indexOf(packet.advice) : ''
+        var reason = packet.reason ? indexOf(reasons, packet.reason) : ''
+          , adv = packet.advice ? indexOf(advice, packet.advice) : ''
 
         if (reason !== '' || adv !== '')
           data = reason + (adv !== '' ? ('+' + adv) : '')
