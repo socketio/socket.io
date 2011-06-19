@@ -39,7 +39,7 @@ chat.on('connect', function () {
 });
 
 var news = io.connect('/news'); // io.connect auto-detects host
-chat.on('connect', function () {
+news.on('connect', function () {
   // news socket connected
 });
 ```
