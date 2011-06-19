@@ -64,7 +64,7 @@
    * @api public
    */
 
-  io.connect = function (host, forceNew) {
+  io.connect = function (host, details) {
     var uri = io.util.parseUri(host)
       , uuri
       , socket;
@@ -76,15 +76,18 @@
 
     uuri = io.util.uniqueUri(uri);
 
-    if (forceNew || !io.sockets[uuri]) {
-      socket = new io.Socket({
-          host: uri.host
-        , secure: uri.protocol == 'https'
-        , port: uri.port || 80
-      });
+    var options = {
+        host: uri.host
+      , secure: uri.protocol == 'https'
+      , port: uri.port || 80
+    };
+    io.util.merge(options, details);
+
+    if (options['force new connection'] || !io.sockets[uuri]) {
+      socket = new io.Socket(options);
     }
 
-    if (!forceNew && socket) {
+    if (!options['force new connection'] && socket) {
       this.sockets[uuri] = socket;
     }
 
@@ -2061,7 +2064,7 @@
 
   Flag.prototype.send = function () {
     this.namespace.flags[this.name] = true;
-    this.namespace.send.apply(this, arguments);
+    this.namespace.send.apply(this.namespace, arguments);
   };
 
   /**
@@ -2072,7 +2075,7 @@
 
   Flag.prototype.emit = function () {
     this.namespace.flags[this.name] = true;
-    this.namespace.emit.apply(this, arguments);
+    this.namespace.emit.apply(this.namespace, arguments);
   };
 
 })(
