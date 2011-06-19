@@ -16,8 +16,28 @@
     'test connecting the socket and disconnecting': function (next) {
       var socket = create();
       socket.on('connect', function () {
-        // we're missing namespace::disconnect
-        // socket.disconnect();
+        socket.disconnect();
+        next();
+      });
+    },
+
+    'test receiving messages': function (next) {
+      var socket = create()
+        , connected = false
+        , messages = 0;
+
+      socket.on('connect', function () {
+        connected = true;
+      });
+
+      socket.on('message', function (i) {
+        String(++messages).should().equal(i);
+      });
+
+      socket.on('disconnect', function (reason) {
+        connected.should().be_true;
+        messages.should().equal(3);
+        reason.should().eql('booted');
         next();
       });
     }
