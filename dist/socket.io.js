@@ -64,7 +64,7 @@
    * @api public
    */
 
-  io.connect = function (host, forceNew) {
+  io.connect = function (host, details) {
     var uri = io.util.parseUri(host)
       , uuri
       , socket;
@@ -76,15 +76,18 @@
 
     uuri = io.util.uniqueUri(uri);
 
-    if (forceNew || !io.sockets[uuri]) {
-      socket = new io.Socket({
-          host: uri.host
-        , secure: uri.protocol == 'https://'
-        , port: uri.port || 80
-      });
+    var options = {
+        host: uri.host
+      , secure: uri.protocol == 'https'
+      , port: uri.port || 80
+    };
+    io.util.merge(options, details);
+
+    if (options['force new connection'] || !io.sockets[uuri]) {
+      socket = new io.Socket(options);
     }
 
-    if (!forceNew && socket) {
+    if (!options['force new connection'] && socket) {
       this.sockets[uuri] = socket;
     }
 
@@ -355,7 +358,7 @@
    * @see bit.ly/a5Dxa2
    * @api public
    */
-  
+
   util.indexOf = function (arr, o, i) {
     if (Array.prototype.indexOf) {
       return Array.prototype.indexOf.call(arr, o, i);
@@ -387,7 +390,7 @@
    *
    * @namespace
    */
-  
+
   util.ua = {};
 
   /**
@@ -1297,7 +1300,7 @@
    *
    * @api private
    */
-  
+
   Transport.prototype.clearCloseTimeout = function () {
     if (this.closeTimeout) {
       clearTimeout(this.closeTimeout);
@@ -1310,7 +1313,7 @@
    *
    * @api private
    */
-  
+
   Transport.prototype.clearTimeouts = function () {
     this.clearCloseTimeout();
 
@@ -1495,7 +1498,8 @@
   function empty () { };
 
   Socket.prototype.handshake = function (fn) {
-    var self = this;
+    var self = this
+      , options = this.options;
 
     function complete (data) {
       if (data instanceof Error) {
@@ -1505,7 +1509,12 @@
       }
     };
 
-    var url = this.options.resource + '/' + io.protocol + '/?t=' + (+ new Date);
+    var url = [
+        'http' + (options.secure ? 's' : '' ) + '://' + options.host + ':' + options.port
+      , this.options.resource
+      , io.protocol
+      , '?t=' + + new Date
+    ].join('/');
 
     if (this.isXDomain()) {
       var insertAt = document.getElementsByTagName('script')[0]
@@ -2019,7 +2028,7 @@
 
   Flag.prototype.send = function () {
     this.namespace.flags[this.name] = true;
-    this.namespace.send.apply(this, arguments);
+    this.namespace.send.apply(this.namespace, arguments);
   };
 
   /**
@@ -2030,7 +2039,7 @@
 
   Flag.prototype.emit = function () {
     this.namespace.flags[this.name] = true;
-    this.namespace.emit.apply(this, arguments);
+    this.namespace.emit.apply(this.namespace, arguments);
   };
 
 })(
