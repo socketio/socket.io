@@ -54,6 +54,19 @@
           next();
         });
       });
+    },
+
+    'test acks sent from client': function (next) {
+      var socket = create();
+
+      socket.on('connect', function () {
+        socket.on('message', function (msg) {
+          if ('tobi 2' == msg) {
+            socket.disconnect();
+            next();
+          }
+        });
+      });
     }
 
   };
