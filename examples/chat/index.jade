@@ -6,7 +6,7 @@ html
     script(src='/socket.io/socket.io.js')
     script
       // socket.io specific code
-      var socket = io.connect(window.location.href, {peanuts:true});
+      var socket = io.connect();
 
       socket.on('connect', function () {
         $('#chat').addClass('connected');
