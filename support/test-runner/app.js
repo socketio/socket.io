@@ -146,4 +146,12 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test acks sent from client', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.send('tobi', function () {
+        socket.send('tobi 2');
+      });
+    });
+  });
+
 });
