@@ -139,4 +139,12 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test sending messages', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.on('message', function (msg) {
+        socket.send(msg);
+      });
+    });
+  });
+
 });
