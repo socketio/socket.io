@@ -125,9 +125,8 @@ suite('socket.test.js', function () {
   });
 
   server('test receiving messages', function (io) {
-    var messages = 0;
-
     io.sockets.on('connection', function (socket) {
+      var messages = 0;
       var interval = setInterval(function () {
         socket.send(++messages);
 
