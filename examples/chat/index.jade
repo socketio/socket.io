@@ -6,7 +6,7 @@ html
     script(src='/socket.io/socket.io.js')
     script
       // socket.io specific code
-      var socket = io.connect();
+      var socket = io.connect(window.location.href, {peanuts:true});
 
       socket.on('connect', function () {
         $('#chat').addClass('connected');
@@ -35,11 +35,9 @@ html
 
       socket.on('error', function (e) {
         message('System', e ? e : 'A unknown error occurred');
-        window.console && console.trace && console.trace();
       });
 
       function message (from, msg) {
-        window.console && console.log && console.log(from, msg);
         $('#lines').append($('<p>').append($('<b>').text(from), msg));
       }
 
