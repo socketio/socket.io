@@ -86,11 +86,10 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('disconnect', function () {
-    delete nicknames[socket.nickname];
+    if (!socket.nickname) return;
 
-    if (socket.nickname) {
-      socket.broadcast.emit('announcement', socket.nickname + ' disconnected');
-      socket.broadcast.emit('nicknames', nicknames);
-    }
+    delete nicknames[socket.nickname];
+    socket.broadcast.emit('announcement', socket.nickname + ' disconnected');
+    socket.broadcast.emit('nicknames', nicknames);
   });
 });
