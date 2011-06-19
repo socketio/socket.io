@@ -121,8 +121,21 @@ function server (name, fn) {
 suite('socket.test.js', function () {
 
   server('test connecting the socket and disconnecting', function (io) {
-    io.on('connection', function () {
-      console.error('woot');
+    io.sockets.on('connection', function () {});
+  });
+
+  server('test receiving messages', function (io) {
+    var messages = 0;
+
+    io.sockets.on('connection', function (socket) {
+      var interval = setInterval(function () {
+        socket.send(++messages);
+
+        if (messages == 3) {
+          clearInterval(interval);
+          socket.disconnect();
+        }
+      }, 50);
     });
   });
 
