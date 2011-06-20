@@ -712,7 +712,7 @@
     var keys = [];
 
     for (var i in obj) {
-      if (keys.hasOwnProperty(i)) {
+      if (obj.hasOwnProperty(i)) {
         keys.push(i);
       }
     }
