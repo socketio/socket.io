@@ -203,4 +203,14 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test emitting an event from server and sending back data', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.emit('woot', 1, function (a) {
+        if (a === 'test') {
+          socket.emit('done');
+        }
+      });
+    });
+  });
+
 });

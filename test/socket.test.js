@@ -165,6 +165,20 @@
         socket.disconnect();
         next();
       })
+    },
+
+    'test emitting an event from server and sending back data': function (next) {
+      var socket = create();
+
+      socket.on('woot', function (a, fn) {
+        a.should().eql(1);
+        fn('test');
+
+        socket.on('done', function () {
+          socket.disconnect();
+          next();
+        });
+      });
     }
 
   };
