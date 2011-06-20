@@ -195,4 +195,12 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test emitting an event to server', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.on('woot', function () {
+        socket.emit('echo');
+      });
+    });
+  });
+
 });

@@ -155,6 +155,16 @@
         socket.disconnect();
         next();
       });
+    },
+
+    'test emitting an event to server': function (next) {
+      var socket = create();
+
+      socket.emit('woot');
+      socket.on('echo', function () {
+        socket.disconnect();
+        next();
+      })
     }
 
   };
