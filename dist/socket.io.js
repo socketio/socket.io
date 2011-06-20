@@ -1513,11 +1513,12 @@
     };
 
     var url = [
-        'http' + (options.secure ? 's' : '' ) + '://' + options.host + ':' + options.port
-      , this.options.resource
-      , io.protocol
-      , '?t=' + + new Date
-    ].join('/');
+          'http' + (options.secure ? 's' : '') + ':/'
+        , options.host + ':' + options.port
+        , this.options.resource
+        , io.protocol
+        , '?t=' + + new Date
+      ].join('/');
 
     if (this.isXDomain()) {
       var insertAt = document.getElementsByTagName('script')[0]
@@ -2124,8 +2125,6 @@
 
   function WS (socket) {
     io.Transport.apply(this, arguments);
-    // The transport type, you use this to identify which transport was chosen.
-    this.name = 'websocket';
   };
 
   /**
@@ -2133,6 +2132,14 @@
    */
 
   io.util.inherit(WS, io.Transport);
+
+  /**
+   * Transport name
+   *
+   * @api public
+   */
+
+  WS.prototype.name = 'websocket';
 
   /**
    * Initializes a new `WebSocket` connection with the Socket.IO server. We attach
@@ -2264,8 +2271,6 @@
 
   function Flashsocket () {
     io.Transport.websocket.apply(this, arguments);
-    // The transport type, you use this to identify which transport was chosen.
-    this.name = 'flashsocket';
   };
 
   /**
@@ -2273,6 +2278,14 @@
    */
 
   io.util.inherit(Flashsocket, io.Transport.websocket);
+
+  /**
+   * Transport name
+   *
+   * @api public
+   */
+
+  Flashsocket.prototype.name = 'flashsocket';
 
   /**
    *Disconnect the established `Flashsocket` connection. This is done by adding a 
@@ -2323,16 +2336,22 @@
       || !('__initialize' in WebSocket) || !swfobject
     ) return false;
 
-    var supported = swfobject.getFlashPlayerVersion().major >= 10;
+    var supported = swfobject.getFlashPlayerVersion().major >= 10
+      , options = socket.options
+      , path = [
+          'http' + (options.secure ? 's' : '') + ':/'
+        , options.host + ':' + options.port
+        , options.resource
+        , 'static/flashsocket'
+        , 'WebSocketMain' + (socket.isXDomain() ? 'Insecure' : '') + '.swf'
+      ];
 
     // Only start downloading the swf file when the checked that this browser
     // actually supports it
     if (supported){
       if (typeof WEB_SOCKET_SWF_LOCATION === 'undefined'){
         // Set the correct file based on the XDomain settings
-        var path = '/socket.io/static/flashsocket/WebSocketMain';
-        path = path + (socket.isXDomain() ? 'Insecure' : '') + '.swf';
-        WEB_SOCKET_SWF_LOCATION = path;
+        WEB_SOCKET_SWF_LOCATION = path.join('/');
       }
 
       WebSocket.__initialize();
@@ -2849,11 +2868,8 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     this.sendXHR = this.request('POST');
 
-    if (window.XDomainRequest && this.xhr instanceof XDomainRequest) {
-      this.sendXHR.onload = onload;
-      this.sendXHR.onerror = function (e) {
-        self.onError(e);
-      };
+    if (window.XDomainRequest && this.sendXHR instanceof XDomainRequest) {
+      this.sendXHR.onload = this.sendXHR.onerror = onload;
     } else {
       this.sendXHR.onreadystatechange = stateChange;
     }
@@ -2987,8 +3003,6 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
   function HTMLFile (socket) {
     io.Transport.XHR.apply(this, arguments);
-    // The transport type, you use this to identify which transport was chosen.
-    this.name = 'htmlfile';
   };
 
   /**
@@ -2996,6 +3010,14 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   io.util.inherit(HTMLFile, io.Transport.XHR);
+
+  /**
+   * Transport name
+   *
+   * @api public
+   */
+
+  HTMLFile.prototype.name = 'htmlfile';
 
   /**
    * Starts the HTMLFile data stream for incoming messages. And registers a
@@ -3157,8 +3179,6 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
   function XHRPolling () {
     io.Transport.XHR.apply(this, arguments);
-    // The transport type, you use this to identify which transport was chosen.
-    this.name = 'xhr-polling';
   };
 
   /**
@@ -3166,6 +3186,14 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   io.util.inherit(XHRPolling, io.Transport.XHR);
+
+  /**
+   * Transport name
+   *
+   * @api public
+   */
+
+  XHRPolling.prototype.name = 'xhr-polling';
 
   /** 
    * Establish a connection, for iPhone and Android this will be done once the page
@@ -3218,10 +3246,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     this.xhr = this.request();
 
     if (window.XDomainRequest && this.xhr instanceof XDomainRequest) {
-      this.xhr.onload = onload;
-      this.xhr.onerror = function (e) {
-        self.onError(e);
-      };
+      this.xhr.onload = this.xhr.onerror = onload;
     } else {
       this.xhr.onreadystatechange = stateChange;
     }
@@ -3271,8 +3296,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     if (!socket) return;
 
     io.Transport['xhr-polling'].apply(this, arguments);
-    // The transport type, you use this to identify which transport was chosen.
-    this.name = 'jsonp-polling';
+
     this.insertAt = document.getElementsByTagName('script')[0];
     this.index = io.j.length;
 
@@ -3288,6 +3312,14 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   io.util.inherit(JSONPPolling, io.Transport['xhr-polling']);
+
+  /**
+   * Transport name
+   *
+   * @api public
+   */
+
+  JSONPPolling.prototype.name = 'jsonp-polling';
 
   /**
    * Posts a encoded message to the Socket.IO server using an iframe.
