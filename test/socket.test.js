@@ -135,6 +135,17 @@
         socket.disconnect();
         next();
       });
+    },
+
+    'test sending json from client': function (next) {
+      var socket = create();
+
+      socket.json.send([1, 2, 3]);
+      socket.on('message', function (msg) {
+        msg.should().equal('echo');
+        socket.disconnect();
+        next();
+      });
     }
 
   };

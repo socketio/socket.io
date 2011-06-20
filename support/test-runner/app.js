@@ -179,4 +179,14 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test sending json from client', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.on('message', function (arr) {
+        if (Array.isArray(arr) && arr.length == 3) {
+          socket.send('echo');
+        }
+      });
+    });
+  });
+
 });
