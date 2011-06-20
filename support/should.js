@@ -35,7 +35,7 @@
    * Extend Object.prototype.
    */
 
-  try {
+  if ('object' == typeof process) {
     Object.defineProperty(
         Object.prototype
       , 'should'
@@ -56,7 +56,7 @@
           , enumerable: false
         }
     );
-  } catch (e) {
+  } else {
     Object.prototype.should = function () {
       return new Assertion(this.valueOf());
     };
