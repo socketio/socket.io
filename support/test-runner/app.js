@@ -213,4 +213,14 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test emitting an event to server and sending back data', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.on('tobi', function (a, b, fn) {
+        if (a === 1 && b === 2) {
+          fn({ hello: 'world' });
+        }
+      });
+    });
+  });
+
 });

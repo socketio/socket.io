@@ -179,6 +179,16 @@
           next();
         });
       });
+    },
+
+    'test emitting an event to server and sending back data': function (next) {
+      var socket = create();
+
+      socket.emit('tobi', 1, 2, function (a) {
+        a.should().eql({ hello: 'world' });
+        socket.disconnect();
+        next();
+      });
     }
 
   };
