@@ -67,6 +67,17 @@
           }
         });
       });
+    },
+
+    'test acks sent from server': function (next) {
+      var socket = create();
+
+      socket.on('connect', function () {
+        socket.send('ooo', function () {
+          socket.disconnect();
+          next();
+        });
+      });
     }
 
   };

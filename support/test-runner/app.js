@@ -154,4 +154,8 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test acks sent from server', function (io) {
+    io.sockets.on('connection', function (socket) {});
+  });
+
 });
