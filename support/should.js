@@ -35,7 +35,7 @@
    * Extend Object.prototype.
    */
 
-  if (Object.defineProperty) {
+  try {
     Object.defineProperty(
         Object.prototype
       , 'should'
@@ -56,7 +56,7 @@
           , enumerable: false
         }
     );
-  } else {
+  } catch (e) {
     Object.prototype.should = function () {
       return new Assertion(this.valueOf());
     };
@@ -711,7 +711,7 @@
 
     var keys = [];
 
-    for (var i in keys) {
+    for (var i in obj) {
       if (keys.hasOwnProperty(i)) {
         keys.push(i);
       }
