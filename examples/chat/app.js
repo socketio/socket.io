@@ -86,6 +86,8 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('disconnect', function () {
+    if (!socket.nickname) return;
+
     delete nicknames[socket.nickname];
     socket.broadcast.emit('announcement', socket.nickname + ' disconnected');
     socket.broadcast.emit('nicknames', nicknames);
