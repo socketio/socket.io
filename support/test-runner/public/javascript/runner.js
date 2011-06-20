@@ -118,6 +118,10 @@ function suite (file, fn) {
           .appendTo(casesUl);
 
         if (failed[cases[i]]) {
+          if (window.console && console.log) {
+            console.log(failed[cases[i]]);
+          }
+
           detail.append($('<span class="error">').text(String(failed[cases[i]])));
         }
       }
