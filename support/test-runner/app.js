@@ -168,4 +168,9 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test disconnecting from namespaces', function (io) {
+    io.of('/a').on('connection', function (socket) {});
+    io.of('/b').on('connection', function (socket) {});
+  });
+
 });

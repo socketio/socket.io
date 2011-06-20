@@ -84,7 +84,7 @@
       var socket = create().socket
         , namespaces = 2;
 
-      function finish() {
+      function finish () {
         socket.of('').disconnect();
         next();
       }
@@ -96,6 +96,33 @@
 
       socket.of('/chat').on('message', function (msg) {
         msg.should().equal('connected to chat');
+        --namespaces || finish();
+      });
+    },
+
+    'test disconnecting from namespaces': function (next) {
+      var socket = create().socket
+        , namespaces = 2
+        , disconnections = 0;
+
+      function finish () {
+        socket.of('').disconnect();
+        next();
+      };
+
+      socket.of('/a').on('connect', function () {
+        socket.of('/a').disconnect();
+      });
+
+      socket.of('/a').on('disconnect', function () {
+        --namespaces || finish();
+      });
+
+      socket.of('/b').on('connect', function () {
+        socket.of('/b').disconnect();
+      });
+
+      socket.of('/b').on('disconnect', function () {
         --namespaces || finish();
       });
     }
