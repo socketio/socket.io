@@ -125,9 +125,8 @@ suite('socket.test.js', function () {
   });
 
   server('test receiving messages', function (io) {
-    var messages = 0;
-
     io.sockets.on('connection', function (socket) {
+      var messages = 0;
       var interval = setInterval(function () {
         socket.send(++messages);
 
@@ -143,6 +142,83 @@ suite('socket.test.js', function () {
     io.sockets.on('connection', function (socket) {
       socket.on('message', function (msg) {
         socket.send(msg);
+      });
+    });
+  });
+
+  server('test acks sent from client', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.send('tobi', function () {
+        socket.send('tobi 2');
+      });
+    });
+  });
+
+  server('test acks sent from server', function (io) {
+    io.sockets.on('connection', function (socket) {});
+  });
+
+  server('test connecting to namespaces', function (io) {
+    io.of('/woot').on('connection', function (socket) {
+      socket.send('connected to woot');
+    });
+
+    io.of('/chat').on('connection', function (socket) {
+      socket.send('connected to chat');
+    });
+  });
+
+  server('test disconnecting from namespaces', function (io) {
+    io.of('/a').on('connection', function (socket) {});
+    io.of('/b').on('connection', function (socket) {});
+  });
+
+  server('test sending json from server', function (io) {
+    io.sockets.on('connection', function (socket) {
+      io.sockets.json.send(3141592);
+    });
+  });
+
+  server('test sending json from client', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.on('message', function (arr) {
+        if (Array.isArray(arr) && arr.length == 3) {
+          socket.send('echo');
+        }
+      });
+    });
+  });
+
+  server('test emitting an event from server', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.emit('woot');
+    });
+  });
+
+  server('test emitting an event to server', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.on('woot', function () {
+        socket.emit('echo');
+      });
+    });
+  });
+
+  server('test emitting an event from server and sending back data', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.emit('woot', 1, function (a) {
+        if (a === 'test') {
+          socket.emit('done');
+        }
+      });
+    });
+  });
+
+  server('test emitting an event to server and sending back data', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.on('tobi', function (a, b, fn) {
+        if (a === 1 && b === 2) {
+          fn({ hello: 'world' });
+        }
       });
     });
   });

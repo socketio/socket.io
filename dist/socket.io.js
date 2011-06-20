@@ -1997,8 +1997,7 @@
    */
 
   SocketNamespace.prototype.onPacket = function (packet) {
-    var dataAck = packet.ack == 'data'
-      , self = this;
+    var self = this;
 
     function ack () {
       self.packet({
@@ -2025,8 +2024,11 @@
       case 'json':
         var params = ['message', packet.data];
 
-        if (dataAck)
+        if (packet.ack == 'data') {
           params.push(ack);
+        } else if (packet.ack) {
+          this.packet({ type: 'ack', ackId: packet.id });
+        }
 
         this.$emit.apply(this, params);
         break;
@@ -2034,7 +2036,7 @@
       case 'event':
         var params = [packet.name].concat(packet.args);
 
-        if (dataAck)
+        if (packet.ack == 'data')
           params.push(ack);
 
         this.$emit.apply(this, params);
