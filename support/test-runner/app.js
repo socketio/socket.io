@@ -91,6 +91,13 @@ var io = sio.listen(app);
 
 io.configure(function () {
   io.set('browser client handler', handler);
+  io.set('transports', [
+      'websocket'
+    , 'flashsocket'
+    , 'htmlfile'
+    , 'xhr-polling'
+    , 'jsonp-polling'
+  ]);
 });
 
 /**
