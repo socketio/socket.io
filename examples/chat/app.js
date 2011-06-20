@@ -61,6 +61,14 @@ app.listen(3000, function () {
 var io = sio.listen(app)
   , nicknames = {};
 
+io.set('transports', [
+    'websocket'
+  , 'flashsocket'
+  , 'htmlfile'
+  , 'xhr-polling'
+  , 'jsonp-polling'
+]);
+
 io.sockets.on('connection', function (socket) {
   socket.on('user message', function (msg) {
     socket.broadcast.emit('user message', socket.nickname, msg);
@@ -78,6 +86,8 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('disconnect', function () {
+    if (!socket.nickname) return;
+
     delete nicknames[socket.nickname];
     socket.broadcast.emit('announcement', socket.nickname + ' disconnected');
     socket.broadcast.emit('nicknames', nicknames);

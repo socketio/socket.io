@@ -185,7 +185,8 @@ module.exports = {
       should.strictEqual(res.headers.etag, undefined);
 
       data.should.match(/XMLHttpRequest/);
-      io.client.should.match(/XMLHttpRequest/);
+      var static = sio.Manager.static;
+      static.cache['/socket.io.js'].content.should.match(/XMLHttpRequest/);
 
       cl.get('/socket.io/socket.io.js', function (res, data) {
         res.headers['content-type'].should.eql('application/javascript');
@@ -216,7 +217,11 @@ module.exports = {
       res.headers.etag.should.match(/([0-9]+)\.([0-9]+)\.([0-9]+)/);
 
       data.should.match(/XMLHttpRequest/);
-      io.client.should.match(/XMLHttpRequest/);
+      var static = sio.Manager.static
+        , cache = static.cache['/socket.io.js'];
+
+      cache.content.toString().should.match(/XMLHttpRequest/);
+      Buffer.isBuffer(cache.content).should.be.true;
 
       cl.get('/socket.io/socket.io.js', function (res, data) {
         res.headers['content-type'].should.eql('application/javascript');
@@ -264,6 +269,48 @@ module.exports = {
         io2.server.close();
         done();
       });
+    });
+  },
+
+  'test that the WebSocketMain.swf is served': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    cl.get('/socket.io/static/flashsocket/WebSocketMain.swf', function (res, data) {
+      res.headers['content-type'].should.eql('application/x-shockwave-flash');
+      res.headers['content-length'].should.match(/([0-9]+)/);
+      should.strictEqual(res.headers.etag, undefined);
+
+      var static = sio.Manager.static
+        , cache = static.cache['/static/flashsocket/WebSocketMain.swf'];
+
+      Buffer.isBuffer(cache.content).should.be.true;
+
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that the WebSocketMainInsecure.swf is served': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    cl.get('/socket.io/static/flashsocket/WebSocketMainInsecure.swf', function (res, data) {
+      res.headers['content-type'].should.eql('application/x-shockwave-flash');
+      res.headers['content-length'].should.match(/([0-9]+)/);
+      should.strictEqual(res.headers.etag, undefined);
+
+      var static = sio.Manager.static
+        , cache = static.cache['/static/flashsocket/WebSocketMain.swf'];
+
+      Buffer.isBuffer(cache.content).should.be.true;
+
+      cl.end();
+      io.server.close();
+      done();
     });
   },
 
