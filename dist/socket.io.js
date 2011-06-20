@@ -274,12 +274,12 @@
       , prop;
 
     for (prop in additional){
-      if (additional.hasOwnProperty(prop) && this.indexOf(seen, prop) < 0){
+      if (additional.hasOwnProperty(prop) && util.indexOf(seen, prop) < 0){
         if (typeof target[prop] !== 'object' || !depth){
           target[prop] = additional[prop];
           seen.push(additional[prop]);
         } else {
-          this.merge(target[prop], additional[prop], depth - 1, seen);
+          util.merge(target[prop], additional[prop], depth - 1, seen);
         }
       }
     }
@@ -3031,7 +3031,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     this.open();
 
-    window.attachEvent('onunload', function () {
+    io.util.on(window, 'unload', function () {
       self.destroy();
     });
   };
@@ -3048,8 +3048,8 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     this.doc = new ActiveXObject('htmlfile');
     this.doc.open();
     this.doc.write('<html></html>');
-    this.doc.parentWindow.s = this;
     this.doc.close();
+    this.doc.parentWindow.s = this;
 
     var iframeC = this.doc.createElement('div');
     iframeC.className = 'socketio';
@@ -3094,6 +3094,8 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       } catch(e){}
 
       this.doc = null;
+      this.iframe.parentNode.removeChild(this.iframe);
+      this.iframe = null;
 
       CollectGarbage();
     }
@@ -3108,7 +3110,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
   HTMLFile.prototype.close = function () {
     this.destroy();
-    return io.Transport.XHR.prototype.close.call(this);
+    return this;
   };
 
   /**
