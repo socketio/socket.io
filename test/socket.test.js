@@ -125,6 +125,16 @@
       socket.of('/b').on('disconnect', function () {
         --namespaces || finish();
       });
+    },
+
+    'test sending json from server': function (next) {
+      var socket = create();
+
+      socket.on('message', function (msg) {
+        msg.should().eql(3141592);
+        socket.disconnect();
+        next();
+      });
     }
 
   };
