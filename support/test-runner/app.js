@@ -189,4 +189,10 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test emitting an event from server', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.emit('woot');
+    });
+  });
+
 });

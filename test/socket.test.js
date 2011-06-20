@@ -146,6 +146,15 @@
         socket.disconnect();
         next();
       });
+    },
+
+    'test emitting an event from server': function (next) {
+      var socket = create();
+
+      socket.on('woot', function () {
+        socket.disconnect();
+        next();
+      });
     }
 
   };
