@@ -171,7 +171,7 @@ module.exports = {
             type: 'error'
           , reason: 'client not handshaken'
           , endpoint: ''
-          , advice: ''
+          , advice: 'reconnect'
         });
 
         --total || finish();
