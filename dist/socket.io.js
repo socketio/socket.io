@@ -1380,10 +1380,13 @@
    */
 
   Transport.prototype.prepareUrl = function () {
-    return this.socket.options.resource + '/' + io.protocol
+    var options = this.socket.options;
+
+    return this.scheme() + '://'
+      + options.host + ':' + options.port + '/'
+      + options.resource + '/' + io.protocol
       + '/' + this.name + '/' + this.sessid;
   };
-
 })(
     'undefined' != typeof io ? io : module.exports
   , 'undefined' != typeof io ? io : module.parent.exports
@@ -2198,21 +2201,6 @@
   };
 
   /**
-   * Generates a connection url based on the Socket.IO URL Protocol.
-   * See <https://github.com/learnboost/socket.io-node/> for more details.
-   *
-   * @returns {String} Connection url
-   * @api private
-   */
-
-  WS.prototype.prepareUrl = function () {
-    return this.scheme() + '://'
-      + this.socket.options.host + ':' + this.socket.options.port + '/'
-      + this.socket.options.resource + '/' + io.protocol
-      + '/' + this.name + '/' + this.sessid;
-  };
-
-  /**
    * Checks if the browser has support for native `WebSockets` and that
    * it's not the polyfill created for the FlashSocket transport.
    *
@@ -2842,7 +2830,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     function stateChange () {
       if (this.readyState == 4) {
-        this.onreadystatechange = this.onload = empty;
+        this.onreadystatechange = empty;
         self.posting = false;
 
         if (this.status == 200){
@@ -2853,10 +2841,19 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       }
     }
 
+    function onload () {
+      this.onload = empty;
+      self.posting = false;
+      self.checkSend();
+    };
+
     this.sendXHR = this.request('POST');
 
     if (window.XDomainRequest && this.xhr instanceof XDomainRequest) {
-      this.sendXHR.onload = stateChange;
+      this.sendXHR.onload = onload;
+      this.sendXHR.onerror = function (e) {
+        self.onError(e);
+      };
     } else {
       this.sendXHR.onreadystatechange = stateChange;
     }
@@ -2910,7 +2907,9 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
         req.setRequestHeader('Content-type', 'text/plain');
       } else {
         // XDomainRequest
-        req.contentType = 'text/plain';
+        try {
+          req.contentType = 'text/plain';
+        } catch (e) {}
       }
     }
 
@@ -2924,7 +2923,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   XHR.prototype.scheme = function () {
-    return this.socket.options.secure ? 'https://' : 'http://';
+    return this.socket.options.secure ? 'https' : 'http';
   };
 
   /**
@@ -3199,7 +3198,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     function stateChange () {
       if (this.readyState == 4) {
-        this.onreadystatechange = this.onload = empty;
+        this.onreadystatechange = empty;
 
         if (this.status == 200) {
           self.onData(this.responseText);
@@ -3208,13 +3207,21 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
           self.onClose();
         }
       }
-    }
+    };
+
+    function onload () {
+      this.onload = empty;
+      self.onData(this.responseText);
+      self.get();
+    };
 
     this.xhr = this.request();
 
     if (window.XDomainRequest && this.xhr instanceof XDomainRequest) {
-      this.xhr.onload = stateChange;
-      this.xhr.onerror = function (e) { self.onError(e); };
+      this.xhr.onload = onload;
+      this.xhr.onerror = function (e) {
+        self.onError(e);
+      };
     } else {
       this.xhr.onreadystatechange = stateChange;
     }
