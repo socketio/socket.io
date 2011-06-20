@@ -84,14 +84,19 @@
       var socket = create().socket
         , namespaces = 2;
 
+      function finish() {
+        socket.of('').disconnect();
+        next();
+      }
+
       socket.of('/woot').on('message', function (msg) {
         msg.should().equal('connected to woot');
-        --namespaces || next();
+        --namespaces || finish();
       });
 
       socket.of('/chat').on('message', function (msg) {
         msg.should().equal('connected to chat');
-        --namespaces || next();
+        --namespaces || finish();
       });
     }
 
