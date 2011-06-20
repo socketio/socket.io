@@ -78,6 +78,21 @@
           next();
         });
       });
+    },
+
+    'test connecting to namespaces': function (next) {
+      var socket = create().socket
+        , namespaces = 2;
+
+      socket.of('/woot').on('message', function (msg) {
+        msg.should().equal('connected to woot');
+        --namespaces || next();
+      });
+
+      socket.of('/chat').on('message', function (msg) {
+        msg.should().equal('connected to chat');
+        --namespaces || next();
+      });
     }
 
   };

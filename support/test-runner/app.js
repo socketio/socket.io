@@ -158,4 +158,14 @@ suite('socket.test.js', function () {
     io.sockets.on('connection', function (socket) {});
   });
 
+  server('test connecting to namespaces', function (io) {
+    io.of('/woot').on('connection', function (socket) {
+      socket.send('connected to woot');
+    });
+
+    io.of('/chat').on('connection', function (socket) {
+      socket.send('connected to chat');
+    });
+  });
+
 });
