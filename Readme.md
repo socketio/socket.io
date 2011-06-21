@@ -9,9 +9,6 @@ horizontal scalability, automatic JSON encoding/decoding, and more.
 
     npm install socket.io
 
-**Note:** this is the documentation for the upcoming release **0.7**. The latest
-tag on NPM is [0.6](https://github.com/LearnBoost/Socket.IO-node/tree/06).
-
 ## How to use
 
 First, require `socket.io`:
@@ -30,7 +27,10 @@ var app = express.createServer();
 app.listen(80);
 
 io.sockets.on('connection', function (socket) {
-  socket.send({ hello: 'world' });
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
 });
 ```
 
@@ -40,8 +40,9 @@ Finally, load it from the client side code:
 <script src="/socket.io/socket.io.js"></script>
 <script>
   var socket = io.connect('http://localhost');
-  socket.on('news', function () {
-    socket.emit('myOtherEvent', { my: 'data' });
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('my other event', { my: 'data' });
   });
 </script>
 ```
@@ -317,8 +318,6 @@ io.configure('development', function () {
   io.enable('log');
 });
 ```
-
-## [API docs](http://socket.io/api.html)
 
 ## License 
 
