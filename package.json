@@ -11,6 +11,7 @@
   , "contributors": [
         { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" }
       , { "name": "Arnout Kazemier", "email": "info@3rd-eden.com" }
+      , { "name": "Vladimir Dronnikov", "email": "dronnikov@gmail.com" }
     ]
   , "repository": {
         "type": "git"
@@ -21,6 +22,7 @@
       , "express": "2.3.11"
       , "jade": "0.12.1"
       , "stylus": "0.13.3"
+      , "socket.io": "0.7.0"
       , "socket.io-client": "0.7.0"
     }
   , "engines": { "node": ">= 0.4.0" }

@@ -101,6 +101,9 @@ h2 a {
   margin-right: 6px;
   margin-left: 1px;
 }
+.test-list > li ul.cases li.failed {
+  color: #cd3a33;
+}
 .test-list > li.cases ul.cases {
   display: block;
 }
