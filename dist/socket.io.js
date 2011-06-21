@@ -1219,6 +1219,7 @@
 
   Transport.prototype.onData = function(data){
     this.clearCloseTimeout();
+    this.setCloseTimeout();
 
     if (data !== '') {
       // todo: we should only do decodePayload for xhr transports
@@ -1351,6 +1352,7 @@
    */
 
   Transport.prototype.onOpen = function () {
+    this.open = true;
     this.clearCloseTimeout();
     this.socket.onOpen();
   };
@@ -1363,10 +1365,14 @@
    */
 
   Transport.prototype.onClose = function () {
-    this.reopenTimeout = setTimeout(function () {
-      this.open();
-    }, this.socket.options['reopen delay']);
+    var self = this;
 
+    /* FIXME: reopen delay causing a infinit loop
+    this.reopenTimeout = setTimeout(function () {
+      self.open();
+    }, this.socket.options['reopen delay']);*/
+
+    this.open = false;
     this.setCloseTimeout();
     this.socket.onClose();
   };
@@ -1438,6 +1444,7 @@
     this.reconnecting = false;
     this.namespaces = {};
     this.buffer = [];
+    this.doBuffer = false;
 
     if (this.options['sync disconnect on unload'] &&
         (!this.isXDomain() || io.util.ua.hasCORS)) {
@@ -1486,9 +1493,13 @@
   Socket.prototype.publish = function(){
     this.emit.apply(this, arguments);
 
-    for (var namespace in this.namespaces) {
-      namespace = this.of(namespace);
-      namespace.$emit.apply(namespace, arguments);
+    var nsp;
+
+    for (var i in this.namespaces) {
+      if (this.namespaces.hasOwnProperty(i)) {
+        nsp = this.of(i);
+        nsp.$emit.apply(nsp, arguments);
+      }
     }
   };
 
@@ -1585,11 +1596,14 @@
 
     var self = this;
 
-    this.handshake(function (sid, close, heartbeat, transports) {
+    this.handshake(function (sid, heartbeat, close, transports) {
       self.sessionid = sid;
-      self.closeTimeout = close;
-      self.heartbeatTimeout = heartbeat;
-      self.transports = io.util.intersect(transports.split(','), self.options.transports);
+      self.closeTimeout = close * 1000;
+      self.heartbeatTimeout = heartbeat * 1000;
+      self.transports = io.util.intersect(
+          transports.split(',')
+        , self.options.transports
+      );
       self.transport = self.getTransport();
 
       if (!self.transport) {
@@ -1648,13 +1662,28 @@
    */
 
   Socket.prototype.packet = function (data) {
-    if (this.open) {
+    if (this.connected && !this.doBuffer) {
       this.transport.packet(data);
     } else {
       this.buffer.push(data);
     }
 
     return this;
+  };
+
+  /**
+   * Sets buffer state
+   *
+   * @api private
+   */
+
+  Socket.prototype.setBuffer = function (v) {
+    this.doBuffer = v;
+
+    if (!v && this.connected && this.buffer.length) {
+      this.transport.payload(this.buffer);
+      this.buffer = [];
+    }
   };
 
   /**
@@ -1716,6 +1745,10 @@
   Socket.prototype.onConnect = function(){
     this.connected = true;
     this.connecting = false;
+    if (!this.doBuffer) {
+      // make sure to flush the buffer
+      this.setBuffer(false);
+    }
     this.publish('connect');
   };
 
@@ -1727,14 +1760,6 @@
 
   Socket.prototype.onOpen = function () {
     this.open = true;
-
-    if (this.buffer.length) {
-      for (var i = 0, l = this.buffer.length; i < l; i++) {
-        this.packet(this.buffer[i]);
-      }
-
-      this.buffer = [];
-    }
   };
 
   /**
@@ -1788,6 +1813,7 @@
     this.open = false;
 
     if (wasConnected) {
+      this.transport.close();
       this.transport.clearTimeouts();
       this.publish('disconnect', reason);
 
@@ -2051,6 +2077,7 @@
           this.acks[packet.ackId].apply(this, packet.args);
           delete this.acks[packet.ackId];
         }
+        break;
 
       case 'error':
         if (packet.advice){
@@ -2058,6 +2085,7 @@
         } else {
           this.$emit('error', packet.reason);
         }
+        break;
     }
   };
 
@@ -2153,14 +2181,24 @@
     this.websocket = new WebSocket(this.prepareUrl());
 
     var self = this;
-    this.websocket.onopen = function () { self.onOpen(); };
-    this.websocket.onmessage = function (ev) { self.onData(ev.data); };
-    this.websocket.onclose = function () { self.onClose(); };
-    this.websocket.onerror = function (e) { self.onError(e); };
+    this.websocket.onopen = function () {
+      self.onOpen();
+      self.socket.setBuffer(false);
+    };
+    this.websocket.onmessage = function (ev) {
+      self.onData(ev.data);
+    };
+    this.websocket.onclose = function () {
+      self.onClose();
+      self.socket.setBuffer(true);
+    };
+    this.websocket.onerror = function (e) {
+      self.onError(e);
+    };
 
     return this;
   };
-  
+
   /**
    * Send a message to the Socket.IO server. The message will automatically be encoded
    * in the correct message format.
@@ -2171,6 +2209,19 @@
 
   WS.prototype.send = function (data) {
     this.websocket.send(data);
+    return this;
+  };
+
+  /**
+   * Payload
+   *
+   * @api private
+   */
+
+  WS.prototype.payload = function (arr) {
+    for (var i = 0, l = arr.length; i < l; i++) {
+      this.packet(arr[i]);
+    }
     return this;
   };
 
@@ -2789,8 +2840,9 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   XHR.prototype.open = function () {
-    this.get();
+    this.socket.setBuffer(false);
     this.onOpen();
+    this.get();
 
     // we need to make sure the request succeeds since we have no indication
     // whether the request opened or not until it succeeded.
@@ -2806,12 +2858,14 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    * @api private
    */
 
-  XHR.prototype.checkSend = function () {
-    if (!this.posting && this.sendBuffer.length) {
-      var encoded = io.parser.encodePayload(this.sendBuffer);
-      this.sendBuffer = [];
-      this.post(encoded);
+  XHR.prototype.payload = function (payload) {
+    var msgs = [];
+
+    for (var i = 0, l = payload.length; i < l; i++) {
+      msgs.push(io.parser.encodePacket(payload[i]));
     }
+
+    this.send(io.parser.encodePayload(msgs));
   };
 
   /**
@@ -2823,14 +2877,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   XHR.prototype.send = function (data) {
-    if (io.util.isArray(data)) {
-      this.sendBuffer.push.apply(this.sendBuffer, data);
-    } else {
-      this.sendBuffer.push(data);
-    }
-
-    this.checkSend();
-
+    this.post(data);
     return this;
   };
 
@@ -2845,7 +2892,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
   XHR.prototype.post = function (data) {
     var self = this;
-    this.posting = true;
+    this.socket.setBuffer(true);
 
     function stateChange () {
       if (this.readyState == 4) {
@@ -2853,7 +2900,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
         self.posting = false;
 
         if (this.status == 200){
-          self.checkSend();
+          self.socket.setBuffer(false);
         } else {
           self.onClose();
         }
@@ -2862,8 +2909,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     function onload () {
       this.onload = empty;
-      self.posting = false;
-      self.checkSend();
+      self.socket.setBuffer(false);
     };
 
     this.sendXHR = this.request('POST');
@@ -2878,31 +2924,15 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   };
 
   /**
-   * Handle the disconnect request.
+   * Disconnects the established `XHR` connection.
    *
-   * @api private
+   * @returns {Transport} 
+   * @api public
    */
 
-  XHR.prototype.onClose = function(){
-    if (this.xhr){
-      this.xhr.onreadystatechange = this.xhr.onload = empty;
-      try {
-        this.xhr.abort();
-      } catch(e){}
-      this.xhr = null;
-    }
-
-    if (this.sendXHR){
-      this.sendXHR.onreadystatechange = this.sendXHR.onload = empty;
-      try {
-        this.sendXHR.abort();
-      } catch(e){}
-      this.sendXHR = null;
-    }
-
-    this.sendBuffer = [];
-
-    io.Transport.prototype.onClose.call(this);
+  XHR.prototype.close = function () {
+    this.onClose();
+    return this;
   };
 
   /**
@@ -2920,7 +2950,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     if (method == 'POST') {
       if (req.setRequestHeader) {
-        req.setRequestHeader('Content-type', 'text/plain');
+        req.setRequestHeader('Content-type', 'text/plain;charset=UTF-8');
       } else {
         // XDomainRequest
         try {
@@ -3110,7 +3140,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
   HTMLFile.prototype.close = function () {
     this.destroy();
-    return this;
+    return io.Transport.XHR.prototype.close.call(this);
   };
 
   /**
@@ -3224,6 +3254,8 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   function empty () {};
 
   XHRPolling.prototype.get = function () {
+    if (!this.open) return;
+
     var self = this;
 
     function stateChange () {
@@ -3254,6 +3286,24 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     }
 
     this.xhr.send(null);
+  };
+
+  /**
+   * Handle the unclean close behavior.
+   *
+   * @api private
+   */
+
+  XHRPolling.prototype.onClose = function () {
+    io.Transport.XHR.prototype.onClose.call(this);
+
+    if (this.xhr) {
+      this.xhr.onreadystatechange = this.xhr.onload = empty;
+      try {
+        this.xhr.abort();
+      } catch(e){}
+      this.xhr = null;
+    }
   };
 
   /**
@@ -3351,7 +3401,6 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       form.action = this.prepareUrl() + '?t=' + (+new Date) + '&i=' + this.index;
       area.name = 'd';
       form.appendChild(area);
-      this.insertAt.parentNode.insertBefore(form, this.insertAt);
       document.body.appendChild(form);
 
       this.form = form;
@@ -3360,8 +3409,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     function complete () {
       initIframe();
-      self.posting = false;
-      self.checkSend();
+      self.socket.setBuffer(false);
     };
 
     function initIframe () {
@@ -3385,7 +3433,6 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     initIframe();
 
-    this.posting = true;
     this.area.value = data;
 
     try {
