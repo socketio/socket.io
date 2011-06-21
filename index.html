@@ -1,95 +1,589 @@
-<!DOCTYPE html><html><head><title>Socket.IO: the cross-browser WebSocket for realtime apps.</title><link href="css/main.css" rel="stylesheet" media="all"><link href="support/prettify/prettify.css" rel="stylesheet" media="all"><script src="support/prettify/prettify.js"></script><meta http-equiv="Content-Type" content="text/html;charset=utf-8" /><script type="text/javascript">
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO: the cross-browser WebSocket for realtime apps.</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-18488944-1']);
-  _gaq.push(['_trackPageview']);
+    <link href="css/main.css" rel="stylesheet" media="all">
+    <link href="support/prettify/prettify.css" rel="stylesheet" media="all">
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-  
-  function getMembers(data){
-    if (!(data && data.query && data.query.results && data.query.results.p)) return;
-    var members = document.createElement('span');
-    members.id = 'google-members-count';
-    members.innerHTML = '('+ data.query.results.p +' members)';
-    document.getElementsByTagName('FORM')[0].insertBefore(members, document.getElementById('google-subscribe-input'));
-  };
-  
-  window.onload = function(){
-    document.getElementById('google-subscribe-email').onfocus = function(){
-      document.getElementById('google-subscribe-input').className = 'focus';
-    };
-    document.getElementById('google-subscribe-email').onblur = function(){
-      document.getElementById('google-subscribe-input').className = '';
-    };
-    prettyPrint();
+    <script src="support/prettify/prettify.js"></script>
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-18488944-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+      function getMembers(data){
+        if (!(data && data.query && data.query.results && data.query.results.p)) return;
+        var members = document.createElement('span');
+        members.id = 'google-members-count';
+        members.innerHTML = '('+ data.query.results.p +' members)';
+        document.getElementsByTagName('FORM')[0].insertBefore(members, document.getElementById('google-subscribe-input'));
+      };
+
+      !function(a,b){function l(a){k=1;while(a=c.shift())a()}var c=[],d,e=!1,f=b.documentElement,g=f.doScroll,h="DOMContentLoaded",i="addEventListener",j="onreadystatechange",k=/^loade|c/.test(b.readyState);b[i]&&b[i](h,function a(){b.removeEventListener(h,a,e),l()},e),g&&b.attachEvent(j,d=function a(){/^c/.test(b.readyState)&&(b.detachEvent(j,a),l())}),a.domReady=g?function(a){self!=top?k?a():c.push(a):function(){try{f.doScroll("left")}catch(b){return setTimeout(function(){domReady(a)},50)}a()}()}:function(a){k?a():c.push(a)}}(this,document)
+
+      domReady(function () {
+        // subscribe box
+        document.getElementById('google-subscribe-email').onfocus = function(){
+          document.getElementById('google-subscribe-input').className = 'focus';
+        };
+        document.getElementById('google-subscribe-email').onblur = function(){
+          document.getElementById('google-subscribe-input').className = '';
+        };
+
+        // pretty print
+        prettyPrint();
+
+        // lame jsonp
+        var script = document.createElement('script');
+        script.src = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Fgroups.google.com%2Fgroup%2Fsocket_io%2Fabout%22%20and%20xpath%3D'%2F%2Fdiv%5B%40class%3D%5C'maincontbox%5C'%5D%2Ftable%2Ftr%5B1%5D%2Ftd%2Fp%5B1%5D'%0A&format=json&callback=getMembers";
+        document.head.appendChild(script);
+
+        // hash support
+        function onHash () {
+          if (!window.location.hash) return;
+          var id = window.location.hash.substr(1)
+            , el = document.getElementById('page-' + id);
+
+          if (el) {
+            if (document.getElementsByClassName('current').length) {
+              document.getElementsByClassName('current')[0].className = '';
+            }
+
+            document.getElementsByClassName('page-active')[0].className = 'page';
+            el.className = 'page page-active';
+
+            if (document.getElementById('menu-' + id)) {
+              document.getElementById('menu-' + id).className = 'current';
+            }
+          }
+
+          if (id == 'announcement') {
+            document.getElementById('section-announcement').style.display = 'none';
+          } else {
+            document.getElementById('section-announcement').style.display = 'block';
+          }
+        };
+
+        window.onhashchange = onHash;
+        onHash();
+      });
+    </script>
+  </head>
+<body>
+  <div id="wrap">
+    <div id="header"><div class="subtext">Introducing</div><a href="/" class="logo">Socket.IO</a><a href="http://github.com/learnboost/socket.io-node/tree/0.6.3" class="download"><span class="version">v</span><span class="number">.7</span></a></div>
+
+    <div id="content">
     
-    // lame jsonp
-    var script = document.createElement('script');
-    // yql: select * from html where url="http://groups.google.com/group/socket_io/about" and xpath='//div[@class=\'maincontbox\']/table/tr[1]/td/p[1]
-    script.src = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Fgroups.google.com%2Fgroup%2Fsocket_io%2Fabout%22%20and%20xpath%3D'%2F%2Fdiv%5B%40class%3D%5C'maincontbox%5C'%5D%2Ftable%2Ftr%5B1%5D%2Ftd%2Fp%5B1%5D'%0A&format=json&callback=getMembers";
-    document.head.appendChild(script);
-    
-  };
+      <div class="section">
+        <form action="http://groups.google.com/group/socket_io/boxsubscribe">
+           <a href="http://groups.google.com/group/socket_io" id="google-subscribe-link"><img src="images/groups.png" border="0"></a>
+           <div id="google-subscribe-input">
+             Email: <input type="text" name="email" id="google-subscribe-email">
+             <input type="submit" name="go" value="Subscribe">
+           </div>
+        </form>
+      </div>
 
-</script></head><body><div id="wrap"><div id="header"><div class="subtext">Introducing</div><a href="/" class="logo">Socket.IO</a><a href="http://github.com/learnboost/socket.io-node/tree/0.6.3" class="download"><span class="version">v</span><span class="number">.6</span></a></div><div id="content">
-  
-  <div class="section">
-    <form action="http://groups.google.com/group/socket_io/boxsubscribe">
-       <a href="http://groups.google.com/group/socket_io" id="google-subscribe-link"><img src="images/groups.png" border="0"></a>
-       <div id="google-subscribe-input">
-         Email: <input type="text" name="email" id="google-subscribe-email">
-         <input type="submit" name="go" value="Subscribe">
-       </div>
-    </form>
-  </div>
-  
-  <div class="section"><div class="title">Socket.IO</div><p><strong>Socket.IO</strong> aims to make realtime apps possible in every browser and mobile device, blurring the differences  between the different transport mechanisms. The client side API looks like this: </p><pre class="prettyprint">var socket = new io.Socket(); 
-socket.on('connect', function(){ 
-  socket.send('hi!'); 
-}) 
-socket.on('message', function(data){ 
-  alert(data);
-})
-socket.on('disconnect', function(){}) </pre><p>Under the hoods, Socket.IO will use  <b>feature detection </b>to decide if the connection will be established with WebSocket, AJAX long polling, etc  (see <a href="#transports">supported transports</a>), making creating realtime apps that work everywhere a snap. </p></div><div class="section"><div class="title">How to use (Node.JS)</div><p>1. Install `Socket.IO` with <a href="http://npmjs.org/">npm</a></p><pre class="prettyprint">npm install socket.io </pre><p>Or check out the repository with git and all its submodules</p><pre class="prettyprint">git clone git://github.com/LearnBoost/Socket.IO-node.git socket.io --recursive </pre><p>Then require() it and attach it to a node <a href="http://nodejs.org/api.html#http-server-157">http.Server</a></p><pre class="prettyprint">var http = require('http'),  
-    io = require('socket.io'), // for npm, otherwise use require('./path/to/socket.io') 
+      <div class="section">
+        <ul id="menu">
+          <li class="current" id="menu-home">
+            <a href="#home">Home</a>
+          </li>
+          <li id="menu-how-to-use">
+            <a href="#how-to-use">How to use</a>
+          </li>
+          <li id="menu-browser-support">
+            <a href="#browser-support">Browser Support</a>
+          </li>
+          <li id="menu-faq">
+            <a href="#faq">FAQ</a>
+          </li>
+        </ul>
+      </div>
 
-server = http.createServer(function(req, res){ 
- // your normal server code 
- res.writeHead(200, {'Content-Type': 'text/html'}); 
- res.end('&lt;h1&gt;Hello world&lt;/h1&gt;'); 
+      <div class="section" id="section-announcement">
+        <strong>NEW!</strong> The long-awaited Socket.IO 0.7 has been released.
+        <a href="#announcement">Read the announcement!</a>
+      </div>
+
+      <!-- announcement -->
+      <div class="page page-active" id="page-announcement">
+        <div class="section blogpost">
+          <div class="title big">Socket.IO 0.7 released</div>
+          <div class="subtitle small">By <a href="http://twitter.com/rauchg">Guillermo Rauch</a> - June 21, 2011</div>
+          <p>After a month under heavy development, Socket.IO 0.7 is finally here!</p>
+          <p>Socket.IO came out almost a year ago making the first solid steps in the cross-browser realtime space. Ever since then, a constant stream of feedback and support has made this release possible, the biggest yet, with dozens of improvements and bugfixes.</p>
+
+          <div class="subtitle">The project so far</div>
+          <ul>
+            <li>+1000 Google Groups members</li>
+            <li>+1600 GitHub followers</li>
+            <li>+50 projects in the ecosystem</li>
+            <li>+5 conference talks and meetups</li>
+            <li>+5 language implementations</li>
+          </ul>
+
+          <div class="subtitle">One socket is cool. You know what's cooler? >1 socket.</div>
+          <p>Socket.IO 0.7 addresses a major shortcoming of the WebSocket protocol. When you initialize a `WebSocket` in a browser, that one socket can only stream data for a single protocol or purpose, unless you build in logic to <em>channel messages</em>:</p>
+
+          <pre class="prettyprint">var a = new WebSocket();
+
+a.onmessage = function (msg) {
+  var msg = JSON.parse(msg);
+  if (msg.type == 'chat') {
+    Chat.handle(msg.data);
+  } else {
+    // do something else
+  }
+};</pre>
+
+          <p>This presents a number of problems</p>
+          <ol>
+            <li>You need to think about how you encode and interpret messages.</li>
+            <li>It's hard to achieve interoperability with 3rd-party code.</li>
+            <li>Logic for "connecting" or "disconnecting" specific parts of the application are inexistent.</li>
+            <li>Authentication, error-handling for different subsets of functionality introduce even more difficulties.</li>
+          </ol>
+
+          <p>To fix this, Socket.IO now gives you one `Socket` per <b>namespace</b> you define:</p>
+
+          <pre class="prettyprint">&lt;script&gt;
+  var chat = io.connect('/chat');
+  chat.on('message', fn);
+
+  var news = io.connect('/news');
+  news.on('item', fn);
+&lt;/script&gt;
+</pre>
+
+          <p>Each "sub-socket" or "namespace" has the same characteristics of any other Socket, but socket.io does the heavylifting of splitting the messages in a very lightweight and performant way. This technique is specially necessary for non-WebSocket transports, as they're usually associated with more than one connection.</p>
+
+          <div class="subtitle">`socket.on('item')` you say?</div>
+
+          <p>In my previous example I used a <em>custom event</em>. Custom events allow you to simplify your code, and their implementation adds no overhead to the protocol. This means that if you don't use them, not much will change.</p>
+
+          <pre class="prettyprint">
+// server-side
+io.sockets.on('connetion', function (socket) {
+  // send custom events to browser socket
+  socket.emit('hi', { 'i can send': 'json!' });
 });
-server.listen(80);
-  
-// socket.io 
-var socket = io.listen(server); 
-socket.on('connection', function(client){ 
-  // new client is here! 
-  client.on('message', function(){ … }) 
-  client.on('disconnect', function(){ … }) 
-}); </pre><p>On the client side</p><pre class="prettyprint">
-&lt;script src=&quot;http://{node_server_url}/socket.io/socket.io.js&quot;&gt;&lt;/script&gt; 
-&lt;script&gt; 
- var socket = new io.Socket({node_server_url}); 
- socket.connect();
- socket.on('connect', function(){ … }) 
- socket.on('message', function(){ … }) 
- socket.on('disconnect', function(){ … }) 
-&lt;/script&gt; </pre><p class="note">If you won't leverage Node.JS to serve your files, make sure to set the global `WEB_SOCKET_SWF_LOCATION` to the location of the WebSocketMain.swf file.</p></div><div class="section"><div class="title" id="transports">Supported transports</div><p>In order to provide realtime connectivity on every browser, Socket.IO selects the most capable transport at runtime, without it affecting the API. </p><ul><li>WebSocket</li><li>Adobe® Flash® Socket</li><li>AJAX long polling</li><li>AJAX multipart streaming</li><li>Forever Iframe</li><li>JSONP Polling</li></ul></div><div class="section"><div class="title">Supported browsers</div><div class="subtitle">Desktop</div><ul><li>Internet Explorer 5.5 - 8</li><li>Safari 3 - 5</li><li>Google Chrome 4 - 6</li><li>Firefox 3-4</li><li>Opera 10.61</li></ul><div class="subtitle">Mobile</div><ul><li>iPhone Safari</li><li>iPad Safari</li><li>Android WebKit</li><li>WebOs WebKit</li></ul></div><div class="section"><div class="title">In the wild</div><div class="subtitle">Applications</div><ul><li><a href="http://maprejuice.com/">MapRejuice</a></li><li><a href="http://inflatable-chum.no.de/">Inflatable Chum</a></li><li><a href="http://braintree.no.de/">Push Relay</a></li><li><a href="http://nodty.no.de/">Lost & Found</a></li><li><a href="http://speedo.no.de/">Speedo</a></li><li><a href="http://github.com/saikat/drawtogether">DrawTogether</a></li><li><a href="http://github.com/cramforce/streamie">Streamie</a></li><li><a href="http://github.com/mkilling/alfamegle">Alfamegle</a></li><li><a href="http://explorer-sox.no.de">GabberTalk</a><span>2010 Node KO winner</span></li><li><a href="http://starcraft2destroyedmymarrage.no.de/">Serrano</a><span>2010 Node KO winner</span></li><li><a href="http://github.com/arunjitsingh/socket-chat">Socket-Chat</a></li></ul><div class="subtitle">Games</div><ul><li><a href="http://swarmation.com">Swarmation</a><span>2010 Node KO winner</span></li><li><a href="http://demiox-boiko.no.de/">Gunpixel</a></li><li><a href="http://piston-hurricane.no.de/">Giant Robots</a><span>2010 Node KO winner</span></li><li><a href="http://virtual-design.no.de/">Massivetris</a></li><li><a href="http://fragnut.me/">Fragnut</a></li><li><a href="http://github.com/jacobthornton/space-tweet">Space Tweet</a></li><li><a href="http://github.com/gerad/lazeroids-node/">Lazeroids</a></li></ul><div class="subtitle">Frameworks / Components</div><ul><li><a href="http://github.com/substack/dnode">DNode</a></li><li><a href="http://github.com/bnoguchi/Socket.IO-connect">Socket.IO-connect</a></li><li><a href="http://github.com/saikat/socket-logger/">Socket-logger</a></li><li><a href="http://github.com/maccman/juggernaut">Juggernaut</a></li><li><a href="http://github.com/jamescarr/nodejs-amqp-example">AMPQ + Socket.IO</a></li></ul></div><div class="section"><div class="title">Server Implementations</div><p>Besides the official <a href="http://github.com/learnboost/socket.io-node">Node.JS server</a>, several implementations have been started for other languages / frameworks that are compatible with the <a href="http://github.com/learnboost/socket.io">Socket.IO client</a>: </p><ul><li><a href="https://github.com/MrJoes/tornadio">Python (Tornado)</a></li><li><a href="http://code.google.com/p/socketio-java/">Java</a></li><li><a href="http://github.com/madari/go-socket.io">Google GO</a></li><li><a href="http://github.com/markjeee/Socket.IO-rack">Rack</a></li></ul></div><div class="section"><div class="title">Resources</div><div class="subtitle">Articles</div><ul><li><a href="http://nodeknockout.posterous.com/countdown-to-knockout-post-9-websockets-every">Socket.IO and the history of the realtime web - Guillermo Rauch, Node Knockout Blog</a></li><li><a href="http://jeffkreeftmeijer.com/2010/things-i-learned-from-my-node.js-experiment/">Node.JS WebSocket experiment - Jeff Kreeftmeijer</a></li><li><a href="http://substack.net/posts/85e1bd/DNode-Asynchronous-Remote-Method-Invocation-for-Node-js-and-the-Browser">Asynchronous remote method invocation with DNode - James Halliday, SubStack blog</a></li></ul></div><div class="section"><div class="title">FAQ</div><div class="subtitle">Does Socket.IO support cross-domain connections?</div><p>Absolutely, on every browser!</p><div class="subtitle">Why Flash?</div><p>Flash is absolutely <b>not required</b>for Socket.IO to function. If Flash is available, it'll be leveraged, as it provides almost the same capabilities as WebSocket.  If it's not, the best next transport will be chosen. </p><div class="subtitle">I want to host the Socket.IO client myself</div><p>If you're not relying on Node.JS serving Socket.IO clientside JavaScript files, make sure you set the `WEB_SOCKET_SWF_LOCATION` right after including socket.io.js with the location of the WebSocketMain.swf</p><p>This is required in order for Socket.IO to find the .swf file required for Flash WebSocket.</p><div class="subtitle">Why not just call it `WebSocket` if the actual WebSocket is not present and mimick its API?</div><p>Socket.IO does more than WebSocket, even if WebSocket is selected as the transport and the user is browsing your website with an ultra modern browser. Certain features like heartbeats, timeouts and disconnection support are vital to realtime applications but are not provided by the WebSocket API out of the box. </p><p>This is akin to jQuery's decision of creating a feature-rich and simple $.ajax API as opposed to normalizing XMLHttpRequest.</p><p>Creating our own namespace io.Socket helps also avoid confusion and also makes it naturally extensible. You can add your own shortcut methods and alter the prototype without altering the original standard API. </p><div class="subtitle">Can I use Socket.IO with express / connect ?</div><p>Sure! Socket.IO only needs access to the http.Server instance of Node. Since all frameworks build on top of that API, Socket.IO is compatible with any framework out of the box. </p><p>This is an example of express and Socket.IO:</p><pre class="prettyprint">var app = express.createServer(); 
-app.get('/', function(req, res){ 
-   res.send('Hello World'); 
-}); 
-app.listen(3000); 
-  
-var io = require('socket.io'); 
-var socket = io.listen(app); 
-socket.on('connection', function(){ 
-  // … 
-}) </pre></div></div><div id="footer"><p>Socket.IO by  <a href="http://devthought.com">Guillermo Rauch</a> at <a href="http://learnboost.com">gradebook</a> <a href="http://github.com/learnboost/">LearnBoost Labs</a>. Released under the MIT license -  Copyright <a href="http://learnboost.com">LearnBoost 2010</a></p></div></div>
+</pre>
+
+          <p>If you pass parameters, those will be automatically encoded and decoded in JSON for you. In addition, you can pass data around:</p>
+
+          <pre class="prettyprint">
+// client-side
+var socket = io.connect();
+socket.emit('set nickname', 'john', function (response) [
+  console.log(response);
+});
+
+// server-side
+// …
+io.on('set nickname', function (nick, fn) {
+  if (nick == 'rauchg') {
+    fn({ err: 'nickname in use' });
+  }
+});
+</pre>
+        
+          <p>The regular `.send` method got simple acknowledgements as well. These are sent if you pass a function as the second parameter:</p>
+
+          <pre class="prettyprint">
+var socket = io.connect();
+socket.send('woot', function () {
+  // now i know my message arrived!
+});
+</pre>
+
+          <div class="subtitle">Volatile messages</div>
+
+          <p>Another introduction to the API was the concept of `flags`. Flags are getters that you prefix to the `.send` and `.emit` calls. One of them is `volatile`, which allows you to send messages at a rate that your client can consume them, dropping messages that cannot be flushed out fast enough.<p>
+
+          <p>This is very useful for games, high-volume twitter streams, etc.</p>
+
+          <pre class="prettyprint">
+io.sockets.on('connection', function (socket) {
+  setInterval(function () {
+    getTweet(function (tweet) {
+      socket.volatile.emit('tweet', tweet);
+    });
+  }, 100);
+});</pre>
+
+          <div class="subtitle">Rooms</div>
+
+          <p>Sometimes you want to put a bunch of sockets in one room, and send a message to them. You can leverage rooms by calling `join` on a socket, and then with the flags `to` and `in`:</p>
+
+          <pre class="prettyprint">
+io.sockets.on('connection', function (socket) {
+  socket.join('a room');
+  socket.broadcast.to('a room').send('im here');
+  io.sockets.in('some other room').emit('hi');
+});</pre>
+
+          <div class="subtitle">A Socket.IO Protocol</div>
+          <p>Socket.IO caught the attention of people inside and outside of the Node.JS world. </p>
+          <p>As a result, I created the <a href="https://github.com/learnboost/socket.io-spec">socket.io-spec</a> project to explain the internals of how the project works, and how the client and server talk to each other</p>
+
+          <p>Some changes to the protocol include:</p>
+          <ul>
+            <li>The protocol has been made more lightweight, more consistent and a concept of revisions have been introduced to ensure compatibility between clients and servers.</li>
+            <li>A new handshake mechanism that introduces a lightweight negotation of transports and timeouts. In addition, it allows to get more information about a certain client (like the `User-Agent`) that transports like WebSocket don't send.</li>
+            <li>Disconnection packets (that allow to forcedfully kick out clients)</li>
+            <li>And extended message types to make all the aforementioned features possible.</li>
+          </ul>
+
+          <div class="subtitle">Testing, code-sharing and more</div>
+          <p>The Node.JS socket.io server has tripled its number of tests, totaling <b>160</b> as I speak. This will help add and maintain high levels of reliability.</p>
+          <p>More interestingly, the new `socket.io-client` has been designed to run both on the client and the server with the same codebase. I wrote a custom test runner that allows the following to be possible:</p>
+
+          <img src="http://cl.ly/0w3a052A2R1f2F113W45/Image_2011.06.21_8_56_05_AM.png" width="310" />
+          <img src="http://cl.ly/3W1A2s3r0i3D0X0W291g/Image_2011.06.21_8_55_20_AM.png" width="450" />
+
+          <p>When the tests are run from the command line, the <em>transports</em> run on Node.JS. In some cases, almost no code modification is needed. For example, there's a WebSocket client by <a href="https://github.com/pgriess/node-websocket-client">Peter Griess</a> that simulates the exact same WebSocket API of the browser.</p>
+
+          <p>All it took to do this was wrap my client modules like this:</p>
+
+          <pre class="prettyprint">(function (module, io) {
+  // my module
+})(
+    'undefined' == typeof module ? module = {} : module
+  , 'undefined' == typeof io ? require('socket.io-client') : io
+);</pre>
+
+          <p>Write once. Run everywhere.</p>
+
+          <div class="subtitle">A new message dispatcher</div>
+          <p>Another major change was the introduction of the concept of <strong>message dispatcher adaptors</strong>. It's now possible to  introduce a custom message queue (like one built with RabbitMQ or Redis) at the socket.io level.</p>
+          <p>This makes socket.io not dependent on a single process to scale. The introduction of the first of these message adaptors is going to make socket.io more robust, reliable and fault-tolerant.</p>
+          <p>A blogpost will soon be dedicated entirely to this topic, stay tuned!</p>
+
+          <div class="subtitle">Thanks</div>
+          <p>Special thanks to the following people that made this release possible and awesome with their feedback and contributions:</p>
+          <ul>
+            <li>Arnout Kazemier (socket.io contributor)</li>
+            <li>Vladimir Dronnikov (socket.io contributor)</li>
+            <li>TJ Holowaychuk</li>
+            <li>Shripad K</li>
+            <li>Sascha Gehlich</li>
+            <li>Mikeal Rogers</li>
+          </ul>
+
+          <p>… and many others I'm probably forgeting about.</p>
+
+          <div class="subtitle">Future</div>
+          <p>Many exciting things are still to come. I'm going to make it a priority, now that the major architecture changes are out of the way, to have frequent small releases.</p>
+          <p>Soon, I'm going to unveil the framework we created at LearnBoost to seamlessly power realtime experiences in web applications created with the Express web framework.</p>
+          <p>As usual, I welcome everyone to help with bugfixes, documentation and wiki pages on <a href="http://github.com/learnboost/socket.io-node">GitHub</a>.</p>
+
+        </div>
+
+      </div>
+
+      <!-- home -->
+      <div class="page" id="page-home">
+        <div class="section">
+          <div class="title">What is Socket.IO?</div>
+          <p><strong>Socket.IO</strong> aims to make realtime apps possible in every
+          browser and mobile device, blurring the differences between the different
+          transport mechanisms. It's care-free realtime 100% in JavaScript.</p>
+
+          <div class="example">
+            <div class="example-left">
+              <p class="title">Server</p>
+              <pre class="prettyprint">var io = require('socket.io').listen(80);
+
+io.sockets.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
+});</pre>
+
+            </div>
+            <div class="example-right">
+              <p class="title">Client</p>
+              <pre class="prettyprint">&lt;script src=&quot;/socket.io/socket.io.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+  var socket = io.connect('http://localhost');
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('my other event', { my: 'data' });
+  });
+&lt;/script&gt;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- how to use -->
+      <div class="page" id="page-how-to-use">
+        <div class="section">
+          <div class="title">How to use</div>
+
+          <div class="subtitle">Installing</div>
+          <pre class="prettyprint">npm install socket.io</pre>
+          <br>
+
+          <!-- example -->
+          <div class="subtitle">Using with the Express web framework</div>
+          <p>You can serve normal pages and AJAX requests with Express, and attach your socket.io server:</p>
+          <div class="example">
+            <div class="example-left">
+              <p class="title">Server</p>
+              <pre class="prettyprint">var app = express.createServer();
+  , io = require('socket.io').listen(app);
+
+app.listen(80);
+
+io.sockets.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
+});</pre>
+            </div>
+            <div class="example-right">
+              <p class="title">Client</p>
+              <pre class="prettyprint">&lt;script src=&quot;/socket.io/socket.io.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+  var socket = io.connect('http://localhost');
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('my other event', { my: 'data' });
+  });
+&lt;/script&gt;</pre>
+            </div>
+          </div>
+
+          <!-- example -->
+          <div class="subtitle">Sending and receiving events.</div>
+          <p>Socket.IO allows you to emit and receive custom events. Besides `connect`, `message` and `disconnect`, you can emit custom events:</p>
+          <div class="example">
+            <div class="example-left example-left-long">
+              <p class="title">Server</p>
+              <pre class="prettyprint">// note, io.listen(<port>) will create a http server for you
+var io = require('socket.io').listen(80);
+
+io.sockets.on('connection', function (socket) {
+  io.sockets.emit('this', { will: 'be received by everyone');
+
+  socket.on('private message', function (from, msg) {
+    console.log('I received a private message by ', from, ' saying ', msg);
+  });
+
+  socket.on('disconnect', function () {
+    sockets.emit('user disconnected');
+  });
+});</pre>
+            </div>
+          </div>
+
+          <!-- example -->
+          <div class="subtitle">Storing data associated to a client</div>
+          <p>Sometimes it's necessary to store data associated with a client that's necessary for the duration of the session.</p>
+          <div class="example">
+            <div class="example-left">
+              <p class="title">Server</p>
+              <pre class="prettyprint">var io = require('socket.io').listen(80);
+
+io.sockets.on('connection', function (socket) {
+  socket.on('set nickname', function (name) {
+    socket.set('nickname', name, function () {
+      socket.emit('ready');
+    });
+  });
+
+  socket.on('msg', function () {
+    socket.get('nickname', function (name) {
+      console.log('Chat message by ', name);
+    });
+  });
+});</pre>
+            </div>
+            <div class="example-right">
+              <p class="title">Client</p>
+              <pre class="prettyprint">&lt;script src=&quot;/socket.io/socket.io.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+  var socket = io.connect('http://localhost');
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('my other event', { my: 'data' });
+  });
+&lt;/script&gt;</pre>
+            </div>
+          </div>
+
+          <!-- example -->
+          <div class="subtitle">Restricting yourself to a namespace.</div>
+          <p>If you have control over all the messages and events emitted for a particular application, using the default / namespace works. If you want to leverage 3rd-party code, or produce code to share with others, socket.io provides a way of namespacing a socket.</p>
+          <p>This has the benefit of `multiplexing` a single connection. Instead of socket.io using two `WebSocket` connections, it'll use one.</p>
+          <div class="example">
+            <div class="example-left">
+              <p class="title">Server</p>
+              <pre class="prettyprint">var io = require('socket.io').listen(80);
+
+var chat = io
+  .of('/chat');
+  .on('connection', function (socket) {
+    socket.emit('a message', {
+        that: 'only'
+      , '/chat': 'will get'
+    });
+    chat.emit('a message', {
+        everyone: 'in'
+      , '/chat': 'will get'
+    });
+  });
+
+var news = io
+  .of('/news');
+  .on('connection', function (socket) {
+    socket.emit('item', { news: 'item' });
+  });</pre>
+            </div>
+            <div class="example-right">
+              <p class="title">Client</p>
+              <pre class="prettyprint">&lt;script&gt;
+  var socket = io.connect('http://localhost/')
+    , chat = socket.of('/chat')
+    , news = socket.of('/news');
+
+  chat.on('connect', function () {
+    chat.emit('hi!');
+  });
+
+  news.on('news', function () {
+    news.emit('woot');
+  });
+&lt;/script&gt;</pre>
+            </div>
+          </div>
+
+          <!-- example -->
+          <div class="subtitle">Sending volatile messages.</div>
+          <p>Sometimes certain messages can be dropped. Let's say you have an app that shows realtime tweets for the keyword `bieber`.</p>
+          <p>If a certain client is not ready to receive messages (because of network slowness or other issues, or because he's connected through long polling and is in the middle of a request-response cycle), if he doesn't receive ALL the tweets related to bieber your application won't suffer.</p>
+          <p>In that case, you might want to send those messages as volatile messages.</p>
+          <div class="example">
+            <div class="example-left-long">
+              <p class="title">Server</p>
+              <pre class="prettyprint">var io = require('socket.io').listen(80);
+
+io.sockets.on('connection', function (socket) {
+  var tweets = setInterval(function () {
+    getBieberTweet(function (tweet) {
+      socket.volatile.emit('bieber tweet', tweet);
+    });
+  }, 100);
+
+  socket.on('disconnect', function () {
+    clearInterval(tweets);
+  });
+});</pre>
+            </div>
+          </div>
+
+          <!-- example -->
+          <div class="subtitle">Sending and getting data (acknowledgements).</div>
+          <p>Sometimes, you might want to get a callback when the client confirmed the message reception.</p>
+          <p>To do this, simply pass a function as the last parameter of `.send` or `.emit`. What's more, when you use `.emit`, the acknowledgement is done by you, which means you can also pass data along:</p>
+          <div class="example">
+            <div class="example-left">
+              <p class="title">Server</p>
+              <pre class="prettyprint">var io = require('socket.io').listen(80);
+
+io.sockets.on('connection', function (socket) {
+  socket.on('ferret', function (name, fn) {
+    fn('woot');
+  });
+});</pre>
+            </div>
+            <div class="example-right">
+              <p class="title">Client</p>
+              <pre class="prettyprint">&lt;script&gt;
+  var socket = io.connect(); // TIP: .connect with no args does auto-discovery
+  socket.on('connection', function () {
+    socket.emit('ferret', 'tobi', function (data) {
+      console.log(data); // data will be 'woot'
+    });
+  });
+&lt;/script&gt;</pre>
+            </div>
+          </div>
+
+          <!-- example -->
+          <div class="subtitle">Broadcasting messages.</div>
+          <p>To broadcast, simply add a `broadcast` flag to `emit` and `send` method calls. Broadcasting means sending a message to everyone else except for the socket that starts it.</p>
+          <div class="example">
+            <div class="example-left">
+              <p class="title">Server</p>
+              <pre class="prettyprint">var io = require('socket.io').listen(80);
+
+io.sockets.on('connection', function (socket) {
+  socket.broadcast.emit('user connected');
+});
+</pre>
+            </div>
+          </div>
+
+          <!-- example -->
+          <div class="subtitle">Using it just as a cross-browser WebSocket.</div>
+          <p>If you just want the WebSocket semantics, you can do that too. Simply leverage `send` and listen on the `message` event:</p>
+          <div class="example">
+            <div class="example-left">
+              <p class="title">Server</p>
+              <pre class="prettyprint">var io = require('socket.io-node').listen(80);
+
+io.sockets.on('connection', function (socket) {
+  socket.on('message', function () { });
+  socket.on('disconnect', function () { });
+});</pre>
+            </div>
+            <div class="example-right">
+              <p class="title">Client</p>
+              <pre class="prettyprint">&lt;script&gt;
+  var socket = io.connect('http://localhost/');
+  socket.on('connect', function () {
+    socket.send('hi');
+
+    socket.on('message', function (msg) {
+      // my msg
+    });
+  });
+&lt;/script&gt;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- browser support -->
+      <div class="page" id="page-browser-support">
+        <div class="section"><div class="title" id="transports">Supported transports</div><p>In order to provide realtime connectivity on every browser, Socket.IO selects the most capable transport at runtime, without it affecting the API. </p><ul><li>WebSocket</li><li>Adobe® Flash® Socket</li><li>AJAX long polling</li><li>AJAX multipart streaming</li><li>Forever Iframe</li><li>JSONP Polling</li></ul></div>
+        <div class="section"><div class="title">Supported browsers</div><div class="subtitle">Desktop</div><ul><li>Internet Explorer 5.5 - 8</li><li>Safari 3 - 5</li><li>Google Chrome 4 - 6</li><li>Firefox 3-4</li><li>Opera 10.61</li></ul><div class="subtitle">Mobile</div><ul><li>iPhone Safari</li><li>iPad Safari</li><li>Android WebKit</li><li>WebOs WebKit</li></ul></div>
+      </div>
+
+      <!-- faq -->
+      <div class="page" id="page-faq">
+        <div class="section"><div class="title">FAQ</div><div class="subtitle">Does Socket.IO support cross-domain connections?</div><p>Absolutely, on every browser!</p><div class="subtitle">Why Flash?</div><p>Flash is absolutely <b>not required</b>for Socket.IO to function. If Flash is available, it'll be leveraged, as it provides almost the same capabilities as WebSocket.  If it's not, the best next transport will be chosen. </p><div class="subtitle">I want to host the Socket.IO client myself</div><p>If you're not relying on Node.JS serving Socket.IO clientside JavaScript files, make sure you set the `WEB_SOCKET_SWF_LOCATION` right after including socket.io.js with the location of the WebSocketMain.swf</p><p>This is required in order for Socket.IO to find the .swf file required for Flash WebSocket.</p><div class="subtitle">Why not just call it `WebSocket` if the actual WebSocket is not present and mimick its API?</div><p>Socket.IO does more than WebSocket, even if WebSocket is selected as the transport and the user is browsing your website with an ultra modern browser. Certain features like heartbeats, timeouts and disconnection support are vital to realtime applications but are not provided by the WebSocket API out of the box. </p><p>This is akin to jQuery's decision of creating a feature-rich and simple $.ajax API as opposed to normalizing XMLHttpRequest.</p></div>
+      </div>
+
+    </div>
+    <div id="footer"><p>Socket.IO by  <a href="http://devthought.com">Guillermo Rauch</a> at <a href="http://learnboost.com">gradebook</a> <a href="http://github.com/learnboost/">LearnBoost Labs</a>. Released under the MIT license -  Copyright <a href="http://learnboost.com">LearnBoost 2011</a></p></div>
+  </div>
 
   <a href="http://github.com/learnboost/socket.io-node"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" /></a>
 
-</body></html>
+</body>
+</html>
