@@ -15,6 +15,11 @@
 
     'test connecting the socket and disconnecting': function (next) {
       var socket = create();
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
       socket.on('connect', function () {
         socket.disconnect();
         next();
@@ -25,6 +30,10 @@
       var socket = create()
         , connected = false
         , messages = 0;
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
 
       socket.on('connect', function () {
         connected = true;
@@ -45,6 +54,10 @@
     'test sending messages': function (next) {
       var socket = create();
 
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
       socket.on('connect', function () {
         socket.send('echo');
 
@@ -59,6 +72,10 @@
     'test acks sent from client': function (next) {
       var socket = create();
 
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
       socket.on('connect', function () {
         socket.on('message', function (msg) {
           if ('tobi 2' == msg) {
@@ -71,6 +88,10 @@
 
     'test acks sent from server': function (next) {
       var socket = create();
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
 
       socket.on('connect', function () {
         socket.send('ooo', function () {
@@ -88,6 +109,14 @@
         socket.of('').disconnect();
         next();
       }
+
+      socket.of('/woot').on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
+      socket.of('/chat').on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
 
       socket.of('/woot').on('message', function (msg) {
         msg.should().equal('connected to woot');
@@ -110,12 +139,20 @@
         next();
       };
 
+      socket.of('/a').on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
       socket.of('/a').on('connect', function () {
         socket.of('/a').disconnect();
       });
 
       socket.of('/a').on('disconnect', function () {
         --namespaces || finish();
+      });
+
+      socket.of('/b').on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
       });
 
       socket.of('/b').on('connect', function () {
@@ -130,6 +167,10 @@
     'test sending json from server': function (next) {
       var socket = create();
 
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
       socket.on('message', function (msg) {
         msg.should().eql(3141592);
         socket.disconnect();
@@ -139,6 +180,10 @@
 
     'test sending json from client': function (next) {
       var socket = create();
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
 
       socket.json.send([1, 2, 3]);
       socket.on('message', function (msg) {
@@ -151,6 +196,10 @@
     'test emitting an event from server': function (next) {
       var socket = create();
 
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
       socket.on('woot', function () {
         socket.disconnect();
         next();
@@ -159,6 +208,10 @@
 
     'test emitting an event to server': function (next) {
       var socket = create();
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
 
       socket.emit('woot');
       socket.on('echo', function () {
@@ -169,6 +222,10 @@
 
     'test emitting an event from server and sending back data': function (next) {
       var socket = create();
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
 
       socket.on('woot', function (a, fn) {
         a.should().eql(1);
@@ -183,6 +240,10 @@
 
     'test emitting an event to server and sending back data': function (next) {
       var socket = create();
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
 
       socket.emit('tobi', 1, 2, function (a) {
         a.should().eql({ hello: 'world' });
