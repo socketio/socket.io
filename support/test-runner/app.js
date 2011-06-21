@@ -92,11 +92,7 @@ var io = sio.listen(app);
 io.configure(function () {
   io.set('browser client handler', handler);
   io.set('transports', [
-      'websocket'
-    , 'flashsocket'
-    , 'htmlfile'
-    , 'xhr-polling'
-    , 'jsonp-polling'
+      'jsonp-polling'
   ]);
 });
 
@@ -117,7 +113,13 @@ function suite (name, fn) {
 
 function server (name, fn) {
   currentSuite[name] = port;
-  fn(sio.listen(port));
+
+  var io = sio.listen(port);
+  io.configure(function () {
+    io.set('transports', ['jsonp-polling']);
+  });
+
+  fn(io);
   port++;
 };
 
@@ -141,7 +143,7 @@ suite('socket.test.js', function () {
           clearInterval(interval);
           setTimeout(function () {
             socket.disconnect();
-          }, 300);
+          }, 500);
         }
       }, 50);
     });

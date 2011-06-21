@@ -2949,14 +2949,14 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     req.open(method || 'GET', this.prepareUrl() + '?t' + (+ new Date));
 
     if (method == 'POST') {
-      if (req.setRequestHeader) {
-        req.setRequestHeader('Content-type', 'text/plain;charset=UTF-8');
-      } else {
-        // XDomainRequest
-        try {
+      try {
+        if (req.setRequestHeader) {
+          req.setRequestHeader('Content-type', 'text/plain;charset=UTF-8');
+        } else {
+          // XDomainRequest
           req.contentType = 'text/plain';
-        } catch (e) {}
-      }
+        }
+      } catch (e) {}
     }
 
     return req;
@@ -3335,11 +3335,8 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   function JSONPPolling (socket) {
-    if (!socket) return;
-
     io.Transport['xhr-polling'].apply(this, arguments);
 
-    this.insertAt = document.getElementsByTagName('script')[0];
     this.index = io.j.length;
 
     var self = this;
@@ -3462,7 +3459,8 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       self.onClose();
     };
 
-    this.insertAt.parentNode.insertBefore(script, this.insertAt);
+    var insertAt = document.getElementsByTagName('script')[0]
+    insertAt.parentNode.insertBefore(script, insertAt);
     this.script = script;
   };
 
@@ -3475,7 +3473,9 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
   JSONPPolling.prototype._ = function (msg) {
     this.onData(msg);
-    this.get();
+    if (this.open) {
+      this.get();
+    }
     return this;
   };
 
