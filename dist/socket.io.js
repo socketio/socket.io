@@ -1363,9 +1363,12 @@
    */
 
   Transport.prototype.onClose = function () {
+    var self = this;
+
+    /* FIXME: reopen delay causing a infinit loop
     this.reopenTimeout = setTimeout(function () {
-      this.open();
-    }, this.socket.options['reopen delay']);
+      self.open();
+    }, this.socket.options['reopen delay']);*/
 
     this.setCloseTimeout();
     this.socket.onClose();
@@ -1587,9 +1590,12 @@
 
     this.handshake(function (sid, close, heartbeat, transports) {
       self.sessionid = sid;
-      self.closeTimeout = close;
-      self.heartbeatTimeout = heartbeat;
-      self.transports = io.util.intersect(transports.split(','), self.options.transports);
+      self.closeTimeout = close * 1000;
+      self.heartbeatTimeout = heartbeat * 1000;
+      self.transports = io.util.intersect(
+          transports.split(',')
+        , self.options.transports
+      );
       self.transport = self.getTransport();
 
       if (!self.transport) {
@@ -2876,6 +2882,28 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     this.sendXHR.send(data);
   };
+  
+  /**
+   * Disconnects the established `XHR` connection.
+   *
+   * @returns {Transport} 
+   * @api public
+   */
+
+  XHR.prototype.close = function () {
+    this.onClose();
+    return this;
+  };
+
+  /**
+   * Closes the connection
+   *
+   * @api private
+   */
+
+  XHR.prototype.close = function () {
+    this.onClose();
+  };
 
   /**
    * Handle the disconnect request.
@@ -2920,7 +2948,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     if (method == 'POST') {
       if (req.setRequestHeader) {
-        req.setRequestHeader('Content-type', 'text/plain');
+        req.setRequestHeader('Content-type', 'text/plain;charset=UTF-8');
       } else {
         // XDomainRequest
         try {
@@ -3351,7 +3379,6 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       form.action = this.prepareUrl() + '?t=' + (+new Date) + '&i=' + this.index;
       area.name = 'd';
       form.appendChild(area);
-      this.insertAt.parentNode.insertBefore(form, this.insertAt);
       document.body.appendChild(form);
 
       this.form = form;
