@@ -139,7 +139,9 @@ suite('socket.test.js', function () {
 
         if (messages == 3) {
           clearInterval(interval);
-          socket.disconnect();
+          setTimeout(function () {
+            socket.disconnect();
+          }, 300);
         }
       }, 50);
     });

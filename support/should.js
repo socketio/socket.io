@@ -35,7 +35,7 @@
    * Extend Object.prototype.
    */
 
-  try {
+  if ('object' == typeof process) {
     Object.defineProperty(
         Object.prototype
       , 'should'
@@ -56,7 +56,7 @@
           , enumerable: false
         }
     );
-  } catch (e) {
+  } else {
     Object.prototype.should = function () {
       return new Assertion(this.valueOf());
     };
@@ -397,7 +397,7 @@
   Assertion.prototype.contain = function (obj) {
     this.obj.should().be.an.instance.of(Array);
     this.assert(
-        ~this.obj.indexOf(obj)
+        ~indexOf(this.obj, obj)
       , 'expected ' + i(this.obj) + ' to contain ' + i(obj)
       , 'expected ' + i(this.obj) + ' to not contain ' + i(obj));
     return this;
@@ -426,8 +426,8 @@
       , len = keys.length;
 
     // Inclusion
-    ok = keys.every(function(key){
-      return ~actual.indexOf(key);
+    ok = every(keys, function(key){
+      return ~indexOf(actual, key);
     });
 
     // Strict
@@ -493,6 +493,41 @@
    */
 
   FlaggedAssertion.prototype = new Assertion;
+
+  /**
+   * Array every compatibility
+   *
+   * @see bit.ly/5Fq1N2
+   * @api public
+   */
+
+  function every (arr, fn, thisObj) {
+    var scope = thisObj || window;
+    for (var i = 0, j = arr.length; i < j; ++i) {
+      if (!fn.call(scope, arr[i], i, arr)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  /**
+   * Array indexOf compatibility.
+   *
+   * @see bit.ly/a5Dxa2
+   * @api public
+   */
+
+  function indexOf (arr, o, i) {
+    if (Array.prototype.indexOf) {
+      return Array.prototype.indexOf.call(arr, o, i);
+    }
+
+    for (var j = arr.length, i = i < 0 ? i + j < 0 ? 0 : i + j : i || 0
+        ; i < j && arr[i] !== o; i++);
+
+    return j <= i ? -1 : i;
+  };
 
   /**
    * Inspects an object.
@@ -612,11 +647,11 @@
             }
           }
         }
-        if (visible_keys.indexOf(key) < 0) {
+        if (indexOf(visible_keys, key) < 0) {
           name = '[' + key + ']';
         }
         if (!str) {
-          if (seen.indexOf(value[key]) < 0) {
+          if (indexOf(seen, value[key]) < 0) {
             if (recurseTimes === null) {
               str = format(value[key]);
             } else {
