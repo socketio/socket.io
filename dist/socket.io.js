@@ -2949,14 +2949,14 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     req.open(method || 'GET', this.prepareUrl() + '?t' + (+ new Date));
 
     if (method == 'POST') {
-      if (req.setRequestHeader) {
-        req.setRequestHeader('Content-type', 'text/plain;charset=UTF-8');
-      } else {
-        // XDomainRequest
-        try {
+      try {
+        if (req.setRequestHeader) {
+          req.setRequestHeader('Content-type', 'text/plain;charset=UTF-8');
+        } else {
+          // XDomainRequest
           req.contentType = 'text/plain';
-        } catch (e) {}
-      }
+        }
+      } catch (e) {}
     }
 
     return req;
