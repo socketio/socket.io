@@ -234,6 +234,8 @@ io.sockets.on('connection', function (socket) {
 ### Broadcasting messages
 
 To broadcast, simply add a `broadcast` flag to `emit` and `send` method calls.
+Broadcasting means sending a message to everyone else except for the socket
+that starts it.
 
 #### Server side
 
@@ -243,6 +245,26 @@ var io = require('socket.io').listen(80);
 io.sockets.on('connection', function (socket) {
   socket.broadcast.emit('user connected');
   socket.broadcast.json.send({ a: 'message' });
+});
+```
+
+### Rooms
+
+Sometimes you want to put certain sockets in the same room, so that it's easy
+to broadcast to all of them together.
+
+Think of this as built-in channels for sockets. Sockets `join` and `leave`
+rooms in each socket.
+
+#### Server side
+
+```js
+var io = require('socket.io').listen(80);
+
+io.sockets.on('connection', function (socket) {
+  socket.join('justin bieber fans');
+  socket.broadcast.to('justin bieber fans').emit('new fan');
+  io.sockets.in('rammstein fans').emit('new non-fan');
 });
 ```
 
