@@ -696,7 +696,7 @@
       var numLinesEst = 0;
       var length = reduce(output, function(prev, cur) {
         numLinesEst++;
-        if (cur.indexOf('\n') >= 0) numLinesEst++;
+        if (indexOf(cur, '\n') >= 0) numLinesEst++;
         return prev + cur.length + 1;
       }, 0);
 
