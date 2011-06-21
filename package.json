@@ -22,6 +22,7 @@
       , "express": "2.3.11"
       , "jade": "0.12.1"
       , "stylus": "0.13.3"
+      , "socket.io": "0.7.0"
       , "socket.io-client": "0.7.0"
     }
   , "engines": { "node": ">= 0.4.0" }
