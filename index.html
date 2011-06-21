@@ -158,10 +158,17 @@ a.onmessage = function (msg) {
 
           <pre class="prettyprint">&lt;script&gt;
   var chat = io.connect('/chat');
-  chat.on('message', fn);
+  chat.on('message', function () {
+    // chat socket messages
+  });
+  chat.on('disconnect', function () {
+    // chat disconnect event
+  });
 
   var news = io.connect('/news');
-  news.on('item', fn);
+  news.on('item', function () {
+    // a new `news` socket event is here
+  });
 &lt;/script&gt;
 </pre>
 
@@ -173,7 +180,7 @@ a.onmessage = function (msg) {
 
           <pre class="prettyprint">
 // server-side
-io.sockets.on('connetion', function (socket) {
+io.sockets.on('connection', function (socket) {
   // send custom events to browser socket
   socket.emit('hi', { 'i can send': 'json!' });
 });
@@ -190,7 +197,7 @@ socket.emit('set nickname', 'john', function (response) [
 
 // server-side
 // …
-io.on('set nickname', function (nick, fn) {
+socket.on('set nickname', function (nick, fn) {
   if (nick == 'rauchg') {
     fn({ err: 'nickname in use' });
   }
