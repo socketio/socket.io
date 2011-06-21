@@ -2980,7 +2980,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    * @api public
    */
 
-  XHR.check = function (xdomain) {
+  XHR.check = function (socket, xdomain) {
     try {
       if (io.util.request(xdomain)) {
         return true;
@@ -2998,7 +2998,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   XHR.xdomainCheck = function(){
-    return XHR.check(true);
+    return XHR.check(null, true);
   };
 
 })(
