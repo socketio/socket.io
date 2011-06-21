@@ -3050,23 +3050,6 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   HTMLFile.prototype.name = 'htmlfile';
 
   /**
-   * Starts the HTMLFile data stream for incoming messages. And registers a
-   * onunload event listener so the HTMLFile will be destroyed.
-   *
-   * @api private
-   */
-
-  HTMLFile.prototype.get = function () {
-    var self = this;
-
-    this.open();
-
-    io.util.on(window, 'unload', function () {
-      self.destroy();
-    });
-  };
-
-  /**
    * Creates a new ActiveX `htmlfile` with a forever loading iframe
    * that can be used to listen to messages. Inside the generated
    * `htmlfile` a reference will be made to the HTMLFile transport.
@@ -3074,7 +3057,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    * @api private
    */
 
-  HTMLFile.prototype.open = function () {
+  HTMLFile.prototype.get = function () {
     this.doc = new ActiveXObject('htmlfile');
     this.doc.open();
     this.doc.write('<html></html>');
@@ -3090,7 +3073,12 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     iframeC.appendChild(this.iframe);
 
     this.iframe.src = this.prepareUrl() + '/?t=' + (+ new Date);
-    this.onOpen();
+
+    var self = this;
+
+    io.util.on(window, 'unload', function () {
+      self.destroy();
+    });
   };
 
   /**
@@ -3105,8 +3093,10 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
   HTMLFile.prototype._ = function (data, doc) {
     this.onData(data);
-    var script = doc.getElementsByTagName('script')[0];
-    script.parentNode.removeChild(script);
+    try {
+      var script = doc.getElementsByTagName('script')[0];
+      script.parentNode.removeChild(script);
+    } catch (e) { }
   };
 
   /**
