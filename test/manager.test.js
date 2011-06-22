@@ -237,6 +237,26 @@ module.exports = {
     });
   },
 
+  'test that the cached client sends a 304 header': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+     io.configure(function () {
+      io.enable('browser client etag');
+    });
+
+    cl.get('/socket.io/socket.io.js', function (res, data) {
+      cl.get('/socket.io/socket.io.js', {headers:{'if-none-match':res.headers.etag}}, function (res, data) {
+        res.statusCode.should.eql(304);
+
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+  },
+
   'test that client minification works': function (done) {
     var port = ++ports
       , io = sio.listen(port)
