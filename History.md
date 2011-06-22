@@ -1,4 +1,12 @@
 
+0.7.2 / 2011-06-22
+==================
+
+  * Make sure to write a packet (of type `noop`) when closing a poll.
+    This solves a problem with cross-domain requests being flagged as aborted and
+    reconnection being triggered.
+  * Added `noop` message type.
+
 0.7.1 / 2011-06-21 
 ==================
 
