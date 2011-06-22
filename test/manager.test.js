@@ -247,7 +247,6 @@ module.exports = {
     });
 
     cl.get('/socket.io/socket.io.js', function (res, data) {
-      console.log(res.headers);
       cl.get('/socket.io/socket.io.js', {headers:{'if-none-match':res.headers.etag}}, function (res, data) {
         res.statusCode.should.eql(304);
 
