@@ -1,7 +1,7 @@
 {
     "name": "socket.io-client"
   , "description": "Socket.IO client for the browser and node.js"
-  , "version": "0.7.1"
+  , "version": "0.7.2"
   , "main" : "./lib/io.js"
   , "browserify": "./dist/socket.io.js"
   , "homepage": "http://socket.io"
