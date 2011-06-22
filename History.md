@@ -1,5 +1,11 @@
 
-0.0.1 / 2010-01-03
+0.7.1 / 2011-06-21 
 ==================
 
-  * Initial release
+  * Fixed cross-domain XHR.
+  * Added CORS test to xhr-polling suite.
+
+0.7.0 / 2010-06-21
+==================
+
+  * http://socket.io/announcement.html
