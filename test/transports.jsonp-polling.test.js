@@ -178,9 +178,10 @@ module.exports = {
       });
 
       // we rely on a small poll duration to close this request quickly
-      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, data) {
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
         res.statusCode.should.eql(200);
-        data.should.eql('');
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
         --total || finish();
       });
     });
@@ -459,8 +460,9 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, data) {
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         tobi();
 
@@ -649,9 +651,10 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, data) {
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
         res.statusCode.should.eql(200);
-        data.should.eql('');
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         cl.post(
             '/socket.io/{protocol}/jsonp-polling/' + sid
