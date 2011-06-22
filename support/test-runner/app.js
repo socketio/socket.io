@@ -116,7 +116,7 @@ function server (name, fn) {
 
   var io = sio.listen(port);
   io.configure(function () {
-    io.set('transports', ['jsonp-polling']);
+    io.set('transports', ['xhr-polling']);
   });
 
   fn(io);
