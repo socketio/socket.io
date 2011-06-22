@@ -102,31 +102,39 @@
     },
 
     'test connecting to namespaces': function (next) {
-      var socket = create().socket
-        , namespaces = 2;
+      var io = create()
+        , socket = io.socket
+        , namespaces = 2
+        , connect = 0;
 
       function finish () {
         socket.of('').disconnect();
+        connect.should().equal(3);
         next();
       }
 
-      socket.of('/woot').on('error', function (msg) {
-        throw new Error(msg || 'Received an error');
+      io.on('connect', function(){
+        connect++;
       });
 
-      socket.of('/chat').on('error', function (msg) {
-        throw new Error(msg || 'Received an error');
-      });
-
-      socket.of('/woot').on('message', function (msg) {
+      socket.of('/woot').on('connect', function () {
+        connect++;
+      }).on('message', function (msg) {
         msg.should().equal('connected to woot');
         --namespaces || finish();
+      }).on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
       });
 
-      socket.of('/chat').on('message', function (msg) {
+      socket.of('/chat').on('connect', function () {
+        connect++;
+      }).on('message', function (msg) {
         msg.should().equal('connected to chat');
         --namespaces || finish();
+      }).on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
       });
+
     },
 
     'test disconnecting from namespaces': function (next) {
