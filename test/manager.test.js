@@ -457,7 +457,8 @@ module.exports = {
         (!!data.headers).should.be.true;
 
         cl.end();
-        ws.close();
+        io.server.close();
+        ws.finishClose();
         done();
       });
     });
@@ -475,7 +476,8 @@ module.exports = {
 
     function close () {
       cl.end();
-      ws.close();
+      ws.finishClose();
+      io.server.close()
       done();
     }
 
