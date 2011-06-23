@@ -178,6 +178,6 @@ client = function (port) {
  */
 
 create = function (cl) {
-  console.error('');
+  console.log('');
   return io.listen(cl.port);
 };
