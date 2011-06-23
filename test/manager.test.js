@@ -436,31 +436,91 @@ module.exports = {
     });
   },
 
-  'test authorization data proxy to connection': function (done) {
+  'test handshake data proxy to connection': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , ws;
 
     io.configure(function () {
       function auth (data, fn) {
+        data.foo = 'bar';
         fn(null, true);
       }
 
       io.set('authorization', auth);
     });
 
-    io.sockets.on('connection', function (socket, data) {
-      data.protocol.should.eql(sio.protocol);
-      data.transport.should.eql('websocket');
-      (!!data.headers).should.be.true;
+    io.sockets.on('connection', function (socket) {
+      socket.data(function (err, data) {
+        data.protocol.should.eql(sio.protocol);
+        data.foo.should.eql('bar');
+        (!!data.headers).should.be.true;
 
-      cl.end();
-      ws.close();
-      done();
+        cl.end();
+        ws.close();
+        done();
+      });
     });
 
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
+    });
+  },
+
+  'test handshake data proxy to endpoint connections': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , calls = 0
+      , ws;
+
+    function close () {
+      cl.end();
+      ws.close();
+      done();
+    }
+
+    io.configure(function () {
+      function auth (data, fn) {
+        data.foo = 'bar';
+        fn(null, true);
+      }
+
+      io.set('authorization', auth);
+    });
+
+    io.of('/a').on('connection', function (socket) {
+      socket.data(function (err, data) {
+        data.protocol.should.eql(sio.protocol);
+        data.foo.should.eql('bar');
+        (!!data.headers).should.be.true;
+
+        ++calls == 2 && close();
+      });
+    });
+
+    io.of('/b').on('connection', function (socket) {
+      socket.data(function (err, data) {
+        data.protocol.should.eql(sio.protocol);
+        data.foo.should.eql('bar');
+        (!!data.headers).should.be.true;
+
+        ++calls == 2 && close();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+      ws.on('open', function () {
+        ws.packet({
+            type: 'connect'
+          , endpoint: '/a'
+        });
+
+        ws.packet({
+            type: 'connect'
+          , endpoint: '/b'
+        });
+      })
     });
   },
 
