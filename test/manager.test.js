@@ -436,6 +436,34 @@ module.exports = {
     });
   },
 
+  'test authorization data proxy to connection': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws;
+
+    io.configure(function () {
+      function auth (data, fn) {
+        fn(null, true);
+      }
+
+      io.set('authorization', auth);
+    });
+
+    io.sockets.on('connection', function (socket, data) {
+      data.protocol.should.eql(sio.protocol);
+      data.transport.should.eql('websocket');
+      (!!data.headers).should.be.true;
+
+      cl.end();
+      ws.close();
+      done();
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+    });
+  },
+
   'test a handshake error': function (done) {
     var port = ++ports
       , io = sio.listen(port)

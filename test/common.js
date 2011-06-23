@@ -12,7 +12,8 @@
 var io = require('socket.io')
   , parser = io.parser
   , http = require('http')
-  , https = require('https');
+  , https = require('https')
+  , WebSocket = require('../support/node-websocket-client/lib/websocket').WebSocket;
 
 /**
  * Exports.
@@ -180,4 +181,63 @@ client = function (port) {
 create = function (cl) {
   console.log('');
   return io.listen(cl.port);
+};
+
+
+/**
+ * WebSocket socket.io client.
+ *
+ * @api private
+ */
+
+function WSClient (port, sid) {
+  this.sid = sid;
+  this.port = port;
+
+  WebSocket.call(
+      this
+    , 'ws://localhost:' + port + '/socket.io/' 
+        + io.protocol + '/websocket/' + sid
+  );
+};
+
+/**
+ * Inherits from WebSocket.
+ */
+
+WSClient.prototype.__proto__ = WebSocket.prototype;
+
+/**
+ * Overrides message event emission.
+ *
+ * @api private
+ */
+
+WSClient.prototype.emit = function (name) {
+  var args = arguments;
+
+  if (name == 'message' || name == 'data') {
+    args[1] = parser.decodePacket(args[1].toString());
+  }
+
+  return WebSocket.prototype.emit.apply(this, arguments);
+};
+
+/**
+ * Writes a packet
+ */
+
+WSClient.prototype.packet = function (pack) {
+  this.write(parser.encodePacket(pack));
+  return this;
+};
+
+/**
+ * Creates a websocket client.
+ *
+ * @api public
+ */
+
+websocket = function (cl, sid) {
+  return new WSClient(cl.port, sid);
 };
