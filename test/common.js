@@ -53,10 +53,10 @@ HTTPClient.prototype.request = function (path, opts, fn) {
   opts.host = 'localhost';
   opts.port = this.port;
   opts.path = path.replace(/{protocol}/g, io.protocol);
-  opts.headers = {
-      'Host': 'localhost'
-    , 'Connection': 'keep-alive'
-  };
+
+  opts.headers = opts.headers || {};
+  opts.headers.Host = 'localhost';
+  opts.headers.Connection = 'keep-alive';
 
   var req = http.request(opts, function (res) {
     if (false === opts.buffer)
@@ -178,6 +178,6 @@ client = function (port) {
  */
 
 create = function (cl) {
-  console.error('');
+  console.log('');
   return io.listen(cl.port);
 };

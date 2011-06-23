@@ -178,9 +178,10 @@ module.exports = {
       });
 
       // we rely on a small poll duration to close this request quickly
-      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, data) {
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
         res.statusCode.should.eql(200);
-        data.should.eql('');
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
         --total || finish();
       });
     });
@@ -327,7 +328,7 @@ module.exports = {
         , parser.encodePacket({ type: 'disconnect' })
         , function (res, data) {
             res.statusCode.should.eql(200);
-            data.should.eql('');
+            data.should.eql('1');
           }
       );
 
@@ -398,7 +399,7 @@ module.exports = {
           ])
         , function (res, data) {
             res.statusCode.should.eql(200);
-            data.should.eql('');
+            data.should.eql('1');
           }
       );
 
@@ -459,8 +460,9 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, data) {
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         tobi();
 
@@ -507,7 +509,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/woot' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
             }
         );
       });
@@ -588,21 +590,21 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/woot' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/jsonp-polling/' + sid
                 , parser.encodePacket({ type: 'disconnect', endpoint: '/woot' })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    data.should.eql('1');
 
                     cl.post(
                         '/socket.io/{protocol}/jsonp-polling/' + sid
                       , parser.encodePacket({ type: 'message', data: 'ferret' })
                       , function (res, data) {
                           res.statusCode.should.eql(200);
-                          data.should.eql('');
+                          data.should.eql('1');
                         }
                     );
                   }
@@ -649,16 +651,17 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, data) {
+      cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
         res.statusCode.should.eql(200);
-        data.should.eql('');
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         cl.post(
             '/socket.io/{protocol}/jsonp-polling/' + sid
           , parser.encodePacket({ type: 'connect', endpoint: '/a' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
             }
         );
 
@@ -667,7 +670,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/b' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
             }
         );
       });
@@ -723,7 +726,7 @@ module.exports = {
           , parser.encodePacket({ type: 'message', data: '' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
             }
         );
 
@@ -732,14 +735,14 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/a' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/jsonp-polling/' + sid
                 , parser.encodePacket({ type: 'message', endpoint: '/a', data: 'a' })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    data.should.eql('1');
                   }
               );
             }
@@ -750,14 +753,14 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/b' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/jsonp-polling/' + sid
                 , parser.encodePacket({ type: 'message', endpoint: '/b', data: 'b' })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    data.should.eql('1');
                   }
               );
             }

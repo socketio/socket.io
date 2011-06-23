@@ -114,9 +114,10 @@ module.exports = {
       });
 
       // we rely on a small poll duration to close this request quickly
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
         res.statusCode.should.eql(200);
-        data.should.eql('');
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
         --total || finish();
       });
     });
@@ -263,7 +264,7 @@ module.exports = {
         , parser.encodePacket({ type: 'disconnect' })
         , function (res, data) {
             res.statusCode.should.eql(200);
-            data.should.eql('');
+            data.should.eql('1');
           }
       );
 
@@ -334,7 +335,7 @@ module.exports = {
           ])
         , function (res, data) {
             res.statusCode.should.eql(200);
-            data.should.eql('');
+            data.should.eql('1');
           }
       );
 
@@ -395,8 +396,10 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         tobi();
 
@@ -443,7 +446,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/woot' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
             }
         );
       });
@@ -524,21 +527,21 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/woot' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/xhr-polling/' + sid
                 , parser.encodePacket({ type: 'disconnect', endpoint: '/woot' })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    data.should.eql('1');
 
                     cl.post(
                         '/socket.io/{protocol}/xhr-polling/' + sid
                       , parser.encodePacket({ type: 'message', data: 'ferret' })
                       , function (res, data) {
                           res.statusCode.should.eql(200);
-                          data.should.eql('');
+                          data.should.eql('1');
                         }
                     );
                   }
@@ -585,16 +588,17 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        res.statusCode.should.eql(200);
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         cl.post(
             '/socket.io/{protocol}/xhr-polling/' + sid
           , parser.encodePacket({ type: 'connect', endpoint: '/a' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
             }
         );
 
@@ -603,7 +607,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/b' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
             }
         );
       });
@@ -659,7 +663,7 @@ module.exports = {
           , parser.encodePacket({ type: 'message', data: '' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
             }
         );
 
@@ -668,14 +672,14 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/a' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/xhr-polling/' + sid
                 , parser.encodePacket({ type: 'message', endpoint: '/a', data: 'a' })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    data.should.eql('1');
                   }
               );
             }
@@ -686,14 +690,14 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/b' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/xhr-polling/' + sid
                 , parser.encodePacket({ type: 'message', endpoint: '/b', data: 'b' })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    data.should.eql('1');
                   }
               );
             }
@@ -724,9 +728,10 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        res.statusCode.should.eql(200);
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         s.json.send(['a', 'b', 'c']);
         s.json.send({
@@ -785,9 +790,10 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        res.statusCode.should.eql(200);
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         cl.post(
             '/socket.io/{protocol}/xhr-polling/' + sid
@@ -795,8 +801,9 @@ module.exports = {
                 type: 'json'
               , data: { tobi: 'rocks' }
             })
-          , function (res) {
+          , function (res, data) {
               res.statusCode.should.eql(200);
+              data.should.equal('1');
 
               cl.post(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -804,8 +811,9 @@ module.exports = {
                       type: 'json'
                     , data: 5000
                   })
-                , function (res) {
+                , function (res, data) {
                     res.statusCode.should.eql(200);
+                    data.should.equal('1');
                   }
               );
             }
@@ -835,9 +843,10 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        res.statusCode.should.eql(200);
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         s.emit('tobi is playing');
 
@@ -877,9 +886,10 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        res.statusCode.should.eql(200);
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         s.emit('edwald', { woot: 'woot' }, [1, 2, 3]);
 
@@ -922,9 +932,10 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        res.statusCode.should.eql(200);
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         cl.post(
             '/socket.io/{protocol}/xhr-polling/' + sid
@@ -932,8 +943,9 @@ module.exports = {
                 type: 'event'
               , name: 'jane'
             })
-          , function (res) {
+          , function (res, data) {
               res.statusCode.should.eql(200);
+              data.should.equal('1');
             }
         );
       });
@@ -968,9 +980,10 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        res.statusCode.should.eql(200);
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         cl.post(
             '/socket.io/{protocol}/xhr-polling/' + sid
@@ -979,8 +992,9 @@ module.exports = {
               , name: 'woot'
               , args: ['a', 2, [1, 2]]
             })
-          , function (res) {
+          , function (res, data) {
               res.statusCode.should.eql(200);
+              data.should.equal('1');
             }
         );
       });
@@ -1008,15 +1022,17 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        res.statusCode.should.eql(200);
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         s.volatile.send('woooot');
 
-        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-          res.statusCode.should.eql(200);
-          data.should.eql('');
+        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+          res.statusCode.should.equal(200);
+          msgs.should.have.length(1);
+          msgs[0].should.eql({ type: 'noop', endpoint: '' });
         });
       });
     });
@@ -1043,15 +1059,17 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        res.statusCode.should.eql(200);
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         s.volatile.json.send('woooot');
 
-        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-          res.statusCode.should.eql(200);
-          data.should.eql('');
+        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+          res.statusCode.should.equal(200);
+          msgs.should.have.length(1);
+          msgs[0].should.eql({ type: 'noop', endpoint: '' });
         });
       });
     });
@@ -1078,15 +1096,17 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        res.statusCode.should.eql(200);
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         s.volatile.emit('woooot');
 
-        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-          res.statusCode.should.eql(200);
-          data.should.eql('');
+        cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+          res.statusCode.should.equal(200);
+          msgs.should.have.length(1);
+          msgs[0].should.eql({ type: 'noop', endpoint: '' });
         });
       });
     });
@@ -1232,9 +1252,10 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        res.statusCode.should.eql(200);
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         cl.post(
             '/socket.io/{protocol}/xhr-polling/' + sid
@@ -1246,7 +1267,7 @@ module.exports = {
             })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -1315,7 +1336,7 @@ module.exports = {
           })
         , function (res, data) {
             res.statusCode.should.eql(200);
-            data.should.eql('');
+            data.should.eql('1');
           }
       );
     });
@@ -1364,7 +1385,7 @@ module.exports = {
             })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
             }
         );
       });
@@ -1500,7 +1521,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -1566,7 +1587,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/a' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -1577,7 +1598,7 @@ module.exports = {
                   })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    data.should.eql('1');
                   }
               );
             }
@@ -1616,7 +1637,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -1674,7 +1695,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -1740,7 +1761,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/a' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -1751,7 +1772,7 @@ module.exports = {
                   })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    data.should.eql('1');
                   }
               );
             }
@@ -1800,7 +1821,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/a' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -1812,7 +1833,7 @@ module.exports = {
                   })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    data.should.eql('1');
                   }
               );
             }
@@ -1850,7 +1871,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               s.volatile.send('woot');
 
@@ -1902,7 +1923,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               s.volatile.json.send(15);
 
@@ -1954,7 +1975,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               s.volatile.json.emit('woot');
 
@@ -2006,7 +2027,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -2073,7 +2094,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -2140,7 +2161,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/chrislee' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -2211,7 +2232,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/tobi' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -2223,7 +2244,7 @@ module.exports = {
                   })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    data.should.eql('1');
 
                     cl.get(
                         '/socket.io/{protocol}/xhr-polling/' + sid
@@ -2286,7 +2307,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/tobi' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -2299,7 +2320,7 @@ module.exports = {
                   })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    data.should.eql('1');
 
                     cl.get(
                         '/socket.io/{protocol}/xhr-polling/' + sid
@@ -2362,7 +2383,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/tobi' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -2376,7 +2397,7 @@ module.exports = {
                   })
                 , function (res, data) {
                     res.statusCode.should.eql(200);
-                    data.should.eql('');
+                    data.should.eql('1');
 
                     cl.get(
                         '/socket.io/{protocol}/xhr-polling/' + sid
@@ -2438,7 +2459,7 @@ module.exports = {
           , parser.encodePacket({ type: 'connect', endpoint: '/woot' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -2466,7 +2487,7 @@ module.exports = {
                         })
                       , function (res, data) {
                           res.statusCode.should.eql(200);
-                          data.should.eql('');
+                          data.should.eql('1');
                         }
                     );
                   }
@@ -2505,16 +2526,17 @@ module.exports = {
     });
 
     cl.handshake(function (sid) {
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, data) {
-        res.statusCode.should.eql(200);
-        data.should.eql('');
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
 
         cl.post(
             '/socket.io/{protocol}/xhr-polling/' + sid
           , parser.encodePacket({ type: 'connect', endpoint: '/rapture' })
           , function (res, data) {
               res.statusCode.should.eql(200);
-              data.should.eql('');
+              data.should.eql('1');
 
               cl.get(
                   '/socket.io/{protocol}/xhr-polling/' + sid
@@ -2545,7 +2567,7 @@ module.exports = {
                         })
                       , function (res, data) {
                           res.statusCode.should.eql(200);
-                          data.should.eql('');
+                          data.should.eql('1');
                         }
                     );
                   }
@@ -2554,6 +2576,65 @@ module.exports = {
         );
       });
     });
-  }
+  },
+
+  'test CORS': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messaged = false;
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.send('woot');
+
+      socket.on('message', function (msg) {
+        msg.should.equal('woot');
+        messaged = true;
+      });
+
+      socket.on('disconnect', function () {
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, {
+        headers: {
+          Origin: 'http://localhost:3500'
+        }
+      }, function (res, packs) {
+        var headers = res.headers;
+
+        headers['access-control-allow-origin'].should.equal('*');
+        should.strictEqual(headers['access-control-allow-credentials'], undefined);
+
+        packs.should.have.length(1);
+        packs[0].type.should.eql('message');
+        packs[0].data.should.eql('woot');
+
+        cl.post('/socket.io/{protocol}/xhr-polling/' + sid, parser.encodePacket({
+            type: 'message'
+          , data: 'woot'
+        }), {
+          headers: {
+              Origin: 'http://localhost:3500'
+            , Cookie: 'woot=woot'
+          }
+        }, function (res, data) {
+          var headers = res.headers;
+          headers['access-control-allow-origin'].should.equal('*');
+          headers['access-control-allow-credentials'].should.equal('true');
+
+          data.should.equal('1');
+        });
+      });
+    });
+  },
 
 };

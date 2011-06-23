@@ -237,10 +237,36 @@ module.exports = {
     });
   },
 
-  'test that client minification works': function (done) {
+  'test that the cached client sends a 304 header': function (done) {
     var port = ++ports
       , io = sio.listen(port)
       , cl = client(port);
+
+     io.configure(function () {
+      io.enable('browser client etag');
+    });
+
+    cl.get('/socket.io/socket.io.js', function (res, data) {
+      cl.get('/socket.io/socket.io.js', {headers:{'if-none-match':res.headers.etag}}, function (res, data) {
+        res.statusCode.should.eql(304);
+
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+  },
+
+  'test that client minification works': function (done) {
+    // server 1
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    // server 2
+    var port = ++ports
+      , io2 = sio.listen(port)
+      , cl2 = client(port);
 
     io.configure(function () {
       io.enable('browser client minification');
@@ -251,11 +277,6 @@ module.exports = {
 
       cl.end();
       io.server.close();
-
-      // start a new server with minification enabled and compare lengths
-      var port = ++ports
-        , io2 = sio.listen(port)
-        , cl2 = client(port);
 
       cl2.get('/socket.io/socket.io.js', function (res, data) {
         res.headers['content-type'].should.eql('application/javascript');
