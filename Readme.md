@@ -277,7 +277,7 @@ Simply leverage `send` and listen on the `message` event:
 #### Server side
 
 ```js
-var io = require('socket.io-node').listen(80);
+var io = require('socket.io').listen(80);
 
 io.sockets.on('connection', function (socket) {
   socket.on('message', function () { });
@@ -307,7 +307,7 @@ Configuration in socket.io is TJ-style:
 #### Server side
 
 ```js
-var io = require('socket.io-node').listen(80);
+var io = require('socket.io').listen(80);
 
 io.configure(function () {
   io.set('transports', ['websocket', 'flashsocket', 'xhr-polling']);
