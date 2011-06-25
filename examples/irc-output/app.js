@@ -26,7 +26,7 @@ var app = express.createServer();
  */
 
 app.configure(function () {
-  app.use(stylus.middleware({ src: __dirname + '/public', compile: compile }))
+  app.use(stylus.middleware({ src: __dirname + '/public', compile: compile }));
   app.use(express.static(__dirname + '/public'));
   app.set('views', __dirname);
   app.set('view engine', 'jade');
@@ -59,7 +59,7 @@ app.listen(3000, function () {
  * Socket.IO server
  */
 
-var io = sio.listen(app)
+var io = sio.listen(app);
 
 /**
  * Connect to IRC.

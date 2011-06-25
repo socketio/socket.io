@@ -21,7 +21,7 @@ var sio = require('socket.io')
 
 function XHRPolling (port) {
   HTTPClient.call(this, port);
-};
+}
 
 /**
  * Inhertis from HTTPClient.
@@ -46,9 +46,7 @@ XHRPolling.prototype.handshake = function (opts, fn) {
   return this.get('/socket.io/{protocol}', opts, function (res, data) {
     var parts = data.split(':');
 
-    if (opts.ignoreConnect) {
-      return fn && fn.apply(null, parts);
-    }
+    if (opts.ignoreConnect) { return fn && fn.apply(null, parts); }
 
     // expect connect packet right after handshake
     self.get(
@@ -342,11 +340,9 @@ module.exports = {
       socket.on('message', function (data) {
         messages++;
 
-        if (messages == 1)
-          data.should.eql('a');
+        if (messages == 1) { data.should.eql('a'); }
 
-        if (messages == 2)
-          data.should.eql('b');
+        if (messages == 2) { data.should.eql('b'); }
       });
 
       socket.on('disconnect', function () {
@@ -775,11 +771,8 @@ module.exports = {
       socket.on('message', function (msg) {
         messages++;
 
-        if (messages == 1) {
-          msg.should.eql({ tobi: 'rocks' });
-        } else if (messages == 2) {
-          msg.should.eql(5000);
-        }
+        if (messages == 1) { msg.should.eql({ tobi: 'rocks' }); }
+        else if (messages == 2) { msg.should.eql(5000); }
       });
 
       socket.on('disconnect', function () {

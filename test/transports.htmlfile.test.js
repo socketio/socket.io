@@ -21,7 +21,7 @@ var sio = require('socket.io')
 
 function HTMLFile (port) {
   HTTPClient.call(this, port);
-};
+}
 
 /**
  * Inhertis from HTTPClient.
@@ -231,8 +231,7 @@ module.exports = {
           s.volatile.send('wooooot');
           cl = client(port);
           cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs) {
-            if (msgs && msgs.length)
-              messaged = true;
+            if (msgs && msgs.length) { messaged = true; }
           });
 
           setTimeout(function () {
@@ -275,8 +274,7 @@ module.exports = {
 
           cl = client(port);
           cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs) {
-            if (msgs && msgs.length)
-              messaged = true;
+            if (msgs && msgs.length) { messaged = true; }
           });
 
           setTimeout(function () {
@@ -319,8 +317,7 @@ module.exports = {
 
           cl = client(port);
           cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs) {
-            if (msgs && msgs.length)
-              messaged = true;
+            if (msgs && msgs.length) { messaged = true; }
           });
 
           setTimeout(function () {

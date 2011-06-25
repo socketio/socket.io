@@ -38,7 +38,7 @@ var Client = irc.Client = function(host, port) {
   this.nick = null;
   this.user = null;
   this.real = null;
-}
+};
 sys.inherits(Client, process.EventEmitter);
 
 Client.prototype.connect = function(nick, user, real) {
@@ -160,5 +160,5 @@ Client.prototype.onClose = function() {
 };
 
 exports.user = function(prefix) {
-  return prefix.match(/:([^!]+)!/)[1]
+  return prefix.match(/:([^!]+)!/)[1];
 };
