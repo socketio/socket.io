@@ -7,4 +7,4 @@ ws.addListener('data', function(buf) {
 });
 ws.onmessage = function(m) {
     sys.debug('Got message: ' + m);
-}
+};

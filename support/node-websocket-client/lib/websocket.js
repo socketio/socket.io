@@ -88,15 +88,12 @@ var secretKeyValue = function(sk) {
     for (var i = 0; i < sk.length; i++) {
         var cc = sk.charCodeAt(i);
         
-        if (cc == 0x20) {
-            ns++;
-        } else if (0x30 <= cc && cc <= 0x39) {
-            v = v * 10 + cc - 0x30;
-        }
+        if (cc == 0x20) { ns++; }
+        else if (0x30 <= cc && cc <= 0x39) { v = v * 10 + cc - 0x30; }
     }
 
     return Math.floor(v / ns);
-}
+};
 
 // Get the to-be-hashed value of a secret key string
 //
@@ -149,9 +146,7 @@ var str2hex = function(str) {
 // Get the scheme for a URL, undefined if none is found
 var getUrlScheme = function(url) {
     var i = url.indexOf(':');
-    if (i == -1) {
-        return undefined;
-    }
+    if (i == -1) { return undefined; }
 
     return url.substring(0, i);
 };
@@ -212,11 +207,8 @@ var WebSocket = function(url, proto, opts) {
     var frameFuncs = [
         // FRAME_NO
         function(buf, off) {
-            if (buf[off] & 0x80) {
-                frameType = FRAME_HI;
-            } else {
-                frameType = FRAME_LO;
-            }
+            if (buf[off] & 0x80) { frameType = FRAME_HI; }
+            else { frameType = FRAME_LO; }
 
             return 1;
         },
@@ -230,14 +222,12 @@ var WebSocket = function(url, proto, opts) {
                 ;
 
             // We didn't find a terminating byte
-            if (i >= buf.length) {
-                return 0;
-            }
+            if (i >= buf.length) { return 0; }
 
             // We found a terminating byte; collect all bytes into a single buffer
             // and emit it
             var mb = null;
-            if (bufs.length == 0) {
+            if (bufs.length === 0) {
                 mb = buf.slice(off, i);
             } else {
                 mb = new buffer.Buffer(bufsBytes + i);
@@ -253,9 +243,7 @@ var WebSocket = function(url, proto, opts) {
                 // Don't call Buffer.copy() if we're coping 0 bytes. Rather
                 // than being a no-op, this will trigger a range violation on
                 // the destination.
-                if (i > 0) {
-                    buf.copy(mb, mbOff, off, i);
-                }
+                if (i > 0) { buf.copy(mb, mbOff, off, i); }
 
                 // We consumed all of the buffers that we'd been saving; clear
                 // things out
@@ -271,9 +259,7 @@ var WebSocket = function(url, proto, opts) {
                     self.emit('data', b);
                     self.emit('message', m);        // wss compat
 
-                    if (self.onmessage) {
-                        self.onmessage({data: m});
-                    }
+                    if (self.onmessage) { self.onmessage({data: m}); }
                 };
             }());
 
@@ -285,9 +271,7 @@ var WebSocket = function(url, proto, opts) {
         function(buf, off) {
             debug('frame_hi(' + sys.inspect(buf) + ', ' + off + ')');
 
-            if (buf[off] !== 0) {
-                throw new Error('High-byte framing not supported.');
-            }
+            if (buf[off] !== 0) { throw new Error('High-byte framing not supported.'); }
 
             serverClosed = true;
             return 1;
@@ -296,9 +280,7 @@ var WebSocket = function(url, proto, opts) {
 
     // Handle data coming from our socket
     var dataListener = function(buf) {
-        if (buf.length <= 0 || serverClosed) {
-            return;
-        }
+        if (buf.length <= 0 || serverClosed) { return; }
 
         debug('dataListener(' + sys.inspect(buf) + ')');
 
@@ -306,9 +288,7 @@ var WebSocket = function(url, proto, opts) {
         var consumed = 0;
 
         do {
-            if (frameType < 0 || frameFuncs.length <= frameType) {
-                throw new Error('Unexpected frame type: ' + frameType);
-            }
+            if (frameType < 0 || frameFuncs.length <= frameType) { throw new Error('Unexpected frame type: ' + frameType); }
 
             assert.equal(bufs.length === 0, bufsBytes === 0);
             assert.ok(off < buf.length);
@@ -317,11 +297,9 @@ var WebSocket = function(url, proto, opts) {
             off += consumed;
         } while (!serverClosed && consumed > 0 && off < buf.length);
 
-        if (serverClosed) {
-            serverCloseHandler();
-        }
+        if (serverClosed) { serverCloseHandler(); }
         
-        if (consumed == 0) {
+        if (consumed === 0) {
             bufs.push(buf.slice(off, buf.length));
             bufsBytes += buf.length - off;
         }
@@ -337,9 +315,7 @@ var WebSocket = function(url, proto, opts) {
         process.nextTick(function() {
             self.emit('wserror', e);
 
-            if (self.onerror) {
-                self.onerror(e);
-            }
+            if (self.onerror) { self.onerror(e); }
         });
     };
 
@@ -356,9 +332,7 @@ var WebSocket = function(url, proto, opts) {
 
         process.nextTick(function() {
             self.emit('close');
-            if (self.onclose) {
-                self.onclose();
-            }
+            if (self.onclose) { self.onclose(); }
         });
     };
 
@@ -384,9 +358,7 @@ var WebSocket = function(url, proto, opts) {
         // 'data' event could be delivered with a readyState of CLOSING if we
         // received both frames in the same packet.
         process.nextTick(function() {
-            if (readyState === OPEN) {
-                sendClose();
-            }
+            if (readyState === OPEN) { sendClose(); }
 
             finishClose();
         });
@@ -402,16 +374,12 @@ var WebSocket = function(url, proto, opts) {
         } else if (readyState === OPEN) {
             sendClose();
 
-            if (timeout) {
-                setTimeout(finishClose, timeout * 1000);
-            }
+            if (timeout) { setTimeout(finishClose, timeout * 1000); }
         }
     };
 
     self.send = function(str, fd) {
-        if (readyState != OPEN) {
-            return;
-        }
+        if (readyState != OPEN) { return; }
 
         stream.write('\x00', 'binary');
         stream.write(str, 'utf8', fd);
@@ -432,9 +400,7 @@ var WebSocket = function(url, proto, opts) {
     // Connect and perform handshaking with the server
     (function() {
         // Parse constructor arguments 
-        if (!url) {
-            throw new Error('Url and must be specified.');
-        }
+        if (!url) { throw new Error('Url and must be specified.'); }
 
         // Secrets used for handshaking
         var key1 = createSecretKey();
@@ -453,12 +419,8 @@ var WebSocket = function(url, proto, opts) {
             'Sec-WebSocket-Key1' : key1,
             'Sec-WebSocket-Key2' : key2
         };
-        if (opts.origin) {
-            httpHeaders['Origin'] = opts.origin;
-        }
-        if (proto) {
-            httpHeaders['Sec-WebSocket-Protocol'] = proto;
-        }
+        if (opts.origin) { httpHeaders['Origin'] = opts.origin; }
+        if (proto) { httpHeaders['Sec-WebSocket-Protocol'] = proto; }
 
         var httpPath = '/';
 
@@ -495,9 +457,7 @@ var WebSocket = function(url, proto, opts) {
                 stream = s;
 
                 stream.on('data', function(d) {
-                    if (d.length <= 0) {
-                        return;
-                    }
+                    if (d.length <= 0) { return; }
 
                     if (!data) {
                         data = d;
@@ -532,9 +492,7 @@ var WebSocket = function(url, proto, opts) {
                                     )
                                 );
 
-                                if (self.onerror) {
-                                    self.onerror();
-                                }
+                                if (self.onerror) { self.onerror(); }
 
                                 finishClose();
                             });
@@ -556,15 +514,11 @@ var WebSocket = function(url, proto, opts) {
                         process.nextTick(function() {
                             self.emit('open');
 
-                            if (self.onopen) {
-                                self.onopen();
-                            }
+                            if (self.onopen) { self.onopen(); }
                         });
 
                         // Consume any leftover data
-                        if (data.length > 16) {
-                            stream.emit('data', data.slice(16, data.length));
-                        }
+                        if (data.length > 16) { stream.emit('data', data.slice(16, data.length)); }
                     }
                 });
                 stream.on('fd', fdListener);

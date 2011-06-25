@@ -34,7 +34,7 @@ function HTTPClient (port) {
       host: 'localhost'
     , port: port
   });
-};
+}
 
 /**
  * Issue a request
@@ -59,8 +59,7 @@ HTTPClient.prototype.request = function (path, opts, fn) {
   opts.headers.Connection = 'keep-alive';
 
   var req = http.request(opts, function (res) {
-    if (false === opts.buffer)
-      return fn && fn(res);
+    if (false === opts.buffer) { return fn && fn(res); }
 
     var buf = '';
 
@@ -75,8 +74,7 @@ HTTPClient.prototype.request = function (path, opts, fn) {
 
   req.on('error', function (err) { });
 
-  if (undefined !== opts.data)
-    req.write(opts.data);
+  if (undefined !== opts.data) { req.write(opts.data); }
 
   req.end();
 
@@ -115,7 +113,7 @@ HTTPClient.prototype.get = function (path, opts, fn) {
     // parser that might be necessary for transport-specific framing
     var transportParse = opts.parse;
     opts.parse = function (data) {
-      if (data === '') return data;
+      if (data === '') { return data; }
 
       data = transportParse ? transportParse(data) : data;
       return parser.decodePayload(data);

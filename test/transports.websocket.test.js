@@ -37,7 +37,7 @@ function WSClient (port, sid) {
     , 'ws://localhost:' + port + '/socket.io/' 
         + sio.protocol + '/websocket/' + sid
   );
-};
+}
 
 /**
  * Inherits from WebSocket.
@@ -54,9 +54,7 @@ WSClient.prototype.__proto__ = WebSocket.prototype;
 WSClient.prototype.emit = function (name) {
   var args = arguments;
 
-  if (name == 'message' || name == 'data') {
-    args[1] = parser.decodePacket(args[1].toString());
-  }
+  if (name == 'message' || name == 'data') { args[1] = parser.decodePacket(args[1].toString()); }
 
   return WebSocket.prototype.emit.apply(this, arguments);
 };
@@ -153,9 +151,7 @@ module.exports = {
           packet.type.should.eql('heartbeat');
           heartbeats++;
 
-          if (heartbeats == 1) {
-            ws.packet({ type: 'heartbeat' });
-          }
+          if (heartbeats == 1) { ws.packet({ type: 'heartbeat' }); }
         }
       });
     });
@@ -423,9 +419,7 @@ module.exports = {
     io.sockets.on('connection', function (socket) {
       connections++;
 
-      if (connections == 2) {
-        io.sockets.send('yup');
-      }
+      if (connections == 2) { io.sockets.send('yup'); }
 
       socket.on('disconnect', function () {
         disconnections++;
@@ -495,9 +489,7 @@ module.exports = {
     io.sockets.on('connection', function (socket) {
       connections++;
 
-      if (connections == 2) {
-        io.sockets.json.send({ a: 'b' });
-      }
+      if (connections == 2) { io.sockets.json.send({ a: 'b' }); }
 
       socket.on('disconnect', function () {
         disconnections++;
@@ -567,9 +559,7 @@ module.exports = {
     io.sockets.on('connection', function (socket) {
       connections++;
 
-      if (connections == 2) {
-        io.sockets.emit('tobi', 'rapture');
-      }
+      if (connections == 2) { io.sockets.emit('tobi', 'rapture'); }
 
       socket.on('disconnect', function () {
         disconnections++;
@@ -1268,8 +1258,7 @@ module.exports = {
     io.sockets.on('connection', function (socket) {
       connections++;
 
-      if (connections == 1)
-        socket.join('losers');
+      if (connections == 1) { socket.join('losers'); }
 
       socket.on('trigger broadcast', function () {
         socket.broadcast.to('losers').send('boom');
@@ -1367,8 +1356,7 @@ module.exports = {
     io.sockets.on('connection', function (socket) {
       connections++;
 
-      if (connections == 1)
-        socket.join('losers');
+      if (connections == 1) { socket.join('losers'); }
 
       socket.on('trigger broadcast', function () {
         socket.broadcast.json.to('losers').send({ hello: 'world' });
@@ -1466,9 +1454,7 @@ module.exports = {
     io.sockets.on('connection', function (socket) {
       connections++;
 
-      if (connections == 1) {
-        socket.join('losers');
-      }
+      if (connections == 1) { socket.join('losers'); }
 
       socket.on('trigger broadcast', function () {
         socket.broadcast.to('losers').emit('victory');

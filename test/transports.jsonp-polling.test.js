@@ -22,7 +22,7 @@ var sio = require('socket.io')
 
 function JSONPPolling (port) {
   HTTPClient.call(this, port);
-};
+}
 
 /**
  * Inhertis from HTTPClient.
@@ -57,9 +57,7 @@ JSONPPolling.prototype.handshake = function (opts, fn) {
 
         var parts = JSON.parse(data).split(':');
 
-        if (opts.ignoreConnect) {
-          return fn && fn.apply(null, parts);
-        }
+        if (opts.ignoreConnect) { return fn && fn.apply(null, parts); }
 
         // expect connect packet right after handshake
         self.get(
@@ -95,9 +93,7 @@ JSONPPolling.prototype.get = function (path, opts, fn) {
     var head = 'io.j[0]('
       , foot = ');';
 
-    if (~path.indexOf('?i=1')) {
-      head = 'io.j[1](';
-    }
+    if (~path.indexOf('?i=1')) { head = 'io.j[1]('; }
 
     data.substr(0, head.length).should.eql(head);
     data.substr(-foot.length).should.eql(foot);
@@ -406,11 +402,9 @@ module.exports = {
       socket.on('message', function (data) {
         messages++;
 
-        if (messages == 1)
-          data.should.eql('a');
+        if (messages == 1) { data.should.eql('a'); }
 
-        if (messages == 2)
-          data.should.eql('b');
+        if (messages == 2) { data.should.eql('b'); }
       });
 
       socket.on('disconnect', function () {

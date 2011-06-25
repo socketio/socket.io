@@ -25,7 +25,7 @@ var app = express.createServer();
  */
 
 app.configure(function () {
-  app.use(stylus.middleware({ src: __dirname + '/public', compile: compile }))
+  app.use(stylus.middleware({ src: __dirname + '/public', compile: compile }));
   app.use(express.static(__dirname + '/public'));
   app.set('views', __dirname);
   app.set('view engine', 'jade');
@@ -34,7 +34,7 @@ app.configure(function () {
     return stylus(str)
       .set('filename', path)
       .use(nib());
-  };
+  }
 });
 
 /**
@@ -86,7 +86,7 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('disconnect', function () {
-    if (!socket.nickname) return;
+    if (!socket.nickname) { return; }
 
     delete nicknames[socket.nickname];
     socket.broadcast.emit('announcement', socket.nickname + ' disconnected');
