@@ -451,16 +451,18 @@ module.exports = {
     });
 
     io.sockets.on('connection', function (socket) {
-      socket.data(function (err, data) {
-        data.protocol.should.eql(sio.protocol);
-        data.foo.should.eql('bar');
-        (!!data.headers).should.be.true;
+      var data = socket.data;
+ 
+      data.protocol.should.eql(sio.protocol);
+      data.foo.should.eql('bar');
+      data.transport.should.eql('websocket');
+      (!data.request).should.be.true;
+      (!!data.headers).should.be.true;
 
-        cl.end();
-        io.server.close();
-        ws.finishClose();
-        done();
-      });
+      cl.end();
+      io.server.close();
+      ws.finishClose();
+      done();
     });
 
     cl.handshake(function (sid) {
@@ -491,23 +493,23 @@ module.exports = {
     });
 
     io.of('/a').on('connection', function (socket) {
-      socket.data(function (err, data) {
-        data.protocol.should.eql(sio.protocol);
-        data.foo.should.eql('bar');
-        (!!data.headers).should.be.true;
+      var data = socket.data;
 
-        ++calls == 2 && close();
-      });
+      data.protocol.should.eql(sio.protocol);
+      data.foo.should.eql('bar');
+      (!!data.headers).should.be.true;
+
+      ++calls == 2 && close();
     });
 
     io.of('/b').on('connection', function (socket) {
-      socket.data(function (err, data) {
-        data.protocol.should.eql(sio.protocol);
-        data.foo.should.eql('bar');
-        (!!data.headers).should.be.true;
+      var data = socket.data;
 
-        ++calls == 2 && close();
-      });
+      data.protocol.should.eql(sio.protocol);
+      data.foo.should.eql('bar');
+      (!!data.headers).should.be.true;
+
+      ++calls == 2 && close();
     });
 
     cl.handshake(function (sid) {
