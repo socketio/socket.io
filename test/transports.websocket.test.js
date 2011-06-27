@@ -648,16 +648,15 @@ module.exports = {
       connections++;
 
       if (connections != 3) {
-        socket.join('woot', function () {
-          joins++;
+        socket.join('woot');
+        joins++;
 
-          if (joins == 2) {
-            setTimeout(function () {
-              connections.should.eql(3);
-              io.sockets.in('woot').send('hahaha');
-            }, 20);
-          }
-        });
+        if (joins == 2) {
+          setTimeout(function () {
+            connections.should.eql(3);
+            io.sockets.in('woot').send('hahaha');
+          }, 20);
+        }
       }
 
       socket.on('disconnect', function () {
@@ -760,16 +759,15 @@ module.exports = {
       connections++;
 
       if (connections != 3) {
-        socket.join('woot', function () {
-          joins++;
+        socket.join('woot');
+        joins++;
 
-          if (joins == 2) {
-            setTimeout(function () {
-              connections.should.eql(3);
-              io.sockets.in('woot').json.send(123);
-            }, 20);
-          }
-        });
+        if (joins == 2) {
+          setTimeout(function () {
+            connections.should.eql(3);
+            io.sockets.in('woot').json.send(123);
+          }, 20);
+        }
       }
 
       socket.on('disconnect', function () {
@@ -872,16 +870,15 @@ module.exports = {
       connections++;
 
       if (connections != 3) {
-        socket.join('woot', function () {
-          joins++;
+        socket.join('woot');
+        joins++;
 
-          if (joins == 2) {
-            setTimeout(function () {
-              connections.should.eql(3);
-              io.sockets.in('woot').emit('locki');
-            }, 20);
-          }
-        });
+        if (joins == 2) {
+          setTimeout(function () {
+            connections.should.eql(3);
+            io.sockets.in('woot').emit('locki');
+          }, 20);
+        }
       }
 
       socket.on('disconnect', function () {
@@ -1272,8 +1269,9 @@ module.exports = {
     io.sockets.on('connection', function (socket) {
       connections++;
 
-      if (connections == 1)
+      if (connections == 1) {
         socket.join('losers');
+      }
 
       socket.on('trigger broadcast', function () {
         socket.broadcast.to('losers').send('boom');
@@ -1371,8 +1369,9 @@ module.exports = {
     io.sockets.on('connection', function (socket) {
       connections++;
 
-      if (connections == 1)
+      if (connections == 1) {
         socket.join('losers');
+      }
 
       socket.on('trigger broadcast', function () {
         socket.broadcast.json.to('losers').send({ hello: 'world' });
