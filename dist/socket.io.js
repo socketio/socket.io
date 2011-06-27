@@ -88,10 +88,10 @@
     }
 
     if (!options['force new connection'] && socket) {
-      this.sockets[uuri] = socket;
+      io.sockets[uuri] = socket;
     }
 
-    socket = socket || this.sockets[uuri];
+    socket = socket || io.sockets[uuri];
 
     // if path is different from '' or /
     return socket.of(uri.path.length > 1 ? uri.path : '');
@@ -1248,7 +1248,7 @@
     }
 
     if (packet.type == 'connect' && packet.endpoint == ''){
-      return this.onConnect();
+      this.onConnect();
     }
 
     this.socket.onPacket(packet);
@@ -1750,7 +1750,7 @@
       // make sure to flush the buffer
       this.setBuffer(false);
     }
-    this.publish('connect');
+    this.emit('connect');
   };
 
   /**
@@ -3386,7 +3386,6 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       form.style.left = '-1000px';
       form.target = id;
       form.method = 'POST';
-      form.action = this.prepareUrl() + '?t=' + (+new Date) + '&i=' + this.index;
       area.name = 'd';
       form.appendChild(area);
       document.body.appendChild(form);
@@ -3394,6 +3393,8 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       this.form = form;
       this.area = area;
     }
+
+    this.form.action = this.prepareUrl() + '?t=' + (+new Date) + '&i=' + this.index;
 
     function complete () {
       initIframe();
