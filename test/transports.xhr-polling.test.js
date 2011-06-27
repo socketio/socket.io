@@ -113,7 +113,6 @@ module.exports = {
         --total || finish();
       });
 
-      // we rely on a small poll duration to close this request quickly
       cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
         res.statusCode.should.eql(200);
         msgs.should.have.length(1);
@@ -180,7 +179,6 @@ module.exports = {
         msgs.should.have.length(1);
         msgs[0].type.should.eql('connect');
 
-        // here we close the request instead of relying on a small poll timeout
         setTimeout(function () {
           cl.end();
         }, 10);

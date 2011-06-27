@@ -89,7 +89,8 @@ module.exports = {
   'test that not responding to a heartbeat drops client': function (done) {
     var cl = client(++ports)
       , io = create(cl)
-      , messages = 0;
+      , messages = 0
+      , ws;
 
     io.configure(function () {
       io.set('heartbeat interval', .05);
@@ -103,13 +104,14 @@ module.exports = {
         reason.should.eql('heartbeat timeout');
 
         cl.end();
+        ws.finishClose();
         io.server.close();
         done();
       });
     });
 
     cl.handshake(function (sid) {
-      var ws = websocket(cl, sid);
+      ws = websocket(cl, sid);
       ws.on('message', function (packet) {
         if (++messages == 1) {
           packet.type.should.eql('connect');
@@ -125,7 +127,8 @@ module.exports = {
     var cl = client(++ports)
       , io = create(cl)
       , messages = 0
-      , heartbeats = 0;
+      , heartbeats = 0
+      , ws;
 
     io.configure(function () {
       io.set('heartbeat interval', .05);
@@ -139,13 +142,14 @@ module.exports = {
         reason.should.eql('heartbeat timeout');
 
         cl.end();
+        ws.finishClose();
         io.server.close();
         done();
       });
     });
 
     cl.handshake(function (sid) {
-      var ws = websocket(cl, sid);
+      ws = websocket(cl, sid);
       ws.on('message', function (packet) {
         if (++messages == 1) {
           packet.type.should.eql('connect');
@@ -644,16 +648,15 @@ module.exports = {
       connections++;
 
       if (connections != 3) {
-        socket.join('woot', function () {
-          joins++;
+        socket.join('woot');
+        joins++;
 
-          if (joins == 2) {
-            setTimeout(function () {
-              connections.should.eql(3);
-              io.sockets.in('woot').send('hahaha');
-            }, 20);
-          }
-        });
+        if (joins == 2) {
+          setTimeout(function () {
+            connections.should.eql(3);
+            io.sockets.in('woot').send('hahaha');
+          }, 20);
+        }
       }
 
       socket.on('disconnect', function () {
@@ -756,16 +759,15 @@ module.exports = {
       connections++;
 
       if (connections != 3) {
-        socket.join('woot', function () {
-          joins++;
+        socket.join('woot');
+        joins++;
 
-          if (joins == 2) {
-            setTimeout(function () {
-              connections.should.eql(3);
-              io.sockets.in('woot').json.send(123);
-            }, 20);
-          }
-        });
+        if (joins == 2) {
+          setTimeout(function () {
+            connections.should.eql(3);
+            io.sockets.in('woot').json.send(123);
+          }, 20);
+        }
       }
 
       socket.on('disconnect', function () {
@@ -868,16 +870,15 @@ module.exports = {
       connections++;
 
       if (connections != 3) {
-        socket.join('woot', function () {
-          joins++;
+        socket.join('woot');
+        joins++;
 
-          if (joins == 2) {
-            setTimeout(function () {
-              connections.should.eql(3);
-              io.sockets.in('woot').emit('locki');
-            }, 20);
-          }
-        });
+        if (joins == 2) {
+          setTimeout(function () {
+            connections.should.eql(3);
+            io.sockets.in('woot').emit('locki');
+          }, 20);
+        }
       }
 
       socket.on('disconnect', function () {
@@ -1268,8 +1269,9 @@ module.exports = {
     io.sockets.on('connection', function (socket) {
       connections++;
 
-      if (connections == 1)
+      if (connections == 1) {
         socket.join('losers');
+      }
 
       socket.on('trigger broadcast', function () {
         socket.broadcast.to('losers').send('boom');
@@ -1367,8 +1369,9 @@ module.exports = {
     io.sockets.on('connection', function (socket) {
       connections++;
 
-      if (connections == 1)
+      if (connections == 1) {
         socket.join('losers');
+      }
 
       socket.on('trigger broadcast', function () {
         socket.broadcast.json.to('losers').send({ hello: 'world' });
