@@ -89,7 +89,8 @@ module.exports = {
   'test that not responding to a heartbeat drops client': function (done) {
     var cl = client(++ports)
       , io = create(cl)
-      , messages = 0;
+      , messages = 0
+      , ws;
 
     io.configure(function () {
       io.set('heartbeat interval', .05);
@@ -103,13 +104,14 @@ module.exports = {
         reason.should.eql('heartbeat timeout');
 
         cl.end();
+        ws.finishClose();
         io.server.close();
         done();
       });
     });
 
     cl.handshake(function (sid) {
-      var ws = websocket(cl, sid);
+      ws = websocket(cl, sid);
       ws.on('message', function (packet) {
         if (++messages == 1) {
           packet.type.should.eql('connect');
@@ -125,7 +127,8 @@ module.exports = {
     var cl = client(++ports)
       , io = create(cl)
       , messages = 0
-      , heartbeats = 0;
+      , heartbeats = 0
+      , ws;
 
     io.configure(function () {
       io.set('heartbeat interval', .05);
@@ -139,13 +142,14 @@ module.exports = {
         reason.should.eql('heartbeat timeout');
 
         cl.end();
+        ws.finishClose();
         io.server.close();
         done();
       });
     });
 
     cl.handshake(function (sid) {
-      var ws = websocket(cl, sid);
+      ws = websocket(cl, sid);
       ws.on('message', function (packet) {
         if (++messages == 1) {
           packet.type.should.eql('connect');
