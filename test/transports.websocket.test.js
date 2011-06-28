@@ -1559,7 +1559,8 @@ module.exports = {
       , ws;
 
     io.sockets.on('connection', function (socket) {
-      socket.handshake.ip.should.equal('127.0.0.1');
+      socket.handshake.address.address.should.equal('127.0.0.1');
+      socket.handshake.address.port.should.equal(ports);
       socket.handshake.headers.host.should.equal('localhost');
       socket.handshake.headers.connection.should.equal('keep-alive');
       socket.handshake.time.should.match(/GMT/);
