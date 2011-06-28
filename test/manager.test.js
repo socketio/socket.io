@@ -436,6 +436,98 @@ module.exports = {
     });
   },
 
+  'test handshake data proxy to connection': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws;
+
+    io.configure(function () {
+      function auth (data, fn) {
+        data.foo = 'bar';
+        fn(null, true);
+      }
+
+      io.set('authorization', auth);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      var data = socket.data;
+ 
+      data.protocol.should.eql(sio.protocol);
+      data.foo.should.eql('bar');
+      data.transport.should.eql('websocket');
+      (!data.request).should.be.true;
+      (!!data.headers).should.be.true;
+
+      cl.end();
+      io.server.close();
+      ws.finishClose();
+      done();
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+    });
+  },
+
+  'test handshake data proxy to endpoint connections': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , calls = 0
+      , ws;
+
+    function close () {
+      cl.end();
+      ws.finishClose();
+      io.server.close()
+      done();
+    }
+
+    io.configure(function () {
+      function auth (data, fn) {
+        data.foo = 'bar';
+        fn(null, true);
+      }
+
+      io.set('authorization', auth);
+    });
+
+    io.of('/a').on('connection', function (socket) {
+      var data = socket.data;
+
+      data.protocol.should.eql(sio.protocol);
+      data.foo.should.eql('bar');
+      (!!data.headers).should.be.true;
+
+      ++calls == 2 && close();
+    });
+
+    io.of('/b').on('connection', function (socket) {
+      var data = socket.data;
+
+      data.protocol.should.eql(sio.protocol);
+      data.foo.should.eql('bar');
+      (!!data.headers).should.be.true;
+
+      ++calls == 2 && close();
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+      ws.on('open', function () {
+        ws.packet({
+            type: 'connect'
+          , endpoint: '/a'
+        });
+
+        ws.packet({
+            type: 'connect'
+          , endpoint: '/b'
+        });
+      })
+    });
+  },
+
   'test a handshake error': function (done) {
     var port = ++ports
       , io = sio.listen(port)
