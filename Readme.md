@@ -149,9 +149,8 @@ var news = io
 
 ```html
 <script>
-  var socket = io.connect('http://localhost/')
-    , chat = socket.of('/chat')
-    , news = socket.of('/news');
+  var chat = io.connect('http://localhost/chat')
+    , news = io.connect('http://localhost/news');
 
   chat.on('connect', function () {
     chat.emit('hi!');
