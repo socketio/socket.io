@@ -1,4 +1,3 @@
-
 # Socket.IO
 
 Socket.IO is a Node.JS project that makes WebSockets and realtime possible in
@@ -89,7 +88,7 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('msg', function () {
-    socket.get('nickname', function (name) {
+    socket.get('nickname', function (err, name) {
       console.log('Chat message by ', name);
     });
   });
