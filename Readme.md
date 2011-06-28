@@ -1,4 +1,3 @@
-
 # Socket.IO
 
 Socket.IO is a Node.JS project that makes WebSockets and realtime possible in
@@ -89,7 +88,7 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('msg', function () {
-    socket.get('nickname', function (name) {
+    socket.get('nickname', function (err, name) {
       console.log('Chat message by ', name);
     });
   });
@@ -149,9 +148,8 @@ var news = io
 
 ```html
 <script>
-  var socket = io.connect('http://localhost/')
-    , chat = socket.of('/chat')
-    , news = socket.of('/news');
+  var chat = io.connect('http://localhost/chat')
+    , news = io.connect('http://localhost/news');
 
   chat.on('connect', function () {
     chat.emit('hi!');
@@ -277,7 +275,7 @@ Simply leverage `send` and listen on the `message` event:
 #### Server side
 
 ```js
-var io = require('socket.io-node').listen(80);
+var io = require('socket.io').listen(80);
 
 io.sockets.on('connection', function (socket) {
   socket.on('message', function () { });
@@ -307,7 +305,7 @@ Configuration in socket.io is TJ-style:
 #### Server side
 
 ```js
-var io = require('socket.io-node').listen(80);
+var io = require('socket.io').listen(80);
 
 io.configure(function () {
   io.set('transports', ['websocket', 'flashsocket', 'xhr-polling']);
