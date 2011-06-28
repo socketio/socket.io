@@ -1586,6 +1586,68 @@ module.exports = {
         }
       });
     });
+  },
+
+  'test accessing the array of clients': function (done) {
+    var port = ++ports
+      , cl1 = client(port)
+      , cl2 = client(port)
+      , io = create(cl1)
+      , total = 2
+      , ws1, ws2;
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('join ferrets', function () {
+        socket.join('ferrets');
+        socket.send('done');
+      });
+    });
+
+    function check() {
+      io.sockets.clients('ferrets').should.have.length(1);
+      io.sockets.clients('ferrets')[0].should.be.an.instanceof(sio.Socket);
+      io.sockets.clients('ferrets')[0].id.should.equal(ws1.sid);
+      io.sockets.clients().should.have.length(2);
+      io.sockets.clients()[0].should.be.an.instanceof(sio.Socket);
+      io.sockets.clients()[0].id.should.equal(ws1.sid);
+      io.sockets.clients()[1].should.be.an.instanceof(sio.Socket);
+      io.sockets.clients()[1].id.should.equal(ws2.sid);
+
+      ws1.finishClose();
+      ws2.finishClose();
+      cl1.end();
+      cl2.end();
+      io.server.close();
+      done();
+    };
+
+    cl1.handshake(function (sid) {
+      ws1 = websocket(cl1, sid);
+      ws1.sid = sid;
+      ws1.on('message', function (msg) {
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+          ws1.packet({
+              type: 'event'
+            , name: 'join ferrets'
+            , endpoint: ''
+          });
+        } else {
+          cl2.handshake(function (sid) {
+            ws2 = websocket(cl2, sid);
+            ws2.sid = sid;
+            ws2.on('message', function (msg) {
+              if (!ws2.connected) {
+                msg.type.should.eql('connect');
+                ws2.connected = true;
+                check();
+              }
+            });
+          });
+        }
+      });
+    });
   }
 
 };
