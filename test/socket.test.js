@@ -182,13 +182,13 @@
 
       socket.of('/a')
         .on('connect_failed', function (msg) {
-          console.log('winning');
           next();
         })
         .on('error', function (msg) {
           throw new Error(msg || 'Received an error');
         });
     },
+
     'test sending json from server': function (next) {
       var socket = create();
 
