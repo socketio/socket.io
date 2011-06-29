@@ -207,6 +207,34 @@ module.exports = {
         });
       });
     });
+  },
+
+  'test destroy expiration': function (done) {
+    var store = new RedisStore()
+      , id = Math.abs(Math.random() * Date.now() | 0)
+      , client = store.client(id);
+
+    client.set('a', 'b', function (err) {
+      should.strictEqual(err, null);
+      store.destroyClient(id, 1);
+
+      setTimeout(function () {
+        client.get('a', function (err, val) {
+          should.strictEqual(err, null);
+          val.should.equal('b');
+        });
+      }, 500);
+
+      setTimeout(function () {
+        client.get('a', function (err, val) {
+          should.strictEqual(err, null);
+          should.strictEqual(val, null);
+
+          store.destroy();
+          done();
+        });
+      }, 1900);
+    });
   }
 
 };
