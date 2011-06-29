@@ -1582,6 +1582,65 @@ module.exports = {
         }
       });
     });
-  }
+  },
 
+  'test for intentional and unintentional disconnects': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , calls = 0
+      , ws;
+
+    function close () {
+      cl.end();
+      io.server.close();
+      ws.finishClose();
+      done();
+    }
+
+    io.configure(function () {
+      io.set('heartbeat interval', .05);
+      io.set('heartbeat timeout', .05);
+      io.set('close timeout', 0);
+    });
+
+    io.of('/foo').on('connection', function (socket) {
+      socket.on('disconnect', function (reason) {
+       reason.should.equal('packet');
+
+       if (++calls == 2) close();
+      });
+    });
+
+    io.of('/bar').on('connection', function (socket) {
+      socket.on('disconnect', function (reason) {
+        reason.should.equal('socket end');
+
+        if (++calls == 2) close();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      var messages = 0;
+      ws = websocket(cl, sid);
+      ws.on('open', function () {
+        ws.packet({
+            type: 'connect'
+          , endpoint: '/foo'
+        });
+        ws.packet({
+            type: 'connect'
+          , endpoint: '/bar'
+        });
+      });
+
+      ws.on('message', function (packet) {
+        if (packet.type == 'connect') {
+          if (++messages === 3) {
+            ws.packet({ type: 'disconnect', endpoint:'/foo' });
+            ws.finishClose();
+          }
+        }
+      });
+    });
+  }
 };
