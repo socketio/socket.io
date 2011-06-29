@@ -558,7 +558,7 @@ io.sockets.on('connection', function (socket) {
           <div class="example">
             <div class="example-left">
               <p class="title">Server</p>
-              <pre class="prettyprint">var io = require('socket.io-node').listen(80);
+              <pre class="prettyprint">var io = require('socket.io').listen(80);
 
 io.sockets.on('connection', function (socket) {
   socket.on('message', function () { });
