@@ -184,6 +184,14 @@ suite('socket.test.js', function () {
     io.of('/b').on('connection', function (socket) {});
   });
 
+  server('test authorizing for namespaces', function (io) {
+    io.of('/a')
+      .authorization(function (data, fn) {
+        fn(null, false);
+      })
+      .on('connection', function (socket) {});
+  });
+
   server('test sending json from server', function (io) {
     io.sockets.on('connection', function (socket) {
       io.sockets.json.send(3141592);

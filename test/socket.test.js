@@ -172,6 +172,23 @@
       });
     },
 
+    'test authorizing for namespaces': function (next) {
+      var socket = create().socket
+
+      function finish () {
+        socket.of('').disconnect();
+        next();
+      };
+
+      socket.of('/a')
+        .on('connect_failed', function (msg) {
+          next();
+        })
+        .on('error', function (msg) {
+          throw new Error(msg || 'Received an error');
+        });
+    },
+
     'test sending json from server': function (next) {
       var socket = create();
 
