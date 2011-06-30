@@ -1,4 +1,9 @@
 
+0.7.5 / 2011-06-30
+==================
+
+  * Fixed dispatching to clients that are disconnected.
+
 0.7.4 / 2011-06-30
 ==================
 
