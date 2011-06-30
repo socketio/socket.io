@@ -268,14 +268,14 @@
    * @api public
    */
   
-  util.merge = function merge(target, additional, deep, lastseen){
+  util.merge = function merge (target, additional, deep, lastseen) {
     var seen = lastseen || []
       , depth = typeof deep == 'undefined' ? 2 : deep
       , prop;
 
-    for (prop in additional){
-      if (additional.hasOwnProperty(prop) && util.indexOf(seen, prop) < 0){
-        if (typeof target[prop] !== 'object' || !depth){
+    for (prop in additional) {
+      if (additional.hasOwnProperty(prop) && util.indexOf(seen, prop) < 0) {
+        if (typeof target[prop] !== 'object' || !depth) {
           target[prop] = additional[prop];
           seen.push(additional[prop]);
         } else {
@@ -1218,7 +1218,7 @@
    * @api private
    */
 
-  Transport.prototype.onData = function(data){
+  Transport.prototype.onData = function (data) {
     this.clearCloseTimeout();
     this.setCloseTimeout();
 
@@ -1247,7 +1247,7 @@
       return this.onHeartbeat();
     }
 
-    if (packet.type == 'connect' && packet.endpoint == ''){
+    if (packet.type == 'connect' && packet.endpoint == '') {
       this.onConnect();
     }
 
@@ -1491,7 +1491,7 @@
    * @api private
    */
 
-  Socket.prototype.publish = function(){
+  Socket.prototype.publish = function () {
     this.emit.apply(this, arguments);
 
     var nsp;
@@ -1619,7 +1619,7 @@
       if (self.options.connectTimeout) {
         self.connectTimeoutTimer = setTimeout(function () {
           if (!self.connected) {
-            if (self.options['try multiple transports']){
+            if (self.options['try multiple transports']) {
               if (!self.remainingTransports) {
                 self.remainingTransports = self.transports.slice(0);
               }
@@ -1743,7 +1743,7 @@
    * @api private
    */
 
-  Socket.prototype.onConnect = function(){
+  Socket.prototype.onConnect = function () {
     this.connected = true;
     this.connecting = false;
     if (!this.doBuffer) {
@@ -1790,8 +1790,8 @@
    */
 
   Socket.prototype.onError = function (err) {
-    if (err && err.advice){
-      if (err.advice === 'reconnect'){
+    if (err && err.advice) {
+      if (err.advice === 'reconnect') {
         this.disconnect();
         this.reconnect();
       }
@@ -2084,7 +2084,11 @@
         if (packet.advice){
           this.socket.onError(packet);
         } else {
-          this.$emit('error', packet.reason);
+          if (packet.reason == 'unauthorized') {
+            this.$emit('connect_failed', packet.reason);
+          } else {
+            this.$emit('error', packet.reason);
+          }
         }
         break;
     }
@@ -2143,9 +2147,10 @@
   exports.websocket = WS;
 
   /**
-   * The WebSocket transport uses the HTML5 WebSocket API to establish an persistent
-   * connection with the Socket.IO server. This transport will also be inherited by the
-   * FlashSocket fallback as it provides a API compatible polyfill for the WebSockets.
+   * The WebSocket transport uses the HTML5 WebSocket API to establish an
+   * persistent connection with the Socket.IO server. This transport will also
+   * be inherited by the FlashSocket fallback as it provides a API compatible
+   * polyfill for the WebSockets.
    *
    * @constructor
    * @extends {io.Transport}
@@ -2178,7 +2183,7 @@
    * @api public
    */
 
-  WS.prototype.open = function(){
+  WS.prototype.open = function () {
     this.websocket = new WebSocket(this.prepareUrl());
 
     var self = this;
@@ -2201,8 +2206,8 @@
   };
 
   /**
-   * Send a message to the Socket.IO server. The message will automatically be encoded
-   * in the correct message format.
+   * Send a message to the Socket.IO server. The message will automatically be
+   * encoded in the correct message format.
    *
    * @returns {Transport}
    * @api public
@@ -2233,7 +2238,7 @@
    * @api public
    */
 
-  WS.prototype.close = function(){
+  WS.prototype.close = function () {
     this.websocket.close();
     return this;
   };
@@ -2246,7 +2251,7 @@
    * @api private
    */
 
-  WS.prototype.onError = function(e){
+  WS.prototype.onError = function (e) {
     this.socket.onError(e);
   };
 
@@ -2255,8 +2260,8 @@
    *
    * @api private
    */
-  WS.prototype.scheme = function(){
-    return (this.socket.options.secure ? 'wss' : 'ws');
+  WS.prototype.scheme = function () {
+    return this.socket.options.secure ? 'wss' : 'ws';
   };
 
   /**
@@ -2267,7 +2272,7 @@
    * @api public
    */
 
-  WS.check = function(){
+  WS.check = function () {
     return 'WebSocket' in window && !('__addTask' in WebSocket);
   };
 
@@ -2278,7 +2283,7 @@
    * @api public
    */
 
-  WS.xdomainCheck = function(){
+  WS.xdomainCheck = function () {
     return true;
   };
 
@@ -2348,9 +2353,9 @@
    * @api public
    */
 
-  Flashsocket.prototype.open = function(){
+  Flashsocket.prototype.open = function () {
     var self = this, args = arguments;
-    WebSocket.__addTask(function(){
+    WebSocket.__addTask(function () {
       io.Transport.websocket.prototype.open.apply(self, args);
     });
     return this;
@@ -2365,11 +2370,24 @@
    * @api public
    */
 
-  Flashsocket.prototype.send = function(){
+  Flashsocket.prototype.send = function () {
     var self = this, args = arguments;
-    WebSocket.__addTask(function(){
+    WebSocket.__addTask(function () {
       io.Transport.websocket.prototype.send.apply(self, args);
     });
+    return this;
+  };
+
+  /**
+   * Disconnects the established `Flashsocket` connection.
+   *
+   * @returns {Transport}
+   * @api public
+   */
+
+  Flashsocket.prototype.close = function () {
+    WebSocket.__tasks.length = 0;
+    io.Transport.websocket.prototype.close.call(this);
     return this;
   };
 
@@ -2382,7 +2400,7 @@
    * @api public
    */
 
-  Flashsocket.check = function(socket){
+  Flashsocket.check = function (socket) {
     if (
         typeof WebSocket == 'undefined'
       || !('__initialize' in WebSocket) || !swfobject
@@ -2400,13 +2418,14 @@
 
     // Only start downloading the swf file when the checked that this browser
     // actually supports it
-    if (supported){
-      if (typeof WEB_SOCKET_SWF_LOCATION === 'undefined'){
+    if (supported && !Flashsocket.loaded) {
+      if (typeof WEB_SOCKET_SWF_LOCATION === 'undefined') {
         // Set the correct file based on the XDomain settings
         WEB_SOCKET_SWF_LOCATION = path.join('/');
       }
 
       WebSocket.__initialize();
+      Flashsocket.loaded = true;
     }
 
     return supported;
@@ -2421,7 +2440,7 @@
    * @api public
    */
 
-  Flashsocket.xdomainCheck = function(){
+  Flashsocket.xdomainCheck = function () {
     return true;
   };
 
@@ -2429,7 +2448,7 @@
    * Disable AUTO_INITIALIZATION
    */
 
-  if (typeof window != 'undefined'){
+  if (typeof window != 'undefined') {
     WEB_SOCKET_DISABLE_AUTO_INITIALIZATION = true;
   }
 
@@ -2998,7 +3017,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    * @api public
    */
 
-  XHR.xdomainCheck = function(){
+  XHR.xdomainCheck = function () {
     return XHR.check(null, true);
   };
 
@@ -3457,7 +3476,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     script.async = true;
     script.src = this.prepareUrl() + '/?t=' + (+new Date) + '&i=' + this.index;
-    script.onerror = function(){
+    script.onerror = function () {
       self.onClose();
     };
 
