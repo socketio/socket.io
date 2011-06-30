@@ -1,4 +1,9 @@
 
+0.7.4 / 2011-06-30
+==================
+
+  * Fixed; only clear handlers if they were set. [level09]
+
 0.7.3 / 2011-06-30
 ==================
 
