@@ -1,4 +1,19 @@
 
+0.7.3 / 2011-06-30
+==================
+
+  * Exposed handshake data to clients.
+  * Refactored dispatcher interface.
+  * Changed; Moved id generation method into the manager.
+  * Added sub-namespace authorization. [3rd-Eden]
+  * Changed; normalized SocketNamespace local eventing [dvv]
+  * Changed; Use packet.reason or default to 'packet' [3rd-Eden]
+  * Changed console.error to console.log.
+  * Fixed; bind both servers at the same time do that the test never times out.
+  * Added 304 support.
+  * Removed `Transport#name` for abstract interface.
+  * Changed; lazily require http and https module only when needed. [3rd-Eden]
+
 0.7.2 / 2011-06-22
 ==================
 
