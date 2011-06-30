@@ -1899,7 +1899,6 @@
     'undefined' != typeof io ? io : module.exports
   , 'undefined' != typeof io ? io : module.parent.exports
 );
-
 /**
  * socket.io
  * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
@@ -1971,7 +1970,7 @@
 
     if ('function' == typeof fn) {
       packet.id = ++this.ackPackets;
-      packet.ack = fn.length ? 'data' : true;
+      packet.ack = true;
       this.acks[packet.id] = fn;
     }
 
@@ -1994,7 +1993,7 @@
 
     if ('function' == typeof lastArg) {
       packet.id = ++this.ackPackets;
-      packet.ack = lastArg.length ? 'data' : true;
+      packet.ack = 'data';
       this.acks[packet.id] = lastArg;
       args = args.slice(0, args.length - 1);
     }
