@@ -1,4 +1,9 @@
 
+0.7.6 / 2011-06-30
+==================
+
+  * Fixed general dispatching when a client has closed.
+
 0.7.5 / 2011-06-30
 ==================
 
