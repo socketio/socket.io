@@ -62,11 +62,7 @@ var io = sio.listen(app)
   , nicknames = {};
 
 io.set('transports', [
-    'websocket'
-  , 'flashsocket'
-  , 'htmlfile'
   , 'xhr-polling'
-  , 'jsonp-polling'
 ]);
 
 io.sockets.on('connection', function (socket) {
