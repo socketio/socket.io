@@ -10,8 +10,7 @@
 
 var fs = require('fs')
   , socket = require('../lib/io')
-  , uglyfyParser = require('../lib/vendor/uglifyjs/lib/parse-js')
-  , uglyfyAst = require('../lib/vendor/uglifyjs/lib/process');
+  , uglify = require('uglify-js');
 
 /**
  * License headers.
@@ -187,11 +186,11 @@ var builder = module.exports = function(){
       
       // check if we need to process it any further
       if (settings.minify){
-        var ast = uglyfyParser.parse(code);
-        ast = uglyfyAst.ast_mangle(ast);
-        ast = uglyfyAst.ast_squeeze(ast);
+        var ast = uglify.parser.parse(code);
+        ast = uglify.uglify.ast_mangle(ast);
+        ast = uglify.uglify.ast_squeeze(ast);
         
-        code = production + uglyfyAst.gen_code(ast);
+        code = production + uglify.uglify.gen_code(ast);
       }
       
       callback(error, code);
