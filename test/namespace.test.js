@@ -80,8 +80,8 @@ module.exports = {
         fn(null, true);
       })
       .on('connection', function (socket) {
-        socket.handshake.address.address.should.equal('127.0.0.1');
-        socket.handshake.address.port.should.equal(ports);
+        (!!socket.handshake.address.remoteAddress).should.be.true;
+        (!!socket.handshake.address.remotePort).should.be.true;
         socket.handshake.headers.host.should.equal('localhost');
         socket.handshake.headers.connection.should.equal('keep-alive');
         socket.handshake.time.should.match(/GMT/);
