@@ -179,6 +179,12 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test different namespace connection methods', function (io) {
+    io.of('/a').on('connection', function (socket) {});
+    io.of('/b').on('connection', function (socket) {});
+    io.of('/c').on('connection', function (socket) {});
+  });
+
   server('test disconnecting from namespaces', function (io) {
     io.of('/a').on('connection', function (socket) {});
     io.of('/b').on('connection', function (socket) {});
