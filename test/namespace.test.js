@@ -215,7 +215,6 @@ module.exports = {
     var cl = client(++ports)
       , io = create(cl)
       , calls = 0
-        console.log(data)
       , ws;
 
     io.of('/foo').on('connection', function (socket) {
