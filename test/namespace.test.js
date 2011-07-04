@@ -139,5 +139,73 @@ module.exports = {
         }
       })
     });
+  },
+
+  'broadcasting sends and emits on a namespace': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , calls = 0
+      , connect = 0
+      , message = 0
+      , events = 0
+      , expected = 5
+      , ws1
+      , ws2;
+
+    io.of('a')
+      .on('connection', function (socket){
+        socket.broadcast.emit('b', 'test');
+        socket.broadcast.json.emit('json', {foo:'bar'});
+        socket.broadcast.send('foo');
+      });
+
+    function finish () {
+      connect.should.equal(2);
+      message.should.equal(1);
+      events.should.equal(2);
+
+      cl.end();
+      ws1.finishClose();
+      ws2.finishClose();
+      io.server.close();
+      done();
+    }
+
+    cl.handshake(function (sid) {
+     ws1 = websocket(cl, sid);
+      ws1.on('open', function() {
+        ws1.packet({
+            type: 'connect'
+          , endpoint: 'a'
+        });
+      });
+
+      ws1.on('message', function(data) {
+        if (data.type === 'connect') {
+          ++connect;
+          if (++calls === expected) finish();
+        }
+
+        if (data.type === 'message') {
+          ++message;
+          if (++calls === expected) finish();
+        }
+
+        if (data.type === 'event') {
+          if (data.name === 'b' || data.name === 'json') ++events;
+          if (++calls === expected) finish();
+        }
+      });
+
+      cl.handshake(function (sid) {
+        ws2 = websocket(cl, sid);
+        ws2.on('open', function() {
+          ws2.packet({
+              type: 'connect'
+            , endpoint: 'a'
+          });
+        });
+      })
+    })
   }
 };
