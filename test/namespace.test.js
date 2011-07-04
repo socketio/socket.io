@@ -173,6 +173,7 @@ module.exports = {
 
     cl.handshake(function (sid) {
      ws1 = websocket(cl, sid);
+
       ws1.on('open', function() {
         ws1.packet({
             type: 'connect'
@@ -180,7 +181,7 @@ module.exports = {
         });
       });
 
-      ws1.on('message', function(data) {
+      ws1.on('message', function (data) {
         if (data.type === 'connect') {
           ++connect;
           if (++calls === expected) finish();
@@ -199,13 +200,49 @@ module.exports = {
 
       cl.handshake(function (sid) {
         ws2 = websocket(cl, sid);
-        ws2.on('open', function() {
+
+        ws2.on('open', function () {
           ws2.packet({
               type: 'connect'
             , endpoint: 'a'
           });
         });
       })
+    })
+  },
+
+  'joining rooms inside a namespace': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , calls = 0
+        console.log(data)
+      , ws;
+
+    io.of('/foo').on('connection', function (socket) {
+      socket.join('foo.bar');
+      this.in('foo.bar').emit('baz', 'pewpew');
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+
+      ws.on('open', function (){
+         ws.packet({
+            type: 'connect'
+          , endpoint: '/foo'
+        });
+      });
+
+      ws.on('message', function (data) {
+        if (data.type === 'event') {
+          data.name.should.equal('baz');
+
+          cl.end();
+          ws.finishClose();
+          io.server.close();
+          done();
+        }
+      });
     })
   }
 };
