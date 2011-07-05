@@ -114,11 +114,12 @@ io.sockets.on('connection', function(client) {
   // direct auth by client side cookie
   client.on('signin', function(uid, ack) {
     if (uid) {
-      var session = {uid: uid};
+      var session = client.handshake.session = {uid: uid};
       // reuse session middleware codec
       var str = Session.serialize(sessionOptions.secret, session);
       ack(sessionOptions.session_key + '=' + str, session);
     } else {
+      delete client.handshake.session;
       ack(sessionOptions.session_key + '=;expires='+(new Date(0)), {});
     }
   });
