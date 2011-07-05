@@ -1642,5 +1642,36 @@ module.exports = {
         }
       });
     });
+  },
+
+  'accessing the transport type': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws;
+
+    io.sockets.on('connection', function (socket) {
+      socket.transport.should.equal('websocket');
+
+      socket.on('disconnect', function () {
+        setTimeout(function () {
+          ws.finishClose();
+          cl.end();
+          io.server.close();
+          done();
+        }, 10);
+      });
+
+      socket.disconnect();
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+      ws.on('message', function (msg) {
+        if (!ws.connected) {
+          msg.type.should.eql('connect');
+          ws.connected = true;
+        }
+      });
+    });
   }
 };
