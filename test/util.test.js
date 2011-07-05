@@ -44,6 +44,19 @@
       io.util.uniqueUri(path).should().eql('https://google.com:443');
     },
 
+    'chunk query string': function () {
+      io.util.chunkQuery('foo=bar').should().be.a('object');
+      io.util.chunkQuery('foo=bar').foo.should().eql('bar');
+    },
+
+    'merge query strings': function () {
+      var base = io.util.query('foo=bar', 'foo=baz')
+        , add = io.util.query('foo=bar', 'bar=foo')
+
+        base.should().eql('?foo=baz');
+        add.should().eql('?foo=bar&bar=foo');
+    },
+
     'request': function () {
       if ('undefined' == typeof window) {
         should.equal(io.util.request(), null);
