@@ -140,28 +140,42 @@
     'test different namespace connection methods': function (next) {
       var io = create('/a')
         , connect = 0
+        , message = 0
         , socket = io.socket;
 
       function finish () {
         socket.of('').disconnect();
         connect.should().equal(3);
+        message.should().equal(3);
         next();
       }
 
       io.on('connect', function () {
-        if (++connect === 3) finish();
+        ++connect;
+      }).on('message', function (data) {
+        data.should().eql('a');
+
+        if (++message === 3) finish();
       }).on('error', function (msg) {
         throw new Error(msg || 'Received an error');
       });
 
       socket.of('/b').on('connect', function () {
-        if (++connect === 3) finish();
+        ++connect;
+      }).on('message', function (data) {
+        data.should().eql('b');
+
+        if (++message === 3) finish();
       }).on('error', function (msg) {
         throw new Error(msg || 'Received an error');
       });
 
       io.of('/c').on('connect', function () {
-        if (++connect === 3) finish();
+        ++connect;
+      }).on('message', function (data) {
+        data.should().eql('c');
+
+        if (++message === 3) finish();
       }).on('error', function (msg) {
         throw new Error(msg || 'Received an error');
       });
