@@ -53,8 +53,12 @@
       var base = io.util.query('foo=bar', 'foo=baz')
         , add = io.util.query('foo=bar', 'bar=foo')
 
-        base.should().eql('?foo=baz');
-        add.should().eql('?foo=bar&bar=foo');
+      base.should().eql('?foo=baz');
+      add.should().eql('?foo=bar&bar=foo');
+
+      io.util.query('','').should().eql('');
+      io.util.query('foo=bar', '').should().eql('?foo=bar');
+      io.util.query('', 'foo=bar').should().eql('?foo=bar');
     },
 
     'request': function () {
