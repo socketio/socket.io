@@ -1,7 +1,7 @@
 {
     "name": "socket.io"
   , "version": "0.7.6"
-  , "description": "Realtime apps made cross-browser & easy with a WebSocket-like API"
+  , "description": "Real-time apps made cross-browser & easy with a WebSocket-like API"
   , "homepage": "http://socket.io"
   , "keywords": ["websocket", "socket", "realtime", "socket.io", "comet", "ajax"]
   , "author": "Guillermo Rauch <guillermo@learnboost.com>"
