@@ -21,19 +21,21 @@ var payload = '0';
 for (var i = 0; i < 10; ++i) payload += payload;
 
 server.sockets.on('connection', function(sock) {
-  socket = sock;
+  sockets.push(sock);
   t0 = Date.now();
   process.nextTick(flood);
 });
 
 var t0 = null;
-var socket = null;
+var sockets = [];
 function flood() {
   for (var i = 0; i < 5000; ++i) {
-    socket.send(payload, function(aaa) { ++acked; });
-    ++sent;
+    for (var j = 0; j < sockets.length; ++j) {
+      sockets[j].send(payload, function(aaa) { ++acked; });
+      ++sent;
+    }
   }
   console.log('After ' + (Date.now() - t0) / 1000 + ' seconds sent ' + sent + ' messages of length ' + payload.length + '; acked: ' + acked + '; free memory: ' + os.freemem() + '; load: ' + os.loadavg()[0]);
-  console.log('Socket guts:', Object.keys(socket.acks).length, socket.ackPackets);
-  process.nextTick(flood);
+  //process.nextTick(flood);
+  setTimeout(flood, 1000);
 }

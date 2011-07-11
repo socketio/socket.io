@@ -5,17 +5,23 @@
 	<script type="text/javascript" src="/socket.io/socket.io.js" charset="utf-8"></script>
 	<script type="text/javascript" charset="utf-8">
 if (!window.console) console = {log: alert};
-// socket
-var s = io.connect();
-s.on('connect', function() {
-	console.log('CONNECT', arguments, this);
-});
-s.on('disconnect', function() {
-	console.log('DISCONNECT');
-});
-s.on('reconnect', function() {
-	console.log('RECONNECT');
-});
+// sockets
+function connect() {
+  var s = io.connect();
+  s.on('connect', function() {
+    console.log('CONNECT', arguments, this);
+  });
+  s.on('disconnect', function() {
+    console.log('DISCONNECT');
+  });
+  s.on('reconnect', function() {
+    console.log('RECONNECT');
+  });
+  return s;
+}
+for (var i = 0; i < 2; ++i) {
+  connect();
+}
 /*var recv = 0;
 var acked = 0;
 s.on('message', function() {
