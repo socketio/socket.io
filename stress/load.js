@@ -11,7 +11,7 @@ io.Manager.static.mime.html = {
 };
 
 var server = io.listen(8080);
-server.set('log level', 0);
+server.set('log level', 2);
 
 var done = false;
 var sent = 0;
@@ -34,5 +34,6 @@ function flood() {
     ++sent;
   }
   console.log('After ' + (Date.now() - t0) / 1000 + ' seconds sent ' + sent + ' messages of length ' + payload.length + '; acked: ' + acked + '; free memory: ' + os.freemem() + '; load: ' + os.loadavg()[0]);
+  console.log('Socket guts:', Object.keys(socket.acks).length, socket.ackPackets);
   process.nextTick(flood);
 }

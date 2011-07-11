@@ -16,9 +16,17 @@ s.on('disconnect', function() {
 s.on('reconnect', function() {
 	console.log('RECONNECT');
 });
-/*s.on('message', function() {
-	console.log('MESSAGE', arguments);
-});*/
+/*var recv = 0;
+var acked = 0;
+s.on('message', function() {
+  //console.log('MESSAGE', arguments);
+  ++recv;
+});
+setInterval(function() {
+  console.log('RECV', recv, 'ACKED', acked);
+  console.log('SOCKET: acks=', socket.ackPackets);
+}, 1000);
+*/
 	</script>
 <body>
 </body>
