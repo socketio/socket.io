@@ -14,5 +14,5 @@ for (var i = 0; i < n; ++i) {
 	server.log.debug('fooooooooooooo', 'ooooooooooooooooo', 'oooooooooooooooooooo', 'oooooooooooooooooooooooo');
 }
 var t2 = Date.now();
-console.log('DONE: conditional log: ', t1 - t0, 'ms overhead for ', n, 'invokations');
-console.log('DONE: internal logic: ', t2 - t1, 'ms overhead for ', n, 'invokations');
+console.log('DONE: conditional log: ', t1 - t0, 'ms overhead for ', n, 'invocations');
+console.log('DONE: internal logic: ', t2 - t1, 'ms overhead for ', n, 'invocations');
