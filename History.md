@@ -1,4 +1,26 @@
 
+0.7.7 / 2011-07-12
+==================
+
+  * Fixed double dispatch handling with emit to closed clients.
+  * Added test for emitting to closed clients to prevent regression.
+  * Fixed race condition in redis test.
+  * Changed Transport#end instrumentation.
+  * Leveraged $emit instead of emit internally.
+  * Made tests faster.
+  * Fixed double disconnect events.
+  * Fixed disconnect logic
+  * Simplified remote events handling in Socket.
+  * Increased testcase timeout.
+  * Fixed unknown room emitting (GH-291). [3rd-Eden]
+  * Fixed `address` in handshakeData. [3rd-Eden]
+  * Removed transports definition in chat example.
+  * Fixed room cleanup
+  * Fixed; make sure the client is cleaned up after booting.
+  * Make sure to mark the client as non-open if the connection is closed.
+  * Removed unneeded `buffer` declarations.
+  * Fixed; make sure to clear socket handlers and subscriptions upon transport close.
+
 0.7.6 / 2011-06-30
 ==================
 

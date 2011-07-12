@@ -1,6 +1,6 @@
 {
     "name": "socket.io"
-  , "version": "0.7.6"
+  , "version": "0.7.7"
   , "description": "Real-time apps made cross-browser & easy with a WebSocket-like API"
   , "homepage": "http://socket.io"
   , "keywords": ["websocket", "socket", "realtime", "socket.io", "comet", "ajax"]
@@ -15,7 +15,7 @@
       , "url": "https://github.com/LearnBoost/Socket.IO-node.git"
     }
   , "dependencies": {
-        "socket.io-client": "0.7.3"
+        "socket.io-client": "0.7.4"
       , "policyfile": "0.0.3"
       , "redis": "0.6.0"
     }
