@@ -1493,8 +1493,8 @@ module.exports = {
       , ws;
 
     io.sockets.on('connection', function (socket) {
-      socket.handshake.address.address.should.equal('127.0.0.1');
-      socket.handshake.address.port.should.equal(ports);
+      (!!socket.handshake.address.address).should.be.true;
+      (!!socket.handshake.address.port).should.be.true;
       socket.handshake.headers.host.should.equal('localhost');
       socket.handshake.headers.connection.should.equal('keep-alive');
       socket.handshake.time.should.match(/GMT/);
