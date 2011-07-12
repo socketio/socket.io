@@ -2635,4 +2635,82 @@ module.exports = {
     });
   },
 
+  'test emitting to closed clients': function (done) {
+    var cl = client(++ports)
+      , cl2 = client(ports)
+      , io = create(cl)
+      , connections = 0;
+
+    io.configure(function () {
+      io.set('close timeout', .1);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.send('a');
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, packs) {
+        res.statusCode.should.equal(200);
+        packs.should.have.length(1);
+        packs[0].should.eql({ type: 'message', endpoint: '', data: 'a' });
+
+        cl2.handshake(function (sid2) {
+          cl2.get(
+              '/socket.io/{protocol}/xhr-polling/' + sid2
+            , function (res, packs) {
+                res.statusCode.should.equal(200);
+                packs.should.have.length(1);
+                packs[0].should.eql({ type: 'message', endpoint: '', data: 'a' });
+
+                io.sockets.emit('woot', 'b');
+
+                var total = 2;
+
+                cl.get(
+                    '/socket.io/{protocol}/xhr-polling/' + sid
+                  , function (res, packs) {
+                      res.statusCode.should.equal(200);
+                      packs.should.have.length(1);
+                      packs[0].should.eql({
+                          type: 'event'
+                        , endpoint: ''
+                        , name: 'woot'
+                        , args: ['b']
+                      });
+
+                      --total || finish();
+                    }
+                );
+
+                cl2.get(
+                    '/socket.io/{protocol}/xhr-polling/' + sid2
+                  , function (res, packs) {
+                      res.statusCode.should.equal(200);
+                      packs.should.have.length(1);
+                      packs[0].should.eql({
+                          type: 'event'
+                        , endpoint: ''
+                        , name: 'woot'
+                        , args: ['b']
+                      });
+
+                      --total || finish();
+                    }
+                );
+
+                function finish () {
+                  cl.end();
+                  cl2.end();
+                  io.server.close();
+                  done();
+                };
+              }
+          );
+        });
+        
+      });
+    });
+  }
+
 };
