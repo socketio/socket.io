@@ -10,7 +10,7 @@ io.Manager.static.mime.html = {
   encoding: 'utf8'
 };
 
-var server = io.listen(8080);
+var server = io.listen(3000);
 server.set('log level', 2);
 
 var done = false;
@@ -18,7 +18,7 @@ var sent = 0;
 var acked = 0;
 
 var payload = '0';
-for (var i = 0; i < 10; ++i) payload += payload;
+for (var i = 0; i < 8; ++i) payload += payload;
 
 server.sockets.on('connection', function(sock) {
   sockets.push(sock);
@@ -31,11 +31,12 @@ var sockets = [];
 function flood() {
   for (var i = 0; i < 5000; ++i) {
     for (var j = 0; j < sockets.length; ++j) {
-      sockets[j].send(payload, function(aaa) { ++acked; });
+      //sockets[j].send(payload, function(aaa) { ++acked; });
+      sockets[j].emit('foo', payload, function(aaa) { ++acked; });
       ++sent;
     }
   }
   console.log('After ' + (Date.now() - t0) / 1000 + ' seconds sent ' + sent + ' messages of length ' + payload.length + '; acked: ' + acked + '; free memory: ' + os.freemem() + '; load: ' + os.loadavg()[0]);
-  //process.nextTick(flood);
-  setTimeout(flood, 1000);
+  process.nextTick(flood);
+  //setTimeout(flood, 1000);
 }

@@ -17,6 +17,10 @@ function connect() {
   s.on('reconnect', function() {
     console.log('RECONNECT');
   });
+  s.on('foo', function(payload, ack) {
+    //console.log('FOO', arguments, this);
+    typeof ack === 'function' && ack();
+  });
   return s;
 }
 for (var i = 0; i < 2; ++i) {
