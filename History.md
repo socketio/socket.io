@@ -1,4 +1,12 @@
 
+0.7.4 / 2011-07-12
+==================
+
+  * Added `SocketNamespace#of` shortcut. [3rd-Eden]
+  * Fixed a IE payload decoding bug. [3rd-Eden]
+  * Honor document protocol, unless overriden. [dvv]
+  * Fixed new builder dependencies. [3rd-Eden]
+
 0.7.3 / 2011-06-30 
 ==================
 
