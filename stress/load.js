@@ -29,7 +29,7 @@ server.sockets.on('connection', function(sock) {
 var t0 = null;
 var sockets = [];
 function flood() {
-  for (var i = 0; i < 5000; ++i) {
+  for (var i = 0; i < 2000; ++i) {
     for (var j = 0; j < sockets.length; ++j) {
       //sockets[j].send(payload, function(aaa) { ++acked; });
       sockets[j].emit('foo', payload, function(aaa) { ++acked; });
@@ -37,6 +37,6 @@ function flood() {
     }
   }
   console.log('After ' + (Date.now() - t0) / 1000 + ' seconds sent ' + sent + ' messages of length ' + payload.length + '; acked: ' + acked + '; free memory: ' + os.freemem() + '; load: ' + os.loadavg()[0]);
-  process.nextTick(flood);
-  //setTimeout(flood, 1000);
+  //process.nextTick(flood);
+  setTimeout(flood, 1000);
 }

@@ -19,6 +19,7 @@ function connect() {
   });
   s.on('foo', function(payload, ack) {
     //console.log('FOO', arguments, this);
+    ++acked;
     typeof ack === 'function' && ack();
   });
   return s;
@@ -26,17 +27,16 @@ function connect() {
 for (var i = 0; i < 2; ++i) {
   connect();
 }
-/*var recv = 0;
+var recv = 0;
 var acked = 0;
-s.on('message', function() {
+/*s.on('message', function() {
   //console.log('MESSAGE', arguments);
   ++recv;
-});
+});*/
 setInterval(function() {
   console.log('RECV', recv, 'ACKED', acked);
-  console.log('SOCKET: acks=', socket.ackPackets);
+  //console.log('SOCKET: acks=', socket.ackPackets);
 }, 1000);
-*/
 	</script>
 <body>
 </body>
