@@ -7,7 +7,7 @@
 if (!window.console) console = {log: alert};
 // sockets
 function connect() {
-  var s = io.connect();
+  var s = io.connect(null, {'force new connection': true});
   s.on('connect', function() {
     console.log('CONNECT', arguments, this);
   });
@@ -24,7 +24,7 @@ function connect() {
   });
   return s;
 }
-for (var i = 0; i < 2; ++i) {
+for (var i = 0; i < 1; ++i) {
   connect();
 }
 var recv = 0;

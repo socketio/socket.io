@@ -26,17 +26,20 @@ server.sockets.on('connection', function(sock) {
   process.nextTick(flood);
 });
 
+var threshold = 300000;
+
 var t0 = null;
 var sockets = [];
 function flood() {
-  for (var i = 0; i < 2000; ++i) {
+  if (sent < threshold) for (var i = 0; i < 4000; ++i) {
     for (var j = 0; j < sockets.length; ++j) {
-      //sockets[j].send(payload, function(aaa) { ++acked; });
-      sockets[j].emit('foo', payload, function(aaa) { ++acked; });
+      //sockets[j].send(payload);
+      sockets[j].send(payload, function(aaa) { ++acked; });
+      //sockets[j].emit('foo', payload, function(aaa) { ++acked; });
       ++sent;
     }
   }
   console.log('After ' + (Date.now() - t0) / 1000 + ' seconds sent ' + sent + ' messages of length ' + payload.length + '; acked: ' + acked + '; free memory: ' + os.freemem() + '; load: ' + os.loadavg()[0]);
-  //process.nextTick(flood);
-  setTimeout(flood, 1000);
+  //sent < threshold ? process.nextTick(flood) : setTimeout(flood, 1000);
+  sent < threshold ? setTimeout(flood, 100) : setTimeout(flood, 1000);
 }
