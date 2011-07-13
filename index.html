@@ -360,7 +360,7 @@ io.sockets.on('connection', function (socket) {
           <div class="example">
             <div class="example-left">
               <p class="title">Server</p>
-              <pre class="prettyprint">var app = express.createServer();
+              <pre class="prettyprint">var app = express.createServer()
   , io = require('socket.io').listen(app);
 
 app.listen(80);
@@ -453,7 +453,7 @@ io.sockets.on('connection', function (socket) {
               <pre class="prettyprint">var io = require('socket.io').listen(80);
 
 var chat = io
-  .of('/chat');
+  .of('/chat')
   .on('connection', function (socket) {
     socket.emit('a message', {
         that: 'only'
@@ -466,7 +466,7 @@ var chat = io
   });
 
 var news = io
-  .of('/news');
+  .of('/news')
   .on('connection', function (socket) {
     socket.emit('item', { news: 'item' });
   });</pre>
