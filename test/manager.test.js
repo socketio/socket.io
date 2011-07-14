@@ -534,6 +534,43 @@ module.exports = {
       io.server.close();
       done();
     });
-  }
+  },
+  'no duplicate room members': function(done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
 
+    Object.keys(io.rooms).length.should.equal(0);
+
+    io.onJoin(123, "foo");
+    io.rooms["foo"].length.should.equal(1);
+
+    io.onJoin(123, "foo");
+    io.rooms["foo"].length.should.equal(1);
+
+    io.onJoin(124, "foo");
+    io.rooms["foo"].length.should.equal(2);
+
+    io.onJoin(124, "foo");
+    io.rooms["foo"].length.should.equal(2);
+
+    io.onJoin(123, "bar");
+    io.rooms["foo"].length.should.equal(2);
+    io.rooms["bar"].length.should.equal(1);
+
+    io.onJoin(123, "bar");
+    io.rooms["foo"].length.should.equal(2);
+    io.rooms["bar"].length.should.equal(1);
+
+    io.onJoin(124, "bar");
+    io.rooms["foo"].length.should.equal(2);
+    io.rooms["bar"].length.should.equal(2);
+
+    io.onJoin(124, "bar");
+    io.rooms["foo"].length.should.equal(2);
+    io.rooms["bar"].length.should.equal(2);
+
+    io.server.close();
+    cl.end();
+  }
 };
