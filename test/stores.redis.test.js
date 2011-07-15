@@ -233,7 +233,7 @@ module.exports = {
           store.destroy();
           done();
         });
-      }, 1900);
+      }, 2000);
     });
   }
 

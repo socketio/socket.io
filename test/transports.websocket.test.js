@@ -12,7 +12,7 @@
 var sio = require('socket.io')
   , should = require('./common')
   , parser = sio.parser
-  , ports = 15400;
+  , ports = 15800;
 
 /**
  * Tests.
