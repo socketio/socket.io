@@ -1,4 +1,4 @@
-/*! Socket.IO.js build:0.7.3, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
+/*! Socket.IO.js build:0.7.4, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
 
 /**
  * socket.io
@@ -22,7 +22,7 @@
    * @api public
    */
 
-  io.version = '0.7.3';
+  io.version = '0.7.4';
 
   /**
    * Protocol implemented.
@@ -70,6 +70,7 @@
       , socket;
 
     if ('undefined' != typeof document) {
+      uri.protocol = uri.protocol || document.location.protocol.slice(0, -1);
       uri.host = uri.host || document.domain;
       uri.port = uri.port || document.location.port;
     }
@@ -1153,16 +1154,17 @@
    */
 
   parser.decodePayload = function (data) {
-    if (data[0] == '\ufffd') {
+    // IE doesn't like data[i] for unicode chars, charAt works fine
+    if (data.charAt(0) == '\ufffd') {
       var ret = [];
 
       for (var i = 1, length = ''; i < data.length; i++) {
-        if (data[i] == '\ufffd') {
+        if (data.charAt(i) == '\ufffd') {
           ret.push(parser.decodePacket(data.substr(i + 1).substr(0, length)));
           i += Number(length) + 1;
           length = '';
         } else {
-          length += data[i];
+          length += data.charAt(i);
         }
       }
 
@@ -1605,50 +1607,48 @@
           transports.split(',')
         , self.options.transports
       );
-      self.transport = self.getTransport();
 
-      if (!self.transport) {
-        return;
-      }
+      function connect (transports){
+        self.transport = self.getTransport(transports);
+        if (!self.transport) return self.publish('connect_failed');
 
-      self.connecting = true;
-      self.publish('connecting', self.transport.name);
+        self.connecting = true;
+        self.publish('connecting', self.transport.name);
+        self.transport.open();
 
-      self.transport.open();
+        if (self.options['connect timeout']) {
+          self.connectTimeoutTimer = setTimeout(function () {
+            if (!self.connected) {
+              self.connecting = false;
 
-      if (self.options.connectTimeout) {
-        self.connectTimeoutTimer = setTimeout(function () {
-          if (!self.connected) {
-            if (self.options['try multiple transports']) {
-              if (!self.remainingTransports) {
-                self.remainingTransports = self.transports.slice(0);
-              }
+              if (self.options['try multiple transports']) {
+                if (!self.remainingTransports) {
+                  self.remainingTransports = self.transports.slice(0);
+                }
 
-              var transports = self.remainingTransports;
+                var remaining = self.remainingTransports;
 
-              while (transports.length > 0 && transports.splice(0,1)[0] !=
-                self.transport.name) {}
+                while (remaining.length > 0 && remaining.splice(0,1)[0] !=
+                  self.transport.name) {}
 
-              if (transports.length) {
-                self.transport = self.getTransport(transports);
-                self.connect();
+                if (remaining.length){
+                  connect(remaining);
+                } else {
+                  self.publish('connect_failed');
+                }
               }
             }
-
-            if (!self.remainingTransports || self.remainingTransports.length == 0) {
-              self.publish('connect_failed');
-            }
-          }
-
-          if(self.remainingTransports && self.remainingTransports.length == 0) {
-            delete self.remainingTransports;
-          }
-        }, self.options['connect timeout']);
+          }, self.options['connect timeout']);
+        }
       }
 
-      if (fn && typeof fn == 'function') {
-        self.once('connect', fn);
-      }
+      connect();
+
+      self.once('connect', function (){
+        clearTimeout(self.connectTimeoutTimer);
+
+        fn && typeof fn == 'function' && fn();
+      });
     });
 
     return this;
@@ -1791,7 +1791,7 @@
 
   Socket.prototype.onError = function (err) {
     if (err && err.advice) {
-      if (err.advice === 'reconnect') {
+      if (err.advice === 'reconnect' && this.connected) {
         this.disconnect();
         this.reconnect();
       }
@@ -1942,6 +1942,17 @@
    */
 
   SocketNamespace.prototype.$emit = io.EventEmitter.prototype.emit;
+
+  /**
+   * Creates a new namespace, by proxying the request to the socket. This
+   * allows us to use the synax as we do on the server.
+   *
+   * @api public
+   */
+
+  SocketNamespace.prototype.of = function () {
+    return this.socket.of.apply(this.socket, arguments);
+  };
 
   /**
    * Sends a packet.
