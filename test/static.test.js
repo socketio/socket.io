@@ -10,7 +10,6 @@
  */
 
 var sio = require('socket.io')
-  , cp = require('child_process')
   , should = require('./common')
   , ports = 15400;
 
@@ -19,6 +18,30 @@ var sio = require('socket.io')
  */
 
 module.exports = {
+
+  'test that the default static files are available': function (done) {
+    var port = ++ports
+      , io = sio.listen(port);
+
+    (!!io.static.has('/socket.io.js')).should.be.true;
+    (!!io.static.has('/socket.io+')).should.be.true;
+    (!!io.static.has('/static/flashsocket/WebSocketMain.swf')).should.be.true;
+    (!!io.static.has('/static/flashsocket/WebSocketMainInsecure.swf')).should.be.true;
+
+    io.server.close();
+    done();
+  },
+
+  'test that static files are correctly looked up': function (done) {
+    var port = ++ports
+      , io = sio.listen(port);
+
+    (!!io.static.has('/socket.io.js')).should.be.true;
+    (!!io.static.has('/invalidfilehereplease.js')).should.be.false;
+
+    io.server.close();
+    done();
+  },
 
   'test that the client is served': function (done) {
     var port = ++ports
@@ -124,7 +147,6 @@ module.exports = {
         done();
       });
     });
- 
   },
 
   'test that the client etag is served': function (done) {
@@ -144,6 +166,28 @@ module.exports = {
       cl.end();
       io.server.close();
       done();
+    });
+  },
+
+  'test that the client etag is changed for new transports': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.set('transports', ['websocket']);
+    io.enable('browser client etag');
+
+    cl.get('/socket.io/socket.io.js', function (res, data) {
+      var wsEtag = res.headers.etag;
+
+      io.set('transports', ['xhr-polling']);
+      cl.get('/socket.io/socket.io.js', function (res, data) {
+        res.headers.etag.should.not.equal(wsEtag);
+
+        cl.end();
+        io.server.close();
+        done();
+      });
     });
   },
 
@@ -204,7 +248,7 @@ module.exports = {
       , io = sio.listen(port)
       , cl = client(port);
 
-    io.static.add('/random.js', {}, function (path, callback) {
+    io.static.add('/random.js', function (path, callback) {
       var random = Math.floor(Date.now() * Math.random()).toString();
       callback(null, new Buffer(random));
     });
@@ -275,13 +319,14 @@ module.exports = {
           headers: {
               'if-none-match': res.headers.etag
           }
-      }, function (res, data) {
-        res.statusCode.should.eql(304);
+        }, function (res, data) {
+            res.statusCode.should.eql(304);
 
-        cl.end();
-        io.server.close();
-        done();
-      });
+            cl.end();
+            io.server.close();
+            done();
+          }
+      );
     });
   },
 
@@ -359,6 +404,30 @@ module.exports = {
       io.server.close();
       done();
     });
+  },
+
+  'test that swf files are not served with gzip': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.enable('browser client gzip');
+
+    cl.get('/socket.io/static/flashsocket/WebSocketMain.swf', {
+          headers: {
+              'accept-encoding': 'deflate, gzip'
+          }
+        }
+      , function (res, data) {
+          res.headers['content-type'].should.eql('application/x-shockwave-flash');
+          res.headers['content-length'].should.match(/([0-9]+)/);
+          should.strictEqual(res.headers['content-encoding'], undefined);
+
+          cl.end();
+          io.server.close();
+          done();
+        }
+    );
   },
 
   'test that you can serve custom clients': function (done) {
