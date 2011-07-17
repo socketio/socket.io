@@ -19,20 +19,20 @@ var sio = require('socket.io')
  */
 
 function gunzip (data, callback) {
-  var gunzip = cp.spawn('gunzip')
+  var gunzip = cp.spawn('gunzip', ['-c'])
     , buffer = []
     , err;
 
-  guzip.stdout.on('data', function (data) {
+  gunzip.stdout.on('data', function (data) {
     buffer.push(data);
   });
 
-  guzip.stderr.on('data', function (data) {
+  gunzip.stderr.on('data', function (data) {
     err = data +'';
     buffer.length = 0;
   });
 
-  guzip.on('exit', function () {
+  gunzip.on('exit', function () {
     if (err) return callback(err);
 
     var size = 0
@@ -58,8 +58,8 @@ function gunzip (data, callback) {
     callback(null, content);
   });
 
-  guzip.stdin.write(data, 'utf8');
-  guzip.stdin.end();
+  gunzip.stdin.write(data, 'utf8');
+  gunzip.stdin.end();
 }
 
 /**
@@ -68,7 +68,7 @@ function gunzip (data, callback) {
 
 module.exports = {
 
-    'test that the client is served': function (done) {
+  'test that the client is served': function (done) {
     var port = ++ports
       , io = sio.listen(port)
       , cl = client(port);
@@ -79,6 +79,59 @@ module.exports = {
       should.strictEqual(res.headers.etag, undefined);
 
       data.should.match(/XMLHttpRequest/);
+
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that the custom build client is served': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.enable('browser client etag');
+    });
+
+    cl.get('/socket.io/socket.io+websocket.js', function (res, data) {
+      res.headers['content-type'].should.eql('application/javascript');
+      res.headers['content-length'].should.match(/([0-9]+)/);
+      res.headers.etag.should.match(/([0-9]+)\.([0-9]+)\.([0-9]+)/);
+
+      data.should.match(/XMLHttpRequest/);
+      data.should.match(/WS\.prototype\.name/);
+      data.should.not.match(/Flashsocket\.prototype\.name/);
+      data.should.not.match(/HTMLFile\.prototype\.name/);
+      data.should.not.match(/JSONPPolling\.prototype\.name/);
+      data.should.not.match(/XHRPolling\.prototype\.name/);
+
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that the client is build with the enabled transports': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.set('transports', ['websocket']);
+    });
+
+    cl.get('/socket.io/socket.io.js', function (res, data) {
+      res.headers['content-type'].should.eql('application/javascript');
+      res.headers['content-length'].should.match(/([0-9]+)/);
+
+      data.should.match(/XMLHttpRequest/);
+      data.should.match(/WS\.prototype\.name/);
+      data.should.not.match(/Flashsocket\.prototype\.name/);
+      data.should.not.match(/HTMLFile\.prototype\.name/);
+      data.should.not.match(/JSONPPolling\.prototype\.name/);
+      data.should.not.match(/XHRPolling\.prototype\.name/);
 
       cl.end();
       io.server.close();
@@ -106,6 +159,37 @@ module.exports = {
       io.server.close();
       done();
     });
+  },
+
+  'test that the client is served with gzip': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.enable('browser client gzip');
+    });
+
+    cl.get('/socket.io/socket.io.js', {
+          headers: {
+              'accept-encoding': 'deflate, gzip'
+          }
+        }
+      , function (res, data) {
+        res.headers['content-type'].should.eql('application/javascript');
+        res.headers['content-encoding'].should.eql('gzip');
+        res.headers['content-length'].should.match(/([0-9]+)/);
+
+        gunzip(data, function (err, data){
+          console.log(err);
+          data.should.match(/XMLHttpRequest/);
+
+          cl.end();
+          io.server.close();
+          done();
+        });
+      }
+    );
   },
 
   'test that the cached client is served': function (done) {
@@ -181,7 +265,11 @@ module.exports = {
     });
 
     cl.get('/socket.io/socket.io.js', function (res, data) {
-      cl.get('/socket.io/socket.io.js', {headers:{'if-none-match':res.headers.etag}}, function (res, data) {
+      cl.get('/socket.io/socket.io.js', {
+          headers: {
+              'if-none-match': res.headers.etag
+          }
+      }, function (res, data) {
         res.statusCode.should.eql(304);
 
         cl.end();
