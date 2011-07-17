@@ -12,55 +12,7 @@
 var sio = require('socket.io')
   , cp = require('child_process')
   , should = require('./common')
-  , ports = 15000;
-
-/**
- * Unzip gzip
- */
-
-function gunzip (data, callback) {
-  var gunzip = cp.spawn('gunzip', ['-c'])
-    , buffer = []
-    , err;
-
-  gunzip.stdout.on('data', function (data) {
-    buffer.push(data);
-  });
-
-  gunzip.stderr.on('data', function (data) {
-    err = data +'';
-    buffer.length = 0;
-  });
-
-  gunzip.on('exit', function () {
-    if (err) return callback(err);
-
-    var size = 0
-      , index = 0
-      , i = buffer.length
-      , content;
-
-    while (i--) {
-      size += buffer[i].length;
-    }
-
-    content = new Buffer(size);
-    i = buffer.length;
-
-    buffer.forEach(function (buffer) {
-      var length = buffer.length;
-
-      buffer.copy(content, index, 0, length);
-      index += length;
-    });
-
-    buffer.length = 0;
-    callback(null, content);
-  });
-
-  gunzip.stdin.write(data, 'utf8');
-  gunzip.stdin.end();
-}
+  , ports = 15400;
 
 /**
  * Test.
@@ -91,9 +43,7 @@ module.exports = {
       , io = sio.listen(port)
       , cl = client(port);
 
-    io.configure(function () {
-      io.enable('browser client etag');
-    });
+    io.enable('browser client etag');
 
     cl.get('/socket.io/socket.io+websocket.js', function (res, data) {
       res.headers['content-type'].should.eql('application/javascript');
@@ -115,12 +65,10 @@ module.exports = {
 
   'test that the client is build with the enabled transports': function (done) {
     var port = ++ports
-      , io = sio.listen(port)
+      , io = sio.listen(port) 
       , cl = client(port);
 
-    io.configure(function () {
-      io.set('transports', ['websocket']);
-    });
+    io.set('transports', ['websocket']);
 
     cl.get('/socket.io/socket.io.js', function (res, data) {
       res.headers['content-type'].should.eql('application/javascript');
@@ -139,14 +87,52 @@ module.exports = {
     });
   },
 
+  'test that the client cache is cleared when transports change': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.set('transports', ['websocket']);
+
+    cl.get('/socket.io/socket.io.js', function (res, data) {
+      res.headers['content-type'].should.eql('application/javascript');
+      res.headers['content-length'].should.match(/([0-9]+)/);
+
+      data.should.match(/XMLHttpRequest/);
+      data.should.match(/WS\.prototype\.name/);
+      data.should.not.match(/Flashsocket\.prototype\.name/);
+      data.should.not.match(/HTMLFile\.prototype\.name/);
+      data.should.not.match(/JSONPPolling\.prototype\.name/);
+      data.should.not.match(/XHRPolling\.prototype\.name/);
+
+      io.set('transports', ['xhr-polling']);
+      should.strictEqual(io.static.cache['/socket.io.js'], undefined);
+
+      cl.get('/socket.io/socket.io.js', function (res, data) {
+        res.headers['content-type'].should.eql('application/javascript');
+        res.headers['content-length'].should.match(/([0-9]+)/);
+
+        data.should.match(/XMLHttpRequest/);
+        data.should.match(/XHRPolling\.prototype\.name/);
+        data.should.not.match(/Flashsocket\.prototype\.name/);
+        data.should.not.match(/HTMLFile\.prototype\.name/);
+        data.should.not.match(/JSONPPolling\.prototype\.name/);
+        data.should.not.match(/WS\.prototype\.name/);
+
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+ 
+  },
+
   'test that the client etag is served': function (done) {
     var port = ++ports
       , io = sio.listen(port)
       , cl = client(port);
 
-    io.configure(function () {
-      io.enable('browser client etag');
-    });
+    io.enable('browser client etag');
 
     cl.get('/socket.io/socket.io.js', function (res, data) {
       res.headers['content-type'].should.eql('application/javascript');
@@ -166,9 +152,7 @@ module.exports = {
       , io = sio.listen(port)
       , cl = client(port);
 
-    io.configure(function () {
-      io.enable('browser client gzip');
-    });
+    io.enable('browser client gzip');
 
     cl.get('/socket.io/socket.io.js', {
           headers: {
@@ -180,14 +164,9 @@ module.exports = {
         res.headers['content-encoding'].should.eql('gzip');
         res.headers['content-length'].should.match(/([0-9]+)/);
 
-        gunzip(data, function (err, data){
-          console.log(err);
-          data.should.match(/XMLHttpRequest/);
-
-          cl.end();
-          io.server.close();
-          done();
-        });
+        cl.end();
+        io.server.close();
+        done();
       }
     );
   },
@@ -220,14 +199,43 @@ module.exports = {
     });
   },
 
+  'test that the client is not cached': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.static.add('/random.js', {}, function (path, callback) {
+      var random = Math.floor(Date.now() * Math.random()).toString();
+      callback(null, new Buffer(random));
+    });
+
+    io.disable('browser client cache');
+
+    cl.get('/socket.io/random.js', function (res, data) {
+      res.headers['content-type'].should.eql('application/javascript');
+      res.headers['content-length'].should.match(/([0-9]+)/);
+      should.strictEqual(res.headers.etag, undefined);
+
+      cl.get('/socket.io/random.js', function (res, random) {
+        res.headers['content-type'].should.eql('application/javascript');
+        res.headers['content-length'].should.match(/([0-9]+)/);
+        should.strictEqual(res.headers.etag, undefined);
+
+        data.should.not.equal(random);
+
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+  },
+
   'test that the cached client etag is served': function (done) {
     var port = ++ports
       , io = sio.listen(port)
       , cl = client(port);
 
-    io.configure(function () {
-      io.enable('browser client etag');
-    });
+    io.enable('browser client etag');
 
     cl.get('/socket.io/socket.io.js', function (res, data) {
       res.headers['content-type'].should.eql('application/javascript');
@@ -260,9 +268,7 @@ module.exports = {
       , io = sio.listen(port)
       , cl = client(port);
 
-     io.configure(function () {
-      io.enable('browser client etag');
-    });
+    io.enable('browser client etag');
 
     cl.get('/socket.io/socket.io.js', function (res, data) {
       cl.get('/socket.io/socket.io.js', {
@@ -290,9 +296,7 @@ module.exports = {
       , io2 = sio.listen(port)
       , cl2 = client(port);
 
-    io.configure(function () {
-      io.enable('browser client minification');
-    });
+    io.enable('browser client minification');
 
     cl.get('/socket.io/socket.io.js', function (res, data) {
       var length = data.length;
@@ -362,15 +366,13 @@ module.exports = {
       , io = sio.listen(port)
       , cl = client(port);
 
-    io.configure(function () {
-      io.set('browser client handler', function (req, res) {
-        res.writeHead(200, {
-            'Content-Type': 'application/javascript'
-          , 'Content-Length': 13
-          , 'ETag': '1.0'
-        });
-        res.end('custom_client');
+    io.set('browser client handler', function (req, res) {
+      res.writeHead(200, {
+          'Content-Type': 'application/javascript'
+        , 'Content-Length': 13
+        , 'ETag': '1.0'
       });
+      res.end('custom_client');
     });
 
     cl.get('/socket.io/socket.io.js', function (res, data) {
