@@ -1,4 +1,3 @@
-
 /*!
  * socket.io-node
  * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
@@ -537,8 +536,7 @@ module.exports = {
   },
   'no duplicate room members': function(done) {
     var port = ++ports
-      , io = sio.listen(port)
-      , cl = client(port);
+      , io = sio.listen(port);
 
     Object.keys(io.rooms).length.should.equal(0);
 
@@ -571,6 +569,5 @@ module.exports = {
     io.rooms["bar"].length.should.equal(2);
 
     io.server.close();
-    cl.end();
   }
 };
