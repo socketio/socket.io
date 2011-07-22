@@ -1695,5 +1695,41 @@ module.exports = {
         }
       });
     });
-  }
+  },
+
+  'test socket clean up': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws;
+
+    io.sockets.on('connection', function (socket) {
+      var self = this
+        , id = socket.id;
+
+      socket.on('disconnect', function () {
+        setTimeout(function () {
+          var available = !!self.sockets[id];
+
+          available.should.be.false;
+          ws.finishClose();
+          cl.end();
+          io.server.close();
+          done();
+        }, 10);
+      });
+
+      socket.disconnect();
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+      ws.on('message', function (msg) {
+        if (!ws.connected) {
+          msg.type.should.eql('connect');
+          ws.connected = true;
+        }
+      });
+    });
+  },
+
 };
