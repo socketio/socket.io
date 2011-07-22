@@ -24,7 +24,6 @@ io.sockets.on('connection', function (socket) {
   
   socket.on('disconnect', function() {
     console.log("client gone");
-    delete socket.namespace.sockets[socket.id]; //XXX
     setTimeout(gc, 1000);
     assertvanish(socket, 2000, {silent: true, callback: resultCallback});
   });
