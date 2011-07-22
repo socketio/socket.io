@@ -242,3 +242,9 @@ WSClient.prototype.packet = function (pack) {
 websocket = function (cl, sid) {
   return new WSClient(cl.port, sid);
 };
+
+module.exports = {
+  websocket: websocket
+, client: client
+, create: create
+};
