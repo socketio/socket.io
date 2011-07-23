@@ -16,8 +16,8 @@
     }
   , "dependencies": {
         "socket.io-client": "0.7.4"
-      , "policyfile": "0.0.3"
-      , "redis": "0.6.5"
+      , "policyfile": "0.0.4"
+      , "redis": "0.6.6"
     }
   , "devDependencies": {
         "expresso": "0.7.7"
