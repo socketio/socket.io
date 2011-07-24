@@ -534,6 +534,7 @@ module.exports = {
       done();
     });
   },
+
   'no duplicate room members': function(done) {
     var port = ++ports
       , io = sio.listen(port);
@@ -569,5 +570,6 @@ module.exports = {
     io.rooms["bar"].length.should.equal(2);
 
     io.server.close();
+    done();
   }
 };
