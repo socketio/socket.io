@@ -20,7 +20,7 @@ Next, attach it to a HTTP/HTTPS server. If you're using the fantastic `express`
 web framework:
 
 ```js
-var app = express.createServer();
+var app = express.createServer()
   , io = io.listen(app);
 
 app.listen(80);
