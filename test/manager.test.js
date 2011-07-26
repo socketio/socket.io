@@ -133,6 +133,23 @@ module.exports = {
     });
   },
 
+  'test that the particular requests doesnt fail': function (done) {
+    var server = http.createServer();
+    var io = sio.listen(server)
+      , port = ++ports
+      , cl = client(port);
+
+    server.listen(ports);
+    cl.get('/socket.io/socket.io.js.min', function (res, data) {
+      res.statusCode.should.eql(200);
+      data.should.eql('Welcome to socket.io.');
+
+      cl.end();
+      server.close();
+      done();
+    });
+  },
+
   'test that the client is served': function (done) {
     var port = ++ports
       , io = sio.listen(port)
