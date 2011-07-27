@@ -194,7 +194,7 @@ io.sockets.on('connection', function (socket) {
           <pre class="prettyprint">
 // client-side
 var socket = io.connect();
-socket.emit('set nickname', 'john', function (response) [
+socket.emit('set nickname', 'john', function (response) {
   console.log(response);
 });
 
@@ -424,7 +424,7 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('msg', function () {
-    socket.get('nickname', function (name) {
+    socket.get('nickname', function (err, name) {
       console.log('Chat message by ', name);
     });
   });
