@@ -1,5 +1,6 @@
 
 ALL_TESTS = $(shell find test/ -name '*.test.js')
+TRANSPORT = 'xhr-polling'
 
 run-tests:
 	@npm link --local > /dev/null
@@ -14,7 +15,7 @@ test:
 
 test-acceptance:
 	@npm link --local > /dev/null
-	@node support/test-runner/app
+	@node support/test-runner/app $(TRANSPORT)
 
 build:
 	@node ./bin/builder.js

@@ -22,6 +22,13 @@ var app = express.createServer();
 var port = 3000;
 
 /**
+ * Transport to test with.
+ */
+
+var args = process.argv.slice(2)
+  , transport = args.length ? args[0] : 'xhr-polling';
+
+/**
  * A map of tests to socket.io ports we're listening on.
  */
 
@@ -92,7 +99,7 @@ var io = sio.listen(app);
 io.configure(function () {
   io.set('browser client handler', handler);
   io.set('transports', [
-      'jsonp-polling'
+      transport
   ]);
 });
 
@@ -116,7 +123,7 @@ function server (name, fn) {
 
   var io = sio.listen(port);
   io.configure(function () {
-    io.set('transports', ['xhr-polling']);
+    io.set('transports', [transport]);
   });
 
   fn(io);
