@@ -899,6 +899,59 @@ module.exports = {
     });
   },
 
+  'test leaving a room': function (done) {
+    var port = ++ports
+      , cl1 = client(port)
+      , cl2 = client(port)
+      , io = create(cl1)
+      , joins = 0
+      , disconnects = 0;
+
+    io.set('close timeout', 0);
+
+    io.sockets.on('connection', function (socket) {
+      socket.join('foo');
+      io.sockets.clients('foo').should.have.length(++joins);
+
+      socket.on('disconnect', function () {
+        socket.leave('foo');
+        socket.leave('foo');
+        socket.leave('foo');
+
+        io.sockets.clients('foo').should.have.length(--joins);
+
+        if (++disconnects == 2) {
+          io.server.close();
+          cl1.end();
+          cl2.end();
+          done();
+        }
+      })
+    });
+
+    cl1.handshake(function (sid) {
+      var ws1 = websocket(cl1, sid);
+      ws1.on('message', function (msg) {
+        if (!ws1.connected) {
+          msg.type.should.eql('connect');
+          ws1.connected = true;
+           ws1.finishClose();
+        }
+      });
+    });
+
+    cl2.handshake(function (sid) {
+      var ws2 = websocket(cl2, sid);
+      ws2.on('message', function (msg) {
+        if (!ws2.connected) {
+          msg.type.should.eql('connect');
+          ws2.connected = true;
+          ws2.finishClose();
+        }
+      });
+    });
+  },
+
   'test message with broadcast flag': function (done) {
     var port = ++ports
       , cl1 = client(port)
