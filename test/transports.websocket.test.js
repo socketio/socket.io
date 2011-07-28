@@ -952,6 +952,43 @@ module.exports = {
     });
   },
 
+  'test room lookup': function (done) {
+    var port = ++ports
+      , cl = client(port)
+      , io = create(cl)
+      , joins = 0
+      , disconnects = 0;
+
+    io.set('close timeout', 0);
+
+    io.sockets.on('connection', function (socket) {
+      socket.join('foo');
+      socket.join('bar');
+
+      console.log(socket.rooms);
+      socket.rooms.indexOf('foo').should.be.above(-1);
+      socket.rooms.indexOf('bar').should.be.above(-1);
+      socket.rooms.indexOf('baz').should.eql(-1);
+
+      socket.on('disconnect', function () {
+        io.server.close();
+        cl.end();
+        done();
+      })
+    });
+
+    cl.handshake(function (sid) {
+      var ws = websocket(cl, sid);
+      ws.on('message', function (msg) {
+        if (!ws.connected) {
+          msg.type.should.eql('connect');
+          ws.connected = true;
+          ws.finishClose();
+        }
+      });
+    });
+  },
+
   'test message with broadcast flag': function (done) {
     var port = ++ports
       , cl1 = client(port)
