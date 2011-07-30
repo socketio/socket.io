@@ -233,6 +233,23 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test emmiting multiple events at once to the server', function (io) {
+    io.sockets.on('connection', function (socket) {
+      var messages = [];
+
+      socket.on('print', function (msg) {
+        if (messages.indexOf(msg) >= 0) {
+          throw new Error('duplicate message');
+        }
+
+        messages.push(msg);
+        if (messages.length == 2) {
+          socket.emit('done');
+        }
+      });
+    });
+  });
+
   server('test emitting an event to server', function (io) {
     io.sockets.on('connection', function (socket) {
       socket.on('woot', function () {
