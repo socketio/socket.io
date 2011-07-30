@@ -20,6 +20,22 @@ var sio = require('socket.io')
 module.exports = {
 
   'test setting and getting a configuration flag': function (done) {
+    var port = ++ports
+      , io = sio.listen(http.createServer());
+
+    io.set('a', 'b');
+    io.get('a').should.eql('b');
+
+    var port = ++ports
+      , io = sio.listen(http.createServer());
+
+    io.configure(function () {
+      io.set('a', 'b');
+      io.enable('tobi');
+    });
+
+    io.get('a').should.eql('b');
+
     done();
   },
 
@@ -36,11 +52,9 @@ module.exports = {
       , io = sio.listen(http.createServer());
 
     io.configure(function () {
-      io.set('a', 'b');
       io.enable('tobi');
     });
 
-    io.get('a').should.eql('b');
     io.enabled('tobi').should.be.true;
 
     done();
@@ -535,39 +549,86 @@ module.exports = {
     });
   },
 
-  'no duplicate room members': function(done) {
+  'test disabling heartbeats': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port)
+      , messages = 0
+      , beat = false
+      , ws;
+
+    io.configure(function () {
+      io.disable('heartbeats');
+      io.set('heartbeat interval', .05);
+      io.set('heartbeat timeout', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      setTimeout(function () {
+        socket.disconnect();
+      }, io.get('heartbeat timeout') * 1000 + 100);
+
+      socket.on('disconnect', function (reason) {
+        beat.should.be.false;
+
+        cl.end();
+        ws.finishClose();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.get('/socket.io/{protocol}/', function (res, data) {
+      res.statusCode.should.eql(200);
+      data.should.match(/([^:]+)::[\.0-9]+:(.*)/);
+
+      cl.handshake(function (sid) {
+        ws = websocket(cl, sid);
+        ws.on('message', function (packet) {
+          if (++messages == 1) {
+            packet.type.should.eql('connect');
+          } else if (packet.type == 'heartbeat'){
+            beat = true;
+          }
+        });
+      });
+    });
+  },
+
+  'no duplicate room members': function (done) {
     var port = ++ports
       , io = sio.listen(port);
 
     Object.keys(io.rooms).length.should.equal(0);
 
-    io.onJoin(123, "foo");
-    io.rooms["foo"].length.should.equal(1);
+    io.onJoin(123, 'foo');
+    io.rooms.foo.length.should.equal(1);
 
-    io.onJoin(123, "foo");
-    io.rooms["foo"].length.should.equal(1);
+    io.onJoin(123, 'foo');
+    io.rooms.foo.length.should.equal(1);
 
-    io.onJoin(124, "foo");
-    io.rooms["foo"].length.should.equal(2);
+    io.onJoin(124, 'foo');
+    io.rooms.foo.length.should.equal(2);
 
-    io.onJoin(124, "foo");
-    io.rooms["foo"].length.should.equal(2);
+    io.onJoin(124, 'foo');
+    io.rooms.foo.length.should.equal(2);
 
-    io.onJoin(123, "bar");
-    io.rooms["foo"].length.should.equal(2);
-    io.rooms["bar"].length.should.equal(1);
+    io.onJoin(123, 'bar');
+    io.rooms.foo.length.should.equal(2);
+    io.rooms.bar.length.should.equal(1);
 
-    io.onJoin(123, "bar");
-    io.rooms["foo"].length.should.equal(2);
-    io.rooms["bar"].length.should.equal(1);
+    io.onJoin(123, 'bar');
+    io.rooms.foo.length.should.equal(2);
+    io.rooms.bar.length.should.equal(1);
 
-    io.onJoin(124, "bar");
-    io.rooms["foo"].length.should.equal(2);
-    io.rooms["bar"].length.should.equal(2);
+    io.onJoin(124, 'bar');
+    io.rooms.foo.length.should.equal(2);
+    io.rooms.bar.length.should.equal(2);
 
-    io.onJoin(124, "bar");
-    io.rooms["foo"].length.should.equal(2);
-    io.rooms["bar"].length.should.equal(2);
+    io.onJoin(124, 'bar');
+    io.rooms.foo.length.should.equal(2);
+    io.rooms.bar.length.should.equal(2);
 
     io.server.close();
     done();
