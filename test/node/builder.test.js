@@ -99,6 +99,14 @@ module.exports = {
     });
   },
 
+  'preserve the encoding during minification': function () {
+    builder(function (err, result) {
+      should.strictEqual(err, null);
+
+      result.should().match(/(\\ufffd)/g);
+    })
+  },
+
   'globals': function () {
     builder(function (err, result) {
       should.strictEqual(err, null);

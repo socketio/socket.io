@@ -17,7 +17,7 @@
       , "url": "https://github.com/LearnBoost/Socket.IO.git"
     }
   , "dependencies": {
-        "uglify-js": "1.0.3"
+        "uglify-js": "1.0.6"
     }
   , "devDependencies": {
         "expresso": "0.7.7"
