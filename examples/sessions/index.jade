@@ -1,0 +1,29 @@
+doctype 5
+html
+  head
+    script(src='http://code.jquery.com/jquery-1.6.1.min.js')
+    script(src='/socket.io/socket.io.js')
+    script
+
+      function showSession(session) {
+        $('body').append('<p>SESSION:' + io.JSON.stringify(session) + '</p>');
+      }
+
+      function signin(uid) {
+        socket.emit('signin', uid, function(cookie, session) {
+          console.log(arguments);
+          // TODO: $.cookie
+          document.cookie = cookie;
+          showSession(session)
+        });
+      }
+
+      // socket.io specific code
+      var socket = io.connect();
+
+      socket.on('session', showSession);
+  body
+    a(href='/signin') Sign In by HTTP <br />
+    a(href='/signout') Sign Out<br />
+    a(href='#', onclick='signin("foo"); return false;') Sign In by client-side <br />
+    a(href='#', onclick='signin(); return false;') Sign Out<br />
