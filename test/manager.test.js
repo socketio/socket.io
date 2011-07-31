@@ -632,5 +632,15 @@ module.exports = {
 
     io.server.close();
     done();
+  },
+
+  'test passing options directly to the Manager through listen': function (done) {
+    var port = ++ports
+      , io = sio.listen(port, { resource: '/my resource', custom: 'opt' });
+
+    io.get('resource').should.equal('/my resource');
+    io.get('custom').should.equal('opt');
+    io.server.close();
+    done();
   }
 };
