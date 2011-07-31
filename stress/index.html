@@ -1,0 +1,43 @@
+<!doctype html>
+<head>
+	<meta charset="utf-8">
+</head>
+	<script type="text/javascript" src="/socket.io/socket.io.js" charset="utf-8"></script>
+	<script type="text/javascript" charset="utf-8">
+if (!window.console) console = {log: alert};
+// sockets
+function connect() {
+  var s = io.connect(null, {'force new connection': true});
+  s.on('connect', function() {
+    console.log('CONNECT', arguments, this);
+  });
+  s.on('disconnect', function() {
+    console.log('DISCONNECT');
+  });
+  s.on('reconnect', function() {
+    console.log('RECONNECT');
+  });
+  s.on('foo', function(payload, ack) {
+    //console.log('FOO', arguments, this);
+    ++acked;
+    typeof ack === 'function' && ack();
+  });
+  return s;
+}
+for (var i = 0; i < 1; ++i) {
+  connect();
+}
+var recv = 0;
+var acked = 0;
+/*s.on('message', function() {
+  //console.log('MESSAGE', arguments);
+  ++recv;
+});*/
+setInterval(function() {
+  console.log('RECV', recv, 'ACKED', acked);
+  //console.log('SOCKET: acks=', socket.ackPackets);
+}, 1000);
+	</script>
+<body>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+	<p>
+	Client and server share an updatable object called context C, initially set to an empty object {}.
+	Upon connection, server defines function C.timer(interval), and client defines function C.deep.tick(reason).
+	Once 'Start' below is clicked, client calls C.timer(2000) and server starts to call client's C.deep.tick('tick') every 2000ms.
+	Client reports ticks to the bottom of this document.
+	</p>
+	<p>
+	Take a look at the <a href="server.js">server</a> source.
+	</p>
+	<p>
+	<a href="#" onclick="C.timer(2000); return false;">Start</a> the timer.&nbsp;
+	<a href="#" onclick="C.timer(); return false;">Stop</a> the timer.
+	</p>
+	<p>
+	We also can <a href="#" onclick="alert('clicked' + C.updateEveryone);C.updateEveryone(); return false;">Update</a> everyone's context. This will update all currently connected clients as well as future clients.
+	<a href="#" onclick="alert(C['that']); return false;">Check</a> the content of newly set context's `that` property (should equal to 'is available to everyone').
+	</p>
+	<script type="text/javascript" src="/socket.io/socket.io.js" charset="utf-8"></script>
+	<script type="text/javascript" charset="utf-8">
+if (!window.console) console = {log: alert};
+// socket
+var s = io.Context({
+	name: '/foo'
+});
+var C = s.context;
+s.on('connect', function() {
+	console.log('CONNECT', arguments, this);
+});
+s.on('disconnect', function() {
+	console.log('DISCONNECT');
+});
+s.on('reconnect', function() {
+	console.log('RECONNECT');
+});
+s.on('message', function() {
+	console.log('MESSAGE', arguments);
+});
+s.on('invoke', function() {
+	console.log('EVENT:invoke', arguments);
+});
+//
+// server reports its part of context is ready
+//
+s.on('ready', function(cb) {
+	console.log('EVENT:ready', arguments);
+	//
+	// augment client side of context
+	//
+	this.update({
+		//
+		// with a deeply
+		//
+		deep: {
+			//
+			// nested function
+			//
+			tick: function(reason) {
+				var p = document.createElement('p');
+				p.innerHTML = reason || 'ping';
+				document.body.appendChild(p);
+			}
+		}
+	}, null, function(x) {
+		console.log('UPDATED', this);
+		//this.context.deep.tick('context set');
+	});
+	cb && cb('OK');
+});
+s.on('change', function() {
+	console.log('CHANGED', this, arguments);
+});
+	</script>
+</body>
+</html>
