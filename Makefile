@@ -16,4 +16,7 @@ test:
 test-cov:
 	@TESTFLAGS=--cov $(MAKE) test
 
+test-leaks:
+	@ls test/leaks/* | xargs node --expose_debug_as=debug --expose_gc
+
 .PHONY: test
