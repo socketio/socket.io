@@ -279,9 +279,9 @@ suite('socket.test.js', function () {
   });
 
   server('test encoding a payload', function (io) {
-    var count = 0;
-
     io.of('/woot').on('connection', function (socket) {
+      var count = 0;
+
       socket.on('message', function (a) {
         if (a == 'ñ') {
           if (++count == 4) {
