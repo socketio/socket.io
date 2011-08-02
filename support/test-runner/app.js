@@ -292,4 +292,10 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test sending query strings to the server', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.json.send(socket.handshake);
+    })
+  });
+
 });

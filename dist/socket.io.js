@@ -170,6 +170,52 @@
   };
 
   /**
+   * Mergest 2 query strings in to once unique query string
+   *
+   * @param {String} base
+   * @param {String} addition
+   * @api public
+   */
+
+  util.query = function (base, addition) {
+    var query = util.chunkQuery(base || '')
+      , components = [];
+
+    util.merge(query, util.chunkQuery(addition || ''));
+    for (var part in query) {
+      if (query.hasOwnProperty(part)) {
+        components.push(part + '=' + query[part]);
+      }
+    }
+
+    return components.length ? '?' + components.join('&') : '';
+  };
+
+  /**
+   * Transforms a querystring in to an object
+   *
+   * @param {String} qs
+   * @api public
+   */
+
+  util.chunkQuery = function (qs) {
+    var query = {}
+      , params = qs.split('&')
+      , i = 0
+      , l = params.length
+      , kv;
+
+    for (; i < l; ++i) {
+      kv = params[i].split('=');
+      if (kv[0]) {
+        query[kv[0]] = decodeURIComponent(kv[1]);
+      }
+    }
+
+    return query;
+  };
+
+  /**
    * Executes the given function when the page is loaded.
    *
    *     io.util.load(function () { console.log('page loaded'); });
@@ -214,11 +260,11 @@
     if ('undefined' != typeof window) {
       if (xdomain && window.XDomainRequest) {
         return new XDomainRequest();
-      };
+      }
 
       if (window.XMLHttpRequest && (!xdomain || util.ua.hasCORS)) {
         return new XMLHttpRequest();
-      };
+      }
 
       if (!xdomain) {
         try {
@@ -333,7 +379,7 @@
   util.intersect = function (arr, arr2) {
     var ret = []
       , longest = arr.length > arr2.length ? arr : arr2
-      , shortest = arr.length > arr2.length ? arr2 : arr
+      , shortest = arr.length > arr2.length ? arr2 : arr;
 
     for (var i = 0, l = shortest.length; i < l; i++) {
       if (~util.indexOf(longest, shortest[i]))
@@ -355,8 +401,8 @@
       return Array.prototype.indexOf.call(arr, o, i);
     }
 
-    for (var j = arr.length, i = i < 0 ? i + j < 0 ? 0 : i + j : i || 0
-        ; i < j && arr[i] !== o; i++);
+    for (var j = arr.length, i = i < 0 ? i + j < 0 ? 0 : i + j : i || 0; 
+         i < j && arr[i] !== o; i++);
 
     return j <= i ? -1 : i;
   };
@@ -991,10 +1037,10 @@
     switch (packet.type) {
       case 'error':
         var reason = packet.reason ? indexOf(reasons, packet.reason) : ''
-          , adv = packet.advice ? indexOf(advice, packet.advice) : ''
+          , adv = packet.advice ? indexOf(advice, packet.advice) : '';
 
         if (reason !== '' || adv !== '')
-          data = reason + (adv !== '' ? ('+' + adv) : '')
+          data = reason + (adv !== '' ? ('+' + adv) : '');
 
         break;
 
@@ -1058,7 +1104,7 @@
 
     for (var i = 0, l = packets.length; i < l; i++) {
       var packet = packets[i];
-      decoded += '\ufffd' + packet.length + '\ufffd' + packets[i]
+      decoded += '\ufffd' + packet.length + '\ufffd' + packets[i];
     }
 
     return decoded;
@@ -1446,6 +1492,7 @@
       , 'try multiple transports': true
       , 'reconnect': true
       , 'reconnection delay': 500
+      , 'reconnection limit': Infinity
       , 'reopen delay': 3000
       , 'max reconnection attempts': 10
       , 'sync disconnect on unload': true
@@ -1544,7 +1591,7 @@
         , options.host + ':' + options.port
         , this.options.resource
         , io.protocol
-        , '?t=' + + new Date
+        , io.util.query(this.options.query, 't=' + +new Date)
       ].join('/');
 
     if (this.isXDomain()) {
@@ -1854,6 +1901,7 @@
     var self = this
       , maxAttempts = this.options['max reconnection attempts']
       , tryMultiple = this.options['try multiple transports']
+      , limit = this.options['reconnection limit'];
 
     function reset () {
       if (self.connected) {
@@ -1903,7 +1951,10 @@
           reset();
         }
       } else {
-        self.reconnectionDelay *= 2; // exponential back off
+        if (self.reconnectionDelay < limit) {
+          self.reconnectionDelay *= 2; // exponential back off
+        }
+
         self.connect();
         self.publish('reconnecting', self.reconnectionDelay, self.reconnectionAttempts);
         self.reconnectionTimer = setTimeout(maybeReconnect, self.reconnectionDelay);
@@ -2215,7 +2266,10 @@
    */
 
   WS.prototype.open = function () {
-    this.websocket = new WebSocket(this.prepareUrl());
+    var self = this
+      , query = io.util.query(this.socket.options.query);
+
+    this.websocket = new WebSocket(this.prepareUrl() + query);
 
     var self = this;
     this.websocket.onopen = function () {
@@ -3018,8 +3072,10 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   XHR.prototype.request = function (method) {
-    var req = io.util.request(this.socket.isXDomain());
-    req.open(method || 'GET', this.prepareUrl() + '?t' + (+ new Date));
+    var req = io.util.request(this.socket.isXDomain())
+      , query = io.util.query(this.socket.options.query, + 't=' + +new Date);
+
+    req.open(method || 'GET', this.prepareUrl() + query);
 
     if (method == 'POST') {
       try {
@@ -3145,9 +3201,10 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     iframeC.appendChild(this.iframe);
 
-    this.iframe.src = this.prepareUrl() + '/?t=' + (+ new Date);
+    var self = this
+      , query = io.util.query(this.socket.options.query, 't='+ +new Date);
 
-    var self = this;
+    this.iframe.src = this.prepareUrl() + query;
 
     io.util.on(window, 'unload', function () {
       self.destroy();
@@ -3460,7 +3517,11 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   JSONPPolling.prototype.post = function (data) {
-    var self = this;
+    var self = this
+      , query = io.util.query(
+             this.socket.options.query
+          , 't='+ (+new Date) + '&i=' + this.index
+        );
 
     if (!this.form) {
       var form = document.createElement('FORM')
@@ -3483,7 +3544,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       this.area = area;
     }
 
-    this.form.action = this.prepareUrl() + '?t=' + (+new Date) + '&i=' + this.index;
+    this.form.action = this.prepareUrl() + query;
 
     function complete () {
       initIframe();
@@ -3539,7 +3600,11 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
   JSONPPolling.prototype.get = function () {
     var self = this
-      , script = document.createElement('SCRIPT');
+      , script = document.createElement('SCRIPT')
+      , query = io.util.query(
+             this.socket.options.query
+          , 't='+ (+new Date) + '&i=' + this.index
+        );
 
     if (this.script) {
       this.script.parentNode.removeChild(this.script);
@@ -3547,7 +3612,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     }
 
     script.async = true;
-    script.src = this.prepareUrl() + '/?t=' + (+new Date) + '&i=' + this.index;
+    script.src = this.prepareUrl() + query;
     script.onerror = function () {
       self.onClose();
     };

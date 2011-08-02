@@ -356,8 +356,22 @@
         socket.disconnect();
         next();
       });
-    }
+    },
 
+    'test sending query strings to the server': function (next) {
+      var socket = create('?foo=bar');
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
+      socket.on('message', function (data) {
+        data.query.foo.should().eql('bar');
+
+        socket.disconnect();
+        next();
+      });
+    }
   };
 
 })(
