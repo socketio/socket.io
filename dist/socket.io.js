@@ -1857,6 +1857,11 @@
 
     function reset () {
       if (self.connected) {
+        for (var i in self.namespaces) {
+          if (self.namespaces.hasOwnProperty(i) && '' !== i) {
+              self.namespaces[i].packet({ type: 'connect' });
+          }
+        }
         self.publish('reconnect', self.transport.name, self.reconnectionAttempts);
       }
 
@@ -3521,6 +3526,8 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     } else {
       this.iframe.onload = complete;
     }
+
+    this.socket.setBuffer(true);
   };
   
   /**
