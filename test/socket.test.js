@@ -290,6 +290,20 @@
       })
     },
 
+    'test emmiting multiple events at once to the server': function (next) {
+      var socket = create();
+
+      socket.on('connect', function () {
+        socket.emit('print', 'foo');
+        socket.emit('print', 'bar');
+      });
+
+      socket.on('done', function () {
+        socket.disconnect();
+        next();
+      });
+    },
+
     'test emitting an event from server and sending back data': function (next) {
       var socket = create();
 

@@ -22,6 +22,13 @@ var app = express.createServer();
 var port = 3000;
 
 /**
+ * Transport to test with.
+ */
+
+var args = process.argv.slice(2)
+  , transport = args.length ? args[0] : 'xhr-polling';
+
+/**
  * A map of tests to socket.io ports we're listening on.
  */
 
@@ -91,9 +98,9 @@ var io = sio.listen(app);
 
 io.configure(function () {
   io.set('browser client handler', handler);
-  //io.set('transports', [
-      //'jsonp-polling'
-  //]);
+  io.set('transports', [
+      transport
+  ]);
 });
 
 /**
@@ -116,7 +123,7 @@ function server (name, fn) {
 
   var io = sio.listen(port);
   io.configure(function () {
-    //io.set('transports', ['jsonp-polling']);
+    io.set('transports', [transport]);
   });
 
   fn(io);
@@ -223,6 +230,23 @@ suite('socket.test.js', function () {
   server('test emitting an event from server', function (io) {
     io.sockets.on('connection', function (socket) {
       socket.emit('woot');
+    });
+  });
+
+  server('test emmiting multiple events at once to the server', function (io) {
+    io.sockets.on('connection', function (socket) {
+      var messages = [];
+
+      socket.on('print', function (msg) {
+        if (messages.indexOf(msg) >= 0) {
+          throw new Error('duplicate message');
+        }
+
+        messages.push(msg);
+        if (messages.length == 2) {
+          socket.emit('done');
+        }
+      });
     });
   });
 
