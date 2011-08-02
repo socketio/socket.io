@@ -320,6 +320,28 @@
         socket.disconnect();
         next();
       });
+    },
+
+    'test encoding a payload': function (next) {
+      var socket = create('/woot');
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
+      socket.on('connect', function () {
+        socket.socket.setBuffer(true);
+        socket.send('ñ');
+        socket.send('ñ');
+        socket.send('ñ');
+        socket.send('ñ');
+        socket.socket.setBuffer(false);
+      });
+
+      socket.on('done', function () {
+        socket.disconnect();
+        next();
+      });
     }
 
   };
