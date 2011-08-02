@@ -290,6 +290,20 @@
       })
     },
 
+    'test emmiting multiple events at once to the server': function (next) {
+      var socket = create();
+
+      socket.on('connect', function () {
+        socket.emit('print', 'foo');
+        socket.emit('print', 'bar');
+      });
+
+      socket.on('done', function () {
+        socket.disconnect();
+        next();
+      });
+    },
+
     'test emitting an event from server and sending back data': function (next) {
       var socket = create();
 
@@ -322,6 +336,28 @@
       });
     },
 
+    'test encoding a payload': function (next) {
+      var socket = create('/woot');
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
+      socket.on('connect', function () {
+        socket.socket.setBuffer(true);
+        socket.send('ñ');
+        socket.send('ñ');
+        socket.send('ñ');
+        socket.send('ñ');
+        socket.socket.setBuffer(false);
+      });
+
+      socket.on('done', function () {
+        socket.disconnect();
+        next();
+      });
+    },
+
     'test sending query strings to the server': function (next) {
       var socket = create('?foo=bar');
 
@@ -336,7 +372,6 @@
         next();
       });
     }
-
   };
 
 })(
