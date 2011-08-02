@@ -290,7 +290,7 @@
       })
     },
 
-    'test emmiting multiple events at once to the server': function (next) {
+    'test emitting multiple events at once to the server': function (next) {
       var socket = create();
 
       socket.on('connect', function () {

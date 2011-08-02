@@ -65,7 +65,8 @@
       if ('undefined' == typeof window) {
         should.equal(io.util.request(), null);
       } else {
-        io.util.request().should().be.a('object');
+        var type = typeof io.util.request();
+        type.should().eql('object');
       }
     },
 
