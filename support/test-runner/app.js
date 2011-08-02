@@ -91,9 +91,9 @@ var io = sio.listen(app);
 
 io.configure(function () {
   io.set('browser client handler', handler);
-  io.set('transports', [
-      'jsonp-polling'
-  ]);
+  //io.set('transports', [
+      //'jsonp-polling'
+  //]);
 });
 
 /**
@@ -116,7 +116,7 @@ function server (name, fn) {
 
   var io = sio.listen(port);
   io.configure(function () {
-    io.set('transports', ['xhr-polling']);
+    //io.set('transports', ['jsonp-polling']);
   });
 
   fn(io);
@@ -249,6 +249,20 @@ suite('socket.test.js', function () {
       socket.on('tobi', function (a, b, fn) {
         if (a === 1 && b === 2) {
           fn({ hello: 'world' });
+        }
+      });
+    });
+  });
+
+  server('test encoding a payload', function (io) {
+    var count = 0;
+
+    io.of('/woot').on('connection', function (socket) {
+      socket.on('message', function (a) {
+        if (a == 'ñ') {
+          if (++count == 4) {
+            socket.emit('done');
+          }
         }
       });
     });
