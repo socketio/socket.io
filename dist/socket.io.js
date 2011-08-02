@@ -79,9 +79,10 @@
 
     var options = {
         host: uri.host
-      , secure: uri.protocol == 'https'
-      , port: uri.port || 80
+      , secure: 'https' == uri.protocol
+      , port: uri.port || ('https' == uri.protocol ? 443 : 80)
     };
+
     io.util.merge(options, details);
 
     if (options['force new connection'] || !io.sockets[uuri]) {
@@ -1396,6 +1397,18 @@
       + options.resource + '/' + io.protocol
       + '/' + this.name + '/' + this.sessid;
   };
+
+  /**
+   * Checks if the transport is ready to start a connection.
+   *
+   * @param {Socket} socket The socket instance that needs a transport
+   * @param {Function} fn The callback
+   * @api private
+   */
+
+  Transport.prototype.ready = function (socket, fn) {
+    fn.call(this);
+  };
 })(
     'undefined' != typeof io ? io : module.exports
   , 'undefined' != typeof io ? io : module.parent.exports
@@ -1416,7 +1429,7 @@
   exports.Socket = Socket;
 
   /**
-   * Create a new `Socket.IO client` which can establish a persisent
+   * Create a new `Socket.IO client` which can establish a persistent
    * connection with a Socket.IO enabled server.
    *
    * @api public
@@ -1612,34 +1625,37 @@
         self.transport = self.getTransport(transports);
         if (!self.transport) return self.publish('connect_failed');
 
-        self.connecting = true;
-        self.publish('connecting', self.transport.name);
-        self.transport.open();
+        // once the transport is ready
+        self.transport.ready(self, function () {
+          self.connecting = true;
+          self.publish('connecting', self.transport.name);
+          self.transport.open();
 
-        if (self.options['connect timeout']) {
-          self.connectTimeoutTimer = setTimeout(function () {
-            if (!self.connected) {
-              self.connecting = false;
+          if (self.options['connect timeout']) {
+            self.connectTimeoutTimer = setTimeout(function () {
+              if (!self.connected) {
+                self.connecting = false;
 
-              if (self.options['try multiple transports']) {
-                if (!self.remainingTransports) {
-                  self.remainingTransports = self.transports.slice(0);
-                }
+                if (self.options['try multiple transports']) {
+                  if (!self.remainingTransports) {
+                    self.remainingTransports = self.transports.slice(0);
+                  }
 
-                var remaining = self.remainingTransports;
+                  var remaining = self.remainingTransports;
 
-                while (remaining.length > 0 && remaining.splice(0,1)[0] !=
-                  self.transport.name) {}
+                  while (remaining.length > 0 && remaining.splice(0,1)[0] !=
+                         self.transport.name) {}
 
-                if (remaining.length){
-                  connect(remaining);
-                } else {
-                  self.publish('connect_failed');
+                    if (remaining.length){
+                      connect(remaining);
+                    } else {
+                      self.publish('connect_failed');
+                    }
                 }
               }
-            }
-          }, self.options['connect timeout']);
-        }
+            }, self.options['connect timeout']);
+          }
+        });
       }
 
       connect();
@@ -2325,7 +2341,7 @@
   exports.flashsocket = Flashsocket;
 
   /**
-   * The Flashsocket transport. This is a API wrapper for the HTML5 WebSocket
+   * The FlashSocket transport. This is a API wrapper for the HTML5 WebSocket
    * specification. It uses a .swf file to communicate with the server. If you want
    * to serve the .swf file from a other server than where the Socket.IO script is
    * coming from you need to use the insecure version of the .swf. More information
@@ -2355,8 +2371,8 @@
   Flashsocket.prototype.name = 'flashsocket';
 
   /**
-   *Disconnect the established `Flashsocket` connection. This is done by adding a 
-   * new task to the Flashsocket. The rest will be handled off by the `WebSocket` 
+   *Disconnect the established `FlashSocket` connection. This is done by adding a 
+   * new task to the FlashSocket. The rest will be handled off by the `WebSocket` 
    * transport.
    *
    * @returns {Transport}
@@ -2364,7 +2380,9 @@
    */
 
   Flashsocket.prototype.open = function () {
-    var self = this, args = arguments;
+    var self = this
+      , args = arguments;
+
     WebSocket.__addTask(function () {
       io.Transport.websocket.prototype.open.apply(self, args);
     });
@@ -2373,7 +2391,7 @@
   
   /**
    * Sends a message to the Socket.IO server. This is done by adding a new
-   * task to the Flashsocket. The rest will be handled off by the `WebSocket` 
+   * task to the FlashSocket. The rest will be handled off by the `WebSocket` 
    * transport.
    *
    * @returns {Transport}
@@ -2389,7 +2407,7 @@
   };
 
   /**
-   * Disconnects the established `Flashsocket` connection.
+   * Disconnects the established `FlashSocket` connection.
    *
    * @returns {Transport}
    * @api public
@@ -2402,47 +2420,67 @@
   };
 
   /**
-   * Check if the Flashsocket transport is supported as it requires that the Adobe
-   * Flash Player plugin version `10.0.0` or greater is installed. And also check if
+   * The WebSocket fall back needs to append the flash container to the body
+   * element, so we need to make sure we have access to it. Or defer the call
+   * until we are sure there is a body element.
+   *
+   * @param {Socket} socket The socket instance that needs a transport
+   * @param {Function} fn The callback
+   * @api private
+   */
+
+  Flashsocket.prototype.ready = function (socket, fn) {
+    function init () {
+      var options = socket.options
+        , path = [
+              'http' + (options.secure ? 's' : '') + ':/'
+            , options.host + ':' + options.port
+            , options.resource
+            , 'static/flashsocket'
+            , 'WebSocketMain' + (socket.isXDomain() ? 'Insecure' : '') + '.swf'
+          ];
+
+      // Only start downloading the swf file when the checked that this browser
+      // actually supports it
+      if (!Flashsocket.loaded) {
+        if (typeof WEB_SOCKET_SWF_LOCATION === 'undefined') {
+          // Set the correct file based on the XDomain settings
+          WEB_SOCKET_SWF_LOCATION = path.join('/');
+        }
+
+        WebSocket.__initialize();
+        Flashsocket.loaded = true;
+      }
+
+      fn.call(self);
+    }
+
+    var self = this;
+    if (document.body) return init();
+
+    io.util.load(init);
+  };
+
+  /**
+   * Check if the FlashSocket transport is supported as it requires that the Adobe
+   * Flash Player plug-in version `10.0.0` or greater is installed. And also check if
    * the polyfill is correctly loaded.
    *
    * @returns {Boolean}
    * @api public
    */
 
-  Flashsocket.check = function (socket) {
+  Flashsocket.check = function () {
     if (
         typeof WebSocket == 'undefined'
       || !('__initialize' in WebSocket) || !swfobject
     ) return false;
 
-    var supported = swfobject.getFlashPlayerVersion().major >= 10
-      , options = socket.options
-      , path = [
-          'http' + (options.secure ? 's' : '') + ':/'
-        , options.host + ':' + options.port
-        , options.resource
-        , 'static/flashsocket'
-        , 'WebSocketMain' + (socket.isXDomain() ? 'Insecure' : '') + '.swf'
-      ];
-
-    // Only start downloading the swf file when the checked that this browser
-    // actually supports it
-    if (supported && !Flashsocket.loaded) {
-      if (typeof WEB_SOCKET_SWF_LOCATION === 'undefined') {
-        // Set the correct file based on the XDomain settings
-        WEB_SOCKET_SWF_LOCATION = path.join('/');
-      }
-
-      WebSocket.__initialize();
-      Flashsocket.loaded = true;
-    }
-
-    return supported;
+    return swfobject.getFlashPlayerVersion().major >= 1;
   };
 
   /**
-   * Check if the Flashsocket transport can be used as cross domain / cross origin 
+   * Check if the FlashSocket transport can be used as cross domain / cross origin 
    * transport. Because we can't see which type (secure or insecure) of .swf is used
    * we will just return true.
    *
@@ -3258,10 +3296,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   XHRPolling.prototype.open = function () {
     var self = this;
 
-    io.util.defer(function () {
-      io.Transport.XHR.prototype.open.call(self);
-    });
-
+    io.Transport.XHR.prototype.open.call(self);
     return false;
   };
 
@@ -3324,6 +3359,25 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       } catch(e){}
       this.xhr = null;
     }
+  };
+
+  /**
+   * Webkit based browsers show a infinit spinner when you start a XHR request
+   * before the browsers onload event is called so we need to defer opening of
+   * the transport until the onload event is called. Wrapping the cb in our
+   * defer method solve this.
+   *
+   * @param {Socket} socket The socket instance that needs a transport
+   * @param {Function} fn The callback
+   * @api private
+   */
+
+  XHRPolling.prototype.ready = function (socket, fn) {
+    var self = this;
+
+    io.util.defer(function () {
+      fn.call(self);
+    });
   };
 
   /**
@@ -3415,6 +3469,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       form.style.left = '-1000px';
       form.target = id;
       form.method = 'POST';
+      form.setAttribute('accept-charset', 'utf-8');
       area.name = 'd';
       form.appendChild(area);
       document.body.appendChild(form);
