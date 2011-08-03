@@ -2,7 +2,6 @@
 ALL_TESTS = $(shell find test/ -name '*.test.js')
 
 run-tests:
-	@npm link > /dev/null --local
 	@./node_modules/.bin/expresso \
 		-t 3000 \
 		-I support \
@@ -16,5 +15,8 @@ test:
 
 test-cov:
 	@TESTFLAGS=--cov $(MAKE) test
+
+test-leaks:
+	@ls test/leaks/* | xargs node --expose_debug_as=debug --expose_gc
 
 .PHONY: test
