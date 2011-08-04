@@ -1637,6 +1637,42 @@ module.exports = {
     });
   },
 
+  'test accessing handshake data from sockets on disconnect': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws;
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('disconnect', function () {
+
+      (!!socket.handshake.address.address).should.be.true;
+      (!!socket.handshake.address.port).should.be.true;
+      socket.handshake.headers.host.should.equal('localhost');
+      socket.handshake.headers.connection.should.equal('keep-alive');
+      socket.handshake.time.should.match(/GMT/);
+
+        setTimeout(function () {
+          ws.finishClose();
+          cl.end();
+          io.server.close();
+          done();
+        }, 10);
+      });
+
+      socket.disconnect();
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+      ws.on('message', function (msg) {
+        if (!ws.connected) {
+          msg.type.should.eql('connect');
+          ws.connected = true;
+        }
+      });
+    });
+  },
+
   'test for intentional and unintentional disconnects': function (done) {
     var cl = client(++ports)
       , io = create(cl)
@@ -1695,5 +1731,41 @@ module.exports = {
         }
       });
     });
-  }
+  },
+
+  'test socket clean up': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws;
+
+    io.sockets.on('connection', function (socket) {
+      var self = this
+        , id = socket.id;
+
+      socket.on('disconnect', function () {
+        setTimeout(function () {
+          var available = !!self.sockets[id];
+
+          available.should.be.false;
+          ws.finishClose();
+          cl.end();
+          io.server.close();
+          done();
+        }, 10);
+      });
+
+      socket.disconnect();
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+      ws.on('message', function (msg) {
+        if (!ws.connected) {
+          msg.type.should.eql('connect');
+          ws.connected = true;
+        }
+      });
+    });
+  },
+
 };
