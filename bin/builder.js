@@ -213,7 +213,7 @@ var builder = module.exports = function () {
         ast = uglify.uglify.ast_mangle(ast);
         ast = uglify.uglify.ast_squeeze(ast);
 
-        code = production + uglify.uglify.gen_code(ast, {ascii_only: true});
+        code = production + uglify.uglify.gen_code(ast, { ascii_only: true });
       }
 
       callback(error, code);
