@@ -62,12 +62,8 @@
     },
 
     'request': function () {
-      if ('undefined' == typeof window) {
-        should.equal(io.util.request(), null);
-      } else {
-        var type = typeof io.util.request();
-        type.should().eql('object');
-      }
+      var type = typeof io.util.request();
+      type.should().eql('object');
     },
 
     'is array': function () {
