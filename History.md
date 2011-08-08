@@ -1,4 +1,22 @@
 
+0.7.8 / 2011-08-08
+==================
+
+  * Changed; make sure sio#listen passes options to both HTTP server and socket.io manager.
+  * Added docs for sio#listen.
+  * Added options parameter support for Manager constructor.
+  * Added memory leaks tests and test-leaks Makefile task.
+  * Removed auto npm-linking from make test.
+  * Make sure that you can disable heartbeats. [3rd-Eden]
+  * Fixed rooms memory leak [3rd-Eden]
+  * Send response once we got all POST data, not immediately [Pita]
+  * Fixed onLeave behavior with missing clientsk [3rd-Eden]
+  * Prevent duplicate references in rooms.
+  * Added alias for `to` to `in` and `in` to `to`.
+  * Fixed roomClients definition.
+  * Removed dependency on redis for installation without npm [3rd-Eden]
+  * Expose path and querystring in handshakeData [3rd-Eden]
+
 0.7.7 / 2011-07-12
 ==================
 
