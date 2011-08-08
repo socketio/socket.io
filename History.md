@@ -1,4 +1,22 @@
 
+0.7.5 / 2011-08-08
+==================
+
+  * Added querystring support for `connect` [3rd-Eden]
+  * Added partial Node.JS transports support [3rd-Eden, josephg]
+  * Fixed builder test.
+  * Changed `util.inherit` to replicate Object.create / __proto__.
+  * Changed and cleaned up some acceptance tests.
+  * Fixed race condition with a test that could not be run multiple times.
+  * Added test for encoding a payload.
+  * Added the ability to override the transport to use in acceptance test [3rd-Eden]
+  * Fixed multiple connect packets [DanielBaulig]
+  * Fixed jsonp-polling over-buffering [3rd-Eden]
+  * Fixed ascii preservation in minified socket.io client [3rd-Eden]
+  * Fixed socket.io in situations where the page is not served through utf8.
+   Fixed namespaces not reconnecting after disconnect [3rd-Eden]
+  * Fixed default port for secure connections.
+
 0.7.4 / 2011-07-12
 ==================
 
