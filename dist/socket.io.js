@@ -81,6 +81,7 @@
         host: uri.host
       , secure: 'https' == uri.protocol
       , port: uri.port || ('https' == uri.protocol ? 443 : 80)
+      , query: uri.query || ''
     };
 
     io.util.merge(options, details);
@@ -107,7 +108,7 @@
  * MIT Licensed
  */
 
-(function (exports) {
+(function (exports, global) {
 
   /**
    * Utilities namespace.
@@ -154,7 +155,7 @@
       , host = uri.host
       , port = uri.port;
 
-    if ('undefined' != typeof document) {
+    if ('document' in global) {
       host = host || document.domain;
       port = port || (protocol == 'https'
         && document.location.protocol !== 'https:' ? 443 : document.location.port);
@@ -227,11 +228,11 @@
   var pageLoaded = false;
 
   util.load = function (fn) {
-    if (document.readyState === 'complete' || pageLoaded) {
+    if ('document' in global && document.readyState === 'complete' || pageLoaded) {
       return fn();
     }
 
-    util.on(window, 'load', fn, false);
+    util.on(global, 'load', fn, false);
   };
 
   /**
@@ -243,7 +244,7 @@
   util.on = function (element, event, fn, capture) {
     if (element.attachEvent) {
       element.attachEvent('on' + event, fn);
-    } else {
+    } else if (element.addEventListener) {
       element.addEventListener(event, fn, capture);
     }
   };
@@ -257,6 +258,7 @@
    */
 
   util.request = function (xdomain) {
+
     if ('undefined' != typeof window) {
       if (xdomain && window.XDomainRequest) {
         return new XDomainRequest();
@@ -352,8 +354,9 @@
    */
 
   util.inherit = function (ctor, ctor2) {
-    ctor.prototype = new ctor2;
-    util.merge(ctor, ctor2);
+    function f() {};
+    f.prototype = ctor2.prototype;
+    ctor.prototype = new f;
   };
 
   /**
@@ -456,7 +459,10 @@
   util.ua.webkit = 'undefined' != typeof navigator
     && /webkit/i.test(navigator.userAgent);
 
-})('undefined' != typeof window ? io : module.exports);
+})(
+    'undefined' != typeof window ? io : module.exports
+  , this
+);
 
 /**
  * socket.io
@@ -1466,7 +1472,7 @@
  * MIT Licensed
  */
 
-(function (exports, io) {
+(function (exports, io, global) {
 
   /**
    * Expose constructor.
@@ -1485,7 +1491,7 @@
     this.options = {
         port: 80
       , secure: false
-      , document: document
+      , document: 'document' in global ? document : false
       , resource: 'socket.io'
       , transports: io.transports
       , 'connect timeout': 10000
@@ -1513,7 +1519,7 @@
         (!this.isXDomain() || io.util.ua.hasCORS)) {
       var self = this;
 
-      io.util.on(window, 'beforeunload', function () {
+      io.util.on(global, 'beforeunload', function () {
         self.disconnectSync();
       }, false);
     }
@@ -1608,7 +1614,7 @@
     } else {
       var xhr = io.util.request();
 
-      xhr.open('GET', url);
+      xhr.open('GET', url, true);
       xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
           xhr.onreadystatechange = empty;
@@ -1796,6 +1802,7 @@
    */
 
   Socket.prototype.isXDomain = function () {
+
     var locPort = window.location.port || 80;
     return this.options.host !== document.domain || this.options.port != locPort;
   };
@@ -1970,6 +1977,7 @@
 })(
     'undefined' != typeof io ? io : module.exports
   , 'undefined' != typeof io ? io : module.parent.exports
+  , this
 );
 /**
  * socket.io
@@ -2379,6 +2387,7 @@
    */
 
   io.transports.push('websocket');
+
 
 })(
     'undefined' != typeof io ? io.Transport : module.exports
@@ -2929,7 +2938,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
  * MIT Licensed
  */
 
-(function (exports, io) {
+(function (exports, io, global) {
 
   /**
    * Expose constructor.
@@ -3041,7 +3050,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     this.sendXHR = this.request('POST');
 
-    if (window.XDomainRequest && this.sendXHR instanceof XDomainRequest) {
+    if (global.XDomainRequest && this.sendXHR instanceof XDomainRequest) {
       this.sendXHR.onload = this.sendXHR.onerror = onload;
     } else {
       this.sendXHR.onreadystatechange = stateChange;
@@ -3075,7 +3084,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     var req = io.util.request(this.socket.isXDomain())
       , query = io.util.query(this.socket.options.query, + 't=' + +new Date);
 
-    req.open(method || 'GET', this.prepareUrl() + query);
+    req.open(method || 'GET', this.prepareUrl() + query, true);
 
     if (method == 'POST') {
       try {
@@ -3118,7 +3127,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     return false;
   };
-  
+
   /**
    * Check if the XHR transport supports corss domain requests.
    * 
@@ -3133,6 +3142,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 })(
     'undefined' != typeof io ? io.Transport : module.exports
   , 'undefined' != typeof io ? io : module.parent.exports
+  , this
 );
 
 /**
@@ -3313,7 +3323,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
  * MIT Licensed
  */
 
-(function (exports, io) {
+(function (exports, io, global) {
 
   /**
    * Expose constructor.
@@ -3338,6 +3348,12 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   io.util.inherit(XHRPolling, io.Transport.XHR);
+
+  /**
+   * Merge the properties from XHR transport
+   */
+
+  io.util.merge(XHRPolling, io.Transport.XHR);
 
   /**
    * Transport name
@@ -3396,7 +3412,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     this.xhr = this.request();
 
-    if (window.XDomainRequest && this.xhr instanceof XDomainRequest) {
+    if (global.XDomainRequest && this.xhr instanceof XDomainRequest) {
       this.xhr.onload = this.xhr.onerror = onload;
     } else {
       this.xhr.onreadystatechange = stateChange;
@@ -3453,6 +3469,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 })(
     'undefined' != typeof io ? io.Transport : module.exports
   , 'undefined' != typeof io ? io : module.parent.exports
+  , this
 );
 
 /**
