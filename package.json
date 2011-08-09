@@ -1,7 +1,7 @@
 {
     "name": "socket.io-client"
   , "description": "Socket.IO client for the browser and node.js"
-  , "version": "0.7.4"
+  , "version": "0.7.5"
   , "main" : "./lib/io.js"
   , "browserify": "./dist/socket.io.js"
   , "homepage": "http://socket.io"
@@ -18,13 +18,15 @@
     }
   , "dependencies": {
         "uglify-js": "1.0.6"
+      , "websocket-client": "1.0.0"
+      , "xmlhttprequest": "1.2.2"
     }
   , "devDependencies": {
         "expresso": "0.7.7"
       , "express": "2.3.11"
       , "jade": "0.12.1"
       , "stylus": "0.13.3"
-      , "socket.io": "0.7.7"
+      , "socket.io": "0.7.8"
       , "socket.io-client": "0.7.4"
     }
   , "engines": { "node": ">= 0.4.0" }
