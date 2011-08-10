@@ -59,7 +59,6 @@ HTTPClient.prototype.request = function (path, opts, fn) {
   opts.headers.Host = 'localhost';
   opts.headers.Connection = 'keep-alive';
 
-
   var req = http.request(opts, function (res) {
     if (false === opts.buffer)
       return fn && fn(res);
@@ -106,6 +105,7 @@ HTTPClient.prototype.end = function () {
 HTTPClient.prototype.get = function (path, opts, fn) {
   if ('function' == typeof opts) {
     fn = opts;
+    opts = {}
   }
 
   opts = opts || {};
