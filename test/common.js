@@ -105,7 +105,7 @@ HTTPClient.prototype.end = function () {
 HTTPClient.prototype.get = function (path, opts, fn) {
   if ('function' == typeof opts) {
     fn = opts;
-    opts = {}
+    opts = {};
   }
 
   opts = opts || {};
