@@ -472,6 +472,26 @@ module.exports = {
     });
   },
 
+  'test handshake cross domain access control': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port)
+      , headers = {
+            Origin: 'http://example.org:1337'
+          , Cookie: 'name=value'
+        };
+
+    cl.get('/socket.io/{protocol}/', { headers:headers }, function (res, data) {
+      res.statusCode.should.eql(200);
+      res.headers['access-control-allow-origin'].should.eql('*');
+      res.headers['access-control-allow-credentials'].should.eql('true');
+
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
   'test limiting the supported transports for a manager': function (done) {
     var port = ++ports
       , io = sio.listen(port)
