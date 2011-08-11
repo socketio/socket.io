@@ -360,7 +360,7 @@ io.sockets.on('connection', function (socket) {
           <div class="example">
             <div class="example-left">
               <p class="title">Server</p>
-              <pre class="prettyprint">var app = express.createServer()
+              <pre class="prettyprint">var app = require('express').createServer()
   , io = require('socket.io').listen(app);
 
 app.listen(80);
