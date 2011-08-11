@@ -355,15 +355,29 @@ io.sockets.on('connection', function (socket) {
           <br>
 
           <!-- example -->
-          <div class="subtitle">Using with the Express web framework</div>
-          <p>You can serve normal pages and AJAX requests with Express, and attach your socket.io server:</p>
+          <div class="subtitle">Using with Node HTTP server</div>
+          <p>For this example, simply run `npm install socket.io`</p>
           <div class="example">
             <div class="example-left">
-              <p class="title">Server</p>
-              <pre class="prettyprint">var app = require('express').createServer()
-  , io = require('socket.io').listen(app);
+              <p class="title">Server (app.js)</p>
+              <pre class="prettyprint">var app = require('http').createServer(handler)
+  , io = require('socket.io').listen(app)
+  , fs = require('fs')
 
 app.listen(80);
+
+function handler (req, res) {
+  fs.readFile(__dirname + '/index.html',
+  function (err, data) {
+    if (err) {
+      res.writeHead(500);
+      return res.end('Error loading index.html');
+    }
+
+    res.writeHead(200);
+    res.end(data);
+  });
+}
 
 io.sockets.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });
@@ -373,7 +387,43 @@ io.sockets.on('connection', function (socket) {
 });</pre>
             </div>
             <div class="example-right">
-              <p class="title">Client</p>
+              <p class="title">Client (index.html)</p>
+              <pre class="prettyprint">&lt;script src=&quot;/socket.io/socket.io.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+  var socket = io.connect('http://localhost');
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('my other event', { my: 'data' });
+  });
+&lt;/script&gt;</pre>
+            </div>
+          </div>
+
+          <!-- example -->
+          <div class="subtitle">Using with the Express web framework</div>
+          <p>You can serve normal pages and AJAX requests with Express, and attach your socket.io server</p>
+          <p>For this example, simply run `npm install socket.io express`</p>
+          <div class="example">
+            <div class="example-left">
+              <p class="title">Server (app.js)</p>
+              <pre class="prettyprint">var app = require('express').createServer()
+  , io = require('socket.io').listen(app);
+
+app.listen(80);
+
+app.get('/', function (req, res) {
+  res.sendfile(__dirname + '/index.html');
+});
+
+io.sockets.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
+});</pre>
+            </div>
+            <div class="example-right">
+              <p class="title">Client (index.html)</p>
               <pre class="prettyprint">&lt;script src=&quot;/socket.io/socket.io.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
   var socket = io.connect('http://localhost');
