@@ -1,4 +1,12 @@
 
+0.7.9 / 2011-08-12
+==================
+
+  * Added check on `Socket#onConnect` to prevent double `connect` events on the main manager.
+  * Fixed socket namespace connect test. Remove broken alternative namespace connect test.
+  * Removed test handler for removed test.
+  * Bumped version to match `socket.io` server.
+
 0.7.5 / 2011-08-08
 ==================
 
