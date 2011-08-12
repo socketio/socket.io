@@ -1,4 +1,10 @@
 
+0.7.9 / 2011-08-12
+==================
+
+  * Updated socket.io-client.
+  * Make sure we only do garbage collection when the server we receive is actually run.
+
 0.7.8 / 2011-08-08
 ==================
 
