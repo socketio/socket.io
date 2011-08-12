@@ -3082,7 +3082,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
   XHR.prototype.request = function (method) {
     var req = io.util.request(this.socket.isXDomain())
-      , query = io.util.query(this.socket.options.query, + 't=' + +new Date);
+      , query = io.util.query(this.socket.options.query, 't=' + +new Date);
 
     req.open(method || 'GET', this.prepareUrl() + query, true);
 

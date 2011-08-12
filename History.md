@@ -14,7 +14,7 @@
   * Fixed jsonp-polling over-buffering [3rd-Eden]
   * Fixed ascii preservation in minified socket.io client [3rd-Eden]
   * Fixed socket.io in situations where the page is not served through utf8.
-   Fixed namespaces not reconnecting after disconnect [3rd-Eden]
+  * Fixed namespaces not reconnecting after disconnect [3rd-Eden]
   * Fixed default port for secure connections.
 
 0.7.4 / 2011-07-12
