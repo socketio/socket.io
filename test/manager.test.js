@@ -472,6 +472,91 @@ module.exports = {
     });
   },
 
+  'test that a referer is accepted for *:* origin': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.set('origins', '*:*');
+    });
+
+    cl.get('/socket.io/{protocol}', { headers: { referer: 'http://foo.bar.com:82/something' } }, function (res, data) {
+      res.statusCode.should.eql(200);
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that valid referer is accepted for addr:* origin': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.set('origins', 'foo.bar.com:*');
+    });
+
+    cl.get('/socket.io/{protocol}', { headers: { referer: 'http://foo.bar.com/something' } }, function (res, data) {
+      res.statusCode.should.eql(200);
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that erroneous referer is denied for addr:* origin': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.set('origins', 'foo.bar.com:*');
+    });
+
+    cl.get('/socket.io/{protocol}', { headers: { referer: 'http://baz.bar.com/something' } }, function (res, data) {
+      res.statusCode.should.eql(403);
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that valid referer port is accepted for addr:port origin': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.set('origins', 'foo.bar.com:81');
+    });
+
+    cl.get('/socket.io/{protocol}', { headers: { referer: 'http://foo.bar.com:81/something' } }, function (res, data) {
+      res.statusCode.should.eql(200);
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that erroneous referer port is denied for addr:port origin': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.set('origins', 'foo.bar.com:81');
+    });
+
+    cl.get('/socket.io/{protocol}', { headers: { referer: 'http://foo.bar.com/something' } }, function (res, data) {
+      res.statusCode.should.eql(403);
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
   'test limiting the supported transports for a manager': function (done) {
     var port = ++ports
       , io = sio.listen(port)
