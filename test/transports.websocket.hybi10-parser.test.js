@@ -1,7 +1,7 @@
 var assert = require('assert'); 
 var Parser = require('../lib/transports/wsver/8.js').Parser;
 
-function makeBuffer(byteStr) {
+function makeBufferFromHexString(byteStr) {
   var bytes = byteStr.split(' ');
   var buf = new Buffer(bytes.length);
   for (var i = 0; i < bytes.length; ++i) {
@@ -20,7 +20,7 @@ function splitBuffer(buffer) {
 
 function mask(str, maskString) {
   var buf = new Buffer(str);
-  var mask = makeBuffer(maskString || '34 83 a8 68');
+  var mask = makeBufferFromHexString(maskString || '34 83 a8 68');
   for (var i = 0; i < buf.length; ++i) {
     buf[i] ^= mask[i % 4];    
   }
@@ -62,8 +62,20 @@ module.exports = {
       assert.equal('Hello', data);
     });
   
-    p.add(makeBuffer(packet));
+    p.add(makeBufferFromHexString(packet));
     assert.ok(gotData);
+  },
+  'can parse close message': function() {
+    var p = new Parser();
+    var packet = '88 00';
+  
+    var gotClose = false;
+    p.on('close', function(data) {
+      gotClose = true;
+    });
+  
+    p.add(makeBufferFromHexString(packet));
+    assert.ok(gotClose);
   },
   'can parse masked text message': function() {
     var p = new Parser();
@@ -75,7 +87,7 @@ module.exports = {
       assert.equal('5:::{"name":"echo"}', data);
     });
   
-    p.add(makeBuffer(packet));
+    p.add(makeBufferFromHexString(packet));
     assert.ok(gotData);
   },
   'can parse a masked text message longer of 300 bytes': function() {
@@ -90,7 +102,7 @@ module.exports = {
       assert.equal(message, data);
     });
   
-    p.add(makeBuffer(packet));
+    p.add(makeBufferFromHexString(packet));
     assert.ok(gotData);
   },
   'can parse a fragmented masked text message of 300 bytes': function() {
@@ -108,8 +120,8 @@ module.exports = {
       assert.equal(message, data);
     });
   
-    p.add(makeBuffer(packet1));
-    p.add(makeBuffer(packet2));
+    p.add(makeBufferFromHexString(packet1));
+    p.add(makeBufferFromHexString(packet2));
     assert.ok(gotData);
   },
   'can parse a ping message': function() {
@@ -123,7 +135,7 @@ module.exports = {
       assert.equal(message, data);
     });
     
-    p.add(makeBuffer(packet));
+    p.add(makeBufferFromHexString(packet));
     assert.ok(gotPing);
   },
   'can parse a ping with no data': function() {
@@ -135,7 +147,7 @@ module.exports = {
       gotPing = true;
     });
     
-    p.add(makeBuffer(packet));
+    p.add(makeBufferFromHexString(packet));
     assert.ok(gotPing);
   },
   'can parse a fragmented masked text message of 300 bytes with a ping in the middle': function() {
@@ -163,9 +175,9 @@ module.exports = {
       assert.equal(pingMessage, data);
     });
     
-    p.add(makeBuffer(packet1));
-    p.add(makeBuffer(pingPacket));
-    p.add(makeBuffer(packet2));
+    p.add(makeBufferFromHexString(packet1));
+    p.add(makeBufferFromHexString(pingPacket));
+    p.add(makeBufferFromHexString(packet2));
     assert.ok(gotData);
     assert.ok(gotPing);
   },
@@ -195,9 +207,9 @@ module.exports = {
     });
     
     var buffers = [];
-    buffers = buffers.concat(splitBuffer(makeBuffer(packet1)));
-    buffers = buffers.concat(splitBuffer(makeBuffer(pingPacket)));
-    buffers = buffers.concat(splitBuffer(makeBuffer(packet2)));
+    buffers = buffers.concat(splitBuffer(makeBufferFromHexString(packet1)));
+    buffers = buffers.concat(splitBuffer(makeBufferFromHexString(pingPacket)));
+    buffers = buffers.concat(splitBuffer(makeBufferFromHexString(packet2)));
     for (var i = 0; i < buffers.length; ++i) {
       p.add(buffers[i]);
     }
