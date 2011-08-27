@@ -90,12 +90,27 @@ module.exports = {
     p.add(makeBufferFromHexString(packet));
     assert.ok(gotData);
   },
-  'can parse a masked text message longer of 300 bytes': function() {
+  'can parse a masked text message longer than 125 bytes': function() {
     var p = new Parser();
     var message = 'A';
     for (var i = 0; i < 300; ++i) message += (i % 5).toString();
     var packet = '81 FE ' + pack(4, message.length) + ' 34 83 a8 68 ' + dump(mask(message, '34 83 a8 68'));
     
+    var gotData = false;
+    p.on('data', function(data) {
+      gotData = true;
+      assert.equal(message, data);
+    });
+  
+    p.add(makeBufferFromHexString(packet));
+    assert.ok(gotData);
+  },
+  'can parse a really long masked text message': function() {
+    var p = new Parser();
+    var message = 'A';
+    for (var i = 0; i < 64*1024; ++i) message += (i % 5).toString();
+    var packet = '81 FF ' + pack(16, message.length) + ' 34 83 a8 68 ' + dump(mask(message, '34 83 a8 68'));
+
     var gotData = false;
     p.on('data', function(data) {
       gotData = true;
