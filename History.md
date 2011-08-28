@@ -1,4 +1,9 @@
 
+0.8.0 / 2011-08-28
+==================
+
+  * Added MozWebSocket support (hybi-10 doesn't require API changes) [einaros].
+
 0.7.11 / 2011-08-27
 ===================
 

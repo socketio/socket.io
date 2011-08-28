@@ -2241,15 +2241,13 @@
   exports.websocket = WS;
 
   /**
-   * Redirect for WebSocket if we're running on a Mozilla browser
+   * Detect WebSocket implementation.
    */
 
-  if (
-    typeof window != 'undefined' && 
-    typeof window['WebSocket'] == 'undefined' && 
-    typeof window['MozWebSocket'] != 'undefined'
-    ) {
-    window['WebSocket'] = MozWebSocket;
+  var WebSocket;
+
+  if ('undefined' != typeof window) {
+    WebSocket = window.WebSocket || window.MozWebSocket;
   }
 
   /**
@@ -2382,7 +2380,7 @@
    */
 
   WS.check = function () {
-    return 'WebSocket' in window && !('__addTask' in WebSocket);
+    return WebSocket && !WebSocket.__addTask;
   };
 
   /**
@@ -2403,7 +2401,6 @@
    */
 
   io.transports.push('websocket');
-
 
 })(
     'undefined' != typeof io ? io.Transport : module.exports
