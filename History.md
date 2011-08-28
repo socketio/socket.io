@@ -1,4 +1,12 @@
 
+0.8.0 / 2011-08-28
+==================
+
+  * Updated to work with two-level websocket versioning. [einaros]
+  * Added hybi07 support. [einaros]
+  * Added hybi10 support. [einaros]
+  * Added http referrer verification to manager.js verifyOrigin. [einaors]
+
 0.7.11 / 2011-08-27
 ===================
 
