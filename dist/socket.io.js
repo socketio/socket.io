@@ -1,4 +1,4 @@
-/*! Socket.IO.js build:0.7.11, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
+/*! Socket.IO.js build:0.8.0, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
 
 /**
  * socket.io
@@ -22,7 +22,7 @@
    * @api public
    */
 
-  io.version = '0.7.11';
+  io.version = '0.8.0';
 
   /**
    * Protocol implemented.
@@ -2249,6 +2249,7 @@
   if ('undefined' != typeof window) {
     WebSocket = window.WebSocket || window.MozWebSocket;
   }
+
 
   /**
    * The WebSocket transport uses the HTML5 WebSocket API to establish an
