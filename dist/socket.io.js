@@ -2241,6 +2241,18 @@
   exports.websocket = WS;
 
   /**
+   * Redirect for WebSocket if we're running on a Mozilla browser
+   */
+
+  if (
+    typeof window != 'undefined' && 
+    typeof window['WebSocket'] == 'undefined' && 
+    typeof window['MozWebSocket'] != 'undefined'
+    ) {
+    window['WebSocket'] = MozWebSocket;
+  }
+
+  /**
    * The WebSocket transport uses the HTML5 WebSocket API to establish an
    * persistent connection with the Socket.IO server. This transport will also
    * be inherited by the FlashSocket fallback as it provides a API compatible
