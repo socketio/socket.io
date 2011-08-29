@@ -1,4 +1,12 @@
 
+0.8.1 / 2011-08-29
+==================
+
+  * Fixed utf8 bug in send framing in websocket [einaros]
+  * Fixed typo in docs [Znarkus]
+  * Fixed bug in send framing for over 64kB of data in websocket [einaros]
+  * Corrected ping handling in websocket transport [einaros]
+
 0.8.0 / 2011-08-28
 ==================
 
