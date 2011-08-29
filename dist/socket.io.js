@@ -1,4 +1,4 @@
-/*! Socket.IO.js build:0.7.4, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
+/*! Socket.IO.js build:0.8.2, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
 
 /**
  * socket.io
@@ -22,7 +22,7 @@
    * @api public
    */
 
-  io.version = '0.7.4';
+  io.version = '0.8.2';
 
   /**
    * Protocol implemented.
@@ -79,9 +79,11 @@
 
     var options = {
         host: uri.host
-      , secure: uri.protocol == 'https'
-      , port: uri.port || 80
+      , secure: 'https' == uri.protocol
+      , port: uri.port || ('https' == uri.protocol ? 443 : 80)
+      , query: uri.query || ''
     };
+
     io.util.merge(options, details);
 
     if (options['force new connection'] || !io.sockets[uuri]) {
@@ -106,7 +108,7 @@
  * MIT Licensed
  */
 
-(function (exports) {
+(function (exports, global) {
 
   /**
    * Utilities namespace.
@@ -153,7 +155,7 @@
       , host = uri.host
       , port = uri.port;
 
-    if ('undefined' != typeof document) {
+    if ('document' in global) {
       host = host || document.domain;
       port = port || (protocol == 'https'
         && document.location.protocol !== 'https:' ? 443 : document.location.port);
@@ -169,6 +171,52 @@
   };
 
   /**
+   * Mergest 2 query strings in to once unique query string
+   *
+   * @param {String} base
+   * @param {String} addition
+   * @api public
+   */
+
+  util.query = function (base, addition) {
+    var query = util.chunkQuery(base || '')
+      , components = [];
+
+    util.merge(query, util.chunkQuery(addition || ''));
+    for (var part in query) {
+      if (query.hasOwnProperty(part)) {
+        components.push(part + '=' + query[part]);
+      }
+    }
+
+    return components.length ? '?' + components.join('&') : '';
+  };
+
+  /**
+   * Transforms a querystring in to an object
+   *
+   * @param {String} qs
+   * @api public
+   */
+
+  util.chunkQuery = function (qs) {
+    var query = {}
+      , params = qs.split('&')
+      , i = 0
+      , l = params.length
+      , kv;
+
+    for (; i < l; ++i) {
+      kv = params[i].split('=');
+      if (kv[0]) {
+        query[kv[0]] = decodeURIComponent(kv[1]);
+      }
+    }
+
+    return query;
+  };
+
+  /**
    * Executes the given function when the page is loaded.
    *
    *     io.util.load(function () { console.log('page loaded'); });
@@ -180,11 +228,11 @@
   var pageLoaded = false;
 
   util.load = function (fn) {
-    if (document.readyState === 'complete' || pageLoaded) {
+    if ('document' in global && document.readyState === 'complete' || pageLoaded) {
       return fn();
     }
 
-    util.on(window, 'load', fn, false);
+    util.on(global, 'load', fn, false);
   };
 
   /**
@@ -196,7 +244,7 @@
   util.on = function (element, event, fn, capture) {
     if (element.attachEvent) {
       element.attachEvent('on' + event, fn);
-    } else {
+    } else if (element.addEventListener) {
       element.addEventListener(event, fn, capture);
     }
   };
@@ -210,14 +258,15 @@
    */
 
   util.request = function (xdomain) {
+
     if ('undefined' != typeof window) {
       if (xdomain && window.XDomainRequest) {
         return new XDomainRequest();
-      };
+      }
 
       if (window.XMLHttpRequest && (!xdomain || util.ua.hasCORS)) {
         return new XMLHttpRequest();
-      };
+      }
 
       if (!xdomain) {
         try {
@@ -305,8 +354,9 @@
    */
 
   util.inherit = function (ctor, ctor2) {
-    ctor.prototype = new ctor2;
-    util.merge(ctor, ctor2);
+    function f() {};
+    f.prototype = ctor2.prototype;
+    ctor.prototype = new f;
   };
 
   /**
@@ -332,7 +382,7 @@
   util.intersect = function (arr, arr2) {
     var ret = []
       , longest = arr.length > arr2.length ? arr : arr2
-      , shortest = arr.length > arr2.length ? arr2 : arr
+      , shortest = arr.length > arr2.length ? arr2 : arr;
 
     for (var i = 0, l = shortest.length; i < l; i++) {
       if (~util.indexOf(longest, shortest[i]))
@@ -354,8 +404,8 @@
       return Array.prototype.indexOf.call(arr, o, i);
     }
 
-    for (var j = arr.length, i = i < 0 ? i + j < 0 ? 0 : i + j : i || 0
-        ; i < j && arr[i] !== o; i++);
+    for (var j = arr.length, i = i < 0 ? i + j < 0 ? 0 : i + j : i || 0; 
+         i < j && arr[i] !== o; i++);
 
     return j <= i ? -1 : i;
   };
@@ -409,7 +459,10 @@
   util.ua.webkit = 'undefined' != typeof navigator
     && /webkit/i.test(navigator.userAgent);
 
-})('undefined' != typeof window ? io : module.exports);
+})(
+    'undefined' != typeof window ? io : module.exports
+  , this
+);
 
 /**
  * socket.io
@@ -990,10 +1043,10 @@
     switch (packet.type) {
       case 'error':
         var reason = packet.reason ? indexOf(reasons, packet.reason) : ''
-          , adv = packet.advice ? indexOf(advice, packet.advice) : ''
+          , adv = packet.advice ? indexOf(advice, packet.advice) : '';
 
         if (reason !== '' || adv !== '')
-          data = reason + (adv !== '' ? ('+' + adv) : '')
+          data = reason + (adv !== '' ? ('+' + adv) : '');
 
         break;
 
@@ -1057,7 +1110,7 @@
 
     for (var i = 0, l = packets.length; i < l; i++) {
       var packet = packets[i];
-      decoded += '\ufffd' + packet.length + '\ufffd' + packets[i]
+      decoded += '\ufffd' + packet.length + '\ufffd' + packets[i];
     }
 
     return decoded;
@@ -1396,6 +1449,18 @@
       + options.resource + '/' + io.protocol
       + '/' + this.name + '/' + this.sessid;
   };
+
+  /**
+   * Checks if the transport is ready to start a connection.
+   *
+   * @param {Socket} socket The socket instance that needs a transport
+   * @param {Function} fn The callback
+   * @api private
+   */
+
+  Transport.prototype.ready = function (socket, fn) {
+    fn.call(this);
+  };
 })(
     'undefined' != typeof io ? io : module.exports
   , 'undefined' != typeof io ? io : module.parent.exports
@@ -1407,7 +1472,7 @@
  * MIT Licensed
  */
 
-(function (exports, io) {
+(function (exports, io, global) {
 
   /**
    * Expose constructor.
@@ -1416,7 +1481,7 @@
   exports.Socket = Socket;
 
   /**
-   * Create a new `Socket.IO client` which can establish a persisent
+   * Create a new `Socket.IO client` which can establish a persistent
    * connection with a Socket.IO enabled server.
    *
    * @api public
@@ -1426,13 +1491,14 @@
     this.options = {
         port: 80
       , secure: false
-      , document: document
+      , document: 'document' in global ? document : false
       , resource: 'socket.io'
       , transports: io.transports
       , 'connect timeout': 10000
       , 'try multiple transports': true
       , 'reconnect': true
       , 'reconnection delay': 500
+      , 'reconnection limit': Infinity
       , 'reopen delay': 3000
       , 'max reconnection attempts': 10
       , 'sync disconnect on unload': true
@@ -1453,7 +1519,7 @@
         (!this.isXDomain() || io.util.ua.hasCORS)) {
       var self = this;
 
-      io.util.on(window, 'beforeunload', function () {
+      io.util.on(global, 'beforeunload', function () {
         self.disconnectSync();
       }, false);
     }
@@ -1531,7 +1597,7 @@
         , options.host + ':' + options.port
         , this.options.resource
         , io.protocol
-        , '?t=' + + new Date
+        , io.util.query(this.options.query, 't=' + +new Date)
       ].join('/');
 
     if (this.isXDomain()) {
@@ -1548,7 +1614,7 @@
     } else {
       var xhr = io.util.request();
 
-      xhr.open('GET', url);
+      xhr.open('GET', url, true);
       xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
           xhr.onreadystatechange = empty;
@@ -1609,37 +1675,42 @@
       );
 
       function connect (transports){
+        if (self.transport) self.transport.clearTimeouts();
+
         self.transport = self.getTransport(transports);
         if (!self.transport) return self.publish('connect_failed');
 
-        self.connecting = true;
-        self.publish('connecting', self.transport.name);
-        self.transport.open();
+        // once the transport is ready
+        self.transport.ready(self, function () {
+          self.connecting = true;
+          self.publish('connecting', self.transport.name);
+          self.transport.open();
 
-        if (self.options['connect timeout']) {
-          self.connectTimeoutTimer = setTimeout(function () {
-            if (!self.connected) {
-              self.connecting = false;
+          if (self.options['connect timeout']) {
+            self.connectTimeoutTimer = setTimeout(function () {
+              if (!self.connected) {
+                self.connecting = false;
 
-              if (self.options['try multiple transports']) {
-                if (!self.remainingTransports) {
-                  self.remainingTransports = self.transports.slice(0);
-                }
+                if (self.options['try multiple transports']) {
+                  if (!self.remainingTransports) {
+                    self.remainingTransports = self.transports.slice(0);
+                  }
 
-                var remaining = self.remainingTransports;
+                  var remaining = self.remainingTransports;
 
-                while (remaining.length > 0 && remaining.splice(0,1)[0] !=
-                  self.transport.name) {}
+                  while (remaining.length > 0 && remaining.splice(0,1)[0] !=
+                         self.transport.name) {}
 
-                if (remaining.length){
-                  connect(remaining);
-                } else {
-                  self.publish('connect_failed');
+                    if (remaining.length){
+                      connect(remaining);
+                    } else {
+                      self.publish('connect_failed');
+                    }
                 }
               }
-            }
-          }, self.options['connect timeout']);
-        }
+            }, self.options['connect timeout']);
+          }
+        });
       }
 
       connect();
@@ -1733,6 +1804,7 @@
    */
 
   Socket.prototype.isXDomain = function () {
+
     var locPort = window.location.port || 80;
     return this.options.host !== document.domain || this.options.port != locPort;
   };
@@ -1744,13 +1816,15 @@
    */
 
   Socket.prototype.onConnect = function () {
-    this.connected = true;
-    this.connecting = false;
-    if (!this.doBuffer) {
-      // make sure to flush the buffer
-      this.setBuffer(false);
+    if (!this.connected) {
+      this.connected = true;
+      this.connecting = false;
+      if (!this.doBuffer) {
+        // make sure to flush the buffer
+        this.setBuffer(false);
+      }
+      this.emit('connect');
     }
-    this.emit('connect');
   };
 
   /**
@@ -1838,9 +1912,15 @@
     var self = this
       , maxAttempts = this.options['max reconnection attempts']
       , tryMultiple = this.options['try multiple transports']
+      , limit = this.options['reconnection limit'];
 
     function reset () {
       if (self.connected) {
+        for (var i in self.namespaces) {
+          if (self.namespaces.hasOwnProperty(i) && '' !== i) {
+              self.namespaces[i].packet({ type: 'connect' });
+          }
+        }
         self.publish('reconnect', self.transport.name, self.reconnectionAttempts);
       }
 
@@ -1882,7 +1962,10 @@
           reset();
         }
       } else {
-        self.reconnectionDelay *= 2; // exponential back off
+        if (self.reconnectionDelay < limit) {
+          self.reconnectionDelay *= 2; // exponential back off
+        }
+
         self.connect();
         self.publish('reconnecting', self.reconnectionDelay, self.reconnectionAttempts);
         self.reconnectionTimer = setTimeout(maybeReconnect, self.reconnectionDelay);
@@ -1898,6 +1981,7 @@
 })(
     'undefined' != typeof io ? io : module.exports
   , 'undefined' != typeof io ? io : module.parent.exports
+  , this
 );
 /**
  * socket.io
@@ -2157,6 +2241,16 @@
   exports.websocket = WS;
 
   /**
+   * Detect WebSocket implementation.
+   */
+
+  function detectWebSocket () {
+    if (typeof window != 'undefined') {
+      return window.WebSocket || window.MozWebSocket;
+    }
+  }
+
+  /**
    * The WebSocket transport uses the HTML5 WebSocket API to establish an
    * persistent connection with the Socket.IO server. This transport will also
    * be inherited by the FlashSocket fallback as it provides a API compatible
@@ -2194,7 +2288,10 @@
    */
 
   WS.prototype.open = function () {
-    this.websocket = new WebSocket(this.prepareUrl());
+    var self = this
+      , query = io.util.query(this.socket.options.query);
+
+    this.websocket = new (detectWebSocket())(this.prepareUrl() + query);
 
     var self = this;
     this.websocket.onopen = function () {
@@ -2283,7 +2380,8 @@
    */
 
   WS.check = function () {
-    return 'WebSocket' in window && !('__addTask' in WebSocket);
+    var WebSocket = detectWebSocket();
+    return WebSocket && !WebSocket.__addTask;
   };
 
   /**
@@ -2325,7 +2423,7 @@
   exports.flashsocket = Flashsocket;
 
   /**
-   * The Flashsocket transport. This is a API wrapper for the HTML5 WebSocket
+   * The FlashSocket transport. This is a API wrapper for the HTML5 WebSocket
    * specification. It uses a .swf file to communicate with the server. If you want
    * to serve the .swf file from a other server than where the Socket.IO script is
    * coming from you need to use the insecure version of the .swf. More information
@@ -2355,8 +2453,8 @@
   Flashsocket.prototype.name = 'flashsocket';
 
   /**
-   *Disconnect the established `Flashsocket` connection. This is done by adding a 
-   * new task to the Flashsocket. The rest will be handled off by the `WebSocket` 
+   *Disconnect the established `FlashSocket` connection. This is done by adding a 
+   * new task to the FlashSocket. The rest will be handled off by the `WebSocket` 
    * transport.
    *
    * @returns {Transport}
@@ -2364,7 +2462,9 @@
    */
 
   Flashsocket.prototype.open = function () {
-    var self = this, args = arguments;
+    var self = this
+      , args = arguments;
+
     WebSocket.__addTask(function () {
       io.Transport.websocket.prototype.open.apply(self, args);
     });
@@ -2373,7 +2473,7 @@
   
   /**
    * Sends a message to the Socket.IO server. This is done by adding a new
-   * task to the Flashsocket. The rest will be handled off by the `WebSocket` 
+   * task to the FlashSocket. The rest will be handled off by the `WebSocket` 
    * transport.
    *
    * @returns {Transport}
@@ -2389,7 +2489,7 @@
   };
 
   /**
-   * Disconnects the established `Flashsocket` connection.
+   * Disconnects the established `FlashSocket` connection.
    *
    * @returns {Transport}
    * @api public
@@ -2402,47 +2502,67 @@
   };
 
   /**
-   * Check if the Flashsocket transport is supported as it requires that the Adobe
-   * Flash Player plugin version `10.0.0` or greater is installed. And also check if
+   * The WebSocket fall back needs to append the flash container to the body
+   * element, so we need to make sure we have access to it. Or defer the call
+   * until we are sure there is a body element.
+   *
+   * @param {Socket} socket The socket instance that needs a transport
+   * @param {Function} fn The callback
+   * @api private
+   */
+
+  Flashsocket.prototype.ready = function (socket, fn) {
+    function init () {
+      var options = socket.options
+        , path = [
+              'http' + (options.secure ? 's' : '') + ':/'
+            , options.host + ':' + options.port
+            , options.resource
+            , 'static/flashsocket'
+            , 'WebSocketMain' + (socket.isXDomain() ? 'Insecure' : '') + '.swf'
+          ];
+
+      // Only start downloading the swf file when the checked that this browser
+      // actually supports it
+      if (!Flashsocket.loaded) {
+        if (typeof WEB_SOCKET_SWF_LOCATION === 'undefined') {
+          // Set the correct file based on the XDomain settings
+          WEB_SOCKET_SWF_LOCATION = path.join('/');
+        }
+
+        WebSocket.__initialize();
+        Flashsocket.loaded = true;
+      }
+
+      fn.call(self);
+    }
+
+    var self = this;
+    if (document.body) return init();
+
+    io.util.load(init);
+  };
+
+  /**
+   * Check if the FlashSocket transport is supported as it requires that the Adobe
+   * Flash Player plug-in version `10.0.0` or greater is installed. And also check if
    * the polyfill is correctly loaded.
    *
    * @returns {Boolean}
    * @api public
    */
 
-  Flashsocket.check = function (socket) {
+  Flashsocket.check = function () {
     if (
         typeof WebSocket == 'undefined'
       || !('__initialize' in WebSocket) || !swfobject
     ) return false;
 
-    var supported = swfobject.getFlashPlayerVersion().major >= 10
-      , options = socket.options
-      , path = [
-          'http' + (options.secure ? 's' : '') + ':/'
-        , options.host + ':' + options.port
-        , options.resource
-        , 'static/flashsocket'
-        , 'WebSocketMain' + (socket.isXDomain() ? 'Insecure' : '') + '.swf'
-      ];
-
-    // Only start downloading the swf file when the checked that this browser
-    // actually supports it
-    if (supported && !Flashsocket.loaded) {
-      if (typeof WEB_SOCKET_SWF_LOCATION === 'undefined') {
-        // Set the correct file based on the XDomain settings
-        WEB_SOCKET_SWF_LOCATION = path.join('/');
-      }
-
-      WebSocket.__initialize();
-      Flashsocket.loaded = true;
-    }
-
-    return supported;
+    return swfobject.getFlashPlayerVersion().major >= 1;
   };
 
   /**
-   * Check if the Flashsocket transport can be used as cross domain / cross origin 
+   * Check if the FlashSocket transport can be used as cross domain / cross origin 
    * transport. Because we can't see which type (secure or insecure) of .swf is used
    * we will just return true.
    *
@@ -2832,7 +2952,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
  * MIT Licensed
  */
 
-(function (exports, io) {
+(function (exports, io, global) {
 
   /**
    * Expose constructor.
@@ -2944,7 +3064,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     this.sendXHR = this.request('POST');
 
-    if (window.XDomainRequest && this.sendXHR instanceof XDomainRequest) {
+    if (global.XDomainRequest && this.sendXHR instanceof XDomainRequest) {
       this.sendXHR.onload = this.sendXHR.onerror = onload;
     } else {
       this.sendXHR.onreadystatechange = stateChange;
@@ -2975,8 +3095,10 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   XHR.prototype.request = function (method) {
-    var req = io.util.request(this.socket.isXDomain());
-    req.open(method || 'GET', this.prepareUrl() + '?t' + (+ new Date));
+    var req = io.util.request(this.socket.isXDomain())
+      , query = io.util.query(this.socket.options.query, 't=' + +new Date);
+
+    req.open(method || 'GET', this.prepareUrl() + query, true);
 
     if (method == 'POST') {
       try {
@@ -3019,7 +3141,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     return false;
   };
-  
+
   /**
    * Check if the XHR transport supports corss domain requests.
    * 
@@ -3034,6 +3156,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 })(
     'undefined' != typeof io ? io.Transport : module.exports
   , 'undefined' != typeof io ? io : module.parent.exports
+  , this
 );
 
 /**
@@ -3102,9 +3225,10 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     iframeC.appendChild(this.iframe);
 
-    this.iframe.src = this.prepareUrl() + '/?t=' + (+ new Date);
+    var self = this
+      , query = io.util.query(this.socket.options.query, 't='+ +new Date);
 
-    var self = this;
+    this.iframe.src = this.prepareUrl() + query;
 
     io.util.on(window, 'unload', function () {
       self.destroy();
@@ -3213,7 +3337,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
  * MIT Licensed
  */
 
-(function (exports, io) {
+(function (exports, io, global) {
 
   /**
    * Expose constructor.
@@ -3240,6 +3364,12 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   io.util.inherit(XHRPolling, io.Transport.XHR);
 
   /**
+   * Merge the properties from XHR transport
+   */
+
+  io.util.merge(XHRPolling, io.Transport.XHR);
+
+  /**
    * Transport name
    *
    * @api public
@@ -3258,10 +3388,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   XHRPolling.prototype.open = function () {
     var self = this;
 
-    io.util.defer(function () {
-      io.Transport.XHR.prototype.open.call(self);
-    });
-
+    io.Transport.XHR.prototype.open.call(self);
     return false;
   };
 
@@ -3299,7 +3426,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     this.xhr = this.request();
 
-    if (window.XDomainRequest && this.xhr instanceof XDomainRequest) {
+    if (global.XDomainRequest && this.xhr instanceof XDomainRequest) {
       this.xhr.onload = this.xhr.onerror = onload;
     } else {
       this.xhr.onreadystatechange = stateChange;
@@ -3327,6 +3454,25 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   };
 
   /**
+   * Webkit based browsers show a infinit spinner when you start a XHR request
+   * before the browsers onload event is called so we need to defer opening of
+   * the transport until the onload event is called. Wrapping the cb in our
+   * defer method solve this.
+   *
+   * @param {Socket} socket The socket instance that needs a transport
+   * @param {Function} fn The callback
+   * @api private
+   */
+
+  XHRPolling.prototype.ready = function (socket, fn) {
+    var self = this;
+
+    io.util.defer(function () {
+      fn.call(self);
+    });
+  };
+
+  /**
    * Add the transport to your public io.transports array.
    *
    * @api private
@@ -3337,6 +3483,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 })(
     'undefined' != typeof io ? io.Transport : module.exports
   , 'undefined' != typeof io ? io : module.parent.exports
+  , this
 );
 
 /**
@@ -3401,7 +3548,11 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   JSONPPolling.prototype.post = function (data) {
-    var self = this;
+    var self = this
+      , query = io.util.query(
+             this.socket.options.query
+          , 't='+ (+new Date) + '&i=' + this.index
+        );
 
     if (!this.form) {
       var form = document.createElement('FORM')
@@ -3415,6 +3566,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       form.style.left = '-1000px';
       form.target = id;
       form.method = 'POST';
+      form.setAttribute('accept-charset', 'utf-8');
       area.name = 'd';
       form.appendChild(area);
       document.body.appendChild(form);
@@ -3423,7 +3575,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       this.area = area;
     }
 
-    this.form.action = this.prepareUrl() + '?t=' + (+new Date) + '&i=' + this.index;
+    this.form.action = this.prepareUrl() + query;
 
     function complete () {
       initIframe();
@@ -3466,6 +3618,8 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     } else {
       this.iframe.onload = complete;
     }
+
+    this.socket.setBuffer(true);
   };
   
   /**
@@ -3477,7 +3631,11 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
   JSONPPolling.prototype.get = function () {
     var self = this
-      , script = document.createElement('SCRIPT');
+      , script = document.createElement('SCRIPT')
+      , query = io.util.query(
+             this.socket.options.query
+          , 't='+ (+new Date) + '&i=' + this.index
+        );
 
     if (this.script) {
       this.script.parentNode.removeChild(this.script);
@@ -3485,7 +3643,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     }
 
     script.async = true;
-    script.src = this.prepareUrl() + '/?t=' + (+new Date) + '&i=' + this.index;
+    script.src = this.prepareUrl() + query;
     script.onerror = function () {
       self.onClose();
     };

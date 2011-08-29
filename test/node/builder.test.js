@@ -30,7 +30,7 @@ module.exports = {
       var lines = result.split('\n');
       lines.length.should().be.below(5);
       lines[0].should().match(/production/gi);
-      Buffer.byteLength(result).should().be.below(41000);
+      Buffer.byteLength(result).should().be.below(43000);
     });
   },
 
@@ -97,6 +97,14 @@ module.exports = {
 
       result.should().include.string('var pew = "pew"');
     });
+  },
+
+  'preserve the encoding during minification': function () {
+    builder(function (err, result) {
+      should.strictEqual(err, null);
+
+      result.should().match(/(\\ufffd)/g);
+    })
   },
 
   'globals': function () {
