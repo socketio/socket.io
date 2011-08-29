@@ -1,5 +1,13 @@
+/**
+ * Test dependencies.
+ */
+
 var assert = require('assert'); 
-var Parser = require('../lib/transports/wsver/7.js').Parser;
+var Parser = require('../lib/transports/websocket/7.js').Parser;
+
+/**
+ * Returns a Buffer from a "ff 00 ff"-type hex string.
+ */
 
 function makeBufferFromHexString(byteStr) {
   var bytes = byteStr.split(' ');
@@ -10,13 +18,21 @@ function makeBufferFromHexString(byteStr) {
   return buf;
 }
 
+/**
+ * Splits a buffer in two parts.
+ */
+
 function splitBuffer(buffer) {
   var b1 = new Buffer(Math.ceil(buffer.length / 2));
-  var b2 = new Buffer(Math.floor(buffer.length / 2));
   buffer.copy(b1, 0, 0, b1.length);
+  var b2 = new Buffer(Math.floor(buffer.length / 2));
   buffer.copy(b2, 0, b1.length, b1.length + b2.length);
   return [b1, b2];
 }
+
+/**
+ * Performs hybi07+ type masking on a hex string.
+ */
 
 function mask(str, maskString) {
   var buf = new Buffer(str);
@@ -27,6 +43,10 @@ function mask(str, maskString) {
   return buf;
 }
 
+/**
+ * Unpacks a Buffer into a number.
+ */
+
 function unpack(buffer) {
   var n = 0;
   for (var i = 0; i < buffer.length; ++i) {
@@ -35,13 +55,25 @@ function unpack(buffer) {
   return n;
 }
 
+/**
+ * Returns a hex string, representing a specific byte count 'length', from a number.
+ */
+
 function pack(length, number) {
   return padl(number.toString(16), length, '0').replace(/(\d\d)/g, '$1 ').trim();
 }
 
-function padl(s,n,c) { 
+/**
+ * Left pads the string 's' to a total length of 'n' with char 'c'.
+ */
+
+function padl(s, n, c) { 
   return new Array(1 + n - s.length).join(c) + s;
 }
+
+/**
+ * Returns a hex string from a Buffer.
+ */
 
 function dump(data) {
   var s = '';
@@ -50,6 +82,10 @@ function dump(data) {
   }
   return s.trim();
 }
+
+/**
+ * Tests.
+ */
 
 module.exports = {
   'can parse unmasked text message': function() {
