@@ -2244,12 +2244,11 @@
    * Detect WebSocket implementation.
    */
 
-  var WebSocket;
-
-  if ('undefined' != typeof window) {
-    WebSocket = window.WebSocket || window.MozWebSocket;
+  function detectWebSocket () {
+    if (typeof window != 'undefined') {
+      return window.WebSocket || window.MozWebSocket;
+    }
   }
-
 
   /**
    * The WebSocket transport uses the HTML5 WebSocket API to establish an
@@ -2292,7 +2291,7 @@
     var self = this
       , query = io.util.query(this.socket.options.query);
 
-    this.websocket = new WebSocket(this.prepareUrl() + query);
+    this.websocket = new (detectWebSocket())(this.prepareUrl() + query);
 
     var self = this;
     this.websocket.onopen = function () {
@@ -2381,6 +2380,7 @@
    */
 
   WS.check = function () {
+    var WebSocket = detectWebSocket();
     return WebSocket && !WebSocket.__addTask;
   };
 
