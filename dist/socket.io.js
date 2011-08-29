@@ -2246,7 +2246,7 @@
 
   function detectWebSocket() {
     if (typeof window != 'undefined') {
-      return window.WebSocket || window.MozWebSocket;
+      return window.WebSocket || window.MozWebSocket;
     }
   }
 
