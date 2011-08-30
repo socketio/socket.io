@@ -411,6 +411,21 @@ module.exports = {
     });
   },
 
+  'test handshake with provided sessionid': function(done){
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+      
+      cl.get('/socket.io/{protocol}/?sessionid=1234', function (res, data) {
+        res.statusCode.should.eql(200);
+        data.should.match(/1234:([0-9]+)?:([0-9]+)?:(.+)/);
+
+        cl.end();
+        io.server.close();
+        done();
+      });  
+  },
+
   'test handshake with unsupported protocol version': function (done) {
     var port = ++ports
       , io = sio.listen(port)
