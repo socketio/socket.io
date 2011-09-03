@@ -1,4 +1,14 @@
 
+0.8.3 / 2011-09-03
+==================
+
+  * Fixed `\n` parsing for non-JSON packets.
+  * Fixed; make Socket.IO XHTML doctype compatible (fixes #460 from server)
+  * Fixed support for Node.JS running `socket.io-client`.
+  * Updated repository name in `package.json`.
+  * Added support for different policy file ports without having to port
+    forward 843 on the server side [3rd-Eden]
+
 0.8.2 / 2011-08-29
 ==================
 
