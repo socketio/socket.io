@@ -340,6 +340,21 @@
         socket.disconnect();
         next();
       });
+    },
+
+    'test sending unicode': function (next) {
+      var socket = create();
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
+      socket.json.send({ test: "\u2028" });
+
+      socket.on('done', function () {
+        socket.disconnect();
+        next();
+      });
     }
 
   };
