@@ -1,4 +1,17 @@
 
+0.8.3 / 2011-09-03
+==================
+
+  * Fixed `\n` parsing for non-JSON packets (fixes #479).
+  * Fixed transport message packet logging.
+  * Fixed emission of `error` event resulting in an uncaught exception if unhandled (fixes #476).
+  * Fixed; allow for falsy values as the configuration value of `log level` (fixes #491).
+  * Fixed repository URI in `package.json`. Fixes #504.
+  * Added text/plain content-type to handshake responses [einaros]
+  * Improved single byte writes [einaros]
+  * Updated socket.io-flashsocket default port from 843 to 10843 [3rd-Eden]
+  * Updated client.
+
 0.8.2 / 2011-08-29
 ==================
 
