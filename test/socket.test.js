@@ -325,7 +325,23 @@
         socket.disconnect();
         next();
       });
+    },
+
+    'test sending newline': function (next) {
+      var socket = create();
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
+      socket.send('\n');
+
+      socket.on('done', function () {
+        socket.disconnect();
+        next();
+      });
     }
+
   };
 
 })(

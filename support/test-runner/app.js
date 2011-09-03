@@ -286,4 +286,14 @@ suite('socket.test.js', function () {
     })
   });
 
+  server('test sending newline', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.on('message', function (msg) {
+        if (msg == '\n') {
+          socket.emit('done');
+        }
+      });
+    });
+  });
+
 });
