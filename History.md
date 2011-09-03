@@ -3,6 +3,7 @@
 ==================
 
   * Fixed `\n` parsing for non-JSON packets (fixes #479).
+  * Fixed parsing of certain unicode characters (fixes #451).
   * Fixed transport message packet logging.
   * Fixed emission of `error` event resulting in an uncaught exception if unhandled (fixes #476).
   * Fixed; allow for falsy values as the configuration value of `log level` (fixes #491).
