@@ -1,4 +1,4 @@
-/*! Socket.IO.js build:0.8.2, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
+/*! Socket.IO.js build:0.8.4, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
 
 /**
  * socket.io
@@ -22,7 +22,7 @@
    * @api public
    */
 
-  io.version = '0.8.2';
+  io.version = '0.8.4';
 
   /**
    * Protocol implemented.
@@ -1806,8 +1806,10 @@
 
   Socket.prototype.isXDomain = function () {
 
-    var locPort = window.location.port || 80;
-    return this.options.host !== document.domain || this.options.port != locPort;
+    var port = window.location.port ||
+      ('https:' == window.location.protocol ? 443 : 80);
+
+    return this.options.host !== document.domain || this.options.port != port;
   };
 
   /**
@@ -2559,7 +2561,7 @@
       || !('__initialize' in WebSocket) || !swfobject
     ) return false;
 
-    return swfobject.getFlashPlayerVersion().major >= 1;
+    return swfobject.getFlashPlayerVersion().major >= 10;
   };
 
   /**
