@@ -77,7 +77,7 @@ module.exports = {
     var io = sio.listen(http.createServer())
       , port = ++ports;
 
-    io.get('flash policy port').should.eql(843);
+    io.get('flash policy port').should.eql(10843);
     io.set('flash policy port', port);
     io.get('flash policy port').should.eql(port);
 

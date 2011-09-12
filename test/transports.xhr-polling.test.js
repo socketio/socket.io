@@ -950,6 +950,44 @@ module.exports = {
     });
   },
 
+  'test that emitting an error event doesnt throw': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+
+    io.configure(function () {
+      io.set('polling duration', .05);
+      io.set('close timeout', .05);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('disconnect', function () {
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        res.statusCode.should.equal(200);
+        msgs.should.have.length(1);
+        msgs[0].should.eql({ type: 'noop', endpoint: '' });
+
+        cl.post(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , parser.encodePacket({
+                type: 'event'
+              , name: 'error'
+            })
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.equal('1');
+            }
+        );
+      });
+    });
+  },
+
   'test emitting an event to the server with data': function (done) {
     var cl = client(++ports)
       , io = create(cl)
