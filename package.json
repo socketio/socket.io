@@ -1,6 +1,6 @@
 {
     "name": "socket.io"
-  , "version": "0.7.8"
+  , "version": "0.8.4"
   , "description": "Real-time apps made cross-browser & easy with a WebSocket-like API"
   , "homepage": "http://socket.io"
   , "keywords": ["websocket", "socket", "realtime", "socket.io", "comet", "ajax"]
@@ -9,13 +9,14 @@
         { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" }
       , { "name": "Arnout Kazemier", "email": "info@3rd-eden.com" }
       , { "name": "Vladimir Dronnikov", "email": "dronnikov@gmail.com" }
+      , { "name": "Einar Otto Stangvik", "email": "einaros@gmail.com" }
     ]
   , "repository":{
         "type": "git"
-      , "url": "https://github.com/LearnBoost/Socket.IO-node.git"
+      , "url": "https://github.com/LearnBoost/socket.io.git"
     }
   , "dependencies": {
-        "socket.io-client": "0.7.5"
+        "socket.io-client": "0.8.4"
       , "policyfile": "0.0.4"
       , "redis": "0.6.6"
     }

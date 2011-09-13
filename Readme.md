@@ -60,7 +60,7 @@ Besides `connect`, `message` and `disconnect`, you can emit custom events:
 var io = require('socket.io').listen(80);
 
 io.sockets.on('connection', function (socket) {
-  io.sockets.emit('this', { will: 'be received by everyone');
+  io.sockets.emit('this', { will: 'be received by everyone' });
 
   socket.on('private message', function (from, msg) {
     console.log('I received a private message by ', from, ' saying ', msg);

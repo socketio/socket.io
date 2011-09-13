@@ -343,6 +343,14 @@ module.exports = {
         parser.encodePacket({ type: 'message', data: '5', endpoint: '' })
       , parser.encodePacket({ type: 'message', data: '53d', endpoint: '' })
     ]).should.eql('\ufffd5\ufffd3:::5\ufffd7\ufffd3:::53d')
+  },
+
+  'test decoding newline': function () {
+    parser.decodePacket('3:::\n').should.eql({
+        type: 'message'
+      , endpoint: ''
+      , data: '\n'
+    });
   }
 
 };

@@ -1,4 +1,55 @@
 
+0.8.3 / 2011-09-03
+==================
+
+  * Fixed `\n` parsing for non-JSON packets (fixes #479).
+  * Fixed parsing of certain unicode characters (fixes #451).
+  * Fixed transport message packet logging.
+  * Fixed emission of `error` event resulting in an uncaught exception if unhandled (fixes #476).
+  * Fixed; allow for falsy values as the configuration value of `log level` (fixes #491).
+  * Fixed repository URI in `package.json`. Fixes #504.
+  * Added text/plain content-type to handshake responses [einaros]
+  * Improved single byte writes [einaros]
+  * Updated socket.io-flashsocket default port from 843 to 10843 [3rd-Eden]
+  * Updated client.
+
+0.8.2 / 2011-08-29
+==================
+
+  * Updated client.
+
+0.8.1 / 2011-08-29
+==================
+
+  * Fixed utf8 bug in send framing in websocket [einaros]
+  * Fixed typo in docs [Znarkus]
+  * Fixed bug in send framing for over 64kB of data in websocket [einaros]
+  * Corrected ping handling in websocket transport [einaros]
+
+0.8.0 / 2011-08-28
+==================
+
+  * Updated to work with two-level websocket versioning. [einaros]
+  * Added hybi07 support. [einaros]
+  * Added hybi10 support. [einaros]
+  * Added http referrer verification to manager.js verifyOrigin. [einaors]
+
+0.7.11 / 2011-08-27
+===================
+
+  * Updated socket.io-client.
+
+0.7.10 / 2011-08-27
+===================
+
+  * Updated socket.io-client.
+
+0.7.9 / 2011-08-12
+==================
+
+  * Updated socket.io-client.
+  * Make sure we only do garbage collection when the server we receive is actually run.
+
 0.7.8 / 2011-08-08
 ==================
 
