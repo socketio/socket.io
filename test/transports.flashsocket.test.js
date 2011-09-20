@@ -163,6 +163,19 @@ module.exports = {
 
     io.flashPolicyServer.close();
     done();
-  }
+  },
 
+  'flashsocket identifies as flashsocket': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messages = 0
+      , ws;
+    io.set('transports', ['flashsocket']);
+    io.sockets.on('connection', function (socket) {
+      socket.manager.transports[socket.id].name.should.equal('flashsocket');
+    });
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid, 'flashsocket');
+    });
+  }
 };
