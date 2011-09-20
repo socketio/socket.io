@@ -173,6 +173,7 @@ module.exports = {
     io.set('transports', ['flashsocket']);
     io.sockets.on('connection', function (socket) {
       socket.manager.transports[socket.id].name.should.equal('flashsocket');
+      done();
     });
     cl.handshake(function (sid) {
       ws = websocket(cl, sid, 'flashsocket');
