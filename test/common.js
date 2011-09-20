@@ -191,14 +191,14 @@ create = function (cl) {
  * @api private
  */
 
-function WSClient (port, sid) {
+function WSClient (port, sid, transport) {
   this.sid = sid;
   this.port = port;
-
+  this.transportName = transport || 'websocket';
   WebSocket.call(
       this
     , 'ws://localhost:' + port + '/socket.io/' 
-        + io.protocol + '/websocket/' + sid
+        + io.protocol + '/' + this.transportName + '/' + sid
   );
 };
 
@@ -239,6 +239,6 @@ WSClient.prototype.packet = function (pack) {
  * @api public
  */
 
-websocket = function (cl, sid) {
-  return new WSClient(cl.port, sid);
+websocket = function (cl, sid, transport) {
+  return new WSClient(cl.port, sid, transport);
 };

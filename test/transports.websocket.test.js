@@ -19,6 +19,20 @@ var sio = require('socket.io')
  */
 
 module.exports = {
+  'websocket identifies as websocket': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messages = 0
+      , ws;
+    io.set('transports', ['websocket']);
+    io.sockets.on('connection', function (socket) {
+      socket.manager.transports[socket.id].name.should.equal('websocket');
+      done();
+    });
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+    });
+  },
 
   'test that not responding to a heartbeat drops client': function (done) {
     var cl = client(++ports)
