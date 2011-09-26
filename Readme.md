@@ -46,13 +46,6 @@ Finally, load it from the client side code:
 </script>
 ```
 
-The client-side javascript is not a static file, but instead is served through the 
-same port that the socket is listening on. In many configurations, port 80 will already 
-be running a web service and the socket.io listener will have to be moved to another 
-port. If you set (for example) `app.listen(8000);` then your script source will require:
-
- `<script src="http://localhost:8000/socket.io/socket.io.js"></script>`
-
 For more thorough examples, look at the `examples/` directory.
 
 ## Short recipes
