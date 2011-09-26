@@ -163,7 +163,7 @@ module.exports = {
     var msgpiece1 = message.substr(0, 150);
     var msgpiece2 = message.substr(150);
     var packet1 = '01 FE ' + pack(4, msgpiece1.length) + ' 34 83 a8 68 ' + dump(mask(msgpiece1, '34 83 a8 68'));
-    var packet2 = '81 FE ' + pack(4, msgpiece2.length) + ' 34 83 a8 68 ' + dump(mask(msgpiece2, '34 83 a8 68'));
+    var packet2 = '80 FE ' + pack(4, msgpiece2.length) + ' 34 83 a8 68 ' + dump(mask(msgpiece2, '34 83 a8 68'));
   
     var gotData = false;
     p.on('data', function(data) {
@@ -213,7 +213,7 @@ module.exports = {
     var pingPacket = '89 FE ' + pack(4, pingMessage.length) + ' 34 83 a8 68 ' + dump(mask(pingMessage, '34 83 a8 68'));
   
     var msgpiece2 = message.substr(150);
-    var packet2 = '81 FE ' + pack(4, msgpiece2.length) + ' 34 83 a8 68 ' + dump(mask(msgpiece2, '34 83 a8 68'));
+    var packet2 = '80 FE ' + pack(4, msgpiece2.length) + ' 34 83 a8 68 ' + dump(mask(msgpiece2, '34 83 a8 68'));
   
     var gotData = false;
     p.on('data', function(data) {
@@ -244,7 +244,7 @@ module.exports = {
     var pingPacket = '89 FE ' + pack(4, pingMessage.length) + ' 34 83 a8 68 ' + dump(mask(pingMessage, '34 83 a8 68'));
   
     var msgpiece2 = message.substr(150);
-    var packet2 = '81 FE ' + pack(4, msgpiece2.length) + ' 34 83 a8 68 ' + dump(mask(msgpiece2, '34 83 a8 68'));
+    var packet2 = '80 FE ' + pack(4, msgpiece2.length) + ' 34 83 a8 68 ' + dump(mask(msgpiece2, '34 83 a8 68'));
   
     var gotData = false;
     p.on('data', function(data) {
