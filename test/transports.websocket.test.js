@@ -129,7 +129,7 @@ module.exports = {
     var headers = {
       'sec-websocket-version': 13,
       'upgrade': 'websocket',
-      'Sec-WebSocket-Origin': 'http://baz.bar.com',
+      'origin': 'http://baz.bar.com',
       'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
     }
     // handshake uses correct origin -- we want to block the actuall websocket call
