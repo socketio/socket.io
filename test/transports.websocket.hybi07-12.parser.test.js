@@ -190,5 +190,73 @@ module.exports = {
     assert.ok(gotData);
     assert.ok(gotPing);
   },
+  'can parse a 100 byte long masked binary message': function() {
+    var p = new Parser();
+    var length = 100;
+    var message = new Buffer(length);
+    for (var i = 0; i < length; ++i) message[i] = i % 256;
+    var originalMessage = getHexStringFromBuffer(message); 
+    var packet = '82 ' + getHybiLengthAsHexString(length, true) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message, '34 83 a8 68'));
+
+    var gotData = false;
+    p.on('binary', function(data) {
+      gotData = true;
+      assert.equal(originalMessage, getHexStringFromBuffer(data));
+    });
+  
+    p.add(getBufferFromHexString(packet));
+    assert.ok(gotData);
+  },
+  'can parse a 256 byte long masked binary message': function() {
+    var p = new Parser();
+    var length = 256;
+    var message = new Buffer(length);
+    for (var i = 0; i < length; ++i) message[i] = i % 256;
+    var originalMessage = getHexStringFromBuffer(message); 
+    var packet = '82 ' + getHybiLengthAsHexString(length, true) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message, '34 83 a8 68'));
+
+    var gotData = false;
+    p.on('binary', function(data) {
+      gotData = true;
+      assert.equal(originalMessage, getHexStringFromBuffer(data));
+    });
+  
+    p.add(getBufferFromHexString(packet));
+    assert.ok(gotData);
+  },
+  'can parse a 200kb long masked binary message': function() {
+    var p = new Parser();
+    var length = 200 * 1024;
+    var message = new Buffer(length);
+    for (var i = 0; i < length; ++i) message[i] = i % 256;
+    var originalMessage = getHexStringFromBuffer(message); 
+    var packet = '82 ' + getHybiLengthAsHexString(length, true) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message, '34 83 a8 68'));
+
+    var gotData = false;
+    p.on('binary', function(data) {
+      gotData = true;
+      assert.equal(originalMessage, getHexStringFromBuffer(data));
+    });
+  
+    p.add(getBufferFromHexString(packet));
+    assert.ok(gotData);
+  },
+  'can parse a 200kb long unmasked binary message': function() {
+    var p = new Parser();
+    var length = 200 * 1024;
+    var message = new Buffer(length);
+    for (var i = 0; i < length; ++i) message[i] = i % 256;
+    var originalMessage = getHexStringFromBuffer(message); 
+    var packet = '82 ' + getHybiLengthAsHexString(length, false) + ' ' + getHexStringFromBuffer(message);
+
+    var gotData = false;
+    p.on('binary', function(data) {
+      gotData = true;
+      assert.equal(originalMessage, getHexStringFromBuffer(data));
+    });
+  
+    p.add(getBufferFromHexString(packet));
+    assert.ok(gotData);
+  },
 };
 
