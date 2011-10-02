@@ -93,6 +93,56 @@ module.exports = {
     });
   },
 
+  'hybi-07-12 origin filter blocks access for mismatched sec-websocket-origin': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messages = 0
+      , ws;
+    io.set('transports', ['websocket']);
+    io.set('origins', 'foo.bar.com:*');
+
+    var headers = {
+      'sec-websocket-version': 8,
+      'upgrade': 'websocket',
+      'Sec-WebSocket-Origin': 'http://baz.bar.com',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+    // handshake uses correct origin -- we want to block the actuall websocket call
+    cl.get('/socket.io/{protocol}', {headers: {origin: 'http://foo.bar.com'}}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      cl.get(url, {headers: headers}, function (res, data) {});
+      res.client.onend = function() {
+        done();
+      }
+    });
+  },
+
+  'hybi-16 origin filter blocks access for mismatched sec-websocket-origin': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messages = 0
+      , ws;
+    io.set('transports', ['websocket']);
+    io.set('origins', 'foo.bar.com:*');
+
+    var headers = {
+      'sec-websocket-version': 13,
+      'upgrade': 'websocket',
+      'Sec-WebSocket-Origin': 'http://baz.bar.com',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+    // handshake uses correct origin -- we want to block the actuall websocket call
+    cl.get('/socket.io/{protocol}', {headers: {origin: 'http://foo.bar.com'}}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      cl.get(url, {headers: headers}, function (res, data) {});
+      res.client.onend = function() {
+        done();
+      }
+    });
+  },
+
   'test that not responding to a heartbeat drops client': function (done) {
     var cl = client(++ports)
       , io = create(cl)
