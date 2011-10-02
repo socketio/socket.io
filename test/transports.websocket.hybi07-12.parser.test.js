@@ -4,84 +4,7 @@
 
 var assert = require('assert'); 
 var Parser = require('../lib/transports/websocket/hybi-07-12.js').Parser;
-
-/**
- * Returns a Buffer from a "ff 00 ff"-type hex string.
- */
-
-function makeBufferFromHexString(byteStr) {
-  var bytes = byteStr.split(' ');
-  var buf = new Buffer(bytes.length);
-  for (var i = 0; i < bytes.length; ++i) {
-    buf[i] = parseInt(bytes[i], 16);
-  }
-  return buf;
-}
-
-/**
- * Splits a buffer in two parts.
- */
-
-function splitBuffer(buffer) {
-  var b1 = new Buffer(Math.ceil(buffer.length / 2));
-  buffer.copy(b1, 0, 0, b1.length);
-  var b2 = new Buffer(Math.floor(buffer.length / 2));
-  buffer.copy(b2, 0, b1.length, b1.length + b2.length);
-  return [b1, b2];
-}
-
-/**
- * Performs hybi07+ type masking on a hex string.
- */
-
-function mask(str, maskString) {
-  var buf = new Buffer(str);
-  var mask = makeBufferFromHexString(maskString || '34 83 a8 68');
-  for (var i = 0; i < buf.length; ++i) {
-    buf[i] ^= mask[i % 4];    
-  }
-  return buf;
-}
-
-/**
- * Unpacks a Buffer into a number.
- */
-
-function unpack(buffer) {
-  var n = 0;
-  for (var i = 0; i < buffer.length; ++i) {
-    n = (i == 0) ? buffer[i] : (n * 256) + buffer[i];
-  }
-  return n;
-}
-
-/**
- * Returns a hex string, representing a specific byte count 'length', from a number.
- */
-
-function pack(length, number) {
-  return padl(number.toString(16), length, '0').replace(/(\d\d)/g, '$1 ').trim();
-}
-
-/**
- * Left pads the string 's' to a total length of 'n' with char 'c'.
- */
-
-function padl(s, n, c) { 
-  return new Array(1 + n - s.length).join(c) + s;
-}
-
-/**
- * Returns a hex string from a Buffer.
- */
-
-function dump(data) {
-  var s = '';
-  for (var i = 0; i < data.length; ++i) {
-    s += padl(data[i].toString(16), 2, '0') + ' ';
-  }
-  return s.trim();
-}
+require('./hybi-common');
 
 /**
  * Tests.
@@ -98,7 +21,7 @@ module.exports = {
       assert.equal('Hello', data);
     });
   
-    p.add(makeBufferFromHexString(packet));
+    p.add(getBufferFromHexString(packet));
     assert.ok(gotData);
   },
   'can parse close message': function() {
@@ -110,7 +33,7 @@ module.exports = {
       gotClose = true;
     });
   
-    p.add(makeBufferFromHexString(packet));
+    p.add(getBufferFromHexString(packet));
     assert.ok(gotClose);
   },
   'can parse masked text message': function() {
@@ -123,14 +46,14 @@ module.exports = {
       assert.equal('5:::{"name":"echo"}', data);
     });
   
-    p.add(makeBufferFromHexString(packet));
+    p.add(getBufferFromHexString(packet));
     assert.ok(gotData);
   },
   'can parse a masked text message longer than 125 bytes': function() {
     var p = new Parser();
     var message = 'A';
     for (var i = 0; i < 300; ++i) message += (i % 5).toString();
-    var packet = '81 FE ' + pack(4, message.length) + ' 34 83 a8 68 ' + dump(mask(message, '34 83 a8 68'));
+    var packet = '81 FE ' + pack(4, message.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message, '34 83 a8 68'));
     
     var gotData = false;
     p.on('data', function(data) {
@@ -138,14 +61,14 @@ module.exports = {
       assert.equal(message, data);
     });
   
-    p.add(makeBufferFromHexString(packet));
+    p.add(getBufferFromHexString(packet));
     assert.ok(gotData);
   },
   'can parse a really long masked text message': function() {
     var p = new Parser();
     var message = 'A';
     for (var i = 0; i < 64*1024; ++i) message += (i % 5).toString();
-    var packet = '81 FF ' + pack(16, message.length) + ' 34 83 a8 68 ' + dump(mask(message, '34 83 a8 68'));
+    var packet = '81 FF ' + pack(16, message.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message, '34 83 a8 68'));
 
     var gotData = false;
     p.on('data', function(data) {
@@ -153,7 +76,7 @@ module.exports = {
       assert.equal(message, data);
     });
   
-    p.add(makeBufferFromHexString(packet));
+    p.add(getBufferFromHexString(packet));
     assert.ok(gotData);
   },
   'can parse a fragmented masked text message of 300 bytes': function() {
@@ -162,8 +85,8 @@ module.exports = {
     for (var i = 0; i < 300; ++i) message += (i % 5).toString();
     var msgpiece1 = message.substr(0, 150);
     var msgpiece2 = message.substr(150);
-    var packet1 = '01 FE ' + pack(4, msgpiece1.length) + ' 34 83 a8 68 ' + dump(mask(msgpiece1, '34 83 a8 68'));
-    var packet2 = '80 FE ' + pack(4, msgpiece2.length) + ' 34 83 a8 68 ' + dump(mask(msgpiece2, '34 83 a8 68'));
+    var packet1 = '01 FE ' + pack(4, msgpiece1.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(msgpiece1, '34 83 a8 68'));
+    var packet2 = '80 FE ' + pack(4, msgpiece2.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(msgpiece2, '34 83 a8 68'));
   
     var gotData = false;
     p.on('data', function(data) {
@@ -171,14 +94,14 @@ module.exports = {
       assert.equal(message, data);
     });
   
-    p.add(makeBufferFromHexString(packet1));
-    p.add(makeBufferFromHexString(packet2));
+    p.add(getBufferFromHexString(packet1));
+    p.add(getBufferFromHexString(packet2));
     assert.ok(gotData);
   },
   'can parse a ping message': function() {
     var p = new Parser();
     var message = 'Hello';
-    var packet = '89 FE ' + pack(4, message.length) + ' 34 83 a8 68 ' + dump(mask(message, '34 83 a8 68'));
+    var packet = '89 FE ' + pack(4, message.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message, '34 83 a8 68'));
     
     var gotPing = false;
     p.on('ping', function(data) {
@@ -186,7 +109,7 @@ module.exports = {
       assert.equal(message, data);
     });
     
-    p.add(makeBufferFromHexString(packet));
+    p.add(getBufferFromHexString(packet));
     assert.ok(gotPing);
   },
   'can parse a ping with no data': function() {
@@ -198,7 +121,7 @@ module.exports = {
       gotPing = true;
     });
     
-    p.add(makeBufferFromHexString(packet));
+    p.add(getBufferFromHexString(packet));
     assert.ok(gotPing);
   },
   'can parse a fragmented masked text message of 300 bytes with a ping in the middle': function() {
@@ -207,13 +130,13 @@ module.exports = {
     for (var i = 0; i < 300; ++i) message += (i % 5).toString();
   
     var msgpiece1 = message.substr(0, 150);
-    var packet1 = '01 FE ' + pack(4, msgpiece1.length) + ' 34 83 a8 68 ' + dump(mask(msgpiece1, '34 83 a8 68'));
+    var packet1 = '01 FE ' + pack(4, msgpiece1.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(msgpiece1, '34 83 a8 68'));
   
     var pingMessage = 'Hello';
-    var pingPacket = '89 FE ' + pack(4, pingMessage.length) + ' 34 83 a8 68 ' + dump(mask(pingMessage, '34 83 a8 68'));
+    var pingPacket = '89 FE ' + pack(4, pingMessage.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(pingMessage, '34 83 a8 68'));
   
     var msgpiece2 = message.substr(150);
-    var packet2 = '80 FE ' + pack(4, msgpiece2.length) + ' 34 83 a8 68 ' + dump(mask(msgpiece2, '34 83 a8 68'));
+    var packet2 = '80 FE ' + pack(4, msgpiece2.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(msgpiece2, '34 83 a8 68'));
   
     var gotData = false;
     p.on('data', function(data) {
@@ -226,9 +149,9 @@ module.exports = {
       assert.equal(pingMessage, data);
     });
     
-    p.add(makeBufferFromHexString(packet1));
-    p.add(makeBufferFromHexString(pingPacket));
-    p.add(makeBufferFromHexString(packet2));
+    p.add(getBufferFromHexString(packet1));
+    p.add(getBufferFromHexString(pingPacket));
+    p.add(getBufferFromHexString(packet2));
     assert.ok(gotData);
     assert.ok(gotPing);
   },
@@ -238,13 +161,13 @@ module.exports = {
     for (var i = 0; i < 300; ++i) message += (i % 5).toString();
   
     var msgpiece1 = message.substr(0, 150);
-    var packet1 = '01 FE ' + pack(4, msgpiece1.length) + ' 34 83 a8 68 ' + dump(mask(msgpiece1, '34 83 a8 68'));
+    var packet1 = '01 FE ' + pack(4, msgpiece1.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(msgpiece1, '34 83 a8 68'));
   
     var pingMessage = 'Hello';
-    var pingPacket = '89 FE ' + pack(4, pingMessage.length) + ' 34 83 a8 68 ' + dump(mask(pingMessage, '34 83 a8 68'));
+    var pingPacket = '89 FE ' + pack(4, pingMessage.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(pingMessage, '34 83 a8 68'));
   
     var msgpiece2 = message.substr(150);
-    var packet2 = '80 FE ' + pack(4, msgpiece2.length) + ' 34 83 a8 68 ' + dump(mask(msgpiece2, '34 83 a8 68'));
+    var packet2 = '80 FE ' + pack(4, msgpiece2.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(msgpiece2, '34 83 a8 68'));
   
     var gotData = false;
     p.on('data', function(data) {
@@ -258,14 +181,82 @@ module.exports = {
     });
     
     var buffers = [];
-    buffers = buffers.concat(splitBuffer(makeBufferFromHexString(packet1)));
-    buffers = buffers.concat(splitBuffer(makeBufferFromHexString(pingPacket)));
-    buffers = buffers.concat(splitBuffer(makeBufferFromHexString(packet2)));
+    buffers = buffers.concat(splitBuffer(getBufferFromHexString(packet1)));
+    buffers = buffers.concat(splitBuffer(getBufferFromHexString(pingPacket)));
+    buffers = buffers.concat(splitBuffer(getBufferFromHexString(packet2)));
     for (var i = 0; i < buffers.length; ++i) {
       p.add(buffers[i]);
     }
     assert.ok(gotData);
     assert.ok(gotPing);
+  },
+  'can parse a 100 byte long masked binary message': function() {
+    var p = new Parser();
+    var length = 100;
+    var message = new Buffer(length);
+    for (var i = 0; i < length; ++i) message[i] = i % 256;
+    var originalMessage = getHexStringFromBuffer(message); 
+    var packet = '82 ' + getHybiLengthAsHexString(length, true) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message, '34 83 a8 68'));
+
+    var gotData = false;
+    p.on('binary', function(data) {
+      gotData = true;
+      assert.equal(originalMessage, getHexStringFromBuffer(data));
+    });
+  
+    p.add(getBufferFromHexString(packet));
+    assert.ok(gotData);
+  },
+  'can parse a 256 byte long masked binary message': function() {
+    var p = new Parser();
+    var length = 256;
+    var message = new Buffer(length);
+    for (var i = 0; i < length; ++i) message[i] = i % 256;
+    var originalMessage = getHexStringFromBuffer(message); 
+    var packet = '82 ' + getHybiLengthAsHexString(length, true) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message, '34 83 a8 68'));
+
+    var gotData = false;
+    p.on('binary', function(data) {
+      gotData = true;
+      assert.equal(originalMessage, getHexStringFromBuffer(data));
+    });
+  
+    p.add(getBufferFromHexString(packet));
+    assert.ok(gotData);
+  },
+  'can parse a 200kb long masked binary message': function() {
+    var p = new Parser();
+    var length = 200 * 1024;
+    var message = new Buffer(length);
+    for (var i = 0; i < length; ++i) message[i] = i % 256;
+    var originalMessage = getHexStringFromBuffer(message); 
+    var packet = '82 ' + getHybiLengthAsHexString(length, true) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message, '34 83 a8 68'));
+
+    var gotData = false;
+    p.on('binary', function(data) {
+      gotData = true;
+      assert.equal(originalMessage, getHexStringFromBuffer(data));
+    });
+  
+    p.add(getBufferFromHexString(packet));
+    assert.ok(gotData);
+  },
+  'can parse a 200kb long unmasked binary message': function() {
+    var p = new Parser();
+    var length = 200 * 1024;
+    var message = new Buffer(length);
+    for (var i = 0; i < length; ++i) message[i] = i % 256;
+    var originalMessage = getHexStringFromBuffer(message); 
+    var packet = '82 ' + getHybiLengthAsHexString(length, false) + ' ' + getHexStringFromBuffer(message);
+
+    var gotData = false;
+    p.on('binary', function(data) {
+      gotData = true;
+      assert.equal(originalMessage, getHexStringFromBuffer(data));
+    });
+  
+    p.add(getBufferFromHexString(packet));
+    assert.ok(gotData);
   },
 };
 
