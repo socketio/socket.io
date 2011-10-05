@@ -33,31 +33,140 @@ module.exports = {
       ws = websocket(cl, sid);
     });
   },
+  
+  'default websocket draft parser is used for unknown sec-websocket-version': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messages = 0
+      , ws;
+    io.set('transports', ['websocket']);
+    io.sockets.on('connection', function (socket) {
+      socket.manager.transports[socket.id].protocolVersion.should.equal('hixie-76');
+      done();
+    });
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+    });
+  },
+  
+  'hybi-07-12 websocket draft parser is used for sec-websocket-version: 8': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messages = 0
+      , ws;
+    io.set('transports', ['websocket']);
+    io.sockets.on('connection', function (socket) {
+      socket.manager.transports[socket.id].protocolVersion.should.equal('07-12');
+      done();
+    });
+    var headers = {
+      'sec-websocket-version': 8,
+      'upgrade': 'websocket',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+    cl.get('/socket.io/{protocol}', {}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      cl.get(url, {headers: headers}, function (res, data) {});
+    });
+  },
+
+  'hybi-16 websocket draft parser is used for sec-websocket-version: 13': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messages = 0
+      , ws;
+    io.set('transports', ['websocket']);
+    io.sockets.on('connection', function (socket) {
+      socket.manager.transports[socket.id].protocolVersion.should.equal('16');
+      done();
+    });
+    var headers = {
+      'sec-websocket-version': 13,
+      'upgrade': 'websocket',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+    cl.get('/socket.io/{protocol}', {}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      cl.get(url, {headers: headers}, function (res, data) {});
+    });
+  },
+
+  'hybi-07-12 origin filter blocks access for mismatched sec-websocket-origin': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messages = 0
+      , ws;
+    io.set('transports', ['websocket']);
+    io.set('origins', 'foo.bar.com:*');
+
+    var headers = {
+      'sec-websocket-version': 8,
+      'upgrade': 'websocket',
+      'Sec-WebSocket-Origin': 'http://baz.bar.com',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+    // handshake uses correct origin -- we want to block the actuall websocket call
+    cl.get('/socket.io/{protocol}', {headers: {origin: 'http://foo.bar.com'}}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      cl.get(url, {headers: headers}, function (res, data) {});
+      res.client.onend = function() {
+        done();
+      }
+    });
+  },
+
+  'hybi-16 origin filter blocks access for mismatched sec-websocket-origin': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , messages = 0
+      , ws;
+    io.set('transports', ['websocket']);
+    io.set('origins', 'foo.bar.com:*');
+
+    var headers = {
+      'sec-websocket-version': 13,
+      'upgrade': 'websocket',
+      'origin': 'http://baz.bar.com',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+    // handshake uses correct origin -- we want to block the actuall websocket call
+    cl.get('/socket.io/{protocol}', {headers: {origin: 'http://foo.bar.com'}}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      cl.get(url, {headers: headers}, function (res, data) {});
+      res.client.onend = function() {
+        done();
+      }
+    });
+  },
 
   'test that not responding to a heartbeat drops client': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , messages = 0
       , ws;
-
+  
     io.configure(function () {
       io.set('heartbeat interval', .05);
       io.set('heartbeat timeout', .05);
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       socket.on('disconnect', function (reason) {
         beat.should.be.true;
         reason.should.eql('heartbeat timeout');
-
+  
         cl.end();
         ws.finishClose();
         io.server.close();
         done();
       });
     });
-
+  
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
       ws.on('message', function (packet) {
@@ -70,32 +179,32 @@ module.exports = {
       });
     });
   },
-
+  
   'test that responding to a heartbeat maintains session': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , messages = 0
       , heartbeats = 0
       , ws;
-
+  
     io.configure(function () {
       io.set('heartbeat interval', .05);
       io.set('heartbeat timeout', .05);
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       socket.on('disconnect', function (reason) {
         heartbeats.should.eql(2);
         reason.should.eql('heartbeat timeout');
-
+  
         cl.end();
         ws.finishClose();
         io.server.close();
         done();
       });
     });
-
+  
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
       ws.on('message', function (packet) {
@@ -104,7 +213,7 @@ module.exports = {
         } else {
           packet.type.should.eql('heartbeat');
           heartbeats++;
-
+  
           if (heartbeats == 1) {
             ws.packet({ type: 'heartbeat' });
           }
@@ -112,21 +221,21 @@ module.exports = {
       });
     });
   },
-
+  
   'test sending undeliverable volatile messages': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , messages = 0
       , messaged = false
       , s;
-
+  
     io.configure(function () {
       io.set('close timeout', .05);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       s = socket;
-
+  
       socket.on('disconnect', function () {
         messaged.should.be.false;
         cl.end();
@@ -134,21 +243,21 @@ module.exports = {
         done();
       });
     });
-
+  
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function (msg) {
         msg.type.should.eql('connect');
         ws.finishClose();
-
+  
         setTimeout(function () {
           s.volatile.send('ah wha wha');
-
+  
           ws = websocket(cl, sid);
           ws.on('message', function () {
             messaged = true;
           });
-
+  
           setTimeout(function () {
             ws.finishClose();
           }, 10);
@@ -156,20 +265,20 @@ module.exports = {
       });
     });
   },
-
+  
   'test sending undeliverable volatile json': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , messaged = false
       , s;
-
+  
     io.configure(function () {
       io.set('close timeout', .05);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       s = socket;
-
+  
       socket.on('disconnect', function () {
         messaged.should.be.false;
         cl.end();
@@ -177,20 +286,20 @@ module.exports = {
         done();
       });
     });
-
+  
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function () {
         ws.finishClose();
-
+  
         setTimeout(function () {
           s.volatile.json.send({ a: 'b' });
-
+  
           ws = websocket(cl, sid);
           ws.on('message', function () {
             messaged = true;
           });
-
+  
           setTimeout(function () {
             ws.finishClose();
           }, 10);
@@ -198,20 +307,20 @@ module.exports = {
       });
     });
   },
-
+  
   'test sending undeliverable volatile events': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , messaged = false
       , s;
-
+  
     io.configure(function () {
       io.set('close timeout', .05);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       s = socket;
-
+  
       socket.on('disconnect', function () {
         messaged.should.be.false;
         cl.end();
@@ -219,20 +328,20 @@ module.exports = {
         done();
       });
     });
-
+  
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function () {
         ws.finishClose();
-
+  
         setTimeout(function () {
           s.volatile.emit({ a: 'b' });
-
+  
           ws = websocket(cl, sid);
           ws.on('message', function () {
             messaged = true;
           });
-
+  
           setTimeout(function () {
             ws.finishClose();
           }, 10);
@@ -240,20 +349,20 @@ module.exports = {
       });
     });
   },
-
+  
   'test sending deliverable volatile messages': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , messages = 0
       , messaged = false;
-
+  
     io.configure(function () {
       io.set('close timeout', .05);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       socket.volatile.send('tobi');
-
+  
       socket.on('disconnect', function () {
         messaged.should.be.true;
         cl.end();
@@ -261,7 +370,7 @@ module.exports = {
         done();
       });
     });
-
+  
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function (msg) {
@@ -279,19 +388,19 @@ module.exports = {
       });
     });
   },
-
+  
   'test sending deliverable volatile json': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , messaged = false;
-
+  
     io.configure(function () {
       io.set('close timeout', .05);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       socket.volatile.json.send([1, 2, 3]);
-
+  
       socket.on('disconnect', function () {
         messaged.should.be.true;
         cl.end();
@@ -299,7 +408,7 @@ module.exports = {
         done();
       });
     });
-
+  
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function (msg) {
@@ -318,19 +427,19 @@ module.exports = {
       });
     });
   },
-
+  
   'test sending deliverable volatile events': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , messaged = false;
-
+  
     io.configure(function () {
       io.set('close timeout', .05);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       socket.volatile.emit('tobi');
-
+  
       socket.on('disconnect', function () {
         messaged.should.be.true;
         cl.end();
@@ -338,7 +447,7 @@ module.exports = {
         done();
       });
     });
-
+  
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function (msg) {
@@ -358,7 +467,7 @@ module.exports = {
       });
     });
   },
-
+  
   'test sending to all clients in a namespace': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -367,21 +476,21 @@ module.exports = {
       , messages = 0
       , connections = 0
       , disconnections = 0;
-
+  
     io.configure(function () {
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       connections++;
-
+  
       if (connections == 2) {
         io.sockets.send('yup');
       }
-
+  
       socket.on('disconnect', function () {
         disconnections++;
-
+  
         if (disconnections == 2) {
           messages.should.eql(2);
           cl1.end();
@@ -391,7 +500,7 @@ module.exports = {
         }
       });
     });
-
+  
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -404,13 +513,13 @@ module.exports = {
             , data: 'yup'
             , endpoint: ''
           });
-
+  
           messages++;
           ws1.finishClose();
         }
       });
     });
-
+  
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -423,14 +532,14 @@ module.exports = {
             , data: 'yup'
             , endpoint: ''
           });
-
+  
           messages++;
           ws2.finishClose();
         }
       });
     });
   },
-
+  
   'test sending json to all clients in a namespace': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -439,21 +548,21 @@ module.exports = {
       , messages = 0
       , connections = 0
       , disconnections = 0;
-
+  
     io.configure(function () {
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       connections++;
-
+  
       if (connections == 2) {
         io.sockets.json.send({ a: 'b' });
       }
-
+  
       socket.on('disconnect', function () {
         disconnections++;
-
+  
         if (disconnections == 2) {
           messages.should.eql(2);
           cl1.end();
@@ -463,7 +572,7 @@ module.exports = {
         }
       });
     });
-
+  
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -476,13 +585,13 @@ module.exports = {
             , data: { a: 'b' }
             , endpoint: ''
           });
-
+  
           messages++;
           ws1.finishClose();
         }
       });
     });
-
+  
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -495,14 +604,14 @@ module.exports = {
             , data: { a: 'b' }
             , endpoint: ''
           });
-
+  
           messages++;
           ws2.finishClose();
         }
       });
     });
   },
-
+  
   'test emitting to all clients in a namespace': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -511,21 +620,21 @@ module.exports = {
       , messages = 0
       , connections = 0
       , disconnections = 0;
-
+  
     io.configure(function () {
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       connections++;
-
+  
       if (connections == 2) {
         io.sockets.emit('tobi', 'rapture');
       }
-
+  
       socket.on('disconnect', function () {
         disconnections++;
-
+  
         if (disconnections == 2) {
           messages.should.eql(2);
           cl1.end();
@@ -535,7 +644,7 @@ module.exports = {
         }
       });
     });
-
+  
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -549,13 +658,13 @@ module.exports = {
             , args: ['rapture']
             , endpoint: ''
           });
-
+  
           messages++;
           ws1.finishClose();
         }
       });
     });
-
+  
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -569,14 +678,14 @@ module.exports = {
             , args: ['rapture']
             , endpoint: ''
           });
-
+  
           messages++;
           ws2.finishClose();
         }
       });
     });
   },
-
+  
   'test sending to all clients in a room': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -587,18 +696,18 @@ module.exports = {
       , joins = 0
       , connections = 0
       , disconnections = 0;
-
+  
     io.configure(function () {
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       connections++;
-
+  
       if (connections != 3) {
         socket.join('woot');
         joins++;
-
+  
         if (joins == 2) {
           setTimeout(function () {
             connections.should.eql(3);
@@ -606,10 +715,10 @@ module.exports = {
           }, 20);
         }
       }
-
+  
       socket.on('disconnect', function () {
         disconnections++;
-
+  
         if (disconnections == 3) {
           messages.should.eql(2);
           cl1.end();
@@ -620,7 +729,7 @@ module.exports = {
         }
       });
     });
-
+  
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -633,16 +742,16 @@ module.exports = {
             , data: 'hahaha'
             , endpoint: ''
           });
-
+  
           messages++;
         }
       });
-
+  
       setTimeout(function () {
         ws1.finishClose();
       }, 50);
     });
-
+  
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -655,16 +764,16 @@ module.exports = {
             , data: 'hahaha'
             , endpoint: ''
           });
-
+  
           messages++;
         }
       });
-
+  
       setTimeout(function () {
         ws2.finishClose();
       }, 50);
     });
-
+  
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl3, sid);
       ws3.on('message', function (msg) {
@@ -677,17 +786,17 @@ module.exports = {
             , data: 'hahaha'
             , endpoint: ''
           });
-
+  
           messages++;
         }
       });
-
+  
       setTimeout(function () {
         ws3.finishClose();
       }, 50);
     });
   },
-
+  
   'test sending json to all clients in a room': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -698,18 +807,18 @@ module.exports = {
       , joins = 0
       , connections = 0
       , disconnections = 0;
-
+  
     io.configure(function () {
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       connections++;
-
+  
       if (connections != 3) {
         socket.join('woot');
         joins++;
-
+  
         if (joins == 2) {
           setTimeout(function () {
             connections.should.eql(3);
@@ -717,10 +826,10 @@ module.exports = {
           }, 20);
         }
       }
-
+  
       socket.on('disconnect', function () {
         disconnections++;
-
+  
         if (disconnections == 3) {
           messages.should.eql(2);
           cl1.end();
@@ -731,7 +840,7 @@ module.exports = {
         }
       });
     });
-
+  
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -744,16 +853,16 @@ module.exports = {
             , data: 123
             , endpoint: ''
           });
-
+  
           messages++;
         }
       });
-
+  
       setTimeout(function () {
         ws1.finishClose();
       }, 50);
     });
-
+  
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -766,16 +875,16 @@ module.exports = {
             , data: 123
             , endpoint: ''
           });
-
+  
           messages++;
         }
       });
-
+  
       setTimeout(function () {
         ws2.finishClose();
       }, 50);
     });
-
+  
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl3, sid);
       ws3.on('message', function (msg) {
@@ -788,17 +897,17 @@ module.exports = {
             , data: 123
             , endpoint: ''
           });
-
+  
           messages++;
         }
       });
-
+  
       setTimeout(function () {
         ws3.finishClose();
       }, 50);
     });
   },
-
+  
   'test emitting to all clients in a room': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -809,18 +918,18 @@ module.exports = {
       , joins = 0
       , connections = 0
       , disconnections = 0;
-
+  
     io.configure(function () {
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       connections++;
-
+  
       if (connections != 3) {
         socket.join('woot');
         joins++;
-
+  
         if (joins == 2) {
           setTimeout(function () {
             connections.should.eql(3);
@@ -828,10 +937,10 @@ module.exports = {
           }, 20);
         }
       }
-
+  
       socket.on('disconnect', function () {
         disconnections++;
-
+  
         if (disconnections == 3) {
           messages.should.eql(2);
           cl1.end();
@@ -842,7 +951,7 @@ module.exports = {
         }
       });
     });
-
+  
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -856,16 +965,16 @@ module.exports = {
             , args: []
             , endpoint: ''
           });
-
+  
           messages++;
         }
       });
-
+  
       setTimeout(function () {
         ws1.finishClose();
       }, 50);
     });
-
+  
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -879,16 +988,16 @@ module.exports = {
             , args: []
             , endpoint: ''
           });
-
+  
           messages++;
         }
       });
-
+  
       setTimeout(function () {
         ws2.finishClose();
       }, 50);
     });
-
+  
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl3, sid);
       ws3.on('message', function (msg) {
@@ -902,17 +1011,17 @@ module.exports = {
             , args: []
             , endpoint: ''
           });
-
+  
           messages++;
         }
       });
-
+  
       setTimeout(function () {
         ws3.finishClose();
       }, 50);
     });
   },
-
+  
   'test leaving a room': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -920,20 +1029,20 @@ module.exports = {
       , io = create(cl1)
       , joins = 0
       , disconnects = 0;
-
+  
     io.set('close timeout', 0);
-
+  
     io.sockets.on('connection', function (socket) {
       socket.join('foo');
       io.sockets.clients('foo').should.have.length(++joins);
-
+  
       socket.on('disconnect', function () {
         socket.leave('foo');
         socket.leave('foo');
         socket.leave('foo');
-
+  
         io.sockets.clients('foo').should.have.length(--joins);
-
+  
         if (++disconnects == 2) {
           io.server.close();
           cl1.end();
@@ -942,7 +1051,7 @@ module.exports = {
         }
       })
     });
-
+  
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -953,7 +1062,7 @@ module.exports = {
         }
       });
     });
-
+  
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -965,7 +1074,7 @@ module.exports = {
       });
     });
   },
-
+  
   'test message with broadcast flag': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -974,19 +1083,19 @@ module.exports = {
       , io = create(cl1)
       , messages = 0
       , disconnections = 0;
-
+  
     io.configure(function () {
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       socket.on('trigger broadcast', function () {
         socket.broadcast.send('boom');
       });
-
+  
       socket.on('disconnect', function () {
         disconnections++;
-
+  
         if (disconnections == 3) {
           messages.should.eql(2);
           cl1.end();
@@ -997,7 +1106,7 @@ module.exports = {
         }
       });
     });
-
+  
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -1010,13 +1119,13 @@ module.exports = {
             , data: 'boom'
             , endpoint: ''
           });
-
+  
           messages++;
           ws1.finishClose();
         }
       });
     });
-
+  
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -1029,13 +1138,13 @@ module.exports = {
             , data: 'boom'
             , endpoint: ''
           });
-
+  
           messages++;
           ws2.finishClose();
         }
       });
     });
-
+  
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl3, sid);
       ws3.on('open', function () {
@@ -1044,12 +1153,12 @@ module.exports = {
           , name: 'trigger broadcast'
           , endpoint: ''
         });
-
+  
         setTimeout(function () {
           ws3.finishClose();
         }, 50);
       });
-
+  
       ws3.on('message', function (msg) {
         if (!ws3.connected) {
           msg.type.should.eql('connect');
@@ -1060,7 +1169,7 @@ module.exports = {
       });
     });
   },
-
+  
   'test json with broadcast flag': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -1069,19 +1178,19 @@ module.exports = {
       , io = create(cl1)
       , messages = 0
       , disconnections = 0;
-
+  
     io.configure(function () {
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       socket.on('trigger broadcast', function () {
         socket.broadcast.json.send([1, 2, 3]);
       });
-
+  
       socket.on('disconnect', function () {
         disconnections++;
-
+  
         if (disconnections == 3) {
           messages.should.eql(2);
           cl1.end();
@@ -1092,7 +1201,7 @@ module.exports = {
         }
       });
     });
-
+  
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -1105,13 +1214,13 @@ module.exports = {
             , data: [1, 2, 3]
             , endpoint: ''
           });
-
+  
           messages++;
           ws1.finishClose();
         }
       });
     });
-
+  
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -1124,13 +1233,13 @@ module.exports = {
             , data: [1, 2, 3]
             , endpoint: ''
           });
-
+  
           messages++;
           ws2.finishClose();
         }
       });
     });
-
+  
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl3, sid);
       ws3.on('open', function () {
@@ -1139,12 +1248,12 @@ module.exports = {
           , name: 'trigger broadcast'
           , endpoint: ''
         });
-
+  
         setTimeout(function () {
           ws3.finishClose();
         }, 50);
       });
-
+  
       ws3.on('message', function (msg) {
         if (!ws3.connected) {
           msg.type.should.eql('connect');
@@ -1155,7 +1264,7 @@ module.exports = {
       });
     });
   },
-
+  
   'test event with broadcast flag': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -1164,19 +1273,19 @@ module.exports = {
       , io = create(cl1)
       , messages = 0
       , disconnections = 0;
-
+  
     io.configure(function () {
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       socket.on('trigger broadcast', function () {
         socket.broadcast.emit('hey', 'arnold');
       });
-
+  
       socket.on('disconnect', function () {
         disconnections++;
-
+  
         if (disconnections == 3) {
           messages.should.eql(2);
           cl1.end();
@@ -1187,7 +1296,7 @@ module.exports = {
         }
       });
     });
-
+  
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -1201,13 +1310,13 @@ module.exports = {
             , args: ['arnold']
             , endpoint: ''
           });
-
+  
           messages++;
           ws1.finishClose();
         }
       });
     });
-
+  
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -1221,13 +1330,13 @@ module.exports = {
             , args: ['arnold']
             , endpoint: ''
           });
-
+  
           messages++;
           ws2.finishClose();
         }
       });
     });
-
+  
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl3, sid);
       ws3.on('open', function () {
@@ -1236,12 +1345,12 @@ module.exports = {
           , name: 'trigger broadcast'
           , endpoint: ''
         });
-
+  
         setTimeout(function () {
           ws3.finishClose();
         }, 50);
       });
-
+  
       ws3.on('message', function (msg) {
         if (!ws3.connected) {
           msg.type.should.eql('connect');
@@ -1252,7 +1361,7 @@ module.exports = {
       });
     });
   },
-
+  
   'test message with broadcast flag and to()': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -1262,25 +1371,25 @@ module.exports = {
       , messages = 0
       , connections = 0
       , disconnections = 0;
-
+  
     io.configure(function () {
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       connections++;
-
+  
       if (connections == 1) {
         socket.join('losers');
       }
-
+  
       socket.on('trigger broadcast', function () {
         socket.broadcast.to('losers').send('boom');
       });
-
+  
       socket.on('disconnect', function () {
         disconnections++;
-
+  
         if (disconnections == 3) {
           messages.should.eql(1);
           cl1.end();
@@ -1291,7 +1400,7 @@ module.exports = {
         }
       });
     });
-
+  
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -1304,11 +1413,11 @@ module.exports = {
             , data: 'boom'
             , endpoint: ''
           });
-
+  
           messages++;
         }
       });
-
+  
       ws1.on('open', function () {
         cl2.handshake(function (sid) {
           var ws2 = websocket(cl2, sid);
@@ -1320,7 +1429,7 @@ module.exports = {
               throw new Error('This socket shouldnt get a message');
             }
           });
-
+  
           ws2.on('open', function () {
             cl3.handshake(function (sid) {
               var ws3 = websocket(cl3, sid);
@@ -1330,14 +1439,14 @@ module.exports = {
                   , name: 'trigger broadcast'
                   , endpoint: ''
                 });
-
+  
                 setTimeout(function () {
                   ws1.finishClose();
                   ws2.finishClose();
                   ws3.finishClose();
                 }, 50);
               });
-
+  
               ws3.on('message', function (msg) {
                 if (!ws3.connected) {
                   msg.type.should.eql('connect');
@@ -1352,7 +1461,7 @@ module.exports = {
       });
     });
   },
-
+  
   'test json with broadcast flag and to()': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -1362,25 +1471,25 @@ module.exports = {
       , messages = 0
       , connections = 0
       , disconnections = 0;
-
+  
     io.configure(function () {
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       connections++;
-
+  
       if (connections == 1) {
         socket.join('losers');
       }
-
+  
       socket.on('trigger broadcast', function () {
         socket.broadcast.json.to('losers').send({ hello: 'world' });
       });
-
+  
       socket.on('disconnect', function () {
         disconnections++;
-
+  
         if (disconnections == 3) {
           messages.should.eql(1);
           cl1.end();
@@ -1391,7 +1500,7 @@ module.exports = {
         }
       });
     });
-
+  
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -1404,11 +1513,11 @@ module.exports = {
             , data: { hello: 'world' }
             , endpoint: ''
           });
-
+  
           messages++;
         }
       });
-
+  
       ws1.on('open', function () {
         cl2.handshake(function (sid) {
           var ws2 = websocket(cl2, sid);
@@ -1420,7 +1529,7 @@ module.exports = {
               throw new Error('This socket shouldnt get a message');
             }
           });
-
+  
           ws2.on('open', function () {
             cl3.handshake(function (sid) {
               var ws3 = websocket(cl3, sid);
@@ -1430,14 +1539,14 @@ module.exports = {
                   , name: 'trigger broadcast'
                   , endpoint: ''
                 });
-
+  
                 setTimeout(function () {
                   ws1.finishClose();
                   ws2.finishClose();
                   ws3.finishClose();
                 }, 50);
               });
-
+  
               ws3.on('message', function (msg) {
                 if (!ws3.connected) {
                   msg.type.should.eql('connect');
@@ -1452,7 +1561,7 @@ module.exports = {
       });
     });
   },
-
+  
   'test event with broadcast flag and to()': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -1462,25 +1571,25 @@ module.exports = {
       , messages = 0
       , connections = 0
       , disconnections = 0;
-
+  
     io.configure(function () {
       io.set('close timeout', 0);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       connections++;
-
+  
       if (connections == 1) {
         socket.join('losers');
       }
-
+  
       socket.on('trigger broadcast', function () {
         socket.broadcast.to('losers').emit('victory');
       });
-
+  
       socket.on('disconnect', function () {
         disconnections++;
-
+  
         if (disconnections == 3) {
           messages.should.eql(1);
           cl1.end();
@@ -1491,7 +1600,7 @@ module.exports = {
         }
       });
     });
-
+  
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -1505,11 +1614,11 @@ module.exports = {
             , args: []
             , endpoint: ''
           });
-
+  
           messages++;
         }
       });
-
+  
       ws1.on('open', function () {
         cl2.handshake(function (sid) {
           var ws2 = websocket(cl2, sid);
@@ -1521,7 +1630,7 @@ module.exports = {
               throw new Error('This socket shouldnt get a message');
             };
           });
-
+  
           ws2.on('open', function () {
             cl3.handshake(function (sid) {
               var ws3 = websocket(cl3, sid);
@@ -1531,14 +1640,14 @@ module.exports = {
                   , name: 'trigger broadcast'
                   , endpoint: ''
                 });
-
+  
                 setTimeout(function () {
                   ws1.finishClose();
                   ws2.finishClose();
                   ws3.finishClose();
                 }, 50);
               });
-
+  
               ws3.on('message', function (msg) {
                 if (!ws3.connected) {
                   msg.type.should.eql('connect');
@@ -1553,19 +1662,19 @@ module.exports = {
       });
     });
   },
-
+  
   'test accessing handshake data from sockets': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , ws;
-
+  
     io.sockets.on('connection', function (socket) {
       (!!socket.handshake.address.address).should.be.true;
       (!!socket.handshake.address.port).should.be.true;
       socket.handshake.headers.host.should.equal('localhost');
       socket.handshake.headers.connection.should.equal('keep-alive');
       socket.handshake.time.should.match(/GMT/);
-
+  
       socket.on('disconnect', function () {
         setTimeout(function () {
           ws.finishClose();
@@ -1574,10 +1683,10 @@ module.exports = {
           done();
         }, 10);
       });
-
+  
       socket.disconnect();
     });
-
+  
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
       ws.on('message', function (msg) {
@@ -1588,7 +1697,7 @@ module.exports = {
       });
     });
   },
-
+  
   'test accessing the array of clients': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -1596,14 +1705,14 @@ module.exports = {
       , io = create(cl1)
       , total = 2
       , ws1, ws2;
-
+  
     io.sockets.on('connection', function (socket) {
       socket.on('join ferrets', function () {
         socket.join('ferrets');
         socket.send('done');
       });
     });
-
+  
     function check() {
       io.sockets.clients('ferrets').should.have.length(1);
       io.sockets.clients('ferrets')[0].should.be.an.instanceof(sio.Socket);
@@ -1613,7 +1722,7 @@ module.exports = {
       io.sockets.clients()[0].id.should.equal(ws1.sid);
       io.sockets.clients()[1].should.be.an.instanceof(sio.Socket);
       io.sockets.clients()[1].id.should.equal(ws2.sid);
-
+  
       ws1.finishClose();
       ws2.finishClose();
       cl1.end();
@@ -1621,7 +1730,7 @@ module.exports = {
       io.server.close();
       done();
     };
-
+  
     cl1.handshake(function (sid) {
       ws1 = websocket(cl1, sid);
       ws1.sid = sid;
@@ -1650,21 +1759,21 @@ module.exports = {
       });
     });
   },
-
+  
   'test accessing handshake data from sockets on disconnect': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , ws;
-
+  
     io.sockets.on('connection', function (socket) {
       socket.on('disconnect', function () {
-
+  
       (!!socket.handshake.address.address).should.be.true;
       (!!socket.handshake.address.port).should.be.true;
       socket.handshake.headers.host.should.equal('localhost');
       socket.handshake.headers.connection.should.equal('keep-alive');
       socket.handshake.time.should.match(/GMT/);
-
+  
         setTimeout(function () {
           ws.finishClose();
           cl.end();
@@ -1672,10 +1781,10 @@ module.exports = {
           done();
         }, 10);
       });
-
+  
       socket.disconnect();
     });
-
+  
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
       ws.on('message', function (msg) {
@@ -1686,42 +1795,42 @@ module.exports = {
       });
     });
   },
-
+  
   'test for intentional and unintentional disconnects': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , calls = 0
       , ws;
-
+  
     function close () {
       cl.end();
       io.server.close();
       ws.finishClose();
       done();
     }
-
+  
     io.configure(function () {
       io.set('heartbeat interval', .05);
       io.set('heartbeat timeout', .05);
       io.set('close timeout', 0);
     });
-
+  
     io.of('/foo').on('connection', function (socket) {
       socket.on('disconnect', function (reason) {
        reason.should.equal('packet');
-
+  
        if (++calls == 2) close();
       });
     });
-
+  
     io.of('/bar').on('connection', function (socket) {
       socket.on('disconnect', function (reason) {
         reason.should.equal('socket end');
-
+  
         if (++calls == 2) close();
       });
     });
-
+  
     cl.handshake(function (sid) {
       var messages = 0;
       ws = websocket(cl, sid);
@@ -1735,7 +1844,7 @@ module.exports = {
           , endpoint: '/bar'
         });
       });
-
+  
       ws.on('message', function (packet) {
         if (packet.type == 'connect') {
           if (++messages === 3) {
@@ -1746,20 +1855,20 @@ module.exports = {
       });
     });
   },
-
+  
   'test socket clean up': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , ws;
-
+  
     io.sockets.on('connection', function (socket) {
       var self = this
         , id = socket.id;
-
+  
       socket.on('disconnect', function () {
         setTimeout(function () {
           var available = !!self.sockets[id];
-
+  
           available.should.be.false;
           ws.finishClose();
           cl.end();
@@ -1767,10 +1876,10 @@ module.exports = {
           done();
         }, 10);
       });
-
+  
       socket.disconnect();
     });
-
+  
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
       ws.on('message', function (msg) {

@@ -194,7 +194,7 @@ create = function (cl) {
 function WSClient (port, sid, transport) {
   this.sid = sid;
   this.port = port;
-  this.transportName = transport || 'websocket';
+  this.transportName = transport || 'websocket';
   WebSocket.call(
       this
     , 'ws://localhost:' + port + '/socket.io/' 
