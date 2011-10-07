@@ -1,4 +1,25 @@
 
+0.8.5 / 2011-10-07
+==================
+
+  * Added websocket draft HyBi-16 support. [einaros]
+  * Fixed websocket continuation bugs. [einaros]
+  * Fixed flashsocket transport name.
+  * Fixed websocket tests.
+  * Ensured `parser#decodePayload` doesn't choke.
+  * Added http referrer verification to manager verifyOrigin.
+  * Added access control for cross domain xhr handshakes [3rd-Eden]
+  * Added support for automatic generation of socket.io files [3rd-Eden]
+  * Added websocket binary support [einaros]
+  * Added gzip support for socket.io.js [3rd-Eden]
+  * Expose socket.transport [3rd-Eden]
+  * Updated client.
+
+0.8.4 / 2011-09-06
+==================
+
+  * Client build
+
 0.8.3 / 2011-09-03
 ==================
 
