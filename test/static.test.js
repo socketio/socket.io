@@ -455,6 +455,22 @@ module.exports = {
       io.server.close();
       done();
     });
-  }
+  },
 
+  'test that HEAD requests work': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    cl.head('/socket.io/socket.io.js', function (res, data) {
+      res.headers['content-type'].should.eql('application/javascript');
+      res.headers['content-length'].should.match(/([0-9]+)/);
+
+      data.should.eql('');
+
+      cl.end();
+      io.server.close()
+      done();
+    });
+  }
 };
