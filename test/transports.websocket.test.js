@@ -19,7 +19,24 @@ var sio = require('socket.io')
  */
 
 module.exports = {
-
+  'websocket identifies as websocket': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws;
+      
+    io.set('transports', ['websocket']);
+    io.sockets.on('connection', function (socket) {
+      socket.manager.transports[socket.id].name.should.equal('websocket');
+      ws.finishClose();
+      cl.end();
+      io.server.close();
+      done();
+    });
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+    });
+  },    	
+  
   'default websocket draft parser is used for unknown sec-websocket-version': function (done) {
     var cl = client(++ports)
       , io = create(cl)
@@ -28,17 +45,10 @@ module.exports = {
     io.set('transports', ['websocket']);
     io.sockets.on('connection', function (socket) {
       socket.manager.transports[socket.id].protocolVersion.should.equal('hixie-76');
-
-      socket.on('disconnect', function () {
-        setTimeout(function () {
-          ws.finishClose();
-          cl.end();
-          io.server.close();
-          done();
-        }, 10);
-      });
-
-      socket.disconnect();
+      ws.finishClose();
+      cl.end();
+      io.server.close();
+      done();
     });
 
     cl.handshake(function (sid) {
@@ -48,22 +58,14 @@ module.exports = {
 
   'hybi-07-12 websocket draft parser is used for sec-websocket-version: 8': function (done) {
     var cl = client(++ports)
-      , io = create(cl)
-      , ws;
+      , io = create(cl);
 
     io.set('transports', ['websocket']);
     io.sockets.on('connection', function (socket) {
       socket.manager.transports[socket.id].protocolVersion.should.equal('07-12');
-
-      socket.on('disconnect', function () {
-        setTimeout(function () {
-          cl.end();
-          io.server.close();
-          done();
-        }, 10);
-      });
-
-      socket.disconnect();
+      cl.end();
+      io.server.close();
+      done();
     });
 
     var headers = {
@@ -87,16 +89,9 @@ module.exports = {
 
     io.sockets.on('connection', function (socket) {
       socket.manager.transports[socket.id].protocolVersion.should.equal('16');
-
-      socket.on('disconnect', function () {
-        setTimeout(function () {
-          cl.end();
-          io.server.close();
-          done();
-        }, 10);
-      });
-
-      socket.disconnect();
+      cl.end();
+      io.server.close();
+      done();
     });
 
     var headers = {
@@ -131,10 +126,9 @@ module.exports = {
       var sid = data.split(':')[0];
       var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
       cl.get(url, {headers: headers}, function (res, data) {});
-      res.client.onend = function() {
-        io.server.close();
-        done();
-      }
+      cl.end();
+      io.server.close();
+      done();
     });
   },
 
@@ -157,10 +151,9 @@ module.exports = {
       var sid = data.split(':')[0];
       var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
       cl.get(url, {headers: headers}, function (res, data) {});
-      res.client.onend = function() {
-        io.server.close();
-        done();
-      }
+      cl.end();
+      io.server.close();
+      done();
     });
   },
 
