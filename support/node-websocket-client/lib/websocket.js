@@ -494,6 +494,13 @@ var WebSocket = function(url, proto, opts) {
             return function(req, s, head) {
                 stream = s;
 
+                if (readyState == CLOSED) {
+                    stream.end();
+                    stream.destroy();
+                    stream = undefined;
+                    return;
+                }
+
                 stream.on('data', function(d) {
                     if (d.length <= 0) {
                         return;
