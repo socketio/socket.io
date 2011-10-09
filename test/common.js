@@ -179,7 +179,6 @@ client = function (port) {
  */
 
 create = function (cl) {
-  console.log('');
   var manager = io.listen(cl.port);
   manager.set('client store expiration', 0);
   return manager;
