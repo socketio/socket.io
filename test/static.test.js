@@ -24,7 +24,9 @@ module.exports = {
       , io = sio.listen(port);
 
     (!!io.static.has('/socket.io.js')).should.be.true;
-    (!!io.static.has('/socket.io+')).should.be.true;
+    (!!io.static.has('/socket.io.v1.0.0.js')).should.be.true;
+    (!!io.static.has('/socket.io+xhr-polling.js')).should.be.true;
+    (!!io.static.has('/socket.io+xhr-polling.v1.0.0.js')).should.be.true;
     (!!io.static.has('/static/flashsocket/WebSocketMain.swf')).should.be.true;
     (!!io.static.has('/static/flashsocket/WebSocketMainInsecure.swf')).should.be.true;
 
@@ -470,6 +472,51 @@ module.exports = {
 
       cl.end();
       io.server.close()
+      done();
+    });
+  },
+
+  'test that a versioned client is served': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    cl.get('/socket.io/socket.io.v0.8.9.js', function (res, data) {
+      res.headers['content-type'].should.eql('application/javascript');
+      res.headers['content-length'].should.match(/([0-9]+)/);
+      res.headers['cache-control']
+        .indexOf(io.get('browser client expires')).should.be.above(-1);
+
+      data.should.match(/XMLHttpRequest/);
+
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that a custom versioned build client is served': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.set('browser client expires', 1337);
+
+    cl.get('/socket.io/socket.io+websocket.v0.8.10.js', function (res, data) {
+      res.headers['content-type'].should.eql('application/javascript');
+      res.headers['content-length'].should.match(/([0-9]+)/);
+      res.headers['cache-control']
+        .indexOf(io.get('browser client expires')).should.be.above(-1);
+
+      data.should.match(/XMLHttpRequest/);
+      data.should.match(/WS\.prototype\.name/);
+      data.should.not.match(/Flashsocket\.prototype\.name/);
+      data.should.not.match(/HTMLFile\.prototype\.name/);
+      data.should.not.match(/JSONPPolling\.prototype\.name/);
+      data.should.not.match(/XHRPolling\.prototype\.name/);
+
+      cl.end();
+      io.server.close();
       done();
     });
   }
