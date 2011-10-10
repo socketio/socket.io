@@ -517,5 +517,48 @@ module.exports = {
     io.get('custom').should.equal('opt');
     io.server.close();
     done();
+  },
+
+  'test disabling the log': function (done) {
+    var port = ++ports
+      , io = sio.listen(port, { log: false })
+      , _console = console.log
+      , calls = 0;
+
+    // the logger uses console.log to output data, override it to see if get's
+    // used
+    console.log = function () { ++calls };
+
+    io.log.debug('test');
+    io.log.log('testing');
+
+    console.log = _console;
+    calls.should.equal(0);
+
+    io.server.close();
+    done();
+  },
+
+  'test disabling logging with colors': function (done) {
+     var port = ++ports
+      , io = sio.listen(port, { 'log colors': false })
+      , _console = console.log
+      , calls = 0;
+
+    // the logger uses console.log to output data, override it to see if get's
+    // used
+    console.log = function (data) {
+      ++calls;
+      data.indexOf('\033').should.equal(-1);
+    };
+
+    io.log.debug('test');
+    io.log.log('testing');
+
+    console.log = _console;
+    calls.should.equal(2);
+
+    io.server.close();
+    done();
   }
 };
