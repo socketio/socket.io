@@ -519,5 +519,27 @@ module.exports = {
       io.server.close();
       done();
     });
-  }
+  },
+
+  'test that etags are ignored for versioned requests': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.enable('browser client etag');
+
+    cl.get('/socket.io/socket.io.v0.8.9.js', function (res, data) {
+      should.strictEqual(res.headers.etag, undefined);
+      res.headers['content-type'].should.eql('application/javascript');
+      res.headers['content-length'].should.match(/([0-9]+)/);
+      res.headers['cache-control']
+        .indexOf(io.get('browser client expires')).should.be.above(-1);
+
+      data.should.match(/XMLHttpRequest/);
+
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
 };
