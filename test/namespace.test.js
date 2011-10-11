@@ -243,5 +243,44 @@ module.exports = {
         }
       });
     })
+  },
+
+  'ignoring blacklisted events': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , calls = 0
+      , ws;
+
+    io.set('heartbeat interval', 1);
+    io.set('blacklist', ['foobar']);
+
+    io.sockets.on('connection', function (socket) {
+      socket.on('foobar', function () {
+         calls++;
+      });
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+
+      ws.on('open', function (){
+         ws.packet({
+            type: 'event'
+          , name: 'foobar'
+          , endpoint: ''
+        });
+      });
+
+      ws.on('message', function (data) {
+        if (data.type === 'heartbeat') {
+          cl.end();
+          ws.finishClose();
+          io.server.close();
+
+          calls.should.equal(0);
+          done();
+        }
+      });
+    });
   }
 };
