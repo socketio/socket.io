@@ -24,6 +24,7 @@
         "expresso": "0.7.7"
       , "should": "0.0.4"
       , "assertvanish": "0.0.3-1"
+      , "vbench": "0.0.2"
     }
   , "main": "index"
   , "engines": { "node": ">= 0.4.0" }
