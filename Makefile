@@ -21,7 +21,6 @@ test-leaks:
 
 bench:
 	@node benchmarks/encode \
-		&& node benchmarks/decode \
-		&& open benchmarks/{encode,decode}.png
+		&& node benchmarks/decode
 
 .PHONY: test bench

@@ -3,37 +3,30 @@
  * Module dependencies.
  */
 
-var vbench = require('vbench')
+var benchmark = require('benchmark')
+  , colors = require('colors')
   , io = require('../')
-  , parser = io.parser;
+  , parser = io.parser
+  , suite = new benchmark.Suite('Encode packet');
 
-console.log('\n  encode:');
-
-var suite = vbench.createSuite({
-    path: __dirname + '/encode.png'
-  , min: 500
-});
-
-suite.bench('string', function(next){
+suite.add('string', function () {
   parser.encodePacket({
       type: 'json'
     , endpoint: ''
     , data: '2'
-  })
-  next();
+  });
 });
 
-suite.bench('event', function(next){
+suite.add('event', function () {
   parser.encodePacket({
       type: 'event'
     , name: 'woot'
     , endpoint: ''
     , args: []
   });
-  next();
 });
 
-suite.bench('event+ack', function(next){
+suite.add('event+ack', function () {
   parser.encodePacket({
       type: 'json'
     , id: 1
@@ -41,20 +34,18 @@ suite.bench('event+ack', function(next){
     , endpoint: ''
     , data: { a: 'b' }
   });
-  next();
 });
 
-suite.bench('event+data', function(next){
+suite.add('event+data', function () {
   parser.encodePacket({
       type: 'event'
     , name: 'edwald'
     , endpoint: ''
     , args: [{a: 'b'}, 2, '3']
   });
-  next();
 });
 
-suite.bench('payload', function(next){
+suite.add('payload', function () {
   parser.encodePayload([
       parser.encodePacket({ type: 'message', data: '5', endpoint: '' })
     , parser.encodePacket({ type: 'message', data: '53d', endpoint: '' })
@@ -64,7 +55,20 @@ suite.bench('payload', function(next){
     , parser.encodePacket({ type: 'message', data: 'foobarbaz', endpoint: '' })
     , parser.encodePacket({ type: 'message', data: 'foobar', endpoint: '' })
   ]);
-  next();
 });
 
-suite.run();
+suite.on('cycle', function (bench, details) {
+  console.log('\n' + suite.name.grey, details.name.white.bold);
+  console.log([
+      details.hz.toFixed(2).cyan + ' ops/sec'.grey
+    , details.count.toString().white + ' times executed'.grey
+    , 'benchmark took '.grey + details.times.elapsed.toString().white + ' sec.'.grey
+    , 
+  ].join(', '.grey));
+});
+
+if (!module.parent) {
+  suite.run();
+} else {
+  module.exports = suite;
+}
