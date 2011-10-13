@@ -168,13 +168,18 @@ module.exports = {
   'flashsocket identifies as flashsocket': function (done) {
     var cl = client(++ports)
       , io = create(cl)
-      , messages = 0
       , ws;
+
     io.set('transports', ['flashsocket']);
     io.sockets.on('connection', function (socket) {
       socket.manager.transports[socket.id].name.should.equal('flashsocket');
+      ws.finishClose();
+      cl.end();
+      io.flashPolicyServer.close();
+      io.server.close();
       done();
     });
+
     cl.handshake(function (sid) {
       ws = websocket(cl, sid, 'flashsocket');
     });

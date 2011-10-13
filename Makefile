@@ -19,4 +19,9 @@ test-cov:
 test-leaks:
 	@ls test/leaks/* | xargs node --expose_debug_as=debug --expose_gc
 
-.PHONY: test
+bench:
+	@node benchmarks/encode \
+		&& node benchmarks/decode \
+		&& open benchmarks/{encode,decode}.png
+
+.PHONY: test bench

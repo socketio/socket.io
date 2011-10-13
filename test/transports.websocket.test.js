@@ -22,48 +22,58 @@ module.exports = {
   'websocket identifies as websocket': function (done) {
     var cl = client(++ports)
       , io = create(cl)
-      , messages = 0
       , ws;
+      
     io.set('transports', ['websocket']);
     io.sockets.on('connection', function (socket) {
       socket.manager.transports[socket.id].name.should.equal('websocket');
+      ws.finishClose();
+      cl.end();
+      io.server.close();
       done();
     });
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
     });
-  },
+  },    	
   
   'default websocket draft parser is used for unknown sec-websocket-version': function (done) {
     var cl = client(++ports)
       , io = create(cl)
-      , messages = 0
       , ws;
+
     io.set('transports', ['websocket']);
     io.sockets.on('connection', function (socket) {
       socket.manager.transports[socket.id].protocolVersion.should.equal('hixie-76');
+      ws.finishClose();
+      cl.end();
+      io.server.close();
       done();
     });
+
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
     });
   },
-  
+
   'hybi-07-12 websocket draft parser is used for sec-websocket-version: 8': function (done) {
     var cl = client(++ports)
-      , io = create(cl)
-      , messages = 0
-      , ws;
+      , io = create(cl);
+
     io.set('transports', ['websocket']);
     io.sockets.on('connection', function (socket) {
       socket.manager.transports[socket.id].protocolVersion.should.equal('07-12');
+      cl.end();
+      io.server.close();
       done();
     });
+
     var headers = {
       'sec-websocket-version': 8,
       'upgrade': 'websocket',
       'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
     }
+
     cl.get('/socket.io/{protocol}', {}, function (res, data) {
       var sid = data.split(':')[0];
       var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
@@ -74,18 +84,22 @@ module.exports = {
   'hybi-16 websocket draft parser is used for sec-websocket-version: 13': function (done) {
     var cl = client(++ports)
       , io = create(cl)
-      , messages = 0
-      , ws;
+
     io.set('transports', ['websocket']);
+
     io.sockets.on('connection', function (socket) {
       socket.manager.transports[socket.id].protocolVersion.should.equal('16');
+      cl.end();
+      io.server.close();
       done();
     });
+
     var headers = {
       'sec-websocket-version': 13,
       'upgrade': 'websocket',
       'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
     }
+
     cl.get('/socket.io/{protocol}', {}, function (res, data) {
       var sid = data.split(':')[0];
       var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
@@ -96,8 +110,7 @@ module.exports = {
   'hybi-07-12 origin filter blocks access for mismatched sec-websocket-origin': function (done) {
     var cl = client(++ports)
       , io = create(cl)
-      , messages = 0
-      , ws;
+
     io.set('transports', ['websocket']);
     io.set('origins', 'foo.bar.com:*');
 
@@ -107,22 +120,22 @@ module.exports = {
       'Sec-WebSocket-Origin': 'http://baz.bar.com',
       'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
     }
+
     // handshake uses correct origin -- we want to block the actuall websocket call
     cl.get('/socket.io/{protocol}', {headers: {origin: 'http://foo.bar.com'}}, function (res, data) {
       var sid = data.split(':')[0];
       var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
       cl.get(url, {headers: headers}, function (res, data) {});
-      res.client.onend = function() {
-        done();
-      }
+      cl.end();
+      io.server.close();
+      done();
     });
   },
 
   'hybi-16 origin filter blocks access for mismatched sec-websocket-origin': function (done) {
     var cl = client(++ports)
       , io = create(cl)
-      , messages = 0
-      , ws;
+
     io.set('transports', ['websocket']);
     io.set('origins', 'foo.bar.com:*');
 
@@ -132,14 +145,15 @@ module.exports = {
       'origin': 'http://baz.bar.com',
       'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
     }
+
     // handshake uses correct origin -- we want to block the actuall websocket call
     cl.get('/socket.io/{protocol}', {headers: {origin: 'http://foo.bar.com'}}, function (res, data) {
       var sid = data.split(':')[0];
       var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
       cl.get(url, {headers: headers}, function (res, data) {});
-      res.client.onend = function() {
-        done();
-      }
+      cl.end();
+      io.server.close();
+      done();
     });
   },
 
@@ -1890,5 +1904,36 @@ module.exports = {
       });
     });
   },
+
+  'accessing the transport type': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws;
+
+    io.sockets.on('connection', function (socket) {
+      socket.transport.should.equal('websocket');
+
+      socket.on('disconnect', function () {
+        setTimeout(function () {
+          ws.finishClose();
+          cl.end();
+          io.server.close();
+          done();
+        }, 10);
+      });
+
+      socket.disconnect();
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+      ws.on('message', function (msg) {
+        if (!ws.connected) {
+          msg.type.should.eql('connect');
+          ws.connected = true;
+        }
+      });
+    });
+  }
 
 };

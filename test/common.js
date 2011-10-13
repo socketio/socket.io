@@ -148,6 +148,24 @@ HTTPClient.prototype.post = function (path, data, opts, fn) {
 };
 
 /**
+ * Issue a HEAD request
+ *
+ * @api private
+ */
+
+HTTPClient.prototype.head = function (path, opts, fn) {
+  if ('function' == typeof opts) {
+    fn = opts;
+    opts = {};
+  }
+
+  opts = opts || {};
+  opts.method = 'HEAD';
+
+  return this.request(path, opts, fn);
+};
+
+/**
  * Performs a handshake (GET) request
  *
  * @api private
@@ -179,7 +197,6 @@ client = function (port) {
  */
 
 create = function (cl) {
-  console.log('');
   var manager = io.listen(cl.port);
   manager.set('client store expiration', 0);
   return manager;
