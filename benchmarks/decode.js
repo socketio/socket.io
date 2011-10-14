@@ -3,35 +3,26 @@
  * Module dependencies.
  */
 
-var vbench = require('vbench')
+var benchmark = require('benchmark')
+  , colors = require('colors')
   , io = require('../')
-  , parser = io.parser;
+  , parser = io.parser
+  , suite = new benchmark.Suite('Decode packet');
 
-console.log('  decode:');
-
-var suite = vbench.createSuite({
-    path: __dirname + '/decode.png'
-  , min: 500
-});
-
-suite.bench('string', function(next){
+suite.add('string', function () {
   parser.decodePacket('4:::"2"');
-  next();
 });
 
-suite.bench('event', function(next){
+suite.add('event', function () {
   parser.decodePacket('5:::{"name":"woot"}');
-  next()
 });
 
-suite.bench('event+ack', function(next){
+suite.add('event+ack', function () {
   parser.decodePacket('5:1+::{"name":"tobi"}');
-  next();
 });
 
-suite.bench('event+data', function(next){
+suite.add('event+data', function () {
   parser.decodePacket('5:::{"name":"edwald","args":[{"a": "b"},2,"3"]}');
-  next();
 });
 
 var payload = parser.encodePayload([
@@ -44,9 +35,22 @@ var payload = parser.encodePayload([
   , parser.encodePacket({ type: 'message', data: 'foobar', endpoint: '' })
 ]);
 
-suite.bench('payload', function(next){
+suite.add('payload', function () {
   parser.decodePayload(payload);
-  next();
 });
 
-suite.run();
+suite.on('cycle', function (bench, details) {
+  console.log('\n' + suite.name.grey, details.name.white.bold);
+  console.log([
+      details.hz.toFixed(2).cyan + ' ops/sec'.grey
+    , details.count.toString().white + ' times executed'.grey
+    , 'benchmark took '.grey + details.times.elapsed.toString().white + ' sec.'.grey
+    , 
+  ].join(', '.grey));
+});
+
+if (!module.parent) {
+  suite.run();
+} else {
+  module.exports = suite;
+}
