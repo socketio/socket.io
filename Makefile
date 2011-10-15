@@ -1,5 +1,6 @@
 
 ALL_TESTS = $(shell find test/ -name '*.test.js')
+ALL_BENCH = $(shell find benchmarks -name '*.bench.js')
 
 run-tests:
 	@./node_modules/.bin/expresso \
@@ -19,8 +20,13 @@ test-cov:
 test-leaks:
 	@ls test/leaks/* | xargs node --expose_debug_as=debug --expose_gc
 
-bench:
-	@node benchmarks/encode \
-		&& node benchmarks/decode
+run-bench:
+	@node $(PROFILEFLAGS) benchmarks/runner.js
 
-.PHONY: test bench
+bench:
+	@$(MAKE) BENCHMARKS="$(ALL_BENCH)" run-bench
+
+profile:
+	@PROFILEFLAGS='--prof --trace-opt --trace-bailout --trace-deopt' $(MAKE) bench
+
+.PHONY: test bench profile
