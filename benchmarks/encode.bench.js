@@ -45,6 +45,22 @@ suite.add('event+data', function () {
   });
 });
 
+suite.add('heartbeat', function () {
+  parser.encodePacket({
+      type: 'heartbeat'
+    , endpoint: ''
+  })
+});
+
+suite.add('error', function () {
+  parser.encodePacket({
+      type: 'error'
+    , reason: 'unauthorized'
+    , advice: 'reconnect'
+    , endpoint: ''
+  })
+})
+
 suite.add('payload', function () {
   parser.encodePayload([
       parser.encodePacket({ type: 'message', data: '5', endpoint: '' })
