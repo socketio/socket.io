@@ -25,6 +25,14 @@ suite.add('event+data', function () {
   parser.decodePacket('5:::{"name":"edwald","args":[{"a": "b"},2,"3"]}');
 });
 
+suite.add('heartbeat', function () {
+  parser.decodePacket('2:::');
+});
+
+suite.add('error', function () {
+  parser.decodePacket('7:::2+0');
+});
+
 var payload = parser.encodePayload([
     parser.encodePacket({ type: 'message', data: '5', endpoint: '' })
   , parser.encodePacket({ type: 'message', data: '53d', endpoint: '' })
