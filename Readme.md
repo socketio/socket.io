@@ -67,7 +67,7 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('disconnect', function () {
-    sockets.emit('user disconnected');
+    io.sockets.emit('user disconnected');
   });
 });
 ```
