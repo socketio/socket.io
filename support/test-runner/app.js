@@ -299,4 +299,14 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test webworker connection', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.on('message', function (msg) {
+        if (msg == 'woot') {
+          socket.emit('done');
+        }
+      });
+    });
+  });
+
 });
