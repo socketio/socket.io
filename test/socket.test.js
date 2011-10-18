@@ -355,6 +355,19 @@
         socket.disconnect();
         next();
       });
+    },
+
+    'test webworker connection': function (next) {
+      if (!window.Worker) {
+        return next();
+      }
+
+      var worker = new Worker('/test/worker.js');
+      worker.postMessage(uri());
+      worker.onmessage = function (ev) {
+        if ('done!' == ev.data) return next();
+        throw new Error('Unexpected message: ' + ev.data);
+      }
     }
 
   };
