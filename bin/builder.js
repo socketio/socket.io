@@ -209,18 +209,11 @@ var builder = module.exports = function () {
 
       // check if we need to process it any further
       if (settings.minify) {
-        // uglify hate unicode chars... 
-        var separator = '@@OMGYUCHANGEME@@@';
-        code = code.replace(/(\\ufffd)/g, separator);
-
         var ast = uglify.parser.parse(code);
         ast = uglify.uglify.ast_mangle(ast);
         ast = uglify.uglify.ast_squeeze(ast);
 
-        code = production + uglify.uglify.gen_code(ast);
-
-        // restore the code
-        code = code.replace(new RegExp('('+ separator + ')', 'g'), '\\ufffd');
+        code = production + uglify.uglify.gen_code(ast, { ascii_only: true });
       }
 
       callback(error, code);
