@@ -91,8 +91,9 @@ HTTPClient.prototype.request = function (path, opts, fn) {
  */
 
 HTTPClient.prototype.end = function () {
-  this.agent.sockets.forEach(function (socket) {
-    socket.end();
+  var self = this;
+  Object.keys(this.agent.sockets).forEach(function (socket) {
+    self.agent.sockets[socket][0]._handle.socket.end();
   });
 };
 
