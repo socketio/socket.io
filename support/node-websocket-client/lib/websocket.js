@@ -488,7 +488,13 @@ var WebSocket = function(url, proto, opts) {
             throw new Error('Invalid URL scheme \'' + urlScheme + '\' specified.');
         }
 
-        httpClient.on('upgrade', (function() {
+        httpClient.on('error', function(e) {
+            // httpClient.destroy();
+            errorListener(e);
+        });
+
+        var httpReq = httpClient.request(httpPath, httpHeaders);
+        httpReq.on('upgrade', (function() {
             var data = undefined;
 
             return function(req, s, head) {
@@ -583,12 +589,6 @@ var WebSocket = function(url, proto, opts) {
                 stream.emit('data', head);
             };
         })());
-        httpClient.on('error', function(e) {
-            httpClient.end();
-            errorListener(e);
-        });
-
-        var httpReq = httpClient.request(httpPath, httpHeaders);
 
         httpReq.write(challenge, 'binary');
         httpReq.end();
