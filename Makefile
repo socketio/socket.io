@@ -6,13 +6,12 @@ run-tests:
 	@./node_modules/.bin/expresso \
 		-t 3000 \
 		-I support \
-		-I lib \
 		--serial \
 		$(TESTFLAGS) \
 		$(TESTS)
 
 test:
-	@$(MAKE) TESTS="$(ALL_TESTS)" run-tests
+	@$(MAKE) NODE_PATH=lib TESTS="$(ALL_TESTS)" run-tests
 
 test-cov:
 	@TESTFLAGS=--cov $(MAKE) test
