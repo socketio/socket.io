@@ -93,7 +93,8 @@ HTTPClient.prototype.request = function (path, opts, fn) {
 HTTPClient.prototype.end = function () {
   var self = this;
   Object.keys(this.agent.sockets).forEach(function (socket) {
-    if (self.agent.sockets[socket].length > 0) {
+    if (self.agent.sockets[socket].length > 0 &&
+        self.agent.sockets[socket][0]._handle) {
       self.agent.sockets[socket][0]._handle.socket.end();
     }
   });
