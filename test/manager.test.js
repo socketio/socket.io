@@ -117,6 +117,7 @@ module.exports = {
     io.disable('foo');
 
     calls.should.eql(3);
+
     done();
   },
 
@@ -384,61 +385,61 @@ module.exports = {
       done();
     });
   },
-
+  
   'test setting a custom heartbeat timeout': function (done) {
     var port = ++ports
       , io = sio.listen(port)
       , cl = client(port);
-
+  
     io.configure(function () {
       io.set('heartbeat timeout', 33);
     });
-
+  
     cl.get('/socket.io/{protocol}/', function (res, data) {
       res.statusCode.should.eql(200);
       data.should.match(/([^:]+):33:([0-9]+)?:(.*)/);
-
+  
       cl.end();
       io.server.close();
       done();
     });
   },
-
+  
   'test disabling timeouts': function (done) {
     var port = ++ports
       , io = sio.listen(port)
       , cl = client(port);
-
+  
     io.configure(function () {
       io.set('heartbeat timeout', null);
       io.set('close timeout', '');
     });
-
+  
     cl.get('/socket.io/{protocol}/', function (res, data) {
       res.statusCode.should.eql(200);
       data.should.match(/([^:]+)::?:(.*)/);
-
+  
       cl.end();
       io.server.close();
       done();
     });
   },
-
+  
   'test disabling heartbeats': function (done) {
     var port = ++ports
-      , io = sio.listen(port)
       , cl = client(port)
+      , io = create(cl)
       , messages = 0
       , beat = false
       , ws;
-
+  
     io.configure(function () {
       io.disable('heartbeats');
       io.set('heartbeat interval', .05);
       io.set('heartbeat timeout', .05);
       io.set('close timeout', .05);
     });
-
+  
     io.sockets.on('connection', function (socket) {
       setTimeout(function () {
         socket.disconnect();
@@ -446,18 +447,17 @@ module.exports = {
 
       socket.on('disconnect', function (reason) {
         beat.should.be.false;
-
-        cl.end();
         ws.finishClose();
+        cl.end();
         io.server.close();
         done();
       });
     });
-
+  
     cl.get('/socket.io/{protocol}/', function (res, data) {
       res.statusCode.should.eql(200);
       data.should.match(/([^:]+)::[\.0-9]+:(.*)/);
-
+  
       cl.handshake(function (sid) {
         ws = websocket(cl, sid);
         ws.on('message', function (packet) {
@@ -470,95 +470,103 @@ module.exports = {
       });
     });
   },
-
+  
   'no duplicate room members': function (done) {
     var port = ++ports
       , io = sio.listen(port);
-
+  
     Object.keys(io.rooms).length.should.equal(0);
-
+  
     io.onJoin(123, 'foo');
     io.rooms.foo.length.should.equal(1);
-
+  
     io.onJoin(123, 'foo');
     io.rooms.foo.length.should.equal(1);
-
+  
     io.onJoin(124, 'foo');
     io.rooms.foo.length.should.equal(2);
-
+  
     io.onJoin(124, 'foo');
     io.rooms.foo.length.should.equal(2);
-
+  
     io.onJoin(123, 'bar');
     io.rooms.foo.length.should.equal(2);
     io.rooms.bar.length.should.equal(1);
-
+  
     io.onJoin(123, 'bar');
     io.rooms.foo.length.should.equal(2);
     io.rooms.bar.length.should.equal(1);
-
+  
     io.onJoin(124, 'bar');
     io.rooms.foo.length.should.equal(2);
     io.rooms.bar.length.should.equal(2);
-
+  
     io.onJoin(124, 'bar');
     io.rooms.foo.length.should.equal(2);
     io.rooms.bar.length.should.equal(2);
-
-    io.server.close();
-    done();
+  
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
   },
-
+  
   'test passing options directly to the Manager through listen': function (done) {
     var port = ++ports
       , io = sio.listen(port, { resource: '/my resource', custom: 'opt' });
-
+  
     io.get('resource').should.equal('/my resource');
     io.get('custom').should.equal('opt');
-    io.server.close();
-    done();
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
   },
-
+  
   'test disabling the log': function (done) {
     var port = ++ports
       , io = sio.listen(port, { log: false })
       , _console = console.log
       , calls = 0;
-
+  
     // the logger uses console.log to output data, override it to see if get's
     // used
     console.log = function () { ++calls };
-
+  
     io.log.debug('test');
     io.log.log('testing');
-
+  
     console.log = _console;
     calls.should.equal(0);
-
-    io.server.close();
-    done();
+  
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
   },
-
+  
   'test disabling logging with colors': function (done) {
      var port = ++ports
       , io = sio.listen(port, { 'log colors': false })
       , _console = console.log
       , calls = 0;
-
+  
     // the logger uses console.log to output data, override it to see if get's
     // used
     console.log = function (data) {
       ++calls;
       data.indexOf('\033').should.equal(-1);
     };
-
+  
     io.log.debug('test');
     io.log.log('testing');
-
+  
     console.log = _console;
     calls.should.equal(2);
-
-    io.server.close();
-    done();
+  
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
   }
 };
