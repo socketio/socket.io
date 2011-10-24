@@ -1,10 +1,3 @@
-
-/**
- * Bootstrap app.
- */
-
-require.paths.unshift(__dirname + '/../../lib/');
-
 /**
  * Module dependencies.
  */
