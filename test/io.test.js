@@ -111,7 +111,7 @@ module.exports = {
 
       cl.get('/socket.io', function (res) {
         res.statusCode.should.eql(200);
-      
+
         cl.end();
         io.server.close();
         done();

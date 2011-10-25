@@ -131,7 +131,7 @@ module.exports = {
         if (data.endpoint == '/a') {
           data.type.should.eql('error');
           data.reason.should.eql('unauthorized')
-          
+
           cl.end();
           ws.finishClose();
           io.server.close()

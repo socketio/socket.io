@@ -273,7 +273,7 @@ module.exports = {
         res.statusCode.should.eql(200);
         msgs.should.have.length(1);
         msgs[0].type.should.eql('connect');
-        
+
         cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, msgs) {
           msgs.should.have.length(1);
           msgs[0].should.eql({ type: 'disconnect', endpoint: '' });
