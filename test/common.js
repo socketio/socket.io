@@ -91,6 +91,13 @@ HTTPClient.prototype.request = function (path, opts, fn) {
  */
 
 HTTPClient.prototype.end = function () {
+  // node <v0.5 compat
+  if (this.agent.sockets.forEach) {
+      this.agent.sockets.forEach(function (socket) {
+        if (socket.end) socket.end();
+      });
+  }
+  // node >=v0.5 compat
   var self = this;
   Object.keys(this.agent.sockets).forEach(function (socket) {
     for (var i = 0, l = self.agent.sockets[socket].length; i < l; ++i) {
