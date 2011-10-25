@@ -469,9 +469,15 @@ var WebSocket = function(url, proto, opts) {
         //      un-inspected to net.Stream.connect(). The latter accepts a
         //      string as its first argument to connect to a UNIX socket.
         var opt = {};
+        var agent = null;
         switch (getUrlScheme(url)) {
         case 'ws':
             var u = urllib.parse(url);
+            agent = new http.Agent({
+                host: u.hostname,
+                port: u.port || 80
+            });
+            opt.agent = agent;
             opt.host = u.hostname;
             opt.port = u.port || 80;
             opt.path = (u.pathname || '/') + (u.search || '');
@@ -481,6 +487,11 @@ var WebSocket = function(url, proto, opts) {
         case 'ws+unix':
             var sockPath = url.substring('ws+unix://'.length, url.length);
             var u = urllib.parse(url);
+            agent = new http.Agent({
+                host: 'localhost',
+                port: sockPath
+            });
+            opt.agent = agent;
             opt.host = 'localhost';
             opt.path = sockPath;
             opt.headers = httpHeaders;
