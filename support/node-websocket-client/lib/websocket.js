@@ -502,7 +502,7 @@ var WebSocket = function(url, proto, opts) {
         }
 
         var httpReq = http.request(opt, function() { });
-        httpReq.on('upgrade', (function() {
+        var upgradeHandler = (function() {
             var data = undefined;
 
             return function(req, s, head) {
@@ -597,7 +597,9 @@ var WebSocket = function(url, proto, opts) {
 
                 stream.emit('data', head);
             };
-        })());
+        })();
+        agent.on('upgrade', upgradeHandler); // node v0.4
+        httpReq.on('upgrade', upgradeHandler); // node v0.5+
 
         httpReq.write(challenge, 'binary');
         httpReq.end();
