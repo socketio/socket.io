@@ -96,6 +96,7 @@ HTTPClient.prototype.end = function () {
       this.agent.sockets.forEach(function (socket) {
         if (socket.end) socket.end();
       });
+      return;
   }
   // node >=v0.5 compat
   var self = this;
