@@ -1,6 +1,6 @@
 // useful globals
 
-var currentSuite, currentCase;
+var currentSuite, currentCase, testsList;
 
 // loads common.js module
 function load (test, fn) {
@@ -21,7 +21,8 @@ function run () {
 
   if (tests.length) {
     // load dom
-    $('body').append('<ul class="test-list">');
+    testsList = $('<ul class="test-list">');
+    $('body').append(testsList)
 
     // run suites
     suite(tests[i], function check (res) {
@@ -64,7 +65,7 @@ function suite (file, fn) {
     $('<span class="name">').append(
       $('<a>').attr('href', '/test/' + file).text(file)
     )
-  ).appendTo('.test-list');
+  ).appendTo(testsList);
 
   // dynamically load module
   load(file, function (suite) {
