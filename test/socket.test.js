@@ -349,7 +349,7 @@
         throw new Error(msg || 'Received an error');
       });
 
-      socket.json.send({ test: "\u2028" });
+      socket.json.send({ test: "☃" });
 
       socket.on('done', function () {
         socket.disconnect();
