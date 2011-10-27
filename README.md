@@ -169,7 +169,7 @@ true
 
   Adds a one time listener for the event *event*. The listener is removed after the first time the event is fired.
   
-- *removeEvent(event, λ)*
+- *removeListener(event, λ)*
 
   Removes the listener λ for the event *event*.
   
