@@ -4,8 +4,9 @@
   , "version": "0.0.1"
   , "dependencies": {
         "express": "2.3.11"
+      , "socket.io": ""
       , "jade": "0.12.1"
-      , "stylus": "0.13.3"
+      , "stylus": "0.18.0"
       , "nib": "0.0.8"
     }
 }
