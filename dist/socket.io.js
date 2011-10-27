@@ -1,4 +1,4 @@
-/*! Socket.IO.js build:0.8.5, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
+/*! Socket.IO.js build:0.8.6, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
 
 /**
  * socket.io
@@ -22,7 +22,7 @@
    * @api public
    */
 
-  io.version = '0.8.5';
+  io.version = '0.8.6';
 
   /**
    * Protocol implemented.
@@ -71,7 +71,8 @@
 
     if (global && global.location) {
       uri.protocol = uri.protocol || global.location.protocol.slice(0, -1);
-      uri.host = uri.host || global.domain;
+      uri.host = uri.host || (global.document
+        ? global.document.domain : global.location.hostname);
       uri.port = uri.port || global.location.port;
     }
 
@@ -403,7 +404,7 @@
     }
 
     for (var j = arr.length, i = i < 0 ? i + j < 0 ? 0 : i + j : i || 0; 
-         i < j && arr[i] !== o; i++);
+         i < j && arr[i] !== o; i++) {}
 
     return j <= i ? -1 : i;
   };
@@ -1225,7 +1226,6 @@
     'undefined' != typeof io ? io : module.exports
   , 'undefined' != typeof io ? io : module.parent.exports
 );
-
 /**
  * socket.io
  * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
@@ -1269,7 +1269,13 @@
 
   Transport.prototype.onData = function (data) {
     this.clearCloseTimeout();
-    this.setCloseTimeout();
+    
+    // If the connection in currently open (or in a reopening state) reset the close 
+    // timeout since we have just received data. This check is necessary so
+    // that we don't reset the timeout on an explicitly disconnected connection.
+    if (this.connected || this.connecting || this.reconnecting) {
+      this.setCloseTimeout();
+    }
 
     if (data !== '') {
       // todo: we should only do decodePayload for xhr transports
@@ -1328,7 +1334,7 @@
    */
 
   Transport.prototype.onDisconnect = function () {
-    if (this.close) this.close();
+    if (this.close && this.open) this.close();
     this.clearTimeouts();
     this.socket.onDisconnect();
     return this;
@@ -1423,8 +1429,8 @@
     }, this.socket.options['reopen delay']);*/
 
     this.open = false;
-    this.setCloseTimeout();
     this.socket.onClose();
+    this.onDisconnect();
   };
 
   /**
@@ -3494,7 +3500,17 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
  * MIT Licensed
  */
 
-(function (exports, io) {
+(function (exports, io, global) {
+  /**
+   * There is a way to hide the loading indicator in Firefox. If you create and
+   * remove a iframe it will stop showing the current loading indicator.
+   * Unfortunately we can't feature detect that and UA sniffing is evil.
+   *
+   * @api private
+   */
+
+  var indicator = global.document && "MozAppearance" in
+    global.document.documentElement.style;
 
   /**
    * Expose constructor.
@@ -3605,7 +3621,9 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     initIframe();
 
-    this.area.value = data;
+    // we temporarily stringify until we figure out how to prevent
+    // browsers from turning `\n` into `\r\n` in form inputs
+    this.area.value = io.JSON.stringify(data);
 
     try {
       this.form.submit();
@@ -3653,6 +3671,14 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     var insertAt = document.getElementsByTagName('script')[0]
     insertAt.parentNode.insertBefore(script, insertAt);
     this.script = script;
+
+    if (indicator) {
+      setTimeout(function () {
+        var iframe = document.createElement('iframe');
+        document.body.appendChild(iframe);
+        document.body.removeChild(iframe);
+      }, 100);
+    }
   };
 
   /**
@@ -3671,6 +3697,23 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   };
 
   /**
+   * The indicator hack only works after onload
+   *
+   * @param {Socket} socket The socket instance that needs a transport
+   * @param {Function} fn The callback
+   * @api private
+   */
+
+  JSONPPolling.prototype.ready = function (socket, fn) {
+    var self = this;
+    if (!indicator) return fn.call(this);
+
+    io.util.load(function () {
+      fn.call(self);
+    });
+  };
+
+  /**
    * Checks if browser supports this transport.
    *
    * @return {Boolean}
@@ -3678,7 +3721,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   JSONPPolling.check = function () {
-    return true;
+    return 'document' in global;
   };
 
   /**
@@ -3703,4 +3746,5 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 })(
     'undefined' != typeof io ? io.Transport : module.exports
   , 'undefined' != typeof io ? io : module.parent.exports
+  , this
 );

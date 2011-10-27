@@ -1,4 +1,34 @@
 
+0.8.6 / 2011-10-27 
+==================
+
+  * Added WebWorker support.
+  * Fixed swfobject and web_socket.js to not assume window.
+  * Fixed CORS detection for webworker.
+  * Fix `defer` for webkit in a webworker.
+  * Fixed io.util.request to not rely on window.
+  * FIxed; use global instead of window and dont rely on document.
+  * Fixed; JSON-P handshake if CORS is not available.
+  * Made underlying Transport disconnection trigger immediate socket.io disconnect.
+  * Fixed warning when compressing with Google Closure Compiler.
+  * Fixed builder's uglify utf-8 support.
+  * Added workaround for loading indicator in FF jsonp-polling. [3rd-Eden]
+  * Fixed host discovery lookup. [holic]
+  * Fixed close timeout when disconnected/reconnecting. [jscharlach]
+  * Fixed jsonp-polling feature detection.
+  * Fixed jsonp-polling client POSTing of \n.
+  * Fixed test runner on IE6/7
+
+0.8.5 / 2011-10-07
+==================
+
+  * Bumped client
+
+0.8.4 / 2011-09-06
+==================
+
+  * Corrected build
+
 0.8.3 / 2011-09-03
 ==================
 
