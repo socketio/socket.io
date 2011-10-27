@@ -323,7 +323,7 @@ module.exports = {
     io.sockets.on('connection', function (client) {
       cl.post(
           '/socket.io/{protocol}/jsonp-polling/' + sid
-        , parser.encodePacket({ type: 'disconnect' })
+        , JSON.stringify(parser.encodePacket({ type: 'disconnect' }))
         , function (res, data) {
             res.statusCode.should.eql(200);
             data.should.eql('1');
@@ -390,11 +390,11 @@ module.exports = {
 
       cl.post(
           '/socket.io/{protocol}/jsonp-polling/' + sid
-        , parser.encodePayload([
+        , JSON.stringify(parser.encodePayload([
               parser.encodePacket({ type: 'message', data: 'a' })
             , parser.encodePacket({ type: 'message', data: 'b' })
             , parser.encodePacket({ type: 'disconnect' })
-          ])
+          ]))
         , function (res, data) {
             res.statusCode.should.eql(200);
             data.should.eql('1');
@@ -504,7 +504,7 @@ module.exports = {
 
         cl.post(
             '/socket.io/{protocol}/jsonp-polling/' + sid
-          , parser.encodePacket({ type: 'connect', endpoint: '/woot' })
+          , JSON.stringify(parser.encodePacket({ type: 'connect', endpoint: '/woot' }))
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('1');
@@ -585,21 +585,21 @@ module.exports = {
       cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function () {
         cl.post(
             '/socket.io/{protocol}/jsonp-polling/' + sid
-          , parser.encodePacket({ type: 'connect', endpoint: '/woot' })
+          , JSON.stringify(parser.encodePacket({ type: 'connect', endpoint: '/woot' }))
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/jsonp-polling/' + sid
-                , parser.encodePacket({ type: 'disconnect', endpoint: '/woot' })
+                , JSON.stringify(parser.encodePacket({ type: 'disconnect', endpoint: '/woot' }))
                 , function (res, data) {
                     res.statusCode.should.eql(200);
                     data.should.eql('1');
 
                     cl.post(
                         '/socket.io/{protocol}/jsonp-polling/' + sid
-                      , parser.encodePacket({ type: 'message', data: 'ferret' })
+                      , JSON.stringify(parser.encodePacket({ type: 'message', data: 'ferret' }))
                       , function (res, data) {
                           res.statusCode.should.eql(200);
                           data.should.eql('1');
@@ -656,7 +656,7 @@ module.exports = {
 
         cl.post(
             '/socket.io/{protocol}/jsonp-polling/' + sid
-          , parser.encodePacket({ type: 'connect', endpoint: '/a' })
+          , JSON.stringify(parser.encodePacket({ type: 'connect', endpoint: '/a' }))
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('1');
@@ -665,7 +665,7 @@ module.exports = {
 
         cl.post(
             '/socket.io/{protocol}/jsonp-polling/' + sid
-          , parser.encodePacket({ type: 'connect', endpoint: '/b' })
+          , JSON.stringify(parser.encodePacket({ type: 'connect', endpoint: '/b' }))
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('1');
@@ -721,7 +721,7 @@ module.exports = {
       cl.get('/socket.io/{protocol}/jsonp-polling/' + sid, function (res, data) {
         cl.post(
             '/socket.io/{protocol}/jsonp-polling/' + sid
-          , parser.encodePacket({ type: 'message', data: '' })
+          , JSON.stringify(parser.encodePacket({ type: 'message', data: '' }))
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('1');
@@ -730,14 +730,14 @@ module.exports = {
 
         cl.post(
             '/socket.io/{protocol}/jsonp-polling/' + sid
-          , parser.encodePacket({ type: 'connect', endpoint: '/a' })
+          , JSON.stringify(parser.encodePacket({ type: 'connect', endpoint: '/a' }))
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/jsonp-polling/' + sid
-                , parser.encodePacket({ type: 'message', endpoint: '/a', data: 'a' })
+                , JSON.stringify(parser.encodePacket({ type: 'message', endpoint: '/a', data: 'a' }))
                 , function (res, data) {
                     res.statusCode.should.eql(200);
                     data.should.eql('1');
@@ -748,14 +748,14 @@ module.exports = {
 
         cl.post(
             '/socket.io/{protocol}/jsonp-polling/' + sid
-          , parser.encodePacket({ type: 'connect', endpoint: '/b' })
+          , JSON.stringify(parser.encodePacket({ type: 'connect', endpoint: '/b' }))
           , function (res, data) {
               res.statusCode.should.eql(200);
               data.should.eql('1');
 
               cl.post(
                   '/socket.io/{protocol}/jsonp-polling/' + sid
-                , parser.encodePacket({ type: 'message', endpoint: '/b', data: 'b' })
+                , JSON.stringify(parser.encodePacket({ type: 'message', endpoint: '/b', data: 'b' }))
                 , function (res, data) {
                     res.statusCode.should.eql(200);
                     data.should.eql('1');
