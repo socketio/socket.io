@@ -131,7 +131,7 @@ module.exports = {
         if (data.endpoint == '/a') {
           data.type.should.eql('error');
           data.reason.should.eql('unauthorized')
-          
+
           cl.end();
           ws.finishClose();
           io.server.close()
@@ -154,6 +154,9 @@ module.exports = {
 
     io.of('a')
       .on('connection', function (socket){
+        if (connect < 2) {
+          return;
+        }
         socket.broadcast.emit('b', 'test');
         socket.broadcast.json.emit('json', {foo:'bar'});
         socket.broadcast.send('foo');
@@ -163,7 +166,6 @@ module.exports = {
       connect.should.equal(2);
       message.should.equal(1);
       events.should.equal(2);
-
       cl.end();
       ws1.finishClose();
       ws2.finishClose();
@@ -173,16 +175,19 @@ module.exports = {
 
     cl.handshake(function (sid) {
      ws1 = websocket(cl, sid);
-
-      ws1.on('open', function() {
-        ws1.packet({
-            type: 'connect'
-          , endpoint: 'a'
-        });
-      });
-
       ws1.on('message', function (data) {
         if (data.type === 'connect') {
+          if (connect == 0) {
+            cl.handshake(function (sid) {
+              ws2 = websocket(cl, sid);
+              ws2.on('open', function () {
+                ws2.packet({
+                    type: 'connect'
+                  , endpoint: 'a'
+                });
+              });
+            });
+          }
           ++connect;
           if (++calls === expected) finish();
         }
@@ -197,17 +202,12 @@ module.exports = {
           if (++calls === expected) finish();
         }
       });
-
-      cl.handshake(function (sid) {
-        ws2 = websocket(cl, sid);
-
-        ws2.on('open', function () {
-          ws2.packet({
-              type: 'connect'
-            , endpoint: 'a'
-          });
+      ws1.on('open', function() {
+        ws1.packet({
+            type: 'connect'
+          , endpoint: 'a'
         });
-      })
+      });
     })
   },
 

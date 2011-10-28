@@ -117,6 +117,7 @@ module.exports = {
     io.disable('foo');
 
     calls.should.eql(3);
+
     done();
   },
 
@@ -426,8 +427,8 @@ module.exports = {
 
   'test disabling heartbeats': function (done) {
     var port = ++ports
-      , io = sio.listen(port)
       , cl = client(port)
+      , io = create(cl)
       , messages = 0
       , beat = false
       , ws;
@@ -446,9 +447,8 @@ module.exports = {
 
       socket.on('disconnect', function (reason) {
         beat.should.be.false;
-
-        cl.end();
         ws.finishClose();
+        cl.end();
         io.server.close();
         done();
       });
@@ -505,8 +505,10 @@ module.exports = {
     io.rooms.foo.length.should.equal(2);
     io.rooms.bar.length.should.equal(2);
 
-    io.server.close();
-    done();
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
   },
 
   'test passing options directly to the Manager through listen': function (done) {
@@ -515,8 +517,10 @@ module.exports = {
 
     io.get('resource').should.equal('/my resource');
     io.get('custom').should.equal('opt');
-    io.server.close();
-    done();
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
   },
 
   'test disabling the log': function (done) {
@@ -535,8 +539,10 @@ module.exports = {
     console.log = _console;
     calls.should.equal(0);
 
-    io.server.close();
-    done();
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
   },
 
   'test disabling logging with colors': function (done) {
@@ -558,7 +564,9 @@ module.exports = {
     console.log = _console;
     calls.should.equal(2);
 
-    io.server.close();
-    done();
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
   }
 };

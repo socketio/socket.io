@@ -30,8 +30,10 @@ module.exports = {
     (!!io.static.has('/static/flashsocket/WebSocketMain.swf')).should.be.true;
     (!!io.static.has('/static/flashsocket/WebSocketMainInsecure.swf')).should.be.true;
 
-    io.server.close();
-    done();
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
   },
 
   'test that static files are correctly looked up': function (done) {
@@ -41,8 +43,10 @@ module.exports = {
     (!!io.static.has('/socket.io.js')).should.be.true;
     (!!io.static.has('/invalidfilehereplease.js')).should.be.false;
 
-    io.server.close();
-    done();
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
   },
 
   'test that the client is served': function (done) {

@@ -220,7 +220,12 @@ module.exports = {
           done();
         });
 
-        cl.get('/socket.io/{protocol}/xhr-polling/' + sid + '/?disconnect');
+        // with the new http bits in node 0.5, there's no guarantee that
+        // the previous request is actually dispatched (and received) before the following
+        // reset call is sent. to not waste more time on a workaround, a timeout is added.
+        setTimeout(function() {
+          cl.get('/socket.io/{protocol}/xhr-polling/' + sid + '/?disconnect');
+        }, 500);
       });
     });
   },
