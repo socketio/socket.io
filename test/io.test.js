@@ -116,10 +116,10 @@ module.exports = {
         io.server.close();
         done();
       });
+      done();
     } catch (e) {
       e.should.match(/EACCES/);
       done();
     }
   }
-
 };

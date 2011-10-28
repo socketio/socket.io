@@ -91,8 +91,21 @@ HTTPClient.prototype.request = function (path, opts, fn) {
  */
 
 HTTPClient.prototype.end = function () {
-  this.agent.sockets.forEach(function (socket) {
-    socket.end();
+  // node <v0.5 compat
+  if (this.agent.sockets.forEach) {
+      this.agent.sockets.forEach(function (socket) {
+        if (socket.end) socket.end();
+      });
+      return;
+  }
+  // node >=v0.5 compat
+  var self = this;
+  Object.keys(this.agent.sockets).forEach(function (socket) {
+    for (var i = 0, l = self.agent.sockets[socket].length; i < l; ++i) {
+      if (self.agent.sockets[socket][i]._handle) {
+        self.agent.sockets[socket][i]._handle.socket.end();
+      }
+    }
   });
 };
 

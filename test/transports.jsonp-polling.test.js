@@ -250,8 +250,7 @@ module.exports = {
     });
   },
 
-  'test the disconnection event when the client sends ?disconnect req':
-  function (done) {
+  'test the disconnection event when the client sends ?disconnect req': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , disconnected = false
@@ -279,12 +278,17 @@ module.exports = {
           msgs.should.have.length(1);
           msgs[0].should.eql({ type: 'disconnect', endpoint: '' });
           disconnected.should.be.true;
-          cl.end();
           io.server.close();
+          cl.end();
           done();
         });
 
-        cl.get('/socket.io/{protocol}/jsonp-polling/' + sid + '/?disconnect');
+        // with the new http bits in node 0.5, there's no guarantee that
+        // the previous request is actually dispatched (and received) before the following
+        // reset call is sent. to not waste more time on a workaround, a timeout is added.
+        setTimeout(function() {
+          cl.get('/socket.io/{protocol}/jsonp-polling/' + sid + '/?disconnect');
+        }, 500);
       });
     });
   },

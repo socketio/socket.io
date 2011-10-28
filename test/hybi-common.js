@@ -55,16 +55,16 @@ mask = function(buf, maskString) {
 getHybiLengthAsHexString = function(len, masked) {  
   if (len < 126) {
     var buf = new Buffer(1);
-    buf[0] = (masked ? 0x80 : 0) | len;
+    buf[0] = (masked ? 0x80 : 0) | len;
   }
   else if (len < 65536) {
     var buf = new Buffer(3);
-    buf[0] = (masked ? 0x80 : 0) | 126;
+    buf[0] = (masked ? 0x80 : 0) | 126;
     getBufferFromHexString(pack(4, len)).copy(buf, 1);
   }
   else {
     var buf = new Buffer(9);
-    buf[0] = (masked ? 0x80 : 0) | 127;
+    buf[0] = (masked ? 0x80 : 0) | 127;
     getBufferFromHexString(pack(16, len)).copy(buf, 1);
   }
   return getHexStringFromBuffer(buf);
