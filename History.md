@@ -1,4 +1,21 @@
 
+0.8.6 / 2011-10-27 
+==================
+
+  * Added JSON decoding on jsonp-polling transport.
+  * Fixed README example.
+  * Major speed optimizations [3rd-Eden] [einaros] [visionmedia]
+  * Added decode/encode benchmarks [visionmedia]
+  * Added support for black-listing client sent events.
+  * Fixed logging options, closes #540 [3rd-Eden]
+  * Added vary header for gzip [3rd-Eden]
+  * Properly cleaned up async websocket / flashsocket tests, after patching node-websocket-client
+  * Patched to properly shut down when a finishClose call is made during connection establishment
+  * Added support for socket.io version on url and far-future Expires [3rd-Eden] [getify]
+  * Began IE10 compatibility [einaros] [tbranyen]
+  * Misc WebSocket fixes [einaros]
+  * Added UTF8 to respone headers for htmlfile [3rd-Eden]
+
 0.8.5 / 2011-10-07
 ==================
 
