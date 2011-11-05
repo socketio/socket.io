@@ -1,4 +1,13 @@
 
+0.8.7 / 2011-11-05
+==================
+
+  * Fixed memory leaks in closed clients.
+  * Fixed memory leaks in namespaces.
+  * Fixed websocket handling for malformed requests from proxies. [einaros]
+  * Node 0.6 compatibility. [einaros] [3rd-Eden]
+  * Adapted tests and examples.
+
 0.8.6 / 2011-10-27 
 ==================
 
