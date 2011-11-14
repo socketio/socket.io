@@ -30,7 +30,7 @@ function FlashSocket (port, sid) {
 
   WebSocket.call(
       this
-    , 'ws://localhost:' + port + '/socket.io/' 
+    , 'ws://localhost:' + port + '/socket.io/'
         + sio.protocol + '/flashsocket/' + sid
   );
 };

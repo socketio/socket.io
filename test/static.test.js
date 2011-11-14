@@ -94,7 +94,7 @@ module.exports = {
 
   'test that the client is build with the enabled transports': function (done) {
     var port = ++ports
-      , io = sio.listen(port) 
+      , io = sio.listen(port)
       , cl = client(port);
 
     io.set('transports', ['websocket']);

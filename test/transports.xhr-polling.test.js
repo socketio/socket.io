@@ -768,7 +768,7 @@ module.exports = {
     var cl = client(++ports)
       , io = create(cl)
       , messages = 0;
-    
+
     io.configure(function () {
       io.set('polling duration', 0);
       io.set('close timeout', .1);
@@ -2751,7 +2751,7 @@ module.exports = {
               }
           );
         });
-        
+
       });
     });
   }
