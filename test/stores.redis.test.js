@@ -29,8 +29,10 @@ module.exports = {
   },
 
   'test nodeId assigned value': function (done) {
-    var r = new RedisStore({ nodeId: 'id' });
-    r.nodeId.should.equal('id');
+    var a = new RedisStore({ nodeId: 'id' })
+      , b = new RedisStore({ nodeId: 9000 });
+    a.nodeId.should.equal('id');
+    b.nodeId.should.equal(9000);
     done();
   },
 
