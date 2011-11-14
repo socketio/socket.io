@@ -23,7 +23,7 @@ module.exports = {
     var cl = client(++ports)
       , io = create(cl)
       , ws;
-      
+
     io.set('transports', ['websocket']);
     io.sockets.on('connection', function (socket) {
       socket.manager.transports[socket.id].name.should.equal('websocket');
@@ -35,8 +35,8 @@ module.exports = {
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
     });
-  },    	
-  
+  },
+
   'default websocket draft parser is used for unknown sec-websocket-version': function (done) {
     var cl = client(++ports)
       , io = create(cl)
@@ -114,8 +114,8 @@ module.exports = {
     io.set('transports', ['websocket']);
     io.set('origins', 'foo.bar.com:*');
     var notConnected = true;
-    io.sockets.on('connection', function() { 
-        notConnected = false; 
+    io.sockets.on('connection', function() {
+        notConnected = false;
     });
 
     var headers = {
@@ -152,8 +152,8 @@ module.exports = {
     io.set('transports', ['websocket']);
     io.set('origins', 'foo.bar.com:*');
     var notConnected = true;
-    io.sockets.on('connection', function() { 
-        notConnected = false; 
+    io.sockets.on('connection', function() {
+        notConnected = false;
     });
 
     var headers = {
@@ -197,7 +197,7 @@ done();return;
       'Sec-WebSocket-Origin': 'http://foo.bar.com',
       'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
     }
-    
+
     io.sockets.on('connection', function() {
         cl.end();
         io.server.close();
@@ -245,25 +245,25 @@ done();return;
       , io = create(cl)
       , messages = 0
       , ws;
-  
+
     io.configure(function () {
       io.set('heartbeat interval', .05);
       io.set('heartbeat timeout', .05);
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       socket.on('disconnect', function (reason) {
         beat.should.be.true;
         reason.should.eql('heartbeat timeout');
-  
+
         cl.end();
         ws.finishClose();
         io.server.close();
         done();
       });
     });
-  
+
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
       ws.on('message', function (packet) {
@@ -276,32 +276,32 @@ done();return;
       });
     });
   },
-  
+
   'test that responding to a heartbeat maintains session': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , messages = 0
       , heartbeats = 0
       , ws;
-  
+
     io.configure(function () {
       io.set('heartbeat interval', .05);
       io.set('heartbeat timeout', .05);
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       socket.on('disconnect', function (reason) {
         heartbeats.should.eql(2);
         reason.should.eql('heartbeat timeout');
-  
+
         cl.end();
         ws.finishClose();
         io.server.close();
         done();
       });
     });
-  
+
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
       ws.on('message', function (packet) {
@@ -310,7 +310,7 @@ done();return;
         } else {
           packet.type.should.eql('heartbeat');
           heartbeats++;
-  
+
           if (heartbeats == 1) {
             ws.packet({ type: 'heartbeat' });
           }
@@ -318,7 +318,7 @@ done();return;
       });
     });
   },
-  
+
   'test sending deliverable volatile messages': function (done) {
     var cl = client(++ports)
       , io = create(cl)
@@ -328,10 +328,10 @@ done();return;
     io.configure(function () {
       io.set('close timeout', .05);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       socket.volatile.send('tobi');
-  
+
       socket.on('disconnect', function () {
         messaged.should.be.true;
         cl.end();
@@ -339,7 +339,7 @@ done();return;
         done();
       });
     });
-  
+
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function (msg) {
@@ -357,19 +357,19 @@ done();return;
       });
     });
   },
-  
+
   'test sending deliverable volatile json': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , messaged = false;
-  
+
     io.configure(function () {
       io.set('close timeout', .05);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       socket.volatile.json.send([1, 2, 3]);
-  
+
       socket.on('disconnect', function () {
         messaged.should.be.true;
         cl.end();
@@ -377,7 +377,7 @@ done();return;
         done();
       });
     });
-  
+
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function (msg) {
@@ -396,19 +396,19 @@ done();return;
       });
     });
   },
-  
+
   'test sending deliverable volatile events': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , messaged = false;
-  
+
     io.configure(function () {
       io.set('close timeout', .05);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       socket.volatile.emit('tobi');
-  
+
       socket.on('disconnect', function () {
         messaged.should.be.true;
         cl.end();
@@ -416,7 +416,7 @@ done();return;
         done();
       });
     });
-  
+
     cl.handshake(function (sid) {
       var ws = websocket(cl, sid);
       ws.on('message', function (msg) {
@@ -436,7 +436,7 @@ done();return;
       });
     });
   },
-  
+
   'test sending to all clients in a namespace': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -445,21 +445,21 @@ done();return;
       , messages = 0
       , connections = 0
       , disconnections = 0;
-  
+
     io.configure(function () {
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       connections++;
-  
+
       if (connections == 2) {
         io.sockets.send('yup');
       }
-  
+
       socket.on('disconnect', function () {
         disconnections++;
-  
+
         if (disconnections == 2) {
           messages.should.eql(2);
           cl1.end();
@@ -469,7 +469,7 @@ done();return;
         }
       });
     });
-  
+
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -482,13 +482,13 @@ done();return;
             , data: 'yup'
             , endpoint: ''
           });
-  
+
           messages++;
           ws1.finishClose();
         }
       });
     });
-  
+
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -501,14 +501,14 @@ done();return;
             , data: 'yup'
             , endpoint: ''
           });
-  
+
           messages++;
           ws2.finishClose();
         }
       });
     });
   },
-  
+
   'test sending json to all clients in a namespace': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -517,21 +517,21 @@ done();return;
       , messages = 0
       , connections = 0
       , disconnections = 0;
-  
+
     io.configure(function () {
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       connections++;
-  
+
       if (connections == 2) {
         io.sockets.json.send({ a: 'b' });
       }
-  
+
       socket.on('disconnect', function () {
         disconnections++;
-  
+
         if (disconnections == 2) {
           messages.should.eql(2);
           cl1.end();
@@ -541,7 +541,7 @@ done();return;
         }
       });
     });
-  
+
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -554,13 +554,13 @@ done();return;
             , data: { a: 'b' }
             , endpoint: ''
           });
-  
+
           messages++;
           ws1.finishClose();
         }
       });
     });
-  
+
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -573,14 +573,14 @@ done();return;
             , data: { a: 'b' }
             , endpoint: ''
           });
-  
+
           messages++;
           ws2.finishClose();
         }
       });
     });
   },
-  
+
   'test emitting to all clients in a namespace': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -589,21 +589,21 @@ done();return;
       , messages = 0
       , connections = 0
       , disconnections = 0;
-  
+
     io.configure(function () {
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       connections++;
-  
+
       if (connections == 2) {
         io.sockets.emit('tobi', 'rapture');
       }
-  
+
       socket.on('disconnect', function () {
         disconnections++;
-  
+
         if (disconnections == 2) {
           messages.should.eql(2);
           cl1.end();
@@ -613,7 +613,7 @@ done();return;
         }
       });
     });
-  
+
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -627,13 +627,13 @@ done();return;
             , args: ['rapture']
             , endpoint: ''
           });
-  
+
           messages++;
           ws1.finishClose();
         }
       });
     });
-  
+
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -647,14 +647,14 @@ done();return;
             , args: ['rapture']
             , endpoint: ''
           });
-  
+
           messages++;
           ws2.finishClose();
         }
       });
     });
   },
-  
+
   'test sending to all clients in a room': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -665,18 +665,18 @@ done();return;
       , joins = 0
       , connections = 0
       , disconnections = 0;
-  
+
     io.configure(function () {
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       connections++;
-  
+
       if (connections != 3) {
         socket.join('woot');
         joins++;
-  
+
         if (joins == 2) {
           setTimeout(function () {
             connections.should.eql(3);
@@ -684,10 +684,10 @@ done();return;
           }, 20);
         }
       }
-  
+
       socket.on('disconnect', function () {
         disconnections++;
-  
+
         if (disconnections == 3) {
           messages.should.eql(2);
           cl1.end();
@@ -698,7 +698,7 @@ done();return;
         }
       });
     });
-  
+
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -711,16 +711,16 @@ done();return;
             , data: 'hahaha'
             , endpoint: ''
           });
-  
+
           messages++;
         }
       });
-  
+
       setTimeout(function () {
         ws1.finishClose();
       }, 50);
     });
-  
+
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -733,16 +733,16 @@ done();return;
             , data: 'hahaha'
             , endpoint: ''
           });
-  
+
           messages++;
         }
       });
-  
+
       setTimeout(function () {
         ws2.finishClose();
       }, 50);
     });
-  
+
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl3, sid);
       ws3.on('message', function (msg) {
@@ -755,17 +755,17 @@ done();return;
             , data: 'hahaha'
             , endpoint: ''
           });
-  
+
           messages++;
         }
       });
-  
+
       setTimeout(function () {
         ws3.finishClose();
       }, 50);
     });
   },
-  
+
   'test sending json to all clients in a room': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -776,18 +776,18 @@ done();return;
       , joins = 0
       , connections = 0
       , disconnections = 0;
-  
+
     io.configure(function () {
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       connections++;
-  
+
       if (connections != 3) {
         socket.join('woot');
         joins++;
-  
+
         if (joins == 2) {
           setTimeout(function () {
             connections.should.eql(3);
@@ -795,10 +795,10 @@ done();return;
           }, 20);
         }
       }
-  
+
       socket.on('disconnect', function () {
         disconnections++;
-  
+
         if (disconnections == 3) {
           messages.should.eql(2);
           cl1.end();
@@ -809,7 +809,7 @@ done();return;
         }
       });
     });
-  
+
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -822,16 +822,16 @@ done();return;
             , data: 123
             , endpoint: ''
           });
-  
+
           messages++;
         }
       });
-  
+
       setTimeout(function () {
         ws1.finishClose();
       }, 50);
     });
-  
+
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -844,16 +844,16 @@ done();return;
             , data: 123
             , endpoint: ''
           });
-  
+
           messages++;
         }
       });
-  
+
       setTimeout(function () {
         ws2.finishClose();
       }, 50);
     });
-  
+
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl3, sid);
       ws3.on('message', function (msg) {
@@ -866,17 +866,17 @@ done();return;
             , data: 123
             , endpoint: ''
           });
-  
+
           messages++;
         }
       });
-  
+
       setTimeout(function () {
         ws3.finishClose();
       }, 50);
     });
   },
-  
+
   'test emitting to all clients in a room': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -887,18 +887,18 @@ done();return;
       , joins = 0
       , connections = 0
       , disconnections = 0;
-  
+
     io.configure(function () {
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       connections++;
-  
+
       if (connections != 3) {
         socket.join('woot');
         joins++;
-  
+
         if (joins == 2) {
           setTimeout(function () {
             connections.should.eql(3);
@@ -906,10 +906,10 @@ done();return;
           }, 20);
         }
       }
-  
+
       socket.on('disconnect', function () {
         disconnections++;
-  
+
         if (disconnections == 3) {
           messages.should.eql(2);
           cl1.end();
@@ -920,7 +920,7 @@ done();return;
         }
       });
     });
-  
+
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -934,16 +934,16 @@ done();return;
             , args: []
             , endpoint: ''
           });
-  
+
           messages++;
         }
       });
-  
+
       setTimeout(function () {
         ws1.finishClose();
       }, 50);
     });
-  
+
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -957,16 +957,16 @@ done();return;
             , args: []
             , endpoint: ''
           });
-  
+
           messages++;
         }
       });
-  
+
       setTimeout(function () {
         ws2.finishClose();
       }, 50);
     });
-  
+
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl3, sid);
       ws3.on('message', function (msg) {
@@ -980,17 +980,17 @@ done();return;
             , args: []
             , endpoint: ''
           });
-  
+
           messages++;
         }
       });
-  
+
       setTimeout(function () {
         ws3.finishClose();
       }, 50);
     });
   },
-  
+
   'test leaving a room': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -998,20 +998,20 @@ done();return;
       , io = create(cl1)
       , joins = 0
       , disconnects = 0;
-  
+
     io.set('close timeout', 0);
-  
+
     io.sockets.on('connection', function (socket) {
       socket.join('foo');
       io.sockets.clients('foo').should.have.length(++joins);
-  
+
       socket.on('disconnect', function () {
         socket.leave('foo');
         socket.leave('foo');
         socket.leave('foo');
-  
+
         io.sockets.clients('foo').should.have.length(--joins);
-  
+
         if (++disconnects == 2) {
           io.server.close();
           cl1.end();
@@ -1020,7 +1020,7 @@ done();return;
         }
       })
     });
-  
+
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -1031,7 +1031,7 @@ done();return;
         }
       });
     });
-  
+
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -1043,7 +1043,7 @@ done();return;
       });
     });
   },
-  
+
   'test message with broadcast flag': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -1052,19 +1052,19 @@ done();return;
       , io = create(cl1)
       , messages = 0
       , disconnections = 0;
-  
+
     io.configure(function () {
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       socket.on('trigger broadcast', function () {
         socket.broadcast.send('boom');
       });
-  
+
       socket.on('disconnect', function () {
         disconnections++;
-  
+
         if (disconnections == 3) {
           messages.should.eql(2);
           cl1.end();
@@ -1075,7 +1075,7 @@ done();return;
         }
       });
     });
-  
+
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -1088,13 +1088,13 @@ done();return;
             , data: 'boom'
             , endpoint: ''
           });
-  
+
           messages++;
           ws1.finishClose();
         }
       });
     });
-  
+
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -1107,13 +1107,13 @@ done();return;
             , data: 'boom'
             , endpoint: ''
           });
-  
+
           messages++;
           ws2.finishClose();
         }
       });
     });
-  
+
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl3, sid);
       ws3.on('open', function () {
@@ -1122,12 +1122,12 @@ done();return;
           , name: 'trigger broadcast'
           , endpoint: ''
         });
-  
+
         setTimeout(function () {
           ws3.finishClose();
         }, 50);
       });
-  
+
       ws3.on('message', function (msg) {
         if (!ws3.connected) {
           msg.type.should.eql('connect');
@@ -1138,7 +1138,7 @@ done();return;
       });
     });
   },
-  
+
   'test json with broadcast flag': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -1147,19 +1147,19 @@ done();return;
       , io = create(cl1)
       , messages = 0
       , disconnections = 0;
-  
+
     io.configure(function () {
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       socket.on('trigger broadcast', function () {
         socket.broadcast.json.send([1, 2, 3]);
       });
-  
+
       socket.on('disconnect', function () {
         disconnections++;
-  
+
         if (disconnections == 3) {
           messages.should.eql(2);
           cl1.end();
@@ -1170,7 +1170,7 @@ done();return;
         }
       });
     });
-  
+
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -1183,13 +1183,13 @@ done();return;
             , data: [1, 2, 3]
             , endpoint: ''
           });
-  
+
           messages++;
           ws1.finishClose();
         }
       });
     });
-  
+
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -1202,13 +1202,13 @@ done();return;
             , data: [1, 2, 3]
             , endpoint: ''
           });
-  
+
           messages++;
           ws2.finishClose();
         }
       });
     });
-  
+
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl3, sid);
       ws3.on('open', function () {
@@ -1217,12 +1217,12 @@ done();return;
           , name: 'trigger broadcast'
           , endpoint: ''
         });
-  
+
         setTimeout(function () {
           ws3.finishClose();
         }, 50);
       });
-  
+
       ws3.on('message', function (msg) {
         if (!ws3.connected) {
           msg.type.should.eql('connect');
@@ -1233,7 +1233,7 @@ done();return;
       });
     });
   },
-  
+
   'test event with broadcast flag': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -1242,19 +1242,19 @@ done();return;
       , io = create(cl1)
       , messages = 0
       , disconnections = 0;
-  
+
     io.configure(function () {
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       socket.on('trigger broadcast', function () {
         socket.broadcast.emit('hey', 'arnold');
       });
-  
+
       socket.on('disconnect', function () {
         disconnections++;
-  
+
         if (disconnections == 3) {
           messages.should.eql(2);
           cl1.end();
@@ -1265,7 +1265,7 @@ done();return;
         }
       });
     });
-  
+
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -1279,13 +1279,13 @@ done();return;
             , args: ['arnold']
             , endpoint: ''
           });
-  
+
           messages++;
           ws1.finishClose();
         }
       });
     });
-  
+
     cl2.handshake(function (sid) {
       var ws2 = websocket(cl2, sid);
       ws2.on('message', function (msg) {
@@ -1299,13 +1299,13 @@ done();return;
             , args: ['arnold']
             , endpoint: ''
           });
-  
+
           messages++;
           ws2.finishClose();
         }
       });
     });
-  
+
     cl3.handshake(function (sid) {
       var ws3 = websocket(cl3, sid);
       ws3.on('open', function () {
@@ -1314,12 +1314,12 @@ done();return;
           , name: 'trigger broadcast'
           , endpoint: ''
         });
-  
+
         setTimeout(function () {
           ws3.finishClose();
         }, 50);
       });
-  
+
       ws3.on('message', function (msg) {
         if (!ws3.connected) {
           msg.type.should.eql('connect');
@@ -1330,7 +1330,7 @@ done();return;
       });
     });
   },
-  
+
   'test message with broadcast flag and to()': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -1340,25 +1340,25 @@ done();return;
       , messages = 0
       , connections = 0
       , disconnections = 0;
-  
+
     io.configure(function () {
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       connections++;
-  
+
       if (connections == 1) {
         socket.join('losers');
       }
-  
+
       socket.on('trigger broadcast', function () {
         socket.broadcast.to('losers').send('boom');
       });
-  
+
       socket.on('disconnect', function () {
         disconnections++;
-  
+
         if (disconnections == 3) {
           messages.should.eql(1);
           cl1.end();
@@ -1369,7 +1369,7 @@ done();return;
         }
       });
     });
-  
+
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -1382,11 +1382,11 @@ done();return;
             , data: 'boom'
             , endpoint: ''
           });
-  
+
           messages++;
         }
       });
-  
+
       ws1.on('open', function () {
         cl2.handshake(function (sid) {
           var ws2 = websocket(cl2, sid);
@@ -1398,7 +1398,7 @@ done();return;
               throw new Error('This socket shouldnt get a message');
             }
           });
-  
+
           ws2.on('open', function () {
             cl3.handshake(function (sid) {
               var ws3 = websocket(cl3, sid);
@@ -1408,14 +1408,14 @@ done();return;
                   , name: 'trigger broadcast'
                   , endpoint: ''
                 });
-  
+
                 setTimeout(function () {
                   ws1.finishClose();
                   ws2.finishClose();
                   ws3.finishClose();
                 }, 50);
               });
-  
+
               ws3.on('message', function (msg) {
                 if (!ws3.connected) {
                   msg.type.should.eql('connect');
@@ -1430,7 +1430,7 @@ done();return;
       });
     });
   },
-  
+
   'test json with broadcast flag and to()': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -1440,25 +1440,25 @@ done();return;
       , messages = 0
       , connections = 0
       , disconnections = 0;
-  
+
     io.configure(function () {
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       connections++;
-  
+
       if (connections == 1) {
         socket.join('losers');
       }
-  
+
       socket.on('trigger broadcast', function () {
         socket.broadcast.json.to('losers').send({ hello: 'world' });
       });
-  
+
       socket.on('disconnect', function () {
         disconnections++;
-  
+
         if (disconnections == 3) {
           messages.should.eql(1);
           cl1.end();
@@ -1469,7 +1469,7 @@ done();return;
         }
       });
     });
-  
+
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -1482,11 +1482,11 @@ done();return;
             , data: { hello: 'world' }
             , endpoint: ''
           });
-  
+
           messages++;
         }
       });
-  
+
       ws1.on('open', function () {
         cl2.handshake(function (sid) {
           var ws2 = websocket(cl2, sid);
@@ -1498,7 +1498,7 @@ done();return;
               throw new Error('This socket shouldnt get a message');
             }
           });
-  
+
           ws2.on('open', function () {
             cl3.handshake(function (sid) {
               var ws3 = websocket(cl3, sid);
@@ -1508,14 +1508,14 @@ done();return;
                   , name: 'trigger broadcast'
                   , endpoint: ''
                 });
-  
+
                 setTimeout(function () {
                   ws1.finishClose();
                   ws2.finishClose();
                   ws3.finishClose();
                 }, 50);
               });
-  
+
               ws3.on('message', function (msg) {
                 if (!ws3.connected) {
                   msg.type.should.eql('connect');
@@ -1530,7 +1530,7 @@ done();return;
       });
     });
   },
-  
+
   'test event with broadcast flag and to()': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -1540,25 +1540,25 @@ done();return;
       , messages = 0
       , connections = 0
       , disconnections = 0;
-  
+
     io.configure(function () {
       io.set('close timeout', 0);
     });
-  
+
     io.sockets.on('connection', function (socket) {
       connections++;
-  
+
       if (connections == 1) {
         socket.join('losers');
       }
-  
+
       socket.on('trigger broadcast', function () {
         socket.broadcast.to('losers').emit('victory');
       });
-  
+
       socket.on('disconnect', function () {
         disconnections++;
-  
+
         if (disconnections == 3) {
           messages.should.eql(1);
           cl1.end();
@@ -1569,7 +1569,7 @@ done();return;
         }
       });
     });
-  
+
     cl1.handshake(function (sid) {
       var ws1 = websocket(cl1, sid);
       ws1.on('message', function (msg) {
@@ -1583,11 +1583,11 @@ done();return;
             , args: []
             , endpoint: ''
           });
-  
+
           messages++;
         }
       });
-  
+
       ws1.on('open', function () {
         cl2.handshake(function (sid) {
           var ws2 = websocket(cl2, sid);
@@ -1599,7 +1599,7 @@ done();return;
               throw new Error('This socket shouldnt get a message');
             };
           });
-  
+
           ws2.on('open', function () {
             cl3.handshake(function (sid) {
               var ws3 = websocket(cl3, sid);
@@ -1609,14 +1609,14 @@ done();return;
                   , name: 'trigger broadcast'
                   , endpoint: ''
                 });
-  
+
                 setTimeout(function () {
                   ws1.finishClose();
                   ws2.finishClose();
                   ws3.finishClose();
                 }, 50);
               });
-  
+
               ws3.on('message', function (msg) {
                 if (!ws3.connected) {
                   msg.type.should.eql('connect');
@@ -1631,19 +1631,19 @@ done();return;
       });
     });
   },
-  
+
   'test accessing handshake data from sockets': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , ws;
-  
+
     io.sockets.on('connection', function (socket) {
       (!!socket.handshake.address.address).should.be.true;
       (!!socket.handshake.address.port).should.be.true;
       socket.handshake.headers.host.should.equal('localhost');
       socket.handshake.headers.connection.should.equal('keep-alive');
       socket.handshake.time.should.match(/GMT/);
-  
+
       socket.on('disconnect', function () {
         setTimeout(function () {
           ws.finishClose();
@@ -1652,10 +1652,10 @@ done();return;
           done();
         }, 10);
       });
-  
+
       socket.disconnect();
     });
-  
+
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
       ws.on('message', function (msg) {
@@ -1666,7 +1666,7 @@ done();return;
       });
     });
   },
-  
+
   'test accessing the array of clients': function (done) {
     var port = ++ports
       , cl1 = client(port)
@@ -1674,14 +1674,14 @@ done();return;
       , io = create(cl1)
       , total = 2
       , ws1, ws2;
-  
+
     io.sockets.on('connection', function (socket) {
       socket.on('join ferrets', function () {
         socket.join('ferrets');
         socket.send('done');
       });
     });
-  
+
     function check() {
       io.sockets.clients('ferrets').should.have.length(1);
       io.sockets.clients('ferrets')[0].should.be.an.instanceof(sio.Socket);
@@ -1691,7 +1691,7 @@ done();return;
       io.sockets.clients()[0].id.should.equal(ws1.sid);
       io.sockets.clients()[1].should.be.an.instanceof(sio.Socket);
       io.sockets.clients()[1].id.should.equal(ws2.sid);
-  
+
       ws1.finishClose();
       ws2.finishClose();
       cl1.end();
@@ -1699,7 +1699,7 @@ done();return;
       io.server.close();
       done();
     };
-  
+
     cl1.handshake(function (sid) {
       ws1 = websocket(cl1, sid);
       ws1.sid = sid;
@@ -1728,21 +1728,21 @@ done();return;
       });
     });
   },
-  
+
   'test accessing handshake data from sockets on disconnect': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , ws;
-  
+
     io.sockets.on('connection', function (socket) {
       socket.on('disconnect', function () {
-  
+
       (!!socket.handshake.address.address).should.be.true;
       (!!socket.handshake.address.port).should.be.true;
       socket.handshake.headers.host.should.equal('localhost');
       socket.handshake.headers.connection.should.equal('keep-alive');
       socket.handshake.time.should.match(/GMT/);
-  
+
         setTimeout(function () {
           ws.finishClose();
           cl.end();
@@ -1750,10 +1750,10 @@ done();return;
           done();
         }, 10);
       });
-  
+
       socket.disconnect();
     });
-  
+
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
       ws.on('message', function (msg) {
@@ -1764,42 +1764,42 @@ done();return;
       });
     });
   },
-  
+
   'test for intentional and unintentional disconnects': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , calls = 0
       , ws;
-  
+
     function close () {
       cl.end();
       io.server.close();
       ws.finishClose();
       done();
     }
-  
+
     io.configure(function () {
       io.set('heartbeat interval', .05);
       io.set('heartbeat timeout', .05);
       io.set('close timeout', 0);
     });
-  
+
     io.of('/foo').on('connection', function (socket) {
       socket.on('disconnect', function (reason) {
        reason.should.equal('packet');
-  
+
        if (++calls == 2) close();
       });
     });
-  
+
     io.of('/bar').on('connection', function (socket) {
       socket.on('disconnect', function (reason) {
         reason.should.equal('socket end');
-  
+
         if (++calls == 2) close();
       });
     });
-  
+
     cl.handshake(function (sid) {
       var messages = 0;
       ws = websocket(cl, sid);
@@ -1813,7 +1813,7 @@ done();return;
           , endpoint: '/bar'
         });
       });
-  
+
       ws.on('message', function (packet) {
         if (packet.type == 'connect') {
           if (++messages === 3) {
@@ -1824,20 +1824,20 @@ done();return;
       });
     });
   },
-  
+
   'test socket clean up': function (done) {
     var cl = client(++ports)
       , io = create(cl)
       , ws;
-  
+
     io.sockets.on('connection', function (socket) {
       var self = this
         , id = socket.id;
-  
+
       socket.on('disconnect', function () {
         setTimeout(function () {
           var available = !!self.sockets[id];
-  
+
           available.should.be.false;
           ws.finishClose();
           cl.end();
@@ -1845,10 +1845,10 @@ done();return;
           done();
         }, 10);
       });
-  
+
       socket.disconnect();
     });
-  
+
     cl.handshake(function (sid) {
       ws = websocket(cl, sid);
       ws.on('message', function (msg) {
