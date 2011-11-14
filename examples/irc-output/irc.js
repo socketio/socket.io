@@ -2,7 +2,7 @@
  * From https://github.com/felixge/nodelog/
  */
 
-var sys = require('sys');
+var sys = require('util');
 var tcp = require('net');
 var irc = exports;
 

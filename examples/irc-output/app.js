@@ -1,10 +1,3 @@
-
-/**
- * Bootstrap app.
- */
-
-require.paths.unshift(__dirname + '/../../lib/');
-
 /**
  * Module dependencies.
  */
@@ -12,7 +5,7 @@ require.paths.unshift(__dirname + '/../../lib/');
 var express = require('express')
   , stylus = require('stylus')
   , nib = require('nib')
-  , sio = require('socket.io')
+  , sio = require('../../lib/socket.io')
   , irc = require('./irc');
 
 /**
