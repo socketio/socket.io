@@ -16,6 +16,24 @@ var sio = require('socket.io')
 
 module.exports = {
 
+  'test nodeId default assignment - random numeric value': function (done) {
+    var r = new RedisStore;
+    (typeof r.nodeId).should.equal('number'); // coerced to string
+    done();
+  },
+
+  'test nodeId custom id generator': function (done) {
+    var r = new RedisStore({ nodeId: function() { return 1 } });
+    r.nodeId.should.equal(1);
+    done();
+  },
+
+  'test nodeId assigned value': function (done) {
+    var r = new RedisStore({ nodeId: 'id' });
+    r.nodeId.should.equal('id');
+    done();
+  },
+
   'test publishing doesnt get caught by the own store subscriber': function (done) {
     var a = new RedisStore
       , b = new RedisStore;
