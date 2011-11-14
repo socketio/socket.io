@@ -132,6 +132,62 @@ module.exports = {
     });
   },
 
+  'hybi-07-12 origin filter accepts implicit port 80 for sec-websocket-origin': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+
+    io.set('transports', ['websocket']);
+    io.set('origins', 'foo.bar.com:80');
+
+    var headers = {
+      'sec-websocket-version': 8,
+      'upgrade': 'websocket',
+      'Sec-WebSocket-Origin': 'http://foo.bar.com',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+    
+    io.sockets.on('connection', function() {
+        cl.end();
+        io.server.close();
+        done();
+    });
+
+    // handshake uses correct origin -- we want to block the actuall websocket call
+    cl.get('/socket.io/{protocol}', {headers: {origin: 'http://foo.bar.com'}}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      cl.get(url, {headers: headers}, function (res, data) {});
+    });
+  },
+
+  'hybi-16 origin filter accepts implicit port 80 for sec-websocket-origin': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+
+    io.set('transports', ['websocket']);
+    io.set('origins', 'foo.bar.com:80');
+
+    var headers = {
+      'sec-websocket-version': 13,
+      'upgrade': 'websocket',
+      'origin': 'http://foo.bar.com',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+
+    io.sockets.on('connection', function() {
+        cl.end();
+        io.server.close();
+        done();
+    });
+
+    // handshake uses correct origin -- we want to block the actuall websocket call
+    cl.get('/socket.io/{protocol}', {headers: {origin: 'http://foo.bar.com'}}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      cl.get(url, {headers: headers}, function (res, data) {});
+    });
+  },
+
   'hybi-16 origin filter blocks access for mismatched sec-websocket-origin': function (done) {
     var cl = client(++ports)
       , io = create(cl)
