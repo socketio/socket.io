@@ -81,8 +81,13 @@ module.exports = {
           should.strictEqual(err, null);
           should.deepEqual({'b':'c','c':'d'}, val);
 
-          store.destroy();
-          done();
+          client.get('a','b','c', function (err, val) {
+            should.strictEqual(err, null);
+            should.deepEqual({'a':null,'b':'c','c':'d'}, val);
+
+            store.destroy();
+            done();
+          });
         });
       });
     });
