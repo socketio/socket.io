@@ -1,0 +1,5 @@
+{
+    "name": "engine-client"
+  , "description": "Client for the realtime Engine"
+  , "version": "0.0.1"
+}
