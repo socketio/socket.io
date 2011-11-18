@@ -1,0 +1,449 @@
+
+# Engine.IO: the realtime engine behind Socket.IO
+
+`Engine` is the implementation of transport-based cross-browser/cross-device
+bi-directional communication layer for
+[Socket.IO](http://github.com/learnboost/socket.io).
+
+## Hello World
+
+### Server
+
+#### Listening on a port
+
+```js
+var engine = require('engine')
+  , server = engine.listen(80)
+
+server.on('connection', function (socket) {
+  socket.send('utf 8 string');
+});
+```
+
+#### Intercepting requests for a http.Server
+
+```js
+var engine = require('engine')
+  , http = require('http').createServer().listen(3000)
+  , server = engine.attach(http)
+
+server.on('connection', function (client) {
+  client.on('message', function () { });
+  client.on('close', function () { });
+});
+```
+
+### Client
+
+```html
+<script src="/path/to/engine.js"></script>
+<script>
+  var socket = new io.Engine({ host: 'localhost', port: 80 });
+  socket.on('open', function () {
+    socket.on('message', function (data) { });
+    socket.on('close', function () { });
+  });
+</script>
+```
+
+For more information on the client refer to the
+[engine-client](http://github.com/learnboost/engine.io-client) repository.
+
+## What features does it have?
+
+- **Isomorphic with WebSocket.IO**. You can switch between a WebSocket server
+  and a multi-transport server by chaning the `require`.
+- **Maximum reliability**. Connections are established even in the presence of:
+  - proxies and load balancers.
+  - personal firewall and antivirus software.
+  - for more information refer to **Goals** and **Architecture** sections
+- **Minimal client size** aided by:
+  - lazy loading of flash transports.
+  - lack of redundant transports.
+- **Scalable**
+  - load balancer friendly
+- **Future proof**
+- **100% Node.JS core style**
+  - No API sugar (left for higher level projects)
+  - Written in readable vanilla JavaScript
+
+## API
+
+### Server
+
+<hr><br>
+
+#### Top-level
+
+These are exposed by `require('engine')`:
+
+##### Properties
+
+- `version` _(String)_: protocol revision number
+- `Server`: Server class constructor
+- `Socket`: Socket class constructor
+- `Logger` _(Function)_: logger constructor
+
+##### Methods
+
+- `listen`
+    - Creates an `http.Server` which listens on the given port and attaches WS
+      to it. It returns `501 Not Implemented` for regular http requests.
+    - **Parameters**
+      - `Number`: port to listen on.
+      - `Function`: callback for `listen`. The options object can be supplied
+        as second parameter as well.
+      - `Object`: optional, options object. See `Server` constructor API for
+        options.
+    - **Returns** `Server`
+- `attach`
+    - Captures `upgrade` requests for a `http.Server`. In other words, makes
+      a regular http.Server websocket-compatible.
+    - **Parameters**
+      - `http.Server`: server to attach to.
+      - `Object`: optional, options object. See `Server` constructor API for
+        options.
+    - **Returns** `Server`
+
+<hr><br>
+
+#### Server
+
+The main server/manager. _Inherits from EventEmitter_.
+
+##### Events
+
+- `connection`
+    - Fired when a new connection is established. 
+    - **Arguments**
+      - `Socket`: a Socket object
+
+##### Properties
+
+- `clients`
+    - Hash of connected clients by id.
+
+##### Methods
+
+- `handleRequest`
+    - Called internally when a `Engine` request is intercepted.
+    - **Parameters**
+      - `http.Request`: a node Request object
+    - **Returns**
+
+<hr><br>
+
+#### Socket
+
+A representation of a client. _Inherits from EventEmitter_.
+
+##### Events
+
+- `close`
+    - Fired when the client is disconnected.
+- `message`
+    - Fired when the client sends a message.
+    - **Arguments**
+      - `String`: utf-8 string
+- `error`
+    - Fired when an error occurs.
+
+##### Methods
+
+- `send`:
+    - Sends a message.
+    - **Parameters**
+      - `String`: utf-8 string with outgoing data
+    - **Returns** `Socket`, for chaining
+- `close`
+    - Disconnects the client
+    - **Returns** `Socket`, for chaining
+
+### Client
+
+<hr><br>
+
+#### Top-level
+
+These are exposed in the `io` global namespace (in the browser), or by
+`require('engine-client')` (in Node.JS).
+
+##### Properties
+
+- `version` _(String)_: protocol revision number
+- `Engine` _(Function)_: client constructor
+
+#### Engine
+
+The client class. _Inherits from EventEmitter_.
+
+#### Properties
+
+- `onopen` (_Function_)
+  - `open` event handler
+- `onmessage` (_Function_)
+  - `message` event handler
+- `onclose` (_Function_)
+  - `message` event handler
+
+##### Events
+
+- `open`
+  - Fired upon successful connection.
+- `message`
+  - Fired when data is received from the server.
+  - **Arguments**
+    - `String`: utf-8 encoded data
+- `close`
+  - Fired upon disconnection.
+- `error`
+  - Fired when an error occurs.
+
+##### Methods
+
+- **constructor**
+    - Initializes the client
+    - **Parameters**
+      - `Object`: optional, options object
+    - **Options**
+      - `host` (`String`): host name (`localhost`)
+      - `port` (`Number`): port name (`80`)
+      - `path` (`String`): path name
+      - `query` (`String`): optional query string addition (eg:
+        `a=b&c=hello+world`)
+      - `secure` (`Boolean): whether the connection is secure
+      - `upgrade` (`Boolean`): defaults to true, whether the client should try
+      to upgrade the transport from long-polling to something better.
+      - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
+      - `transports` (`Array`): a list of transports to try (in order).
+      Defaults to `['polling', 'websocket', 'flashsocket']`. `Engine`
+      always attempts to connect directly with the first one, provided the
+      feature detection test for it passes.
+- `send`
+    - Sends a message to the server
+    - **Parameters**
+      - `String`: data to send
+- `close`
+    - Disconnects the client.
+
+For more information on the client refer to the
+[engine-client](http://github.com/learnboost/engine-client) repository.
+
+## Transports
+
+- `polling`: XHR / JSONP polling transport.
+- `websocket`: WebSocket transport.
+- `flashsocket`: WebSocket transport backed by flash
+
+## Support
+
+The support channels for `engine.io` are the same as `socket.io`:
+  - irc.freenode.net **#socket.io**
+  - [Google Groups](http://groups.google.com/group/socket_io)
+  - [Website](http://socket.io)
+
+## Development
+
+To contribute patches, run tests or benchmarks, make sure to clone the
+repository:
+
+```
+git clone git://github.com/LearnBoost/engine.io.git
+```
+
+Then:
+
+```
+cd engine.io
+npm install
+```
+
+## Tests
+
+### Unit/Integration
+
+```
+$ make test
+```
+
+### Acceptance
+
+```
+# make test-acceptance
+```
+
+And point browser/s to `http://localhost:3000`.
+
+### Server
+
+## Benchmarks
+
+### Server
+
+```
+$ make bench
+```
+
+### Client
+
+```
+$ make bench-server
+```
+
+And point browser/s to `http://localhost:3000`.
+
+## Goals
+
+The main goal of `Engine` is ensuring the most reliable realtime communication.
+Unlike the previous socket.io core, it always establishes a long-polling
+connection first, then tries to upgrade to better transports that are "tested" on
+the side.
+
+During the lifetime of the socket.io projects, we've found countless drawbacks
+to relying on `HTML5 WebSocket` or `Flash Socket` as the first connection
+mechanisms.
+
+Both are clearly the _right way_ of establishing a bidirectional communication,
+with HTML5 WebSocket being the way of the future. However, to answer most business
+needs, alternative traditional HTTP 1.1 mechanisms are just as good as delivering
+the same solution.
+
+WebSocket/FlashSocket based connections have two fundamental benefits:
+
+1. **Better server performance**
+
+  - _A: Load balancers_<br>
+      Load balancing a long polling connection poses a serious architectural nightmare
+      since requests can come from any number of open sockets by the user agent, but
+      they all need to be routed to the process and computer that owns the `Engine`
+      connection. This negatively impacts RAM and CPU usage.
+  - _B: Network traffic_<br>
+      WebSocket is designed around the premise that each message frame has to be 
+      surrounded by the least amount of data. In HTTP 1.1 transports, each message
+      frame is surrounded by HTTP headers and chunked encoding frames. If you try to
+      send the message _"Hello world"_ with xhr-polling, the message ultimately
+      becomes larger than if you were to send it with WebSocket.
+  - _C: Lightweight parser_<br>
+      As an effect of **B**, the server has to do a lot more work to parse the network
+      data and figure out the message when traditional HTTP requests are used
+      (as in long polling). This means that another advantage of WebSocket is
+      less server CPU usage.
+
+2. **Better user experience**
+
+    Due to the reasons stated in point **1**, the most important effect of being able
+    to establish a WebSocket connection is raw data transfer speed, which translates
+    in _some_ cases in better user experience.
+
+    Applications with heavy realtime interaction (such as games) will benefit greatly,
+    whereas applications like realtime chat (Gmail/Facebook), newsfeeds (Facebook) or
+    timelines (Twitter) will have negligible user experience improvements.
+
+Having said this, attempting to establish a WebSocket connection directly so far has
+proven problematic:
+
+1. **Proxies**<br>
+    Many corporate proxies block WebSocket traffic.
+
+2. **Personal firewall and antivirus software**<br>
+    As a result of our research, we've found that at least 3 personal security
+    applications block websocket traffic.
+
+3. **Cloud application platforms**<br>
+    Platforms like Heroku or No.de have had trouble keeping up with the fast-paced
+    nature of the evolution of the WebSocket protocol. Applications therefore end up
+    inevitably using long polling, but the seamless installation experience of 
+    socket.io we strive for (_"require() it and it just works"_) disappears.
+
+Some of these problems have solutions. In the case of proxies and personal programs,
+however, the solutions many times involve upgrading software. Experience has shown
+that relying on client software upgrades to deliver a business solution is
+fruitless: the very existence of this project has to do with a fragmented panorama
+of user agent distribution, with clients connecting with latest versions of the most
+modern user agents (Chrome, Firefox and Safari), but others with versions as low as
+IE 5.5.
+
+From the user perspective, an unsuccessful WebSocket connection can translate in
+up to at least 10 seconds of waiting for the realtime application to begin
+exchanging data. This **perceptively** hurts user experience.
+
+To summarize, **Engine** focuses on reliability and user experience first, marginal
+potential UX improvements and increased server performance second. `Engine` is the
+result of all the lessons learned with WebSocket in the wild.
+
+## Architecture
+
+The main premise of `Engine`, and the core of its existence, is the ability to
+swap transports on the fly. A connection starts as xhr-polling, but it can
+switch to WebSocket.
+
+The central problem this poses is: how do we switch transports without losing
+messages?
+
+`Engine` only switches from polling to another transport in between polling
+cycles. Since the server closes the connection after a certain timeout when
+there's no activity, and the polling transport implementation buffers messages
+in between connections, this ensures no message loss and optimal performance.
+
+Another benefit of this design is that we workaround almost all the limitations
+of **Flash Socket**, such as slow connection times, increased file size (we can
+safely lazy load it without hurting user experience), etc.
+
+## FAQ
+
+### Can I use engine without Socket.IO ?
+
+Absolutely. Although the recommended framework for building realtime applications
+is Socket.IO, since it provides fundamental features for real-world applications 
+such as multiplexing, reconnection support, etc.
+
+`Engine` is to Socket.IO what Connect is to Express. An essential piece for building
+realtime frameworks, but something you _probably_ won't be using for building
+actual applications.
+
+### Does the server serve the client?
+
+No. The main reason is that `Engine` is meant to be bundled with frameworks.
+Socket.IO includes `Engine`, therefore serving two clients is not necessary. If
+you use Socket.IO, including
+
+```html
+<script src="/socket.io/socket.io.js">
+```
+
+has you covered.
+
+### Can I implement `Engine` in other languages?
+
+Absolutely. The `SPEC` file contains the most up to date description of the
+implementation specification at all times. If you're targeting the latest
+stable release of `Engine`, make sure to look at the file in the appropriate git
+branch/tag.
+
+The Java/NIO implementation will be officially supported, and is being worked
+on by the author.
+
+## License 
+
+(The MIT License)
+
+Copyright (c) 2011 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

@@ -1,0 +1,12 @@
+{
+    "name": "engine"
+  , "version": "0.1.0"
+  , "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional client between client and server"
+  , "dependencies": {
+        "engine-client": "0.1.0"
+      , "websocket.io": "0.1.0"
+    }
+  , "devDependencies": {
+        "mocha": "0.0.1-alpha3"
+    }
+}
