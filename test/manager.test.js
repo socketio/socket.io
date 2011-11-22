@@ -356,7 +356,7 @@ module.exports = {
 
     cl.get('/socket.io/{protocol}/', { headers:headers }, function (res, data) {
       res.statusCode.should.eql(200);
-      res.headers['access-control-allow-origin'].should.eql('*');
+      res.headers['access-control-allow-origin'].should.eql('http://example.org:1337');
       res.headers['access-control-allow-credentials'].should.eql('true');
 
       cl.end();
