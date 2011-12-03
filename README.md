@@ -10,7 +10,7 @@ communication layer for [Socket.IO](http://github.com/learnboost/socket.io).
 ```html
 <script src="/path/to/engine.js"></script>
 <script>
-  var socket = new io.Engine({ host: 'localhost', port: 80 });
+  var socket = new eio.Socket({ host: 'localhost', port: 80 });
   socket.onopen = function () {
     socket.onmessage = function (data) { });
     socket.onclose = function () { });
@@ -43,10 +43,11 @@ These are exposed in the `io` global namespace (in the browser), or by
 
 #### Properties
 
-- `version` _(String)_: protocol revision number
-- `Engine` _(Function)_: client constructor
+- `version` _(String)_: client version
+- `protocol` _(Number)_: protocol revision number
+- `Socket` _(Function)_: client constructor
 
-### Engine
+### Socket
 
 The client class. _Inherits from EventEmitter_.
 
