@@ -1,5 +1,8 @@
 {
     "name": "engine-client"
   , "description": "Client for the realtime Engine"
-  , "version": "0.0.1"
+  , "version": "0.1.0"
+  , "devDependencies": {
+        "browserbuild": "0.1.0"
+    }
 }
