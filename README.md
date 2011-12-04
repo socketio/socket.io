@@ -38,7 +38,7 @@ server.on('connection', function (client) {
 ```html
 <script src="/path/to/engine.js"></script>
 <script>
-  var socket = new io.Engine({ host: 'localhost', port: 80 });
+  var socket = new eio.Socket({ host: 'localhost', port: 80 });
   socket.on('open', function () {
     socket.on('message', function (data) { });
     socket.on('close', function () { });
