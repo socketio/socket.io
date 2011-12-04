@@ -38,7 +38,7 @@ server.on('connection', function (client) {
 ```html
 <script src="/path/to/engine.js"></script>
 <script>
-  var socket = new eio.Socket({ host: 'localhost', port: 80 });
+  var socket = new engine.Socket({ host: 'localhost', port: 80 });
   socket.on('open', function () {
     socket.on('message', function (data) { });
     socket.on('close', function () { });
@@ -165,15 +165,16 @@ A representation of a client. _Inherits from EventEmitter_.
 
 #### Top-level
 
-These are exposed in the `io` global namespace (in the browser), or by
-`require('engine-client')` (in Node.JS).
+These are exposed in the `eio` global namespace (in the browser), or by
+`require('engine.io-client')` (in Node.JS).
 
 ##### Properties
 
-- `version` _(String)_: protocol revision number
-- `Engine` _(Function)_: client constructor
+- `version` _(String)_: client version
+- `protocol` _(Number)_: protocol revision number
+- `Socket` _(Function)_: client constructor
 
-#### Engine
+#### Socket
 
 The client class. _Inherits from EventEmitter_.
 
