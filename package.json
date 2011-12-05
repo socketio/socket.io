@@ -7,6 +7,6 @@
       , "websocket.io": "0.1.0"
     }
   , "devDependencies": {
-        "mocha": "0.0.1-alpha3"
+        "mocha": "*"
     }
 }
