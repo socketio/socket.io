@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO: the cross-browser WebSocket for realtime apps.</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+
+    <link href="css/main.css" rel="stylesheet" media="all">
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-18488944-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+      function getMembers(data){
+        if (!(data && data.query && data.query.results && data.query.results.p)) return;
+        var members = document.createElement('span');
+        members.id = 'google-members-count';
+        members.innerHTML = '('+ data.query.results.p +' members)';
+        document.getElementsByTagName('FORM')[0].insertBefore(members, document.getElementById('google-subscribe-input'));
+      };
+
+      !function(a,b){function l(a){k=1;while(a=c.shift())a()}var c=[],d,e=!1,f=b.documentElement,g=f.doScroll,h="DOMContentLoaded",i="addEventListener",j="onreadystatechange",k=/^loade|c/.test(b.readyState);b[i]&&b[i](h,function a(){b.removeEventListener(h,a,e),l()},e),g&&b.attachEvent(j,d=function a(){/^c/.test(b.readyState)&&(b.detachEvent(j,a),l())}),a.domReady=g?function(a){self!=top?k?a():c.push(a):function(){try{f.doScroll("left")}catch(b){return setTimeout(function(){domReady(a)},50)}a()}()}:function(a){k?a():c.push(a)}}(this,document)
+
+      domReady(function () {
+        // subscribe box
+        document.getElementById('google-subscribe-email').onfocus = function(){
+          document.getElementById('google-subscribe-input').className = 'focus';
+        };
+        document.getElementById('google-subscribe-email').onblur = function(){
+          document.getElementById('google-subscribe-input').className = '';
+        };
+
+        // lame jsonp
+        var script = document.createElement('script');
+        script.src = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Fgroups.google.com%2Fgroup%2Fsocket_io%2Fabout%22%20and%20xpath%3D'%2F%2Fdiv%5B%40class%3D%5C'maincontbox%5C'%5D%2Ftable%2Ftr%5B1%5D%2Ftd%2Fp%5B1%5D'%0A&format=json&callback=getMembers";
+        document.head.appendChild(script);
+      });
+    </script>
+  </head>
+<body>
+  <div id="wrap">
+    <div id="header"><div class="subtext">Introducing</div><a href="#home" class="logo">Socket.IO</a><a href="http://github.com/learnboost/socket.io/" class="download"><span class="version">v</span><span class="number">.8</span></a></div>
+
+    <div id="content">
+    
+      <div class="section">
+        <form action="http://groups.google.com/group/socket_io/boxsubscribe">
+           <a href="http://groups.google.com/group/socket_io" id="google-subscribe-link"><img src="images/groups.png" border="0"></a>
+           <div id="google-subscribe-input">
+             Email: <input type="text" name="email" id="google-subscribe-email">
+             <input type="submit" name="go" value="Subscribe">
+           </div>
+        </form>
+      </div>
+
+      <div class="section">
+        <p>Thanks for participating in the Socket.IO 2011 users poll!</p>
+        <iframe src="https://docs.google.com/spreadsheet/embeddedform?formkey=dHEtc1ZnSWlSR3VfeDNDVFJ2NjJvcGc6MQ" width="607" height="1252" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+      </div>
+
+    </div>
+    <div id="footer"><p>Socket.IO by  <a href="http://devthought.com">Guillermo Rauch</a> at <a href="http://learnboost.com">gradebook</a> <a href="http://github.com/learnboost/">LearnBoost Labs</a>. Released under the MIT license -  Copyright <a href="http://learnboost.com">LearnBoost 2011</a></p></div>
+  </div>
+
+  <a href="http://github.com/learnboost/socket.io"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" /></a>
+
+</body>
+</html>
