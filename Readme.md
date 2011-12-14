@@ -67,7 +67,7 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('disconnect', function () {
-    sockets.emit('user disconnected');
+    io.sockets.emit('user disconnected');
   });
 });
 ```
@@ -131,7 +131,7 @@ The following example defines a socket that listens on '/chat' and one for
 var io = require('socket.io').listen(80);
 
 var chat = io
-  .of('/chat');
+  .of('/chat')
   .on('connection', function (socket) {
     socket.emit('a message', { that: 'only', '/chat': 'will get' });
     chat.emit('a message', { everyone: 'in', '/chat': 'will get' });
@@ -222,7 +222,7 @@ io.sockets.on('connection', function (socket) {
 ```html
 <script>
   var socket = io.connect(); // TIP: .connect with no args does auto-discovery
-  socket.on('connection', function () {
+  socket.on('connect', function () { // TIP: you can avoid listening on `connect` and listen on events directly too!
     socket.emit('ferret', 'tobi', function (data) {
       console.log(data); // data will be 'woot'
     });

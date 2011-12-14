@@ -3,7 +3,7 @@
  */
 
 var assert = require('assert');
-var Parser = require('../lib/transports/websocket/hybi-07-12.js').Parser;
+var Parser = require('../lib/transports/websocket/hybi-16.js').Parser;
 require('./hybi-common');
 
 /**

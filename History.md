@@ -1,4 +1,51 @@
 
+0.8.7 / 2011-11-05
+==================
+
+  * Fixed memory leaks in closed clients.
+  * Fixed memory leaks in namespaces.
+  * Fixed websocket handling for malformed requests from proxies. [einaros]
+  * Node 0.6 compatibility. [einaros] [3rd-Eden]
+  * Adapted tests and examples.
+
+0.8.6 / 2011-10-27 
+==================
+
+  * Added JSON decoding on jsonp-polling transport.
+  * Fixed README example.
+  * Major speed optimizations [3rd-Eden] [einaros] [visionmedia]
+  * Added decode/encode benchmarks [visionmedia]
+  * Added support for black-listing client sent events.
+  * Fixed logging options, closes #540 [3rd-Eden]
+  * Added vary header for gzip [3rd-Eden]
+  * Properly cleaned up async websocket / flashsocket tests, after patching node-websocket-client
+  * Patched to properly shut down when a finishClose call is made during connection establishment
+  * Added support for socket.io version on url and far-future Expires [3rd-Eden] [getify]
+  * Began IE10 compatibility [einaros] [tbranyen]
+  * Misc WebSocket fixes [einaros]
+  * Added UTF8 to respone headers for htmlfile [3rd-Eden]
+
+0.8.5 / 2011-10-07
+==================
+
+  * Added websocket draft HyBi-16 support. [einaros]
+  * Fixed websocket continuation bugs. [einaros]
+  * Fixed flashsocket transport name.
+  * Fixed websocket tests.
+  * Ensured `parser#decodePayload` doesn't choke.
+  * Added http referrer verification to manager verifyOrigin.
+  * Added access control for cross domain xhr handshakes [3rd-Eden]
+  * Added support for automatic generation of socket.io files [3rd-Eden]
+  * Added websocket binary support [einaros]
+  * Added gzip support for socket.io.js [3rd-Eden]
+  * Expose socket.transport [3rd-Eden]
+  * Updated client.
+
+0.8.4 / 2011-09-06
+==================
+
+  * Client build
+
 0.8.3 / 2011-09-03
 ==================
 

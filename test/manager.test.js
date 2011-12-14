@@ -117,6 +117,7 @@ module.exports = {
     io.disable('foo');
 
     calls.should.eql(3);
+
     done();
   },
 
@@ -276,6 +277,23 @@ module.exports = {
     });
   },
 
+  'test that a referer with implicit port 80 is accepted for foo.bar.com:80 origin': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.set('origins', 'foo.bar.com:80');
+    });
+
+    cl.get('/socket.io/{protocol}', { headers: { referer: 'http://foo.bar.com/something' } }, function (res, data) {
+      res.statusCode.should.eql(200);
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
   'test that erroneous referer is denied for addr:* origin': function (done) {
     var port = ++ports
       , io = sio.listen(port)
@@ -321,6 +339,26 @@ module.exports = {
 
     cl.get('/socket.io/{protocol}', { headers: { referer: 'http://foo.bar.com/something' } }, function (res, data) {
       res.statusCode.should.eql(403);
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test handshake cross domain access control': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port)
+      , headers = {
+            Origin: 'http://example.org:1337'
+          , Cookie: 'name=value'
+        };
+
+    cl.get('/socket.io/{protocol}/', { headers:headers }, function (res, data) {
+      res.statusCode.should.eql(200);
+      res.headers['access-control-allow-origin'].should.eql('http://example.org:1337');
+      res.headers['access-control-allow-credentials'].should.eql('true');
+
       cl.end();
       io.server.close();
       done();
@@ -406,8 +444,8 @@ module.exports = {
 
   'test disabling heartbeats': function (done) {
     var port = ++ports
-      , io = sio.listen(port)
       , cl = client(port)
+      , io = create(cl)
       , messages = 0
       , beat = false
       , ws;
@@ -426,9 +464,8 @@ module.exports = {
 
       socket.on('disconnect', function (reason) {
         beat.should.be.false;
-
-        cl.end();
         ws.finishClose();
+        cl.end();
         io.server.close();
         done();
       });
@@ -485,8 +522,10 @@ module.exports = {
     io.rooms.foo.length.should.equal(2);
     io.rooms.bar.length.should.equal(2);
 
-    io.server.close();
-    done();
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
   },
 
   'test passing options directly to the Manager through listen': function (done) {
@@ -495,7 +534,56 @@ module.exports = {
 
     io.get('resource').should.equal('/my resource');
     io.get('custom').should.equal('opt');
-    io.server.close();
-    done();
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
+  },
+
+  'test disabling the log': function (done) {
+    var port = ++ports
+      , io = sio.listen(port, { log: false })
+      , _console = console.log
+      , calls = 0;
+
+    // the logger uses console.log to output data, override it to see if get's
+    // used
+    console.log = function () { ++calls };
+
+    io.log.debug('test');
+    io.log.log('testing');
+
+    console.log = _console;
+    calls.should.equal(0);
+
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
+  },
+
+  'test disabling logging with colors': function (done) {
+     var port = ++ports
+      , io = sio.listen(port, { 'log colors': false })
+      , _console = console.log
+      , calls = 0;
+
+    // the logger uses console.log to output data, override it to see if get's
+    // used
+    console.log = function (data) {
+      ++calls;
+      data.indexOf('\033').should.equal(-1);
+    };
+
+    io.log.debug('test');
+    io.log.log('testing');
+
+    console.log = _console;
+    calls.should.equal(2);
+
+    process.nextTick(function() {
+      io.server.close();
+      done();
+    });
   }
 };

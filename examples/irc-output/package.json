@@ -2,9 +2,9 @@
     "name": "socket.io-irc"
   , "version": "0.0.1"
   , "dependencies": {
-        "express": "2.3.11"
-      , "jade": "0.12.1"
-      , "stylus": "0.13.3"
-      , "nib": "0.0.8"
+        "express": "2.5.0"
+      , "jade": "0.16.4"
+      , "stylus": "0.19.0"
+      , "nib": "0.2.0"
     }
 }

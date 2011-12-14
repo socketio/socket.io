@@ -1,10 +1,3 @@
-
-/**
- * Bootstrap app.
- */
-
-require.paths.unshift(__dirname + '/../../lib/');
-
 /**
  * Module dependencies.
  */
@@ -12,7 +5,7 @@ require.paths.unshift(__dirname + '/../../lib/');
 var express = require('express')
   , stylus = require('stylus')
   , nib = require('nib')
-  , sio = require('socket.io');
+  , sio = require('../../lib/socket.io');
 
 /**
  * App.
@@ -25,7 +18,7 @@ var app = express.createServer();
  */
 
 app.configure(function () {
-  app.use(stylus.middleware({ src: __dirname + '/public', compile: compile }))
+  app.use(stylus.middleware({ src: __dirname + '/public', compile: compile }));
   app.use(express.static(__dirname + '/public'));
   app.set('views', __dirname);
   app.set('view engine', 'jade');

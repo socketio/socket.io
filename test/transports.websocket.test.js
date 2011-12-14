@@ -19,6 +19,226 @@ var sio = require('socket.io')
  */
 
 module.exports = {
+  'websocket identifies as websocket': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws;
+
+    io.set('transports', ['websocket']);
+    io.sockets.on('connection', function (socket) {
+      socket.manager.transports[socket.id].name.should.equal('websocket');
+      ws.finishClose();
+      cl.end();
+      io.server.close();
+      done();
+    });
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+    });
+  },
+
+  'default websocket draft parser is used for unknown sec-websocket-version': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws;
+
+    io.set('transports', ['websocket']);
+    io.sockets.on('connection', function (socket) {
+      socket.manager.transports[socket.id].protocolVersion.should.equal('hixie-76');
+      ws.finishClose();
+      cl.end();
+      io.server.close();
+      done();
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+    });
+  },
+
+  'hybi-07-12 websocket draft parser is used for sec-websocket-version: 8': function (done) {
+    var cl = client(++ports)
+      , io = create(cl);
+
+    io.set('transports', ['websocket']);
+    io.sockets.on('connection', function (socket) {
+      socket.manager.transports[socket.id].protocolVersion.should.equal('07-12');
+      cl.end();
+      io.server.close();
+      done();
+    });
+
+    var headers = {
+      'sec-websocket-version': 8,
+      'upgrade': 'websocket',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+
+    cl.get('/socket.io/{protocol}', {}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      cl.get(url, {headers: headers}, function (res, data) {});
+    });
+  },
+
+  'hybi-16 websocket draft parser is used for sec-websocket-version: 13': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+
+    io.set('transports', ['websocket']);
+
+    io.sockets.on('connection', function (socket) {
+      socket.manager.transports[socket.id].protocolVersion.should.equal('16');
+      cl.end();
+      io.server.close();
+      done();
+    });
+
+    var headers = {
+      'sec-websocket-version': 13,
+      'upgrade': 'websocket',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+
+    cl.get('/socket.io/{protocol}', {}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      cl.get(url, {headers: headers}, function (res, data) {});
+    });
+  },
+
+  'hybi-07-12 origin filter blocks access for mismatched sec-websocket-origin': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+
+    io.set('transports', ['websocket']);
+    io.set('origins', 'foo.bar.com:*');
+    var notConnected = true;
+    io.sockets.on('connection', function() {
+        notConnected = false;
+    });
+
+    var headers = {
+      'sec-websocket-version': 8,
+      'upgrade': 'websocket',
+      'Sec-WebSocket-Origin': 'http://baz.bar.com',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+
+    // handshake uses correct origin -- we want to block the actual websocket call
+    cl.get('/socket.io/{protocol}', {headers: {origin: 'http://foo.bar.com'}}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      var req = cl.get(url, {headers: headers}, function (res, data) {});
+      var closed = false;
+      req.on('close', function() {
+        if (closed) return;
+        closed = true;
+        notConnected.should.be.true;
+        cl.end();
+        try {
+          io.server.close();
+        }
+        catch (e) {}
+        done();
+      });
+    });
+  },
+
+  'hybi-16 origin filter blocks access for mismatched sec-websocket-origin': function (done) {
+    var cl = client(++ports)
+      , io = create(cl);
+
+    io.set('transports', ['websocket']);
+    io.set('origins', 'foo.bar.com:*');
+    var notConnected = true;
+    io.sockets.on('connection', function() {
+        notConnected = false;
+    });
+
+    var headers = {
+      'sec-websocket-version': 13,
+      'upgrade': 'websocket',
+      'origin': 'http://baz.bar.com',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+
+    // handshake uses correct origin -- we want to block the actual websocket call
+    cl.get('/socket.io/{protocol}', {headers: {origin: 'http://foo.bar.com'}}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      var req = cl.get(url, {headers: headers}, function (res, data) {});
+      var closed = false;
+      req.on('close', function() {
+        if (closed) return;
+        closed = true;
+        notConnected.should.be.true;
+        cl.end();
+        try {
+          io.server.close();
+        }
+        catch (e) {}
+        done();
+      });
+    });
+  },
+
+  'hybi-07-12 origin filter accepts implicit port 80 for sec-websocket-origin': function (done) {
+done();return;
+    var cl = client(++ports)
+      , io = create(cl)
+
+    io.set('transports', ['websocket']);
+    io.set('origins', 'foo.bar.com:80');
+
+    var headers = {
+      'sec-websocket-version': 8,
+      'upgrade': 'websocket',
+      'Sec-WebSocket-Origin': 'http://foo.bar.com',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+
+    io.sockets.on('connection', function() {
+        cl.end();
+        io.server.close();
+        done();
+    });
+
+    // handshake uses correct origin -- we want to block the actual websocket call
+    cl.get('/socket.io/{protocol}', {headers: {origin: 'http://foo.bar.com'}}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      cl.get(url, {headers: headers}, function (res, data) {});
+    });
+  },
+
+  'hybi-16 origin filter accepts implicit port 80 for sec-websocket-origin': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+
+    io.set('transports', ['websocket']);
+    io.set('origins', 'foo.bar.com:80');
+
+    var headers = {
+      'sec-websocket-version': 13,
+      'upgrade': 'websocket',
+      'origin': 'http://foo.bar.com',
+      'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ=='
+    }
+
+    io.sockets.on('connection', function() {
+        cl.end();
+        io.server.close();
+        done();
+    });
+
+    // handshake uses correct origin -- we want to block the actual websocket call
+    cl.get('/socket.io/{protocol}', {headers: {origin: 'http://foo.bar.com'}}, function (res, data) {
+      var sid = data.split(':')[0];
+      var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
+      cl.get(url, {headers: headers}, function (res, data) {});
+    });
+  },
 
   'test that not responding to a heartbeat drops client': function (done) {
     var cl = client(++ports)
@@ -95,134 +315,6 @@ module.exports = {
             ws.packet({ type: 'heartbeat' });
           }
         }
-      });
-    });
-  },
-
-  'test sending undeliverable volatile messages': function (done) {
-    var cl = client(++ports)
-      , io = create(cl)
-      , messages = 0
-      , messaged = false
-      , s;
-
-    io.configure(function () {
-      io.set('close timeout', .05);
-    });
-
-    io.sockets.on('connection', function (socket) {
-      s = socket;
-
-      socket.on('disconnect', function () {
-        messaged.should.be.false;
-        cl.end();
-        io.server.close();
-        done();
-      });
-    });
-
-    cl.handshake(function (sid) {
-      var ws = websocket(cl, sid);
-      ws.on('message', function (msg) {
-        msg.type.should.eql('connect');
-        ws.finishClose();
-
-        setTimeout(function () {
-          s.volatile.send('ah wha wha');
-
-          ws = websocket(cl, sid);
-          ws.on('message', function () {
-            messaged = true;
-          });
-
-          setTimeout(function () {
-            ws.finishClose();
-          }, 10);
-        }, 10);
-      });
-    });
-  },
-
-  'test sending undeliverable volatile json': function (done) {
-    var cl = client(++ports)
-      , io = create(cl)
-      , messaged = false
-      , s;
-
-    io.configure(function () {
-      io.set('close timeout', .05);
-    });
-
-    io.sockets.on('connection', function (socket) {
-      s = socket;
-
-      socket.on('disconnect', function () {
-        messaged.should.be.false;
-        cl.end();
-        io.server.close();
-        done();
-      });
-    });
-
-    cl.handshake(function (sid) {
-      var ws = websocket(cl, sid);
-      ws.on('message', function () {
-        ws.finishClose();
-
-        setTimeout(function () {
-          s.volatile.json.send({ a: 'b' });
-
-          ws = websocket(cl, sid);
-          ws.on('message', function () {
-            messaged = true;
-          });
-
-          setTimeout(function () {
-            ws.finishClose();
-          }, 10);
-        }, 10);
-      });
-    });
-  },
-
-  'test sending undeliverable volatile events': function (done) {
-    var cl = client(++ports)
-      , io = create(cl)
-      , messaged = false
-      , s;
-
-    io.configure(function () {
-      io.set('close timeout', .05);
-    });
-
-    io.sockets.on('connection', function (socket) {
-      s = socket;
-
-      socket.on('disconnect', function () {
-        messaged.should.be.false;
-        cl.end();
-        io.server.close();
-        done();
-      });
-    });
-
-    cl.handshake(function (sid) {
-      var ws = websocket(cl, sid);
-      ws.on('message', function () {
-        ws.finishClose();
-
-        setTimeout(function () {
-          s.volatile.emit({ a: 'b' });
-
-          ws = websocket(cl, sid);
-          ws.on('message', function () {
-            messaged = true;
-          });
-
-          setTimeout(function () {
-            ws.finishClose();
-          }, 10);
-        }, 10);
       });
     });
   },
@@ -1767,5 +1859,36 @@ module.exports = {
       });
     });
   },
+
+  'accessing the transport type': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws;
+
+    io.sockets.on('connection', function (socket) {
+      socket.transport.should.equal('websocket');
+
+      socket.on('disconnect', function () {
+        setTimeout(function () {
+          ws.finishClose();
+          cl.end();
+          io.server.close();
+          done();
+        }, 10);
+      });
+
+      socket.disconnect();
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+      ws.on('message', function (msg) {
+        if (!ws.connected) {
+          msg.type.should.eql('connect');
+          ws.connected = true;
+        }
+      });
+    });
+  }
 
 };

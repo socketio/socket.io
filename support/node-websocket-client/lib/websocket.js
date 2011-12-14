@@ -5,7 +5,7 @@ var events = require('events');
 var http = require('http');
 var net = require('net');
 var urllib = require('url');
-var sys = require('sys');
+var sys = require('util');
 
 var FRAME_NO = 0;
 var FRAME_LO = 1;
@@ -347,7 +347,6 @@ var WebSocket = function(url, proto, opts) {
     // that we've closed.
     var finishClose = self.finishClose = function() {
         readyState = CLOSED;
-
         if (stream) {
             stream.end();
             stream.destroy();
@@ -469,30 +468,53 @@ var WebSocket = function(url, proto, opts) {
         //      that http.Client passes its constructor arguments through,
         //      un-inspected to net.Stream.connect(). The latter accepts a
         //      string as its first argument to connect to a UNIX socket.
-        var httpClient = undefined;
+        var opt = {};
+        var agent = null;
         switch (getUrlScheme(url)) {
         case 'ws':
             var u = urllib.parse(url);
-            httpClient = http.createClient(u.port || 80, u.hostname);
-            httpPath = (u.pathname || '/') + (u.search || '');
-            httpHeaders.Host = u.hostname + (u.port ? (":" + u.port) : "");
+            agent = new http.Agent({
+                host: u.hostname,
+                port: u.port || 80
+            });
+            opt.agent = agent;
+            opt.host = u.hostname;
+            opt.port = u.port || 80;
+            opt.path = (u.pathname || '/') + (u.search || '');
+            opt.headers = httpHeaders;
             break;
 
         case 'ws+unix':
             var sockPath = url.substring('ws+unix://'.length, url.length);
-            httpClient = http.createClient(sockPath);
-            httpHeaders.Host = 'localhost';
+            var u = urllib.parse(url);
+            agent = new http.Agent({
+                host: 'localhost',
+                port: sockPath
+            });
+            opt.agent = agent;
+            opt.host = 'localhost';
+            opt.path = sockPath;
+            opt.headers = httpHeaders;
             break;
 
         default:
             throw new Error('Invalid URL scheme \'' + urlScheme + '\' specified.');
         }
 
-        httpClient.on('upgrade', (function() {
+        var httpReq = http.request(opt, function() { });
+        var upgradeHandler = (function() {
             var data = undefined;
 
             return function(req, s, head) {
+                req.socket.setNoDelay(true);
                 stream = s;
+
+                if (readyState == CLOSED) {
+                    stream.end();
+                    stream.destroy();
+                    stream = undefined;
+                    return;
+                }
 
                 stream.on('data', function(d) {
                     if (d.length <= 0) {
@@ -547,7 +569,7 @@ var WebSocket = function(url, proto, opts) {
                         //
                         // XXX: This is lame. We should only remove the listeners
                         //      that we added.
-                        httpClient.removeAllListeners('upgrade');
+                        httpReq.removeAllListeners('upgrade');
                         stream.removeAllListeners('data');
                         stream.on('data', dataListener);
 
@@ -575,13 +597,9 @@ var WebSocket = function(url, proto, opts) {
 
                 stream.emit('data', head);
             };
-        })());
-        httpClient.on('error', function(e) {
-            httpClient.end();
-            errorListener(e);
-        });
-
-        var httpReq = httpClient.request(httpPath, httpHeaders);
+        })();
+        agent.on('upgrade', upgradeHandler); // node v0.4
+        httpReq.on('upgrade', upgradeHandler); // node v0.5+
 
         httpReq.write(challenge, 'binary');
         httpReq.end();

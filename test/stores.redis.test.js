@@ -95,7 +95,7 @@ module.exports = {
 
                 client.set('b', 'c', function (err) {
                   should.strictEqual(err, null);
-                  
+
                   client.set('c', 'd', function (err) {
                     should.strictEqual(err, null);
 
