@@ -27,9 +27,28 @@ var engine = require('engine')
   , http = require('http').createServer().listen(3000)
   , server = engine.attach(http)
 
-server.on('connection', function (client) {
-  client.on('message', function () { });
-  client.on('close', function () { });
+server.on('connection', function (socket) {
+  socket.on('message', function () { });
+  socket.on('close', function () { });
+});
+```
+
+#### Passing in requests manually
+
+```js
+var ws = require('engine.io')
+  , server = new engine.Server()
+
+server.on('connection', function (socket) {
+  socket.send('hi');
+});
+
+// …
+httpServer.on('upgrade', function (req, socket, head) {
+  server.handleUpgrade(req, socket, head);
+});
+httpServer.on('request', function (req, res) {
+  server.handleRequest(req, res);
 });
 ```
 
@@ -79,7 +98,8 @@ These are exposed by `require('engine')`:
 
 ##### Properties
 
-- `version` _(String)_: protocol revision number
+- `version` _(String)_: engine.io version
+- `protocol` _(Number)_: protocol revision number
 - `Server`: Server class constructor
 - `Socket`: Socket class constructor
 - `Logger` _(Function)_: logger constructor
@@ -154,10 +174,10 @@ A representation of a client. _Inherits from EventEmitter_.
     - Sends a message.
     - **Parameters**
       - `String`: utf-8 string with outgoing data
-    - **Returns** `Socket`, for chaining
+    - **Returns** `Socket` for chaining
 - `close`
     - Disconnects the client
-    - **Returns** `Socket`, for chaining
+    - **Returns** `Socket` for chaining
 
 ### Client
 
