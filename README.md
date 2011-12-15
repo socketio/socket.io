@@ -38,8 +38,8 @@ communication layer for [Socket.IO](http://github.com/learnboost/socket.io).
 
 ### Top-level
 
-These are exposed in the `io` global namespace (in the browser), or by
-`require('engine-client')` (in Node.JS).
+These are exposed in the `eio` global namespace (in the browser), or by
+`require('engine.io-client')` (in Node.JS).
 
 #### Properties
 
