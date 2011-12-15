@@ -9,7 +9,7 @@ bi-directional communication layer for
 
 ### Server
 
-#### Listening on a port
+#### (A) Listening on a port
 
 ```js
 var engine = require('engine')
@@ -20,7 +20,7 @@ server.on('connection', function (socket) {
 });
 ```
 
-#### Intercepting requests for a http.Server
+#### (B) Intercepting requests for a http.Server
 
 ```js
 var engine = require('engine')
@@ -33,7 +33,7 @@ server.on('connection', function (socket) {
 });
 ```
 
-#### Passing in requests manually
+#### (C) Passing in requests
 
 ```js
 var ws = require('engine.io')
