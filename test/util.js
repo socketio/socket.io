@@ -3,7 +3,7 @@
  * Test dependencies.
  */
 
-var util = require('../lib/util')
+var util = eio.util
 
 /**
  * Tests.
@@ -11,21 +11,21 @@ var util = require('../lib/util')
 
 describe('util', function () {
 
-  describe('parse uri', function () {
+  it('should parse an uri', function () {
     var http = util.parseUri('http://google.com')
       , https = util.parseUri('https://www.google.com:80')
-      , query = util.parseUri('google.com:8080/foo/bar?foo=bar');
+      , query = util.parseUri('google.com:8080/foo/bar?foo=bar')
 
-    http.protocol.should().eql('http');
-    http.port.should().eql('');
-    http.host.should().eql('google.com');
-    https.protocol.should().eql('https');
-    https.port.should().eql('80');
-    https.host.should().eql('www.google.com');
-    query.port.should().eql('8080');
-    query.query.should().eql('foo=bar');
-    query.path.should().eql('/foo/bar');
-    query.relative.should().eql('/foo/bar?foo=bar');
+    expect(http.protocol).to.be('http');
+    expect(http.port).to.be('');
+    expect(http.host).to.be('google.com');
+    expect(https.protocol).to.be('https');
+    expect(https.port).to.be('80');
+    expect(https.host).to.be('www.google.com');
+    expect(query.port).to.be('8080');
+    expect(query.query).to.be('foo=bar');
+    expect(query.path).to.be('/foo/bar');
+    expect(query.relative).to.be('/foo/bar?foo=bar');
   });
 
 });
