@@ -12,4 +12,7 @@ test:
 		--growl \
 		$(TESTS)
 
+test-browser:
+	./node_modules/.bin/serve test/
+
 .PHONY: test
