@@ -6,7 +6,7 @@ build:
 	@./node_modules/.bin/browserbuild -g eio -f engine.io.js -m engine.io-client lib/
 
 build-dev:
-	@./node_modules/.bin/browserbuild -g eio -f engine.io.js -i -m engine.io-client lib/
+	@./node_modules/.bin/browserbuild -g eio -f engine.io-dev.js -i -m engine.io-client lib/
 
 test:
 	@./node_modules/.bin/mocha \
