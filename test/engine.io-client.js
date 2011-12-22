@@ -1,5 +1,5 @@
 
-describe('engine-client', function () {
+describe('engine.io-client', function () {
 
   it('should expose version number', function () {
     expect(eio.version).to.match(/[0-9]+\.[0-9]+\.[0-9]+/);
