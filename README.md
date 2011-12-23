@@ -111,18 +111,13 @@ These are exposed by `require('engine.io')`:
       to it. It returns `501 Not Implemented` for regular http requests.
     - **Parameters**
       - `Number`: port to listen on.
-      - `Function`: callback for `listen`. The options object can be supplied
-        as second parameter as well.
-      - `Object`: optional, options object. See `Server` constructor API for
-        options.
+      - `Function`: callback for `listen`.
     - **Returns** `Server`
 - `attach`
     - Captures `upgrade` requests for a `http.Server`. In other words, makes
       a regular http.Server websocket-compatible.
     - **Parameters**
       - `http.Server`: server to attach to.
-      - `Object`: optional, options object. See `Server` constructor API for
-        options.
     - **Returns** `Server`
 
 <hr><br>
