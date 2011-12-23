@@ -9,5 +9,6 @@
   , "devDependencies": {
         "mocha": "*"
       , "expect.js": "*"
+      , "superagent": "*"
     }
 }
