@@ -230,8 +230,7 @@ The client class. _Inherits from EventEmitter_.
       - `host` (`String`): host name (`localhost`)
       - `port` (`Number`): port name (`80`)
       - `path` (`String`): path name
-      - `query` (`String`): optional query string addition (eg:
-        `a=b&c=hello+world`)
+      - `query` (`String`): optional query string addition (eg: `{ a: 'b' }`)
       - `secure` (`Boolean): whether the connection is secure
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
       to upgrade the transport from long-polling to something better.
