@@ -94,7 +94,7 @@ For more information on the client refer to the
 
 #### Top-level
 
-These are exposed by `require('engine')`:
+These are exposed by `require('engine.io')`:
 
 ##### Properties
 
