@@ -1,6 +1,7 @@
 {
     "name": "engine.io-client"
   , "description": "Client for the realtime Engine"
+  , "main": "./lib/engine.io-client"
   , "version": "0.1.0"
   , "devDependencies": {
         "mocha": "*"
