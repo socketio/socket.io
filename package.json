@@ -19,7 +19,7 @@
     }
   , "dependencies": {
         "uglify-js": "1.0.6"
-      , "websocket-client": "1.0.0"
+      , "ws": "0.3.8"
       , "xmlhttprequest": "1.2.2"
     }
   , "devDependencies": {
