@@ -241,6 +241,9 @@ The client class. _Inherits from EventEmitter_.
     - `String`: utf-8 encoded data
 - `close`
   - Fired upon disconnection.
+  - **Arguments**
+    - `String`: reason for closing
+    - `Object`: description object (optional)
 - `error`
   - Fired when an error occurs.
 
@@ -277,7 +280,7 @@ For more information on the client refer to the
 
 - `polling`: XHR / JSONP polling transport.
 - `websocket`: WebSocket transport.
-- `flashsocket`: WebSocket transport backed by flash
+- `flashsocket`: WebSocket transport backed by flash.
 
 ## Support
 
