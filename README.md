@@ -136,8 +136,8 @@ The main server/manager. _Inherits from EventEmitter_.
 
 ##### Properties
 
-- `clients`
-    - Hash of connected clients by id.
+- `clients` _(Object)_: hash of connected clients by id.
+- `clientsCount` _(Number)_: number of connected clients.
 
 ##### Methods
 
