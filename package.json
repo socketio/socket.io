@@ -12,5 +12,6 @@
         "mocha": "*"
       , "expect.js": "*"
       , "superagent": "*"
+      , "ws": "*"
     }
 }
