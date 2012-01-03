@@ -38,6 +38,12 @@ if (process.env.DEBUG) {
 eio = require('../lib/engine.io');
 
 /**
+ * Expose client.
+ */
+
+eioc = require('engine.io-client');
+
+/**
  * Expose `request` global.
  */
 
