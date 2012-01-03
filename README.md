@@ -102,7 +102,8 @@ These are exposed by `require('engine.io')`:
 - `protocol` _(Number)_: protocol revision number
 - `Server`: Server class constructor
 - `Socket`: Socket class constructor
-- `Logger` _(Function)_: logger constructor
+- `Transport` _(Function)_: transport constructor
+- `transports` _(Object)_: map of available transports
 
 ##### Methods
 
