@@ -174,6 +174,9 @@ A representation of a client. _Inherits from EventEmitter_.
 
 - `close`
     - Fired when the client is disconnected.
+    - **Arguments**
+      - `String`: reason for closing
+      - `Object`: description object (optional)
 - `message`
     - Fired when the client sends a message.
     - **Arguments**
