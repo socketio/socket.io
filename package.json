@@ -4,7 +4,8 @@
   , "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional client between client and server"
   , "main": "./lib/engine.io"
   , "dependencies": {
-        "engine.io-client": "0.1.0"
+        "debug": "0.1.0"
+      , "engine.io-client": "0.1.0"
       , "websocket.io": "0.1.2"
     }
   , "devDependencies": {
