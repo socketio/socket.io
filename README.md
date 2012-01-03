@@ -141,11 +141,28 @@ The main server/manager. _Inherits from EventEmitter_.
 
 ##### Methods
 
+- `close`
+    - Closes all clients
+    - **Returns** `Server` for chaining
 - `handleRequest`
     - Called internally when a `Engine` request is intercepted.
     - **Parameters**
-      - `http.Request`: a node Request object
-    - **Returns**
+      - `http.ServerRequest`: a node request object
+      - `http.ServerResponse`: a node response object
+    - **Returns** `Server` for chaining
+- `handleUpgrade`
+    - Called internally when a `Engine` ws upgrade is intercepted.
+    - **Parameters** (same as `upgrade` event)
+      - `http.ServerRequest`: a node request object
+      - `net.Stream`: TCP socket for the request
+      - `Buffer`: legacy tail bytes
+    - **Returns** `Server` for chaining
+- `handleSocket`
+    - Called with raw TCP sockets from http requests to intercept flash policy
+      file requests
+    - **Parameters**
+      - `net.Stream`: TCP socket on which requests are listened
+    - **Returns** `Server` for chaining
 
 <hr><br>
 
