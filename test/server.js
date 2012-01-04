@@ -218,7 +218,7 @@ describe('server', function () {
       });
     });
 
-    it('should kick a client out from the server', function (done) {
+    it('should trigger when server closes a client', function (done) {
       var engine = eio.listen(4000, { allowUpgrades: false }, function () {
         var socket = new eioc.Socket('ws://localhost:4000')
           , total = 2
@@ -242,7 +242,7 @@ describe('server', function () {
       });
     });
 
-    it('should kick a client out from the server (ws)', function (done) {
+    it('should trigger when server closes a client (ws)', function (done) {
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = eio.listen(4000, opts, function () {
         var socket = new eioc.Socket('ws://localhost:4000', { transports: ['websocket'] })
