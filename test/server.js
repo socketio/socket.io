@@ -266,6 +266,31 @@ describe('server', function () {
         });
       });
     });
+
+    it('should trigger when client closes', function (done) {
+      var engine = eio.listen(4000, { allowUpgrades: false }, function () {
+        var socket = new eioc.Socket('ws://localhost:4000')
+          , total = 2
+
+        engine.on('connection', function (conn) {
+          conn.on('close', function (reason) {
+            expect(reason).to.be('transport close');
+            --total || engine.httpServer.once('close', done).close();
+          });
+        });
+
+        socket.on('open', function () {
+          socket.on('close', function (reason) {
+            expect(reason).to.be('forced close');
+            --total || engine.httpServer.once('close', done).close();
+          });
+
+          setTimeout(function () {
+            socket.close();
+          }, 10);
+        });
+      });
+    });
   });
 
 });
