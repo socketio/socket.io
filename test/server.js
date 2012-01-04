@@ -241,6 +241,31 @@ describe('server', function () {
         });
       });
     });
+
+    it('should kick a client out from the server (ws)', function (done) {
+      var opts = { allowUpgrades: false, transports: ['websocket'] };
+      var engine = eio.listen(4000, opts, function () {
+        var socket = new eioc.Socket('ws://localhost:4000', { transports: ['websocket'] })
+          , total = 2
+
+        engine.on('connection', function (conn) {
+          conn.on('close', function (reason) {
+            expect(reason).to.be('forced close');
+            --total || engine.httpServer.once('close', done).close();
+          });
+          setTimeout(function () {
+            conn.close();
+          }, 10);
+        });
+
+        socket.on('open', function () {
+          socket.on('close', function (reason) {
+            expect(reason).to.be('transport close');
+            --total || engine.httpServer.once('close', done).close();
+          });
+        });
+      });
+    });
   });
 
 });
