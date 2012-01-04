@@ -167,7 +167,7 @@ describe('server', function () {
     });
 
     it('should trigger on server if the client does not pong', function (done) {
-      var opts = { allowUpgrades: false, pingInterval: 10, pingTimeout: 10 }
+      var opts = { allowUpgrades: false, pingInterval: 5, pingTimeout: 5 }
       var engine = eio.listen(4000, opts, function () {
         var socket = new eioc.Socket('http://localhost:4000');
         socket.sendPacket = function (){};
