@@ -38,13 +38,13 @@ describe('parser', function () {
       });
 
       it('should encode an open packet', function () {
-        expect(decode(encode({ type: 'open', data: '1' })))
-          .to.eql({ type: 'open', data: '1' });
+        expect(decode(encode({ type: 'open', data: '{"some":"json"}' })))
+          .to.eql({ type: 'open', data: '{"some":"json"}' });
       });
 
       it('should encode a close packet', function () {
-        expect(decode(encode({ type: 'close', data: '1' })))
-          .to.eql({ type: 'close', data: '1' });
+        expect(decode(encode({ type: 'close' })))
+          .to.eql({ type: 'close' });
       });
 
       it('should encode a ping packet', function () {
