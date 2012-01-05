@@ -334,4 +334,42 @@ describe('server', function () {
         });
       });
     });
+
+    it('should arrive from server to client (multiple)', function (done) {
+      var engine = eio.listen(4000, { allowUpgrades: false }, function () {
+        var socket = new eioc.Socket('ws://localhost:4000')
+          , expected = ['a', 'b', 'c']
+          , i = 0
+
+        engine.on('connection', function (conn) {
+          conn.send('a');
+          // we use set timeouts to ensure the messages are delivered as part
+          // of different.
+          setTimeout(function () {
+            conn.send('b');
+
+            setTimeout(function () {
+              // here we make sure we buffer both the close packet and
+              // a regular packet
+              conn.send('c');
+              conn.close();
+            }, 5);
+          }, 5);
+
+          conn.on('close', function () {
+            // since close fires right after the buffer is drained
+            setTimeout(function () {
+              expect(i).to.be(3);
+              engine.httpServer.once('close', done).close();
+            }, 5);
+          });
+        });
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+            expect(msg).to.be(expected[i++]);
+          });
+        });
+      });
+    });
+  });
 });
