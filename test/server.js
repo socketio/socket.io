@@ -371,5 +371,52 @@ describe('server', function () {
         });
       });
     });
+
+    it('should arrive from server to client (ws)', function (done) {
+      var opts = { allowUpgrades: false, transports: ['websocket'] };
+      var engine = eio.listen(4000, opts, function () {
+        var socket = new eioc.Socket('ws://localhost:4000', { transports: ['websocket'] });
+        engine.on('connection', function (conn) {
+          conn.send('a');
+        });
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+            expect(msg).to.be('a');
+            engine.httpServer.once('close', done).close();
+          });
+        });
+      });
+    });
+
+    it('should arrive from server to client (ws)', function (done) {
+      var opts = { allowUpgrades: false, transports: ['websocket'] };
+      var engine = eio.listen(4000, opts, function () {
+        var socket = new eioc.Socket('ws://localhost:4000', { transports: ['websocket'] })
+          , expected = ['a', 'b', 'c']
+          , i = 0
+        engine.on('connection', function (conn) {
+          conn.send('a');
+          setTimeout(function () {
+            conn.send('b');
+            setTimeout(function () {
+              conn.send('c');
+              conn.close();
+            }, 5);
+          }, 5);
+          conn.on('close', function () {
+            setTimeout(function () {
+              expect(i).to.be(3);
+              engine.httpServer.once('close', done).close();
+            }, 5);
+          });
+        });
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+            expect(msg).to.be(expected[i++]);
+          });
+        });
+      });
+    });
   });
+
 });
