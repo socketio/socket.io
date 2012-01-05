@@ -319,4 +319,19 @@ describe('server', function () {
     });
   });
 
+  describe('messages', function () {
+    it('should arrive from server to client', function (done) {
+      var engine = eio.listen(4000, { allowUpgrades: false }, function () {
+        var socket = new eioc.Socket('ws://localhost:4000');
+        engine.on('connection', function (conn) {
+          conn.send('a');
+        });
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+            expect(msg).to.be('a');
+            engine.httpServer.once('close', done).close();
+          });
+        });
+      });
+    });
 });
