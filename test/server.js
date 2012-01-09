@@ -419,4 +419,41 @@ describe('server', function () {
     });
   });
 
+  describe('upgrade', function () {
+
+    it('should upgrade', function () {
+      var i = 0, upgraded = false, didUpgrading = false;
+      var engine = eio.listen(4000, function () {
+        engine.on('connection', function (conn) {
+          conn.on('message', function (msg) {
+            expect(i++).to.eql(msg);
+          });
+          conn.on('upgrade', function () {
+            upgraded = true;
+          });
+          conn.on('close', function () {
+            expect(i).to.be(100);
+            expect(didUpgrading).to.be(true);
+            expect(upgraded).to.be(true);
+          });
+        });
+
+        var socket = new eioc.Socket('ws://localhost:4000');
+        var count = 0;
+        socket.on('upgrading', function () {
+          // we want to make sure for the sake of this test that we have a buffer
+          didUpgrading = true;
+          expect(socket.writeBuffer.length).to.be.above(0);
+        });
+        socket.on('open', function () {
+          setInterval(function () {
+            socket.send(count++);
+            if (count == 100) return socket.close();
+          }, 2);
+        });
+      });
+    });
+
+  });
+
 });
