@@ -22,11 +22,10 @@ describe('engine', function () {
 
   describe('listen', function () {
     it('should open a http server that returns 501', function (done) {
-      var server = eio.listen(4000, function () {
-        request.get('http://localhost:4000/', function (err, res) {
+      var server = listen(function (port) {
+        request.get('http://localhost:%d/'.s(port), function (err, res) {
           expect(res.status).to.be(501);
-          server.httpServer.once('close', done);
-          server.httpServer.close();
+          done();
         });
       });
     });
@@ -44,8 +43,9 @@ describe('engine', function () {
       var server = http.createServer()
         , engine = eio.attach(server);
 
-      server.listen(4000, function () {
-        request.get('http://localhost:4000/engine.io', function (err, res) {
+      server.listen(function () {
+        var uri = 'http://localhost:%d/engine.io'.s(server.address().port);
+        request.get(uri, function (err, res) {
           expect(res.status).to.be(500);
           server.once('close', done);
           server.close();
@@ -57,15 +57,14 @@ describe('engine', function () {
       var server = http.createServer()
         , engine = eio.attach(server);
 
-      server.listen(4000, function () {
-        var client = net.createConnection(4000);
+      server.listen(function () {
+        var client = net.createConnection(server.address().port);
         client.write('<policy-file-request/>\0');
         client.setEncoding('ascii');
         client.on('data', function (data) {
           expect(data).to.contain('<allow-access-from');
           client.end();
-          server.once('close', done);
-          server.close();
+          done();
         });
       });
     });
@@ -74,16 +73,15 @@ describe('engine', function () {
       var server = http.createServer()
         , engine = eio.attach(server);
 
-      server.listen(4000, function () {
-        var client = net.createConnection(4000);
+      server.listen(function () {
+        var client = net.createConnection(server.address().port);
         client.write('<policy-file-request/>', function () {
           client.write('\0');
           client.setEncoding('ascii');
           client.on('data', function (data) {
             expect(data).to.contain('<allow-access-from');
             client.end();
-            server.once('close', done);
-            server.close();
+            done();
           });
         });
       });
@@ -93,17 +91,14 @@ describe('engine', function () {
       var server = http.createServer()
         , engine = eio.attach(server);
 
-      server.listen(4000, function () {
-        var client = net.createConnection(4000);
+      server.listen(function () {
+        var client = net.createConnection(server.address().port);
         client.write('<policy-file-req>\0');
         client.setEncoding('ascii');
-        client.on('data', function (data) {
-          throw new Error('Should not respond');
+        client.on('data', function () {
+          done(new Error('Should not respond'));
         });
-        setTimeout(function () {
-          server.once('close', done);
-          server.close();
-        }, 20);
+        setTimeout(done, 20);
       });
     });
 
@@ -111,17 +106,14 @@ describe('engine', function () {
       var server = http.createServer()
         , engine = eio.attach(server, { policyFile: false });
 
-      server.listen(4000, function () {
-        var client = net.createConnection(4000);
+      server.listen(function () {
+        var client = net.createConnection(server.address().port);
         client.write('<policy-file-req>\0');
         client.setEncoding('ascii');
         client.on('data', function (data) {
-          throw new Error('Should not fire');
+          done(new Error('Should not fire'));
         });
-        setTimeout(function () {
-          server.once('close', done);
-          server.close();
-        }, 20);
+        setTimeout(done, 20);
       });
     });
 
@@ -129,17 +121,14 @@ describe('engine', function () {
       var server = http.createServer()
         , engine = eio.attach(server, { transports: ['xhr-polling', 'websocket'] });
 
-      server.listen(4000, function () {
-        var client = net.createConnection(4000);
+      server.listen(function () {
+        var client = net.createConnection(server.address().port);
         client.write('<policy-file-req>\0');
         client.setEncoding('ascii');
         client.on('data', function (data) {
-          throw new Error('Should not fire');
+          done(new Error('Should not fire'));
         });
-        setTimeout(function () {
-          server.once('close', done);
-          server.close();
-        }, 20);
+        setTimeout(done, 20);
       });
     });
 
@@ -147,8 +136,8 @@ describe('engine', function () {
       var server = http.createServer()
         , engine = eio.attach(server);
 
-      server.listen(4000, function () {
-        var client = net.createConnection(4000);
+      server.listen(function () {
+        var client = net.createConnection(server.address().port);
         client.setEncoding('ascii');
         client.write([
             'GET / HTTP/1.1'
@@ -157,13 +146,12 @@ describe('engine', function () {
         ].join('\r\n'));
 
         var check = setTimeout(function () {
-          throw new Error('Client should have ended');
+          done(new Error('Client should have ended'));
         }, 20);
 
         client.on('end', function () {
-          server.once('close', done);
-          server.close();
           clearTimeout(check);
+          done();
         });
       });
     });
@@ -172,22 +160,26 @@ describe('engine', function () {
       var server = http.createServer()
         , engine = eio.attach(server, { destroyUpgrade: false });
 
-      server.listen(4000, function () {
-        var client = net.createConnection(4000);
-        client.setEncoding('ascii');
-        client.write([
-            'GET / HTTP/1.1'
-          , 'Upgrade: IRC/6.9'
-          , '', ''
-        ].join('\r\n'));
+      server.listen(function () {
+        var client = net.createConnection(server.address().port);
+        client.on('connect', function () {
+          client.setEncoding('ascii');
+          client.write([
+              'GET / HTTP/1.1'
+            , 'Upgrade: IRC/6.9'
+            , '', ''
+          ].join('\r\n'));
 
-        var check = setTimeout(function () {
-          server.once('close', done);
-          server.close();
-        }, 20);
+          var check = setTimeout(function () {
+            client.removeListener('end', onEnd);
+            done();
+          }, 20);
 
-        client.on('end', function () {
-          throw new Error('Client should not end');
+          function onEnd () {
+            done(new Error('Client should not end'));
+          }
+
+          client.on('end', onEnd);
         });
       });
     });
@@ -208,10 +200,11 @@ describe('engine', function () {
 
       eio.attach(server);
 
-      server.listen(4000, function () {
-        request.get('http://localhost:4000/engine.io', function (err, res) {
+      server.listen(function () {
+        var port = server.address().port;
+        request.get('http://localhost:%d/engine.io'.s(port), function (err, res) {
           expect(res.status).to.be(500);
-          request.get('http://localhost:4000/test', function (err, res) {
+          request.get('http://localhost:%d/test'.s(port), function (err, res) {
             expect(res.status).to.be(200);
             expect(listeners).to.eql(2);
             server.once('close', done);
