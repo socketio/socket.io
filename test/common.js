@@ -54,3 +54,26 @@ request = require('superagent');
  */
 
 expect = require('expect.js');
+
+/**
+ * Listen shortcut that fires a callback on an epheemal port.
+ */
+
+listen = function (opts, fn) {
+  if ('function' == typeof opts) {
+    fn = opts;
+    opts = {};
+  }
+
+  var e = eio.listen(null, opts, function () {
+    fn(e.httpServer.address().port);
+  });
+
+  return e;
+}
+
+/**
+ * Sprintf util.
+ */
+
+require('s').extend();
