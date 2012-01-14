@@ -7,6 +7,7 @@ test:
 	@./node_modules/.bin/mocha \
 		--require $(shell pwd)/test/common \
 		--reporter $(REPORTER) \
+		--bail \
 		--growl \
 		$(TESTS)
 
