@@ -7,7 +7,7 @@ test:
 	@./node_modules/.bin/mocha \
 		--require $(shell pwd)/test/common \
 		--reporter $(REPORTER) \
-		--slow 100ms \
+		--slow 500ms \
 		--bail \
 		--growl \
 		$(TESTS)

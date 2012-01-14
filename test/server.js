@@ -353,15 +353,15 @@ describe('server', function () {
               // a regular packet
               conn.send('c');
               conn.close();
-            }, 5);
-          }, 5);
+            }, 50);
+          }, 50);
 
           conn.on('close', function () {
             // since close fires right after the buffer is drained
             setTimeout(function () {
               expect(i).to.be(3);
               done();
-            }, 5);
+            }, 50);
           });
         });
         socket.on('open', function () {
@@ -401,13 +401,13 @@ describe('server', function () {
             setTimeout(function () {
               conn.send('c');
               conn.close();
-            }, 5);
-          }, 5);
+            }, 50);
+          }, 50);
           conn.on('close', function () {
             setTimeout(function () {
               expect(i).to.be(3);
               done();
-            }, 5);
+            }, 50);
           });
         });
         socket.on('open', function () {
