@@ -67,9 +67,9 @@ describe('parser', function () {
           .to.eql({ type: 'error', data: 'aaa' });
       });
 
-      it('should encode a noop packet', function () {
-        expect(decode(encode({ type: 'noop', data: 'aaa' })))
-          .to.eql({ type: 'noop', data: 'aaa' });
+      it('should encode an upgrade packet', function () {
+        expect(decode(encode({ type: 'upgrade' })))
+          .to.eql({ type: 'upgrade' });
       });
 
       it('should distinguish between empty data and no data', function () {
