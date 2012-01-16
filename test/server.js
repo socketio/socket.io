@@ -149,23 +149,6 @@ describe('server', function () {
   });
 
   describe('close', function () {
-    it('should trigger on client when server dies', function (done) {
-      var engine = listen({ allowUpgrades: false }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
-        socket.on('open', function () {
-          engine.httpServer.close();
-        });
-        socket.on('close', function (reason, err) {
-          expect(reason).to.be('transport error');
-          expect(err.message).to.be('xhr poll error');
-          expect(err.type).to.be('TransportError');
-          expect(err.description.type).to.be('StatusError');
-          expect(err.description.code).to.be(503);
-          done();
-        });
-      });
-    });
-
     it('should trigger on server if the client does not pong', function (done) {
       var opts = { allowUpgrades: false, pingInterval: 5, pingTimeout: 5 }
       var engine = listen(opts, function (port) {
