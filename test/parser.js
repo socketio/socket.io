@@ -72,14 +72,6 @@ describe('parser', function () {
           .to.eql({ type: 'upgrade' });
       });
 
-      it('should distinguish between empty data and no data', function () {
-        var packet = decode(encode({ type: 'message', data: '' }));
-        expect(packet.data).to.equal('');
-
-        packet = decode(encode({ type: 'message' }));
-        expect(packet.data).to.be(undefined);
-      });
-
       it('should match the encoding format', function () {
         expect(encode({ type: 'message', data: 'test' })).to.match(/[0-9].*/);
         expect(encode({ type: 'message' })).to.match(/[0-9].*/);
