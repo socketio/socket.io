@@ -81,8 +81,8 @@ describe('parser', function () {
       });
 
       it('should match the encoding format', function () {
-        expect(encode({ type: 'message', data: 'test' })).to.match(/[0-9]+(:.*)?/);
-        expect(encode({ type: 'message' })).to.match(/[0-9]+(:.*)?/);
+        expect(encode({ type: 'message', data: 'test' })).to.match(/[0-9].*/);
+        expect(encode({ type: 'message' })).to.match(/[0-9].*/);
       });
     });
 
