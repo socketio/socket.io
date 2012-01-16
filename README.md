@@ -1,5 +1,5 @@
 
-# Engine.IO clien
+# Engine.IO client
 
 This is the client for [Engine](http://github.com/learnboost/engine.io), the
 implementation of transport-based cross-browser/cross-device bi-directional
