@@ -403,40 +403,90 @@ describe('server', function () {
   });
 
   describe('upgrade', function () {
-
-    it('should upgrade', function () {
-      var i = 0, upgraded = false, didUpgrading = false;
+    it('should upgrade', function (done) {
       var engine = listen(function (port) {
+        // it takes both to send 50 to verify
+        var ready = 2, closed = 2;
+        function finish () {
+          setTimeout(function () {
+            socket.close();
+          }, 10);
+        }
+
+        // server
         engine.on('connection', function (conn) {
+          var lastSent = 0, lastReceived = 0, upgraded = false;
+          var interval = setInterval(function () {
+            lastSent++;
+            conn.send(lastSent);
+            if (50 == lastSent) {
+              clearInterval(interval);
+              --ready || finish();
+            }
+          }, 2);
+
           conn.on('message', function (msg) {
-            expect(i++).to.eql(msg);
+            lastReceived++;
+            expect(msg).to.eql(lastReceived);
           });
-          conn.on('upgrade', function () {
+
+          conn.on('upgrade', function (to) {
             upgraded = true;
+            expect(to.name).to.be('websocket');
           });
-          conn.on('close', function () {
-            expect(i).to.be(100);
-            expect(didUpgrading).to.be(true);
+
+          conn.on('close', function (reason) {
+            expect(reason).to.be('transport close');
+            expect(lastSent).to.be(50);
+            expect(lastReceived).to.be(50);
             expect(upgraded).to.be(true);
+            --closed || done();
           });
         });
 
+        // client
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
-        var count = 0;
-        socket.on('upgrading', function () {
-          // we want to make sure for the sake of this test that we have a buffer
-          didUpgrading = true;
-          expect(socket.writeBuffer.length).to.be.above(0);
-        });
         socket.on('open', function () {
-          setInterval(function () {
-            socket.send(count++);
-            if (count == 100) return socket.close();
+          var lastSent = 0, lastReceived = 0, upgrades = 0;
+          var interval = setInterval(function () {
+            lastSent++;
+            socket.send(lastSent);
+            if (50 == lastSent) {
+              clearInterval(interval);
+              --ready || finish();
+            }
           }, 2);
+          socket.on('upgrading', function (to) {
+            // we want to make sure for the sake of this test that we have a buffer
+            expect(to.name).to.equal('websocket');
+            upgrades++;
+
+            // force send a few packets to ensure we test buffer transfer
+            lastSent++;
+            socket.send(lastSent);
+            lastSent++;
+            socket.send(lastSent);
+
+            expect(socket.writeBuffer).to.not.be.empty();
+          });
+          socket.on('upgrade', function (to) {
+            expect(to.name).to.equal('websocket');
+            upgrades++;
+          });
+          socket.on('message', function (msg) {
+            lastReceived++;
+            expect(lastReceived).to.eql(msg);
+          });
+          socket.on('close', function (reason) {
+            expect(reason).to.be('forced close');
+            expect(lastSent).to.be(50);
+            expect(lastReceived).to.be(50);
+            expect(upgrades).to.be(2);
+            --closed || done();
+          });
         });
       });
     });
-
   });
 
 });
