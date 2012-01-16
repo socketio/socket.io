@@ -62,9 +62,9 @@ describe('parser', function () {
           .to.eql({ type: 'message', data: 'aaa' });
       });
 
-      it('should encode an error packet', function () {
-        expect(decode(encode({ type: 'error', data: 'aaa' })))
-          .to.eql({ type: 'error', data: 'aaa' });
+      it('should encode a message packet coercing to string', function () {
+        expect(decode(encode({ type: 'message', data: 1 })))
+          .to.eql({ type: 'message', data: '1' });
       });
 
       it('should encode an upgrade packet', function () {
