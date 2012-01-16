@@ -3,6 +3,10 @@
   , "description": "Client for the realtime Engine"
   , "main": "./lib/engine.io-client"
   , "version": "0.1.0"
+  , "contributors": [
+        { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" }
+      , { "name": "Vladimir Dronnikov", "email": "dronnikov@gmail.com" }
+    ]
   , "dependencies": {
         "ws": "0.4.0"
       , "xmlhttprequest": "1.3.0"
