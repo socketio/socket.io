@@ -68,7 +68,6 @@ describe('server', function () {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('handshake', function (obj) {
           expect(obj.sid).to.be.a('string');
-          expect(obj.pingInterval).to.be.a('number');
           expect(obj.pingTimeout).to.be.a('number');
           expect(obj.upgrades).to.be.an('array');
           done();
@@ -163,8 +162,8 @@ describe('server', function () {
       });
     });
 
-    it('should trigger on client if server does not meet ping freq', function (done) {
-      var opts = { allowUpgrades: false, pingInterval: 10 };
+    it('should trigger on client if server does not meet ping timeout', function (done) {
+      var opts = { allowUpgrades: false, pingTimeout: 10 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('open', function () {
