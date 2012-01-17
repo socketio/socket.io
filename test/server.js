@@ -75,16 +75,6 @@ describe('server', function () {
       });
     });
 
-    it('should allow custom ping intervals', function (done) {
-      var engine = listen({ allowUpgrades: false, pingInterval: 123 }, function (port) {
-        var socket = new eioc.Socket('http://localhost:%d'.s(port));
-        socket.on('handshake', function (obj) {
-          expect(obj.pingInterval).to.be(123);
-          done();
-        });
-      });
-    });
-
     it('should allow custom ping timeouts', function (done) {
       var engine = listen({ allowUpgrades: false, pingTimeout: 123 }, function (port) {
         var socket = new eioc.Socket('http://localhost:%d'.s(port));
