@@ -52,7 +52,7 @@ app.listen(3000, function () {
  * Socket.IO server
  */
 
-var io = sio.listen(app)
+var io = sio(app)
 
 /**
  * Connect to IRC.
@@ -64,11 +64,11 @@ client.on('001', function () {
   this.send('JOIN', '#node.js');
 });
 client.on('PART', function (prefix) {
-  io.sockets.emit('announcement', irc.user(prefix) + ' left the channel');
+  io.emit('announcement', irc.user(prefix) + ' left the channel');
 });
 client.on('JOIN', function (prefix) {
-  io.sockets.emit('announcement', irc.user(prefix) + ' joined the channel');
+  io.emit('announcement', irc.user(prefix) + ' joined the channel');
 });
 client.on('PRIVMSG', function (prefix, channel, text) {
-  io.sockets.emit('irc message', irc.user(prefix), text);
+  io.emit('irc message', irc.user(prefix), text);
 });

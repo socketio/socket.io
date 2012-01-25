@@ -51,10 +51,10 @@ app.listen(3000, function () {
  * Socket.IO server (single process only)
  */
 
-var io = sio.listen(app)
+var io = sio(app)
   , nicknames = {};
 
-io.sockets.on('connection', function (socket) {
+io.on('connection', function (socket) {
   socket.on('user message', function (msg) {
     socket.broadcast.emit('user message', socket.nickname, msg);
   });
@@ -66,7 +66,7 @@ io.sockets.on('connection', function (socket) {
       fn(false);
       nicknames[nick] = socket.nickname = nick;
       socket.broadcast.emit('announcement', nick + ' connected');
-      io.sockets.emit('nicknames', nicknames);
+      io.emit('nicknames', nicknames);
     }
   });
 
