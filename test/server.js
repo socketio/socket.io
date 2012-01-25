@@ -16,8 +16,8 @@ describe('server', function () {
     it('should disallow non-existent transports', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io'.s(port))
-          .data({ transport: 'tobi' }) // no tobi transport - outrageous
-          .end(function (err, res) {
+          .send({ transport: 'tobi' }) // no tobi transport - outrageous
+          .end(function (res) {
             expect(res.status).to.be(500);
             done();
           });
@@ -28,8 +28,8 @@ describe('server', function () {
       // make sure we check for actual properties - not those present on every {}
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io'.s(port))
-          .data({ transport: 'constructor' })
-          .end(function (err, res) {
+          .send({ transport: 'constructor' })
+          .end(function (res) {
             expect(res.status).to.be(500);
             done();
           });
@@ -39,8 +39,8 @@ describe('server', function () {
     it('should disallow non-existent sids', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io'.s(port))
-          .data({ transport: 'polling', sid: 'test' })
-          .end(function (err, res) {
+          .send({ transport: 'polling', sid: 'test' })
+          .end(function (res) {
             expect(res.status).to.be(500);
             done();
           });

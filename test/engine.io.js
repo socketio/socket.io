@@ -23,7 +23,7 @@ describe('engine', function () {
   describe('listen', function () {
     it('should open a http server that returns 501', function (done) {
       var server = listen(function (port) {
-        request.get('http://localhost:%d/'.s(port), function (err, res) {
+        request.get('http://localhost:%d/'.s(port), function (res) {
           expect(res.status).to.be(501);
           done();
         });
@@ -45,7 +45,7 @@ describe('engine', function () {
 
       server.listen(function () {
         var uri = 'http://localhost:%d/engine.io'.s(server.address().port);
-        request.get(uri, function (err, res) {
+        request.get(uri, function (res) {
           expect(res.status).to.be(500);
           server.once('close', done);
           server.close();
@@ -202,9 +202,9 @@ describe('engine', function () {
 
       server.listen(function () {
         var port = server.address().port;
-        request.get('http://localhost:%d/engine.io'.s(port), function (err, res) {
+        request.get('http://localhost:%d/engine.io'.s(port), function (res) {
           expect(res.status).to.be(500);
-          request.get('http://localhost:%d/test'.s(port), function (err, res) {
+          request.get('http://localhost:%d/test'.s(port), function (res) {
             expect(res.status).to.be(200);
             expect(listeners).to.eql(2);
             server.once('close', done);
