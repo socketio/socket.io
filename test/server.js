@@ -125,6 +125,39 @@ describe('server', function () {
       });
     });
 
+    it('should not suggest upgrades when none are availble', function (done) {
+      var engine = listen({ transports: ['polling'] }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { });
+        socket.on('handshake', function (obj) {
+          expect(obj.upgrades).to.have.length(0);
+          done();
+        });
+      });
+    });
+
+    it('should only suggest available upgrades', function (done) {
+      var engine = listen({ transports: ['polling', 'flashsocket'] }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { });
+        socket.on('handshake', function (obj) {
+          expect(obj.upgrades).to.have.length(1);
+          expect(obj.upgrades).to.have.contain('flashsocket');
+          done();
+        });
+      });
+    });
+
+    it('should suggest all upgrades when no transports are disabled', function (done) {
+      var engine = listen({}, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { });
+        socket.on('handshake', function (obj) {
+          expect(obj.upgrades).to.have.length(2);
+          expect(obj.upgrades).to.have.contain('flashsocket');
+          expect(obj.upgrades).to.have.contain('websocket');
+          done();
+        });
+      });
+    });
+
     it('should allow arbitrary data through query string', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { query: { a: 'b' } });
