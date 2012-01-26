@@ -56,13 +56,13 @@ module.exports = {
     });
   },
 
-  'hybi-07-12 websocket draft parser is used for sec-websocket-version: 8': function (done) {
+  'hybi websocket draft parser is used for sec-websocket-version: 8': function (done) {
     var cl = client(++ports)
       , io = create(cl);
 
     io.set('transports', ['websocket']);
     io.sockets.on('connection', function (socket) {
-      socket.manager.transports[socket.id].protocolVersion.should.equal('07-12');
+      socket.manager.transports[socket.id].protocolVersion.should.equal('hybi');
       cl.end();
       io.server.close();
       done();
@@ -81,14 +81,14 @@ module.exports = {
     });
   },
 
-  'hybi-16 websocket draft parser is used for sec-websocket-version: 13': function (done) {
+  'hybi websocket draft parser is used for sec-websocket-version: 13': function (done) {
     var cl = client(++ports)
       , io = create(cl)
 
     io.set('transports', ['websocket']);
 
     io.sockets.on('connection', function (socket) {
-      socket.manager.transports[socket.id].protocolVersion.should.equal('16');
+      socket.manager.transports[socket.id].protocolVersion.should.equal('hybi');
       cl.end();
       io.server.close();
       done();
