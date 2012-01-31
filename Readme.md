@@ -1,31 +1,28 @@
 # Socket.IO
 
-Socket.IO is a Node.JS project that makes WebSockets and realtime possible in
-all browsers. It also enhances WebSockets by providing built-in multiplexing,
-horizontal scalability, automatic JSON encoding/decoding, and more.
+Socket.IO is a Node.JS framework for making realtime applications.
+
+It brings the best of WebSockets and other data transport mechanisms for
+blazing fast realtime data exchange in web browsers, mobile devices and
+servers.
 
 ## How to Install
 
-    npm install socket.io
+```
+npm install socket.io
+```
 
 ## How to use
 
-First, require `socket.io`:
-
-```js
-var io = require('socket.io');
-```
-
-Next, attach it to a HTTP/HTTPS server. If you're using the fantastic `express`
-web framework:
+First, require `socket.io` and attach it to a HTTP/HTTPS server:
 
 ```js
 var app = express.createServer()
-  , io = io.listen(app);
+  , io = require('socket.io')(app);
 
 app.listen(80);
 
-io.sockets.on('connection', function (socket) {
+io.on('connection', function (socket) {
   socket.emit('news', { hello: 'world' });
   socket.on('my other event', function (data) {
     console.log(data);
@@ -56,18 +53,18 @@ Socket.IO allows you to emit and receive custom events.
 Besides `connect`, `message` and `disconnect`, you can emit custom events:
 
 ```js
-// note, io.listen(<port>) will create a http server for you
-var io = require('socket.io').listen(80);
+// note, io(<port>) will create a http server for you
+var io = require('socket.io')(80);
 
-io.sockets.on('connection', function (socket) {
-  io.sockets.emit('this', { will: 'be received by everyone' });
+io.on('connection', function (socket) {
+  io.emit('this', { will: 'be received by everyone' });
 
   socket.on('private message', function (from, msg) {
     console.log('I received a private message by ', from, ' saying ', msg);
   });
 
   socket.on('disconnect', function () {
-    io.sockets.emit('user disconnected');
+    io.emit('user disconnected');
   });
 });
 ```
@@ -80,9 +77,9 @@ necessary for the duration of the session.
 #### Server side
 
 ```js
-var io = require('socket.io').listen(80);
+var io = require('socket.io')(80);
 
-io.sockets.on('connection', function (socket) {
+io.on('connection', function (socket) {
   socket.on('set nickname', function (name) {
     socket.set('nickname', name, function () { socket.emit('ready'); });
   });
@@ -111,86 +108,6 @@ io.sockets.on('connection', function (socket) {
 </script>
 ```
 
-### Restricting yourself to a namespace
-
-If you have control over all the messages and events emitted for a particular
-application, using the default `/` namespace works.
-
-If you want to leverage 3rd-party code, or produce code to share with others,
-socket.io provides a way of namespacing a `socket`.
-
-This has the benefit of `multiplexing` a single connection. Instead of
-socket.io using two `WebSocket` connections, it'll use one.
-
-The following example defines a socket that listens on '/chat' and one for
-'/news':
-
-#### Server side
-
-```js
-var io = require('socket.io').listen(80);
-
-var chat = io
-  .of('/chat')
-  .on('connection', function (socket) {
-    socket.emit('a message', { that: 'only', '/chat': 'will get' });
-    chat.emit('a message', { everyone: 'in', '/chat': 'will get' });
-  });
-
-var news = io
-  .of('/news');
-  .on('connection', function (socket) {
-    socket.emit('item', { news: 'item' });
-  });
-```
-
-#### Client side:
-
-```html
-<script>
-  var chat = io.connect('http://localhost/chat')
-    , news = io.connect('http://localhost/news');
-
-  chat.on('connect', function () {
-    chat.emit('hi!');
-  });
-
-  news.on('news', function () {
-    news.emit('woot');
-  });
-</script>
-```
-
-### Sending volatile messages.
-
-Sometimes certain messages can be dropped. Let's say you have an app that
-shows realtime tweets for the keyword `bieber`. 
-
-If a certain client is not ready to receive messages (because of network slowness
-or other issues, or because he's connected through long polling and is in the
-middle of a request-response cycle), if he doesn't receive ALL the tweets related
-to bieber your application won't suffer.
-
-In that case, you might want to send those messages as volatile messages.
-
-#### Server side
-
-```js
-var io = require('socket.io').listen(80);
-
-io.sockets.on('connection', function (socket) {
-  var tweets = setInterval(function () {
-    getBieberTweet(function (tweet) {
-      socket.volatile.emit('bieber tweet', tweet);
-    });
-  }, 100);
-
-  socket.on('disconnect', function () {
-    clearInterval(tweets);
-  });
-});
-```
-
 #### Client side
 
 In the client side, messages are received the same way whether they're volatile
@@ -201,16 +118,16 @@ or not.
 Sometimes, you might want to get a callback when the client confirmed the message
 reception.
 
-To do this, simply pass a function as the last parameter of `.send` or `.emit`.
+To do this, simply pass a function as the last parameter of `.emit`.
 What's more, when you use `.emit`, the acknowledgement is done by you, which
 means you can also pass data along:
 
 #### Server side
 
 ```js
-var io = require('socket.io').listen(80);
+var io = require('socket.io')(80);
 
-io.sockets.on('connection', function (socket) {
+io.on('connection', function (socket) {
   socket.on('ferret', function (name, fn) {
     fn('woot');
   });
@@ -239,11 +156,10 @@ that starts it.
 #### Server side
 
 ```js
-var io = require('socket.io').listen(80);
+var io = require('socket.io')(80);
 
-io.sockets.on('connection', function (socket) {
+io.on('connection', function (socket) {
   socket.broadcast.emit('user connected');
-  socket.broadcast.json.send({ a: 'message' });
 });
 ```
 
@@ -258,12 +174,12 @@ rooms in each socket.
 #### Server side
 
 ```js
-var io = require('socket.io').listen(80);
+var io = require('socket.io')(80);
 
-io.sockets.on('connection', function (socket) {
+io.on('connection', function (socket) {
   socket.join('justin bieber fans');
   socket.broadcast.to('justin bieber fans').emit('new fan');
-  io.sockets.in('rammstein fans').emit('new non-fan');
+  io.to('rammstein fans').emit('new non-fan');
 });
 ```
 
@@ -275,9 +191,9 @@ Simply leverage `send` and listen on the `message` event:
 #### Server side
 
 ```js
-var io = require('socket.io').listen(80);
+var io = require('socket.io')(80);
 
-io.sockets.on('connection', function (socket) {
+io.on('connection', function (socket) {
   socket.on('message', function () { });
   socket.on('disconnect', function () { });
 });
@@ -298,6 +214,24 @@ io.sockets.on('connection', function (socket) {
 </script>
 ```
 
+### Messaging between clients
+
+Each client joins its own group, identified by the client id, which means you
+can leverage `to` to message a particular client:
+
+```js
+var io = require('socket.io')(80);
+io.on('connection', function (socket) {
+  socket.on('salutate', function (id) {
+    io.to(id)
+      .emit('hi!')
+      .on('disconnect', function () {
+        socket.emit('friend disconnected');
+      });
+  });
+});
+```
+
 ### Changing configuration
 
 Configuration in socket.io is TJ-style:
@@ -305,7 +239,7 @@ Configuration in socket.io is TJ-style:
 #### Server side
 
 ```js
-var io = require('socket.io').listen(80);
+var io = require('socket.io')(80);
 
 io.configure(function () {
   io.set('transports', ['websocket', 'flashsocket', 'xhr-polling']);
