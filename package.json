@@ -18,7 +18,7 @@
       , "url": "https://github.com/LearnBoost/socket.io-client.git"
     }
   , "dependencies": {
-        "uglify-js": "1.0.6"
+        "uglify-js": "1.2.5"
       , "ws": "0.4.0"
       , "xmlhttprequest": "1.2.2"
     }
