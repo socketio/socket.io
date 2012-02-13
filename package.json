@@ -23,6 +23,7 @@
   , "devDependencies": {
         "mocha": "*"
       , "expect.js": "*"
+      , "superagent": "*"
     }
   , "scripts": {
         "test": "make test"
