@@ -16,8 +16,8 @@ describe('server', function () {
     it('should disallow non-existent transports', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io'.s(port))
-          .data({ transport: 'tobi' }) // no tobi transport - outrageous
-          .end(function (err, res) {
+          .send({ transport: 'tobi' }) // no tobi transport - outrageous
+          .end(function (res) {
             expect(res.status).to.be(500);
             done();
           });
@@ -28,8 +28,8 @@ describe('server', function () {
       // make sure we check for actual properties - not those present on every {}
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io'.s(port))
-          .data({ transport: 'constructor' })
-          .end(function (err, res) {
+          .send({ transport: 'constructor' })
+          .end(function (res) {
             expect(res.status).to.be(500);
             done();
           });
@@ -39,8 +39,8 @@ describe('server', function () {
     it('should disallow non-existent sids', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io'.s(port))
-          .data({ transport: 'polling', sid: 'test' })
-          .end(function (err, res) {
+          .send({ transport: 'polling', sid: 'test' })
+          .end(function (res) {
             expect(res.status).to.be(500);
             done();
           });
@@ -120,6 +120,39 @@ describe('server', function () {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
         socket.on('handshake', function (obj) {
           expect(obj.upgrades).to.have.length(0);
+          done();
+        });
+      });
+    });
+
+    it('should not suggest upgrades when none are availble', function (done) {
+      var engine = listen({ transports: ['polling'] }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { });
+        socket.on('handshake', function (obj) {
+          expect(obj.upgrades).to.have.length(0);
+          done();
+        });
+      });
+    });
+
+    it('should only suggest available upgrades', function (done) {
+      var engine = listen({ transports: ['polling', 'flashsocket'] }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { });
+        socket.on('handshake', function (obj) {
+          expect(obj.upgrades).to.have.length(1);
+          expect(obj.upgrades).to.have.contain('flashsocket');
+          done();
+        });
+      });
+    });
+
+    it('should suggest all upgrades when no transports are disabled', function (done) {
+      var engine = listen({}, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { });
+        socket.on('handshake', function (obj) {
+          expect(obj.upgrades).to.have.length(2);
+          expect(obj.upgrades).to.have.contain('flashsocket');
+          expect(obj.upgrades).to.have.contain('websocket');
           done();
         });
       });
