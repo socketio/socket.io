@@ -131,7 +131,7 @@ module.exports = {
       var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
       var req = cl.get(url, {headers: headers}, function (res, data) {});
       var closed = false;
-      req.on('close', function() {
+      req.socket.on('close', function() {
         if (closed) return;
         closed = true;
         notConnected.should.be.true;
@@ -169,7 +169,7 @@ module.exports = {
       var url = '/socket.io/' + sio.protocol + '/websocket/' + sid;
       var req = cl.get(url, {headers: headers}, function (res, data) {});
       var closed = false;
-      req.on('close', function() {
+      req.socket.on('close', function() {
         if (closed) return;
         closed = true;
         notConnected.should.be.true;
