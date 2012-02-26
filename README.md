@@ -119,6 +119,11 @@ These are exposed by `require('engine.io')`:
       a regular http.Server websocket-compatible.
     - **Parameters**
       - `http.Server`: server to attach to.
+      - `Object`: optional, options object
+    - **Options**
+      - `path` (`String`): path to intercept requests to (`/engine.io`)
+      - `policyFile` (`Boolean`): whether to handle policy file requests (`true`)
+      - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
     - **Returns** `Server`
 
 <hr><br>
