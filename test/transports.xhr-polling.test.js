@@ -9,7 +9,7 @@
  * Test dependencies.
  */
 
-var sio = require('socket.io')
+var sio = require('../')
   , should = require('./common')
   , HTTPClient = should.HTTPClient
   , parser = sio.parser
@@ -2652,8 +2652,8 @@ module.exports = {
       }, function (res, packs) {
         var headers = res.headers;
 
-        headers['access-control-allow-origin'].should.equal('*');
-        should.strictEqual(headers['access-control-allow-credentials'], undefined);
+        headers['access-control-allow-origin'].should.equal('http://localhost:3500');
+        headers['access-control-allow-credentials'].should.equal('true');
 
         packs.should.have.length(1);
         packs[0].type.should.eql('message');
@@ -2669,7 +2669,7 @@ module.exports = {
           }
         }, function (res, data) {
           var headers = res.headers;
-          headers['access-control-allow-origin'].should.equal('*');
+          headers['access-control-allow-origin'].should.equal('http://localhost:3500');
           headers['access-control-allow-credentials'].should.equal('true');
 
           data.should.equal('1');
