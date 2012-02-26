@@ -1,4 +1,4 @@
-/*! Socket.IO.js build:0.8.7, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
+/*! Socket.IO.js build:0.9.0, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
 
 /**
  * socket.io
@@ -22,7 +22,7 @@
    * @api public
    */
 
-  io.version = '0.8.7';
+  io.version = '0.9.0';
 
   /**
    * Protocol implemented.
@@ -102,7 +102,6 @@
   };
 
 })('object' === typeof module ? module.exports : (this.io = {}), this);
-
 /**
  * socket.io
  * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
@@ -210,7 +209,7 @@
     for (; i < l; ++i) {
       kv = params[i].split('=');
       if (kv[0]) {
-        query[kv[0]] = decodeURIComponent(kv[1]);
+        query[kv[0]] = kv[1];
       }
     }
 
@@ -399,10 +398,7 @@
    */
 
   util.indexOf = function (arr, o, i) {
-    if (Array.prototype.indexOf) {
-      return Array.prototype.indexOf.call(arr, o, i);
-    }
-
+    
     for (var j = arr.length, i = i < 0 ? i + j < 0 ? 0 : i + j : i || 0; 
          i < j && arr[i] !== o; i++) {}
 
@@ -1273,7 +1269,7 @@
     // If the connection in currently open (or in a reopening state) reset the close 
     // timeout since we have just received data. This check is necessary so
     // that we don't reset the timeout on an explicitly disconnected connection.
-    if (this.connected || this.connecting || this.reconnecting) {
+    if (this.socket.connected || this.socket.connecting || this.socket.reconnecting) {
       this.setCloseTimeout();
     }
 
@@ -1465,7 +1461,6 @@
     'undefined' != typeof io ? io : module.exports
   , 'undefined' != typeof io ? io : module.parent.exports
 );
-
 /**
  * socket.io
  * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
@@ -1616,6 +1611,7 @@
       var xhr = io.util.request();
 
       xhr.open('GET', url, true);
+      xhr.withCredentials = true;
       xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
           xhr.onreadystatechange = empty;
@@ -1869,7 +1865,7 @@
 
   Socket.prototype.onError = function (err) {
     if (err && err.advice) {
-      if (err.advice === 'reconnect' && this.connected) {
+      if (this.options.reconnect && err.advice === 'reconnect' && this.connected) {
         this.disconnect();
         this.reconnect();
       }
@@ -1927,6 +1923,8 @@
         }
         self.publish('reconnect', self.transport.name, self.reconnectionAttempts);
       }
+
+      clearTimeout(self.reconnectionTimer);
 
       self.removeListener('connect_failed', maybeReconnect);
       self.removeListener('connect', maybeReconnect);
@@ -3166,7 +3164,6 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   , 'undefined' != typeof io ? io : module.parent.exports
   , this
 );
-
 /**
  * socket.io
  * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
@@ -3304,7 +3301,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   HTMLFile.check = function () {
-    if ('ActiveXObject' in window){
+    if (typeof window != "undefined" && 'ActiveXObject' in window){
       try {
         var a = new ActiveXObject('htmlfile');
         return a && io.Transport.XHR.check();
@@ -3428,14 +3425,20 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     function onload () {
       this.onload = empty;
+      this.onerror = empty;
       self.onData(this.responseText);
       self.get();
+    };
+
+    function onerror () {
+      self.onClose();
     };
 
     this.xhr = this.request();
 
     if (global.XDomainRequest && this.xhr instanceof XDomainRequest) {
-      this.xhr.onload = this.xhr.onerror = onload;
+      this.xhr.onload = onload;
+      this.xhr.onerror = onerror;
     } else {
       this.xhr.onreadystatechange = stateChange;
     }
@@ -3453,7 +3456,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     io.Transport.XHR.prototype.onClose.call(this);
 
     if (this.xhr) {
-      this.xhr.onreadystatechange = this.xhr.onload = empty;
+      this.xhr.onreadystatechange = this.xhr.onload = this.xhr.onerror = empty;
       try {
         this.xhr.abort();
       } catch(e){}

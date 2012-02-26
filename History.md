@@ -1,4 +1,25 @@
 
+0.9.0 / 2012-02-26
+==================
+
+  * Added DS_Store to gitignore.
+  * Updated depedencies.
+  * Bumped uglify
+  * Tweaking code so it doesn't throw an exception when used inside a WebWorker in Firefox
+  * Do not rely on Array.prototype.indexOf as it breaks with pages that use the Prototype.js library.
+  * Windows support landed
+  * Use @einaros ws module instead of the old crap one
+  * Fix for broken closeTimeout and 'IE + xhr' goes into infinite loop on disconnection
+  * Disabled reconnection on error if reconnect option is set to false
+  * Set withCredentials to true before xhr to fix authentication
+  * Clears the timeout from reconnection attempt when there is a successful or failed reconnection. 
+    This fixes the issue of setTimeout's carrying over from previous reconnection
+    and changing (skipping) values of self.reconnectionDelay in the newer reconnection.
+  * Removed decoding of parameters when chunking the query string.
+    This was used later on to construct the url to post to the socket.io server
+    for connection and if we're adding custom parameters of our own to this url
+    (for example for OAuth authentication) they were being sent decoded, which is wrong.
+
 0.8.7 / 2011-11-05
 ==================
 
