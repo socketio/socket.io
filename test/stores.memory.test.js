@@ -5,7 +5,7 @@
  * @api private
  */
 
-var sio = require('socket.io')
+var sio = require('../')
   , should = require('should')
   , MemoryStore = sio.MemoryStore;
 

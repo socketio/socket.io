@@ -9,7 +9,7 @@
  * Test dependencies.
  */
 
-var sio = require('socket.io')
+var sio = require('../')
   , net = require('net')
   , http = require('http')
   , should = require('./common')

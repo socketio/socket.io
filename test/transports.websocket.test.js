@@ -9,7 +9,7 @@
  * Test dependencies.
  */
 
-var sio = require('socket.io')
+var sio = require('../')
   , should = require('./common')
   , parser = sio.parser
   , ports = 15800;

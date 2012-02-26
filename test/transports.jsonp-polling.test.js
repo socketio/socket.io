@@ -9,7 +9,7 @@
  * Test dependencies.
  */
 
-var sio = require('socket.io')
+var sio = require('../')
   , should = require('./common')
   , qs = require('querystring')
   , HTTPClient = should.HTTPClient

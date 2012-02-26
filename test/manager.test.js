@@ -8,7 +8,7 @@
  * Test dependencies.
  */
 
-var sio = require('socket.io')
+var sio = require('../')
   , http = require('http')
   , should = require('./common')
   , ports = 15100;
