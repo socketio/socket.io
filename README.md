@@ -1,5 +1,5 @@
 
-# Engine.IO: the realtime engine behind Socket.IO
+# Engine.IO: the realtime engine
 
 [![Build Status](https://secure.travis-ci.org/LearnBoost/engine.io.png)](http://travis-ci.org/LearnBoost/engine.io)
 
