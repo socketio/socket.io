@@ -1,4 +1,35 @@
 
+0.9.0 / 2012-02-26
+==================
+
+  * Make it possible to use a regexp to match the socket.io resource URL.
+    We need this because we have to prefix the socket.io URL with a variable ID.
+  * Supplemental fix to gavinuhma/authfix, it looks like the same Access-Control-Origin logic is needed in the http and xhr-polling transports
+  * Updated express dep for windows compatibility.
+  * Combine two substr calls into one in decodePayload to improve performance
+  * Minor documentation fix
+  * Minor. Conform to style of other files.
+  * Switching setting to 'match origin protocol'
+  * Revert "Fixes leaking Redis subscriptions for #663. The local flag was not getting passed through onClientDisconnect()."
+  * Revert "Handle leaked dispatch:[id] subscription."
+  * Merge pull request #667 from dshaw/patch/redis-disconnect
+  * Handle leaked dispatch:[id] subscription.
+  * Fixes leaking Redis subscriptions for #663. The local flag was not getting passed through onClientDisconnect().
+  * Prevent memory leaking on uncompleted requests & add max post size limitation
+  * Fix for testcase
+  * Set Access-Control-Allow-Credentials true, regardless of cookie
+  * Remove assertvarnish from package as it breaks on 0.6
+  * Correct irc channel
+  * Added proper return after reserved field error
+  * Fixes manager.js failure to close connection after transport error has happened
+  * Added implicit port 80 for origin checks. fixes #638
+  * Fixed bug #432 in 0.8.7
+  * Set Access-Control-Allow-Origin header to origin to enable withCredentials
+  * Adding configuration variable matchOriginProtocol
+  * Fixes location mismatch error in Safari.
+  * Use tty to detect if we should add colors or not by default.
+  * Updated the package location.
+
 0.8.7 / 2011-11-05
 ==================
 
