@@ -1,6 +1,8 @@
 
 # Engine.IO: the realtime engine behind Socket.IO
 
+[![Build Status](https://secure.travis-ci.org/LearnBoost/engine.io.png)](http://travis-ci.org/LearnBoost/engine.io)
+
 `Engine` is the implementation of transport-based cross-browser/cross-device
 bi-directional communication layer for
 [Socket.IO](http://github.com/learnboost/socket.io).
