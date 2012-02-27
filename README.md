@@ -264,6 +264,7 @@ The client class. _Inherits from EventEmitter_.
       - `path` (`String`): path name
       - `query` (`String`): optional query string addition (eg: `{ a: 'b' }`)
       - `secure` (`Boolean): whether the connection is secure
+      - `basePath` (`String`) default prefix path (`/engine.io`)
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
       to upgrade the transport from long-polling to something better.
       - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
