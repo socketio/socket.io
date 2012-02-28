@@ -10,7 +10,8 @@
 
 var fs = require('fs')
   , socket = require('../lib/io')
-  , uglify = require('uglify-js');
+  , uglify = require('uglify-js')
+  , activeXObfuscator = require('active-x-obfuscator');
 
 /**
  * License headers.
@@ -181,6 +182,8 @@ var builder = module.exports = function () {
           code += content;
         });
       }
+
+      code = activeXObfuscator(code);
 
       // Search for conditional code blocks that need to be removed as they
       // where designed for a server side env. but only if we don't want to

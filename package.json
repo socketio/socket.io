@@ -29,6 +29,7 @@
       , "stylus": "*"
       , "socket.io": "0.9.0"
       , "socket.io-client": "0.9.0"
+      , "active-x-obfuscator": "0.0.1"
     }
   , "engines": { "node": ">= 0.4.0" }
 }
