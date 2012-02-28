@@ -10,7 +10,8 @@
 
 var fs = require('fs')
   , socket = require('../lib/io')
-  , uglify = require('uglify-js');
+  , uglify = require('uglify-js')
+  , activeXObfuscator = require('active-x-obfuscator');
 
 /**
  * License headers.
@@ -182,6 +183,8 @@ var builder = module.exports = function () {
         });
       }
 
+      code = activeXObfuscator(code);
+
       // Search for conditional code blocks that need to be removed as they
       // where designed for a server side env. but only if we don't want to
       // make this build node compatible.
@@ -210,8 +213,6 @@ var builder = module.exports = function () {
       // check if we need to process it any further
       if (settings.minify) {
         var ast = uglify.parser.parse(code);
-        obfuscateActiveX(ast);
-
         ast = uglify.uglify.ast_mangle(ast);
         ast = uglify.uglify.ast_squeeze(ast);
 
@@ -221,56 +222,6 @@ var builder = module.exports = function () {
       callback(error, code);
     })
   })
-
-
-  /*
-   * Some corporate firewalls / proxys (such as Blue Coat) filter out JS files
-   * that contain the string ActiveX in them. The code below goes through the
-   * AST in order to obfuscate all ActiveX occurences to make socket.io work
-   * with those firewalls.
-   */
-  var obfuscatedActiveXObject = "(['Active'].concat('Object').join('X'))";
-  var obfuscatedActiveX = "(['Active'].concat('').join('X'))";
-  function obfuscateActiveX(ast) {
-    ast.forEach(function(node, index) {
-      if (Array.isArray(node)) {
-        return obfuscateActiveX(node);
-      }
-
-      if (node === 'ActiveXObject') {
-        switch (ast[0]) {
-          // new ActiveXObject
-          case 'name':
-            ast[index] = 'window[' + obfuscatedActiveXObject + ']';
-            break;
-          // *.ActiveXObject
-          case 'dot':
-            ast[0] = 'sub';
-            ast[index] = ['name', obfuscatedActiveXObject];
-            break;
-          // 'ActiveXObject'
-          case 'string':
-            ast[0] = 'name';
-            ast[index] = obfuscatedActiveXObject;
-            break;
-          default:
-            throw new Error('Unknown ActiveXObject occurence');
-        }
-      }
-
-      if (node === 'ActiveX') {
-        switch (ast[0]) {
-          // 'ActiveX'
-          case 'string':
-            ast[0] = 'name';
-            ast[index] = obfuscatedActiveX;
-            break;
-          default:
-            throw new Error('Unknown ActiveX occurence');
-        }
-      }
-    });
-  }
 };
 
 /**
