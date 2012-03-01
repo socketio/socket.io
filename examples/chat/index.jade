@@ -38,7 +38,7 @@ html
       });
 
       function message (from, msg) {
-        if (msg) {
+        if (msg.length) {
           $('#lines').append($('<p>').append($('<b>').text(from), msg));
         }
       }
