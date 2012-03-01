@@ -19,7 +19,7 @@
     }
   , "dependencies": {
         "uglify-js": "1.2.5"
-      , "ws": "0.4.0"
+      , "ws": "0.4.x"
       , "xmlhttprequest": "1.2.2"
     }
   , "devDependencies": {
