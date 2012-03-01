@@ -56,7 +56,7 @@ var io = sio.listen(app)
 
 io.sockets.on('connection', function (socket) {
   socket.on('user message', function (msg) {
-    if (msg) {
+    if (msg.length) {
       socket.broadcast.emit('user message', socket.nickname, msg);
     }
   });
