@@ -54,6 +54,7 @@ app.get('/', function (req, res) {
   res.render('index', {
       layout: false
     , testsPorts: testsPorts
+    , transport: transport
   });
 });
 
