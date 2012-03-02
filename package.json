@@ -21,6 +21,7 @@
         "uglify-js": "1.2.5"
       , "ws": "0.4.x"
       , "xmlhttprequest": "1.2.2"
+      , "active-x-obfuscator": "0.0.1"
     }
   , "devDependencies": {
         "expresso": "*"
@@ -29,7 +30,6 @@
       , "stylus": "*"
       , "socket.io": "0.9.1"
       , "socket.io-client": "0.9.1"
-      , "active-x-obfuscator": "0.0.1"
     }
   , "engines": { "node": ">= 0.4.0" }
 }
