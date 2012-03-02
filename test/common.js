@@ -9,7 +9,7 @@
  * Test dependencies.
  */
 
-var io = require('socket.io')
+var io = require('../')
   , parser = io.parser
   , http = require('http')
   , https = require('https')

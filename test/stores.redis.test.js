@@ -5,7 +5,7 @@
  * @api private
  */
 
-var sio = require('socket.io')
+var sio = require('../')
   , redis = require('redis')
   , should = require('should')
   , RedisStore = sio.RedisStore;
