@@ -5,7 +5,7 @@
   , "main": "./lib/engine.io"
   , "dependencies": {
         "debug": "0.1.0"
-      , "engine.io-client": "0.1.0"
+      , "engine.io-client": "git://github.com/LearnBoost/engine.io-client.git#822ff7ed4a"
       , "websocket.io": "0.1.6"
     }
   , "devDependencies": {
