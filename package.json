@@ -17,4 +17,5 @@
       , "expect.js": "*"
       , "browserbuild": "*"
     }
+  , "scripts" : { "test" : "make test" }
 }
