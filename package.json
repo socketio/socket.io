@@ -27,8 +27,8 @@
       , "express": "2.5.x"
       , "jade": "*"
       , "stylus": "*"
-      , "socket.io": "0.9.0"
-      , "socket.io-client": "0.9.0"
+      , "socket.io": "0.9.1"
+      , "socket.io-client": "0.9.1"
       , "active-x-obfuscator": "0.0.1"
     }
   , "engines": { "node": ">= 0.4.0" }
