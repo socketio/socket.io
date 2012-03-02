@@ -1,4 +1,14 @@
 
+0.9.1 / 2012-03-02
+==================
+
+  * Misc corrections.
+  * Added warning within Firefox about webworker test in test runner.
+  * Update ws dependency [einaros]
+  * Implemented client side heartbeat checks. [felixge]
+  * Improved Firewall support with ActiveX obfuscation. [felixge]
+  * Fixed error handling during connection process. [Outsideris]
+
 0.9.0 / 2012-02-26
 ==================
 
