@@ -15,4 +15,5 @@
       , "ws": "*"
       , "s": "*"
     }
+  , "scripts" : { "test" : "make test" }
 }
