@@ -1,4 +1,11 @@
 
+0.9.1 / 2012-03-02
+==================
+
+  * Changed heartbeat timeout and interval defaults (60 and 25 seconds)
+  * Make tests work both on 0.4 and 0.6
+  * Updated client (improvements + bug fixes).
+
 0.9.0 / 2012-02-26
 ==================
 
