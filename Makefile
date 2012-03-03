@@ -13,10 +13,10 @@ test:
 		$(TESTS)
 
 test-cov: lib-cov
-	COV=1 $(MAKE) test REPORTER=html-cov > coverage.html
+	EIO_COV=1 $(MAKE) test REPORTER=html-cov > coverage.html
 
 lib-cov:
-	jscoverage lib lib-cov
+	jscoverage --no-highlight lib lib-cov
 
 bench:
 	@node $(PROFILEFLAGS) bench/runner.js $(BENCHMARKS)
