@@ -35,7 +35,7 @@ if (process.env.DEBUG) {
  * Expose `eio` global.
  */
 
-eio = require('../lib/engine.io');
+eio = require('../');
 
 /**
  * Expose client.
