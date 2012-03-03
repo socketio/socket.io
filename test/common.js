@@ -35,7 +35,7 @@ if (process.env.DEBUG) {
  * Expose `eio` global.
  */
 
-eio = require('../');
+eio = require('../index');
 
 /**
  * Expose client.
