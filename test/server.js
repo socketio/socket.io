@@ -3,7 +3,7 @@
  * Tests dependencies.
  */
 
-var parser = require('../lib/parser')
+var parser = eio.parser
   , WebSocket = require('ws')
 
 /**
