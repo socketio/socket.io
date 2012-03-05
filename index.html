@@ -48,11 +48,12 @@
         function onHash () {
           if (!window.location.hash) return;
           var id = window.location.hash.substr(1)
-            , el = document.getElementById('page-' + id);
+            , el = document.getElementById('page-' + id)
+            , ann = document.getElementById('section-announcement');
 
           if (el) {
             if (document.getElementsByClassName('current').length) {
-              document.getElementsByClassName('current')[0].className = '';
+              document.getElementsByClassName('current')[0].className = null;
             }
 
             document.getElementsByClassName('page-active')[0].className = 'page';
@@ -63,11 +64,7 @@
             }
           }
 
-          if (id == 'announcement') {
-            document.getElementById('section-announcement').style.display = 'none';
-          } else {
-            document.getElementById('section-announcement').style.display = 'block';
-          }
+          if (ann) ann.style.display = (id == 'announcement') ? 'none' : 'block';
         };
 
         window.onhashchange = onHash;
