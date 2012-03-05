@@ -1,6 +1,0 @@
-{
-  "/store-escaped-characters.js":{
-    "coverage":[null,1,0,null,null,1,0,null,null,1,0],
-    "source":["function f() {","\treturn \'\\\'\';","}","&#11;","function g() {","\treturn \"\\\"\";","}","\f","function h() {","\treturn \'\\\\\';","}"]
-  }
-}

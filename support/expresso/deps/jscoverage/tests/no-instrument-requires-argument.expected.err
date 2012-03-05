@@ -1,2 +1,0 @@
-jscoverage: --no-instrument: option requires an argument
-Try `jscoverage --help' for more information.
