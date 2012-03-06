@@ -1,3 +1,0 @@
-[submodule "deps/jscoverage"]
-	path = deps/jscoverage
-	url = git://github.com/visionmedia/node-jscoverage.git

@@ -1,4 +1,0 @@
-Starting HTTP server on 127.0.0.1:8080
-GET /index.html HTTP/1.0
-POST /jscoverage-shutdown HTTP/1.0
-Stopping HTTP server

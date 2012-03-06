@@ -1,2 +1,0 @@
-jscoverage:javascript-invalid.js:1: SyntaxError: missing ; before statement
-jscoverage: parse error in file javascript-invalid.js
