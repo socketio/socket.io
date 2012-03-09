@@ -25,7 +25,7 @@ module.exports = {
       , ws;
 
     io.set('transports', ['websocket']);
-    io.sockets.on('connection', function (socket) {
+    io.on('connection', function (socket) {
       socket.manager.transports[socket.id].name.should.equal('websocket');
       ws.finishClose();
       cl.end();
