@@ -150,4 +150,8 @@ Moving forward, upgrades other than just `polling -> x` are being considered.
 
 ## Timeouts
 
-The client must use the `pingTimeout` sent as part of the
+The client must use the `pingTimeout` sent as part of the handshake (with
+the `open` packet) to determine whether the server is unresponsive.
+
+If no packet type is received withing `pingTimeout`, the client considers
+the socket disconnected.
