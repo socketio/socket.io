@@ -1,4 +1,9 @@
 
+0.9.2 / 2012-03-13
+==================
+
+  * More sensible close `timeout default` (fixes disconnect issue)
+
 0.9.1-1 / 2012-03-02
 ====================
 
