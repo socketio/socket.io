@@ -20,7 +20,6 @@ test:
 	@./node_modules/.bin/mocha \
 		--require ./test/common \
 		--reporter $(REPORTER) \
-		--growl \
 		$(TESTS)
 
 test-browser:
