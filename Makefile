@@ -9,7 +9,6 @@ test:
 		--reporter $(REPORTER) \
 		--slow 500ms \
 		--bail \
-		--growl \
 		$(TESTS)
 
 test-cov: lib-cov
