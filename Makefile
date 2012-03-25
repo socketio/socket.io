@@ -8,13 +8,13 @@ build:
 	@./node_modules/.bin/browserbuild \
 		-g eio \
 		-m engine.io-client -b lib/ \
-		lib/ > dist/engine.io.js
+		lib > dist/engine.io.js
 
 build-dev:
 	@./node_modules/.bin/browserbuild \
 		-g eio \
 		-d -m engine.io-client -b lib/ \
-		lib/ > dist/engine.io-dev.js
+		lib > dist/engine.io-dev.js
 
 test:
 	@./node_modules/.bin/mocha \
