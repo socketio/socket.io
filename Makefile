@@ -2,19 +2,19 @@
 TESTS = $(shell find test/*.js -depth 1 -type f ! -name 'common.js')
 REPORTER = dot
 
+all: build build-dev
+
 build:
 	@./node_modules/.bin/browserbuild \
 		-g eio \
-		-f engine.io.js \
 		-m engine.io-client \
-		lib/
+		lib/ > dist/engine.io.js
 
 build-dev:
 	@./node_modules/.bin/browserbuild \
 		-g eio \
-		-f engine.io-dev.js \
-		-i -m engine.io-client \
-		lib/
+		-d -m engine.io-client \
+		lib/ > dist/engine.io-dev.js
 
 test:
 	@./node_modules/.bin/mocha \
