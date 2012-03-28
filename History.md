@@ -1,4 +1,10 @@
 
+0.9.3 / 2012-03-28
+==================
+
+  * Fix XHR.check, which was throwing an error transparently and causing non-IE browsers to fall back to JSONP [mikito]
+  * Fixed forced disconnect on window close [zzzaaa]
+
 0.9.2 / 2012-03-13
 ==================
 
