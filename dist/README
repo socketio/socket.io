@@ -1,0 +1,5 @@
+
+Engine.IO client builds (engine.io.js and engine.io-dev.js) are committed
+to GitHub alongside each tagged release.
+
+In regular branches, expect them to be out of date.
