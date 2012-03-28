@@ -1,4 +1,9 @@
 
+0.9.3 / 2012-03-28
+==================
+
+  * Fix "Syntax error" on FF Web Console with XHR Polling [mikito]
+
 0.9.2 / 2012-03-13
 ==================
 
