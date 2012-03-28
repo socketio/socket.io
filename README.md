@@ -14,7 +14,7 @@ bi-directional communication layer for
 #### (A) Listening on a port
 
 ```js
-var engine = require('engine')
+var engine = require('engine.io')
   , server = engine.listen(80)
 
 server.on('connection', function (socket) {
@@ -25,7 +25,7 @@ server.on('connection', function (socket) {
 #### (B) Intercepting requests for a http.Server
 
 ```js
-var engine = require('engine')
+var engine = require('engine.io')
   , http = require('http').createServer().listen(3000)
   , server = engine.attach(http)
 
@@ -57,9 +57,9 @@ httpServer.on('request', function (req, res) {
 ### Client
 
 ```html
-<script src="/path/to/engine.js"></script>
+<script src="/path/to/engine.io.js"></script>
 <script>
-  var socket = new engine.Socket({ host: 'localhost', port: 80 });
+  var socket = new eio.Socket({ host: 'localhost', port: 80 });
   socket.on('open', function () {
     socket.on('message', function (data) { });
     socket.on('close', function () { });
