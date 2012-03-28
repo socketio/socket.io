@@ -282,5 +282,46 @@ module.exports = {
         }
       });
     });
+  },
+  'disconnecting from namespace only': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws1
+      , ws2;
+
+    io.of('/foo').on('connection', function (socket) {
+      socket.disconnect();
+    });
+
+    cl.handshake(function (sid) {
+      ws1 = websocket(cl, sid);
+      ws1.on('open', function () {
+        ws1.packet({
+            type: 'connect'
+          , endpoint: '/bar'
+        });
+        cl.handshake(function (sid) {
+          ws2 = websocket(cl, sid);
+          ws2.on('open', function () {
+            ws2.packet({
+                type: 'connect'
+              , endpoint: '/foo'
+            });
+          });
+          ws2.on('message', function (data) {
+            if ('disconnect' === data.type) {
+              cl.end();
+              ws1.finishClose();
+              ws2.finishClose();
+              io.server.close();
+
+              data.endpoint.should.eql('/foo');
+
+              done();
+            }
+          });
+        });
+      });
+    });
   }
 };
