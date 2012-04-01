@@ -1,4 +1,9 @@
 
+0.9.4 / 2012-04-01
+==================
+
+  * Bumped client with polling reconnection loop.
+
 0.9.3 / 2012-03-28
 ==================
 
