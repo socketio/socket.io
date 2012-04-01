@@ -2,7 +2,8 @@
 0.9.4 / 2012-04-01
 ==================
 
-  * Bumped client with polling reconnection loop.
+  * Disconnecting from namespace improvement (#795) [DanielBaulig]
+  * Bumped client with polling reconnection loop (#438)
 
 0.9.3 / 2012-03-28
 ==================
