@@ -84,10 +84,13 @@ The client class. _Inherits from EventEmitter_.
     - **Options**
       - `host` (`String`): host name (`localhost`)
       - `port` (`Number`): port name (`80`)
-      - `path` (`String`): path name
+      - `path` (`String`): path to intercept requests to (`/engine.io`)
+      - `resource` (`String`): name of resource for this server (`default`).
+        Setting a resource allows you to initialize multiple engine.io
+        endpoints on the same host without them interfering, and without
+        changing the `path` directly.
       - `query` (`Object`): optional query string addition (eg: `{ a: 'b' }`)
       - `secure` (`Boolean): whether the connection is secure
-      - `basePath` (`String`) default prefix path (`/engine.io`)
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
       to upgrade the transport from long-polling to something better.
       - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
