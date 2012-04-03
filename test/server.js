@@ -15,7 +15,7 @@ describe('server', function () {
   describe('verification', function () {
     it('should disallow non-existent transports', function (done) {
       var engine = listen(function (port) {
-        request.get('http://localhost:%d/engine.io'.s(port))
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
           .send({ transport: 'tobi' }) // no tobi transport - outrageous
           .end(function (res) {
             expect(res.status).to.be(500);
@@ -27,7 +27,7 @@ describe('server', function () {
     it('should disallow `constructor` as transports', function (done) {
       // make sure we check for actual properties - not those present on every {}
       var engine = listen(function (port) {
-        request.get('http://localhost:%d/engine.io'.s(port))
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
           .send({ transport: 'constructor' })
           .end(function (res) {
             expect(res.status).to.be(500);
@@ -38,7 +38,7 @@ describe('server', function () {
 
     it('should disallow non-existent sids', function (done) {
       var engine = listen(function (port) {
-        request.get('http://localhost:%d/engine.io'.s(port))
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
           .send({ transport: 'polling', sid: 'test' })
           .end(function (res) {
             expect(res.status).to.be(500);
