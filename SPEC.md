@@ -90,7 +90,17 @@ actual message, client and server should call their callbacks with the data.
 
 #### 5 upgrade
 
-Requests client to upgrade.
+Before engine.io switches a transport, it tests, if server and client can communicate over this transport.
+If this test succeed, the client sends an upgrade package which requests the server to flush its cache on
+the old transport and switch to the new transport.
+
+##### example
+1. client connects through new transport
+2. client sends ```2probe```
+3. server receives and sends ```3probe```
+4. client receives and sends ```5```
+5. server flushes and closes old transport and switches to new.
+
 ### Payload
 
 A payload is a series of encoded packets tied together. The payload encoding format is as follows:
