@@ -1,4 +1,3 @@
-
 # Engine.IO SPEC
 
 ## Revision
@@ -43,29 +42,76 @@ There's two distinct types of encodings
 
 ### Packet
 
-The packet encoding format is as follows
+An encoded packet is a UTF-8 string. The packet encoding format is as follows
 
 ```
-<packet type id> [ `:` <data> ]
+<packet type id>[<data>]
 ```
-
+example:
+```
+2probe
+```
 The packet type id is an integer. The following are the accepted packet
 types.
 
-```
-open     0
-close    1
-ping     2
-pong     3
-message  4
-upgrade  5
-```
+#### 0 open
 
-An encoded packet is a UTF-8 string.
+Sent from the server when a new transport is opened (recheck)
+
+#### 1 close
+
+Request the close of this transport but does not shutdown the connection itself.
+
+#### 2 ping
+
+send by the server. Client should answer with a pong package, containing the same data
+
+example
+1. server sends: ```2probe```
+2. client sends: ```3probe```
+
+#### 3 pong
+
+send by the client to respond to ping packages.
+
+#### 4 message
+
+actual message, client and server should call their callbacks with the data.
+
+##### example 1
+
+1. server sends: ```4HelloWorld```
+2. client receives and calls callback ```socket.on('message', function (data) { console.log(data); });```
+
+##### example 2
+
+1. client sends: ```4HelloWorld```
+2. server receives and calls callback ```socket.on('message', function (data) { console.log(data); });```
+
+#### 5 upgrade
+
+Before engine.io switches a transport, it tests, if server and client can communicate over this transport.
+If this test succeed, the client sends an upgrade package which requests the server to flush its cache on
+the old transport and switch to the new transport.
+
+##### example
+1. client connects through new transport
+2. client sends ```2probe```
+3. server receives and sends ```3probe```
+4. client receives and sends ```5```
+5. server flushes and closes old transport and switches to new.
 
 ### Payload
 
-A payload is a series of encoded packets tied together.
+A payload is a series of encoded packets tied together. The payload encoding format is as follows:
+
+```
+<length1><packet1>[<length2><packet2>[...]]
+```
+* length: length of the packet in __characters__
+* packet: actual package as descriped above
+
+The payload is used for transports which do not support framing, as the polling protocol for example.
 
 ## Transports
 
