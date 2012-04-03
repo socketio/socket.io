@@ -44,7 +44,7 @@ describe('engine', function () {
         , engine = eio.attach(server);
 
       server.listen(function () {
-        var uri = 'http://localhost:%d/engine.io'.s(server.address().port);
+        var uri = 'http://localhost:%d/engine.io/default/'.s(server.address().port);
         request.get(uri, function (res) {
           expect(res.status).to.be(500);
           server.once('close', done);
@@ -202,7 +202,7 @@ describe('engine', function () {
 
       server.listen(function () {
         var port = server.address().port;
-        request.get('http://localhost:%d/engine.io'.s(port), function (res) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port), function (res) {
           expect(res.status).to.be(500);
           request.get('http://localhost:%d/test'.s(port), function (res) {
             expect(res.status).to.be(200);
