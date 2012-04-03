@@ -22,16 +22,34 @@ they're expected to be "opening" and "closing" all the time.
 
 An Engine.IO url is composed as follows:
 
-`/engine.io` ? <query string>
+`/engine.io/` <resource> `/` [ ? <query string> ]
 
-The query string has three reserved keys:
+- The resource allows to connect several independent sockets to the same
+  server listening on a given port/host. The default is `default`. It's
+  always required.
 
-- `transport`: indicates the transport name. Supported ones by default are
-  `polling`, `flashsocket`, `websocket`.
-- `j`: if the transport is `polling` but a JSONP response is required, `j`
-  must be set with the JSONP response index.
-- `sid`: if the client has been given a session id, it must be included
-  in the querystring.
+- The query string is optional and has three reserved keys:
+
+  - `transport`: indicates the transport name. Supported ones by default are
+    `polling`, `flashsocket`, `websocket`.
+  - `j`: if the transport is `polling` but a JSONP response is required, `j`
+    must be set with the JSONP response index.
+  - `sid`: if the client has been given a session id, it must be included
+    in the querystring.
+
+*FAQ:* Is the `/engine.io` portion modifiable?
+
+Provided the server is customized to intercept requests under a different
+path segment, yes.
+
+*FAQ:* What determines whether an option is going to be part of the path
+versus being encoded as part of the query string? In other words, why
+is the `transport` not part of the URL?
+
+It's convention that the path segments remain *only* that which allows to
+disambiguate whether a request should be handled by a given Engine.IO
+server instance or not. As it stands, it's only the Engine.IO prefix
+(`/engine.io`) and the resource (`default` by default).
 
 ## Encoding
 
