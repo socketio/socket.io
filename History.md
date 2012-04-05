@@ -1,4 +1,13 @@
 
+0.9.5 / 2012-04-05
+==================
+
+  * Added test for polling and socket close.
+  * Ensure close upon request close.
+  * Fix disconnection reason being lost for polling transports.
+  * Ensure that polling transports work with Connection: close.
+  * Log disconnection reason.
+
 0.9.4 / 2012-04-01
 ==================
 
