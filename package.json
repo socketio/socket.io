@@ -1,7 +1,7 @@
 {
     "name": "socket.io-client"
   , "description": "Socket.IO client for the browser and node.js"
-  , "version": "0.9.4"
+  , "version": "0.9.5"
   , "main" : "./lib/io.js"
   , "browserify": "./dist/socket.io.js"
   , "homepage": "http://socket.io"
@@ -28,8 +28,8 @@
       , "express": "2.5.x"
       , "jade": "*"
       , "stylus": "*"
-      , "socket.io": "0.9.4"
-      , "socket.io-client": "0.9.4"
+      , "socket.io": "0.9.5"
+      , "socket.io-client": "0.9.5"
     }
   , "engines": { "node": ">= 0.4.0" }
 }
