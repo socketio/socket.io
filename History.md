@@ -1,4 +1,20 @@
 
+0.9.4 / 2012-04-01
+==================
+
+  * Disconnecting from namespace improvement (#795) [DanielBaulig]
+  * Bumped client with polling reconnection loop (#438)
+
+0.9.3 / 2012-03-28
+==================
+
+  * Fix "Syntax error" on FF Web Console with XHR Polling [mikito]
+
+0.9.2 / 2012-03-13
+==================
+
+  * More sensible close `timeout default` (fixes disconnect issue)
+
 0.9.1-1 / 2012-03-02
 ====================
 
