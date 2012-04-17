@@ -3617,8 +3617,9 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
       form.className = 'socketio';
       form.style.position = 'absolute';
-      form.style.top = '-1000px';
-      form.style.left = '-1000px';
+      form.style.top = '0px';
+      form.style.left = '0px';
+      form.style.display = 'none';
       form.target = id;
       form.method = 'POST';
       form.setAttribute('accept-charset', 'utf-8');
