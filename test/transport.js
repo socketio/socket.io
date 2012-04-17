@@ -58,6 +58,15 @@ describe('Transport', function () {
       expect(polling.uri()).to.be('https://localhost/engine.io?sid=test');
     });
 
+    it('should generate an uri with a t attribute', function () {
+      var polling = new eio.transports.polling({
+          path: '/engine.io'
+        , host: 'localhost'
+        , forceBust: true
+      });
+      expect(polling.uri()).to.match(/http:\/\/localhost\/engine\.io\?t=[0-9]+/);
+    });
+
     it('should generate a ws uri', function () {
       var ws = new eio.transports.websocket({
           path: '/engine.io'
