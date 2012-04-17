@@ -2,7 +2,7 @@
 0.9.6 / 2012-04-17
 ==================
 
-  * Bumped version.
+  * Don't position the jsonp form off the screen (android fix).
 
 0.9.5 / 2012-04-05
 ==================
