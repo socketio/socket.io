@@ -147,6 +147,10 @@ The main server/manager. _Inherits from EventEmitter_.
 
 ##### Properties
 
+**Important**: if you plan to use engine.io in a scalable way, please
+keep in mind the properties below will only reflect the clients connected
+to a single process.
+
 - `clients` _(Object)_: hash of connected clients by id.
 - `clientsCount` _(Number)_: number of connected clients.
 
