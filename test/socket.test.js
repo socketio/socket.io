@@ -72,7 +72,7 @@
     'test manual buffer flushing': function (next) {
       var socket = create();
 
-      socket.socket.options['auto flush'] = false;
+      socket.socket.options['manualFlush'] = true;
 
       socket.on('error', function (msg) {
         throw new Error(msg || 'Received an error');
