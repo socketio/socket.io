@@ -289,6 +289,40 @@ module.exports = {
     });
   },
 
+  'test that connection close does not mean disconnect': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , sid
+      , end
+      , disconnected = false
+
+    io.configure(function () {
+      io.set('polling duration', .2);
+      io.set('close timeout', .5);
+    });
+
+    io.sockets.on('connection', function (client) {
+      end = function () {
+        cl.end();
+        console.log('ending');
+        client.on('disconnect', function () {
+          disconnected = true;
+        });
+      }
+    });
+
+    cl.handshake(function (sid) {
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid);
+      setTimeout(end, 30);
+      setTimeout(function () {
+        console.log('finished');
+        disconnected.should.be.false;
+        io.server.close();
+        done();
+      }, 100);
+    });
+  },
+
   'test sending back data': function (done) {
     var cl = client(++ports)
       , io = create(cl);

@@ -6,7 +6,9 @@ horizontal scalability, automatic JSON encoding/decoding, and more.
 
 ## How to Install
 
-    npm install socket.io
+```bash
+npm install socket.io
+```
 
 ## How to use
 

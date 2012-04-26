@@ -1,4 +1,29 @@
 
+0.9.6 / 2012-04-17
+==================
+
+  * Fixed XSS in jsonp-polling.
+
+0.9.5 / 2012-04-05
+==================
+
+  * Added test for polling and socket close.
+  * Ensure close upon request close.
+  * Fix disconnection reason being lost for polling transports.
+  * Ensure that polling transports work with Connection: close.
+  * Log disconnection reason.
+
+0.9.4 / 2012-04-01
+==================
+
+  * Disconnecting from namespace improvement (#795) [DanielBaulig]
+  * Bumped client with polling reconnection loop (#438)
+
+0.9.3 / 2012-03-28
+==================
+
+  * Fix "Syntax error" on FF Web Console with XHR Polling [mikito]
+
 0.9.2 / 2012-03-13
 ==================
 
