@@ -1667,6 +1667,7 @@
     }
 
     var self = this;
+    self.connecting = true;
 
     this.handshake(function (sid, heartbeat, close, transports) {
       self.sessionid = sid;
