@@ -1,5 +1,5 @@
 {
-  "name": "emitter",
+  "name": "emitter-component",
   "description": "Event emitter",
   "version": "0.0.1",
   "component": {
