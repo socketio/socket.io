@@ -5,10 +5,11 @@
 
 ## Installation
 
-  $ npm install emitter-component
+```
+$ npm install emitter-component
+```
 
 ## API
-
   
 ### Emitter#on(event, fn)
 
