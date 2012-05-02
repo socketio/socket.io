@@ -1,0 +1,10 @@
+{
+  "name": "emitter",
+  "description": "Event emitter",
+  "version": "0.0.1",
+  "component": {
+    "scripts": {
+      "emitter": "index.js"
+    }
+  }
+}
