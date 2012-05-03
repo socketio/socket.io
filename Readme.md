@@ -104,10 +104,10 @@ io.sockets.on('connection', function (socket) {
   var socket = io.connect('http://localhost');
 
   socket.on('connect', function () {
-    socket.emit('set nickname', confirm('What is your nickname?'));
+    socket.emit('set nickname', prompt('What is your nickname?'));
     socket.on('ready', function () {
       console.log('Connected !');
-      socket.emit('msg', confirm('What is your message?'));
+      socket.emit('msg', prompt('What is your message?'));
     });
   });
 </script>
