@@ -2,6 +2,10 @@
   "name": "emitter-component",
   "description": "Event emitter",
   "version": "0.0.1",
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*"
+  },
   "component": {
     "scripts": {
       "emitter": "index.js"
