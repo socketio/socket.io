@@ -220,9 +220,11 @@ io.sockets.on('connection', function (socket) {
 							<pre class="prettyprint">&lt;script src=&quot;/socket.io/socket.io.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
   var socket = io.connect('http://localhost');
-  socket.on('news', function (data) {
-    console.log(data);
-    socket.emit('my other event', { my: 'data' });
+  socket.on('connect', function () {
+    socket.emit('set nickname', 'nodejs');
+    socket.on('ready', function () {
+      socket.emit('msg', 'hello world!');
+    });
   });
 &lt;/script&gt;</pre>
 						</div>
