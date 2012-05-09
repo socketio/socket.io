@@ -10,5 +10,5 @@
 
 var should = module.exports = require('should');
 
-should.HTTPClient = require('./client-common');
+should.HTTPClient = require('../support/test-client');
 

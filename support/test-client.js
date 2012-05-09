@@ -12,7 +12,7 @@ var io = require('../')
   , parser = io.parser
   , http = require('http')
   , https = require('https')
-  , WebSocket = require('../support/node-websocket-client/lib/websocket').WebSocket;
+  , WebSocket = require('./node-websocket-client/lib/websocket').WebSocket;
 
 module.exports = HTTPClient;
 
