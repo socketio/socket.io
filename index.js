@@ -98,3 +98,9 @@ Emitter.prototype.emit = function(event){
 
   return this;
 };
+
+Emitter.prototype.has = function(event){
+  var fns = this.callbacks[event];
+  return !!(fns && fns.length);
+};
+

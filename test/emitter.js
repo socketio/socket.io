@@ -77,4 +77,21 @@ describe('Emitter', function(){
       calls.should.eql([]);
     })
   })
+
+  describe('.has(event)', function(){
+    describe('when handlers are present', function(){
+      it('should return true', function(){
+        var emitter = new Emitter;
+        emitter.on('foo', function(){});
+        emitter.has('foo').should.be.true;
+      })
+    })
+
+    describe('when no handlers are present', function(){
+      it('should return false', function(){
+        var emitter = new Emitter;
+        emitter.has('foo').should.be.false;
+      })
+    })
+  })
 })

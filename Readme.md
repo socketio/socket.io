@@ -29,3 +29,7 @@ $ npm install emitter-component
 ### Emitter#emit(event, ...)
 
   Emit an `event` with variable option args.
+
+### Emitter#has(event)
+
+  Check if this emitter has `event` handlers.
