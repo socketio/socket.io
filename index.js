@@ -99,6 +99,14 @@ Emitter.prototype.emit = function(event){
   return this;
 };
 
+/**
+ * Check if this emitter has `event` handlers.
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api public
+ */
+
 Emitter.prototype.has = function(event){
   var fns = this.callbacks[event];
   return !!(fns && fns.length);
