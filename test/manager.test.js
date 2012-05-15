@@ -220,6 +220,134 @@ module.exports = {
     });
   },
 
+  'test authorization gets handshake data': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      function auth (data, fn) {
+        data.query.should.have.foo;
+        data.query.foo.should.eql('bar');
+        fn(null, false);
+      };
+
+      io.set('authorization', auth);
+    });
+
+    cl.get('/socket.io/{protocol}/?foo=bar', function (res, data) {
+      res.statusCode.should.eql(403);
+      data.should.match(/handshake unauthorized/);
+
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that authorization can view handshake data': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      function auth (data, fn) {
+        data.query.should.have.foo;
+        data.query.foo.should.eql('bar');
+        fn(null, true);
+      };
+
+      io.set('authorization', auth);
+    });
+
+    cl.get('/socket.io/{protocol}/?foo=bar', function (res, data) {
+      res.statusCode.should.eql(200);
+
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that authorization can change handshake data': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      function auth (data, fn) {
+        var replacement = { baz: 'qu' };
+        for (i in data) {
+          if (data.hasOwnProperty(i)) {
+            replacement[i] = data[i];
+          }
+        }
+        fn(null, true, replacement);
+      };
+
+      io.set('authorization', auth);
+    });
+
+    cl.get('/socket.io/{protocol}/', function (res, data) {
+      var id = data.split(':', 2)[0];
+      res.statusCode.should.eql(200);
+      io.handshaken[id].should.have.baz;
+      io.handshaken[id].baz.should.eql('qu');
+
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that id generation can be overridden': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      function idgen (data) {
+        return 'foo';
+      };
+
+      io.set('id generator', idgen);
+    });
+
+    cl.get('/socket.io/{protocol}/', function (res, data) {
+      var id = data.split(':', 2)[0];
+      id.should.eql('foo');
+
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
+  'test that id generator can see handshake data': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      function idgen (data) {
+        data.query.should.have.foo;
+        data.query.foo.should.eql('bar');
+        return 'foo';
+      };
+
+      io.set('id generator', idgen);
+    });
+
+    cl.get('/socket.io/{protocol}/?foo=bar', function (res, data) {
+      var id = data.split(':', 2)[0];
+      id.should.eql('foo');
+
+      cl.end();
+      io.server.close();
+      done();
+    });
+  },
+
   'test a handshake error': function (done) {
     var port = ++ports
       , io = sio.listen(port)
