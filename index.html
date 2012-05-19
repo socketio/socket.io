@@ -202,15 +202,15 @@ io.sockets.on('connection', function (socket) {
 							<pre class="prettyprint">var io = require('socket.io').listen(80);
 
 io.sockets.on('connection', function (socket) {
-  socket.on('set nickname', function (name) {
-    socket.set('nickname', name, function () {
+  socket.on('set name', function (name) {
+    socket.set('name', name, function () {
       socket.emit('ready');
     });
   });
 
-  socket.on('msg', function () {
-    socket.get('nickname', function (err, name) {
-      console.log('Chat message by ', name);
+  socket.on('get name', function () {
+    socket.get('name', function (err, name) {
+      socket.emit('name', name);
     });
   });
 });</pre>
@@ -220,9 +220,15 @@ io.sockets.on('connection', function (socket) {
 							<pre class="prettyprint">&lt;script src=&quot;/socket.io/socket.io.js&quot;&gt;&lt;/script&gt;
 &lt;script&gt;
   var socket = io.connect('http://localhost');
-  socket.on('news', function (data) {
-    console.log(data);
-    socket.emit('my other event', { my: 'data' });
+
+  socket.on('connect', function() {
+    socket.emit('set name', 'rauchg');
+    socket.on('ready', function (msg) {
+      socket.emit('get name');
+    });
+    socket.on('name', function (name) {
+      console.log('name is', name);
+    });
   });
 &lt;/script&gt;</pre>
 						</div>
