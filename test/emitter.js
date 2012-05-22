@@ -57,6 +57,20 @@ describe('Emitter', function(){
 
       calls.should.eql([ 'one' ]);
     })
+
+    it('should work with .once()', function(){
+      var emitter = new Emitter;
+      var calls = [];
+
+      function one() { calls.push('one'); }
+
+      emitter.once('foo', one);
+      emitter.off('foo', one);
+
+      emitter.emit('foo');
+
+      calls.should.eql([]);
+    })
   })
 
   describe('.off(event)', function(){
