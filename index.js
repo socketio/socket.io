@@ -48,6 +48,7 @@ Emitter.prototype.once = function(event, fn){
     fn.apply(this, arguments);
   }
 
+  fn._off = on;
   this.on(event, on);
   return this;
 };
@@ -73,8 +74,8 @@ Emitter.prototype.off = function(event, fn){
   }
 
   // remove specific handler
-  var i = callbacks.indexOf(fn);
-  callbacks.splice(i, 1);
+  var i = callbacks.indexOf(fn._off || fn);
+  if (~i) callbacks.splice(i, 1);
   return this;
 };
 
