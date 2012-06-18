@@ -2790,7 +2790,7 @@ module.exports = {
     });
   },
   
-  'test sending a post with multiple chunks using Buffer': function (done) {
+  'test sending a post with multiple chunks': function (done) {
     // creating chunked data
     var message = '一二三四五六七八九十一二三四五六七八九十一二三四五六七八九十一' 
     , packet = parser.encodePacket({ type: 'message', data: message })
@@ -2850,7 +2850,7 @@ module.exports = {
     });
   },
   
-  'test sending a post with one chunk using Buffer': function (done) {
+  'test sending a post with one chunk': function (done) {
     // creating chunked data
     var message = '一二三四五六七八九十一二三四五六七八九十一二三四五六七八九十一' 
     , packet = parser.encodePacket({ type: 'message', data: message })
@@ -2898,102 +2898,4 @@ module.exports = {
       });
     });
   },
-  
-  'test sending a post with multiple chunks using string': function (done) {
-    // creating chunked data
-    var message = '一二三四五六七八九十一二三四五六七八九十一二三四五六七八九十一' 
-    , packet = parser.encodePacket({ type: 'message', data: message })
-    , idx1 = Math.round(packet.length/3)
-    , idx2 = Math.round(packet.length*2/3)
-    , datas = [
-    packet.slice(0,idx1)
-    , packet.slice(idx1, idx2)
-    , packet.slice(idx2)
-    ];
-    var cl = client(++ports)
-      , io = create(cl)
-      , sid;
-
-    io.configure(function () {
-      io.set('close timeout', .05);
-    });
-                   
-    io.sockets.on('connection', function (socket) {
-      var messages = 0;
-            
-      socket.on('message', function (data) {
-        messages++;
-        data.should.equal(message);
-      });
-      
-      socket.on('disconnect', function () {
-        messages.should.eql(1);
-        cl.end();
-        io.server.close();
-        done();
-      });
-    });
-
-    cl.handshake({ ignoreConnect: true }, function (sessid) {
-      sid = sessid;
-
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
-        cl.chunkedPost(
-            '/socket.io/{protocol}/xhr-polling/' + sid
-          , datas
-          , function (res, data) {
-              res.statusCode.should.eql(200);
-              data.should.eql('1');
-            }
-        );
-      });
-    });
-  },
-  
-  'test sending a post with one chunk using string': function (done) {
-    // creating chunked data
-    var message = '一二三四五六七八九十一二三四五六七八九十一二三四五六七八九十一' 
-    , packet = parser.encodePacket({ type: 'message', data: message })
-    , datas = [
-    packet
-    ];
-    var cl = client(++ports)
-      , io = create(cl)
-      , sid;
-
-    io.configure(function () {
-      io.set('close timeout', .05);
-    });
-                   
-    io.sockets.on('connection', function (socket) {
-      var messages = 0;
-            
-      socket.on('message', function (data) {
-        messages++;
-        data.should.equal(message);
-      });
-      
-      socket.on('disconnect', function () {
-        messages.should.eql(1);
-        cl.end();
-        io.server.close();
-        done();
-      });
-    });
-
-    cl.handshake({ ignoreConnect: true }, function (sessid) {
-      sid = sessid;
-
-      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
-        cl.chunkedPost(
-            '/socket.io/{protocol}/xhr-polling/' + sid
-          , datas
-          , function (res, data) {
-              res.statusCode.should.eql(200);
-              data.should.eql('1');
-            }
-        );
-      });
-    });
-  }  
 };
