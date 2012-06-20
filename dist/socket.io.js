@@ -1,5 +1,8 @@
 /*! Socket.IO.js build:0.9.6, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
 
+var io = ('undefined' === typeof module ? {} : module.exports);
+(function() {
+
 /**
  * socket.io
  * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
@@ -452,6 +455,15 @@
 
   util.ua.webkit = 'undefined' != typeof navigator
     && /webkit/i.test(navigator.userAgent);
+
+   /**
+   * Detect iPad/iPhone/iPod.
+   *
+   * @api public
+   */
+
+  util.ua.iDevice = 'undefined' != typeof navigator
+      && /iPad|iPhone|iPod/i.test(navigator.userAgent);
 
 })('undefined' != typeof io ? io : module.exports, this);
 
@@ -1588,6 +1600,7 @@
 
     function complete (data) {
       if (data instanceof Error) {
+        self.connecting = false;
         self.onError(data.message);
       } else {
         fn.apply(null, data.split(':'));
@@ -1625,6 +1638,7 @@
           if (xhr.status == 200) {
             complete(xhr.responseText);
           } else {
+            self.connecting = false;            
             !self.reconnecting && self.onError(xhr.responseText);
           }
         }
@@ -1668,7 +1682,7 @@
 
     var self = this;
     self.connecting = true;
-
+    
     this.handshake(function (sid, heartbeat, close, transports) {
       self.sessionid = sid;
       self.closeTimeout = close * 1000;
@@ -2348,10 +2362,23 @@
    * @api public
    */
 
-  WS.prototype.send = function (data) {
-    this.websocket.send(data);
-    return this;
-  };
+  // Do to a bug in the current IDevices browser, we need to wrap the send in a 
+  // setTimeout, when they resume from sleeping the browser will crash if 
+  // we don't allow the browser time to detect the socket has been closed
+  if (io.util.ua.iDevice) {
+    WS.prototype.send = function (data) {
+      var self = this;
+      setTimeout(function() {
+         self.websocket.send(data);
+      },0);
+      return this;
+    };
+  } else {
+    WS.prototype.send = function (data) {
+      this.websocket.send(data);
+      return this;
+    };
+  }
 
   /**
    * Payload
@@ -3787,3 +3814,5 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   , 'undefined' != typeof io ? io : module.parent.exports
   , this
 );
+
+})();
