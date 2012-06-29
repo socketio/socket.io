@@ -71,6 +71,23 @@ describe('Emitter', function(){
 
       calls.should.eql([]);
     })
+
+    it('should work when called from an event', function(){
+      var emitter = new Emitter
+        , called
+      function b () {
+        called = true;
+      }
+      emitter.on('tobi', function () {
+        emitter.off('tobi', b);
+      });
+      emitter.on('tobi', b);
+      emitter.emit('tobi');
+      called.should.be.true;
+      called = false;
+      emitter.emit('tobi');
+      called.should.be.false;
+    });
   })
 
   describe('.off(event)', function(){
