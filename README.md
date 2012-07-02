@@ -94,7 +94,8 @@ The client class. _Inherits from EventEmitter_.
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
       to upgrade the transport from long-polling to something better.
       - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
-      - `flashPath` (`String`): path to flash client files
+      - `flashPath` (`String`): path to flash client files with trailing slash
+      - `policyPort` (`Number`): port the policy server listens on (`843`)
       - `transports` (`Array`): a list of transports to try (in order).
       Defaults to `['polling', 'websocket', 'flashsocket']`. `Engine`
       always attempts to connect directly with the first one, provided the
@@ -108,11 +109,9 @@ The client class. _Inherits from EventEmitter_.
 
 ## Flash transport
 
-In order for the Flash transport to work correctly, set the following:
-
-```js
-WEB_SOCKET_SWF_LOCATION = '/path/to/WebSocketMainInsecure.swf';
-```
+In order for the Flash transport to work correctly, ensure the `flashPath`
+property points to the location where the files `web_socket.js`,
+`swfobject.js` and `WebSocketMainInsecure.swf` are located.
 
 ## Tests
 
