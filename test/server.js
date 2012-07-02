@@ -49,6 +49,19 @@ describe('server', function () {
   });
 
   describe('handshake', function () {
+    it('should send the io cookie (xhr)', function (done) {
+      var engine = listen(function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .send({ transport: 'polling' })
+          .end(function (res) {
+            // hack-obtain sid
+            var sid = res.text.match(/"sid":"([0-9]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
+            done();
+          });
+      });
+    });
+
     it('should register a new client', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
         expect(Object.keys(engine.clients)).to.have.length(0);
