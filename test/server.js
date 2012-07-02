@@ -393,6 +393,26 @@ describe('server', function () {
       });
     });
 
+    it('should arrive from server to client with ws api', function (done) {
+      var opts = { allowUpgrades: false, transports: ['websocket'] };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        engine.on('connection', function (conn) {
+          conn.send('a');
+          conn.close();
+        });
+        socket.onopen = function () {
+          socket.onmessage = function (msg) {
+            expect(msg.data).to.be('a');
+            expect('' + msg == 'a').to.be(true);
+          };
+          socket.onclose = function () {
+            done();
+          };
+        };
+      });
+    });
+
     it('should arrive from server to client (ws)', function (done) {
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function (port) {
