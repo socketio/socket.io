@@ -112,6 +112,10 @@ Before engine.io switches a transport, it tests, if server and client can commun
 If this test succeed, the client sends an upgrade package which requests the server to flush its cache on
 the old transport and switch to the new transport.
 
+#### 6 noop
+
+A noop packet. Used primarily to force a poll cycle when an incoming websocket connection is received.
+
 ##### example
 1. client connects through new transport
 2. client sends ```2probe```
