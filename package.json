@@ -6,13 +6,13 @@
   , "dependencies": {
         "debug": "0.6.0"
       , "engine.io-client": "git://github.com/LearnBoost/engine.io-client.git#da071a1327"
-      , "websocket.io": "0.1.6"
+      , "websocket.io": "0.2.1"
     }
   , "devDependencies": {
         "mocha": "*"
       , "expect.js": "*"
       , "superagent": "*"
-      , "ws": "0.4.18"
+      , "ws": "*"
       , "s": "*"
     }
   , "scripts" : { "test" : "make test" }
