@@ -198,6 +198,8 @@ A representation of a client. _Inherits from EventEmitter_.
       - `String`: utf-8 string
 - `error`
     - Fired when an error occurs.
+    - **Arguments**
+      - `Error`: error object
 
 ##### Properties
 
