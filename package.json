@@ -1,11 +1,11 @@
 {
     "name": "engine.io"
   , "version": "0.1.0"
-  , "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional client between client and server"
+  , "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server"
   , "main": "./lib/engine.io"
   , "dependencies": {
         "debug": "0.6.0"
-      , "engine.io-client": "git://github.com/LearnBoost/engine.io-client.git#da071a1327"
+      , "engine.io-client": "0.1.0"
       , "websocket.io": "0.2.1"
     }
   , "devDependencies": {
