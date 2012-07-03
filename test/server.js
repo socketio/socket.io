@@ -198,8 +198,8 @@ describe('server', function () {
       var engine = listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { query: { a: 'b' } });
         engine.on('connection', function (conn) {
-          expect(conn.req.query).to.have.keys('transport', 'a');
-          expect(conn.req.query.a).to.be('b');
+          expect(conn.request.query).to.have.keys('transport', 'a');
+          expect(conn.request.query.a).to.be('b');
           done();
         });
       });
