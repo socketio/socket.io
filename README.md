@@ -100,7 +100,6 @@ These are exposed by `require('engine.io')`:
 
 ##### Properties
 
-- `version` _(String)_: engine.io version
 - `protocol` _(Number)_: protocol revision number
 - `Server`: Server class constructor
 - `Socket`: Socket class constructor
