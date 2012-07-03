@@ -129,6 +129,7 @@ These are exposed by `require('engine.io')`:
         changing the `path` directly.
       - `policyFile` (`Boolean`): whether to handle policy file requests (`true`)
       - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
+      - **See Server options below for additional options you can pass**
     - **Returns** `Server`
 
 <hr><br>
@@ -155,6 +156,22 @@ to a single process.
 
 ##### Methods
 
+- **constructor**
+    - Initializes the server
+    - **Parameters**
+      - `Object`: optional, options object
+    - **Options**
+      - `pingTimeout` (`Number`): how many ms without a pong packet to
+        consider the connection closed (`60000`)
+      - `pingInterval` (`Number`): how many ms before sending a new ping
+        packet (`25000`)
+      - `transports` (`<Array> String`): transports to allow connections
+        to (`['polling', 'websocket', 'flashsocket']`)
+      - `allowUpgrades` (`Boolean`): whether to allow tranport upgrades
+        (`true`)
+      - `cookie` (`String|Boolean`): name of the HTTP cookie that
+        contains the client sid to send as part of handshake response
+        headers. Set to `false` to not send one. (`io`)
 - `close`
     - Closes all clients
     - **Returns** `Server` for chaining
