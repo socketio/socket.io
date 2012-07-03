@@ -49,7 +49,7 @@ describe('server', function () {
   });
 
   describe('handshake', function () {
-    it('should send the io cookie (xhr)', function (done) {
+    it('should send the io cookie', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .send({ transport: 'polling' })
@@ -57,6 +57,29 @@ describe('server', function () {
             // hack-obtain sid
             var sid = res.text.match(/"sid":"([0-9]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
+            done();
+          });
+      });
+    });
+
+    it('should send the io cookie custom name', function (done) {
+      var engine = listen({ cookie: 'woot' }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .send({ transport: 'polling' })
+          .end(function (res) {
+            var sid = res.text.match(/"sid":"([0-9]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('woot=' + sid);
+            done();
+          });
+      });
+    });
+
+    it('should not send the io cookie', function (done) {
+      var engine = listen({ cookie: false }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .send({ transport: 'polling' })
+          .end(function (res) {
+            expect(res.headers['set-cookie']).to.be(undefined);
             done();
           });
       });
