@@ -220,7 +220,7 @@ A representation of a client. _Inherits from EventEmitter_.
 ##### Properties
 
 - `server` _(Server)_: engine parent reference
-- `req` _(http.ServerRequest)_: request that originated the Socket
+- `request` _(http.ServerRequest)_: request that originated the Socket
 - `upgraded` _(Boolean)_: whether the transport has been upgraded
 - `readyState` _(String)_: opening|open|closing|closed
 - `transport` _(Transport)_: transport reference
