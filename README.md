@@ -1,4 +1,3 @@
-
 # Engine.IO: the realtime engine
 
 [![Build Status](https://secure.travis-ci.org/LearnBoost/engine.io.png)](http://travis-ci.org/LearnBoost/engine.io)
@@ -499,10 +498,10 @@ has you covered.
 
 ### Can I implement `Engine` in other languages?
 
-Absolutely. The `SPEC` file contains the most up to date description of the
-implementation specification at all times. If you're targeting the latest
-stable release of `Engine`, make sure to look at the file in the appropriate git
-branch/tag.
+Absolutely. The [SPEC](https://github.com/LearnBoost/engine.io-client/blob/master/SPEC.md)
+file contains the most up to date description of the implementation specification
+at all times. If you're targeting the latest stable release of `Engine`, make sure
+to look at the file in the appropriate git branch/tag.
 
 The Java/NIO implementation will be officially supported, and is being worked
 on by the author.
