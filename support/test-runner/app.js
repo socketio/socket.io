@@ -158,6 +158,22 @@ suite('socket.test.js', function () {
     });
   });
 
+  server('test manual buffer flushing', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.on('message', function (msg) {
+        socket.send(msg);
+      });
+    });
+  });
+
+  server('test automatic buffer flushing', function (io) {
+    io.sockets.on('connection', function (socket) {
+      socket.on('message', function (msg) {
+        socket.send(msg);
+      });
+    });
+  });
+
   server('test acks sent from client', function (io) {
     io.sockets.on('connection', function (socket) {
       socket.send('tobi', function () {
