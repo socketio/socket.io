@@ -102,6 +102,18 @@ Emitter.prototype.emit = function(event){
 };
 
 /**
+ * Return array of callbacks for `event`.
+ *
+ * @param {String} event
+ * @return {Array}
+ * @api public
+ */
+
+Emitter.prototype.listeners = function(event){
+  return this.callbacks[event] || [];
+};
+
+/**
  * Check if this emitter has `event` handlers.
  *
  * @param {String} event
@@ -109,8 +121,7 @@ Emitter.prototype.emit = function(event){
  * @api public
  */
 
-Emitter.prototype.has = function(event){
-  var fns = this.callbacks[event];
-  return !!(fns && fns.length);
+Emitter.prototype.hasListeners = function(event){
+  return !! this.listeners(event).length;
 };
 

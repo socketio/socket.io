@@ -109,19 +109,37 @@ describe('Emitter', function(){
     })
   })
 
-  describe('.has(event)', function(){
+  describe('.listeners(event)', function(){
+    describe('when handlers are present', function(){
+      it('should return an array of callbacks', function(){
+        var emitter = new Emitter;
+        function foo(){}
+        emitter.on('foo', foo);
+        emitter.listeners('foo').should.eql([foo]);
+      })
+    })
+
+    describe('when no handlers are present', function(){
+      it('should return an empty array', function(){
+        var emitter = new Emitter;
+        emitter.listeners('foo').should.eql([]);
+      })
+    })
+  })
+
+  describe('.hasListeners(event)', function(){
     describe('when handlers are present', function(){
       it('should return true', function(){
         var emitter = new Emitter;
         emitter.on('foo', function(){});
-        emitter.has('foo').should.be.true;
+        emitter.hasListeners('foo').should.be.true;
       })
     })
 
     describe('when no handlers are present', function(){
       it('should return false', function(){
         var emitter = new Emitter;
-        emitter.has('foo').should.be.false;
+        emitter.hasListeners('foo').should.be.false;
       })
     })
   })
