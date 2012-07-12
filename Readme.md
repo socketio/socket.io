@@ -30,6 +30,10 @@ $ npm install emitter-component
 
   Emit an `event` with variable option args.
 
-### Emitter#has(event)
+### Emitter#listeners(event)
+
+  Return an array of callbacks, or an empty array.
+
+### Emitter#hasListeners(event)
 
   Check if this emitter has `event` handlers.
