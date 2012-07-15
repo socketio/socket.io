@@ -62,7 +62,7 @@ HTTPClient.prototype.request = function (path, opts, fn) {
   var req = http.request(opts, function (res) {
     if (false === opts.buffer)
       return fn && fn(res);
-
+    
     var buf = '';
 
     res.on('data', function (chunk) {
@@ -75,10 +75,18 @@ HTTPClient.prototype.request = function (path, opts, fn) {
   });
 
   req.on('error', function (err) { });
-
+  
   if (undefined !== opts.data)
     req.write(opts.data);
 
+  if (undefined !== opts.datas)
+  {  
+    var _i, _len;
+    for (_i = 0, _len = opts.datas.length; _i < _len; _i++) {
+      req.write(opts.datas[_i]);
+    }
+  }
+  
   req.end();
 
   return req;
@@ -157,6 +165,25 @@ HTTPClient.prototype.post = function (path, data, opts, fn) {
   opts.method = 'POST';
   opts.data = data;
 
+  return this.request(path, opts, fn);
+};
+
+/**
+ * Issue a POST request with data to be send splitted in
+ * different parts
+ *
+ * @api private
+ */
+
+HTTPClient.prototype.chunkedPost = function (path, datas, opts, fn) {
+  if ('function' == typeof opts) {
+    fn = opts;
+    opts = {};
+  }
+
+  opts = opts || {};
+  opts.method = 'POST';  
+  opts.datas = datas;
   return this.request(path, opts, fn);
 };
 

@@ -2788,6 +2788,65 @@ module.exports = {
 
       });
     });
-  }
+  },
+  
+  'test sending a post with multiple chunks': function (done) {
+    // creating chunked data
+    var message = '一二三四五六七八九十一二三四五六七八九十一二三四五六七八九十一' 
+    , packet = parser.encodePacket({ type: 'message', data: message })
+    , buf = new Buffer(packet, 'utf8')
+    , idx1 = Math.round(buf.length/3)
+    , idx2 = Math.round(buf.length*2/3)
+    , datas = [
+    buf.slice(0,idx1)
+    , buf.slice(idx1, idx2)
+    , buf.slice(idx2)
+    ];
+    
+    // checking that corruption occurs when adding to string
+    var packet2 = '', _i, _len;
+    for (_i = 0, _len = datas.length; _i < _len; _i++) {
+      packet2 += datas[_i];
+    }
+    packet2.should.not.equal( packet );
+      
+    var cl = client(++ports)
+      , io = create(cl)
+      , sid;
 
+    io.configure(function () {
+      io.set('close timeout', .05);
+    });
+                   
+    io.sockets.on('connection', function (socket) {
+      var messages = 0;
+            
+      socket.on('message', function (data) {
+        messages++;
+        data.should.equal(message);
+      });
+      
+      socket.on('disconnect', function () {
+        messages.should.eql(1);
+        cl.end();
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake({ ignoreConnect: true }, function (sessid) {
+      sid = sessid;
+
+      cl.get('/socket.io/{protocol}/xhr-polling/' + sid, function (res, msgs) {
+        cl.chunkedPost(
+            '/socket.io/{protocol}/xhr-polling/' + sid
+          , datas
+          , function (res, data) {
+              res.statusCode.should.eql(200);
+              data.should.eql('1');
+            }
+        );
+      });
+    });
+  }  
 };
