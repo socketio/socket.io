@@ -140,7 +140,7 @@ var chat = io
   });
 
 var news = io
-  .of('/news');
+  .of('/news')
   .on('connection', function (socket) {
     socket.emit('item', { news: 'item' });
   });
