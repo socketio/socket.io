@@ -1765,6 +1765,37 @@ done();return;
     });
   },
 
+  'test for client disconnect': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws;
+
+    io.configure(function () {
+      io.set('heartbeat interval', .05);
+      io.set('heartbeat timeout', .05);
+      io.set('close timeout', 0);
+    });
+
+    io.on('connection', function (socket) {
+      socket.on('disconnect', function (reason) {
+       reason.should.equal('booted');
+       io.server.close();
+       ws.finishClose();
+       done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+      ws.on('open', function () {
+        ws.packet({
+            type: 'disconnect'
+        });
+        cl.end();
+      });
+    });
+  },
+
   'test for intentional and unintentional disconnects': function (done) {
     var cl = client(++ports)
       , io = create(cl)
