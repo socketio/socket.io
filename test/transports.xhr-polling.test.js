@@ -1351,7 +1351,7 @@ module.exports = {
                     msgs.should.have.length(1);
                     msgs[0].should.eql({
                         type: 'ack'
-                      , ackId: 1
+                      , ackId: '1'
                       , endpoint: ''
                       , args: []
                     });
