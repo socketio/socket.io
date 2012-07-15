@@ -38,7 +38,9 @@ html
       });
 
       function message (from, msg) {
-        $('#lines').append($('<p>').append($('<b>').text(from), msg));
+        if (msg.length) {
+          $('#lines').append($('<p>').append($('<b>').text(from), msg));
+        }
       }
 
       // dom manipulation
