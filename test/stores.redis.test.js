@@ -121,6 +121,29 @@ module.exports = {
     });
   },
 
+  'test multi get': function (done) {
+    var store = new RedisStore
+      , rand = 'test-' + Date.now()
+      , client = store.client(rand);
+
+    client.set('b', 'c', function (err) {
+      client.set('c', 'd', function (err) {
+        client.get('b','c', function (err, val) {
+          should.strictEqual(err, null);
+          should.deepEqual({'b':'c','c':'d'}, val);
+
+          client.get('a','b','c', function (err, val) {
+            should.strictEqual(err, null);
+            should.deepEqual({'a':null,'b':'c','c':'d'}, val);
+
+            store.destroy();
+            done();
+          });
+        });
+      });
+    });
+  },
+
   'test cleaning up clients data': function (done) {
     var rand1 = Math.abs(Math.random() * Date.now() | 0)
       , rand2 = Math.abs(Math.random() * Date.now() | 0);
