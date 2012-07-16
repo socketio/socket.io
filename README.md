@@ -37,7 +37,7 @@ server.on('connection', function (socket) {
 #### (C) Passing in requests
 
 ```js
-var ws = require('engine.io')
+var engine = require('engine.io')
   , server = new engine.Server()
 
 server.on('connection', function (socket) {
