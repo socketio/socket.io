@@ -1703,9 +1703,6 @@ var io = ('undefined' === typeof module ? {} : module.exports);
 
         // once the transport is ready
         self.transport.ready(self, function () {
-          if (typeof self.transport.open != "function")
-            return self.publish('connect_failed');
-            
           self.connecting = true;
           self.publish('connecting', self.transport.name);
           self.transport.open();

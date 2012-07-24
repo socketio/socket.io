@@ -1,14 +1,10 @@
 
-n.n.n / 2012-07-24 
-==================
-
-  * Release 0.9.7
-  * transport: fix potential open collision
-
 0.9.7 / 2012-07-24
 ==================
 
-  * transport: fix potential open collision
+  * iOS websocket crash fix.
+  * Fixed potential `open` collision.
+  * Fixed disconnectSync.
 
 0.9.6 / 2012-04-17
 ==================
