@@ -1,4 +1,10 @@
 
+n.n.n / 2012-07-24 
+==================
+
+  * Release 0.9.7
+  * transport: fix potential open collision
+
 0.9.7 / 2012-07-24
 ==================
 

@@ -69,6 +69,49 @@
       });
     },
 
+    'test manual buffer flushing': function (next) {
+      var socket = create();
+
+      socket.socket.options['manualFlush'] = true;
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
+      socket.on('connect', function () {
+        socket.socket.connected = false;
+        socket.send('buffered');
+        socket.socket.onConnect();
+        socket.socket.flushBuffer();
+
+        socket.on('message', function (msg) {
+          msg.should().equal('buffered');
+          socket.disconnect();
+          next();
+        });
+      });
+    },
+
+    'test automatic buffer flushing': function (next) {
+      var socket = create();
+
+      socket.on('error', function (msg) {
+        throw new Error(msg || 'Received an error');
+      });
+
+      socket.on('connect', function () {
+        socket.socket.connected = false;
+        socket.send('buffered');
+        socket.socket.onConnect();
+
+        socket.on('message', function (msg) {
+          msg.should().equal('buffered');
+          socket.disconnect();
+          next();
+        });
+      });
+    },
+
     'test acks sent from client': function (next) {
       var socket = create();
 

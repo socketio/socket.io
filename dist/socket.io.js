@@ -1,5 +1,8 @@
 /*! Socket.IO.js build:0.9.6, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
 
+var io = ('undefined' === typeof module ? {} : module.exports);
+(function() {
+
 /**
  * socket.io
  * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
@@ -452,6 +455,15 @@
 
   util.ua.webkit = 'undefined' != typeof navigator
     && /webkit/i.test(navigator.userAgent);
+
+   /**
+   * Detect iPad/iPhone/iPod.
+   *
+   * @api public
+   */
+
+  util.ua.iDevice = 'undefined' != typeof navigator
+      && /iPad|iPhone|iPod/i.test(navigator.userAgent);
 
 })('undefined' != typeof io ? io : module.exports, this);
 
@@ -1505,6 +1517,7 @@
       , 'sync disconnect on unload': true
       , 'auto connect': true
       , 'flash policy port': 10843
+      , 'manualFlush': false
     };
 
     io.util.merge(this.options, options);
@@ -1588,6 +1601,7 @@
 
     function complete (data) {
       if (data instanceof Error) {
+        self.connecting = false;
         self.onError(data.message);
       } else {
         fn.apply(null, data.split(':'));
@@ -1625,6 +1639,7 @@
           if (xhr.status == 200) {
             complete(xhr.responseText);
           } else {
+            self.connecting = false;            
             !self.reconnecting && self.onError(xhr.responseText);
           }
         }
@@ -1645,7 +1660,7 @@
     for (var i = 0, transport; transport = transports[i]; i++) {
       if (io.Transport[transport]
         && io.Transport[transport].check(this)
-        && (!this.isXDomain() || io.Transport[transport].xdomainCheck())) {
+        && (!this.isXDomain() || io.Transport[transport].xdomainCheck(this))) {
         return new io.Transport[transport](this, this.sessionid);
       }
     }
@@ -1667,7 +1682,8 @@
     }
 
     var self = this;
-
+    self.connecting = true;
+    
     this.handshake(function (sid, heartbeat, close, transports) {
       self.sessionid = sid;
       self.closeTimeout = close * 1000;
@@ -1687,6 +1703,9 @@
 
         // once the transport is ready
         self.transport.ready(self, function () {
+          if (typeof self.transport.open != "function")
+            return self.publish('connect_failed');
+            
           self.connecting = true;
           self.publish('connecting', self.transport.name);
           self.transport.open();
@@ -1774,10 +1793,24 @@
     this.doBuffer = v;
 
     if (!v && this.connected && this.buffer.length) {
-      this.transport.payload(this.buffer);
-      this.buffer = [];
+      if (!this.options['manualFlush']) {
+        this.flushBuffer();
+      }
     }
   };
+
+  /**
+   * Flushes the buffer data over the wire.
+   * To be invoked manually when 'manualFlush' is set to true.
+   *
+   * @api public
+   */
+
+  Socket.prototype.flushBuffer = function() {
+    this.transport.payload(this.buffer);
+    this.buffer = [];
+  };
+  
 
   /**
    * Disconnect the established connect.
@@ -1807,10 +1840,17 @@
 
   Socket.prototype.disconnectSync = function () {
     // ensure disconnection
-    var xhr = io.util.request()
-      , uri = this.resource + '/' + io.protocol + '/' + this.sessionid;
-
+    var xhr = io.util.request();
+ 	var uri = [
+ 	     'http' + (this.options.secure ? 's' : '') + ':/'
+ 	     , this.options.host + ':' + this.options.port
+ 	     , this.options.resource
+ 	     , io.protocol
+ 	     , this.sessionid
+ 	     ].join('/'); 
+         
     xhr.open('GET', uri, true);
+    xhr.send(null); 
 
     // handle disconnection immediately
     this.onDisconnect('booted');
@@ -2347,10 +2387,23 @@
    * @api public
    */
 
-  WS.prototype.send = function (data) {
-    this.websocket.send(data);
-    return this;
-  };
+  // Do to a bug in the current IDevices browser, we need to wrap the send in a 
+  // setTimeout, when they resume from sleeping the browser will crash if 
+  // we don't allow the browser time to detect the socket has been closed
+  if (io.util.ua.iDevice) {
+    WS.prototype.send = function (data) {
+      var self = this;
+      setTimeout(function() {
+         self.websocket.send(data);
+      },0);
+      return this;
+    };
+  } else {
+    WS.prototype.send = function (data) {
+      this.websocket.send(data);
+      return this;
+    };
+  }
 
   /**
    * Payload
@@ -3189,8 +3242,8 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    * @api public
    */
 
-  XHR.xdomainCheck = function () {
-    return XHR.check(null, true);
+  XHR.xdomainCheck = function (socket) {
+    return XHR.check(socket, true);
   };
 
 })(
@@ -3334,11 +3387,11 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    * @api public
    */
 
-  HTMLFile.check = function () {
+  HTMLFile.check = function (socket) {
     if (typeof window != "undefined" && (['Active'].concat('Object').join('X')) in window){
       try {
         var a = new window[(['Active'].concat('Object').join('X'))]('htmlfile');
-        return a && io.Transport.XHR.check();
+        return a && io.Transport.XHR.check(socket);
       } catch(e){}
     }
     return false;
@@ -3786,3 +3839,5 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   , 'undefined' != typeof io ? io : module.parent.exports
   , this
 );
+
+})();
