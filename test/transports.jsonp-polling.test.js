@@ -257,7 +257,7 @@ module.exports = {
       , sid;
 
     io.configure(function () {
-      io.set('close timeout', .05);
+      io.set('close timeout', .1);
     });
 
     io.sockets.on('connection', function (socket) {
@@ -625,7 +625,7 @@ module.exports = {
 
     io.configure(function () {
       io.set('polling duration', .2);
-      io.set('close timeout', .2);
+      io.set('close timeout', .5);
     });
 
     io.sockets.on('connection', function (socket) {

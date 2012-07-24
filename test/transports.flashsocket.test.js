@@ -104,7 +104,7 @@ module.exports = {
     netConnection(port, function (err, data){
       should.strictEqual(err, null);
 
-      data.toString().should.include.string('<cross-domain-policy>');
+      data.toString().should.match(/<cross-domain-policy>/);
 
       this.destroy();
       io.flashPolicyServer.close();
@@ -133,7 +133,7 @@ module.exports = {
       netConnection(next, function (err, data){
         should.strictEqual(err, null);
 
-        data.toString().should.include.string('<cross-domain-policy>');
+        data.toString().should.match(/<cross-domain-policy>/);
 
         this.destroy();
         io.flashPolicyServer.close();
@@ -159,7 +159,7 @@ module.exports = {
     server.origins.should.not.contain('google.com:80');
     server.origins.should.contain('foo.bar:80');
     server.origins.should.contain('socket.io:1337');
-    server.buffer.toString('utf8').should.include.string('socket.io');
+    server.buffer.toString('utf8').should.match(/socket\.io/);
 
     io.flashPolicyServer.close();
     done();

@@ -452,7 +452,7 @@ module.exports = {
 
     cl.get('/socket.io/socket.io.js', function (res, data) {
       res.headers['content-type'].should.eql('application/javascript');
-      res.headers['content-length'].should.eql(13);
+      res.headers['content-length'].should.eql('13');
       res.headers.etag.should.eql('1.0');
 
       data.should.eql('custom_client');

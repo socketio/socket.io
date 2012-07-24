@@ -103,7 +103,11 @@ HTTPClient.prototype.end = function () {
   Object.keys(this.agent.sockets).forEach(function (socket) {
     for (var i = 0, l = self.agent.sockets[socket].length; i < l; ++i) {
       if (self.agent.sockets[socket][i]._handle) {
-        self.agent.sockets[socket][i]._handle.socket.end();
+        if (self.agent.sockets[socket][i]._handle.socket) {
+          self.agent.sockets[socket][i]._handle.socket.end();
+        } else {
+          self.agent.sockets[socket][i]._handle.owner.end();
+        }
       }
     }
   });

@@ -95,7 +95,7 @@ module.exports = {
   'decoding json packet with message id and ack data': function () {
     parser.decodePacket('4:1+::{"a":"b"}').should.eql({
         type: 'json'
-      , id: 1
+      , id: '1'
       , ack: 'data'
       , endpoint: ''
       , data: { a: 'b' }
@@ -114,7 +114,7 @@ module.exports = {
   'decoding an event packet with message id and ack': function () {
     parser.decodePacket('5:1+::{"name":"tobi"}').should.eql({
         type: 'event'
-      , id: 1
+      , id: '1'
       , ack: 'data'
       , endpoint: ''
       , name: 'tobi'
@@ -143,7 +143,7 @@ module.exports = {
   'decoding a message packet with id and endpoint': function () {
     parser.decodePacket('3:5:/tobi').should.eql({
         type: 'message'
-      , id: 5
+      , id: '5'
       , ack: true
       , endpoint: '/tobi'
       , data: ''
@@ -245,7 +245,7 @@ module.exports = {
   'encoding json packet with message id and ack data': function () {
     parser.encodePacket({
         type: 'json'
-      , id: 1
+      , id: '1'
       , ack: 'data'
       , endpoint: ''
       , data: { a: 'b' }
@@ -264,7 +264,7 @@ module.exports = {
   'encoding an event packet with message id and ack': function () {
     parser.encodePacket({
         type: 'event'
-      , id: 1
+      , id: '1'
       , ack: 'data'
       , endpoint: ''
       , name: 'tobi'
@@ -292,7 +292,7 @@ module.exports = {
   'encoding a message packet with id and endpoint': function () {
     parser.encodePacket({
         type: 'message'
-      , id: 5
+      , id: '5'
       , ack: true
       , endpoint: '/tobi'
       , data: ''
