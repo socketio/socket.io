@@ -1,4 +1,15 @@
 
+0.9.7 / 2012-07-24
+==================
+
+  * Prevent crash when socket leaves a room twice.
+  * Corrects unsafe usage of for..in
+  * Fix for node 0.8 with `gzip compression` [vadimi]
+  * Update redis to support Node 0.8.x
+  * Made ID generation securely random
+  * Fix Redis Store race condition in manager onOpen unsubscribe callback
+  * Fix for EventEmitters always reusing the same Array instance for listeners
+
 0.9.6 / 2012-04-17
 ==================
 
