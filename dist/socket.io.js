@@ -1305,7 +1305,7 @@
     }
 
     if (packet.type == 'error' && packet.advice == 'reconnect') {
-      this.open = false;
+      this.isOpen = false;
     }
 
     this.socket.onPacket(packet);
@@ -1336,7 +1336,7 @@
    */
 
   Transport.prototype.onDisconnect = function () {
-    if (this.close && this.open) this.close();
+    if (this.isOpen) this.close();
     this.clearTimeouts();
     this.socket.onDisconnect();
     return this;
@@ -1410,7 +1410,7 @@
    */
 
   Transport.prototype.onOpen = function () {
-    this.open = true;
+    this.isOpen = true;
     this.clearCloseTimeout();
     this.socket.onOpen();
   };
@@ -1430,7 +1430,7 @@
       self.open();
     }, this.socket.options['reopen delay']);*/
 
-    this.open = false;
+    this.isOpen = false;
     this.socket.onClose();
     this.onDisconnect();
   };
