@@ -3490,7 +3490,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   function empty () {};
 
   XHRPolling.prototype.get = function () {
-    if (!this.open) return;
+    if (!this.isOpen) return;
 
     var self = this;
 
@@ -3778,7 +3778,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
   JSONPPolling.prototype._ = function (msg) {
     this.onData(msg);
-    if (this.open) {
+    if (this.isOpen) {
       this.get();
     }
     return this;
