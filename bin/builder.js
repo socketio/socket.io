@@ -92,7 +92,7 @@ var baseTransports = {
 var wrapperPre = "\nvar io = ('undefined' === typeof module ? {} : module.exports);\n(function() {\n";
 
 var wrapperPost = "\nif (typeof define === \"function\" && define.amd) {" +
-                  "\n  define(\"socket.io\", [], function () { return io; });" +
+                  "\n  define([], function () { return io; });" +
                   "\n}\n})();";
 
 
