@@ -1,4 +1,10 @@
 
+0.9.9 / 2012-08-01
+==================
+
+  * socket: fixed disconnect xhr url and made it actually sync
+  * *: bump xmlhttprequest dep
+
 0.9.8 / 2012-07-24
 ==================
 

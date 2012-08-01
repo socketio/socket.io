@@ -1,4 +1,4 @@
-/*! Socket.IO.js build:0.9.8, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
+/*! Socket.IO.js build:0.9.9, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
 
 var io = ('undefined' === typeof module ? {} : module.exports);
 (function() {
@@ -25,7 +25,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
    * @api public
    */
 
-  io.version = '0.9.8';
+  io.version = '0.9.9';
 
   /**
    * Protocol implemented.
@@ -1544,8 +1544,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
     if (this.options['sync disconnect on unload'] &&
         (!this.isXDomain() || io.util.ua.hasCORS)) {
       var self = this;
-
-      io.util.on(global, 'unload', function () {
+      io.util.on(global, 'beforeunload', function () {
         self.disconnectSync();
       }, false);
     }
@@ -1854,11 +1853,12 @@ var io = ('undefined' === typeof module ? {} : module.exports);
       , this.options.host + ':' + this.options.port
       , this.options.resource
       , io.protocol
+      , ''
       , this.sessionid
-    ].join('/') + '?disconnect';
+    ].join('/') + '/?disconnect=1';
 
-    xhr.open('GET', uri, true);
-    xhr.send(null); 
+    xhr.open('GET', uri, false);
+    xhr.send(null);
 
     // handle disconnection immediately
     this.onDisconnect('booted');
