@@ -1266,6 +1266,17 @@ var io = ('undefined' === typeof module ? {} : module.exports);
 
   io.util.mixin(Transport, io.EventEmitter);
 
+
+  /**
+   * Indicates whether heartbeats is enabled for this transport
+   *
+   * @api private
+   */
+
+  Transport.prototype.heartbeats = function () {
+    return true;
+  }
+
   /**
    * Handles the response from the server. When a new response is received
    * it will automatically update the timeout, decode the message and
@@ -1638,6 +1649,8 @@ var io = ('undefined' === typeof module ? {} : module.exports);
 
           if (xhr.status == 200) {
             complete(xhr.responseText);
+          } else if (xhr.status == 403) {
+            self.onError(xhr.responseText);
           } else {
             self.connecting = false;            
             !self.reconnecting && self.onError(xhr.responseText);
@@ -1688,10 +1701,11 @@ var io = ('undefined' === typeof module ? {} : module.exports);
       self.sessionid = sid;
       self.closeTimeout = close * 1000;
       self.heartbeatTimeout = heartbeat * 1000;
-      self.transports = transports ? io.util.intersect(
-          transports.split(',')
-        , self.options.transports
-      ) : self.options.transports;
+      if(!self.transports)
+          self.transports = self.origTransports = (transports ? io.util.intersect(
+              transports.split(',')
+            , self.options.transports
+          ) : self.options.transports);
 
       self.setHeartbeatTimeout();
 
@@ -1713,11 +1727,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
                 self.connecting = false;
 
                 if (self.options['try multiple transports']) {
-                  if (!self.remainingTransports) {
-                    self.remainingTransports = self.transports.slice(0);
-                  }
-
-                  var remaining = self.remainingTransports;
+                  var remaining = self.transports;
 
                   while (remaining.length > 0 && remaining.splice(0,1)[0] !=
                          self.transport.name) {}
@@ -1755,6 +1765,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
 
   Socket.prototype.setHeartbeatTimeout = function () {
     clearTimeout(this.heartbeatTimeoutTimer);
+    if(this.transport && !this.transport.heartbeats()) return;
 
     var self = this;
     this.heartbeatTimeoutTimer = setTimeout(function () {
@@ -1838,14 +1849,14 @@ var io = ('undefined' === typeof module ? {} : module.exports);
   Socket.prototype.disconnectSync = function () {
     // ensure disconnection
     var xhr = io.util.request();
- 	var uri = [
- 	     'http' + (this.options.secure ? 's' : '') + ':/'
- 	     , this.options.host + ':' + this.options.port
- 	     , this.options.resource
- 	     , io.protocol
- 	     , this.sessionid
- 	     ].join('/'); 
-         
+    var uri = [
+        'http' + (this.options.secure ? 's' : '') + ':/'
+      , this.options.host + ':' + this.options.port
+      , this.options.resource
+      , io.protocol
+      , this.sessionid
+    ].join('/') + '?disconnect';
+
     xhr.open('GET', uri, true);
     xhr.send(null); 
 
@@ -2023,6 +2034,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
         if (!self.redoTransports) {
           self.on('connect_failed', maybeReconnect);
           self.options['try multiple transports'] = true;
+          self.transports = self.origTransports;
           self.transport = self.getTransport();
           self.redoTransports = true;
           self.connect();
@@ -3465,6 +3477,16 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
    */
 
   XHRPolling.prototype.name = 'xhr-polling';
+
+  /**
+   * Indicates whether heartbeats is enabled for this transport
+   *
+   * @api private
+   */
+
+  XHRPolling.prototype.heartbeats = function () {
+    return false;
+  };
 
   /** 
    * Establish a connection, for iPhone and Android this will be done once the page
