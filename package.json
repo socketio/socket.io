@@ -6,7 +6,7 @@
   , "dependencies": {
         "debug": "0.6.0"
       , "engine.io-client": "0.1.0"
-      , "websocket.io": "0.2.1"
+      , "ws": "~0.4.21"
     }
   , "devDependencies": {
         "mocha": "*"
