@@ -1,4 +1,12 @@
 
+0.9.9 / 2012-08-01
+==================
+
+  * Fixed sync disconnect xhrs handling
+  * Put license text in its own file (#965)
+  * Add warning to .listen() to ease the migration to Express 3.x
+  * Restored compatibility with node 0.4.x
+
 0.9.8 / 2012-07-24
 ==================
 
