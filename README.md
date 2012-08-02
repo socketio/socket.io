@@ -94,6 +94,10 @@ The client class. _Inherits from EventEmitter_.
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
       to upgrade the transport from long-polling to something better.
       - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
+      - `timestampRequests` (`Boolean`): whether to add the timestamp with
+        each transport request. Note: this is ignored if the browser is
+        IE or Android, in which case requests are always stamped (`false`)
+      - `timestampParam` (`String`): timestamp parameter (`t`)
       - `flashPath` (`String`): path to flash client files with trailing slash
       - `policyPort` (`Number`): port the policy server listens on (`843`)
       - `transports` (`Array`): a list of transports to try (in order).
