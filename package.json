@@ -1,11 +1,11 @@
 {
     "name": "engine.io"
-  , "version": "0.1.0"
+  , "version": "0.1.1"
   , "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server"
   , "main": "./lib/engine.io"
   , "dependencies": {
         "debug": "0.6.0"
-      , "engine.io-client": "0.1.0"
+      , "engine.io-client": "0.1.1"
       , "ws": "~0.4.21"
     }
   , "devDependencies": {
