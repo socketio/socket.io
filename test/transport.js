@@ -58,11 +58,12 @@ describe('Transport', function () {
       expect(polling.uri()).to.be('https://localhost/engine.io?sid=test');
     });
 
-    it('should generate an uri with a t attribute', function () {
+    it('should generate a timestamped uri', function () {
       var polling = new eio.transports.polling({
           path: '/engine.io'
         , host: 'localhost'
-        , forceBust: true
+        , timestampParam: 't'
+        , timestampRequests: true
       });
       expect(polling.uri()).to.match(/http:\/\/localhost\/engine\.io\?t=[0-9]+/);
     });
@@ -85,6 +86,16 @@ describe('Transport', function () {
         , query: {}
       });
       expect(ws.uri()).to.be('wss://test/engine.io');
+    });
+
+    it('should timestamp ws uris', function () {
+      var ws = new eio.transports.websocket({
+          path: '/engine.io'
+        , host: 'localhost'
+        , timestampParam: 'woot'
+        , timestampRequests: true
+      });
+      expect(ws.uri()).to.match(/ws:\/\/localhost\/engine\.io\?woot=[0-9]+/);
     });
   });
 
