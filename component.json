@@ -1,0 +1,7 @@
+{
+  "name": "emitter",
+  "description": "Event emitter",
+  "keywords": ["emitter", "events"],
+  "version": "0.0.3",
+  "scripts": ["index.js"]
+}
