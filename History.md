@@ -1,4 +1,9 @@
 
+0.1.2 / 2012-08-02
+==================
+
+  * Fixed a jsonp bug in Nokia mobile phones and potentially other UAs.
+
 0.1.1 / 2012-08-01
 ==================
 
