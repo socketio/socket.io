@@ -408,6 +408,36 @@ describe('server', function () {
         });
       });
     });
+
+    it('should not trigger with connection: close header', function(done){
+      var engine = listen({ allowUpgrades: false }, function(port){
+        // intercept requests to add connection: close
+        var oldRequest = http.request;
+        http.request = function(){
+          var opts = arguments[0];
+          opts.headers = opts.headers || {};
+          opts.headers.Connection = 'close';
+          return oldRequest.apply(this, arguments);
+        }
+
+        engine.on('connection', function(socket){
+          socket.on('message', function(msg){
+            expect(msg).to.equal('test');
+            socket.send('woot');
+          });
+        });
+
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
+        socket.on('open', function(){
+          socket.send('test');
+        });
+        socket.on('message', function(msg){
+          expect(msg).to.be('woot');
+          http.request = oldRequest;
+          done();
+        });
+      });
+    });
   });
 
   describe('messages', function () {
