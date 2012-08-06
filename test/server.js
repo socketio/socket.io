@@ -55,7 +55,7 @@ describe('server', function () {
           .send({ transport: 'polling' })
           .end(function (res) {
             // hack-obtain sid
-            var sid = res.text.match(/"sid":"([0-9]+)"/)[1];
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
             done();
           });
@@ -67,7 +67,7 @@ describe('server', function () {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .send({ transport: 'polling' })
           .end(function (res) {
-            var sid = res.text.match(/"sid":"([0-9]+)"/)[1];
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('woot=' + sid);
             done();
           });
