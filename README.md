@@ -118,6 +118,7 @@ The transport class. Private. _Inherits from EventEmitter_.
 #### Events
 
 - `poll`: emitted by polling transports upon starting a new request
+- `pollComplete`: emitted by polling transports upon completing a request
 - `drain`: emitted by polling transports upon a buffer drain
 
 ## Flash transport
