@@ -111,6 +111,15 @@ The client class. _Inherits from EventEmitter_.
 - `close`
     - Disconnects the client.
 
+### Transport
+
+The transport class. Private. _Inherits from EventEmitter_.
+
+#### Events
+
+- `poll`: emitted by polling transports upon starting a new request
+- `drain`: emitted by polling transports upon a buffer drain
+
 ## Flash transport
 
 In order for the Flash transport to work correctly, ensure the `flashPath`
