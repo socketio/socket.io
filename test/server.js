@@ -3,7 +3,8 @@
  * Tests dependencies.
  */
 
-var parser = eio.parser
+var http = require('http')
+  , parser = eio.parser
   , WebSocket = require('ws')
 
 /**
@@ -368,6 +369,42 @@ describe('server', function () {
           setTimeout(function(){
             done();
           }, 100);
+        });
+      });
+    });
+
+    it('should trigger if a poll request is ongoing and the underlying'
+      + ' socket closes, as in a browser tab close', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
+          , serverSocket
+
+        engine.on('connection', function(socket){
+          serverSocket = socket;
+        });
+
+        socket.transport.on('poll', function(){
+          // at this time server's `connection` should have been fired
+          expect(serverSocket).to.be.an('object');
+
+          // OPENED readyState is expected - we qre actually polling
+          expect(socket.transport.pollXhr.xhr.readyState).to.be(1);
+
+          // 2 requests sent to the server over an unique port means
+          // we should have been assigned 2 sockets
+          var sockets = http.globalAgent.sockets['localhost:%d'.s(port)];
+          expect(sockets.length).to.be(2);
+
+          // expect the socket to be open at this point
+          expect(serverSocket.readyState).to.be('open');
+
+          // kill the underlying connection
+          serverSocket.on('close', function(reason, err){
+            expect(reason).to.be('transport error');
+            expect(err.message).to.be('poll connection closed prematurely');
+            done();
+          });
+          sockets[1].end();
         });
       });
     });
