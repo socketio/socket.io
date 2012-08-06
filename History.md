@@ -1,4 +1,11 @@
 
+0.2.0 / 2012-08-06
+==================
+
+  * Bumped client
+  * test: added closing connection test
+  * server: implemented stronger id generator with collision detection
+
 0.1.2 / 2012-08-02
 ==================
 
