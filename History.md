@@ -1,4 +1,9 @@
 
+0.2.0 / 2012-08-06
+==================
+
+  * polling: introduced `poll` and `pollComplete` (formerly `poll`) events
+
 0.1.2 / 2012-08-02
 ==================
 

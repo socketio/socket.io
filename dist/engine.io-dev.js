@@ -127,7 +127,7 @@ if (window.localStorage) debug.enable(localStorage.debug);function require(p, pa
  * @api public.
  */
 
-exports.version = '0.1.2';
+exports.version = '0.2.0';
 
 /**
  * Protocol version.
@@ -1923,7 +1923,7 @@ Polling.prototype.pause = function (onPause) {
     if (this.polling) {
       // debug: we are currently polling - waiting to pause
       total++;
-      this.once('poll', function () {
+      this.once('pollComplete', function () {
         // debug: pre-pause polling complete
         --total || pause();
       });
@@ -1952,6 +1952,7 @@ Polling.prototype.poll = function () {
   // debug: polling
   this.polling = true;
   this.doPoll();
+  this.emit('poll');
 };
 
 /**
@@ -1983,7 +1984,7 @@ Polling.prototype.onData = function (data) {
 
   // if we got data we're not polling
   this.polling = false;
-  this.emit('poll');
+  this.emit('pollComplete');
 
   if ('open' == this.readyState) {
     this.poll();
@@ -2126,7 +2127,6 @@ WS.prototype.doOpen = function () {
  * Writes data to socket.
  *
  * @param {Array} array of packets.
- * @param {Function} drain callback.
  * @api private
  */
 
