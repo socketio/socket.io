@@ -239,83 +239,10 @@ A representation of a client. _Inherits from EventEmitter_.
 
 <hr><br>
 
-#### Top-level
-
-These are exposed in the `eio` global namespace (in the browser), or by
+Exposed in the `eio` global namespace (in the browser), or by
 `require('engine.io-client')` (in Node.JS).
 
-##### Properties
-
-- `version` _(String)_: client version
-- `protocol` _(Number)_: protocol revision number
-- `Socket` _(Function)_: client constructor
-
-#### Socket
-
-The client class. _Inherits from EventEmitter_.
-
-#### Properties
-
-- `onopen` (_Function_)
-  - `open` event handler
-- `onmessage` (_Function_)
-  - `message` event handler
-- `onclose` (_Function_)
-  - `message` event handler
-
-##### Events
-
-- `open`
-  - Fired upon successful connection.
-- `message`
-  - Fired when data is received from the server.
-  - **Arguments**
-    - `String`: utf-8 encoded data
-- `close`
-  - Fired upon disconnection.
-  - **Arguments**
-    - `String`: reason for closing
-    - `Object`: description object (optional)
-- `error`
-  - Fired when an error occurs.
-
-##### Methods
-
-- **constructor**
-    - Initializes the client
-    - **Parameters**
-      - `Object`: optional, options object
-    - **Options**
-      - `host` (`String`): host name (`localhost`)
-      - `port` (`Number`): port name (`80`)
-      - `path` (`String`): path to intercept requests to (`/engine.io`)
-      - `resource` (`String`): name of resource for this server (`default`).
-        Setting a resource allows you to initialize multiple engine.io
-        endpoints on the same host without them interfering, and without
-        changing the `path` directly.
-      - `query` (`Object`): optional query string addition (eg: `{ a: 'b' }`)
-      - `secure` (`Boolean): whether the connection is secure
-      - `upgrade` (`Boolean`): defaults to true, whether the client should try
-      to upgrade the transport from long-polling to something better.
-      - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
-      - `timestampRequests` (`Boolean`): whether to add the timestamp with
-        each transport request. Note: this is ignored if the browser is
-        IE or Android, in which case requests are always stamped (`false`)
-      - `timestampParam` (`String`): timestamp parameter (`t`)
-      - `flashPath` (`String`): path to flash client files with trailing slash
-      - `policyPort` (`Number`): port the policy server listens on (`843`)
-      - `transports` (`Array`): a list of transports to try (in order).
-      Defaults to `['polling', 'websocket', 'flashsocket']`. `Engine`
-      always attempts to connect directly with the first one, provided the
-      feature detection test for it passes.
-- `send`
-    - Sends a message to the server
-    - **Parameters**
-      - `String`: data to send
-- `close`
-    - Disconnects the client.
-
-For more information on the client refer to the
+For the client API refer to the 
 [engine-client](http://github.com/learnboost/engine-client) repository.
 
 ## Transports
