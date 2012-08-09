@@ -1889,6 +1889,35 @@ done();return;
         }
       });
     });
+  },
+  'disconnect when receiving too much data from the client': function (done) {
+    var cl = client(++ports)
+      , io = create(cl)
+      , ws;
+
+    io.set('transports', ['websocket']);
+    io.set('destroy buffer size', 100);
+    io.sockets.on('connection', function (socket) {
+      socket.transport.should.equal('websocket');
+
+      socket.on('disconnect', function () {
+        setTimeout(function () {
+          ws.finishClose();
+          cl.end();
+          io.server.close();
+          done();
+        }, 10);
+      });
+    });
+
+    cl.handshake(function (sid) {
+      ws = websocket(cl, sid);
+      ws.on('open', function() {
+        var bigMessage = new Buffer(200);
+        bigMessage.fill('x');
+        ws.write('3:3000::' + bigMessage);
+      });
+    });
   }
 
 };

@@ -258,5 +258,103 @@ module.exports = {
     p.add(getBufferFromHexString(packet));
     assert.ok(gotData);
   },
+  'too large binary message generates error': function() {
+      var length = 100;
+      var p = new Parser(10);
+      var message = new Buffer(length);
+      for (var i = 0; i < length; ++i) message[i] = i % 256;
+      var originalMessage = getHexStringFromBuffer(message);
+      var packet = '82 ' + getHybiLengthAsHexString(length, true) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message, '34 83 a8 68'));
+      
+      var gotError = false;
+      p.on('error', function() {
+          gotError = true;
+      });
+      p.add(getBufferFromHexString(packet));
+      assert.ok(gotError);
+  },
+  'too large text message generates error': function() {
+    var length = 300;
+    var p = new Parser(10);
+    var message = 'A';
+    for (var i = 0; i < length; ++i) message += (i % 5).toString();
+    var packet = '81 FE ' + pack(4, message.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message, '34 83 a8 68'));
+
+    var gotError = false;
+    p.on('error', function() {
+      gotError = true;
+    });
+
+    p.add(getBufferFromHexString(packet));
+    assert.ok(gotError);
+  },
+  'too large fragmented text message generates error': function() {
+    var length = 300;
+    var p = new Parser(200);
+    var message = 'A';
+    for (var i = 0; i < length; ++i) message += (i % 5).toString();
+    var message1 = message.substring(0, 150);
+    var packet = '01 FE ' + pack(4, message.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message1, '34 83 a8 68'));
+    var message2 = message.substring(150);
+    var packet2 = '81 FE ' + pack(4, message.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message2, '34 83 a8 68'));
+
+    var gotError = false;
+    p.on('error', function() {
+      gotError = true;
+    });
+
+    p.add(getBufferFromHexString(packet));
+    p.add(getBufferFromHexString(packet2));
+    assert.ok(gotError);
+  },
+'too large binary message generates error': function() {
+      var length = 100;
+      var p = new Parser(10);
+      var message = new Buffer(length);
+      for (var i = 0; i < length; ++i) message[i] = i % 256;
+      var originalMessage = getHexStringFromBuffer(message);
+      var packet = '82 ' + getHybiLengthAsHexString(length, true) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message, '34 83 a8 68'));
+      
+      var gotError = false;
+      p.on('error', function() {
+          gotError = true;
+      });
+      p.add(getBufferFromHexString(packet));
+      assert.ok(gotError);
+  },
+  'too large text message generates error': function() {
+    var length = 300;
+    var p = new Parser(10);
+    var message = 'A';
+    for (var i = 0; i < length; ++i) message += (i % 5).toString();
+    var packet = '81 FE ' + pack(4, message.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message, '34 83 a8 68'));
+
+    var gotError = false;
+    p.on('error', function() {
+      gotError = true;
+    });
+
+    p.add(getBufferFromHexString(packet));
+    assert.ok(gotError);
+  },
+  'too large fragmented text message generates error': function() {
+    var length = 300;
+    var p = new Parser(200);
+    var message = 'A';
+    for (var i = 0; i < length; ++i) message += (i % 5).toString();
+    var message1 = message.substring(0, 150);
+    var packet = '01 FE ' + pack(4, message.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message1, '34 83 a8 68'));
+    var message2 = message.substring(150);
+    var packet2 = '81 FE ' + pack(4, message.length) + ' 34 83 a8 68 ' + getHexStringFromBuffer(mask(message2, '34 83 a8 68'));
+
+    var gotError = false;
+    p.on('error', function() {
+      gotError = true;
+    });
+
+    p.add(getBufferFromHexString(packet));
+    p.add(getBufferFromHexString(packet2));
+    assert.ok(gotError);
+  }
 };
 
