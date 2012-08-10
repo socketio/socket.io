@@ -1,4 +1,4 @@
-/*! Socket.IO.js build:0.9.9, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
+/*! Socket.IO.js build:0.9.10, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
 
 var io = ('undefined' === typeof module ? {} : module.exports);
 (function() {
@@ -25,7 +25,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
    * @api public
    */
 
-  io.version = '0.9.9';
+  io.version = '0.9.10';
 
   /**
    * Protocol implemented.
@@ -466,7 +466,6 @@ var io = ('undefined' === typeof module ? {} : module.exports);
       && /iPad|iPhone|iPod/i.test(navigator.userAgent);
 
 })('undefined' != typeof io ? io : module.exports, this);
-
 /**
  * socket.io
  * Copyright(c) 2011 LearnBoost <dev@learnboost.com>
@@ -577,11 +576,10 @@ var io = ('undefined' === typeof module ? {} : module.exports);
    */
 
   EventEmitter.prototype.removeAllListeners = function (name) {
-    // TODO: enable this when node 0.5 is stable
-    //if (name === undefined) {
-      //this.$events = {};
-      //return this;
-    //}
+    if (name === undefined) {
+      this.$events = {};
+      return this;
+    }
 
     if (this.$events && this.$events[name]) {
       this.$events[name] = null;
@@ -1525,7 +1523,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
       , 'reconnection limit': Infinity
       , 'reopen delay': 3000
       , 'max reconnection attempts': 10
-      , 'sync disconnect on unload': true
+      , 'sync disconnect on unload': false
       , 'auto connect': true
       , 'flash policy port': 10843
       , 'manualFlush': false
@@ -1641,7 +1639,9 @@ var io = ('undefined' === typeof module ? {} : module.exports);
       var xhr = io.util.request();
 
       xhr.open('GET', url, true);
-      xhr.withCredentials = true;
+      if (this.isXDomain()) {
+        xhr.withCredentials = true;
+      }
       xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
           xhr.onreadystatechange = empty;

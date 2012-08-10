@@ -1,4 +1,11 @@
 
+0.9.10 / 2012-08-10
+===================
+
+  * fix removeAllListeners to behave as expected.
+  * set withCredentials to true only if xdomain.
+  * socket: disable disconnect on unload by default.
+
 0.9.9 / 2012-08-01
 ==================
 
