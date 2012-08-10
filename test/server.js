@@ -558,6 +558,38 @@ describe('server', function () {
         });
       });
     });
+
+    it('should trigger a flush/drain event', function(done){
+      var engine = listen({ allowUpgrades: false }, function(port){
+        engine.on('connection', function(socket){
+          var totalEvents = 4;
+
+          engine.on('flush', function(sock, buf){
+            expect(sock).to.be(socket);
+            expect(buf).to.be.an('array');
+            --totalEvents || done();
+          });
+          socket.on('flush', function(buf){
+            expect(buf).to.be.an('array');
+            --totalEvents || done();
+          });
+
+          engine.on('drain', function(sock){
+            expect(sock).to.be(socket);
+            expect(socket.writeBuffer.length).to.be(0);
+            --totalEvents || done();
+          });
+          socket.on('drain', function(){
+            expect(socket.writeBuffer.length).to.be(0);
+            --totalEvents || done();
+          });
+
+          socket.send('aaaa');
+        });
+
+        new eioc.Socket('ws://localhost:%d'.s(port));
+      });
+    });
   });
 
   describe('upgrade', function () {

@@ -97,6 +97,18 @@ For more information on the client refer to the
 
 These are exposed by `require('engine.io')`:
 
+##### Events
+
+- `flush`
+    - Called when a socket buffer is being flushed.
+    - **Arguments**
+      - `Socket`: socket being flushed
+      - `Array`: write buffer
+- `drain`
+    - Called when a socket buffer is drained
+    - **Arguments**
+      - `Socket`: socket being flushed
+
 ##### Properties
 
 - `protocol` _(Number)_: protocol revision number
@@ -140,7 +152,7 @@ The main server/manager. _Inherits from EventEmitter_.
 ##### Events
 
 - `connection`
-    - Fired when a new connection is established. 
+    - Fired when a new connection is established.
     - **Arguments**
       - `Socket`: a Socket object
 
@@ -215,6 +227,12 @@ A representation of a client. _Inherits from EventEmitter_.
     - Fired when an error occurs.
     - **Arguments**
       - `Error`: error object
+- `flush`
+    - Called when the write buffer is being flushed.
+    - **Arguments**
+      - `Array`: write buffer
+- `drain`
+    - Called when the write buffer is drained
 
 ##### Properties
 
