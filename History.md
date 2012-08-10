@@ -1,4 +1,14 @@
 
+0.9.10 / 2012-08-10
+===================
+
+  * Don't lowercase log messages
+  * Always set the HTTP response in case an error should be returned to the client
+  * Create or destroy the flash policy server on configuration change
+  * Honour configuration to disable flash policy server
+  * Add express 3.0 instructions on Readme.md
+  * Bump client
+
 0.9.9 / 2012-08-01
 ==================
 
