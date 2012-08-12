@@ -271,7 +271,7 @@ For the client API refer to the
 
 ## Plugins
 
-- [engine.io-conflation](https://github.com/EugenDueck/engine.io-conflation)
+- [engine.io-conflation](https://github.com/EugenDueck/engine.io-conflation): Makes **conflation and aggregation** of messages straightforward.
 
 ## Support
 
