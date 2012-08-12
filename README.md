@@ -269,6 +269,10 @@ For the client API refer to the
 - `websocket`: WebSocket transport.
 - `flashsocket`: WebSocket transport backed by flash.
 
+## Plugins
+
+- [engine.io-conflation](https://github.com/EugenDueck/engine.io-conflation)
+
 ## Support
 
 The support channels for `engine.io` are the same as `socket.io`:
