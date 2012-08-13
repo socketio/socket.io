@@ -31,8 +31,8 @@ var engine = require('engine.io')
   , server = engine.attach(http)
 
 server.on('connection', function (socket) {
-  socket.on('message', function () { };
-  socket.on('close', function () { };
+  socket.on('message', function () { });
+  socket.on('close', function () { });
 });
 ```
 
