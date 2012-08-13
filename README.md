@@ -222,7 +222,7 @@ A representation of a client. _Inherits from EventEmitter_.
 - `message`
     - Fired when the client sends a message.
     - **Arguments**
-      - `String`: utf-8 string
+      - `String`: unicode string
 - `error`
     - Fired when an error occurs.
     - **Arguments**
@@ -245,9 +245,9 @@ A representation of a client. _Inherits from EventEmitter_.
 ##### Methods
 
 - `send`:
-    - Sends a message.
+    - Sends a message, performing `message = toString(arguments[0])`.
     - **Parameters**
-      - `String`: utf-8 string with outgoing data
+      - `String`: a string or any object implementing `toString()`, with outgoing data
     - **Returns** `Socket` for chaining
 - `close`
     - Disconnects the client
