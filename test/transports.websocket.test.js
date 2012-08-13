@@ -44,7 +44,6 @@ module.exports = {
 
     io.set('transports', ['websocket']);
     io.sockets.on('connection', function (socket) {
-      socket.manager.transports[socket.id].protocolVersion.should.equal('hixie-76');
       ws.finishClose();
       cl.end();
       io.server.close();
@@ -62,7 +61,6 @@ module.exports = {
 
     io.set('transports', ['websocket']);
     io.sockets.on('connection', function (socket) {
-      socket.manager.transports[socket.id].protocolVersion.should.equal('07-12');
       cl.end();
       io.server.close();
       done();
@@ -88,7 +86,6 @@ module.exports = {
     io.set('transports', ['websocket']);
 
     io.sockets.on('connection', function (socket) {
-      socket.manager.transports[socket.id].protocolVersion.should.equal('16');
       cl.end();
       io.server.close();
       done();
