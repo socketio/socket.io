@@ -44,9 +44,8 @@
       event.on('test:more', empty);
       event.removeAllListeners();
 
-      // TODO: with node 0.5 we'll change this to expect []
-      event.listeners('test').should().eql([empty]);
-      event.listeners('test:more').should().eql([empty]);
+      event.listeners('test').should().eql([]);
+      event.listeners('test:more').should().eql([]);
     },
 
     'remove listeners functions': function () {
