@@ -1,4 +1,13 @@
 
+0.2.1 / 2012-08-13
+==================
+
+  * polling-xhr: skip Keep-Alive when it's implied [EugenDueck]
+  * polling-jsonp: skip Keep-Alive when it's implied [EugenDueck]
+  * README: added plugins list with engine.io-conflation
+  * socket: added flush/drain events (fixes #56)
+  * server: avoid passing websocket to non-websocket transports (fixes #24)
+
 0.2.0 / 2012-08-06
 ==================
 
