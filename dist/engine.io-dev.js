@@ -127,7 +127,7 @@ if (window.localStorage) debug.enable(localStorage.debug);function require(p, pa
  * @api public.
  */
 
-exports.version = '0.2.0';
+exports.version = '0.2.1';
 
 /**
  * Protocol version.
@@ -165,7 +165,7 @@ exports.Socket = require('./socket');
  * Export EventEmitter.
  */
 
-exports.EventEmitter = require('./event-emitter')
+exports.EventEmitter = require('./event-emitter');
 
 /**
  * Export Transport.
