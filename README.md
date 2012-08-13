@@ -17,7 +17,9 @@ var engine = require('engine.io')
   , server = engine.listen(80)
 
 server.on('connection', function (socket) {
-  socket.send('utf 8 string');
+  socket.send('utf 8 string', function(){
+  	//the message was sent successfully
+  });
 });
 ```
 
@@ -29,8 +31,8 @@ var engine = require('engine.io')
   , server = engine.attach(http)
 
 server.on('connection', function (socket) {
-  socket.on('message', function () { });
-  socket.on('close', function () { });
+  socket.on('message', function () { };
+  socket.on('close', function () { };
 });
 ```
 
