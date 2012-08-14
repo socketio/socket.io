@@ -3,6 +3,10 @@
   , "version": "0.2.1"
   , "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server"
   , "main": "./lib/engine.io"
+  , "author": "Guillermo Rauch <guillermo@learnboost.com>"
+  , "contributors": [
+        { "name": "Eugen Dueck", "web": "https://github.com/EugenDueck" }
+    ]
   , "dependencies": {
         "debug": "0.6.0"
       , "engine.io-client": "0.2.1"
