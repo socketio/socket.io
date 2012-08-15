@@ -389,6 +389,8 @@ describe('server', function () {
       });
     });
 
+    
+
     it('should arrive from server to client (multiple)', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port))
@@ -491,6 +493,29 @@ describe('server', function () {
         });
       });
     });
+    
+    it('should execute callback only when client gets message', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port)),
+            i = 0;
+        engine.on('connection', function (conn) {
+          conn.send('a', function(transport) {
+            i++;
+          });
+        });
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+            i++;
+          });
+        });
+        
+        setTimeout(function(){
+            expect(i).to.be(2);
+            done();
+        },10);
+      });
+    });
+    
   });
 
   describe('upgrade', function () {

@@ -17,7 +17,7 @@ var engine = require('engine.io')
   , server = engine.listen(80)
 
 server.on('connection', function (socket) {
-  socket.send('utf 8 string', function(){
+  socket.send('utf 8 string', function(transport){
   	//the message was sent successfully
   });
 });
