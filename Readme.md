@@ -319,6 +319,23 @@ io.sockets.on('connection', function (socket) {
 </script>
 ```
 
+### Using event middleware
+
+You can set a middleware function in configuration.
+
+#### Server side
+
+```js
+var io = require('socket.io').listen(80);
+
+io.configure(function () {
+  io.set('middleware', function(event, data){
+    this.user = {name: "Justin Bieber"};
+    socket.$emit.call(this, event, data);
+  });
+});
+```
+
 ### Changing configuration
 
 Configuration in socket.io is TJ-style:
