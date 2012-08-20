@@ -496,139 +496,141 @@ describe('server', function () {
   });
 
   describe('send', function(){
-    describe('callback', function(){
-         it('should execute when message sent (polling)', function (done) {
-          var engine = listen({ allowUpgrades: false }, function (port) {
-            var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] }),
-                i = 0;
-            engine.on('connection', function (conn) {
-              conn.send('a', function(transport) {
-                i++;
-              });
+    describe('callback', function() {
+      it('should execute when message sent (polling)', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+          var i = 0;
+          
+          engine.on('connection', function (conn) {
+            conn.send('a', function(transport) {
+              i++;
             });
-            socket.on('open', function () {
-              socket.on('message', function (msg) {
-                i++;
-              });
-            });
-
-            setTimeout(function(){
-                expect(i).to.be(2);
-                done();
-            },10);
           });
-        });
-
-        it('should execute when message sent (websocket)', function (done) {
-          var engine = listen({ allowUpgrades: false }, function (port) {
-            var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] }),
-                i = 0;
-            engine.on('connection', function (conn) {
-              conn.send('a', function(transport) {
-                i++;
-              });
+          socket.on('open', function () {
+            socket.on('message', function (msg) {
+              i++;
             });
-            socket.on('open', function () {
-              socket.on('message', function (msg) {
-                i++;
-              });
-            });
-
-            setTimeout(function(){
-                expect(i).to.be(2);
-                done();
-            },10);
           });
-        });
 
-        it('should execute once for each send', function (done) {
+          setTimeout(function() {
+            expect(i).to.be(2);
+            done();
+          }, 10);
+        });
+      });
+
+      it('should execute when message sent (websocket)', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+          var i = 0;
+          engine.on('connection', function (conn) {
+            conn.send('a', function(transport) {
+              i++;
+            });
+          });
+          
+          socket.on('open', function () {
+            socket.on('message', function (msg) {
+              i++;
+            });
+          });
+
+          setTimeout(function(){
+            expect(i).to.be(2);
+              done();
+          },10);
+        });
+      });
+
+      it('should execute once for each send', function (done) {
           var engine = listen(function (port) {
-            var socket = new eioc.Socket('ws://localhost:%d'.s(port)),
-                i = 0,
-                j = 0;
-            engine.on('connection', function (conn) {
-              conn.send('b', function (transport) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+          var i = 0;
+          var j = 0;
+          
+          engine.on('connection', function (conn) {
+            conn.send('b', function (transport) {
+              j++;
+            }); 
+                
+            conn.send('a', function (transport) {
+              i++;
+            });    
+          });
+          
+          socket.on('open', function () {
+            socket.on('message', function (msg) {
+              if (msg == 'a') {
+                i++;
+              } else if (msg == 'b') {
                 j++;
-              }); 
-                
-              conn.send('a', function (transport) {
-                i++;
-              });
-              
+              }
             });
-            socket.on('open', function () {
-              socket.on('message', function (msg) {
-                if (msg == "a") {
-                    i++;
-                } else if (msg == "b") {
-                    j++;
-                }
-              });
-            });
-
-            setTimeout(function () {
-                expect(i).to.be(2);
-                expect(j).to.be(2);
-                done();
-            }, 50);
           });
-        });
 
-        it('should execute in mutlipart packet', function (done) {
-          var engine = listen(function (port) {
-            var socket = new eioc.Socket('ws://localhost:%d'.s(port)),
-                i = 0;
-            engine.on('connection', function (conn) {
+          setTimeout(function () {
+            expect(i).to.be(2);
+            expect(j).to.be(2);
+            done();
+          }, 50);
+        });
+      });
+
+      it('should execute in mutlipart packet', function (done) {
+        var engine = listen(function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+          var i = 0;
+        
+          engine.on('connection', function (conn) {
+            conn.send('b', function (transport) {
+              i++;
+            }); 
+                
+            conn.send('a', function(transport) {
+              i++;
+            });
+              
+          });
+          socket.on('open', function () {
+            socket.on('message', function (msg) {
+              i++;
+            });
+          });
+
+          setTimeout(function () {
+            expect(i).to.be(4);
+            done();
+          }, 50);
+        });
+      });
+        
+      it('should execute in separate message', function (done) {
+        var engine = listen(function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+          var i = 0;
+          
+          engine.on('connection', function (conn) {       
+            conn.send('a', function(transport) {
+              i++;  
               conn.send('b', function (transport) {
                 i++;
               }); 
-                
-              conn.send('a', function(transport) {
-                i++;
-              });
-              
             });
-            socket.on('open', function () {
-              socket.on('message', function (msg) {
-                i++;
-              });
-            });
-
-            setTimeout(function () {
-                expect(i).to.be(4);
-                done();
-            }, 50);
           });
-        });
-        
-        it('should execute in separate message', function (done) {
-          var engine = listen(function (port) {
-            var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] }),
-                i = 0;
-            engine.on('connection', function (conn) {
-                
-              conn.send('a', function(transport) {
-                i++;
-                
-                conn.send('b', function (transport) {
-                    i++;
-                }); 
-              });
-            });
             
-            socket.on('open', function () {
-              socket.on('message', function (msg) {
-                i++;
-              });
+          socket.on('open', function () {
+            socket.on('message', function (msg) {
+              i++;
             });
-
-            setTimeout(function () {
-                expect(i).to.be(4);
-                done();
-            }, 10);
           });
-        });
 
+          setTimeout(function () {
+            expect(i).to.be(4);
+            done();
+          }, 10);
+        });
+      });
     });
   });
 
