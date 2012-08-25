@@ -571,7 +571,7 @@ describe('server', function () {
             expect(i).to.be(2);
             expect(j).to.be(2);
             done();
-          }, 50);
+          }, 100);
         });
       });
 
@@ -599,7 +599,7 @@ describe('server', function () {
           setTimeout(function () {
             expect(i).to.be(4);
             done();
-          }, 50);
+          }, 200);
         });
       });
         
@@ -607,7 +607,7 @@ describe('server', function () {
         var engine = listen(function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
           var i = 0;
-          
+
           engine.on('connection', function (conn) {       
             conn.send('a', function(transport) {
               i++;  
@@ -616,7 +616,7 @@ describe('server', function () {
               }); 
             });
           });
-            
+
           socket.on('open', function () {
             socket.on('message', function (msg) {
               i++;
@@ -627,6 +627,35 @@ describe('server', function () {
             expect(i).to.be(4);
             done();
           }, 10);
+        });
+      });
+      
+      it('should execute while polling', function (done) {
+        var engine = listen(function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+          var i = 0;
+          var j = 0;
+
+          engine.on('connection', function (conn) {       
+            socket.transport.on('poll', function () {
+              conn.send('a', function(transport) {
+                //increase the second number for callback
+                j++;
+              }); 
+            });
+          });
+
+          socket.on('open', function () {
+            socket.on('message', function (msg) {
+              //increase the first number when message received by client
+              i++;
+            });
+          });
+
+          setTimeout(function () {
+            expect(i).to.be(j);
+            done();
+          }, 100);
         });
       });
     });
