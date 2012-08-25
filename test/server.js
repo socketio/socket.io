@@ -389,8 +389,6 @@ describe('server', function () {
       });
     });
 
-    
-
     it('should arrive from server to client (multiple)', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port))
