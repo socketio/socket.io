@@ -499,6 +499,7 @@ describe('server', function () {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
           var i = 0;
+          var j = 0;
           
           engine.on('connection', function (conn) {
             conn.send('a', function(transport) {
@@ -507,12 +508,12 @@ describe('server', function () {
           });
           socket.on('open', function () {
             socket.on('message', function (msg) {
-              i++;
+              j++;
             });
           });
 
           setTimeout(function() {
-            expect(i).to.be(2);
+            expect(i).to.be(j);
             done();
           }, 10);
         });
@@ -522,6 +523,8 @@ describe('server', function () {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
           var i = 0;
+          var j = 0;
+          
           engine.on('connection', function (conn) {
             conn.send('a', function(transport) {
               i++;
@@ -530,14 +533,14 @@ describe('server', function () {
           
           socket.on('open', function () {
             socket.on('message', function (msg) {
-              i++;
+              j++;
             });
           });
 
-          setTimeout(function(){
-            expect(i).to.be(2);
-              done();
-          },10);
+          setTimeout(function () {
+            expect(i).to.be(j);
+            done();
+          }, 10);
         });
       });
 
@@ -545,15 +548,17 @@ describe('server', function () {
           var engine = listen(function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port));
           var i = 0;
+          var ic = 0;
           var j = 0;
+          var jc = 0;
           
           engine.on('connection', function (conn) {
             conn.send('b', function (transport) {
-              j++;
+              jc++;
             }); 
                 
             conn.send('a', function (transport) {
-              i++;
+              ic++;
             });    
           });
           
@@ -568,8 +573,8 @@ describe('server', function () {
           });
 
           setTimeout(function () {
-            expect(i).to.be(2);
-            expect(j).to.be(2);
+            expect(i).to.be(ic);
+            expect(j).to.be(jc);
             done();
           }, 100);
         });
@@ -579,25 +584,26 @@ describe('server', function () {
         var engine = listen(function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port));
           var i = 0;
-        
+          var j = 0;
+          
           engine.on('connection', function (conn) {
             conn.send('b', function (transport) {
               i++;
             }); 
                 
-            conn.send('a', function(transport) {
+            conn.send('a', function (transport) {
               i++;
             });
               
           });
           socket.on('open', function () {
             socket.on('message', function (msg) {
-              i++;
+              j++;
             });
           });
 
           setTimeout(function () {
-            expect(i).to.be(4);
+            expect(i).to.be(j);
             done();
           }, 200);
         });
@@ -607,7 +613,8 @@ describe('server', function () {
         var engine = listen(function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
           var i = 0;
-
+          var j = 0;
+          
           engine.on('connection', function (conn) {       
             conn.send('a', function(transport) {
               i++;  
@@ -619,12 +626,12 @@ describe('server', function () {
 
           socket.on('open', function () {
             socket.on('message', function (msg) {
-              i++;
+              j++;
             });
           });
 
           setTimeout(function () {
-            expect(i).to.be(4);
+            expect(i).to.be(j);
             done();
           }, 10);
         });
@@ -638,7 +645,7 @@ describe('server', function () {
 
           engine.on('connection', function (conn) {       
             socket.transport.on('poll', function () {
-              conn.send('a', function(transport) {
+              conn.send('a', function (transport) {
                 //increase the second number for callback
                 j++;
               }); 
