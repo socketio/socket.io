@@ -1,4 +1,10 @@
 
+0.2.2 / 2012-08-26
+==================
+
+  * polling-jsonp: allow unneeded global leak (fixes #41)
+  * polling-jsonp: allow for multiple eio's in the same page
+
 0.2.1 / 2012-08-13
 ==================
 

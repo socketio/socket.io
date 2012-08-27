@@ -6,7 +6,7 @@
  * @api public.
  */
 
-exports.version = '0.2.1';
+exports.version = '0.2.2';
 
 /**
  * Protocol version.
@@ -1249,7 +1249,7 @@ function polling (opts) {
  */
 
 var Polling = require('./polling')
-  , util = require('../util')
+  , util = require('../util');
 
 /**
  * Module exports.
@@ -1261,13 +1261,13 @@ module.exports = JSONPPolling;
  * Cached regular expressions.
  */
 
-var rNewline = /\n/g
+var rNewline = /\n/g;
 
 /**
  * Global JSONP callbacks.
  */
 
-var callbacks = global.___eio = [];
+var callbacks;
 
 /**
  * Callbacks count.
@@ -1291,8 +1291,16 @@ function empty () { }
 function JSONPPolling (opts) {
   Polling.call(this, opts);
 
+  // define global callbacks array if not present
+  // we do this here (lazily) to avoid unneeded global pollution
+  if (!callbacks) {
+    // we need to consider multiple engines in the same page
+    if (!global.___eio) global.___eio = [];
+    callbacks = global.___eio;
+  }
+
   // callback identifier
-  this.index = index++;
+  this.index = callbacks.length;
 
   // add callback to jsonp global
   var self = this;
@@ -1301,7 +1309,7 @@ function JSONPPolling (opts) {
   });
 
   // append to query string
-  this.query.j = callbacks.length - 1;
+  this.query.j = this.index;
 };
 
 /**
@@ -1360,7 +1368,7 @@ JSONPPolling.prototype.doPoll = function () {
   script.async = true;
   script.src = this.uri();
 
-  var insertAt = document.getElementsByTagName('script')[0]
+  var insertAt = document.getElementsByTagName('script')[0];
   insertAt.parentNode.insertBefore(script, insertAt);
   this.script = script;
 
@@ -1382,7 +1390,7 @@ JSONPPolling.prototype.doPoll = function () {
  */
 
 JSONPPolling.prototype.doWrite = function (data, fn) {
-  var self = this
+  var self = this;
 
   if (!this.form) {
     var form = document.createElement('form')
@@ -1441,7 +1449,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   } catch(e) {}
 
   if (this.iframe.attachEvent) {
-    iframe.onreadystatechange = function () {
+    this.iframe.onreadystatechange = function(){
       if (self.iframe.readyState == 'complete') {
         complete();
       }
@@ -2338,5 +2346,5 @@ exports.qs = function (obj) {
   return str;
 };
 
-});if ("undefined" != typeof module) { module.exports = require('engine.io-client'); } else { eio = require('engine.io-client'); }
+});eio = require('engine.io-client');
 })();
