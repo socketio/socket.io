@@ -65,24 +65,6 @@ describe('engine', function () {
       });
     });
 
-    it('should respond to flash policy requests in parts', function (done) {
-      var server = http.createServer()
-        , engine = eio.attach(server);
-
-      server.listen(function () {
-        var client = net.createConnection(server.address().port);
-        client.write('<policy-file-request/>', function () {
-          client.write('\0');
-          client.setEncoding('ascii');
-          client.on('data', function (data) {
-            expect(data).to.contain('<allow-access-from');
-            client.end();
-            done();
-          });
-        });
-      });
-    });
-
     it('should not respond to borked flash policy requests', function (done) {
       var server = http.createServer()
         , engine = eio.attach(server);
