@@ -30,6 +30,7 @@
       , "stylus": "*"
       , "socket.io": "0.9.10"
       , "socket.io-client": "0.9.10"
+      , "should": "*"
     }
   , "engines": { "node": ">= 0.4.0" }
 }
