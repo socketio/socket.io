@@ -5,7 +5,8 @@
   , "main": "./lib/engine.io"
   , "author": "Guillermo Rauch <guillermo@learnboost.com>"
   , "contributors": [
-        { "name": "Eugen Dueck", "web": "https://github.com/EugenDueck" }
+        { "name": "Eugen Dueck", "web": "https://github.com/EugenDueck" },
+        { "name": "Afshin Mehrabani", "web": "https://github.com/afshinm" }
     ]
   , "dependencies": {
         "debug": "0.6.0"
