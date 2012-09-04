@@ -493,16 +493,16 @@ describe('server', function () {
     });
   });
 
-  describe('send', function(){
+  describe('send', function() {
     describe('callback', function() {
       it('should execute when message sent (polling)', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
           var i = 0;
           var j = 0;
-          
+
           engine.on('connection', function (conn) {
-            conn.send('a', function(transport) {
+            conn.send('a', function (transport) {
               i++;
             });
           });
@@ -524,13 +524,13 @@ describe('server', function () {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
           var i = 0;
           var j = 0;
-          
+
           engine.on('connection', function (conn) {
-            conn.send('a', function(transport) {
+            conn.send('a', function (transport) {
               i++;
             });
           });
-          
+
           socket.on('open', function () {
             socket.on('message', function (msg) {
               j++;
@@ -551,17 +551,17 @@ describe('server', function () {
           var ic = 0;
           var j = 0;
           var jc = 0;
-          
+
           engine.on('connection', function (conn) {
             conn.send('b', function (transport) {
               jc++;
-            }); 
-                
+            });
+
             conn.send('a', function (transport) {
               ic++;
-            });    
+            });
           });
-          
+
           socket.on('open', function () {
             socket.on('message', function (msg) {
               if (msg == 'a') {
@@ -585,16 +585,16 @@ describe('server', function () {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port));
           var i = 0;
           var j = 0;
-          
+
           engine.on('connection', function (conn) {
             conn.send('b', function (transport) {
               i++;
-            }); 
-                
+            });
+
             conn.send('a', function (transport) {
               i++;
             });
-              
+
           });
           socket.on('open', function () {
             socket.on('message', function (msg) {
@@ -608,19 +608,19 @@ describe('server', function () {
           }, 200);
         });
       });
-        
+
       it('should execute in separate message', function (done) {
         var engine = listen(function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
           var i = 0;
           var j = 0;
-          
-          engine.on('connection', function (conn) {       
-            conn.send('a', function(transport) {
-              i++;  
+
+          engine.on('connection', function (conn) {
+            conn.send('a', function (transport) {
+              i++;
               conn.send('b', function (transport) {
                 i++;
-              }); 
+              });
             });
           });
 
@@ -636,22 +636,22 @@ describe('server', function () {
           }, 10);
         });
       });
-      
+
       it('should execute while polling', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
           var j = 0;
           var k = 0;
           var selfCon = {};
-		  
-          engine.on('connection', function (conn) {     
-            selfCon = conn;  
+
+          engine.on('connection', function (conn) {
+            selfCon = conn;
             socket.transport.on('poll', function () {
               conn.send('a', function (transport) {
                 //increase the second number for callback
                 j++;
-              }); 
-              
+              });
+
               if (conn.writeBuffer.length > 0) {
                 k++;
               }
@@ -659,32 +659,32 @@ describe('server', function () {
           });
 
           setTimeout(function () {
-          	//if we have one or more packets in buffer, remove it 
-          	if (selfCon.writeBuffer.length > 0) {
-          	  k = k - selfCon.writeBuffer.length;
-          	}
+            //if we have one or more packets in buffer, remove it
+            if (selfCon.writeBuffer.length > 0) {
+              k = k - selfCon.writeBuffer.length;
+            }
             expect(j).to.be(k);
             done();
           }, 50);
         });
       });
-          
+
       it('should clean callback references when socket gets closed', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
-		  
+
           engine.on('connection', function (conn) {
             socket.transport.on('poll', function () {
               conn.send('a', function (transport) {
                 //nothing
-              }); 
-              
+              });
+
             if (conn.writeBuffer.length > 0) {
                 //force to close the socket when we have one or more packet(s) in buffer
                 socket.close();
               }
             });
-            
+
             conn.on('close', function (reason) {
               expect(conn.packetsFn).to.be.empty();
               done();
