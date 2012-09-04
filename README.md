@@ -58,7 +58,7 @@ httpServer.on('request', function (req, res) {
 ```html
 <script src="/path/to/engine.io.js"></script>
 <script>
-  var socket = new eio.Socket({ host: 'localhost', port: 80 });
+  var socket = new eio.Socket('ws://localhost/');
   socket.on('open', function () {
     socket.on('message', function (data) { });
     socket.on('close', function () { });
