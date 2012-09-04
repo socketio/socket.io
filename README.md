@@ -248,6 +248,7 @@ A representation of a client. _Inherits from EventEmitter_.
     - Sends a message, performing `message = toString(arguments[0])`.
     - **Parameters**
       - `String`: a string or any object implementing `toString()`, with outgoing data
+      - `Function`: optional, a callback executed when the message gets flushed out by the transport
     - **Returns** `Socket` for chaining
 - `close`
     - Disconnects the client
