@@ -644,7 +644,7 @@ describe('server', function () {
       });
 
       it('should execute once for each send', function (done) {
-          var engine = listen(function (port) {
+        var engine = listen(function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port));
           var i = 0;
           var ic = 0;
@@ -679,7 +679,7 @@ describe('server', function () {
         });
       });
 
-      it('should execute in mutlipart packet', function (done) {
+      it('should execute in multipart packet', function (done) {
         var engine = listen(function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port));
           var i = 0;
@@ -707,21 +707,6 @@ describe('server', function () {
           }, 200);
         });
       });
-        
-      it('should execute in separate message', function (done) {
-        var engine = listen(function (port) {
-          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
-          var i = 0;
-          var j = 0;
-          
-          engine.on('connection', function (conn) {       
-            conn.send('a', function(transport) {
-              i++;  
-              conn.send('b', function (transport) {
-                i++;
-              }); 
-            });
-          });
 
           socket.on('open', function () {
             socket.on('message', function (msg) {
