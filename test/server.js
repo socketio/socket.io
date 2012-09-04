@@ -668,7 +668,6 @@ describe('server', function () {
           }, 50);
         });
       });
-      
           
       it('should clean callback references when socket gets closed', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
