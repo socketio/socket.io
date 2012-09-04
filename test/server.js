@@ -638,31 +638,59 @@ describe('server', function () {
       });
       
       it('should execute while polling', function (done) {
-        var engine = listen(function (port) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
-          var i = 0;
           var j = 0;
-
-          engine.on('connection', function (conn) {       
+          var k = 0;
+          var selfCon = {};
+		  
+          engine.on('connection', function (conn) {     
+            selfCon = conn;  
             socket.transport.on('poll', function () {
               conn.send('a', function (transport) {
                 //increase the second number for callback
                 j++;
               }); 
-            });
-          });
-
-          socket.on('open', function () {
-            socket.on('message', function (msg) {
-              //increase the first number when message received by client
-              i++;
+              
+              if (conn.writeBuffer.length > 0) {
+                k++;
+              }
             });
           });
 
           setTimeout(function () {
-            expect(i).to.be(j);
+          	//if we have one or more packets in buffer, remove it 
+          	if (selfCon.writeBuffer.length > 0) {
+          	  k = k - selfCon.writeBuffer.length;
+          	}
+            expect(j).to.be(k);
             done();
-          }, 100);
+          }, 50);
+        });
+      });
+      
+          
+      it('should clean callback references when socket gets closed', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+		  
+          engine.on('connection', function (conn) {
+            socket.transport.on('poll', function () {
+              conn.send('a', function (transport) {
+                //nothing
+              }); 
+              
+            if (conn.writeBuffer.length > 0) {
+                //force to close the socket when we have one or more packet(s) in buffer
+                socket.close();
+              }
+            });
+            
+            conn.on('close', function (reason) {
+              expect(conn.packetsFn).to.be.empty();
+              done();
+            });
+          });
         });
       });
     });
