@@ -592,6 +592,208 @@ describe('server', function () {
     });
   });
 
+  describe('send', function(){
+    describe('callback', function() {
+      it('should execute when message sent (polling)', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+          var i = 0;
+          var j = 0;
+          
+          engine.on('connection', function (conn) {
+            conn.send('a', function(transport) {
+              i++;
+            });
+          });
+          socket.on('open', function () {
+            socket.on('message', function (msg) {
+              j++;
+            });
+          });
+
+          setTimeout(function() {
+            expect(i).to.be(j);
+            done();
+          }, 10);
+        });
+      });
+
+      it('should execute when message sent (websocket)', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+          var i = 0;
+          var j = 0;
+          
+          engine.on('connection', function (conn) {
+            conn.send('a', function(transport) {
+              i++;
+            });
+          });
+          
+          socket.on('open', function () {
+            socket.on('message', function (msg) {
+              j++;
+            });
+          });
+
+          setTimeout(function () {
+            expect(i).to.be(j);
+            done();
+          }, 10);
+        });
+      });
+
+      it('should execute once for each send', function (done) {
+          var engine = listen(function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+          var i = 0;
+          var ic = 0;
+          var j = 0;
+          var jc = 0;
+          
+          engine.on('connection', function (conn) {
+            conn.send('b', function (transport) {
+              jc++;
+            }); 
+                
+            conn.send('a', function (transport) {
+              ic++;
+            });    
+          });
+          
+          socket.on('open', function () {
+            socket.on('message', function (msg) {
+              if (msg == 'a') {
+                i++;
+              } else if (msg == 'b') {
+                j++;
+              }
+            });
+          });
+
+          setTimeout(function () {
+            expect(i).to.be(ic);
+            expect(j).to.be(jc);
+            done();
+          }, 100);
+        });
+      });
+
+      it('should execute in mutlipart packet', function (done) {
+        var engine = listen(function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+          var i = 0;
+          var j = 0;
+          
+          engine.on('connection', function (conn) {
+            conn.send('b', function (transport) {
+              i++;
+            }); 
+                
+            conn.send('a', function (transport) {
+              i++;
+            });
+              
+          });
+          socket.on('open', function () {
+            socket.on('message', function (msg) {
+              j++;
+            });
+          });
+
+          setTimeout(function () {
+            expect(i).to.be(j);
+            done();
+          }, 200);
+        });
+      });
+        
+      it('should execute in separate message', function (done) {
+        var engine = listen(function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+          var i = 0;
+          var j = 0;
+          
+          engine.on('connection', function (conn) {       
+            conn.send('a', function(transport) {
+              i++;  
+              conn.send('b', function (transport) {
+                i++;
+              }); 
+            });
+          });
+
+          socket.on('open', function () {
+            socket.on('message', function (msg) {
+              j++;
+            });
+          });
+
+          setTimeout(function () {
+            expect(i).to.be(j);
+            done();
+          }, 10);
+        });
+      });
+      
+      it('should execute while polling', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+          var j = 0;
+          var k = 0;
+          var selfCon = {};
+		  
+          engine.on('connection', function (conn) {     
+            selfCon = conn;  
+            socket.transport.on('poll', function () {
+              conn.send('a', function (transport) {
+                //increase the second number for callback
+                j++;
+              }); 
+              
+              if (conn.writeBuffer.length > 0) {
+                k++;
+              }
+            });
+          });
+
+          setTimeout(function () {
+          	//if we have one or more packets in buffer, remove it 
+          	if (selfCon.writeBuffer.length > 0) {
+          	  k = k - selfCon.writeBuffer.length;
+          	}
+            expect(j).to.be(k);
+            done();
+          }, 50);
+        });
+      });
+          
+      it('should clean callback references when socket gets closed', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+		  
+          engine.on('connection', function (conn) {
+            socket.transport.on('poll', function () {
+              conn.send('a', function (transport) {
+                //nothing
+              }); 
+              
+            if (conn.writeBuffer.length > 0) {
+                //force to close the socket when we have one or more packet(s) in buffer
+                socket.close();
+              }
+            });
+            
+            conn.on('close', function (reason) {
+              expect(conn.packetsFn).to.be.empty();
+              done();
+            });
+          });
+        });
+      });
+    });
+  });
+
   describe('upgrade', function () {
     it('should upgrade', function (done) {
       var engine = listen(function (port) {
