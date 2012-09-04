@@ -125,7 +125,7 @@ describe('engine', function () {
 
         var check = setTimeout(function () {
           done(new Error('Client should have ended'));
-        }, 20);
+        }, 500);
 
         client.on('end', function () {
           clearTimeout(check);
@@ -151,7 +151,7 @@ describe('engine', function () {
           var check = setTimeout(function () {
             client.removeListener('end', onEnd);
             done();
-          }, 20);
+          }, 200);
 
           function onEnd () {
             done(new Error('Client should not end'));
