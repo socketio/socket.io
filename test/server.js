@@ -708,67 +708,24 @@ describe('server', function () {
         });
       });
 
-          socket.on('open', function () {
-            socket.on('message', function (msg) {
-              j++;
-            });
-          });
-
-          setTimeout(function () {
-            expect(i).to.be(j);
-            done();
-          }, 10);
-        });
-      });
-      
-      it('should execute while polling', function (done) {
+      it('should clean callback references when socket gets closed with pending callbacks', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
-          var j = 0;
-          var k = 0;
-          var selfCon = {};
-		  
-          engine.on('connection', function (conn) {     
-            selfCon = conn;  
-            socket.transport.on('poll', function () {
-              conn.send('a', function (transport) {
-                //increase the second number for callback
-                j++;
-              }); 
-              
-              if (conn.writeBuffer.length > 0) {
-                k++;
-              }
-            });
-          });
 
-          setTimeout(function () {
-          	//if we have one or more packets in buffer, remove it 
-          	if (selfCon.writeBuffer.length > 0) {
-          	  k = k - selfCon.writeBuffer.length;
-          	}
-            expect(j).to.be(k);
-            done();
-          }, 50);
-        });
-      });
-          
-      it('should clean callback references when socket gets closed', function (done) {
-        var engine = listen({ allowUpgrades: false }, function (port) {
-          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
-		  
           engine.on('connection', function (conn) {
-            socket.transport.on('poll', function () {
+            socket.transport.on('pollComplete', function () {
               conn.send('a', function (transport) {
-                //nothing
-              }); 
-              
-            if (conn.writeBuffer.length > 0) {
-                //force to close the socket when we have one or more packet(s) in buffer
-                socket.close();
+                done(new Error('Test invalidation'));
+              });
+
+              if (!conn.writeBuffer.length) {
+                done(new Error('Test invalidation'));
               }
+
+              // force to close the socket when we have one or more packet(s) in buffer
+              socket.close();
             });
-            
+
             conn.on('close', function (reason) {
               expect(conn.packetsFn).to.be.empty();
               done();
