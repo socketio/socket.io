@@ -9,6 +9,18 @@ $ component install component/emitter
 ```
 
 ## API
+
+### Emitter(obj)
+
+  The `Emitter` may also be used as a mixin. For example
+  a "plain" object may become an emitter, or you may
+  extend an existing prototype:
+
+```js
+var obj = {};
+Emitter(obj);
+Emitter(User.prototype);
+```
   
 ### Emitter#on(event, fn)
 
