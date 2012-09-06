@@ -133,11 +133,9 @@ These are exposed by `require('engine.io')`:
       - `http.Server`: server to attach to.
       - `Object`: optional, options object
     - **Options**
-      - `path` (`String`) default prefix path (`/engine.io`)
       - `resource` (`String`): name of resource for this server (`default`).
         Setting a resource allows you to initialize multiple engine.io
-        endpoints on the same host without them interfering, and without
-        changing the `path` directly.
+        endpoints on the same host without them interfering.
       - `policyFile` (`Boolean`): whether to handle policy file requests (`true`)
       - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
       - **See Server options below for additional options you can pass**
