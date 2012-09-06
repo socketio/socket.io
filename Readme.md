@@ -1,4 +1,3 @@
-
 # Emitter
 
   Event emitter component.
@@ -6,7 +5,7 @@
 ## Installation
 
 ```
-$ npm install emitter-component
+$ component install component/emitter
 ```
 
 ## API
