@@ -144,3 +144,12 @@ describe('Emitter', function(){
     })
   })
 })
+
+describe('Emitter(obj)', function(){
+  it('should mixin', function(done){
+    var proto = {};
+    Emitter(proto);
+    proto.on('something', done);
+    proto.emit('something');
+  })
+})
