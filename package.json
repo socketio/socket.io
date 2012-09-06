@@ -1,7 +1,7 @@
 {
   "name": "emitter-component",
   "description": "Event emitter",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "devDependencies": {
     "mocha": "*",
     "should": "*"
