@@ -20,6 +20,7 @@
       , "policyfile": "0.0.4"
       , "redis": "0.7.2"
       , "ws": "~0.4.21"
+      , "base64id": "0.1.0"
     }
   , "devDependencies": {
         "expresso": "0.9.2"
