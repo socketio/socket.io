@@ -12,7 +12,7 @@ module.exports = Emitter;
  */
 
 function Emitter(obj) {
-  if (!(this instanceof Emitter)) return mixin(obj);
+  if (obj) return mixin(obj);
   this._callbacks = {};
 };
 

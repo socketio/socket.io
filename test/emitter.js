@@ -1,6 +1,22 @@
 
 var Emitter = require('..');
 
+function Custom() {
+  Emitter.call(this)
+}
+
+Custom.prototype.__proto__ = Emitter.prototype;
+
+describe('Custom', function(){
+  describe('with Emitter.call(this)', function(){
+    it('should work', function(done){
+      var emitter = new Custom;
+      emitter.on('foo', done);
+      emitter.emit('foo');
+    })
+  })
+})
+
 describe('Emitter', function(){
   describe('.on(event, fn)', function(){
     it('should add listeners', function(){
