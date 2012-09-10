@@ -3,7 +3,8 @@
  * Tests dependencies.
  */
 
-var parser = eio.parser
+var http = require('http')
+  , parser = eio.parser
   , WebSocket = require('ws')
 
 /**
@@ -55,7 +56,7 @@ describe('server', function () {
           .send({ transport: 'polling' })
           .end(function (res) {
             // hack-obtain sid
-            var sid = res.text.match(/"sid":"([0-9]+)"/)[1];
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
             done();
           });
@@ -67,7 +68,7 @@ describe('server', function () {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .send({ transport: 'polling' })
           .end(function (res) {
-            var sid = res.text.match(/"sid":"([0-9]+)"/)[1];
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('woot=' + sid);
             done();
           });
@@ -371,6 +372,72 @@ describe('server', function () {
         });
       });
     });
+
+    it('should trigger if a poll request is ongoing and the underlying'
+      + ' socket closes, as in a browser tab close', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
+          , serverSocket
+
+        engine.on('connection', function(socket){
+          serverSocket = socket;
+        });
+
+        socket.transport.on('poll', function(){
+          // at this time server's `connection` should have been fired
+          expect(serverSocket).to.be.an('object');
+
+          // OPENED readyState is expected - we qre actually polling
+          expect(socket.transport.pollXhr.xhr.readyState).to.be(1);
+
+          // 2 requests sent to the server over an unique port means
+          // we should have been assigned 2 sockets
+          var sockets = http.globalAgent.sockets['localhost:%d'.s(port)];
+          expect(sockets.length).to.be(2);
+
+          // expect the socket to be open at this point
+          expect(serverSocket.readyState).to.be('open');
+
+          // kill the underlying connection
+          serverSocket.on('close', function(reason, err){
+            expect(reason).to.be('transport error');
+            expect(err.message).to.be('poll connection closed prematurely');
+            done();
+          });
+          sockets[1].end();
+        });
+      });
+    });
+
+    it('should not trigger with connection: close header', function(done){
+      var engine = listen({ allowUpgrades: false }, function(port){
+        // intercept requests to add connection: close
+        var oldRequest = http.request;
+        http.request = function(){
+          var opts = arguments[0];
+          opts.headers = opts.headers || {};
+          opts.headers.Connection = 'close';
+          return oldRequest.apply(this, arguments);
+        }
+
+        engine.on('connection', function(socket){
+          socket.on('message', function(msg){
+            expect(msg).to.equal('test');
+            socket.send('woot');
+          });
+        });
+
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
+        socket.on('open', function(){
+          socket.send('test');
+        });
+        socket.on('message', function(msg){
+          expect(msg).to.be('woot');
+          http.request = oldRequest;
+          done();
+        });
+      });
+    });
   });
 
   describe('messages', function () {
@@ -491,6 +558,38 @@ describe('server', function () {
         });
       });
     });
+
+    it('should trigger a flush/drain event', function(done){
+      var engine = listen({ allowUpgrades: false }, function(port){
+        engine.on('connection', function(socket){
+          var totalEvents = 4;
+
+          engine.on('flush', function(sock, buf){
+            expect(sock).to.be(socket);
+            expect(buf).to.be.an('array');
+            --totalEvents || done();
+          });
+          socket.on('flush', function(buf){
+            expect(buf).to.be.an('array');
+            --totalEvents || done();
+          });
+
+          engine.on('drain', function(sock){
+            expect(sock).to.be(socket);
+            expect(socket.writeBuffer.length).to.be(0);
+            --totalEvents || done();
+          });
+          socket.on('drain', function(){
+            expect(socket.writeBuffer.length).to.be(0);
+            --totalEvents || done();
+          });
+
+          socket.send('aaaa');
+        });
+
+        new eioc.Socket('ws://localhost:%d'.s(port));
+      });
+    });
   });
 
   describe('send', function() {
@@ -545,7 +644,7 @@ describe('server', function () {
       });
 
       it('should execute once for each send', function (done) {
-          var engine = listen(function (port) {
+        var engine = listen(function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port));
           var i = 0;
           var ic = 0;
@@ -580,7 +679,7 @@ describe('server', function () {
         });
       });
 
-      it('should execute in mutlipart packet', function (done) {
+      it('should execute in multipart packet', function (done) {
         var engine = listen(function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port));
           var i = 0;
@@ -609,80 +708,22 @@ describe('server', function () {
         });
       });
 
-      it('should execute in separate message', function (done) {
-        var engine = listen(function (port) {
-          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
-          var i = 0;
-          var j = 0;
-
-          engine.on('connection', function (conn) {
-            conn.send('a', function (transport) {
-              i++;
-              conn.send('b', function (transport) {
-                i++;
-              });
-            });
-          });
-
-          socket.on('open', function () {
-            socket.on('message', function (msg) {
-              j++;
-            });
-          });
-
-          setTimeout(function () {
-            expect(i).to.be(j);
-            done();
-          }, 10);
-        });
-      });
-
-      it('should execute while polling', function (done) {
-        var engine = listen({ allowUpgrades: false }, function (port) {
-          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
-          var j = 0;
-          var k = 0;
-          var selfCon = {};
-
-          engine.on('connection', function (conn) {
-            selfCon = conn;
-            socket.transport.on('poll', function () {
-              conn.send('a', function (transport) {
-                //increase the second number for callback
-                j++;
-              });
-
-              if (conn.writeBuffer.length > 0) {
-                k++;
-              }
-            });
-          });
-
-          setTimeout(function () {
-            //if we have one or more packets in buffer, remove it
-            if (selfCon.writeBuffer.length > 0) {
-              k = k - selfCon.writeBuffer.length;
-            }
-            expect(j).to.be(k);
-            done();
-          }, 50);
-        });
-      });
-
-      it('should clean callback references when socket gets closed', function (done) {
+      it('should clean callback references when socket gets closed with pending callbacks', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
 
           engine.on('connection', function (conn) {
-            socket.transport.on('poll', function () {
+            socket.transport.on('pollComplete', function () {
               conn.send('a', function (transport) {
-                //nothing
+                done(new Error('Test invalidation'));
               });
 
-            if (conn.writeBuffer.length > 0) {
-                //force to close the socket when we have one or more packet(s) in buffer
-                socket.close();
+              if (!conn.writeBuffer.length) {
+                done(new Error('Test invalidation'));
               }
+
+              // force to close the socket when we have one or more packet(s) in buffer
+              socket.close();
             });
 
             conn.on('close', function (reason) {

@@ -58,7 +58,7 @@ httpServer.on('request', function (req, res) {
 ```html
 <script src="/path/to/engine.io.js"></script>
 <script>
-  var socket = new eio.Socket({ host: 'localhost', port: 80 });
+  var socket = new eio.Socket('ws://localhost/');
   socket.on('open', function () {
     socket.on('message', function (data) { });
     socket.on('close', function () { });
@@ -97,6 +97,18 @@ For more information on the client refer to the
 
 These are exposed by `require('engine.io')`:
 
+##### Events
+
+- `flush`
+    - Called when a socket buffer is being flushed.
+    - **Arguments**
+      - `Socket`: socket being flushed
+      - `Array`: write buffer
+- `drain`
+    - Called when a socket buffer is drained
+    - **Arguments**
+      - `Socket`: socket being flushed
+
 ##### Properties
 
 - `protocol` _(Number)_: protocol revision number
@@ -121,11 +133,9 @@ These are exposed by `require('engine.io')`:
       - `http.Server`: server to attach to.
       - `Object`: optional, options object
     - **Options**
-      - `path` (`String`) default prefix path (`/engine.io`)
       - `resource` (`String`): name of resource for this server (`default`).
         Setting a resource allows you to initialize multiple engine.io
-        endpoints on the same host without them interfering, and without
-        changing the `path` directly.
+        endpoints on the same host without them interfering.
       - `policyFile` (`Boolean`): whether to handle policy file requests (`true`)
       - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
       - **See Server options below for additional options you can pass**
@@ -140,7 +150,7 @@ The main server/manager. _Inherits from EventEmitter_.
 ##### Events
 
 - `connection`
-    - Fired when a new connection is established. 
+    - Fired when a new connection is established.
     - **Arguments**
       - `Socket`: a Socket object
 
@@ -210,11 +220,17 @@ A representation of a client. _Inherits from EventEmitter_.
 - `message`
     - Fired when the client sends a message.
     - **Arguments**
-      - `String`: utf-8 string
+      - `String`: unicode string
 - `error`
     - Fired when an error occurs.
     - **Arguments**
       - `Error`: error object
+- `flush`
+    - Called when the write buffer is being flushed.
+    - **Arguments**
+      - `Array`: write buffer
+- `drain`
+    - Called when the write buffer is drained
 
 ##### Properties
 
@@ -227,9 +243,10 @@ A representation of a client. _Inherits from EventEmitter_.
 ##### Methods
 
 - `send`:
-    - Sends a message.
+    - Sends a message, performing `message = toString(arguments[0])`.
     - **Parameters**
-      - `String`: utf-8 string with outgoing data
+      - `String`: a string or any object implementing `toString()`, with outgoing data
+      - `Function`: optional, a callback executed when the message gets flushed out by the transport
     - **Returns** `Socket` for chaining
 - `close`
     - Disconnects the client
@@ -239,90 +256,33 @@ A representation of a client. _Inherits from EventEmitter_.
 
 <hr><br>
 
-#### Top-level
-
-These are exposed in the `eio` global namespace (in the browser), or by
+Exposed in the `eio` global namespace (in the browser), or by
 `require('engine.io-client')` (in Node.JS).
 
-##### Properties
-
-- `version` _(String)_: client version
-- `protocol` _(Number)_: protocol revision number
-- `Socket` _(Function)_: client constructor
-
-#### Socket
-
-The client class. _Inherits from EventEmitter_.
-
-#### Properties
-
-- `onopen` (_Function_)
-  - `open` event handler
-- `onmessage` (_Function_)
-  - `message` event handler
-- `onclose` (_Function_)
-  - `message` event handler
-
-##### Events
-
-- `open`
-  - Fired upon successful connection.
-- `message`
-  - Fired when data is received from the server.
-  - **Arguments**
-    - `String`: utf-8 encoded data
-- `close`
-  - Fired upon disconnection.
-  - **Arguments**
-    - `String`: reason for closing
-    - `Object`: description object (optional)
-- `error`
-  - Fired when an error occurs.
-
-##### Methods
-
-- **constructor**
-    - Initializes the client
-    - **Parameters**
-      - `Object`: optional, options object
-    - **Options**
-      - `host` (`String`): host name (`localhost`)
-      - `port` (`Number`): port name (`80`)
-      - `path` (`String`): path to intercept requests to (`/engine.io`)
-      - `resource` (`String`): name of resource for this server (`default`).
-        Setting a resource allows you to initialize multiple engine.io
-        endpoints on the same host without them interfering, and without
-        changing the `path` directly.
-      - `query` (`Object`): optional query string addition (eg: `{ a: 'b' }`)
-      - `secure` (`Boolean): whether the connection is secure
-      - `upgrade` (`Boolean`): defaults to true, whether the client should try
-      to upgrade the transport from long-polling to something better.
-      - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
-      - `timestampRequests` (`Boolean`): whether to add the timestamp with
-        each transport request. Note: this is ignored if the browser is
-        IE or Android, in which case requests are always stamped (`false`)
-      - `timestampParam` (`String`): timestamp parameter (`t`)
-      - `flashPath` (`String`): path to flash client files with trailing slash
-      - `policyPort` (`Number`): port the policy server listens on (`843`)
-      - `transports` (`Array`): a list of transports to try (in order).
-      Defaults to `['polling', 'websocket', 'flashsocket']`. `Engine`
-      always attempts to connect directly with the first one, provided the
-      feature detection test for it passes.
-- `send`
-    - Sends a message to the server
-    - **Parameters**
-      - `String`: data to send
-- `close`
-    - Disconnects the client.
-
-For more information on the client refer to the
+For the client API refer to the 
 [engine-client](http://github.com/learnboost/engine-client) repository.
+
+## Debug / logging
+
+Engine.IO is powered by [debug](http://github.com/visionmedia/debug).
+In order to see all the debug output, run your app with the env variable
+`DEBUG` including the desired scope.
+
+To see the output from all of Engine.IO's debugging scopes you can use:
+
+```
+DEBUG=engine* node myapp
+```
 
 ## Transports
 
 - `polling`: XHR / JSONP polling transport.
 - `websocket`: WebSocket transport.
 - `flashsocket`: WebSocket transport backed by flash.
+
+## Plugins
+
+- [engine.io-conflation](https://github.com/EugenDueck/engine.io-conflation): Makes **conflation and aggregation** of messages straightforward.
 
 ## Support
 
