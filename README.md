@@ -262,6 +262,18 @@ Exposed in the `eio` global namespace (in the browser), or by
 For the client API refer to the 
 [engine-client](http://github.com/learnboost/engine-client) repository.
 
+## Debug / logging
+
+Engine.IO is powered by [debug](http://github.com/visionmedia/debug).
+In order to see all the debug output, run your app with the env variable
+`DEBUG` including the desired scope.
+
+To see the output from all of Engine.IO's debugging scopes you can use:
+
+```
+DEBUG=engine* node myapp
+```
+
 ## Transports
 
 - `polling`: XHR / JSONP polling transport.
