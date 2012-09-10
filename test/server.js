@@ -592,16 +592,16 @@ describe('server', function () {
     });
   });
 
-  describe('send', function(){
+  describe('send', function() {
     describe('callback', function() {
       it('should execute when message sent (polling)', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
           var i = 0;
           var j = 0;
-          
+
           engine.on('connection', function (conn) {
-            conn.send('a', function(transport) {
+            conn.send('a', function (transport) {
               i++;
             });
           });
@@ -623,13 +623,13 @@ describe('server', function () {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
           var i = 0;
           var j = 0;
-          
+
           engine.on('connection', function (conn) {
-            conn.send('a', function(transport) {
+            conn.send('a', function (transport) {
               i++;
             });
           });
-          
+
           socket.on('open', function () {
             socket.on('message', function (msg) {
               j++;
@@ -650,17 +650,17 @@ describe('server', function () {
           var ic = 0;
           var j = 0;
           var jc = 0;
-          
+
           engine.on('connection', function (conn) {
             conn.send('b', function (transport) {
               jc++;
-            }); 
-                
+            });
+
             conn.send('a', function (transport) {
               ic++;
-            });    
+            });
           });
-          
+
           socket.on('open', function () {
             socket.on('message', function (msg) {
               if (msg == 'a') {
@@ -684,16 +684,16 @@ describe('server', function () {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port));
           var i = 0;
           var j = 0;
-          
+
           engine.on('connection', function (conn) {
             conn.send('b', function (transport) {
               i++;
-            }); 
-                
+            });
+
             conn.send('a', function (transport) {
               i++;
             });
-              
+
           });
           socket.on('open', function () {
             socket.on('message', function (msg) {
