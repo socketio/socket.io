@@ -12,6 +12,7 @@
         "debug": "0.6.0"
       , "engine.io-client": "0.2.2"
       , "ws": "~0.4.21"
+      , "base64id": "0.1.0"
     }
   , "devDependencies": {
         "mocha": "*"
