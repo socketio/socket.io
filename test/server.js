@@ -506,7 +506,9 @@ describe('server', function () {
 
         engine.on('connection', function(conn){
           conn.on('heartbeat', function() {
-            conn.close();
+            setTimeout(function() {
+              conn.close();
+            }, 20);
             setTimeout(function() {
               expect(clientCloseReason).to.be("transport close");
               done();
@@ -530,7 +532,7 @@ describe('server', function () {
         });
 
         engine.on('connection', function(conn){
-          conn.on('heartbeat', function() {
+          conn.once('heartbeat', function() {
             setTimeout(function() {
               socket.onPacket = function(){};
               expect(clientCloseReason).to.be(null);
