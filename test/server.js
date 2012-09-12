@@ -223,7 +223,7 @@ describe('server', function () {
     });
 
     it('should trigger on client if server does not meet ping timeout', function (done) {
-      var opts = { allowUpgrades: false, pingTimeout: 10 };
+      var opts = { allowUpgrades: false, pingInterval: 5, pingTimeout: 5 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('open', function () {
@@ -438,6 +438,114 @@ describe('server', function () {
         });
       });
     });
+
+    it('should not trigger early with connection `ping timeout` after post handshake timeout', function (done) {
+      // First timeout should trigger after `pingInterval + pingTimeout`, not just `pingTimeout`.
+      var opts = { allowUpgrades: false, pingInterval: 300, pingTimeout: 100 };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+
+        var clientCloseReason = null
+
+        socket.on('handshake', function() {
+          socket.onPacket = function(){};
+        });
+        socket.on('open', function () {
+          socket.on('close', function (reason) {
+            clientCloseReason = reason;
+          });
+        });
+
+        setTimeout(function() {
+          expect(clientCloseReason).to.be(null);
+          done();
+        }, 200);
+      });
+    });
+
+    it('should not trigger early with connection `ping timeout` after post ping timeout', function (done) {
+      // Ping timeout should trigger after `pingInterval + pingTimeout`, not just `pingTimeout`.
+      var opts = { allowUpgrades: false, pingInterval: 300, pingTimeout: 100 };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+
+        engine.on('connection', function(conn){
+          conn.on('heartbeat', function() {
+            conn.onPacket = function(){};
+          });
+        });
+
+        var clientCloseReason = null
+
+        socket.on('open', function () {
+          socket.on('close', function (reason) {
+            clientCloseReason = reason;
+          });
+        });
+
+        setTimeout(function() {
+          expect(clientCloseReason).to.be(null);
+          done();
+        }, 300);
+      });
+    });
+
+    it('should trigger early with connection `transport close` after missing pong', function (done) {
+      // Ping timeout should trigger after `pingInterval + pingTimeout`, not just `pingTimeout`.
+      var opts = { allowUpgrades: false, pingInterval: 300, pingTimeout: 100 };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+
+        var clientCloseReason = null
+
+        socket.on('open', function () {
+          socket.on('close', function (reason) {
+            clientCloseReason = reason;
+          });
+        });
+
+        engine.on('connection', function(conn){
+          conn.on('heartbeat', function() {
+            conn.close();
+            setTimeout(function() {
+              expect(clientCloseReason).to.be("transport close");
+              done();
+            }, 150);
+          });
+        });
+      });
+    });
+
+    it('should trigger with connection `ping timeout` after `pingInterval + pingTimeout`', function (done) {
+      var opts = { allowUpgrades: false, pingInterval: 30, pingTimeout: 10 };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+
+        var clientCloseReason = null
+
+        socket.on('open', function () {
+          socket.on('close', function (reason) {
+            clientCloseReason = reason;
+          });
+        });
+
+        engine.on('connection', function(conn){
+          conn.on('heartbeat', function() {
+            setTimeout(function() {
+              socket.onPacket = function(){};
+              expect(clientCloseReason).to.be(null);
+            }, 15);
+            setTimeout(function() {
+              expect(clientCloseReason).to.be(null);
+            }, 35);
+            setTimeout(function() {
+              expect(clientCloseReason).to.be("ping timeout");
+              done();
+            }, 50);
+          });
+        });
+      });
+    });    
   });
 
   describe('messages', function () {
