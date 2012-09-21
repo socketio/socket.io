@@ -17,7 +17,7 @@ describe('server', function () {
     it('should disallow non-existent transports', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .send({ transport: 'tobi' }) // no tobi transport - outrageous
+          .query({ transport: 'tobi' }) // no tobi transport - outrageous
           .end(function (res) {
             expect(res.status).to.be(500);
             done();
@@ -29,7 +29,7 @@ describe('server', function () {
       // make sure we check for actual properties - not those present on every {}
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .send({ transport: 'constructor' })
+          .query({ transport: 'constructor' })
           .end(function (res) {
             expect(res.status).to.be(500);
             done();
@@ -40,7 +40,7 @@ describe('server', function () {
     it('should disallow non-existent sids', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .send({ transport: 'polling', sid: 'test' })
+          .query({ transport: 'polling', sid: 'test' })
           .end(function (res) {
             expect(res.status).to.be(500);
             done();
@@ -53,7 +53,7 @@ describe('server', function () {
     it('should send the io cookie', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .send({ transport: 'polling' })
+          .query({ transport: 'polling' })
           .end(function (res) {
             // hack-obtain sid
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
@@ -66,7 +66,7 @@ describe('server', function () {
     it('should send the io cookie custom name', function (done) {
       var engine = listen({ cookie: 'woot' }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .send({ transport: 'polling' })
+          .query({ transport: 'polling' })
           .end(function (res) {
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('woot=' + sid);
@@ -78,7 +78,7 @@ describe('server', function () {
     it('should not send the io cookie', function (done) {
       var engine = listen({ cookie: false }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .send({ transport: 'polling' })
+          .query({ transport: 'polling' })
           .end(function (res) {
             expect(res.headers['set-cookie']).to.be(undefined);
             done();
