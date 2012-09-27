@@ -9,7 +9,7 @@
     ]
   , "dependencies": {
         "ws": "0.4.20"
-      , "xmlhttprequest": "1.4.2"
+      , "xmlhttprequest": "1.5.0"
       , "debug": "0.6.0"
     }
   , "devDependencies": {
