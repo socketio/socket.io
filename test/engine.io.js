@@ -1,10 +1,11 @@
+/*global eio,listen,request,expect*/
 
 /**
  * Test dependencies.
  */
 
 var net = require('net')
-  , http = require('http')
+  , http = require('http');
 
 /**
  * Tests.
