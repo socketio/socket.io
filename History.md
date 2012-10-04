@@ -1,4 +1,10 @@
 
+0.3.0 / 2012-09-04
+==================
+
+  * IE's XDomainRequest cannot do requests that go from HTTPS to HTTP or HTTP to HTTPS [mixu]
+  * Switch to client-initiated ping, and set interval in handshake [cadorn]
+
 0.2.2 / 2012-08-26
 ==================
 

@@ -127,7 +127,7 @@ if (window.localStorage) debug.enable(localStorage.debug);function require(p, pa
  * @api public.
  */
 
-exports.version = '0.2.2';
+exports.version = '0.3.0';
 
 /**
  * Protocol version.
@@ -778,9 +778,8 @@ Socket.prototype.onPacket = function (packet) {
         this.onHandshake(util.parseJSON(packet.data));
         break;
 
-      case 'ping':
-        this.sendPacket('pong');
-        this.setPingTimeout();
+      case 'pong':
+        this.ping();
         break;
 
       case 'error':
@@ -815,23 +814,32 @@ Socket.prototype.onHandshake = function (data) {
   this.id = data.sid;
   this.transport.query.sid = data.sid;
   this.upgrades = data.upgrades;
+  this.pingInterval = data.pingInterval;
   this.pingTimeout = data.pingTimeout;
   this.onOpen();
-  this.setPingTimeout();
+  this.ping();
 };
 
 /**
- * Clears and sets a ping timeout based on the expected ping interval.
+ * Pings server every `this.pingInterval` and expects response
+ * within `this.pingTimeout` or closes connection.
  *
  * @api private
  */
 
-Socket.prototype.setPingTimeout = function () {
-  clearTimeout(this.pingTimeoutTimer);
+Socket.prototype.ping = function () {
   var self = this;
-  this.pingTimeoutTimer = setTimeout(function () {
-    self.onClose('ping timeout');
-  }, this.pingTimeout);
+  clearTimeout(self.pingIntervalTimer);
+  clearTimeout(self.pingTimeoutTimer);
+  self.pingIntervalTimer = setTimeout(function () {
+    debug('writing ping packet - expecting pong within %sms', self.pingTimeout);
+    self.emit('heartbeat');
+    self.sendPacket('ping');
+    clearTimeout(self.pingTimeoutTimer);
+    self.pingTimeoutTimer = setTimeout(function () {
+      self.onClose('ping timeout');
+    }, self.pingTimeout);
+  }, self.pingInterval);
 };
 
 /**
@@ -1349,14 +1357,23 @@ exports.flashsocket = flashsocket;
  */
 
 function polling (opts) {
-  var xd = false;
+  var xhr
+    , xd = false
+    , isXProtocol = false;
 
   if (global.location) {
     xd = opts.host != global.location.hostname
       || global.location.port != opts.port;
+    isXProtocol = (opts.secure !== (global.location.protocol === 'https:'));
   }
 
-  if (util.request(xd) && !opts.forceJSONP) {
+  xhr = util.request(xd);
+  /* See #7 at http://blogs.msdn.com/b/ieinternals/archive/2010/05/13/xdomainrequest-restrictions-limitations-and-workarounds.aspx */
+  if (isXProtocol && global.XDomainRequest && xhr instanceof global.XDomainRequest) {
+    return new JSONP(opts);
+  }
+
+  if (xhr && !opts.forceJSONP) {
     return new XHR(opts);
   } else {
     return new JSONP(opts);
@@ -2040,8 +2057,9 @@ Polling.prototype.uri = function () {
     , schema = this.secure ? 'https' : 'http'
     , port = ''
 
-  // cache busting is forced for IE / android
-  if (global.ActiveXObject || util.ua.android || this.timestampRequests) {
+  // cache busting is forced for IE / android / iOS6 ಠ_ಠ
+  if (global.ActiveXObject || util.ua.android || util.ua.ios6
+    || this.timestampRequests) {
     query[this.timestampParam] = +new Date;
   }
 
@@ -2391,6 +2409,14 @@ exports.ua.android = 'undefined' != typeof navigator &&
   /android/i.test(navigator.userAgent);
 
 /**
+ * Detect iOS.
+ */
+
+exports.ua.ios = 'undefined' != typeof navigator &&
+  /^(iPad|iPhone|iPod)$/.test(navigator.platform);
+exports.ua.ios6 = exports.ua.ios && /OS 6_/.test(navigator.userAgent);
+
+/**
  * XHR request helper.
  *
  * @param {Boolean} whether we need xdomain
@@ -2403,7 +2429,7 @@ exports.request = function request (xdomain) {
 
 
 
-  if (xdomain && 'undefined' != typeof XDomainRequest) {
+  if (xdomain && 'undefined' != typeof XDomainRequest && !exports.ua.hasCORS) {
     return new XDomainRequest();
   }
 
