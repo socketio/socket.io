@@ -1,4 +1,15 @@
 
+0.3.0 / 2012-10-04
+==================
+
+  * socket: `writeBuffer` now gets sliced, and is recoverable after `close` [afshinm]
+  * server: expect ping from client and send interval with handshake [cadorn]
+  * polling-jsonp: prevent client breakage with utf8 whitespace
+  * socket: fix `flush` and `drain` events
+  * socket: add `send` callback [afshinm]
+  * transport: avoid unhandled error events for stale transports
+  * README: documentation improvements [EugenDueck]
+
 0.2.2 / 2012-08-26
 ==================
 
