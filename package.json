@@ -1,6 +1,6 @@
 {
     "name": "engine.io"
-  , "version": "0.3.1"
+  , "version": "0.3.2"
   , "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server"
   , "main": "./lib/engine.io"
   , "author": "Guillermo Rauch <guillermo@learnboost.com>"
@@ -10,7 +10,7 @@
     ]
   , "dependencies": {
         "debug": "0.6.0"
-      , "engine.io-client": "0.3.1"
+      , "engine.io-client": "0.3.2"
       , "ws": "~0.4.21"
       , "base64id": "0.1.0"
     }
