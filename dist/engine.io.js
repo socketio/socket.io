@@ -6,7 +6,7 @@
  * @api public.
  */
 
-exports.version = '0.3.0';
+exports.version = '0.3.1';
 
 /**
  * Protocol version.
@@ -744,6 +744,7 @@ Socket.prototype.flush = function () {
  * @api public
  */
 
+Socket.prototype.write =
 Socket.prototype.send = function (msg) {
   this.sendPacket('message', msg);
   return this;

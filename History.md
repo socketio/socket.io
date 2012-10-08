@@ -1,4 +1,10 @@
 
+0.3.1 / 2012-10-08
+==================
+
+  * socket: added `write` alias for `send`
+  * package: added `component`
+
 0.3.0 / 2012-09-04
 ==================
 
