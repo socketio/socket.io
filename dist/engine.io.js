@@ -6,7 +6,7 @@
  * @api public.
  */
 
-exports.version = '0.3.1';
+exports.version = '0.3.2';
 
 /**
  * Protocol version.
