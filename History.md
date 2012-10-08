@@ -1,4 +1,10 @@
 
+0.3.1 / 2012-10-08
+==================
+
+  * socket: faster upgrades (we perform a check immediately)
+  * server: don't assume sid is numeric
+
 0.3.0 / 2012-10-04
 ==================
 
