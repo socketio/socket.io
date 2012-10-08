@@ -375,51 +375,75 @@ describe('server', function () {
     });
 
     it('should trigger if a poll request is ongoing and the underlying' +
-      ' socket closes, as in a browser tab close', function (done) {
+      ' socket closes, as in a browser tab close', function ($done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
+        // hack to access the sockets created by node-xmlhttprequest
+        // see: https://github.com/driverdan/node-XMLHttpRequest/issues/44
+        var request = require('http').request;
+        var sockets = [];
+        http.request = function(opts){
+          var req = request.apply(null, arguments);
+          req.on('socket', function(socket){
+            sockets.push(socket);
+          });
+          return req;
+        };
+
+        function done(){
+          http.request = request;
+          $done();
+        }
+
         var socket = new eioc.Socket('ws://localhost:%d'.s(port))
           , serverSocket;
 
-        engine.on('connection', function(socket){
-          serverSocket = socket;
+        engine.on('connection', function(s){
+          serverSocket = s;
         });
 
         socket.transport.on('poll', function(){
-          // at this time server's `connection` should have been fired
-          expect(serverSocket).to.be.an('object');
+          // we set a timer to wait for the request to actually reach
+          setTimeout(function(){
+            // at this time server's `connection` should have been fired
+            expect(serverSocket).to.be.an('object');
 
-          // OPENED readyState is expected - we qre actually polling
-          expect(socket.transport.pollXhr.xhr.readyState).to.be(1);
+            // OPENED readyState is expected - we qre actually polling
+            expect(socket.transport.pollXhr.xhr.readyState).to.be(1);
 
-          // 2 requests sent to the server over an unique port means
-          // we should have been assigned 2 sockets
-          var sockets = http.globalAgent.sockets['localhost:%d'.s(port)];
-          expect(sockets.length).to.be(2);
+            // 2 requests sent to the server over an unique port means
+            // we should have been assigned 2 sockets
+            expect(sockets.length).to.be(2);
 
-          // expect the socket to be open at this point
-          expect(serverSocket.readyState).to.be('open');
+            // expect the socket to be open at this point
+            expect(serverSocket.readyState).to.be('open');
 
-          // kill the underlying connection
-          serverSocket.on('close', function(reason, err){
-            expect(reason).to.be('transport error');
-            expect(err.message).to.be('poll connection closed prematurely');
-            done();
-          });
-          sockets[1].end();
+            // kill the underlying connection
+            sockets[1].end();
+            serverSocket.on('close', function(reason, err){
+              expect(reason).to.be('transport error');
+              expect(err.message).to.be('poll connection closed prematurely');
+              done();
+            });
+          }, 50);
         });
       });
     });
 
-    it('should not trigger with connection: close header', function(done){
+    it('should not trigger with connection: close header', function($done){
       var engine = listen({ allowUpgrades: false }, function(port){
         // intercept requests to add connection: close
-        var oldRequest = http.request;
+        var request = http.request;
         http.request = function(){
           var opts = arguments[0];
           opts.headers = opts.headers || {};
           opts.headers.Connection = 'close';
-          return oldRequest.apply(this, arguments);
+          return request.apply(this, arguments);
         };
+
+        function done(){
+          http.request = request;
+          $done();
+        }
 
         engine.on('connection', function(socket){
           socket.on('message', function(msg){
@@ -434,7 +458,6 @@ describe('server', function () {
         });
         socket.on('message', function(msg){
           expect(msg).to.be('woot');
-          http.request = oldRequest;
           done();
         });
       });
