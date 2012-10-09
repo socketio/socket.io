@@ -21,11 +21,6 @@ var obj = {};
 Emitter(obj);
 Emitter(User.prototype);
 ```
-
-  __Warning__: if you use `Emitter(Some.prototype)` on a prototype
-  you __must__ invoke `Emitter.call(this)` in the constructor to
-  clear the callbacks object, otherwise events will be shared
-  between multiple objects.
   
 ### Emitter#on(event, fn)
 

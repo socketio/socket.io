@@ -13,7 +13,6 @@ module.exports = Emitter;
 
 function Emitter(obj) {
   if (obj) return mixin(obj);
-  this._callbacks = {};
 };
 
 /**
@@ -25,7 +24,6 @@ function Emitter(obj) {
  */
 
 function mixin(obj) {
-  obj._callbacks = {};
   for (var key in Emitter.prototype) {
     obj[key] = Emitter.prototype[key];
   }
@@ -42,6 +40,7 @@ function mixin(obj) {
  */
 
 Emitter.prototype.on = function(event, fn){
+  this._callbacks = this._callbacks || {};
   (this._callbacks[event] = this._callbacks[event] || [])
     .push(fn);
   return this;
@@ -59,6 +58,7 @@ Emitter.prototype.on = function(event, fn){
 
 Emitter.prototype.once = function(event, fn){
   var self = this;
+  this._callbacks = this._callbacks || {};
 
   function on() {
     self.off(event, on);
@@ -81,6 +81,7 @@ Emitter.prototype.once = function(event, fn){
  */
 
 Emitter.prototype.off = function(event, fn){
+  this._callbacks = this._callbacks || {};
   var callbacks = this._callbacks[event];
   if (!callbacks) return this;
 
@@ -105,6 +106,7 @@ Emitter.prototype.off = function(event, fn){
  */
 
 Emitter.prototype.emit = function(event){
+  this._callbacks = this._callbacks || {};
   var args = [].slice.call(arguments, 1)
     , callbacks = this._callbacks[event];
 
@@ -127,6 +129,7 @@ Emitter.prototype.emit = function(event){
  */
 
 Emitter.prototype.listeners = function(event){
+  this._callbacks = this._callbacks || {};
   return this._callbacks[event] || [];
 };
 
