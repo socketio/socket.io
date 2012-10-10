@@ -127,7 +127,7 @@ if (window.localStorage) debug.enable(localStorage.debug);function require(p, pa
  * @api public.
  */
 
-exports.version = '0.3.2';
+exports.version = '0.3.3';
 
 /**
  * Protocol version.
