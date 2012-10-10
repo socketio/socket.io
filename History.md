@@ -1,4 +1,10 @@
 
+0.3.3 / 2012-10-10
+==================
+
+  * socket: fixed check interval clearing [joewalnes]
+  * transports: improved instrumentation
+
 0.3.2 / 2012-10-08
 ==================
 
