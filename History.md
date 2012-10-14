@@ -1,4 +1,10 @@
 
+0.3.4 / 2012-10-14
+==================
+
+  * package: `engine.io-client` moved to `devDependencies`
+  * socket: added missing jsdoc
+
 0.3.3 / 2012-10-10
 ==================
 
