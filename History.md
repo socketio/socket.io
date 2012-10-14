@@ -1,4 +1,9 @@
 
+0.3.5 / 2012-10-14
+==================
+
+  * package: reverted last commit - we use the parser from the client
+
 0.3.4 / 2012-10-14
 ==================
 
