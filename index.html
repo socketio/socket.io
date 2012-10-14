@@ -134,6 +134,40 @@ io.sockets.on('connection', function (socket) {
 						</div>
 					</div>
 
+          <h3>Using with the Express 3 web framework</h3>
+          <p>Express 3 requires that you instantiate a `http.Server` to attach socket.io to first:<//p>
+          <div class="example">
+            <div class="example-left">
+              <h4>Server (app.js)</h4>
+              <pre class="prettyprint">var app = require('express')()
+  , server = require('http').createServer(app)
+  , io = require('socket.io').listen(server);
+
+server.listen(80);
+
+app.get('/', function (req, res) {
+  res.sendfile(__dirname + '/index.html');
+});
+
+io.sockets.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
+});</pre>
+            </div>
+            <div class="example-right">
+              <h4>Client (index.html)</h4>
+              <pre class="prettyprint">&lt;script src=&quot;/socket.io/socket.io.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+  var socket = io.connect('http://localhost');
+  socket.on('news', function (data) {
+    console.log(data);
+    socket.emit('my other event', { my: 'data' });
+  });
+&lt;/script&gt;</pre>
+            </div>
+          </div>
 
 					<h3>Using with the Express web framework</h3>
 					<p>You can serve normal pages and AJAX requests with Express, and attach your socket.io server</p>
