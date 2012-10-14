@@ -20,7 +20,8 @@
   },
   "component": {
     "scripts": {
-      "engine.io-client": "./dist/engine.io-dev.js"
+      "engine.io/index.js": "./dist/engine.io-dev.js",
+      "engine.io-client/index.js": "./dist/engine.io-dev.js"
     }
   }
 }
