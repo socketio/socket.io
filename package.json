@@ -11,12 +11,12 @@
   , "dependencies": {
         "debug": "0.6.0"
       , "ws": "~0.4.21"
+      , "engine.io-client": "0.3.5"
       , "base64id": "0.1.0"
     }
   , "devDependencies": {
         "mocha": "*"
       , "expect.js": "*"
-      , "engine.io-client": "0.3.5"
       , "superagent": "*"
       , "ws": "*"
       , "s": "*"
