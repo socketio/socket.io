@@ -2,7 +2,7 @@
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
   "main": "./lib/engine.io-client",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "contributors": [
     { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" },
     { "name": "Vladimir Dronnikov", "email": "dronnikov@gmail.com" }

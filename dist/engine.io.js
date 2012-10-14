@@ -442,7 +442,7 @@ function Socket (opts) {
     var uri = util.parseUri(opts);
     opts = arguments[1] || {};
     opts.host = uri.host;
-    opts.secure = uri.scheme == 'https' || uri.scheme == 'wss';
+    opts.secure = uri.protocol == 'https' || uri.protocol == 'wss';
     opts.port = uri.port || (opts.secure ? 443 : 80);
   }
 
@@ -2373,5 +2373,5 @@ exports.qs = function (obj) {
   return str;
 };
 
-});eio = require('engine.io-client');
+});var exp = require('engine.io-client');if ("undefined" != typeof module) module.exports = exp;else eio = exp;
 })();
