@@ -735,7 +735,6 @@ describe('server', function () {
         });
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
         socket.on('open', function () {
-console.log("should receive", messageCount);            
           for (var i=0;i<messageCount;i++) {
 //            connection.send('message: ' + i);   // works
             connection.send(messagePayload + '|message: ' + i);   // does not work
@@ -743,7 +742,6 @@ console.log("should receive", messageCount);
           var receivedCount = 0;
           socket.on('message', function (msg) {
             receivedCount += 1;
-console.log("received", receivedCount);            
             if (receivedCount === messageCount) {
               done();
             }
