@@ -652,6 +652,10 @@ Socket.prototype.onOpen = function () {
 Socket.prototype.onPacket = function (packet) {
   if ('opening' == this.readyState || 'open' == this.readyState) {
     debug('socket receive: type "%s", data "%s"', packet.type, packet.data);
+
+    // Socket is live - any packet counts
+    this.emit('heartbeat');
+
     switch (packet.type) {
       case 'open':
         this.onHandshake(util.parseJSON(packet.data));
@@ -697,6 +701,25 @@ Socket.prototype.onHandshake = function (data) {
   this.pingTimeout = data.pingTimeout;
   this.onOpen();
   this.ping();
+
+  // Prolong liveness of socket on heartbeat
+  this.removeListener('heartbeat', this.onHeartbeat);
+  this.on('heartbeat', this.onHeartbeat);
+};
+
+/**
+ * Resets ping timeout.
+ *
+ * @api private
+ */
+
+Socket.prototype.onHeartbeat = function(){
+  clearTimeout(this.pingTimeoutTimer);
+  var self = this;
+  self.pingTimeoutTimer = setTimeout(function () {
+    if ('closed' == self.readyState) return;
+    self.onClose('ping timeout');
+  }, this.pingTimeout);
 };
 
 /**
@@ -714,10 +737,6 @@ Socket.prototype.ping = function () {
     debug('writing ping packet - expecting pong within %sms', self.pingTimeout);
     self.emit('heartbeat');
     self.sendPacket('ping');
-    clearTimeout(self.pingTimeoutTimer);
-    self.pingTimeoutTimer = setTimeout(function () {
-      self.onClose('ping timeout');
-    }, self.pingTimeout);
   }, self.pingInterval);
 };
 

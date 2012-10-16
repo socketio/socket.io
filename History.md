@@ -1,4 +1,9 @@
 
+0.3.6 / 2012-10-16
+==================
+
+  * socket: reset timeout on any incoming data [indutny]
+
 0.3.5 / 2012-10-14
 ==================
 
