@@ -6,8 +6,7 @@
 
 var http = require('http')
   , parser = eio.parser
-  , WebSocket = require('ws')
-  , fs = require('fs');
+  , WebSocket = require('ws');
 
 /**
  * Tests.
@@ -725,10 +724,15 @@ describe('server', function () {
     });
 
     it('should interleave with pongs if many messages buffered after connection open', function (done) {
-      var opts = { transports: ['websocket'], pingInterval: 10, pingTimeout: 5 };
+      var opts = {
+        transports: ['websocket'],
+        pingInterval: 200,
+        pingTimeout: 100
+      };
+
       var engine = listen(opts, function (port) {
-        var messageCount = 50;
-        var messagePayload = fs.readFileSync(__filename);
+        var messageCount = 100;
+        var messagePayload = new Array(1024 * 1024 * 1).join('a');
         var connection = null;
         engine.on('connection', function (conn) {
           connection = conn;
