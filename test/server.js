@@ -6,7 +6,8 @@
 
 var http = require('http')
   , parser = eio.parser
-  , WebSocket = require('ws');
+  , WebSocket = require('ws')
+  , fs = require('fs');
 
 /**
  * Tests.
@@ -722,6 +723,32 @@ describe('server', function () {
         new eioc.Socket('ws://localhost:%d'.s(port));
       });
     });
+
+    it('should interleave with pongs if many messages buffered after connection open', function (done) {
+      var opts = { transports: ['websocket'], pingInterval: 10, pingTimeout: 5 };
+      var engine = listen(opts, function (port) {
+        var messageCount = 50;
+        var messagePayload = fs.readFileSync(__filename);
+        var connection = null;
+        engine.on('connection', function (conn) {
+          connection = conn;
+        });
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        socket.on('open', function () {
+          for (var i=0;i<messageCount;i++) {
+//            connection.send('message: ' + i);   // works
+            connection.send(messagePayload + '|message: ' + i);   // does not work
+          }
+          var receivedCount = 0;
+          socket.on('message', function (msg) {
+            receivedCount += 1;
+            if (receivedCount === messageCount) {
+              done();
+            }
+          });
+        });
+      });
+    });    
   });
 
   describe('send', function() {
