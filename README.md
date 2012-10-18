@@ -260,7 +260,7 @@ Exposed in the `eio` global namespace (in the browser), or by
 `require('engine.io-client')` (in Node.JS).
 
 For the client API refer to the 
-[engine-client](http://github.com/learnboost/engine-client) repository.
+[engine-client](http://github.com/learnboost/engine.io-client) repository.
 
 ## Debug / logging
 
