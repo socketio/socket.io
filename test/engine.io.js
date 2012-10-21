@@ -17,6 +17,12 @@ describe('engine', function () {
     expect(eio.protocol).to.be.a('number');
   });
 
+  it('should be the same version as client', function(){
+    expect(eio.protocol).to.be.a('number');
+    var version = require('../package').version;
+    expect(version).to.be(require('engine.io-client').version);
+  });
+
   describe('listen', function () {
     it('should open a http server that returns 501', function (done) {
       var server = listen(function (port) {
