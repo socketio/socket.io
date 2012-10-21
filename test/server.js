@@ -730,7 +730,11 @@ describe('server', function () {
       });
     });
 
-    it('should interleave with pongs if many messages buffered after connection open', function (done) {
+    it('should interleave with pongs if many messages buffered ' +
+       'after connection open', function (done) {
+      this.slow(4000);
+      this.timeout(8000);
+
       var opts = {
         transports: ['websocket'],
         pingInterval: 200,
