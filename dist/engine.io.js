@@ -1,12 +1,11 @@
 (function(){var global = this;function debug(){return debug};function require(p, parent){ var path = require.resolve(p) , mod = require.modules[path]; if (!mod) throw new Error('failed to require "' + p + '" from ' + parent); if (!mod.exports) { mod.exports = {}; mod.call(mod.exports, mod, mod.exports, require.relative(path), global); } return mod.exports;}require.modules = {};require.resolve = function(path){ var orig = path , reg = path + '.js' , index = path + '/index.js'; return require.modules[reg] && reg || require.modules[index] && index || orig;};require.register = function(path, fn){ require.modules[path] = fn;};require.relative = function(parent) { return function(p){ if ('debug' == p) return debug; if ('.' != p.charAt(0)) return require(p); var path = parent.split('/') , segs = p.split('/'); path.pop(); for (var i = 0; i < segs.length; i++) { var seg = segs[i]; if ('..' == seg) path.pop(); else if ('.' != seg) path.push(seg); } return require(path.join('/'), parent); };};require.register("engine.io-client.js", function(module, exports, require, global){
-
 /**
  * Client version.
  *
  * @api public.
  */
 
-exports.version = '0.3.3';
+exports.version = '0.3.7';
 
 /**
  * Protocol version.
@@ -422,7 +421,7 @@ exports.decodePayload = function (data) {
 var util = require('./util')
   , transports = require('./transports')
   , debug = require('debug')('engine-client:socket')
-  , EventEmitter = require('./event-emitter')
+  , EventEmitter = require('./event-emitter');
 
 /**
  * Module exports.
@@ -447,9 +446,9 @@ function Socket (opts) {
   }
 
   opts = opts || {};
-  this.secure = opts.secure || false;
+  this.secure = null != opts.secure ? opts.secure : (global.location && 'https:' == global.location.protocol);
   this.host = opts.host || opts.hostname || 'localhost';
-  this.port = opts.port || 80;
+  this.port = opts.port || (this.secure ? 443 : 80);
   this.query = opts.query || {};
   this.query.uid = rnd();
   this.upgrade = false !== opts.upgrade;
@@ -483,7 +482,7 @@ util.inherits(Socket, EventEmitter);
 
 Socket.prototype.createTransport = function (name) {
   debug('creating transport "%s"', name);
-  var query = clone(this.query)
+  var query = clone(this.query);
   query.transport = name;
 
   if (this.id) {
@@ -559,7 +558,7 @@ Socket.prototype.setTransport = function (transport) {
     })
     .on('close', function () {
       self.onClose('transport close');
-    })
+    });
 };
 
 /**
@@ -572,7 +571,7 @@ Socket.prototype.setTransport = function (transport) {
 Socket.prototype.probe = function (name) {
   debug('probing transport "%s"', name);
   var transport = this.createTransport(name, { probe: 1 })
-    , self = this
+    , self = this;
 
   transport.once('open', function () {
     debug('probe transport "%s" opened', name);
@@ -676,7 +675,7 @@ Socket.prototype.onPacket = function (packet) {
         var event = { data: packet.data };
         event.toString = function () {
           return packet.data;
-        }
+        };
         this.onmessage && this.onmessage.call(this, event);
         break;
     }
@@ -713,13 +712,13 @@ Socket.prototype.onHandshake = function (data) {
  * @api private
  */
 
-Socket.prototype.onHeartbeat = function(){
+Socket.prototype.onHeartbeat = function (timeout) {
   clearTimeout(this.pingTimeoutTimer);
   var self = this;
   self.pingTimeoutTimer = setTimeout(function () {
     if ('closed' == self.readyState) return;
     self.onClose('ping timeout');
-  }, this.pingTimeout);
+  }, timeout || (self.pingInterval + self.pingTimeout));
 };
 
 /**
@@ -732,11 +731,10 @@ Socket.prototype.onHeartbeat = function(){
 Socket.prototype.ping = function () {
   var self = this;
   clearTimeout(self.pingIntervalTimer);
-  clearTimeout(self.pingTimeoutTimer);
   self.pingIntervalTimer = setTimeout(function () {
     debug('writing ping packet - expecting pong within %sms', self.pingTimeout);
-    self.emit('heartbeat');
     self.sendPacket('ping');
+    self.onHeartbeat(self.pingTimeout);
   }, self.pingInterval);
 };
 
@@ -747,8 +745,8 @@ Socket.prototype.ping = function () {
  */
 
 Socket.prototype.flush = function () {
-  if ('closed' != this.readyState && this.transport.writable
-    && !this.upgrading && this.writeBuffer.length) {
+  if ('closed' != this.readyState && this.transport.writable &&
+    !this.upgrading && this.writeBuffer.length) {
     debug('flushing %d packets in socket', this.writeBuffer.length);
     this.transport.send(this.writeBuffer);
     this.writeBuffer = [];
@@ -1238,7 +1236,7 @@ var XHR = require('./polling-xhr')
   , JSONP = require('./polling-jsonp')
   , websocket = require('./websocket')
   , flashsocket = require('./flashsocket')
-  , util = require('../util')
+  , util = require('../util');
 
 /**
  * Export transports.
@@ -1261,9 +1259,16 @@ function polling (opts) {
     , isXProtocol = false;
 
   if (global.location) {
-    xd = opts.host != global.location.hostname
-      || global.location.port != opts.port;
-    isXProtocol = (opts.secure !== (global.location.protocol === 'https:'));
+    var isSSL = 'https:' == location.protocol;
+    var port = location.port;
+
+    // some user agents have empty `location.port`
+    if (Number(port) != port) {
+      port = isSSL ? 443 : 80;
+    }
+
+    xd = opts.host != location.hostname || port != opts.port;
+    isXProtocol = opts.secure != isSSL;
   }
 
   xhr = util.request(xd);

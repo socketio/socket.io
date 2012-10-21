@@ -1,4 +1,15 @@
 
+0.3.7 / 2012-10-21
+==================
+
+  * fix `version` [quackingduck]
+  * ping timeout gets reset upon any packet received [indutny]
+  * timeout fixes [cadorn, indutny]
+  * transport: fix xdomain detection in absence of location.port (GH-38)
+  * socket: fix passing `false` as secure getting overridden
+  * socket: default `secure` to `true` for SSL-served pages
+  * socket: fix default port for SSL when `secure` is not supplied
+
 0.3.6 / 2012-10-16
 ==================
 
