@@ -38,12 +38,12 @@ socket.onopen = function(){
   send();
 };
 socket.onclose = function(){
-  smoothie.stop();
+  if (smoothie) smoothie.stop();
   $('transport').innerHTML = '(disconnected)';
 };
 socket.onmessage = function(){
   var latency = new Date - last;
   $('latency').innerHTML = latency + 'ms';
-  time.append(+new Date, latency);
+  if (time) time.append(+new Date, latency);
   setTimeout(send, 100);
 };
