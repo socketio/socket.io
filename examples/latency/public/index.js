@@ -37,7 +37,7 @@ socket.onopen = function(){
 };
 socket.onclose = function(){
   smoothie.stop();
-  $('latency').innerHTML = 'offline';
+  $('transport').innerHTML = '(disconnected)';
 };
 socket.onmessage = function(){
   var latency = new Date - last;
