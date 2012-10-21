@@ -224,7 +224,7 @@ describe('server', function () {
     });
 
     it('should trigger on client if server does not meet ping timeout', function (done) {
-      var opts = { allowUpgrades: false, pingInterval: 5, pingTimeout: 5 };
+      var opts = { allowUpgrades: false, pingInterval: 50, pingTimeout: 30 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('open', function () {
@@ -752,7 +752,7 @@ describe('server', function () {
           });
         });
       });
-    });    
+    });
   });
 
   describe('send', function() {
