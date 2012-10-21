@@ -1,4 +1,3 @@
-
 # Engine.IO client
 
 [![Build Status](https://secure.travis-ci.org/LearnBoost/engine.io-client.png)](http://travis-ci.org/LearnBoost/engine.io-client)
@@ -90,7 +89,7 @@ The client class. _Inherits from EventEmitter_.
         endpoints on the same host without them interfering, and without
         changing the `path` directly.
       - `query` (`Object`): optional query string addition (eg: `{ a: 'b' }`)
-      - `secure` (`Boolean): whether the connection is secure
+      - `secure` (`Boolean`): whether the connection is secure
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
       to upgrade the transport from long-polling to something better.
       - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
