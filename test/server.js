@@ -374,8 +374,8 @@ describe('server', function () {
       });
     });
 
-    it('should trigger if a poll request is ongoing and the underlying' +
-      ' socket closes, as in a browser tab close', function ($done) {
+    it('should trigger if a poll request is ongoing and the underlying ' +
+       'socket closes, as in a browser tab close', function ($done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
         // hack to access the sockets created by node-xmlhttprequest
         // see: https://github.com/driverdan/node-XMLHttpRequest/issues/44
@@ -463,8 +463,10 @@ describe('server', function () {
       });
     });
 
-    it('should not trigger early with connection `ping timeout` after post handshake timeout', function (done) {
-      // First timeout should trigger after `pingInterval + pingTimeout`, not just `pingTimeout`.
+    it('should not trigger early with connection `ping timeout`' +
+       'after post handshake timeout', function (done) {
+      // first timeout should trigger after `pingInterval + pingTimeout`,
+      // not just `pingTimeout`.
       var opts = { allowUpgrades: false, pingInterval: 300, pingTimeout: 100 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
@@ -486,9 +488,11 @@ describe('server', function () {
       });
     });
 
-    it('should not trigger early with connection `ping timeout` after post ping timeout', function (done) {
-      // Ping timeout should trigger after `pingInterval + pingTimeout`, not just `pingTimeout`.
-      var opts = { allowUpgrades: false, pingInterval: 300, pingTimeout: 100 };
+    it('should not trigger early with connection `ping timeout` ' +
+       'after post ping timeout', function (done) {
+      // ping timeout should trigger after `pingInterval + pingTimeout`,
+      // not just `pingTimeout`.
+      var opts = { allowUpgrades: false, pingInterval: 80, pingTimeout: 50 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         var clientCloseReason = null;
@@ -508,13 +512,15 @@ describe('server', function () {
         setTimeout(function() {
           expect(clientCloseReason).to.be(null);
           done();
-        }, 300);
+        }, 100);
       });
     });
 
-    it('should trigger early with connection `transport close` after missing pong', function (done) {
-      // Ping timeout should trigger after `pingInterval + pingTimeout`, not just `pingTimeout`.
-      var opts = { allowUpgrades: false, pingInterval: 300, pingTimeout: 100 };
+    it('should trigger early with connection `transport close` ' +
+       'after missing pong', function (done) {
+      // ping timeout should trigger after `pingInterval + pingTimeout`,
+      // not just `pingTimeout`.
+      var opts = { allowUpgrades: false, pingInterval: 80, pingTimeout: 50 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         var clientCloseReason = null;
@@ -531,15 +537,16 @@ describe('server', function () {
               conn.close();
             }, 20);
             setTimeout(function() {
-              expect(clientCloseReason).to.be("transport close");
+              expect(clientCloseReason).to.be('transport close');
               done();
-            }, 150);
+            }, 100);
           });
         });
       });
     });
 
-    it('should trigger with connection `ping timeout` after `pingInterval + pingTimeout`', function (done) {
+    it('should trigger with connection `ping timeout` ' +
+       'after `pingInterval + pingTimeout`', function (done) {
       var opts = { allowUpgrades: false, pingInterval: 30, pingTimeout: 10 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
