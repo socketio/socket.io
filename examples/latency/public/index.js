@@ -31,8 +31,10 @@ function send(){
   $('transport').innerHTML = socket.transport.name;
 }
 socket.onopen = function(){
-  render();
-  window.onresize = render;
+  if ($('chart').getContext) {
+    render();
+    window.onresize = render;
+  }
   send();
 };
 socket.onclose = function(){
