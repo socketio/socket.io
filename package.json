@@ -5,7 +5,8 @@
   "version": "0.3.6",
   "contributors": [
     { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" },
-    { "name": "Vladimir Dronnikov", "email": "dronnikov@gmail.com" }
+    { "name": "Vladimir Dronnikov", "email": "dronnikov@gmail.com" },
+    { "name": "Christoph Dorn", "web": "https://github.com/cadorn" }
   ],
   "dependencies": {
     "ws": "0.4.20",
