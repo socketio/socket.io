@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "dependencies": {
     "express": "3.0.0rc4",
-    "engine.io": "0.3.x",
-    "engine.io-client": "0.3.x"
+    "engine.io": "0.3.7",
+    "engine.io-client": "0.3.7"
   }
 }
