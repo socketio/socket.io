@@ -1,4 +1,10 @@
 
+0.3.8 / 2012-10-23
+==================
+
+  * package: bumped engine.io-client
+  * examples: added first example
+
 0.3.7 / 2012-10-21
 ==================
 
