@@ -7,7 +7,7 @@
   , "contributors": [
         { "name": "Eugen Dueck", "web": "https://github.com/EugenDueck" },
         { "name": "Afshin Mehrabani", "web": "https://github.com/afshinm" },
-        { "name": "Christoph Dorn", "web": "https://github.com/cadorn" }        
+        { "name": "Christoph Dorn", "web": "https://github.com/cadorn" }
     ]
   , "dependencies": {
         "debug": "0.6.0"
