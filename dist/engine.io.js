@@ -443,12 +443,12 @@ function Socket (opts) {
     opts = arguments[1] || {};
     opts.host = uri.host;
     opts.secure = uri.protocol == 'https' || uri.protocol == 'wss';
-    opts.port = uri.port || (opts.secure ? 443 : 80);
+    opts.port = uri.port;
   }
 
   opts = opts || {};
   this.secure = null != opts.secure ? opts.secure : (global.location && 'https:' == location.protocol);
-  this.host = opts.host || opts.hostname || (global.location ? location.host : 'localhost');
+  this.host = opts.host || opts.hostname || (global.location ? location.hostname : 'localhost');
   this.port = opts.port || (global.location && location.port ? location.port : (this.secure ? 443 : 80));
   this.query = opts.query || {};
   this.query.uid = rnd();
