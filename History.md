@@ -1,4 +1,14 @@
 
+0.3.8 / 2012-10-23
+==================
+
+  * socket: introduce introspection hooks
+  * socket: introduced `host` and `port` `location` defaults
+  * flashsocket: obfuscate activex (fixes #31)
+  * README: documented reconnect (closes #45)
+  * socket: unset `id` upon close
+  * socket: clear transport listeners upon force close
+
 0.3.7 / 2012-10-21
 ==================
 

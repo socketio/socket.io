@@ -120,13 +120,14 @@ debug.enabled = function(name) {
 // persist
 
 if (window.localStorage) debug.enable(localStorage.debug);function require(p, parent){ var path = require.resolve(p) , mod = require.modules[path]; if (!mod) throw new Error('failed to require "' + p + '" from ' + parent); if (!mod.exports) { mod.exports = {}; mod.call(mod.exports, mod, mod.exports, require.relative(path), global); } return mod.exports;}require.modules = {};require.resolve = function(path){ var orig = path , reg = path + '.js' , index = path + '/index.js'; return require.modules[reg] && reg || require.modules[index] && index || orig;};require.register = function(path, fn){ require.modules[path] = fn;};require.relative = function(parent) { return function(p){ if ('debug' == p) return debug; if ('.' != p.charAt(0)) return require(p); var path = parent.split('/') , segs = p.split('/'); path.pop(); for (var i = 0; i < segs.length; i++) { var seg = segs[i]; if ('..' == seg) path.pop(); else if ('.' != seg) path.push(seg); } return require(path.join('/'), parent); };};require.register("engine.io-client.js", function(module, exports, require, global){
+
 /**
  * Client version.
  *
  * @api public.
  */
 
-exports.version = '0.3.7';
+exports.version = '0.3.8';
 
 /**
  * Protocol version.
@@ -567,9 +568,9 @@ function Socket (opts) {
   }
 
   opts = opts || {};
-  this.secure = null != opts.secure ? opts.secure : (global.location && 'https:' == global.location.protocol);
-  this.host = opts.host || opts.hostname || 'localhost';
-  this.port = opts.port || (this.secure ? 443 : 80);
+  this.secure = null != opts.secure ? opts.secure : (global.location && 'https:' == location.protocol);
+  this.host = opts.host || opts.hostname || (global.location ? location.host : 'localhost');
+  this.port = opts.port || (global.location && location.port ? location.port : (this.secure ? 443 : 80));
   this.query = opts.query || {};
   this.query.uid = rnd();
   this.upgrade = false !== opts.upgrade;
@@ -585,6 +586,9 @@ function Socket (opts) {
   this.writeBuffer = [];
   this.policyPort = opts.policyPort || 843;
   this.open();
+
+  Socket.sockets.push(this);
+  Socket.sockets.evs.emit('add', this);
 };
 
 /**
@@ -592,6 +596,13 @@ function Socket (opts) {
  */
 
 util.inherits(Socket, EventEmitter);
+
+/**
+ * Static EventEmitter.
+ */
+
+Socket.sockets = [];
+Socket.sockets.evs = new EventEmitter;
 
 /**
  * Creates transport of the given type.
@@ -773,6 +784,8 @@ Socket.prototype.onPacket = function (packet) {
   if ('opening' == this.readyState || 'open' == this.readyState) {
     debug('socket receive: type "%s", data "%s"', packet.type, packet.data);
 
+    this.emit('packet', packet);
+
     // Socket is live - any packet counts
     this.emit('heartbeat');
 
@@ -898,6 +911,7 @@ Socket.prototype.send = function (msg) {
 
 Socket.prototype.sendPacket = function (type, data) {
   var packet = { type: type, data: data };
+  this.emit('packetCreate', packet);
   this.writeBuffer.push(packet);
   this.flush();
 };
@@ -913,6 +927,7 @@ Socket.prototype.close = function () {
     this.onClose('forced close');
     debug('socket closing - telling transport to close');
     this.transport.close();
+    this.transport.removeAllListeners();
   }
 
   return this;
@@ -941,6 +956,7 @@ Socket.prototype.onClose = function (reason, desc) {
     this.readyState = 'closed';
     this.emit('close', reason, desc);
     this.onclose && this.onclose.call(this);
+    this.id = null;
   }
 };
 
@@ -1104,13 +1120,19 @@ Transport.prototype.onClose = function () {
  */
 
 var WS = require('./websocket')
-  , util = require('../util')
+  , util = require('../util');
 
 /**
  * Module exports.
  */
 
 module.exports = FlashWS;
+
+/**
+ * Obfuscated key for Blue Coat.
+ */
+
+var xobject = global[['Active'].concat('Object').join('X')];
 
 /**
  * FlashWS constructor.
@@ -1155,7 +1177,7 @@ FlashWS.prototype.doOpen = function () {
     return function () {
       var str = Array.prototype.join.call(arguments, ' ');
       // debug: [websocketjs %s] %s, type, str
-    }
+    };
   };
 
   WEB_SOCKET_LOGGER = { log: log('debug'), error: log('error') };
@@ -1218,9 +1240,8 @@ FlashWS.prototype.write = function() {
  */
 
 FlashWS.prototype.ready = function (fn) {
-  if (typeof WebSocket == 'undefined'
-    || !('__initialize' in WebSocket) || !swfobject
-  ) {
+  if (typeof WebSocket == 'undefined' ||
+    !('__initialize' in WebSocket) || !swfobject) {
     return;
   }
 
@@ -1267,10 +1288,10 @@ FlashWS.prototype.check = function () {
     return false;
   }
 
-  if (window.ActiveXObject) {
+  if (xobject) {
     var control = null;
     try {
-      control = new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
+      control = new xobject('ShockwaveFlash.ShockwaveFlash');
     } catch (e) { }
     if (control) {
       return true;
@@ -1306,8 +1327,8 @@ var scripts = {};
 function create (path, fn) {
   if (scripts[path]) return fn();
 
-  var el = document.createElement('script')
-    , loaded = false
+  var el = document.createElement('script');
+  var loaded = false;
 
   // debug: loading "%s", path
   el.onload = el.onreadystatechange = function () {
@@ -1629,7 +1650,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 
 var Polling = require('./polling')
   , EventEmitter = require('../event-emitter')
-  , util = require('../util')
+  , util = require('../util');
 
 /**
  * Module exports.
@@ -1637,6 +1658,12 @@ var Polling = require('./polling')
 
 module.exports = XHR;
 module.exports.Request = Request;
+
+/**
+ * Obfuscated key for Blue Coat.
+ */
+
+var xobject = global[['Active'].concat('Object').join('X')];
 
 /**
  * Empty function
@@ -1655,8 +1682,8 @@ function XHR (opts) {
   Polling.call(this, opts);
 
   if (global.location) {
-    this.xd = opts.host != global.location.hostname
-      || global.location.port != opts.port;
+    this.xd = opts.host != global.location.hostname ||
+      global.location.port != opts.port;
   }
 };
 
@@ -1702,8 +1729,8 @@ XHR.prototype.request = function (opts) {
  */
 
 XHR.prototype.doWrite = function (data, fn) {
-  var req = this.request({ method: 'POST', data: data })
-    , self = this
+  var req = this.request({ method: 'POST', data: data });
+  var self = this;
   req.on('success', fn);
   req.on('error', function (err) {
     self.onError('xhr post error', err);
@@ -1719,8 +1746,8 @@ XHR.prototype.doWrite = function (data, fn) {
 
 XHR.prototype.doPoll = function () {
   // debug: xhr poll
-  var req = this.request()
-    , self = this
+  var req = this.request();
+  var self = this;
   req.on('data', function (data) {
     self.onData(data);
   });
@@ -1759,8 +1786,8 @@ util.inherits(Request, EventEmitter);
  */
 
 Request.prototype.create = function () {
-  var xhr = this.xhr = util.request(this.xd)
-    , self = this
+  var xhr = this.xhr = util.request(this.xd);
+  var self = this;
 
   xhr.open(this.method, this.uri, this.async);
 
@@ -1813,7 +1840,7 @@ Request.prototype.create = function () {
   // debug: sending xhr with url %s | data %s, this.uri, this.data
   xhr.send(this.data);
 
-  if (global.ActiveXObject) {
+  if (xobject) {
     this.index = Request.requestsCount++;
     Request.requests[this.index] = this;
   }
@@ -1828,7 +1855,7 @@ Request.prototype.create = function () {
 Request.prototype.onSuccess = function () {
   this.emit('success');
   this.cleanup();
-}
+};
 
 /**
  * Called if we have data.
@@ -1839,7 +1866,7 @@ Request.prototype.onSuccess = function () {
 Request.prototype.onData = function (data) {
   this.emit('data', data);
   this.onSuccess();
-}
+};
 
 /**
  * Called upon error.
@@ -1850,7 +1877,7 @@ Request.prototype.onData = function (data) {
 Request.prototype.onError = function (err) {
   this.emit('error', err);
   this.cleanup();
-}
+};
 
 /**
  * Cleans up house.
@@ -1869,12 +1896,12 @@ Request.prototype.cleanup = function () {
     this.xhr.abort();
   } catch(e) {}
 
-  if (global.ActiveXObject) {
+  if (xobject) {
     delete Request.requests[this.index];
   }
 
   this.xhr = null;
-}
+};
 
 /**
  * Aborts the request.
@@ -1886,7 +1913,7 @@ Request.prototype.abort = function () {
   this.cleanup();
 };
 
-if (global.ActiveXObject) {
+if (xobject) {
   Request.requestsCount = 0;
   Request.requests = {};
 
