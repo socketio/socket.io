@@ -1,4 +1,10 @@
 
+0.3.9 / 2012-10-23
+==================
+
+  * socket: fix `hostname` instead of `host`
+  * socket: avoid duplicate `port` defaults
+
 0.3.8 / 2012-10-23
 ==================
 
