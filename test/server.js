@@ -20,7 +20,9 @@ describe('server', function () {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'tobi' }) // no tobi transport - outrageous
           .end(function (res) {
-            expect(res.status).to.be(500);
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(0);
+            expect(res.body.message).to.be('Transport unknown');
             done();
           });
       });
@@ -32,7 +34,9 @@ describe('server', function () {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'constructor' })
           .end(function (res) {
-            expect(res.status).to.be(500);
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(0);
+            expect(res.body.message).to.be('Transport unknown');
             done();
           });
       });
@@ -43,7 +47,9 @@ describe('server', function () {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', sid: 'test' })
           .end(function (res) {
-            expect(res.status).to.be(500);
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(1);
+            expect(res.body.message).to.be('Session ID unknown');
             done();
           });
       });
