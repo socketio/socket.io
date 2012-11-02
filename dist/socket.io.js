@@ -1,4 +1,4 @@
-/*! Socket.IO.js build:0.9.10, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
+/*! Socket.IO.js build:0.9.11, development. Copyright(c) 2011 LearnBoost <dev@learnboost.com> MIT Licensed */
 
 var io = ('undefined' === typeof module ? {} : module.exports);
 (function() {
@@ -25,7 +25,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
    * @api public
    */
 
-  io.version = '0.9.10';
+  io.version = '0.9.11';
 
   /**
    * Protocol implemented.
