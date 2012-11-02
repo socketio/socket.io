@@ -262,7 +262,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
 
   util.request = function (xdomain) {
 
-    if (xdomain && 'undefined' != typeof XDomainRequest) {
+    if (xdomain && 'undefined' != typeof XDomainRequest && !util.ua.hasCORS) {
       return new XDomainRequest();
     }
 
@@ -318,7 +318,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
    *
    * @api public
    */
-  
+
   util.merge = function merge (target, additional, deep, lastseen) {
     var seen = lastseen || []
       , depth = typeof deep == 'undefined' ? 2 : deep
@@ -343,7 +343,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
    *
    * @api public
    */
-  
+
   util.mixin = function (ctor, ctor2) {
     util.merge(ctor.prototype, ctor2.prototype);
   };
@@ -391,7 +391,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
     }
 
     return ret;
-  }
+  };
 
   /**
    * Array indexOf compatibility.
@@ -401,8 +401,8 @@ var io = ('undefined' === typeof module ? {} : module.exports);
    */
 
   util.indexOf = function (arr, o, i) {
-    
-    for (var j = arr.length, i = i < 0 ? i + j < 0 ? 0 : i + j : i || 0; 
+
+    for (var j = arr.length, i = i < 0 ? i + j < 0 ? 0 : i + j : i || 0;
          i < j && arr[i] !== o; i++) {}
 
     return j <= i ? -1 : i;
@@ -667,7 +667,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
     return exports.JSON = {
       parse: nativeJSON.parse
     , stringify: nativeJSON.stringify
-    }
+    };
   }
 
   var JSON = exports.JSON = {};
@@ -1273,7 +1273,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
 
   Transport.prototype.heartbeats = function () {
     return true;
-  }
+  };
 
   /**
    * Handles the response from the server. When a new response is received
@@ -1286,8 +1286,8 @@ var io = ('undefined' === typeof module ? {} : module.exports);
 
   Transport.prototype.onData = function (data) {
     this.clearCloseTimeout();
-    
-    // If the connection in currently open (or in a reopening state) reset the close 
+
+    // If the connection in currently open (or in a reopening state) reset the close
     // timeout since we have just received data. This check is necessary so
     // that we don't reset the timeout on an explicitly disconnected connection.
     if (this.socket.connected || this.socket.connecting || this.socket.reconnecting) {
@@ -1339,7 +1339,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
    *
    * @api private
    */
-  
+
   Transport.prototype.setCloseTimeout = function () {
     if (!this.closeTimeout) {
       var self = this;
@@ -1372,7 +1372,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
   Transport.prototype.onConnect = function () {
     this.socket.onConnect();
     return this;
-  }
+  };
 
   /**
    * Clears close timeout
@@ -1423,7 +1423,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
   Transport.prototype.onHeartbeat = function (heartbeat) {
     this.packet({ type: 'heartbeat' });
   };
- 
+
   /**
    * Called when the transport opens.
    *
@@ -3235,7 +3235,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       var request = io.util.request(xdomain),
           usesXDomReq = (global.XDomainRequest && request instanceof XDomainRequest),
           socketProtocol = (socket && socket.options && socket.options.secure ? 'https:' : 'http:'),
-          isXProtocol = (socketProtocol != global.location.protocol);
+          isXProtocol = (global.location && socketProtocol != global.location.protocol);
       if (request && !(usesXDomReq && isXProtocol)) {
         return true;
       }
@@ -3532,12 +3532,18 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
     function onload () {
       this.onload = empty;
       this.onerror = empty;
+      self.retryCounter = 1;
       self.onData(this.responseText);
       self.get();
     };
 
     function onerror () {
-      self.onClose();
+      self.retryCounter ++;
+      if(!self.retryCounter || self.retryCounter > 3) {
+        self.onClose();  
+      } else {
+        self.get();
+      }
     };
 
     this.xhr = this.request();
@@ -3751,7 +3757,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
 
     this.socket.setBuffer(true);
   };
-  
+
   /**
    * Creates a new JSONP poll that can be used to listen
    * for messages from the Socket.IO server.
@@ -3778,7 +3784,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
       self.onClose();
     };
 
-    var insertAt = document.getElementsByTagName('script')[0]
+    var insertAt = document.getElementsByTagName('script')[0];
     insertAt.parentNode.insertBefore(script, insertAt);
     this.script = script;
 
@@ -3859,4 +3865,7 @@ var swfobject=function(){var D="undefined",r="object",S="Shockwave Flash",W="Sho
   , this
 );
 
+if (typeof define === "function" && define.amd) {
+  define([], function () { return io; });
+}
 })();

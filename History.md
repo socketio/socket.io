@@ -1,4 +1,13 @@
 
+0.9.11 / 2012-11-02
+===================
+
+  * Enable use of 'xhr' transport in Node.js
+  * Fix the problem with disconnecting xhr-polling users
+  * Add should to devDependencies
+  * Prefer XmlHttpRequest if CORS is available
+  * Make client compatible with AMD loaders.
+
 0.9.10 / 2012-08-10
 ===================
 
