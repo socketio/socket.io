@@ -1,4 +1,10 @@
 
+0.9.11 / 2012-11-02
+===================
+
+  * package: move redis to optionalDependenices [3rd-Eden]
+  * bumped client
+
 0.9.10 / 2012-08-10
 ===================
 
