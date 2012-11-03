@@ -190,7 +190,7 @@ header {
 		background:#000;
 		background:rgba(0,0,0,0.3);
 		text-shadow:none;
-		font-family:Monaco;
+		font-family:Monaco, 'Ubuntu Mono', Inconsolata, Courier, monospace;
 		border:none;
 		padding:15px;
 		white-space:pre;
