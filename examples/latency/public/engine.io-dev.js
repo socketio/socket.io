@@ -120,13 +120,14 @@ debug.enabled = function(name) {
 // persist
 
 if (window.localStorage) debug.enable(localStorage.debug);function require(p, parent){ var path = require.resolve(p) , mod = require.modules[path]; if (!mod) throw new Error('failed to require "' + p + '" from ' + parent); if (!mod.exports) { mod.exports = {}; mod.call(mod.exports, mod, mod.exports, require.relative(path), global); } return mod.exports;}require.modules = {};require.resolve = function(path){ var orig = path , reg = path + '.js' , index = path + '/index.js'; return require.modules[reg] && reg || require.modules[index] && index || orig;};require.register = function(path, fn){ require.modules[path] = fn;};require.relative = function(parent) { return function(p){ if ('debug' == p) return debug; if ('.' != p.charAt(0)) return require(p); var path = parent.split('/') , segs = p.split('/'); path.pop(); for (var i = 0; i < segs.length; i++) { var seg = segs[i]; if ('..' == seg) path.pop(); else if ('.' != seg) path.push(seg); } return require(path.join('/'), parent); };};require.register("engine.io-client.js", function(module, exports, require, global){
+
 /**
  * Client version.
  *
  * @api public.
  */
 
-exports.version = '0.3.8pre';
+exports.version = '0.3.8';
 
 /**
  * Protocol version.
@@ -563,12 +564,12 @@ function Socket (opts) {
     opts = arguments[1] || {};
     opts.host = uri.host;
     opts.secure = uri.protocol == 'https' || uri.protocol == 'wss';
-    opts.port = uri.port || (opts.secure ? 443 : 80);
+    opts.port = uri.port;
   }
 
   opts = opts || {};
   this.secure = null != opts.secure ? opts.secure : (global.location && 'https:' == location.protocol);
-  this.host = opts.host || opts.hostname || (global.location ? location.host : 'localhost');
+  this.host = opts.host || opts.hostname || (global.location ? location.hostname : 'localhost');
   this.port = opts.port || (global.location && location.port ? location.port : (this.secure ? 443 : 80));
   this.query = opts.query || {};
   this.query.uid = rnd();
@@ -585,6 +586,9 @@ function Socket (opts) {
   this.writeBuffer = [];
   this.policyPort = opts.policyPort || 843;
   this.open();
+
+  Socket.sockets.push(this);
+  Socket.sockets.evs.emit('add', this);
 };
 
 /**
@@ -592,6 +596,13 @@ function Socket (opts) {
  */
 
 util.inherits(Socket, EventEmitter);
+
+/**
+ * Static EventEmitter.
+ */
+
+Socket.sockets = [];
+Socket.sockets.evs = new EventEmitter;
 
 /**
  * Creates transport of the given type.
@@ -773,6 +784,8 @@ Socket.prototype.onPacket = function (packet) {
   if ('opening' == this.readyState || 'open' == this.readyState) {
     debug('socket receive: type "%s", data "%s"', packet.type, packet.data);
 
+    this.emit('packet', packet);
+
     // Socket is live - any packet counts
     this.emit('heartbeat');
 
@@ -898,6 +911,7 @@ Socket.prototype.send = function (msg) {
 
 Socket.prototype.sendPacket = function (type, data) {
   var packet = { type: type, data: data };
+  this.emit('packetCreate', packet);
   this.writeBuffer.push(packet);
   this.flush();
 };
