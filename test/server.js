@@ -826,36 +826,31 @@ describe('server', function () {
       it('should execute once for each send', function (done) {
         var engine = listen(function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port));
-          var i = 0;
-          var ic = 0;
-          var j = 0;
-          var jc = 0;
+          var a = 0;
+          var b = 0;
+          var c = 0;
+          var all = 0;
 
           engine.on('connection', function (conn) {
-            conn.send('b', function (transport) {
-              jc++;
-            });
-
-            conn.send('a', function (transport) {
-              ic++;
-            });
+            conn.send('a');
+            conn.send('b');
+            conn.send('c');
           });
 
           socket.on('open', function () {
             socket.on('message', function (msg) {
-              if (msg == 'a') {
-                i++;
-              } else if (msg == 'b') {
-                j++;
+              if (msg === 'a') a ++;
+              if (msg === 'b') b ++;
+              if (msg === 'c') c ++;
+
+              if(++all === 3) {
+                expect(a).to.be(1);
+                expect(b).to.be(1);
+                expect(c).to.be(1);
+                done();
               }
             });
           });
-
-          setTimeout(function () {
-            expect(i).to.be(ic);
-            expect(j).to.be(jc);
-            done();
-          }, 100);
         });
       });
 
