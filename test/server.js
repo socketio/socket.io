@@ -910,6 +910,37 @@ describe('server', function () {
     });
   });
 
+  describe('packet', function() {
+    it('should emit when socket receives packet', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.on('packet', function (packet) {
+            expect(packet.type).to.be('message');
+            expect(packet.data).to.be('a');
+            done();
+          });
+        });
+        socket.on('open', function () {
+          socket.send('a');
+        });
+      });
+    });
+
+    it('should emit when receives ping', function (done) {
+      var engine = listen({ allowUpgrades: false, pingInterval: 4 }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.on('packet', function (packet) {
+            conn.close();
+            expect(packet.type).to.be('ping');
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('upgrade', function () {
     it('should upgrade', function (done) {
       var engine = listen(function (port) {
