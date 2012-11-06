@@ -20,7 +20,9 @@ describe('server', function () {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'tobi' }) // no tobi transport - outrageous
           .end(function (res) {
-            expect(res.status).to.be(500);
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(0);
+            expect(res.body.message).to.be('Transport unknown');
             done();
           });
       });
@@ -32,7 +34,9 @@ describe('server', function () {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'constructor' })
           .end(function (res) {
-            expect(res.status).to.be(500);
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(0);
+            expect(res.body.message).to.be('Transport unknown');
             done();
           });
       });
@@ -43,7 +47,9 @@ describe('server', function () {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', sid: 'test' })
           .end(function (res) {
-            expect(res.status).to.be(500);
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(1);
+            expect(res.body.message).to.be('Session ID unknown');
             done();
           });
       });
@@ -820,36 +826,31 @@ describe('server', function () {
       it('should execute once for each send', function (done) {
         var engine = listen(function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port));
-          var i = 0;
-          var ic = 0;
-          var j = 0;
-          var jc = 0;
+          var a = 0;
+          var b = 0;
+          var c = 0;
+          var all = 0;
 
           engine.on('connection', function (conn) {
-            conn.send('b', function (transport) {
-              jc++;
-            });
-
-            conn.send('a', function (transport) {
-              ic++;
-            });
+            conn.send('a');
+            conn.send('b');
+            conn.send('c');
           });
 
           socket.on('open', function () {
             socket.on('message', function (msg) {
-              if (msg == 'a') {
-                i++;
-              } else if (msg == 'b') {
-                j++;
+              if (msg === 'a') a ++;
+              if (msg === 'b') b ++;
+              if (msg === 'c') c ++;
+
+              if(++all === 3) {
+                expect(a).to.be(1);
+                expect(b).to.be(1);
+                expect(c).to.be(1);
+                done();
               }
             });
           });
-
-          setTimeout(function () {
-            expect(i).to.be(ic);
-            expect(j).to.be(jc);
-            done();
-          }, 100);
         });
       });
 
@@ -904,6 +905,66 @@ describe('server', function () {
               expect(conn.packetsFn).to.be.empty();
               done();
             });
+          });
+        });
+      });
+    });
+  });
+
+  describe('packet', function() {
+    it('should emit when socket receives packet', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.on('packet', function (packet) {
+            expect(packet.type).to.be('message');
+            expect(packet.data).to.be('a');
+            done();
+          });
+        });
+        socket.on('open', function () {
+          socket.send('a');
+        });
+      });
+    });
+
+    it('should emit when receives ping', function (done) {
+      var engine = listen({ allowUpgrades: false, pingInterval: 4 }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.on('packet', function (packet) {
+            conn.close();
+            expect(packet.type).to.be('ping');
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  describe('packetCreate', function() {
+    it('should emit before socket send message', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.on('packetCreate', function(packet) {
+            expect(packet.type).to.be('message');
+            expect(packet.data).to.be('a');
+            done();
+          });
+          conn.send('a');
+        });
+      });
+    });
+
+    it('should emit before send pong', function (done) {
+      var engine = listen({ allowUpgrades: false, pingInterval: 4 }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.on('packetCreate', function (packet) {
+            conn.close();
+            expect(packet.type).to.be('pong');
+            done();
           });
         });
       });
