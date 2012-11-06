@@ -942,6 +942,35 @@ describe('server', function () {
     });
   });
 
+  describe('packetCreate', function() {
+    it('should emit before socket send message', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.on('packetCreate', function(packet) {
+            expect(packet.type).to.be('message');
+            expect(packet.data).to.be('a');
+            done();
+          });
+          conn.send('a');
+        });
+      });
+    });
+
+    it('should emit before send pong', function (done) {
+      var engine = listen({ allowUpgrades: false, pingInterval: 4 }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.on('packetCreate', function (packet) {
+            conn.close();
+            expect(packet.type).to.be('pong');
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('upgrade', function () {
     it('should upgrade', function (done) {
       var engine = listen(function (port) {
