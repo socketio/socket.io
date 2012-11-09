@@ -85,15 +85,13 @@ var baseTransports = {
 
 /**
  * Wrappers for client-side usage.
- * This enables usage in top-level browser window, client-side CommonJS systems and AMD loaders.
+ * This enables usage in top-level browser window and client-side CommonJS systems.
  * If doing a node build for server-side client, this wrapper is NOT included.
  * @api private
  */
 var wrapperPre = "\nvar io = ('undefined' === typeof module ? {} : module.exports);\n(function() {\n";
 
-var wrapperPost = "\nif (typeof define === \"function\" && define.amd) {" +
-                  "\n  define([], function () { return io; });" +
-                  "\n}\n})();";
+var wrapperPost = "\n})();";
 
 
 /**
