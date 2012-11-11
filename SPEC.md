@@ -82,7 +82,7 @@ Request the close of this transport but does not shutdown the connection itself.
 
 #### 2 ping
 
-send by the server. Client should answer with a pong package, containing the same data
+send by the server. Client should answer with a pong packets, containing the same data
 
 example
 1. server sends: ```2probe```
@@ -90,7 +90,7 @@ example
 
 #### 3 pong
 
-send by the client to respond to ping packages.
+send by the client to respond to ping packets.
 
 #### 4 message
 
@@ -109,7 +109,7 @@ actual message, client and server should call their callbacks with the data.
 #### 5 upgrade
 
 Before engine.io switches a transport, it tests, if server and client can communicate over this transport.
-If this test succeed, the client sends an upgrade package which requests the server to flush its cache on
+If this test succeed, the client sends an upgrade packets which requests the server to flush its cache on
 the old transport and switch to the new transport.
 
 #### 6 noop
@@ -131,7 +131,7 @@ A payload is a series of encoded packets tied together. The payload encoding for
 <length1><packet1>[<length2><packet2>[...]]
 ```
 * length: length of the packet in __characters__
-* packet: actual package as descriped above
+* packet: actual packets as descriped above
 
 The payload is used for transports which do not support framing, as the polling protocol for example.
 
