@@ -354,6 +354,11 @@ app.all('/', function(req,res){
   res.end("It Works! :-)");
 });
 
+function sio_onconnect(socket)
+{
+ socket.on('message',function(client,data){ console.log(data) });
+}
+
 var ssloptions={
  key:  fs.readFileSync('chat.example.com.dkey'),
  cert: fs.readFileSync('chat.example.com-self.crt')
@@ -365,6 +370,7 @@ var https = require('https');
   
 var  server = http.createServer(app);
 var io = sio.listen(server); //create sio
+sio.sockets.on('connection',sio_onconnect);
 
 server.listen(app.get('port')); console.log("Express server listening...");
 
