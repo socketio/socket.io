@@ -1,4 +1,15 @@
 
+0.3.10 / 2012-12-03
+===================
+
+  * package: bumped `engine.io-client` with `close` fixes
+  * add packetCreate event [jxck]
+  * add packet event to socket [jxck]
+  * transport: remove `Connection` headers and let node handle it
+  * server: send validation failure reason to clients
+  * engine: invoking as a function causes attach
+  * socket: reset `writeBuffer` before send
+
 0.3.9 / 2012-10-23
 ==================
 
