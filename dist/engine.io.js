@@ -6,7 +6,7 @@
  * @api public.
  */
 
-exports.version = '0.3.8';
+exports.version = '0.3.10';
 
 /**
  * Protocol version.
@@ -582,12 +582,16 @@ Socket.prototype.setTransport = function (transport) {
 Socket.prototype.probe = function (name) {
   debug('probing transport "%s"', name);
   var transport = this.createTransport(name, { probe: 1 })
+    , failed = false
     , self = this;
 
   transport.once('open', function () {
+    if (failed) return;
+
     debug('probe transport "%s" opened', name);
     transport.send([{ type: 'ping', data: 'probe' }]);
     transport.once('packet', function (msg) {
+      if (failed) return;
       if ('pong' == msg.type && 'probe' == msg.data) {
         debug('probe transport "%s" pong', name);
         self.upgrading = true;
@@ -595,8 +599,12 @@ Socket.prototype.probe = function (name) {
 
         debug('pausing current transport "%s"', self.transport.name);
         self.transport.pause(function () {
-          if ('closed' == self.readyState || 'closing' == self.readyState) return;
+          if (failed) return;
+          if ('closed' == self.readyState || 'closing' == self.readyState) {
+            return;
+          }
           debug('changing transport and sending upgrade packet');
+          transport.removeListener('error', onerror);
           self.emit('upgrade', transport);
           self.setTransport(transport);
           transport.send([{ type: 'upgrade' }]);
@@ -613,11 +621,30 @@ Socket.prototype.probe = function (name) {
     });
   });
 
+  transport.once('error', onerror);
+  function onerror(err) {
+    if (failed) return;
+
+    // Any callback called by transport should be ignored since now
+    failed = true;
+
+    var error = new Error('probe error: ' + err);
+    error.transport = transport.name;
+
+    transport.close();
+    transport = null;
+
+    debug('probe transport "%s" failed because of error: %s', name, err);
+
+    self.emit('error', error);
+  };
+
   transport.open();
 
   this.once('close', function () {
     if (transport) {
       debug('socket closed prematurely - aborting probe');
+      failed = true;
       transport.close();
       transport = null;
     }
@@ -645,7 +672,9 @@ Socket.prototype.onOpen = function () {
   this.onopen && this.onopen.call(this);
   this.flush();
 
-  if (this.upgrade && this.transport.pause) {
+  // we check for `readyState` in case an `open`
+  // listener alreay closed the socket
+  if ('open' == this.readyState && this.upgrade && this.transport.pause) {
     debug('starting upgrade probes');
     for (var i = 0, l = this.upgrades.length; i < l; i++) {
       this.probe(this.upgrades[i]);
@@ -832,6 +861,8 @@ Socket.prototype.onError = function (err) {
 Socket.prototype.onClose = function (reason, desc) {
   if ('closed' != this.readyState) {
     debug('socket close with reason: "%s"', reason);
+    clearTimeout(this.pingIntervalTimer);
+    clearTimeout(this.pingTimeoutTimer);
     this.readyState = 'closed';
     this.emit('close', reason, desc);
     this.onclose && this.onclose.call(this);

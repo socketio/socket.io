@@ -1,4 +1,12 @@
 
+0.3.10 / 2012-12-03
+===================
+
+  * socket: fix closing the socket in an `open` listener [mmastrac]
+  * socket: perform ping interval/timer cleanup [mmastrac]
+  * fix SPEC (packages -> packets) [jxck]
+  * socket: handle probe's transport errors [indutny]
+
 0.3.9 / 2012-10-23
 ==================
 
