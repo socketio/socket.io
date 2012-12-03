@@ -338,7 +338,7 @@ io.configure('development', function () {
 });
 ```
 
-###listen to events of multiple servers
+###Listen to events of multiple servers
 
 http and ssl on same socket io 
 
@@ -348,6 +348,11 @@ var sio = require('socket.io') , io
 var fs = require('fs');
 
 var app = express();
+
+app.all('/', function(req,res){
+  res.writeHead(200, {'Content-Type': 'text/html' });
+  res.end("It Works! :-)");
+});
 
 var ssloptions={
  key:  fs.readFileSync('chat.example.com.dkey'),
@@ -359,12 +364,12 @@ var http = require('http');
 var https = require('https');
   
 var  server = http.createServer(app);
-var io = sio.listen(server);
+var io = sio.listen(server); //create sio
 
 server.listen(app.get('port')); console.log("Express server listening...");
 
 var  serverssl = https.createServer(ssloptions,app);
-io.addServer(serverssl); 
+io.addServer(serverssl);  //also listen to events of serverssl
 
 serverssl.listen(5053); console.log("Express ssl server listening..."); // and listen to ssl
 
