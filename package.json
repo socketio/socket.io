@@ -12,7 +12,7 @@
   , "dependencies": {
         "debug": "0.6.0"
       , "ws": "~0.4.21"
-      , "engine.io-client": "0.3.9"
+      , "engine.io-client": "0.3.10"
       , "base64id": "0.1.0"
     }
   , "devDependencies": {
