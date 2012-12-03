@@ -338,6 +338,38 @@ io.configure('development', function () {
 });
 ```
 
+###listen to events of multiple servers
+
+http and ssl on same socket io 
+
+```
+var express = require('express')
+var sio = require('socket.io') , io
+var fs = require('fs');
+
+var app = express();
+
+var ssloptions={
+ key:  fs.readFileSync('chat.example.com.dkey'),
+ cert: fs.readFileSync('chat.example.com-self.crt')
+ //ca:[file1,f2,f3] or ca:file1 //ca bundle
+};
+
+var http = require('http');
+var https = require('https');
+  
+var  server = http.createServer(app);
+var io = sio.listen(server);
+
+server.listen(app.get('port')); console.log("Express server listening...");
+
+var  serverssl = https.createServer(ssloptions,app);
+io.addServer(serverssl); 
+
+serverssl.listen(5053); console.log("Express ssl server listening..."); // and listen to ssl
+
+```
+
 ## License 
 
 (The MIT License)
