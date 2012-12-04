@@ -384,6 +384,32 @@ module.exports = {
     });
   },
 
+  'test that request to transport with source ip mismatch is denied with strict ip policy enabled': function (done) {
+    var port = ++ports
+      , io = sio.listen(port)
+      , cl = client(port);
+
+    io.configure(function () {
+      io.enable('strict ip policy');
+      io.enable('trust proxy header');
+    });
+
+    cl.handshake(function (sid) {
+      var ws = websocket(cl, sid)
+       ,  opts = { headers: { 'x-forwarded-for': '12.34.56.7' } };
+
+      ws.on('message', function (packet) {
+        cl.get('/socket.io/{protocol}/websocket/' + sid, opts, function (res, data) {
+          res.statusCode.should.eql(403);
+
+          cl.end();
+          io.server.close();
+          done();
+        });
+      });
+    });
+  },
+
   'test setting a custom close timeout': function (done) {
     var port = ++ports
       , io = sio.listen(port)
