@@ -72,7 +72,7 @@ For more information on the client refer to the
 ## What features does it have?
 
 - **Isomorphic with WebSocket.IO**. You can switch between a WebSocket server
-  and a multi-transport server by chaning the `require`.
+  and a multi-transport server by changing the `require`.
 - **Maximum reliability**. Connections are established even in the presence of:
   - proxies and load balancers.
   - personal firewall and antivirus software.
