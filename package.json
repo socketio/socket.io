@@ -3,6 +3,7 @@
   "description": "Client for the realtime Engine",
   "main": "./lib/engine.io-client",
   "version": "0.3.10",
+  "homepage": "https://github.com/LearnBoost/engine.io-client",
   "contributors": [
     { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" },
     { "name": "Vladimir Dronnikov", "email": "dronnikov@gmail.com" },
