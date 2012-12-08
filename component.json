@@ -1,0 +1,15 @@
+{
+  "name": "engine.io",
+  "version": "1.0.0",
+  "dependencies": {
+    "component/emitter": "0.0.6",
+    "visionmedia/debug": "*"
+  },
+  "scripts": [
+    "lib/index.js",
+    "lib/parser.js",
+    "lib/socket.js",
+    "lib/transport.js",
+    "lib/util.js"
+  ]
+}
