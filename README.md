@@ -23,19 +23,13 @@ socket.onopen = function(){
 
 ### Standalone
 
-If you decide not to use component, clone this repository and run:
-
-```
-$ make build-standalone
-```
-
-This will yield a `build/build.js` file that you can
-include in your project. You can then access `Socket` and the rest of
-the constructors through the `eio` namespace:
+If you decide not to use component you can find a `engine.io.js` file in
+this repository, which is a standalone build you can use as follows:
 
 ```html
 <script src="/path/to/build.js"></script>
 <script>
+  // eio = Socket
   var socket = eio('ws://localhost');
   socket.onopen = function(){
     socket.onmessage = function(data){});
