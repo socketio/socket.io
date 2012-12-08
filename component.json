@@ -10,6 +10,7 @@
     "lib/parser.js",
     "lib/socket.js",
     "lib/transport.js",
+    "lib/emitter.js",
     "lib/util.js"
   ]
 }
