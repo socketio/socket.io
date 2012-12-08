@@ -22,8 +22,18 @@
   },
   "component": {
     "scripts": {
-      "engine.io/index.js": "./dist/engine.io-dev.js",
-      "engine.io-client/index.js": "./dist/engine.io-dev.js"
+      "engine.io/index.js": "lib/index.js",
+      "engine.io/parser.js": "lib/parser.js",
+      "engine.io/socket.js": "lib/socket.js",
+      "engine.io/transport.js": "lib/transport.js",
+      "engine.io/emitter.js": "lib/emitter.js",
+      "engine.io/util.js": "lib/util.js",
+      "engine.io/transports/index.js": "lib/transports/index.js",
+      "engine.io/transports/polling.js": "lib/transports/polling.js",
+      "engine.io/transports/polling-xhr.js": "lib/transports/polling-xhr.js",
+      "engine.io/transports/polling-jsonp.js": "lib/transports/polling-jsonp.js",
+      "engine.io/transports/websocket.js": "lib/transports/websocket.js",
+      "engine.io/transports/flashsocket.js": "lib/transports/flashsocket.js"
     }
   }
 }
