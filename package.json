@@ -1,7 +1,6 @@
 {
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
-  "main": "./lib/engine.io-client",
   "version": "0.3.10",
   "homepage": "https://github.com/LearnBoost/engine.io-client",
   "contributors": [
