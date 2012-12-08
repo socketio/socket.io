@@ -11,6 +11,7 @@
   "dependencies": {
     "ws": "0.4.20",
     "xmlhttprequest": "1.5.0",
+    "emitter-component": "0.0.6",
     "debug": "0.6.0"
   },
   "devDependencies": {
