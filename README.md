@@ -156,7 +156,11 @@ property points to the location where the files `web_socket.js`,
 ## Tests
 
 `engine.io-client` is used to test
-[engine](http://github.com/learnboost/engine.io)
+[engine](http://github.com/learnboost/engine.io). Running the `engine.io`
+test suite ensures the client works and vice-versa.
+
+Additionally, `engine.io-client` has a standalone test suite you can run
+with `make test` or in the browser with `make test-browser`.
 
 ## Support
 
