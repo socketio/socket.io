@@ -74,23 +74,14 @@ socket.onopen = function(){
 
 <hr><br>
 
-### Top-level
-
-These are exposed in the `eio` global namespace (in the browser), or by
-`require('engine.io-client')` (in Node.JS).
-
-#### Properties
-
-- `version` _(String)_: client version
-- `protocol` _(Number)_: protocol revision number
-- `Socket` _(Function)_: client constructor
-
 ### Socket
 
-The client class. _Inherits from EventEmitter_.
+The client class. Mixes in [Emitter](http://github.com/component/emitter).
+Exposed as `eio` in the browser standalone build.
 
 #### Properties
 
+- `protocol` _(Number)_: protocol revision number
 - `onopen` (_Function_)
   - `open` event handler
 - `onmessage` (_Function_)
