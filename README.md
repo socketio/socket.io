@@ -8,15 +8,52 @@ communication layer for [Socket.IO](http://github.com/learnboost/socket.io).
 
 ## Hello World
 
+### With component
+
+Engine.IO is a [component](http://github.com/component/component), which
+means you can include it by using `require` on the browser:
+
+```js
+var socket = require('engine.io')('ws://localhost');
+socket.onopen = function(){
+  socket.onmessage = function(data){});
+  socket.onclose = function(){});
+};
+```
+
+### Standalone
+
+If you decide not to use component, clone this repository and run:
+
+```
+$ make build-standalone
+```
+
+This will yield a `build/build.js` file that you can
+include in your project. You can then access `Socket` and the rest of
+the constructors through the `eio` namespace:
+
 ```html
-<script src="/path/to/engine.js"></script>
+<script src="/path/to/build.js"></script>
 <script>
-  var socket = new eio.Socket({ host: 'localhost', port: 80 });
-  socket.onopen = function () {
-    socket.onmessage = function (data) { });
-    socket.onclose = function () { });
+  var socket = new eio.Socket('ws://localhost');
+  socket.onopen = function(){
+    socket.onmessage = function(data){});
+    socket.onclose = function(){});
   };
 </script>
+```
+
+### Node.JS
+
+Add `engine.io-client` to your `package.json` and then:
+
+```js
+var socket = require('engine.io-client')('ws://localhost');
+socket.onopen = function(){
+  socket.onmessage = function(data){});
+  socket.onclose = function(){});
+};
 ```
 
 ## Features
