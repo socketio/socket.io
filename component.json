@@ -11,6 +11,12 @@
     "lib/socket.js",
     "lib/transport.js",
     "lib/emitter.js",
-    "lib/util.js"
+    "lib/util.js",
+    "lib/transports/index.js",
+    "lib/transports/polling.js",
+    "lib/transports/polling-xhr.js",
+    "lib/transports/polling-jsonp.js",
+    "lib/transports/websocket.js",
+    "lib/transports/flashsocket.js"
   ]
 }
