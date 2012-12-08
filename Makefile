@@ -2,19 +2,17 @@
 TESTS = $(shell find test/*.js -depth 1 -type f ! -name 'common.js')
 REPORTER = dot
 
-all: build build-dev
+build: components lib
+	@component build --dev
 
-build:
-	@./node_modules/.bin/browserbuild \
-		-g eio \
-		-m engine.io-client -b lib/ \
-		lib > dist/engine.io.js
+build-standalone: components lib
+	@component build --standalone eio
 
-build-dev:
-	@./node_modules/.bin/browserbuild \
-		-g eio \
-		-d -m engine.io-client -b lib/ \
-		lib > dist/engine.io-dev.js
+components: component.json
+	@component install --dev
+
+clean:
+	rm -fr build components
 
 test:
 	@./node_modules/.bin/mocha \
@@ -25,4 +23,4 @@ test:
 test-browser:
 	@./node_modules/.bin/serve test/
 
-.PHONY: test
+.PHONY: test test-browser clean
