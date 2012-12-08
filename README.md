@@ -36,7 +36,7 @@ the constructors through the `eio` namespace:
 ```html
 <script src="/path/to/build.js"></script>
 <script>
-  var socket = new eio.Socket('ws://localhost');
+  var socket = eio('ws://localhost');
   socket.onopen = function(){
     socket.onmessage = function(data){});
     socket.onclose = function(){});
