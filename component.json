@@ -1,0 +1,11 @@
+{
+  "name": "socket.io-parser",
+  "version": "0.0.1",
+  "description": "socket.io protocol parser",
+  "dependencies": {
+    "component/json": "0.0.1"
+  },
+  "scripts": [
+    "index.js"
+  ]
+}
