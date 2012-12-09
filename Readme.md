@@ -1,6 +1,8 @@
 
 # socket.io-protocol
 
+  [![Build Status](https://secure.travis-ci.org/LearnBoost/socket.io-protocol.png)](http://travis-ci.org/LearnBoost/socket.io-protocol)
+
   This repository contains the protocol specification and JavaScript
   parser for the Socket.IO protocol.
 
