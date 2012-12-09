@@ -1,4 +1,13 @@
 
+0.4.0 / 2012-12-09
+==================
+
+  * *: now based on `component(1)`
+  * *: module now exports `Socket`
+  * socket: export constructors, utils and `protocol`
+  * *: implemented `emitter` component
+  * *: removed browserbuild and preprocessor instructions
+
 0.3.10 / 2012-12-03
 ===================
 
