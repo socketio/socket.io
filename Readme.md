@@ -27,17 +27,15 @@
 
 ### Packet
 
-  Each packet is represented as a vanilla `Object` with a `type` key that
-  can be one of the following:
+  Each packet is represented as a vanilla `Object` with a `nsp` key that
+  indicates what namespace it belongs to (see "Multiplexing") and a 
+  `type` key that can be one of the following:
 
   - `Packet#CONNECT` (`0`)
   - `Packet#DISCONNECT` (`1`)
   - `Packet#EVENT` (`2`)
   - `Packet#ACK` (`3`)
   - `Packet#ERROR` (`4`)
-
-  Each packet also contains a `nsp` key that indicates what namespace it
-  belongs to (see "Multiplexing" below for an explanation).
 
 #### EVENT
 
