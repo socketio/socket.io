@@ -7,9 +7,6 @@
     "expect.js": "*"
   },
   "component": {
-    "dependencies": {
-      "component/json": "0.0.1"
-    },
     "scripts": [
       "index.js"
     ]
