@@ -5,6 +5,7 @@
     "component/emitter": "0.0.6",
     "visionmedia/debug": "*"
   },
+  "main": "lib/index.js",
   "scripts": [
     "lib/index.js",
     "lib/parser.js",
