@@ -1,20 +1,20 @@
 
-ALL_TESTS = $(shell find test/ -name '*.test.js')
-
-run-tests:
-	@./node_modules/.bin/expresso \
-		-I lib \
-		-I support \
-		--serial \
-		$(TESTS)
+REPORTER = dot
 
 test:
-	@$(MAKE) TESTS="$(ALL_TESTS)" run-tests
+	@./node_modules/.bin/mocha \
+		--reporter $(REPORTER) \
+		--bail
 
-test-acceptance:
-	@node support/test-runner/app $(TRANSPORT)
+build: components lib
+	@component build --standalone eio
+	@mv build/build.js socket.io-client.js
+	@rm -rf build
 
-build:
-	@node ./bin/builder.js
+components: component.json
+	@component install --dev
 
-.PHONY: test
+clean:
+	rm -fr components
+
+.PHONY: test clean
