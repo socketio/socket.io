@@ -12,7 +12,8 @@
   },
   "devDependencies": {
     "mocha": "*",
-    "expect.js": "*"
+    "expect.js": "*",
+    "uglify-js": "*"
   },
   "component": {
     "scripts": {
