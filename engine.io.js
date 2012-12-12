@@ -195,7 +195,7 @@ module.exports = Emitter;
 
 /**
  * Initialize a new `Emitter`.
- * 
+ *
  * @api public
  */
 
@@ -290,7 +290,7 @@ Emitter.prototype.off = function(event, fn){
  *
  * @param {String} event
  * @param {Mixed} ...
- * @return {Emitter} 
+ * @return {Emitter}
  */
 
 Emitter.prototype.emit = function(event){
@@ -549,7 +549,7 @@ exports.decodePacket = function (data) {
 
 /**
  * Encodes multiple messages (payload).
- * 
+ *
  *     <length>:data
  *
  * Example:
@@ -653,6 +653,12 @@ var util = require('./util')
  */
 
 module.exports = Socket;
+
+/**
+ * Global reference.
+ */
+
+var global = 'undefined' != typeof window ? window : global;
 
 /**
  * Socket constructor.
@@ -1292,14 +1298,28 @@ try {
 module.exports = Emitter;
 
 /**
+ * Compatibility with `WebSocket#addEventListener`.
+ *
+ * @api public
+ */
+
+Emitter.prototype.addEventListener = Emitter.prototype.on;
+
+/**
+ * Compatibility with `WebSocket#removeEventListener`.
+ *
+ * @api public
+ */
+
+Emitter.prototype.removeEventListener = Emitter.prototype.off;
+
+/**
  * Node-compatible `EventEmitter#removeListener`
  *
  * @api public
  */
 
-Emitter.prototype.removeListener = function(event, fn){
-  return this.off(event, fn);
-};
+Emitter.prototype.removeListener = Emitter.prototype.off;
 
 /**
  * Node-compatible `EventEmitter#removeAllListeners`
@@ -1321,6 +1341,12 @@ require.register("engine.io/lib/util.js", function(module, exports, require){
 var pageLoaded = false;
 
 /**
+ * Global reference.
+ */
+
+var global = 'undefined' != typeof window ? window : global;
+
+/**
  * Inheritance.
  *
  * @param {Function} ctor a
@@ -1339,8 +1365,8 @@ exports.inherits = function inherits (a, b) {
  */
 
 exports.keys = Object.keys || function (obj) {
-  var ret = []
-    , has = Object.prototype.hasOwnProperty
+  var ret = [];
+  var has = Object.prototype.hasOwnProperty;
 
   for (var i in obj) {
     if (has.call(obj, i)) {
@@ -1504,7 +1530,7 @@ exports.ua.ios6 = exports.ua.ios && /OS 6_/.test(navigator.userAgent);
  */
 
 exports.request = function request (xdomain) {
-  if ('undefined' != typeof process) {
+  if ('undefined' == typeof window) {
     var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
     return new XMLHttpRequest();
   }
@@ -1595,6 +1621,12 @@ exports.websocket = websocket;
 exports.flashsocket = flashsocket;
 
 /**
+ * Global reference.
+ */
+
+var global = 'undefined' != typeof window ? window : global;
+
+/**
  * Polling transport polymorphic constructor.
  * Decides on xhr vs jsonp based on feature detection.
  *
@@ -1648,6 +1680,12 @@ var Transport = require('../transport')
  */
 
 module.exports = Polling;
+
+/**
+ * Global reference.
+ */
+
+var global = 'undefined' != typeof window ? window : global;
 
 /**
  * Polling interface.
@@ -1856,6 +1894,12 @@ var Polling = require('./polling')
 
 module.exports = XHR;
 module.exports.Request = Request;
+
+/**
+ * Global reference.
+ */
+
+var global = 'undefined' != typeof window ? window : global;
 
 /**
  * Obfuscated key for Blue Coat.
@@ -2141,6 +2185,12 @@ var Polling = require('./polling')
 module.exports = JSONPPolling;
 
 /**
+ * Global reference.
+ */
+
+var global = 'undefined' != typeof window ? window : global;
+
+/**
  * Cached regular expressions.
  */
 
@@ -2361,6 +2411,12 @@ var Transport = require('../transport')
 module.exports = WS;
 
 /**
+ * Global reference.
+ */
+
+var global = 'undefined' != typeof window ? window : global;
+
+/**
  * WebSocket transport constructor.
  *
  * @api {Object} connection options
@@ -2490,7 +2546,7 @@ WS.prototype.check = function(){
  */
 
 function ws(){
-  if ('undefined' != typeof process) {
+  if ('undefined' == typeof window) {
     return require('ws');
   }
 
@@ -2499,7 +2555,6 @@ function ws(){
 
 });
 require.register("engine.io/lib/transports/flashsocket.js", function(module, exports, require){
-
 /**
  * Module dependencies.
  */
@@ -2513,6 +2568,12 @@ var WS = require('./websocket')
  */
 
 module.exports = FlashWS;
+
+/**
+ * Global reference.
+ */
+
+var global = 'undefined' != typeof window ? window : global;
 
 /**
  * Obfuscated key for Blue Coat.
@@ -2666,7 +2727,7 @@ FlashWS.prototype.ready = function (fn) {
  */
 
 FlashWS.prototype.check = function () {
-  if ('undefined' != typeof process) {
+  if ('undefined' == typeof window) {
     return false;
   }
 
@@ -2759,6 +2820,8 @@ require.alias("component-emitter/index.js", "engine.io/deps/emitter/index.js");
 
 require.alias("visionmedia-debug/index.js", "engine.io/deps/debug/index.js");
 require.alias("visionmedia-debug/debug.js", "engine.io/deps/debug/debug.js");
+
+require.alias("engine.io/lib/index.js", "engine.io/index.js");
   if ("undefined" == typeof module) {
     window.eio = require("engine.io");
   } else {
