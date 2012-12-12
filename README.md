@@ -16,8 +16,8 @@ means you can include it by using `require` on the browser:
 ```js
 var socket = require('engine.io')('ws://localhost');
 socket.onopen = function(){
-  socket.onmessage = function(data){});
-  socket.onclose = function(){});
+  socket.onmessage = function(data){};
+  socket.onclose = function(){};
 };
 ```
 
@@ -32,8 +32,8 @@ this repository, which is a standalone build you can use as follows:
   // eio = Socket
   var socket = eio('ws://localhost');
   socket.onopen = function(){
-    socket.onmessage = function(data){});
-    socket.onclose = function(){});
+    socket.onmessage = function(data){};
+    socket.onclose = function(){};
   };
 </script>
 ```
@@ -45,8 +45,8 @@ Add `engine.io-client` to your `package.json` and then:
 ```js
 var socket = require('engine.io-client')('ws://localhost');
 socket.onopen = function(){
-  socket.onmessage = function(data){});
-  socket.onclose = function(){});
+  socket.onmessage = function(data){};
+  socket.onclose = function(){};
 };
 ```
 
