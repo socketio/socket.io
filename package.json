@@ -1,6 +1,6 @@
 {
     "name": "socket.io"
-  , "version": "0.9.11"
+  , "version": "0.9.12"
   , "description": "Real-time apps made cross-browser & easy with a WebSocket-like API"
   , "homepage": "http://socket.io"
   , "keywords": ["websocket", "socket", "realtime", "socket.io", "comet", "ajax"]
