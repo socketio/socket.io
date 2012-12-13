@@ -2,23 +2,46 @@
   "name": "socket.io",
   "version": "1.0.0",
   "description": "node.js realtime framework server",
-  "keywords": ["realtime", "framework", "websocket", "tcp", "events", "socket", "io"],
+  "keywords": [
+    "realtime",
+    "framework",
+    "websocket",
+    "tcp",
+    "events",
+    "socket",
+    "io"
+  ],
   "dependencies": {
     "debug": "*",
     "engine.io": "",
-    "socket.io-parser": "1.0.1"
+    "socket.io-parser": "1.0.1",
+    "socket.io-client": "1.0.0",
+    "send": "~0.1.0"
   },
   "devDependencies": {
     "mocha": "*",
-    "expect.js": "*"
+    "expect.js": "*",
+    "superagent": "*"
   },
   "optionalDependencies": {
     "redis": "0.7.3"
   },
   "contributors": [
-    { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" },
-    { "name": "Arnout Kazemier", "email": "info@3rd-eden.com" },
-    { "name": "Vladimir Dronnikov", "email": "dronnikov@gmail.com" },
-    { "name": "Einar Otto Stangvik", "email": "einaros@gmail.com" }
+    {
+      "name": "Guillermo Rauch",
+      "email": "rauchg@gmail.com"
+    },
+    {
+      "name": "Arnout Kazemier",
+      "email": "info@3rd-eden.com"
+    },
+    {
+      "name": "Vladimir Dronnikov",
+      "email": "dronnikov@gmail.com"
+    },
+    {
+      "name": "Einar Otto Stangvik",
+      "email": "einaros@gmail.com"
+    }
   ]
 }
