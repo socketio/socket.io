@@ -15,6 +15,12 @@
     "expect.js": "*",
     "uglify-js": "*"
   },
+  "contributors": [
+    { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" },
+    { "name": "Arnout Kazemier", "email": "info@3rd-eden.com" },
+    { "name": "Vladimir Dronnikov", "email": "dronnikov@gmail.com" },
+    { "name": "Einar Otto Stangvik", "email": "einaros@gmail.com" }
+  ],
   "component": {
     "scripts": {
       "engine.io/index.js": "lib/index.js",
