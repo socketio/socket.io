@@ -18,6 +18,7 @@
   , "dependencies": {
         "socket.io-client": "0.9.11"
       , "policyfile": "0.0.4"
+      , "base64id": "0.1.0"
     }
   , "devDependencies": {
         "expresso": "0.9.2"
