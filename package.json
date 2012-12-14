@@ -21,7 +21,7 @@
   "devDependencies": {
     "mocha": "*",
     "expect.js": "*",
-    "superagent": "*"
+    "supertest": "*"
   },
   "optionalDependencies": {
     "redis": "0.7.3"
