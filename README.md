@@ -65,13 +65,6 @@
   `http://localhost` and a Socket.IO connection will be established to
   `/users`.
 
-### IO(url:Object, opts:Object):Socket
-
-  Creates a new `Manager` but the URL settings are an engine.io compatible
-  object (see [engine.io-client](http://github.com/learnbooost/engine.io-client))
-  for details. You can use this signature to pass specific options to
-  the transport, like to disable transports.
-
 ### IO#protocol
 
   Socket.io protocol revision number this client works with.
@@ -94,10 +87,8 @@
   more `Socket` instances are associated with the manager. The manager
   can be accessed through the `io` property of each `Socket` instance.
 
-### Manager(url:Object, opts:Object)
-
-  Identical to above, except the `url` object is passed to `engine.io`.
-  You can also pass additional `engine.io` options this way.
+  The `opts` are also passed to `engine.io` upon initialization of the
+  underlying `Socket`.
 
 ## License
 
