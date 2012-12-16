@@ -15,7 +15,8 @@ describe('socket.io', function(){
         .buffer(true)
         .end(function(err, res){
           if (err) return done(err);
-          expect(res.headers['content-type']).to.be('application/javascript');
+          var ctype = res.headers['content-type'];
+          expect(ctype).to.be('application/javascript');
           expect(res.text).to.match(/engine\.io/);
           expect(res.status).to.be(200);
           done();
