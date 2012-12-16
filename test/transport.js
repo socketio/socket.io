@@ -18,7 +18,7 @@ describe('Transport', function () {
     it('should generate an http uri', function () {
       var polling = new eio.transports.polling({
           path: '/engine.io'
-        , host: 'localhost'
+        , hostname: 'localhost'
         , secure: false
         , query: { sid: 'test' }
       });
@@ -28,7 +28,7 @@ describe('Transport', function () {
     it('should generate an http uri w/o a port', function () {
       var polling = new eio.transports.polling({
           path: '/engine.io'
-        , host: 'localhost'
+        , hostname: 'localhost'
         , secure: false
         , query: { sid: 'test' }
         , port: 80
@@ -39,7 +39,7 @@ describe('Transport', function () {
     it('should generate an http uri with a port', function () {
       var polling = new eio.transports.polling({
           path: '/engine.io'
-        , host: 'localhost'
+        , hostname: 'localhost'
         , secure: false
         , query: { sid: 'test' }
         , port: 3000
@@ -50,7 +50,7 @@ describe('Transport', function () {
     it('should generate an https uri w/o a port', function () {
       var polling = new eio.transports.polling({
           path: '/engine.io'
-        , host: 'localhost'
+        , hostname: 'localhost'
         , secure: true
         , query: { sid: 'test' }
         , port: 443
@@ -61,7 +61,7 @@ describe('Transport', function () {
     it('should generate a timestamped uri', function () {
       var polling = new eio.transports.polling({
           path: '/engine.io'
-        , host: 'localhost'
+        , hostname: 'localhost'
         , timestampParam: 't'
         , timestampRequests: true
       });
@@ -71,7 +71,7 @@ describe('Transport', function () {
     it('should generate a ws uri', function () {
       var ws = new eio.transports.websocket({
           path: '/engine.io'
-        , host: 'test'
+        , hostname: 'test'
         , secure: false
         , query: { transport: 'websocket' }
       });
@@ -81,7 +81,7 @@ describe('Transport', function () {
     it('should generate a wss uri', function () {
       var ws = new eio.transports.websocket({
           path: '/engine.io'
-        , host: 'test'
+        , hostname: 'test'
         , secure: true
         , query: {}
       });
@@ -91,7 +91,7 @@ describe('Transport', function () {
     it('should timestamp ws uris', function () {
       var ws = new eio.transports.websocket({
           path: '/engine.io'
-        , host: 'localhost'
+        , hostname: 'localhost'
         , timestampParam: 'woot'
         , timestampRequests: true
       });
