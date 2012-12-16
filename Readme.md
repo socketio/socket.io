@@ -4,12 +4,26 @@
 ## How to use
 
 ```js
-var http = require('http').Server();
-var sockets = require('socket.io')(http);
-sockets.on('connection', function(socket){
+var server = require('http').Server();
+var io = require('socket.io')(server);
+io.on('connection', function(socket){
   socket.on('event', function(data){});
   socket.on('disconnect', function(){});
 });
+```
+
+### In conjunction with `Express`
+
+Starting with **3.0**, express applications have become request handler
+functions that you pass to `http` or `http` `Server` instances. You need
+to pass the `Server` to `socket.io`, and not the express application
+function.
+
+```js
+var app = require('express')();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+io.on('connection', function(){ // … });
 ```
 
 ## API
