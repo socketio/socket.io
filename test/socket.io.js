@@ -64,4 +64,24 @@ describe('socket.io', function(){
     });
   });
 
+  describe('namespaces', function(){
+    var Namespace = require('../lib/namespace');
+
+    describe('default', function(){
+      it('should be accessible through .sockets', function(){
+        var sio = io();
+        expect(sio.sockets).to.be.a(Namespace);
+      });
+
+      it('should be aliased', function(){
+        var sio = io();
+        expect(sio.use).to.be.a('function');
+        expect(sio.to).to.be.a('function');
+        expect(sio.in).to.be.a('function');
+        expect(sio.emit).to.be.a('function');
+        expect(sio.send).to.be.a('function');
+        expect(sio.write).to.be.a('function');
+      });
+    });
+  });
 });
