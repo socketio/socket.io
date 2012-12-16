@@ -22,11 +22,10 @@ they're expected to be "opening" and "closing" all the time.
 
 An Engine.IO url is composed as follows:
 
-`/engine.io/` <resource> `/` [ ? <query string> ]
+`/engine.io/` [ ? <query string> ]
 
-- The resource allows to connect several independent sockets to the same
-  server listening on a given port/host. The default is `default`. It's
-  always required.
+- The `engine.io` pathname should only be changed by higher-level
+  frameworks whose protocol sits on top of engine's.
 
 - The query string is optional and has three reserved keys:
 
