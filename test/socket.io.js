@@ -144,10 +144,30 @@ describe('socket.io', function(){
           var chat = client(srv, '/chat');
           var news = client(srv, '/news');
           var total = 2;
-          sio.of('/news').on('connection', function(){
+          sio.of('/news').on('connection', function(socket){
+            expect(socket).to.be.a(Socket);
             --total || done();
           });
-          sio.of('/news').on('connection', function(){
+          sio.of('/news').on('connection', function(socket){
+            expect(socket).to.be.a(Socket);
+            --total || done();
+          });
+        });
+      });
+
+      it('should work with `of` second param', function(done){
+        var srv = http();
+        var sio = io(srv);
+        srv.listen(function(){
+          var chat = client(srv, '/chat');
+          var news = client(srv, '/news');
+          var total = 2;
+          sio.of('/news', function(socket){
+            expect(socket).to.be.a(Socket);
+            --total || done();
+          });
+          sio.of('/news', function(socket){
+            expect(socket).to.be.a(Socket);
             --total || done();
           });
         });
