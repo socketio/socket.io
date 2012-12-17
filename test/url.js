@@ -34,20 +34,9 @@ describe('url', function(){
     loc.protocol = 'http:';
     loc.hostname = 'woot.com';
 
-    expect(url('/woot').nsp).to.be('/woot');
-    expect(url('/woot').path).to.be(undefined);
-    expect(url('http://google.com').nsp).to.be('/');
-    expect(url('http://google.com/').nsp).to.be('/');
-    expect(url('http://google.com/').path).to.be(undefined);
-
-    var parsed = url({
-      host: 'google.com',
-      port: 3000,
-      path: '/engine.io',
-      nsp: '/'
-    });
-    expect(parsed.hostname).to.be('google.com');
-    expect(parsed.protocol).to.be('http:');
+    expect(url('/woot').pathname).to.be('/woot');
+    expect(url('http://google.com').pathname).to.be('/');
+    expect(url('http://google.com/').pathname).to.be('/');
   });
 
 });
