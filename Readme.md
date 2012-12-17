@@ -139,6 +139,13 @@ io.on('connection', function(){ // … });
 
   By default the client always connects to `/`.
 
+#### Events
+
+  - `connection` / `connect`. Fired upon a connection.
+
+    Parameters:
+    - `Socket` the incoming socket.
+
 ### Namespace#name:String
 
   The namespace identifier property.
