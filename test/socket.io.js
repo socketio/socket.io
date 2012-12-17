@@ -97,12 +97,24 @@ describe('socket.io', function(){
         });
       });
 
-      it('should fire a connection event', function(done){
+      it('should fire a `connection` event', function(done){
         var srv = http();
         var sio = io(srv);
         srv.listen(function(){
           var socket = client(srv);
           sio.on('connection', function(socket){
+            expect(socket).to.be.a(Socket);
+            done();
+          });
+        });
+      });
+
+      it('should fire a `connect` event', function(done){
+        var srv = http();
+        var sio = io(srv);
+        srv.listen(function(){
+          var socket = client(srv);
+          sio.on('connect', function(socket){
             expect(socket).to.be.a(Socket);
             done();
           });
