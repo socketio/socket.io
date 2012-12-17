@@ -67,6 +67,7 @@ describe('socket.io', function(){
   });
 
   describe('namespaces', function(){
+    var Socket = require('../lib/socket');
     var Namespace = require('../lib/namespace');
 
     describe('default', function(){
@@ -83,6 +84,29 @@ describe('socket.io', function(){
         expect(sio.emit).to.be.a('function');
         expect(sio.send).to.be.a('function');
         expect(sio.write).to.be.a('function');
+      });
+
+      it('should automatically connect', function(done){
+        var srv = http();
+        var sio = io(srv);
+        srv.listen(function(){
+          var socket = client(srv);
+          socket.on('connect', function(){
+            done();
+          });
+        });
+      });
+
+      it('should fire a connection event', function(done){
+        var srv = http();
+        var sio = io(srv);
+        srv.listen(function(){
+          var socket = client(srv);
+          sio.on('connection', function(socket){
+            expect(socket).to.be.a(Socket);
+            done();
+          });
+        });
       });
     });
   });
