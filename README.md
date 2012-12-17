@@ -92,6 +92,29 @@
   The `opts` are also passed to `engine.io` upon initialization of the
   underlying `Socket`.
 
+  - `connect`. Fired upon a succesful connection.
+  - `connect_error`. Fired upon a connection error.
+    Parameters:
+      - `Object` error object
+  - `connect_timeout`. Fired upon a connection timeout.
+  - `reconnect`. Fired upon a successful reconnection.
+    Parameters:
+      - `Number` reconnection attempt number
+  - `reconnect_error`. Fired upon a reconnection attempt error.
+    Parameters:
+      - `Object` error object
+  - `reconnect_failed`
+
+### Socket
+
+#### Events
+
+  - `connect`. Fired upon connecting.
+  - `error`. Fired upon a connection error
+    Parameters:
+      - `Object` error data
+  - `disconnect`. Fired upon a disconnection.
+
 ## License
 
 MIT
