@@ -1,6 +1,8 @@
 
 # socket.io
 
+[![Build Status](https://secure.travis-ci.org/LearnBoost/socket.io.png)](http://travis-ci.org/LearnBoost/socket.io)
+
 ## How to use
 
 ```js
