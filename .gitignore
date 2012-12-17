@@ -1,4 +1,5 @@
 node_modules
 build
+build.js
 components
 .DS_Store
