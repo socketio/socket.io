@@ -32,18 +32,11 @@ describe('socket.io', function(){
       });
 
       it('should not serve static files', function(done){
-        var srv = http(function(req, res){
-          res.writeHead(404);
-          res.end();
-        });
+        var srv = http();
         io(srv, { static: false });
         request(srv)
         .get('/socket.io/socket.io.js')
-        .end(function(err, res){
-          if (err) return done(err);
-          expect(res.status).to.be(404);
-          done();
-        });
+        .expect(400, done);
       });
 
       it('should work with #attach', function(done){
