@@ -120,6 +120,38 @@ describe('socket.io', function(){
           });
         });
       });
+
+      it('should work with many sockets', function(done){
+        var srv = http();
+        var sio = io(srv);
+        srv.listen(function(){
+          var chat = client(srv, '/chat');
+          var news = client(srv, '/news');
+          var total = 2;
+          chat.on('connect', function(){
+            --total || done();
+          });
+          news.on('connect', function(){
+            --total || done();
+          });
+        });
+      });
+
+      it('should work with `of` and many sockets', function(done){
+        var srv = http();
+        var sio = io(srv);
+        srv.listen(function(){
+          var chat = client(srv, '/chat');
+          var news = client(srv, '/news');
+          var total = 2;
+          sio.of('/news').on('connection', function(){
+            --total || done();
+          });
+          sio.of('/news').on('connection', function(){
+            --total || done();
+          });
+        });
+      });
     });
   });
 });
