@@ -6,6 +6,7 @@ build: components lib
 	@mv build/build.js build.js
 	@rm -rf build
 	@./node_modules/.bin/uglifyjs < build.js > socket.io-client.js
+	@echo "… done"
 
 components: component.json
 	@component install --dev
