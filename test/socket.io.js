@@ -6,10 +6,10 @@ var request = require('supertest');
 var expect = require('expect.js');
 
 // creates a socket.io client for the given server
-function client(srv){
+function client(srv, nsp){
   var addr = srv.address();
   if (!addr) addr = srv.listen().address();
-  return ioc('ws://' + addr.address + ':' + addr.port);
+  return ioc('ws://' + addr.address + ':' + addr.port + (nsp || ''));
 }
 
 describe('socket.io', function(){
