@@ -150,6 +150,17 @@ io.on('connection', function(){ // … });
 
   The namespace identifier property.
 
+### Socket
+
+  A `Socket` is the fundamental class for interacting with browser
+  clients.
+
+### Client
+
+  The `Client` class represents an incoming transport (engine.io)
+  connection. A `Client` can be associated with many multiplexed `Socket`
+  that belong to different `Namespace`s.
+
 ## License
 
 MIT
