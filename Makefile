@@ -13,7 +13,7 @@ components: component.json
 	@component install --dev
 
 clean:
-	rm -fr components
+	rm -fr components build build.js
 
 test:
 	@./node_modules/.bin/mocha \
