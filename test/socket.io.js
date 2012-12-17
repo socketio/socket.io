@@ -1,8 +1,16 @@
 
 var http = require('http').Server;
 var io = require('..');
+var ioc = require('socket.io-client');
 var request = require('supertest');
 var expect = require('expect.js');
+
+// creates a socket.io client for the given server
+function client(srv){
+  var addr = srv.address();
+  if (!addr) addr = srv.listen().address();
+  return ioc('ws://' + addr.address + ':' + addr.port);
+}
 
 describe('socket.io', function(){
   describe('server attachment', function(){
