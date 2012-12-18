@@ -290,6 +290,9 @@ describe('socket.io', function(){
       srv.listen(function(){
         var socket = client(srv);
         sio.on('connection', function(s){
+          socket.on('hi', function(fn){
+            fn();
+          });
           s.emit('hi', function(){
             done();
           });
