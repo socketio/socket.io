@@ -204,6 +204,23 @@ describe('socket.io', function(){
   });
 
   describe('socket', function(){
+    it('should receive events', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.on('random', function(a, b, c){
+            expect(a).to.be(1);
+            expect(b).to.be('2');
+            expect(c).to.eql([3]);
+            done();
+          });
+          socket.emit('random', 1, '2', [3]);
+        });
+      });
+    });
+
     it('should receive message events through `send`', function(done){
       var srv = http();
       var sio = io(srv);
