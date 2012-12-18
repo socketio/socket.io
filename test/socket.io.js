@@ -296,8 +296,41 @@ describe('socket.io', function(){
           s.emit('hi', function(){
             done();
           });
-          socket.on('hi', function(fn){
+        });
+      });
+    });
+
+    it('should receive events with args and callback', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.on('woot', function(a, b, fn){
+            expect(a).to.be(1);
+            expect(b).to.be(2);
             fn();
+          });
+          socket.emit('woot', 1, 2, function(){
+            done();
+          });
+        });
+      });
+    });
+
+    it('should emit events with args and callback', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          socket.on('hi', function(a, b, fn){
+            expect(a).to.be(1);
+            expect(b).to.be(2);
+            fn();
+          });
+          s.emit('hi', 1, 2, function(){
+            done();
           });
         });
       });
