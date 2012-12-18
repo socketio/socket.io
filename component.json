@@ -3,7 +3,8 @@
   "version": "1.0.1",
   "description": "socket.io protocol parser",
   "dependencies": {
-    "component/json": "*"
+    "component/json": "*",
+    "visionmedia/debug": "*"
   },
   "scripts": [
     "index.js"

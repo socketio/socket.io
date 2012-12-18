@@ -3,6 +3,7 @@
  * Module dependencies.
  */
 
+var debug = require('debug')('socket.io-parser');
 var json;
 
 try {
@@ -110,6 +111,7 @@ exports.encode = function(obj){
     str += json.stringify(obj.data);
   }
 
+  debug('encoded %j as %s', obj, str);
   return str;
 };
 
@@ -166,6 +168,7 @@ exports.decode = function(str){
     }
   }
 
+  debug('decoded %s as %j', str, p);
   return p;
 };
 

@@ -2,6 +2,9 @@
   "name": "socket.io-parser",
   "version": "1.0.2",
   "description": "socket.io protocol parser",
+  "dependencies": {
+    "debug": "*"
+  },
   "devDependencies": {
     "mocha": "*",
     "expect.js": "*"
