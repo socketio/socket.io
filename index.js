@@ -96,7 +96,7 @@ exports.encode = function(obj){
   }
 
   // immediately followed by the id
-  if (obj.id) {
+  if (null != obj.id) {
     if (nsp) {
       str += ',';
       nsp = false;
@@ -105,7 +105,7 @@ exports.encode = function(obj){
   }
 
   // json data
-  if (obj.data) {
+  if (null != obj.data) {
     if (nsp) str += ',';
     str += json.stringify(obj.data);
   }
