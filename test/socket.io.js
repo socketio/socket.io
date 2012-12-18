@@ -202,4 +202,21 @@ describe('socket.io', function(){
       });
     });
   });
+
+  describe('socket', function(){
+    it('should receive message events through `send`', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.on('message', function(a){
+            expect(a).to.be(1337);
+            done();
+          });
+          socket.send(1337);
+        });
+      });
+    });
+  });
 });
