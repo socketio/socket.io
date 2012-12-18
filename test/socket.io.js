@@ -265,5 +265,39 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should receive event with callbacks', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.on('woot', function(fn){
+            fn(1, 2);
+          });
+          socket.emit('woot', function(a, b){
+            expect(a).to.be(1);
+            expect(b).to.be(2);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should emit events with callbacks', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.emit('hi', function(){
+            done();
+          });
+          socket.on('hi', function(fn){
+            fn();
+          });
+        });
+      });
+    });
   });
 });
