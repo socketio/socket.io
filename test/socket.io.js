@@ -235,5 +235,20 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should emit events', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        socket.on('woot', function(a){
+          expect(a).to.be('tobi');
+          done();
+        });
+        sio.on('connection', function(s){
+          s.emit('woot', 'tobi');
+        });
+      });
+    });
   });
 });
