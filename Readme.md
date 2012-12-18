@@ -83,10 +83,21 @@ io.on('connection', function(){ // … });
   io.attach(http);
   ```
 
+  If no arguments are supplied this method returns the current value.
+
 ### Server#path(v:String):Server
 
   Sets the path `v` under which `engine.io` and the static files will be
   served. Defaults to `/socket.io`.
+
+  If no arguments are supplied this method returns the current value.
+
+### Server#adaptor(v:Adaptor):Server
+
+  Sets the adaptor `v`. Defaults to an instance of the `Adaptor` that
+  ships with socket.io which is memory based (see below).
+
+  If no arguments are supplied this method returns the current value.
 
 ### Server#sockets:Namespace
 
@@ -164,6 +175,15 @@ io.on('connection', function(){ // … });
   The `Client` class represents an incoming transport (engine.io)
   connection. A `Client` can be associated with many multiplexed `Socket`
   that belong to different `Namespace`s.
+
+### Adaptor
+
+  The `Adaptor` is in charge of keeping track of what rooms each socket
+  is connected to, and passing messages to them.
+
+  By default the `Adaptor` is memory based. In order to pass messages
+  across multiple processes, make sure to use an appropriate adaptor
+  (configurable through `Server#adaptor`).
 
 ## License
 
