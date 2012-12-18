@@ -172,6 +172,34 @@ describe('socket.io', function(){
           });
         });
       });
+
+      it('should disconnect upon transport disconnection', function(done){
+        var srv = http();
+        var sio = io(srv);
+        srv.listen(function(){
+          var chat = client(srv, '/chat');
+          var news = client(srv, '/news');
+          var total = 2;
+          var totald = 2;
+          var s;
+          sio.of('/news', function(socket){
+            socket.on('disconnect', function(reason){
+              --totald || done();
+            });
+            --total || close();
+          });
+          sio.of('/chat', function(socket){
+            s = socket;
+            socket.on('disconnect', function(reason){
+              --totald || done();
+            });
+            --total || close();
+          });
+          function close(){
+            s.disconnect(true);
+          }
+        });
+      });
     });
   });
 });
