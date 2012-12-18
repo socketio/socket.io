@@ -157,6 +157,7 @@ exports.decode = function(str){
       p.id += str.charAt(i);
       if (i + 1 == str.length) break;
     }
+    p.id = Number(p.id);
   }
 
   // look up json data
