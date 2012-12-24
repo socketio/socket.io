@@ -171,7 +171,7 @@ io.on('connection', function(){ // … });
   A `Socket` is the fundamental class for interacting with browser
   clients.
 
-### Socket#joined:Array
+### Socket#rooms:Array
 
   A list of strings identifying the rooms this socket is in.
 
