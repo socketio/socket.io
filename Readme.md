@@ -161,6 +161,11 @@ io.on('connection', function(){ // … });
 
   The namespace identifier property.
 
+### Namespace#connected:Object<Socket>
+
+  Hash of `Socket` objects that are connected to this namespace indexed
+  by `id`.
+
 ### Socket
 
   A `Socket` is the fundamental class for interacting with browser
