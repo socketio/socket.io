@@ -341,4 +341,179 @@ describe('socket.io', function(){
       });
     });
   });
+
+  describe('messaging many', function(){
+    it('emits to a namespace', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var total = 2;
+
+      srv.listen(function(){
+        var socket1 = client(srv, { multiplex: false });
+        var socket2 = client(srv, { multiplex: false });
+        var socket3 = client(srv, '/test');
+        socket1.on('a', function(a){
+          expect(a).to.be('b');
+          --total || done();
+        });
+        socket2.on('a', function(a){
+          expect(a).to.be('b');
+          --total || done();
+        });
+        socket3.on('a', function(){ done(new Error('not')); });
+
+        var sockets = 3;
+        sio.on('connection', function(socket){
+          --sockets || emit();
+        });
+        sio.of('/test', function(socket){
+          --sockets || emit();
+        });
+
+        function emit(){
+          sio.emit('a', 'b');
+        }
+      });
+    });
+
+    it('emits to the rest', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var total = 2;
+
+      srv.listen(function(){
+        var socket1 = client(srv, { multiplex: false });
+        var socket2 = client(srv, { multiplex: false });
+        var socket3 = client(srv, '/test');
+        socket1.on('a', function(a){
+          expect(a).to.be('b');
+          socket1.emit('finish');
+        });
+        socket2.emit('broadcast');
+        socket2.on('a', function(){ done(new Error('done')); });
+        socket3.on('a', function(){ done(new Error('not')); });
+
+        var sockets = 2;
+        sio.on('connection', function(socket){
+          socket.on('broadcast', function(){
+            socket.broadcast.emit('a', 'b');
+          });
+          socket.on('finish', function(){
+            done();
+          });
+        });
+      });
+    });
+
+    it('emits to rooms', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var total = 2;
+
+      srv.listen(function(){
+        var socket1 = client(srv, { multiplex: false });
+        var socket2 = client(srv, { multiplex: false });
+
+        socket2.on('a', function(){
+          done(new Error('not'));
+        });
+        socket1.on('a', function(){
+          done();
+        });
+        socket1.emit('join', 'woot', function(){
+          socket1.emit('emit', 'woot');
+        });
+
+        sio.on('connection', function(socket){
+          socket.on('join', function(room, fn){
+            socket.join(room, fn);
+          });
+
+          socket.on('emit', function(room){
+            sio.in(room).emit('a');
+          });
+        });
+      });
+    });
+
+    it('emits to rooms avoiding dupes', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var total = 2;
+
+      srv.listen(function(){
+        var socket1 = client(srv, { multiplex: false });
+        var socket2 = client(srv, { multiplex: false });
+
+        socket2.on('a', function(){
+          done(new Error('not'));
+        });
+        socket1.on('a', function(){
+          --total || done();
+        });
+        socket2.on('b', function(){
+          --total || done();
+        });
+
+        socket1.emit('join', 'woot');
+        socket1.emit('join', 'test');
+        socket2.emit('join', 'third', function(){
+          socket2.emit('emit');
+        });
+
+        sio.on('connection', function(socket){
+          socket.on('join', function(room, fn){
+            socket.join(room, fn);
+          });
+
+          socket.on('emit', function(room){
+            sio.in('woot').in('test').emit('a');
+            sio.in('third').emit('b');
+          });
+        });
+      });
+    });
+
+    it('broadcasts to rooms', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var total = 2;
+
+      srv.listen(function(){
+        var socket1 = client(srv, { multiplex: false });
+        var socket2 = client(srv, { multiplex: false });
+        var socket3 = client(srv, { multiplex: false });
+
+        socket1.emit('join', 'woot');
+        socket2.emit('join', 'test');
+        socket3.emit('join', 'test', function(){
+          socket3.emit('broadcast');
+        });
+
+        socket1.on('a', function(){
+          done(new Error('not'));
+        });
+        socket2.on('a', function(){
+          --total || done();
+        });
+        socket3.on('a', function(){
+          done(new Error('not'));
+        });
+        socket3.on('b', function(){
+          --total || done();
+        });
+
+        sio.on('connection', function(socket){
+          socket.on('join', function(room, fn){
+            socket.join(room, fn);
+          });
+
+          socket.on('broadcast', function(){
+            socket.broadcast.to('test').emit('a');
+            socket.emit('b');
+          });
+        });
+      });
+    });
+  });
 });
