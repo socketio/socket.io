@@ -537,4 +537,113 @@ describe('socket.io', function(){
       });
     });
   });
+
+  describe('middleware', function(done){
+    var Socket = require('../lib/socket');
+
+    it('should call functions', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var run = 0;
+      sio.use(function(socket, next){
+        expect(socket).to.be.a(Socket);
+        run++;
+        next();
+      });
+      sio.use(function(socket, next){
+        expect(socket).to.be.a(Socket);
+        run++;
+        next();
+      });
+      srv.listen(function(){
+        var socket = client(srv);
+        socket.on('connect', function(){
+          expect(run).to.be(2);
+          done();
+        });
+      });
+    });
+
+    it('should pass errors', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var run = 0;
+      sio.use(function(socket, next){
+        next(new Error('Authentication error'));
+      });
+      sio.use(function(socket, next){
+        done(new Error('nope'));
+      });
+      srv.listen(function(){
+        var socket = client(srv);
+        socket.on('connect', function(){
+          done(new Error('nope'));
+        });
+        socket.on('error', function(err){
+          expect(err).to.be('Authentication error');
+          done();
+        });
+      });
+    });
+
+    it('should pass `data` of error object', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var run = 0;
+      sio.use(function(socket, next){
+        var err = new Error('Authentication error');
+        err.data = { a: 'b', c: 3 };
+        next(err);
+      });
+      srv.listen(function(){
+        var socket = client(srv);
+        socket.on('connect', function(){
+          done(new Error('nope'));
+        });
+        socket.on('error', function(err){
+          expect(err).to.eql({ a: 'b', c: 3 });
+          done();
+        });
+      });
+    });
+
+    it('should only call connection after fns', function(done){
+      var srv = http();
+      var sio = io(srv);
+      sio.use(function(socket, next){
+        socket.name = 'guillermo';
+        next();
+      });
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(socket){
+          expect(socket.name).to.be('guillermo');
+          done();
+        });
+      });
+    });
+
+    it('should be ignored if socket gets closed', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var socket;
+      sio.use(function(s, next){
+        socket.io.engine.on('open', function(){
+          socket.io.engine.close();
+          s.client.conn.on('close', function(){
+            process.nextTick(next);
+            setTimeout(function(){
+              done();
+            }, 50);
+          });
+        });
+      });
+      srv.listen(function(){
+        socket = client(srv);
+        sio.on('connection', function(socket){
+          done(new Error('should not fire'));
+        });
+      });
+    });
+  });
 });
