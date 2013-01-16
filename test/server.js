@@ -908,6 +908,29 @@ describe('server', function () {
           });
         });
       });
+
+      it('should not execute when it is not actually sent (polling)', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+
+          socket.on('message', function(msg) {
+            socket.close();
+          });
+
+          engine.on('connection', function (conn) {
+            var err = undefined;
+
+            conn.send('a');
+            conn.send('b', function (transport) {
+              err = new Error('Test invalidation');
+            });
+
+            conn.on('close', function (reason) {
+              done(err);
+            });
+          });
+        });
+      });
     });
   });
 
