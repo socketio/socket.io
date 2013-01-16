@@ -883,6 +883,43 @@ describe('server', function () {
         });
       });
 
+      it('should execute in multipart packet (polling)', function (done) {
+        var engine = listen(function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+          var i = 0;
+          var j = 0;
+
+          engine.on('connection', function (conn) {
+            conn.send('d', function (transport) {
+              i++;
+            });
+
+            conn.send('c', function (transport) {
+              i++;
+            });
+
+            conn.send('b', function (transport) {
+              i++;
+            });
+
+            conn.send('a', function (transport) {
+              i++;
+            });
+
+          });
+          socket.on('open', function () {
+            socket.on('message', function (msg) {
+              j++;
+            });
+          });
+
+          setTimeout(function () {
+            expect(i).to.be(j);
+            done();
+          }, 200);
+        });
+      });
+
       it('should clean callback references when socket gets closed with pending callbacks', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
@@ -903,6 +940,7 @@ describe('server', function () {
 
             conn.on('close', function (reason) {
               expect(conn.packetsFn).to.be.empty();
+              expect(conn.sentCallbackFn).to.be.empty();
               done();
             });
           });
@@ -913,7 +951,7 @@ describe('server', function () {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
 
-          socket.on('message', function(msg) {
+          socket.transport.on('pollComplete', function(msg) {
             socket.close();
           });
 
