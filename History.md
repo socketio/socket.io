@@ -1,4 +1,21 @@
 
+0.4.1 / 2013-01-18
+==================
+
+  * do not shadow global XMLHttpRequest
+  * socket: added `data` event (as synonym to `message`)
+  * socket: remove `resource` and fix `path`
+  * socket: fixed access to `opts`
+  * test: fixed transports tests
+  * socket: constructor can accept uri/opts simultaneously
+  * SPEC: simplified: removed resource from SPEC
+  * socket: proper `host`/`hostname` support
+  * socket: ensure `onclose` idempotency
+  * socket: added `onerror` instrumentation
+  * socket: fix style
+  * use window to detect platform and fix global reference
+  * *: fix references to `global` (fixes #79)
+
 0.4.0 / 2012-12-09
 ==================
 

@@ -195,7 +195,7 @@ module.exports = Emitter;
 
 /**
  * Initialize a new `Emitter`.
- *
+ * 
  * @api public
  */
 
@@ -290,7 +290,7 @@ Emitter.prototype.off = function(event, fn){
  *
  * @param {String} event
  * @param {Mixed} ...
- * @return {Emitter}
+ * @return {Emitter} 
  */
 
 Emitter.prototype.emit = function(event){
@@ -549,7 +549,7 @@ exports.decodePacket = function (data) {
 
 /**
  * Encodes multiple messages (payload).
- *
+ * 
  *     <length>:data
  *
  * Example:
@@ -658,36 +658,51 @@ module.exports = Socket;
  * Global reference.
  */
 
-var global = 'undefined' != typeof window ? window : global;
+var global = util.global();
 
 /**
  * Socket constructor.
  *
+ * @param {String|Object} uri or options
  * @param {Object} options
  * @api public
  */
 
-function Socket(opts){
-  if (!(this instanceof Socket)) return new Socket(opts);
+function Socket(uri, opts){
+  if (!(this instanceof Socket)) return new Socket(uri, opts);
 
-  if ('string' == typeof opts) {
-    var uri = util.parseUri(opts);
-    opts = arguments[1] || {};
+  opts = opts || {};
+
+  if ('object' == typeof uri) {
+    opts = uri;
+    uri = null;
+  }
+
+  if (uri) {
+    uri = util.parseUri(uri);
     opts.host = uri.host;
     opts.secure = uri.protocol == 'https' || uri.protocol == 'wss';
     opts.port = uri.port;
   }
 
-  opts = opts || {};
-  this.secure = null != opts.secure ? opts.secure : (global.location && 'https:' == location.protocol);
-  this.host = opts.host || opts.hostname || (global.location ? location.hostname : 'localhost');
-  this.port = opts.port || (global.location && location.port ? location.port : (this.secure ? 443 : 80));
+  this.secure = null != opts.secure ? opts.secure :
+    (global.location && 'https:' == location.protocol);
+
+  if (opts.host) {
+    var pieces = opts.host.split(':');
+    opts.hostname = pieces.shift();
+    if (pieces.length) opts.port = pieces.pop();
+  }
+
+  this.hostname = opts.hostname ||
+    (global.location ? location.hostname : 'localhost');
+  this.port = opts.port || (global.location && location.port ?
+       location.port :
+       (this.secure ? 443 : 80));
   this.query = opts.query || {};
   this.query.uid = rnd();
   this.upgrade = false !== opts.upgrade;
-  this.resource = opts.resource || 'default';
-  this.path = (opts.path || '/engine.io').replace(/\/$/, '');
-  this.path += '/' + this.resource + '/';
+  this.path = (opts.path || '/engine.io').replace(/\/$/, '') + '/';
   this.forceJSONP = !!opts.forceJSONP;
   this.timestampParam = opts.timestampParam || 't';
   this.timestampRequests = !!opts.timestampRequests;
@@ -753,16 +768,16 @@ Socket.prototype.createTransport = function (name) {
   }
 
   var transport = new transports[name]({
-      host: this.host
-    , port: this.port
-    , secure: this.secure
-    , path: this.path
-    , query: query
-    , forceJSONP: this.forceJSONP
-    , timestampRequests: this.timestampRequests
-    , timestampParam: this.timestampParam
-    , flashPath: this.flashPath
-    , policyPort: this.policyPort
+    hostname: this.hostname,
+    port: this.port,
+    secure: this.secure,
+    path: this.path,
+    query: query,
+    forceJSONP: this.forceJSONP,
+    timestampRequests: this.timestampRequests,
+    timestampParam: this.timestampParam,
+    flashPath: this.flashPath,
+    policyPort: this.policyPort
   });
 
   return transport;
@@ -965,6 +980,7 @@ Socket.prototype.onPacket = function (packet) {
         break;
 
       case 'message':
+        this.emit('data', packet.data);
         this.emit('message', packet.data);
         var event = { data: packet.data };
         event.toString = function () {
@@ -1100,6 +1116,7 @@ Socket.prototype.close = function () {
  */
 
 Socket.prototype.onError = function (err) {
+  debug('socket error %j', err);
   this.emit('error', err);
   this.onClose('transport error', err);
 };
@@ -1111,7 +1128,7 @@ Socket.prototype.onError = function (err) {
  */
 
 Socket.prototype.onClose = function (reason, desc) {
-  if ('closed' != this.readyState) {
+  if ('open' == this.readyState) {
     debug('socket close with reason: "%s"', reason);
     clearTimeout(this.pingIntervalTimer);
     clearTimeout(this.pingTimeoutTimer);
@@ -1158,7 +1175,7 @@ module.exports = Transport;
 
 function Transport (opts) {
   this.path = opts.path;
-  this.host = opts.host;
+  this.hostname = opts.hostname;
   this.port = opts.port;
   this.secure = opts.secure;
   this.query = opts.query;
@@ -1341,12 +1358,6 @@ require.register("engine.io/lib/util.js", function(module, exports, require){
 var pageLoaded = false;
 
 /**
- * Global reference.
- */
-
-var global = 'undefined' != typeof window ? window : global;
-
-/**
  * Inheritance.
  *
  * @param {Function} ctor a
@@ -1398,6 +1409,7 @@ exports.on = function (element, event, fn, capture) {
  */
 
 exports.load = function (fn) {
+  var global = exports.global();
   if (global.document && document.readyState === 'complete' || pageLoaded) {
     return fn();
   }
@@ -1447,6 +1459,8 @@ var rvalidchars = /^[\],:{}\s]*$/
   , rtrimRight = /\s+$/
 
 exports.parseJSON = function (data) {
+  var global = exports.global();
+
   if ('string' != typeof data || !data) {
     return null;
   }
@@ -1531,8 +1545,8 @@ exports.ua.ios6 = exports.ua.ios && /OS 6_/.test(navigator.userAgent);
 
 exports.request = function request (xdomain) {
   if ('undefined' == typeof window) {
-    var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
-    return new XMLHttpRequest();
+    var _XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+    return new _XMLHttpRequest();
   }
 
   if (xdomain && 'undefined' != typeof XDomainRequest && !exports.ua.hasCORS) {
@@ -1599,6 +1613,16 @@ exports.qs = function (obj) {
   return str;
 };
 
+/**
+ * Returns the global object
+ *
+ * @api private
+ */
+
+exports.global = function () {
+  return 'undefined' != typeof window ? window : global;
+};
+
 });
 require.register("engine.io/lib/transports/index.js", function(module, exports, require){
 
@@ -1624,7 +1648,7 @@ exports.flashsocket = flashsocket;
  * Global reference.
  */
 
-var global = 'undefined' != typeof window ? window : global;
+var global = util.global()
 
 /**
  * Polling transport polymorphic constructor.
@@ -1685,7 +1709,7 @@ module.exports = Polling;
  * Global reference.
  */
 
-var global = 'undefined' != typeof window ? window : global;
+var global = util.global();
 
 /**
  * Polling interface.
@@ -1856,16 +1880,16 @@ Polling.prototype.uri = function(){
   var port = '';
 
   // cache busting is forced for IE / android / iOS6 ಠ_ಠ
-  if (global.ActiveXObject || util.ua.android || util.ua.ios6
-    || this.timestampRequests) {
+  if (global.ActiveXObject || util.ua.android || util.ua.ios6 ||
+      this.timestampRequests) {
     query[this.timestampParam] = +new Date;
   }
 
   query = util.qs(query);
 
   // avoid port if default for schema
-  if (this.port && (('https' == schema && this.port != 443)
-    || ('http' == schema && this.port != 80))) {
+  if (this.port && (('https' == schema && this.port != 443) ||
+     ('http' == schema && this.port != 80))) {
     port = ':' + this.port;
   }
 
@@ -1874,7 +1898,7 @@ Polling.prototype.uri = function(){
     query = '?' + query;
   }
 
-  return schema + '://' + this.host + port + this.path + query;
+  return schema + '://' + this.hostname + port + this.path + query;
 };
 
 });
@@ -1899,7 +1923,8 @@ module.exports.Request = Request;
  * Global reference.
  */
 
-var global = 'undefined' != typeof window ? window : global;
+var global = util.global();
+
 
 /**
  * Obfuscated key for Blue Coat.
@@ -2188,7 +2213,7 @@ module.exports = JSONPPolling;
  * Global reference.
  */
 
-var global = 'undefined' != typeof window ? window : global;
+var global = util.global()
 
 /**
  * Cached regular expressions.
@@ -2414,7 +2439,7 @@ module.exports = WS;
  * Global reference.
  */
 
-var global = 'undefined' != typeof window ? window : global;
+var global = util.global();
 
 /**
  * WebSocket transport constructor.
@@ -2524,7 +2549,7 @@ WS.prototype.uri = function(){
     query = '?' + query;
   }
 
-  return schema + '://' + this.host + port + this.path + query;
+  return schema + '://' + this.hostname + port + this.path + query;
 };
 
 /**
@@ -2573,7 +2598,7 @@ module.exports = FlashWS;
  * Global reference.
  */
 
-var global = 'undefined' != typeof window ? window : global;
+var global = util.global()
 
 /**
  * Obfuscated key for Blue Coat.
