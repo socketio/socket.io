@@ -15,7 +15,7 @@ global.eioc = require('engine.io-client');
  * Expose parser.
  */
 
-global.eiop = require('engine.io-parser');
+global.eiop = require('engine.io-parser/lib/index');
 
 
 /**
