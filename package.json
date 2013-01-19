@@ -1,0 +1,17 @@
+{
+  "name": "engine.io-parser",
+  "description": "Parser for the client for the realtime Engine",
+  "version": "0.1.0",
+  "homepage": "https://github.com/LearnBoost/engine.io-parser",
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "*",
+    "expect.js": "*"
+  },
+  "component": {
+    "scripts": {
+      "engine.io-parser/index.js": "lib/index.js",
+      "engine.io-parser/keys.js": "lib/keys.js"
+    }
+  }
+}

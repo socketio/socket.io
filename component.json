@@ -1,0 +1,10 @@
+{
+  "name": "engine.io-parser",
+  "version": "0.1.0",
+  "dependencies": {},
+  "main": "lib/index.js",
+  "scripts": [
+    "lib/index.js",
+    "lib/keys.js"
+  ]
+}
