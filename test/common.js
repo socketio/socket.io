@@ -12,6 +12,13 @@ global.eio = require('../index');
 global.eioc = require('engine.io-client');
 
 /**
+ * Expose parser.
+ */
+
+global.eiop = require('engine.io-parser');
+
+
+/**
  * Expose `request` global.
  */
 

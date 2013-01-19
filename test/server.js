@@ -5,7 +5,7 @@
  */
 
 var http = require('http')
-  , parser = eio.parser
+  , parser = eiop
   , WebSocket = require('ws');
 
 /**
