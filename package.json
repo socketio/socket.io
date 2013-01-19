@@ -10,7 +10,8 @@
   },
   "component": {
     "scripts": {
-      "engine.io-parser/index.js": "lib/index.js"
+      "engine.io-parser/index.js": "lib/index.js",
+      "engine.io-parser/keys.js": "lib/keys.js"
     }
   }
 }

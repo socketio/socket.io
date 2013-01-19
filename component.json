@@ -1,13 +1,10 @@
 {
   "name": "engine.io-parser",
-  "version": "0.0.0",
-  "dependencies": {
-    "component/emitter": "0.0.6",
-    "visionmedia/debug": "*"
-  },
+  "version": "0.1.0",
+  "dependencies": {},
   "main": "lib/index.js",
   "scripts": [
     "lib/index.js",
-    "lib/parser.js"
+    "lib/keys.js"
   ]
 }
