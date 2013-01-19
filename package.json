@@ -1,10 +1,14 @@
 {
     "name": "engine.io"
-  , "version": "0.4.0"
+  , "version": "0.4.1"
   , "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server"
   , "main": "./lib/engine.io"
   , "author": "Guillermo Rauch <guillermo@learnboost.com>"
   , "homepage": "https://github.com/LearnBoost/engine.io"
+  , "repository" : {
+          "type" : "git"
+        , "url" : "git://github.com/LearnBoost/engine.io.git"
+    }
   , "contributors": [
         { "name": "Eugen Dueck", "web": "https://github.com/EugenDueck" },
         { "name": "Afshin Mehrabani", "web": "https://github.com/afshinm" },
