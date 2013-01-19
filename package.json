@@ -1,7 +1,7 @@
 {
   "name": "engine.io-parser",
   "description": "Parser for the client for the realtime Engine",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "homepage": "https://github.com/LearnBoost/engine.io-parser",
   "dependencies": {},
   "devDependencies": {
@@ -10,7 +10,7 @@
   },
   "component": {
     "scripts": {
-      "engine.io/parser.js": "lib/parser.js"
+      "engine.io-parser/index.js": "lib/index.js"
     }
   }
 }
