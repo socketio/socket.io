@@ -5,6 +5,10 @@
   , "main": "./lib/engine.io"
   , "author": "Guillermo Rauch <guillermo@learnboost.com>"
   , "homepage": "https://github.com/LearnBoost/engine.io"
+  , "repository" : {
+          "type" : "git"
+        , "url" : "git://github.com/LearnBoost/engine.io.git"
+    }
   , "contributors": [
         { "name": "Eugen Dueck", "web": "https://github.com/EugenDueck" },
         { "name": "Afshin Mehrabani", "web": "https://github.com/afshinm" },
