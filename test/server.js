@@ -553,7 +553,7 @@ describe('server', function () {
 
     it('should trigger with connection `ping timeout` ' +
        'after `pingInterval + pingTimeout`', function (done) {
-      var opts = { allowUpgrades: false, pingInterval: 30, pingTimeout: 10 };
+      var opts = { allowUpgrades: false, pingInterval: 300, pingTimeout: 100 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         var clientCloseReason = null;
@@ -569,14 +569,14 @@ describe('server', function () {
             setTimeout(function() {
               socket.onPacket = function(){};
               expect(clientCloseReason).to.be(null);
-            }, 15);
+            }, 150);
             setTimeout(function() {
               expect(clientCloseReason).to.be(null);
-            }, 35);
+            }, 350);
             setTimeout(function() {
               expect(clientCloseReason).to.be("ping timeout");
               done();
-            }, 50);
+            }, 500);
           });
         });
       });
