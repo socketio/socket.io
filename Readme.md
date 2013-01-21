@@ -69,6 +69,11 @@ Finally, load it from the client side code:
 
 For more thorough examples, look at the `examples/` directory.
 
+##### Script Tag for socket.io.js ...
+Note that the script tag for socket.io pulls in socket.io from your Node.js server. 
+So in this example your app is running on port 80, and therefore "/socket.io/socket.io.js" is being pulled from 
+"http://localhost:80/socket.io/socket.io.js" - and not from your public javascript folder.
+
 ## Short recipes
 
 ### Sending and receiving events.
