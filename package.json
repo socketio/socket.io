@@ -17,15 +17,20 @@
   , "dependencies": {
         "debug": "0.6.0"
       , "ws": "~0.4.21"
-      , "engine.io-client": "0.4.1"
+      , "engine.io-parser": "0.1.0"
       , "base64id": "0.1.0"
     }
   , "devDependencies": {
         "mocha": "*"
       , "expect.js": "*"
       , "superagent": "*"
+      , "engine.io-client": "0.4.1"
       , "ws": "*"
       , "s": "*"
     }
   , "scripts" : { "test" : "make test" }
+  , "repository": {
+        "type": "git"
+      , "url": "git@github.com:LearnBoost/engine.io.git"
+  }
 }
