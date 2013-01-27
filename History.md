@@ -1,4 +1,16 @@
 
+0.4.1 / 2013-01-18
+==================
+
+  * package: bumped versions
+  * Fixed bugs in previous send callback fix and updated test cases
+  * Added a test case which makes the code before the send callback fix fail
+  * socket: emit `data` event (synonym with `message`)
+  * socket: added `Socket#write`
+  * engine.io: cleanup
+  * engine.io: deprecated `resource`
+  * `npm docs engine.io` works now
+
 0.3.10 / 2012-12-03
 ===================
 
