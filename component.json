@@ -8,7 +8,6 @@
   "main": "lib/index.js",
   "scripts": [
     "lib/index.js",
-    "lib/parser.js",
     "lib/socket.js",
     "lib/transport.js",
     "lib/emitter.js",
