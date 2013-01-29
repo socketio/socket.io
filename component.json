@@ -1,14 +1,14 @@
 {
   "name": "engine.io",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "dependencies": {
     "component/emitter": "0.0.6",
+    "LearnBoost/engine.io-protocol": "*",
     "visionmedia/debug": "*"
   },
   "main": "lib/index.js",
   "scripts": [
     "lib/index.js",
-    "lib/parser.js",
     "lib/socket.js",
     "lib/transport.js",
     "lib/emitter.js",
