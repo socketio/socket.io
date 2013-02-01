@@ -145,7 +145,7 @@ describe('engine', function () {
 
     it('should not destroy unhandled upgrades with destroyUpgrade:false', function (done) {
       var server = http.createServer()
-        , engine = eio.attach(server, { destroyUpgrade: false });
+        , engine = eio.attach(server, { destroyUpgrade: false, destroyUpgradeTimeout: 50 });
 
       server.listen(function () {
         var client = net.createConnection(server.address().port);
@@ -160,13 +160,77 @@ describe('engine', function () {
           var check = setTimeout(function () {
             client.removeListener('end', onEnd);
             done();
-          }, 20);
+          }, 100);
 
           function onEnd () {
             done(new Error('Client should not end'));
           }
 
           client.on('end', onEnd);
+        });
+      });
+    });
+
+    it('should destroy unhandled upgrades with after a timeout', function (done) {
+      var server = http.createServer()
+        , engine = eio.attach(server, { destroyUpgradeTimeout: 200 });
+
+      server.listen(function () {
+        var client = net.createConnection(server.address().port);
+        client.on('connect', function () {
+          client.setEncoding('ascii');
+          client.write([
+              'GET / HTTP/1.1'
+            , 'Upgrade: IRC/6.9'
+            , '', ''
+          ].join('\r\n'));
+
+          // send from client to server
+          // tests that socket is still alive
+          // this will not keep the socket open as the server does not handle it
+          setTimeout(function() {
+            client.write('foo');
+          }, 100);
+
+          function onEnd () {
+            done();
+          }
+
+          client.on('end', onEnd);
+        });
+      });
+    });
+
+    it('should not destroy handled upgrades with after a timeout', function (done) {
+      var server = http.createServer()
+        , engine = eio.attach(server, { destroyUpgradeTimeout: 100 });
+
+      // write to the socket to keep engine.io from closing it by writing before the timeout
+      server.on('upgrade', function(req, socket) {
+        socket.write('foo');
+        socket.on('data', function(chunk) {
+          expect(chunk.toString()).to.be('foo');
+          socket.end();
+        });
+      });
+
+      server.listen(function () {
+        var client = net.createConnection(server.address().port);
+
+        client.on('connect', function () {
+          client.setEncoding('ascii');
+          client.write([
+              'GET / HTTP/1.1'
+            , 'Upgrade: IRC/6.9'
+            , '', ''
+          ].join('\r\n'));
+
+          // test that socket is still open by writing after the timeout period
+          setTimeout(function() {
+            client.write('foo');
+          }, 200);
+
+          client.on('end', done);
         });
       });
     });
