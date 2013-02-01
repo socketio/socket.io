@@ -136,6 +136,7 @@ These are exposed by `require('engine.io')`:
       - `path` (`String`): name of the path to capture (`/engine.io`).
       - `policyFile` (`Boolean`): whether to handle policy file requests (`true`)
       - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
+      - `destroyUpgradeTimeout` (`Number`): milliseconds after which unhandled requests are ended (`1000`)
       - **See Server options below for additional options you can pass**
     - **Returns** `Server`
 

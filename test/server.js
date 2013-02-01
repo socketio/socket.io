@@ -1115,6 +1115,9 @@ describe('server', function () {
           });
         });
       });
+
+      // attach another engine to make sure it doesn't break upgrades
+      var e2 = eio.attach(engine.httpServer, { path: '/foo' });
     });
   });
 
