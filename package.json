@@ -24,7 +24,6 @@
   "component": {
     "scripts": {
       "engine.io/index.js": "lib/index.js",
-      "engine.io/parser.js": "lib/parser.js",
       "engine.io/socket.js": "lib/socket.js",
       "engine.io/transport.js": "lib/transport.js",
       "engine.io/emitter.js": "lib/emitter.js",
