@@ -1,4 +1,11 @@
 
+0.4.2 / 2013-02-08
+==================
+
+  * Only end upgrade socket connections if unhandled
+  * Fix websocket dependency
+  * Close socket if upgrade is received and socket.readyState != open
+
 0.4.1 / 2013-01-18
 ==================
 
