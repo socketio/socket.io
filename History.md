@@ -1,4 +1,13 @@
 
+0.4.2 / 2013-02-08
+==================
+
+  * polling-jsonp: fix ie6 JSONP on SSL
+  * close also if socket.readyState is on "opening"
+  * parser.js: removed the file package.json: added the engine.io-parser dependency everything else: switched to engine.io-parser
+  * fix "TypeError: Object #<Object> has no method 'global'"
+  * client now ignores unsupported upgrades
+
 0.4.1 / 2013-01-18
 ==================
 
