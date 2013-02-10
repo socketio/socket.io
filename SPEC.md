@@ -127,7 +127,7 @@ A noop packet. Used primarily to force a poll cycle when an incoming websocket c
 A payload is a series of encoded packets tied together. The payload encoding format is as follows:
 
 ```
-<length1><packet1>[<length2><packet2>[...]]
+<length1>:<packet1>[<length2>:<packet2>[...]]
 ```
 * length: length of the packet in __characters__
 * packet: actual packets as descriped above
