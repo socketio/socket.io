@@ -730,7 +730,6 @@ function Socket(uri, opts){
        location.port :
        (this.secure ? 443 : 80));
   this.query = opts.query || {};
-  this.query.uid = rnd();
   this.upgrade = false !== opts.upgrade;
   this.path = (opts.path || '/engine.io').replace(/\/$/, '') + '/';
   this.forceJSONP = !!opts.forceJSONP;
@@ -1184,16 +1183,6 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   }
   return filteredUpgrades;
 };
-
-/**
- * Generates a random uid.
- *
- * @api private
- */
-
-function rnd () {
-  return String(Math.random()).substr(5) + String(Math.random()).substr(5);
-}
 
 });
 require.register("engine.io/lib/transport.js", function(module, exports, require){
