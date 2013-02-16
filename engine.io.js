@@ -2414,7 +2414,11 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 
   function initIframe () {
     if (self.iframe) {
-      self.form.removeChild(self.iframe);
+      try {
+        self.form.removeChild(self.iframe);
+      } catch (e) {
+        self.onError('jsonppolling iframe removal error', e);
+      }
     }
 
     try {
