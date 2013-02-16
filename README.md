@@ -145,6 +145,9 @@ In order for the Flash transport to work correctly, ensure the `flashPath`
 property points to the location where the files `web_socket.js`,
 `swfobject.js` and `WebSocketMainInsecure.swf` are located.
 
+These files can be found here
+[https://github.com/gimite/web-socket-js.git](https://github.com/gimite/web-socket-js.git)
+
 ## Tests
 
 `engine.io-client` is used to test
@@ -177,7 +180,7 @@ cd engine.io-client
 npm install
 ```
 
-## License 
+## License
 
 (The MIT License)
 
