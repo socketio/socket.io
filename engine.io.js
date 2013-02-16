@@ -2424,7 +2424,6 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   };
 
   function initIframe () {
-
     if (self.iframe) {
       try {
         self.form.removeChild(self.iframe);
