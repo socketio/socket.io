@@ -99,18 +99,22 @@ describe('parser', function () {
       });
 
       it('should decode payloads as arrays', function () {
-        expect(decPayload(encPayload(['1:a', '2:b']))).to.be.an('array');
+        expect(decPayload(encPayload(['1:a', '2:b']), 
+          function (packet, isLast) {})).to.be.an('array');
       });
     });
 
     describe('encoding and decoding', function () {
       it('should encode/decode packets', function () {
-        expect(decPayload(encPayload([{ type: 'message', data: 'a' }])))
+        expect(decPayload(encPayload([{ type: 'message', data: 'a' }]), 
+            function(packet, isLast) {
+              expect(isLast).to.eql(true);
+        }))
           .to.eql([{ type: 'message', data: 'a' }]);
       });
 
       it('should encode/decode empty payloads', function () {
-        expect(decPayload(encPayload([]))).to.have.length(0);
+        expect(decPayload(encPayload([]), function (packet, isLast) {})).to.have.length(0);
       });
     });
 
@@ -118,19 +122,19 @@ describe('parser', function () {
       var err = [{ type: 'error', data: 'parser error' }];
 
       it('should err on bad payload format', function () {
-        expect(decPayload('1!')).to.eql(err);
-        expect(decPayload('')).to.eql(err);
-        expect(decPayload('))')).to.eql(err);
+        expect(decPayload('1!', function (packet, isLast) {})).to.eql(err);
+        expect(decPayload('', function (packet, isLast) {})).to.eql(err);
+        expect(decPayload('))', function (packet, isLast) {})).to.eql(err);
       });
 
       it('should err on bad payload length', function () {
-        expect(decPayload('1:aa')).to.eql(err);
-        expect(decPayload('1:')).to.eql(err);
-        expect(decPayload('1:a2:b')).to.eql(err);
+        expect(decPayload('1:aa', function (packet, isLast) {})).to.eql(err);
+        expect(decPayload('1:', function (packet, isLast) {})).to.eql(err);
+        expect(decPayload('1:a2:b', function (packet, isLast) {})).to.eql(err);
       });
 
       it('should err on bad packet format', function () {
-        expect(decPayload('3:99:')).to.eql(err);
+        expect(decPayload('3:99:', function (packet, isLast) {})).to.eql(err);
       });
     });
   });
