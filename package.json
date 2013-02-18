@@ -13,7 +13,7 @@
     "xmlhttprequest": "1.5.0",
     "emitter-component": "0.0.6",
     "engine.io-parser": "0.1.1",
-    "debug": "0.6.0"
+    "debug": "0.7.2"
   },
   "devDependencies": {
     "mocha": "*",
