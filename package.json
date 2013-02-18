@@ -9,7 +9,7 @@
     { "name": "Christoph Dorn", "web": "https://github.com/cadorn" }
   ],
   "dependencies": {
-    "ws": "0.4.20",
+    "ws": "0.4.25",
     "xmlhttprequest": "1.5.0",
     "emitter-component": "0.0.6",
     "engine.io-parser": "0.1.1",
