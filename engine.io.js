@@ -2417,7 +2417,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
       try {
         self.form.removeChild(self.iframe);
       } catch (e) {
-        self.onError('jsonppolling iframe removal error', e);
+        self.onError('jsonp polling iframe removal error', e);
       }
     }
 
