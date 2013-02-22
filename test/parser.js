@@ -129,12 +129,15 @@ describe('parser', function () {
       it('should err on bad payload format', function () {
         decPayload('1!', function (packet, isLast) {
           expect(packet).to.eql(undefined);
+          expect(isLast).to.eql(true);
         });
         decPayload('', function (packet, isLast) {
           expect(packet).to.eql(undefined);
+          expect(isLast).to.eql(true);
         });
         decPayload('))', function (packet, isLast) {
           expect(packet).to.eql(undefined);
+          expect(isLast).to.eql(true);
         });
       });
 
@@ -142,6 +145,7 @@ describe('parser', function () {
         // line 137
         decPayload('1:', function (packet, isLast) {
           expect(packet).to.eql(undefined);
+          expect(isLast).to.eql(true);
         });
       });
 
@@ -149,14 +153,17 @@ describe('parser', function () {
         // line 137
         decPayload('3:99:', function (packet, isLast) {
           expect(packet.type).to.eql('error');
+          expect(isLast).to.eql(true);
         });
         // line 146
         decPayload('1:aa', function (packet, isLast) {
           expect(packet.type).to.eql('error');
+          expect(isLast).to.eql(true);
         });
         // line 137
         decPayload('1:a2:b', function (packet, isLast) {
           expect(packet.type).to.eql('error');
+          expect(isLast).to.eql(true);
         });
       });
     });
