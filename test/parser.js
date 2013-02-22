@@ -97,20 +97,29 @@ describe('parser', function () {
       it('should encode payloads as strings', function () {
         expect(encPayload([{ type: 'ping' }, { type: 'post' }])).to.be.a('string');
       });
-
-      it('should decode payloads as arrays', function () {
-        expect(decPayload(encPayload(['1:a', '2:b']))).to.be.an('array');
-      });
     });
 
     describe('encoding and decoding', function () {
       it('should encode/decode packets', function () {
-        expect(decPayload(encPayload([{ type: 'message', data: 'a' }])))
-          .to.eql([{ type: 'message', data: 'a' }]);
+        decPayload(encPayload([{ type: 'message', data: 'a' }]), 
+          function(packet, isLast) {
+            expect(isLast).to.eql(true);
+        });
+        decPayload(encPayload([{type: 'message', data: 'a'}, {type: 'ping'}]), 
+          function(packet, isLast) {
+            if (!isLast) {
+              expect(packet.type).to.eql('message');
+            } else {
+              expect(packet.type).to.eql('ping');
+            }
+        });
       });
 
       it('should encode/decode empty payloads', function () {
-        expect(decPayload(encPayload([]))).to.have.length(0);
+        decPayload(encPayload([]), function (packet, isLast) {
+          expect(packet.type).to.eql('open');
+          expect(isLast).to.eql(true);
+        });
       });
     });
 
@@ -118,19 +127,44 @@ describe('parser', function () {
       var err = [{ type: 'error', data: 'parser error' }];
 
       it('should err on bad payload format', function () {
-        expect(decPayload('1!')).to.eql(err);
-        expect(decPayload('')).to.eql(err);
-        expect(decPayload('))')).to.eql(err);
+        decPayload('1!', function (packet, isLast) {
+          expect(packet).to.eql(undefined);
+          expect(isLast).to.eql(true);
+        });
+        decPayload('', function (packet, isLast) {
+          expect(packet).to.eql(undefined);
+          expect(isLast).to.eql(true);
+        });
+        decPayload('))', function (packet, isLast) {
+          expect(packet).to.eql(undefined);
+          expect(isLast).to.eql(true);
+        });
       });
 
       it('should err on bad payload length', function () {
-        expect(decPayload('1:aa')).to.eql(err);
-        expect(decPayload('1:')).to.eql(err);
-        expect(decPayload('1:a2:b')).to.eql(err);
+        // line 137
+        decPayload('1:', function (packet, isLast) {
+          expect(packet).to.eql(undefined);
+          expect(isLast).to.eql(true);
+        });
       });
 
       it('should err on bad packet format', function () {
-        expect(decPayload('3:99:')).to.eql(err);
+        // line 137
+        decPayload('3:99:', function (packet, isLast) {
+          expect(packet.type).to.eql('error');
+          expect(isLast).to.eql(true);
+        });
+        // line 146
+        decPayload('1:aa', function (packet, isLast) {
+          expect(packet.type).to.eql('error');
+          expect(isLast).to.eql(true);
+        });
+        // line 137
+        decPayload('1:a2:b', function (packet, isLast) {
+          expect(packet.type).to.eql('error');
+          expect(isLast).to.eql(true);
+        });
       });
     });
   });
