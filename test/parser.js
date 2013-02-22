@@ -97,26 +97,28 @@ describe('parser', function () {
       it('should encode payloads as strings', function () {
         expect(encPayload([{ type: 'ping' }, { type: 'post' }])).to.be.a('string');
       });
-
-      it('should decode payloads as arrays', function () {
-        decPayload(encPayload(['1:x', '2:y']), 
-          function (packet, isLast) {
-            expect(packet.type).to.eql('error');
-          });
-      });
     });
 
     describe('encoding and decoding', function () {
       it('should encode/decode packets', function () {
         decPayload(encPayload([{ type: 'message', data: 'a' }]), 
-            function(packet, isLast) {
-              expect(isLast).to.eql(true);
-       });
+          function(packet, isLast) {
+            expect(isLast).to.eql(true);
+        });
+        decPayload(encPayload([{type: 'message', data: 'a'}, {type: 'ping'}]), 
+          function(packet, isLast) {
+            if (!isLast) {
+              expect(packet.type).to.eql('message');
+            } else {
+              expect(packet.type).to.eql('ping');
+            }
+        });
       });
 
       it('should encode/decode empty payloads', function () {
         decPayload(encPayload([]), function (packet, isLast) {
           expect(packet.type).to.eql('open');
+          expect(isLast).to.eql(true);
         });
       });
     });
@@ -137,19 +139,23 @@ describe('parser', function () {
       });
 
       it('should err on bad payload length', function () {
-        decPayload('1:aa', function (packet, isLast) {
-          expect(packet.type).to.eql('error');
-        });
+        // line 137
         decPayload('1:', function (packet, isLast) {
           expect(packet).to.eql(undefined);
-        });
-        decPayload('1:a2:b', function (packet, isLast) {
-          expect(packet.type).to.eql('error');
         });
       });
 
       it('should err on bad packet format', function () {
+        // line 137
         decPayload('3:99:', function (packet, isLast) {
+          expect(packet.type).to.eql('error');
+        });
+        // line 146
+        decPayload('1:aa', function (packet, isLast) {
+          expect(packet.type).to.eql('error');
+        });
+        // line 137
+        decPayload('1:a2:b', function (packet, isLast) {
           expect(packet.type).to.eql('error');
         });
       });
