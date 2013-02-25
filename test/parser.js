@@ -102,11 +102,13 @@ describe('parser', function () {
     describe('encoding and decoding', function () {
       it('should encode/decode packets', function () {
         decPayload(encPayload([{ type: 'message', data: 'a' }]), 
-          function(packet, isLast) {
+          function(packet, index, total) {
+            var isLast = index + 1 == total;
             expect(isLast).to.eql(true);
         });
         decPayload(encPayload([{type: 'message', data: 'a'}, {type: 'ping'}]), 
-          function(packet, isLast) {
+          function(packet, index, total) {
+            var isLast = index + 1 == total;
             if (!isLast) {
               expect(packet.type).to.eql('message');
             } else {
@@ -116,8 +118,9 @@ describe('parser', function () {
       });
 
       it('should encode/decode empty payloads', function () {
-        decPayload(encPayload([]), function (packet, isLast) {
+        decPayload(encPayload([]), function (packet, index, total) {
           expect(packet.type).to.eql('open');
+          var isLast = index + 1 == total;
           expect(isLast).to.eql(true);
         });
       });
@@ -127,15 +130,18 @@ describe('parser', function () {
       var err = [{ type: 'error', data: 'parser error' }];
 
       it('should err on bad payload format', function () {
-        decPayload('1!', function (packet, isLast) {
+        decPayload('1!', function (packet, index, total) {
+          var isLast = index + 1 == total;
           expect(packet).to.eql(undefined);
           expect(isLast).to.eql(true);
         });
-        decPayload('', function (packet, isLast) {
+        decPayload('', function (packet, index, total) {
+          var isLast = index + 1 == total;
           expect(packet).to.eql(undefined);
           expect(isLast).to.eql(true);
         });
-        decPayload('))', function (packet, isLast) {
+        decPayload('))', function (packet, index, total) {
+          var isLast = index + 1 == total;
           expect(packet).to.eql(undefined);
           expect(isLast).to.eql(true);
         });
@@ -143,7 +149,8 @@ describe('parser', function () {
 
       it('should err on bad payload length', function () {
         // line 137
-        decPayload('1:', function (packet, isLast) {
+        decPayload('1:', function (packet, index, total) {
+          var isLast = index + 1 == total;
           expect(packet).to.eql(undefined);
           expect(isLast).to.eql(true);
         });
@@ -151,17 +158,20 @@ describe('parser', function () {
 
       it('should err on bad packet format', function () {
         // line 137
-        decPayload('3:99:', function (packet, isLast) {
+        decPayload('3:99:', function (packet, index, total) {
+          var isLast = index + 1 == total;
           expect(packet.type).to.eql('error');
           expect(isLast).to.eql(true);
         });
         // line 146
-        decPayload('1:aa', function (packet, isLast) {
+        decPayload('1:aa', function (packet, index, total) {
+          var isLast = index + 1 == total;
           expect(packet.type).to.eql('error');
           expect(isLast).to.eql(true);
         });
         // line 137
-        decPayload('1:a2:b', function (packet, isLast) {
+        decPayload('1:a2:b', function (packet, index, total) {
+          var isLast = index + 1 == total;
           expect(packet.type).to.eql('error');
           expect(isLast).to.eql(true);
         });
