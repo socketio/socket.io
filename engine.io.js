@@ -1,4 +1,12 @@
 ;(function(){
+
+
+/**
+ * hasOwnProperty.
+ */
+
+var has = Object.prototype.hasOwnProperty;
+
 /**
  * Require the given path.
  *
@@ -7,27 +15,32 @@
  * @api public
  */
 
-function require(p, parent, orig){
-  var path = require.resolve(p)
-    , mod = require.modules[path];
+function require(path, parent, orig) {
+  var resolved = require.resolve(path);
 
   // lookup failed
-  if (null == path) {
-    orig = orig || p;
+  if (null == resolved) {
+    orig = orig || path;
     parent = parent || 'root';
-    throw new Error('failed to require "' + orig + '" from "' + parent + '"');
+    var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
+    err.path = orig;
+    err.parent = parent;
+    err.require = true;
+    throw err;
   }
+
+  var module = require.modules[resolved];
 
   // perform real require()
   // by invoking the module's
   // registered function
-  if (!mod.exports) {
-    mod.exports = {};
-    mod.client = mod.component = true;
-    mod.call(this, mod, mod.exports, require.relative(path));
+  if (!module.exports) {
+    module.exports = {};
+    module.client = module.component = true;
+    module.call(this, module.exports, require.relative(resolved), module);
   }
 
-  return mod.exports;
+  return module.exports;
 }
 
 /**
@@ -56,19 +69,26 @@ require.aliases = {};
  * @api private
  */
 
-require.resolve = function(path){
-  var orig = path
-    , reg = path + '.js'
-    , regJSON = path + '.json'
-    , index = path + '/index.js'
-    , indexJSON = path + '/index.json';
+require.resolve = function(path) {
+  if (path.charAt(0) === '/') path = path.slice(1);
+  var index = path + '/index.js';
 
-  return require.modules[reg] && reg
-    || require.modules[regJSON] && regJSON
-    || require.modules[index] && index
-    || require.modules[indexJSON] && indexJSON
-    || require.modules[orig] && orig
-    || require.aliases[index];
+  var paths = [
+    path,
+    path + '.js',
+    path + '.json',
+    path + '/index.js',
+    path + '/index.json'
+  ];
+
+  for (var i = 0; i < paths.length; i++) {
+    var path = paths[i];
+    if (has.call(require.modules, path)) return path;
+  }
+
+  if (has.call(require.aliases, index)) {
+    return require.aliases[index];
+  }
 };
 
 /**
@@ -100,15 +120,15 @@ require.normalize = function(curr, path) {
 };
 
 /**
- * Register module at `path` with callback `fn`.
+ * Register module at `path` with callback `definition`.
  *
  * @param {String} path
- * @param {Function} fn
+ * @param {Function} definition
  * @api private
  */
 
-require.register = function(path, fn){
-  require.modules[path] = fn;
+require.register = function(path, definition) {
+  require.modules[path] = definition;
 };
 
 /**
@@ -119,9 +139,10 @@ require.register = function(path, fn){
  * @api private
  */
 
-require.alias = function(from, to){
-  var fn = require.modules[from];
-  if (!fn) throw new Error('failed to alias "' + from + '", it does not exist');
+require.alias = function(from, to) {
+  if (!has.call(require.modules, from)) {
+    throw new Error('Failed to alias "' + from + '", it does not exist');
+  }
   require.aliases[to] = from;
 };
 
@@ -140,7 +161,7 @@ require.relative = function(parent) {
    * lastIndexOf helper.
    */
 
-  function lastIndexOf(arr, obj){
+  function lastIndexOf(arr, obj) {
     var i = arr.length;
     while (i--) {
       if (arr[i] === obj) return i;
@@ -152,40 +173,41 @@ require.relative = function(parent) {
    * The relative require() itself.
    */
 
-  function fn(path){
-    var orig = path;
-    path = fn.resolve(path);
-    return require(path, parent, orig);
+  function localRequire(path) {
+    var resolved = localRequire.resolve(path);
+    return require(resolved, parent, path);
   }
 
   /**
    * Resolve relative to the parent.
    */
 
-  fn.resolve = function(path){
+  localRequire.resolve = function(path) {
+    var c = path.charAt(0);
+    if ('/' == c) return path.slice(1);
+    if ('.' == c) return require.normalize(p, path);
+
     // resolve deps by returning
     // the dep in the nearest "deps"
     // directory
-    if ('.' != path.charAt(0)) {
-      var segs = parent.split('/');
-      var i = lastIndexOf(segs, 'deps') + 1;
-      if (!i) i = 0;
-      path = segs.slice(0, i + 1).join('/') + '/deps/' + path;
-      return path;
-    }
-    return require.normalize(p, path);
+    var segs = parent.split('/');
+    var i = lastIndexOf(segs, 'deps') + 1;
+    if (!i) i = 0;
+    path = segs.slice(0, i + 1).join('/') + '/deps/' + path;
+    return path;
   };
 
   /**
    * Check if module is defined at `path`.
    */
 
-  fn.exists = function(path){
-    return !! require.modules[fn.resolve(path)];
+  localRequire.exists = function(path) {
+    return has.call(require.modules, localRequire.resolve(path));
   };
 
-  return fn;
-};require.register("component-emitter/index.js", function(module, exports, require){
+  return localRequire;
+};
+require.register("component-emitter/index.js", function(exports, require, module){
 
 /**
  * Expose `Emitter`.
@@ -335,7 +357,7 @@ Emitter.prototype.hasListeners = function(event){
 
 
 });
-require.register("LearnBoost-engine.io-protocol/lib/index.js", function(module, exports, require){
+require.register("LearnBoost-engine.io-protocol/lib/index.js", function(exports, require, module){
 /**
  * Module dependencies.
  */
@@ -379,7 +401,7 @@ var err = { type: 'error', data: 'parser error' }
  */
 
 exports.encodePacket = function (packet) {
-  var encoded = packets[packet.type]
+  var encoded = packets[packet.type];
 
   // data fragment is optional
   if (undefined !== packet.data) {
@@ -442,37 +464,37 @@ exports.encodePayload = function (packets) {
 /*
  * Decodes data when a payload is maybe expected.
  *
- * @param {String} data
- * @return {Array} packets
+ * @param {String} data, callback method
+ * @return {NaN} 
  * @api public
  */
 
-exports.decodePayload = function (data) {
+exports.decodePayload = function (data, callback) {
+  var packet;
   if (data == '') {
     // parser error - ignoring payload
-    return [err];
+    return callback(packet, true);
   }
 
-  var packets = []
-    , length = ''
-    , n, msg, packet
+  var length = ''
+    , n, msg;
 
   for (var i = 0, l = data.length; i < l; i++) {
-    var chr = data.charAt(i)
+    var chr = data.charAt(i);
 
     if (':' != chr) {
       length += chr;
     } else {
       if ('' == length || (length != (n = Number(length)))) {
         // parser error - ignoring payload
-        return [err];
+        return callback(packet, true);
       }
 
       msg = data.substr(i + 1, n);
 
       if (length != msg.length) {
         // parser error - ignoring payload
-        return [err];
+        return callback(packet, true);
       }
 
       if (msg.length) {
@@ -480,28 +502,27 @@ exports.decodePayload = function (data) {
 
         if (err.type == packet.type && err.data == packet.data) {
           // parser error in individual packet - ignoring payload
-          return [err];
+          return callback(packet, true);
         }
 
-        packets.push(packet);
+        return callback(packet, i + n == l - 1);
       }
 
       // advance cursor
       i += n;
-      length = ''
+      length = '';
     }
   }
 
   if (length != '') {
     // parser error - ignoring payload
-    return [err];
+    return callback(packet, true);
   }
 
-  return packets;
 };
 
 });
-require.register("LearnBoost-engine.io-protocol/lib/keys.js", function(module, exports, require){
+require.register("LearnBoost-engine.io-protocol/lib/keys.js", function(exports, require, module){
 
 /**
  * Gets the keys for an object.
@@ -523,7 +544,7 @@ module.exports = Object.keys || function keys (obj){
 };
 
 });
-require.register("visionmedia-debug/index.js", function(module, exports, require){
+require.register("visionmedia-debug/index.js", function(exports, require, module){
 if ('undefined' == typeof window) {
   module.exports = require('./lib/debug');
 } else {
@@ -531,7 +552,7 @@ if ('undefined' == typeof window) {
 }
 
 });
-require.register("visionmedia-debug/debug.js", function(module, exports, require){
+require.register("visionmedia-debug/debug.js", function(exports, require, module){
 
 /**
  * Expose `debug()` as the module.
@@ -584,7 +605,9 @@ debug.skips = [];
  */
 
 debug.enable = function(name) {
-  localStorage.debug = name;
+  try {
+    localStorage.debug = name;
+  } catch(e){}
 
   var split = (name || '').split(/[\s,]+/)
     , len = split.length;
@@ -654,8 +677,9 @@ debug.enabled = function(name) {
 // persist
 
 if (window.localStorage) debug.enable(localStorage.debug);
+
 });
-require.register("engine.io/lib/index.js", function(module, exports, require){
+require.register("engine.io/lib/index.js", function(exports, require, module){
 
 module.exports = require('./socket');
 
@@ -668,7 +692,7 @@ module.exports = require('./socket');
 module.exports.parser = require('engine.io-parser');
 
 });
-require.register("engine.io/lib/socket.js", function(module, exports, require){
+require.register("engine.io/lib/socket.js", function(exports, require, module){
 /**
  * Module dependencies.
  */
@@ -1183,9 +1207,8 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   }
   return filteredUpgrades;
 };
-
 });
-require.register("engine.io/lib/transport.js", function(module, exports, require){
+require.register("engine.io/lib/transport.js", function(exports, require, module){
 
 /**
  * Module dependencies.
@@ -1329,7 +1352,7 @@ Transport.prototype.onClose = function () {
 };
 
 });
-require.register("engine.io/lib/emitter.js", function(module, exports, require){
+require.register("engine.io/lib/emitter.js", function(exports, require, module){
 
 /**
  * Module dependencies.
@@ -1384,7 +1407,7 @@ Emitter.prototype.removeAllListeners = function(){
 };
 
 });
-require.register("engine.io/lib/util.js", function(module, exports, require){
+require.register("engine.io/lib/util.js", function(exports, require, module){
 /**
  * Status of page load.
  */
@@ -1658,7 +1681,7 @@ exports.qs = function (obj) {
 };
 
 });
-require.register("engine.io/lib/transports/index.js", function(module, exports, require){
+require.register("engine.io/lib/transports/index.js", function(exports, require, module){
 
 /**
  * Module dependencies
@@ -1723,7 +1746,7 @@ function polling (opts) {
 };
 
 });
-require.register("engine.io/lib/transports/polling.js", function(module, exports, require){
+require.register("engine.io/lib/transports/polling.js", function(exports, require, module){
 /**
  * Module dependencies.
  */
@@ -1843,25 +1866,26 @@ Polling.prototype.poll = function(){
  */
 
 Polling.prototype.onData = function(data){
+  var self = this;
   debug('polling got data %s', data);
   // decode payload
-  var packets = parser.decodePayload(data);
+  parser.decodePayload(data, function(packet, isDone) {self.onDataCallback(packet, isDone)});
+};
 
-  for (var i = 0, l = packets.length; i < l; i++) {
-    // if its the first message we consider the trnasport open
-    if ('opening' == this.readyState) {
-      this.onOpen();
-    }
-
-    // if its a close packet, we close the ongoing requests
-    if ('close' == packets[i].type) {
-      this.onClose();
-      return;
-    }
-
-    // otherwise bypass onData and handle the message
-    this.onPacket(packets[i]);
+Polling.prototype.onDataCallback = function(packet, isDone){
+  // if its the first message we consider the trnasport open
+  if ('opening' == this.readyState) {
+    this.onOpen();
   }
+
+  // if its a close packet, we close the ongoing requests
+  if ('close' == packet.type) {
+    this.onClose();
+    return;
+  }
+
+  // otherwise bypass onData and handle the message
+  this.onPacket(packet);
 
   // if we got data we're not polling
   this.polling = false;
@@ -1936,7 +1960,7 @@ Polling.prototype.uri = function(){
 };
 
 });
-require.register("engine.io/lib/transports/polling-xhr.js", function(module, exports, require){
+require.register("engine.io/lib/transports/polling-xhr.js", function(exports, require, module){
 /**
  * Module requirements.
  */
@@ -2228,7 +2252,7 @@ if (xobject) {
 }
 
 });
-require.register("engine.io/lib/transports/polling-jsonp.js", function(module, exports, require){
+require.register("engine.io/lib/transports/polling-jsonp.js", function(exports, require, module){
 
 /**
  * Module requirements.
@@ -2350,6 +2374,7 @@ JSONPPolling.prototype.doClose = function () {
  */
 
 JSONPPolling.prototype.doPoll = function () {
+	var self = this;
   var script = document.createElement('script');
 
   if (this.script) {
@@ -2359,10 +2384,14 @@ JSONPPolling.prototype.doPoll = function () {
 
   script.async = true;
   script.src = this.uri();
+	script.onerror = function(e){
+		self.onError('jsonp poll error',e);
+	}
 
   var insertAt = document.getElementsByTagName('script')[0];
   insertAt.parentNode.insertBefore(script, insertAt);
   this.script = script;
+
 
   if (util.ua.gecko) {
     setTimeout(function () {
@@ -2458,7 +2487,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 };
 
 });
-require.register("engine.io/lib/transports/websocket.js", function(module, exports, require){
+require.register("engine.io/lib/transports/websocket.js", function(exports, require, module){
 
 /**
  * Module dependencies.
@@ -2619,7 +2648,7 @@ function ws(){
 }
 
 });
-require.register("engine.io/lib/transports/flashsocket.js", function(module, exports, require){
+require.register("engine.io/lib/transports/flashsocket.js", function(exports, require, module){
 /**
  * Module dependencies.
  */
@@ -2886,14 +2915,17 @@ require.alias("component-emitter/index.js", "engine.io/deps/emitter/index.js");
 require.alias("LearnBoost-engine.io-protocol/lib/index.js", "engine.io/deps/engine.io-parser/lib/index.js");
 require.alias("LearnBoost-engine.io-protocol/lib/keys.js", "engine.io/deps/engine.io-parser/lib/keys.js");
 require.alias("LearnBoost-engine.io-protocol/lib/index.js", "engine.io/deps/engine.io-parser/index.js");
+require.alias("LearnBoost-engine.io-protocol/lib/index.js", "LearnBoost-engine.io-protocol/index.js");
 
 require.alias("visionmedia-debug/index.js", "engine.io/deps/debug/index.js");
 require.alias("visionmedia-debug/debug.js", "engine.io/deps/debug/debug.js");
 
 require.alias("engine.io/lib/index.js", "engine.io/index.js");
-  if ("undefined" == typeof module) {
-    window.eio = require("engine.io");
-  } else {
-    module.exports = require("engine.io");
-  }
-})();
+
+if (typeof exports == "object") {
+  module.exports = require("engine.io");
+} else if (typeof define == "function" && define.amd) {
+  define(function(){ return require("engine.io"); });
+} else {
+  window["eio"] = require("engine.io");
+}})();
