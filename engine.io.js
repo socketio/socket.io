@@ -1869,11 +1869,17 @@ Polling.prototype.onData = function(data){
   var self = this;
   debug('polling got data %s', data);
   // decode payload
-  parser.decodePayload(data, function(packet, isDone) {self.onDataCallback(packet, isDone)});
+  parser.decodePayload(data, function(packet, index, total) {self.onDataCallback(packet, index, total)});
 };
 
-Polling.prototype.onDataCallback = function(packet, isDone){
-  // if its the first message we consider the trnasport open
+/**
+ * Callback function for payloads
+ * 
+ * @api private
+ */
+ 
+Polling.prototype.onDataCallback = function(packet, index, total){
+  // if its the first message we consider the transport open
   if ('opening' == this.readyState) {
     this.onOpen();
   }
