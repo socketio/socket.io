@@ -1135,43 +1135,41 @@ describe('server', function () {
         var self = this;
         
         if('script' == name) {
-          function Script() {}
-          
-          Script.prototype.__defineGetter__('parentNode', function () {
+          var script = {};
+
+          script.__defineGetter__('parentNode', function () {
             return document.body;
           });
 
-          Script.prototype.__defineSetter__('src', function (uri) {
+          script.__defineSetter__('src', function (uri) {
             request.get(uri).end(function(res) {
               eval(res.text);
             });
           });
-          return new Script();
+          return script;
         }
         else if ('form' == name) {
-          function Form() {
-            this.style = {};
-            this.action = '';
-            this.parentNode = { removeChild: function () {} }
-            this.removeChild = function () {}
-            this.setAttribute = function () {}
-            this.appendChild = function (elem) {
-              this.area = elem;
-            }
-            this.submit = function () {
-              request.post(this.action).type('form').send({ d: self.areaValue }).end(function (res) {});
-            }
+          var form = {
+            style: {}
+              , action: ''
+              , parentNode: { removeChild: function () {} }
+              , removeChild: function () {}
+              , setAttribute: function () {}
+              , appendChild: function (elem) { area: elem; }
+              , submit: function () {
+                request.post(this.action).type('form').send({ d: self.areaValue }).end(function (res) {});
+              }
           }
-          return new Form();
+          return form;
         }
         else if ('textarea' == name) {
-          function Area() {}
+          var textarea = {};
 
           //a hack to be able to access the area data when form is sent
-          Area.prototype.__defineSetter__('value', function (data) {
+          textarea.__defineSetter__('value', function (data) {
             self.areaValue = data;
           });
-          return new Area();
+          return textarea;
         } else {
           return {}
         }
@@ -1195,7 +1193,8 @@ describe('server', function () {
     describe('handshake', function () {
       it('should open with polling JSONP when requested', function (done) {
         var engine = listen( { allowUpgrades: false, transports: ['polling'] }, function (port) {
-          var socket = new eioc.Socket('ws://localhost:' + port, { transports: ['polling'], forceJSONP: true, upgrade: false });
+          var socket = new eioc.Socket('ws://localhost:' + port
+            , { transports: ['polling'], forceJSONP: true, upgrade: false });
           engine.on('connection', function (socket) {
             expect(socket.transport.name).to.be('polling');
             expect(socket.transport.head).to.be('___eio[0](');
@@ -1208,7 +1207,8 @@ describe('server', function () {
     describe('messages', function () {
       it('should arrive from client to server and back (pollingJSONP)', function (done) {
         var engine = listen( { allowUpgrades: false, transports: ['polling'] }, function (port) {
-          var socket = new eioc.Socket('ws://localhost:' + port, { transports: ['polling'], forceJSONP: true, upgrade: false });
+          var socket = new eioc.Socket('ws://localhost:' + port
+            , { transports: ['polling'], forceJSONP: true, upgrade: false });
           engine.on('connection', function (conn) {
             conn.on('message', function (msg) {
               conn.send('a');
@@ -1229,8 +1229,9 @@ describe('server', function () {
     describe('close', function () {
       it('should trigger when server closes a client', function (done) {
         var engine = listen( { allowUpgrades: false, transports: ['polling'] }, function (port) {
-            var socket = new eioc.Socket('ws://localhost:' + port, { transports: ['polling'], forceJSONP: true, upgrade: false })
-            , total = 2;
+            var socket = new eioc.Socket('ws://localhost:' + port
+              , { transports: ['polling'], forceJSONP: true, upgrade: false })
+              , total = 2;
 
           engine.on('connection', function (conn) {
             conn.on('close', function (reason) {
@@ -1253,8 +1254,9 @@ describe('server', function () {
 
       it('should trigger when client closes', function (done) {
         var engine = listen( { allowUpgrades: false, transports: ['polling'] }, function (port) {
-            var socket = new eioc.Socket('ws://localhost:' + port, { transports: ['polling'], forceJSONP: true, upgrade: false })
-            , total = 2;
+            var socket = new eioc.Socket('ws://localhost:' + port
+              , { transports: ['polling'], forceJSONP: true, upgrade: false })
+              , total = 2;
 
           engine.on('connection', function (conn) {
             conn.on('close', function (reason) {
