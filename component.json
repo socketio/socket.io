@@ -2,6 +2,6 @@
   "name": "emitter",
   "description": "Event emitter",
   "keywords": ["emitter", "events"],
-  "version": "0.0.6",
+  "version": "1.0.0",
   "scripts": ["index.js"]
 }
