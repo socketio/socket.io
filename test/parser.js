@@ -127,6 +127,8 @@ describe('parser', function () {
         initCallback();
         decPayload(encPayload([]), callback);
         expect(packets).to.have.length(0);
+        expect(indices).to.have.length(0);
+        expect(totals).to.have.length(0);
       });
 
       it('should encode/decode multiple packets with correct indices/totals', function () {
