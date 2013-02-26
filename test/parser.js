@@ -91,6 +91,18 @@ describe('parser', function () {
     });
   });
 
+  var packets, indices, totals;
+
+  initCallback = function() {
+    packets = []; indices = []; totals = [];
+  }
+
+  callback = function(packet, index, total) {
+    packets.push(packet);
+    indices.push(index);
+    totals.push(total);
+  }
+
   describe('payloads', function () {
     describe('basic functionality', function () {
       it('should encode payloads as strings', function () {
@@ -98,38 +110,70 @@ describe('parser', function () {
       });
 
       it('should decode payloads as arrays', function () {
-        expect(decPayload(encPayload(['1:a', '2:b']))).to.be.an('array');
+        initCallback();
+        decPayload(encPayload(['1:a', '2:b']), callback)
+        expect(packets).to.be.an('array');
       });
     });
 
     describe('encoding and decoding', function () {
       it('should encode/decode packets', function () {
-        expect(decPayload(encPayload([{ type: 'message', data: 'a' }])))
-          .to.eql([{ type: 'message', data: 'a' }]);
+        initCallback();
+        decPayload(encPayload([{ type: 'message', data: 'a' }]), callback);
+        expect(packets).to.eql([{ type: 'message', data: 'a' }]);
       });
 
       it('should encode/decode empty payloads', function () {
-        expect(decPayload(encPayload([]))).to.have.length(0);
+        initCallback();
+        decPayload(encPayload([]), callback);
+        expect(packets).to.have.length(0);
+      });
+
+      it('should encode/decode multiple packets with correct indices/totals', function () {
+        initCallback();
+        decPayload(encPayload([{ type: 'message', data: 'a' },
+          { type: 'message', data: 'b' }, { type: 'message', data: 'c' }]), callback);
+        expect(packets).to.eql([{ type: 'message', data: 'a' },
+          { type: 'message', data: 'b' }, { type: 'message', data: 'c' }]);
+        expect(indices).to.eql([ 3, 7, 11 ]);
+        expect(totals).to.eql([ 12, 12, 12 ]);
       });
     });
 
     describe('decoding error handling', function () {
       var err = [{ type: 'error', data: 'parser error' }];
-
       it('should err on bad payload format', function () {
-        expect(decPayload('1!')).to.eql(err);
-        expect(decPayload('')).to.eql(err);
-        expect(decPayload('))')).to.eql(err);
+        initCallback();
+        decPayload('1!', callback)
+        expect(packets).to.eql(err);
+
+        initCallback();
+        decPayload('', callback);
+        expect(packets).to.eql(err);
+
+        initCallback();
+        decPayload('))', callback);
+        expect(packets).to.eql(err);
       });
 
       it('should err on bad payload length', function () {
-        expect(decPayload('1:aa')).to.eql(err);
-        expect(decPayload('1:')).to.eql(err);
-        expect(decPayload('1:a2:b')).to.eql(err);
+        initCallback();
+        decPayload('1:aa', callback);
+        expect(packets).to.eql(err);
+
+        initCallback();
+        decPayload('1:', callback);
+        expect(packets).to.eql(err);
+
+        initCallback();
+        decPayload('1:a2:b', callback);
+        expect(packets).to.eql(err);
       });
 
       it('should err on bad packet format', function () {
-        expect(decPayload('3:99:')).to.eql(err);
+        initCallback();
+        decPayload('3:99:', callback);
+        expect(packets).to.eql(err);
       });
     });
   });
