@@ -43,16 +43,16 @@ describe('Emitter', function(){
     it('should add a single-shot listener', function(){
       var emitter = new Emitter;
       var calls = [];
-  
+
       emitter.once('foo', function(val){
         calls.push('one', val);
       });
-  
+
       emitter.emit('foo', 1);
       emitter.emit('foo', 2);
       emitter.emit('foo', 3);
       emitter.emit('bar', 1);
-  
+
       calls.should.eql([ 'one', 1 ]);
     })
   })
@@ -122,6 +122,29 @@ describe('Emitter', function(){
       emitter.emit('foo');
 
       calls.should.eql([]);
+    })
+  })
+
+  describe('.off()', function(){
+    it('should remove all listeners', function(){
+      var emitter = new Emitter;
+      var calls = [];
+
+      function one() { calls.push('one'); }
+      function two() { calls.push('two'); }
+
+      emitter.on('foo', one);
+      emitter.on('bar', two);
+
+      emitter.emit('foo');
+      emitter.emit('bar');
+
+      emitter.off();
+
+      emitter.emit('foo');
+      emitter.emit('bar');
+
+      calls.should.eql(['one', 'two']);
     })
   })
 

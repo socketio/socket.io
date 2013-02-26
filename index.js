@@ -84,6 +84,14 @@ Emitter.prototype.off =
 Emitter.prototype.removeListener =
 Emitter.prototype.removeAllListeners = function(event, fn){
   this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
   var callbacks = this._callbacks[event];
   if (!callbacks) return this;
 
