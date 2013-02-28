@@ -11,7 +11,7 @@
   "dependencies": {
     "ws": "0.4.25",
     "xmlhttprequest": "1.5.0",
-    "emitter-component": "0.0.6",
+    "emitter": "git://github.com/component/emitter#7063b6",
     "engine.io-parser": "0.2.0",
     "debug": "0.7.2"
   },
