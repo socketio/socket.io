@@ -19,6 +19,12 @@ test:
 		--reporter $(REPORTER) \
 		$(TESTS)
 
+test-cov:
+	@./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- \
+		--require ./test/common \
+		--reporter $(REPORTER) \
+		$(TESTS)
+
 test-browser:
 	@./node_modules/.bin/serve test/
 
