@@ -2,6 +2,9 @@
   "name": "emitter",
   "description": "Event emitter",
   "keywords": ["emitter", "events"],
+  "dependencies": {
+    "component/indexof": "*"
+  },
   "version": "1.0.0",
   "scripts": ["index.js"]
 }
