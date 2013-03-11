@@ -211,6 +211,19 @@ describe('server', function () {
         });
       });
     });
+		
+    it('should allow data through query string in uri', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d?a=b&c=d'.s(port));
+        engine.on('connection', function (conn) {
+          expect(conn.request.query).to.have.keys('transport', 'a');
+          expect(conn.request.query.a).to.be('b');
+          expect(conn.request.query).to.have.keys('transport', 'c');
+          expect(conn.request.query.c).to.be('d');
+          done();
+        });
+      });
+    });
   });
 
   describe('close', function () {
