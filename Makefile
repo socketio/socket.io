@@ -9,6 +9,7 @@ test:
 		--reporter $(REPORTER) \
 		--slow 500ms \
 		--bail \
+		--globals ___eio,document \
 		$(TESTS)
 
 test-cov: lib-cov
