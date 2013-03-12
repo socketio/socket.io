@@ -2,6 +2,9 @@
   "name": "emitter",
   "description": "Event emitter",
   "version": "1.0.0",
+  "dependencies": {
+    "indexof": "*"
+  },
   "devDependencies": {
     "mocha": "*",
     "should": "*"
