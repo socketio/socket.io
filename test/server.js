@@ -234,16 +234,16 @@ describe('server', function () {
         socket.sendPacket = function (){};
         engine.on('connection', function (conn) {
           conn.on('close', function (reason) {
-            expect(conn.writeBuffer.length).to.be(2); // has close packet
+            expect(conn.writeBuffer.length).to.be(1);
             setTimeout(function () {
               expect(conn.writeBuffer.length).to.be(0); // writeBuffer has been cleared
             }, 10);
+            done();
           });
           conn.writeBuffer.push({ type: 'message', data: 'foo'});
-          conn.close();
+          conn.onError('');
         });
       });
-      done();
     });
 
     it('should trigger on server if the client does not pong', function (done) {
