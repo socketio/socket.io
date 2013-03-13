@@ -18,7 +18,8 @@
   "devDependencies": {
     "mocha": "*",
     "serve": "*",
-    "expect.js": "*"
+    "expect.js": "*",
+    "istanbul": "*"
   },
   "component": {
     "scripts": {
