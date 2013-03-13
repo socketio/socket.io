@@ -227,6 +227,25 @@ describe('server', function () {
   });
 
   describe('close', function () {
+    it('should be able to access non-empty writeBuffer at closing', function(done) {
+      var opts = {allowUpgrades: false, pingInterval: 10, pingTimeout: 10 };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('http://localhost:%d'.s(port));
+        socket.sendPacket = function (){};
+        engine.on('connection', function (conn) {
+          conn.on('close', function (reason) {
+            expect(conn.writeBuffer.length).to.be(1);
+            setTimeout(function () {
+              expect(conn.writeBuffer.length).to.be(0); // writeBuffer has been cleared
+            }, 10);
+            done();
+          });
+          conn.writeBuffer.push({ type: 'message', data: 'foo'});
+          conn.onError('');
+        });
+      });
+    });
+
     it('should trigger on server if the client does not pong', function (done) {
       var opts = { allowUpgrades: false, pingInterval: 5, pingTimeout: 5 };
       var engine = listen(opts, function (port) {
