@@ -3,7 +3,7 @@
   "version": "0.5.0",
   "dependencies": {
     "component/emitter": "0.0.6",
-    "LearnBoost/engine.io-protocol": "0.2.0",
+    "LearnBoost/engine.io-protocol": "0.3.0",
     "visionmedia/debug": "*"
   },
   "main": "lib/index.js",
