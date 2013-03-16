@@ -1,6 +1,6 @@
 {
   "name": "engine.io",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "dependencies": {
     "component/emitter": "0.0.6",
     "LearnBoost/engine.io-protocol": "0.2.0",

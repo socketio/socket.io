@@ -1,4 +1,18 @@
 
+0.5.0 / 2013-03-16
+==================
+
+  * socket: implement qs support for `string`
+  * added query.EIO to take protocol version from parser
+  * use istanbul for code coverage
+  * integrated engine.io-protocol 0.3.0
+  * updated ws
+  * fixed JSONPPolling iframe removal error
+  * changed error message to match xhr error message on jsonp transport script tag
+  * Added onerror handler for script tag in jsonp transport
+  * remove uid qs
+  * Added missing colon in payload. Thanks @lsm
+
 0.4.3 / 2013-02-08
 ==================
 
