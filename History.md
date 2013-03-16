@@ -1,4 +1,9 @@
 
+0.2.1 / 2013-03-16
+==================
+
+  * added protocol version to index.js [albertyfwu]
+
 0.2.0 / 2013-02-26
 ==================
 
