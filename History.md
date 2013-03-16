@@ -1,4 +1,11 @@
 
+0.5.0 / 2013-03-16
+==================
+
+  * polling: implemented new parser
+  * test writeBuffer isn't cleared onError, removed 'closing' check in .flush()
+  * fixed bug89 and added tests: writeBuffer not flushed until nextTick
+
 0.4.3 / 2013-02-08
 ==================
 
