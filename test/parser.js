@@ -127,22 +127,22 @@ describe('parser', function () {
     });
 
     describe('decoding error handling', function () {
-      var err = [{ type: 'error', data: 'parser error' }];
+      var err = { type: 'error', data: 'parser error' };
 
       it('should err on bad payload format', function () {
         decPayload('1!', function (packet, index, total) {
           var isLast = index + 1 == total;
-          expect(packet).to.eql(undefined);
+          expect(packet).to.eql(err);
           expect(isLast).to.eql(true);
         });
         decPayload('', function (packet, index, total) {
           var isLast = index + 1 == total;
-          expect(packet).to.eql(undefined);
+          expect(packet).to.eql(err);
           expect(isLast).to.eql(true);
         });
         decPayload('))', function (packet, index, total) {
           var isLast = index + 1 == total;
-          expect(packet).to.eql(undefined);
+          expect(packet).to.eql(err);
           expect(isLast).to.eql(true);
         });
       });
@@ -151,7 +151,7 @@ describe('parser', function () {
         // line 137
         decPayload('1:', function (packet, index, total) {
           var isLast = index + 1 == total;
-          expect(packet).to.eql(undefined);
+          expect(packet).to.eql(err);
           expect(isLast).to.eql(true);
         });
       });
@@ -160,19 +160,19 @@ describe('parser', function () {
         // line 137
         decPayload('3:99:', function (packet, index, total) {
           var isLast = index + 1 == total;
-          expect(packet.type).to.eql('error');
+          expect(packet).to.eql(err);
           expect(isLast).to.eql(true);
         });
         // line 146
         decPayload('1:aa', function (packet, index, total) {
           var isLast = index + 1 == total;
-          expect(packet.type).to.eql('error');
+          expect(packet).to.eql(err);
           expect(isLast).to.eql(true);
         });
         // line 137
         decPayload('1:a2:b', function (packet, index, total) {
           var isLast = index + 1 == total;
-          expect(packet.type).to.eql('error');
+          expect(packet).to.eql(err);
           expect(isLast).to.eql(true);
         });
       });
