@@ -1,4 +1,10 @@
 
+0.3.0 / 2013-03-16
+==================
+
+  * parser: if callback returns `false` ignore rest of payload
+  * test: fixed all broken tests
+
 0.2.1 / 2013-03-16
 ==================
 
