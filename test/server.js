@@ -840,53 +840,57 @@ describe('server', function () {
     });
 
     describe('callback', function() {
-      it('should execute when message sent (client) (polling)', function (done) {
+      it('should execute in order when message sent (client) (polling)', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
-          var i = 0;
           var j = 0;
 
-          engine.on('connection', function(conn) {
-            conn.on('message', function (msg) {
-              i++;
-            });
-          });
+          function check(temp) {
+            expect(temp).to.be(j);
+            j++;
+          }
 
           socket.on('open', function () {
-            socket.send('a', function () {
-              j++
-            });
+            function sendFn(iter) {
+              socket.send('a', function() {
+                check(iter);
+                // send another packet until we've sent 3 total
+                if (j < 3) {
+                  sendFn(iter+1);
+                } else {
+                  done();
+                }
+              });
+            }
+            sendFn(0);
           });
-
-          setTimeout(function() {
-            expect(i).to.be(j);
-            done();
-          }, 10);
         });
       });
 
-      it('should execute when message sent (client) (websocket)', function (done) {
+      it('should execute in order when message sent (client) (websocket)', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
-          var i = 0;
           var j = 0;
 
-          engine.on('connection', function(conn) {
-            conn.on('message', function (msg) {
-              i++;
-            });
-          });
+          function check(temp) {
+            expect(temp).to.be(j);
+            j++;
+          }
 
           socket.on('open', function () {
-            socket.send('a', function () {
-              j++
-            });
+            function sendFn(iter) {
+              socket.send('a', function() {
+                check(iter);
+                // send another packet until we've sent 3 total
+                if (j < 3) {
+                  sendFn(iter+1);
+                } else {
+                  done();
+                }
+              });
+            }
+            sendFn(0);
           });
-
-          setTimeout(function() {
-            expect(i).to.be(j);
-            done();
-          }, 10);
         });
       });
 
