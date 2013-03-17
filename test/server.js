@@ -803,7 +803,93 @@ describe('server', function () {
   });
 
   describe('send', function() {
+    describe('writeBuffer', function() {
+      it('should not empty until `drain` event (polling)', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+          var totalEvents = 2;
+          socket.on('open', function() {
+            socket.send('a');
+            socket.send('b');
+            // writeBuffer should be nonempty, with 'a' still in it
+            expect(socket.writeBuffer.length).to.eql(2);
+          });
+          socket.transport.on('drain', function() {
+            expect(socket.writeBuffer.length).to.eql(--totalEvents);
+            totalEvents || done();
+          });
+        });
+      });
+
+      it('should not empty until `drain` event (websocket)', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+          var totalEvents = 2;
+          socket.on('open', function() {
+            socket.send('a');
+            socket.send('b');
+            // writeBuffer should be nonempty, with 'a' still in it
+            expect(socket.writeBuffer.length).to.eql(2);
+          });
+          socket.transport.on('drain', function() {
+            expect(socket.writeBuffer.length).to.eql(--totalEvents);
+            totalEvents || done();
+          });
+        });
+      });
+    });
+
     describe('callback', function() {
+      it('should execute when message sent (client) (polling)', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+          var i = 0;
+          var j = 0;
+
+          engine.on('connection', function(conn) {
+            conn.on('message', function (msg) {
+              i++;
+            });
+          });
+
+          socket.on('open', function () {
+            socket.send('a', function () {
+              j++
+            });
+          });
+
+          setTimeout(function() {
+            expect(i).to.be(j);
+            done();
+          }, 10);
+        });
+      });
+
+      it('should execute when message sent (client) (websocket)', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+          var i = 0;
+          var j = 0;
+
+          engine.on('connection', function(conn) {
+            conn.on('message', function (msg) {
+              i++;
+            });
+          });
+
+          socket.on('open', function () {
+            socket.send('a', function () {
+              j++
+            });
+          });
+
+          setTimeout(function() {
+            expect(i).to.be(j);
+            done();
+          }, 10);
+        });
+      });
+
       it('should execute when message sent (polling)', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
