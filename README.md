@@ -121,6 +121,7 @@ Exposed as `eio` in the browser standalone build.
     - Sends a message to the server
     - **Parameters**
       - `String`: data to send
+      - `Function`: optional, callback upon `drain`
 - `close`
     - Disconnects the client.
 
@@ -133,6 +134,8 @@ The transport class. Private. _Inherits from EventEmitter_.
 - `poll`: emitted by polling transports upon starting a new request
 - `pollComplete`: emitted by polling transports upon completing a request
 - `drain`: emitted by polling transports upon a buffer drain
+- `flush`: emitted by sockets upon starting a buffer flush
+- `flushComplete`: emitted by sockets upon completing a buffer flush
 
 ## Reconnecting
 
