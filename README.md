@@ -134,8 +134,7 @@ The transport class. Private. _Inherits from EventEmitter_.
 - `poll`: emitted by polling transports upon starting a new request
 - `pollComplete`: emitted by polling transports upon completing a request
 - `drain`: emitted by polling transports upon a buffer drain
-- `flush`: emitted by sockets upon starting a buffer flush
-- `flushComplete`: emitted by sockets upon completing a buffer flush
+- `flush`: emitted by sockets upon completing a buffer flush
 
 ## Reconnecting
 
