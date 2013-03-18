@@ -843,26 +843,33 @@ describe('server', function () {
       it('should execute in order when message sent (client) (polling)', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+          var i = 0;
           var j = 0;
 
-          function check(temp) {
-            expect(temp).to.be(j);
-            j++;
-          }
+          engine.on('connection', function(conn) {
+            conn.on('message', function(msg) {
+              conn.send(msg);
+            });
+          });
 
           socket.on('open', function () {
-            function sendFn(iter) {
-              socket.send('a', function() {
-                check(iter);
-                // send another packet until we've sent 3 total
-                if (j < 3) {
-                  sendFn(iter+1);
-                } else {
-                  done();
-                }
-              });
+            socket.on('message', function(msg) {
+              // send another packet until we've sent 3 total
+              if (++i < 3) {
+                expect(i).to.eql(j);
+                sendFn();
+              } else {
+                done();
+              }
+            });
+
+            function sendFn() {
+              socket.send(j, (function(value) {
+                j++;
+              })(j));
             }
-            sendFn(0);
+
+            sendFn();
           });
         });
       });
@@ -870,26 +877,101 @@ describe('server', function () {
       it('should execute in order when message sent (client) (websocket)', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+          var i = 0;
           var j = 0;
 
-          function check(temp) {
-            expect(temp).to.be(j);
-            j++;
-          }
+          engine.on('connection', function(conn) {
+            conn.on('message', function(msg) {
+              conn.send(msg);
+            });
+          });
 
           socket.on('open', function () {
-            function sendFn(iter) {
-              socket.send('a', function() {
-                check(iter);
-                // send another packet until we've sent 3 total
-                if (j < 3) {
-                  sendFn(iter+1);
-                } else {
-                  done();
-                }
-              });
+            socket.on('message', function(msg) {
+              // send another packet until we've sent 3 total
+              if (++i < 3) {
+                expect(i).to.eql(j);
+                sendFn();
+              } else {
+                done();
+              }
+            });
+
+            function sendFn() {
+              socket.send(j, (function(value) {
+                j++;
+              })(j));
             }
-            sendFn(0);
+
+            sendFn();
+          });
+        });
+      });
+
+      it('should execute in order with payloads (client) (polling)', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+          var i = 0;
+          var lastCbFired = 0;
+
+          engine.on('connection', function(conn) {
+            conn.on('message', function(msg) {
+              conn.send(msg);
+            });
+          });
+
+          socket.on('open', function () {
+            socket.on('message', function(msg) {
+              expect(msg).to.eql(i + 1);
+              i++;
+            });
+
+            function cb(value) {
+              expect(value).to.eql(lastCbFired + 1);
+              lastCbFired = value;
+              if (value == 3) {
+                done();
+              }
+            }
+
+            socket.send(1, function() { cb(1); });
+            // 2 and 3 will be in the same payload            
+            socket.send(2, function() { cb(2); });
+            socket.send(3, function() { cb(3); });
+          });
+        });
+      });
+
+      it('should execute in order with payloads (client) (websocket)', function (done) {
+        var engine = listen({ allowUpgrades: false }, function (port) {
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+          var i = 0;
+          var lastCbFired = 0;
+
+          engine.on('connection', function(conn) {
+            conn.on('message', function(msg) {
+              conn.send(msg);
+            });
+          });
+
+          socket.on('open', function () {
+            socket.on('message', function(msg) {
+              expect(msg).to.eql(i + 1);
+              i++;
+            });
+
+            function cb(value) {
+              expect(value).to.eql(lastCbFired + 1);
+              lastCbFired = value;
+              if (value == 3) {
+                done();
+              }
+            }
+
+            socket.send(1, function() { cb(1); });
+            // 2 and 3 will be in the same payload            
+            socket.send(2, function() { cb(2); });
+            socket.send(3, function() { cb(3); });
           });
         });
       });
