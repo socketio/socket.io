@@ -95,6 +95,10 @@ Exposed as `eio` in the browser standalone build.
   - Fired upon disconnection.
 - `error`
   - Fired when an error occurs.
+- `flush`
+  - Fired by upon completing a buffer flush
+- `drain`
+  - Fired after `drain` event of transport if writeBuffer is empty
 
 #### Methods
 
@@ -134,7 +138,6 @@ The transport class. Private. _Inherits from EventEmitter_.
 - `poll`: emitted by polling transports upon starting a new request
 - `pollComplete`: emitted by polling transports upon completing a request
 - `drain`: emitted by polling transports upon a buffer drain
-- `flush`: emitted by sockets upon completing a buffer flush
 
 ## Reconnecting
 
