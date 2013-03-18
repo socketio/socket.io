@@ -1,6 +1,7 @@
 # Engine.IO: the realtime engine
 
 [![Build Status](https://secure.travis-ci.org/LearnBoost/engine.io.png)](http://travis-ci.org/LearnBoost/engine.io)
+[![NPM version](https://badge.fury.io/js/engine.io.png)](http://badge.fury.io/js/engine.io)
 
 `Engine` is the implementation of transport-based cross-browser/cross-device
 bi-directional communication layer for
