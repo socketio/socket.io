@@ -934,10 +934,13 @@ describe('server', function () {
               }
             }
 
+            // 2 and 3 will be in the same payload
+            socket.once('flushComplete', function() {
+              socket.send(2, function() { cb(2); });
+              socket.send(3, function() { cb(3); });
+            });
+
             socket.send(1, function() { cb(1); });
-            // 2 and 3 will be in the same payload            
-            socket.send(2, function() { cb(2); });
-            socket.send(3, function() { cb(3); });
           });
         });
       });
@@ -968,10 +971,13 @@ describe('server', function () {
               }
             }
 
+            // 2 and 3 will be in the same payload
+            socket.once('flushComplete', function() {
+              socket.send(2, function() { cb(2); });
+              socket.send(3, function() { cb(3); });
+            });
+
             socket.send(1, function() { cb(1); });
-            // 2 and 3 will be in the same payload            
-            socket.send(2, function() { cb(2); });
-            socket.send(3, function() { cb(3); });
           });
         });
       });
