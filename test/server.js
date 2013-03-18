@@ -935,7 +935,7 @@ describe('server', function () {
             }
 
             // 2 and 3 will be in the same payload
-            socket.once('flushComplete', function() {
+            socket.once('flush', function() {
               socket.send(2, function() { cb(2); });
               socket.send(3, function() { cb(3); });
             });
@@ -972,7 +972,7 @@ describe('server', function () {
             }
 
             // 2 and 3 will be in the same payload
-            socket.once('flushComplete', function() {
+            socket.once('flush', function() {
               socket.send(2, function() { cb(2); });
               socket.send(3, function() { cb(3); });
             });
