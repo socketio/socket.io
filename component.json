@@ -6,5 +6,6 @@
     "component/indexof": "*"
   },
   "version": "1.0.0",
-  "scripts": ["index.js"]
+  "scripts": ["index.js"],
+  "license": "MIT"
 }
