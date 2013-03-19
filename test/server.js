@@ -225,7 +225,7 @@ describe('server', function () {
     });
   });
 
-  describe.only('close', function () {
+  describe('close', function () {
     it('should be able to access non-empty writeBuffer at closing (server)', function(done) {
       var opts = {allowUpgrades: false};
       var engine = listen(opts, function (port) {
