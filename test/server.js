@@ -225,12 +225,11 @@ describe('server', function () {
     });
   });
 
-  describe('close', function () {
-    it('should be able to access non-empty writeBuffer at closing', function(done) {
-      var opts = {allowUpgrades: false, pingInterval: 10, pingTimeout: 10 };
+  describe.only('close', function () {
+    it('should be able to access non-empty writeBuffer at closing (server)', function(done) {
+      var opts = {allowUpgrades: false};
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('http://localhost:%d'.s(port));
-        socket.sendPacket = function (){};
         engine.on('connection', function (conn) {
           conn.on('close', function (reason) {
             expect(conn.writeBuffer.length).to.be(1);
@@ -241,6 +240,27 @@ describe('server', function () {
           });
           conn.writeBuffer.push({ type: 'message', data: 'foo'});
           conn.onError('');
+        });
+      });
+    });
+
+    it('should be able to access non-empty writeBuffer at closing (client)', function(done) {
+      var opts = {allowUpgrades: false};
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('http://localhost:%d'.s(port));
+        socket.on('open', function() {          
+          socket.on('close', function (reason) {
+            expect(socket.writeBuffer.length).to.be(1);
+            expect(socket.callbackBuffer.length).to.be(1);
+            setTimeout(function() {
+              expect(socket.writeBuffer.length).to.be(0);
+              expect(socket.callbackBuffer.length).to.be(0);
+            }, 10);
+            done();
+          });
+          socket.writeBuffer.push({ type: 'message', data: 'foo'});
+          socket.callbackBuffer.push(function() {});
+          socket.onError('');
         });
       });
     });
