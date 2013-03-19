@@ -96,6 +96,10 @@ Exposed as `eio` in the browser standalone build.
   - Fired upon disconnection.
 - `error`
   - Fired when an error occurs.
+- `flush`
+  - Fired upon completing a buffer flush
+- `drain`
+  - Fired after `drain` event of transport if writeBuffer is empty
 
 #### Methods
 
@@ -122,6 +126,7 @@ Exposed as `eio` in the browser standalone build.
     - Sends a message to the server
     - **Parameters**
       - `String`: data to send
+      - `Function`: optional, callback upon `drain`
 - `close`
     - Disconnects the client.
 
