@@ -96,7 +96,7 @@ Exposed as `eio` in the browser standalone build.
 - `error`
   - Fired when an error occurs.
 - `flush`
-  - Fired by upon completing a buffer flush
+  - Fired upon completing a buffer flush
 - `drain`
   - Fired after `drain` event of transport if writeBuffer is empty
 
