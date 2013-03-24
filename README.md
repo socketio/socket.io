@@ -129,7 +129,7 @@ These are exposed by `require('engine.io')`:
     - **Returns** `Server`
 - `attach`
     - Captures `upgrade` requests for a `http.Server`. In other words, makes
-      a regular http.Server websocket-compatible.
+      a regular http.Server WebSocket-compatible.
     - **Parameters**
       - `http.Server`: server to attach to.
       - `Object`: optional, options object
@@ -156,7 +156,7 @@ The main server/manager. _Inherits from EventEmitter_.
 
 ##### Properties
 
-**Important**: if you plan to use engine.io in a scalable way, please
+**Important**: if you plan to use Engine.IO in a scalable way, please
 keep in mind the properties below will only reflect the clients connected
 to a single process.
 
@@ -176,7 +176,7 @@ to a single process.
         packet (`25000`)
       - `transports` (`<Array> String`): transports to allow connections
         to (`['polling', 'websocket', 'flashsocket']`)
-      - `allowUpgrades` (`Boolean`): whether to allow tranport upgrades
+      - `allowUpgrades` (`Boolean`): whether to allow transport upgrades
         (`true`)
       - `cookie` (`String|Boolean`): name of the HTTP cookie that
         contains the client sid to send as part of handshake response
@@ -220,7 +220,7 @@ A representation of a client. _Inherits from EventEmitter_.
 - `message`
     - Fired when the client sends a message.
     - **Arguments**
-      - `String`: unicode string
+      - `String`: Unicode string
 - `error`
     - Fired when an error occurs.
     - **Arguments**
@@ -232,7 +232,7 @@ A representation of a client. _Inherits from EventEmitter_.
 - `drain`
     - Called when the write buffer is drained
 - `packet`
-    - Called when a socket reseived a packet (`message`, `ping`)
+    - Called when a socket received a packet (`message`, `ping`)
     - **Arguments**
       - `type`: packet type
       - `data`: packet data (if type is message)
@@ -275,7 +275,7 @@ For the client API refer to the
 ## Debug / logging
 
 Engine.IO is powered by [debug](http://github.com/visionmedia/debug).
-In order to see all the debug output, run your app with the env variable
+In order to see all the debug output, run your app with the environment variable
 `DEBUG` including the desired scope.
 
 To see the output from all of Engine.IO's debugging scopes you can use:
@@ -354,11 +354,11 @@ And point browser/s to `http://localhost:3000`.
 ## Goals
 
 The main goal of `Engine` is ensuring the most reliable realtime communication.
-Unlike the previous socket.io core, it always establishes a long-polling
+Unlike the previous Socket.IO core, it always establishes a long-polling
 connection first, then tries to upgrade to better transports that are "tested" on
 the side.
 
-During the lifetime of the socket.io projects, we've found countless drawbacks
+During the lifetime of the Socket.IO projects, we've found countless drawbacks
 to relying on `HTML5 WebSocket` or `Flash Socket` as the first connection
 mechanisms.
 
@@ -406,13 +406,13 @@ proven problematic:
 
 2. **Personal firewall and antivirus software**<br>
     As a result of our research, we've found that at least 3 personal security
-    applications block websocket traffic.
+    applications block WebSocket traffic.
 
 3. **Cloud application platforms**<br>
     Platforms like Heroku or No.de have had trouble keeping up with the fast-paced
     nature of the evolution of the WebSocket protocol. Applications therefore end up
     inevitably using long polling, but the seamless installation experience of 
-    socket.io we strive for (_"require() it and it just works"_) disappears.
+    Socket.IO we strive for (_"require() it and it just works"_) disappears.
 
 Some of these problems have solutions. In the case of proxies and personal programs,
 however, the solutions many times involve upgrading software. Experience has shown
