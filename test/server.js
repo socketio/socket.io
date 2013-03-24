@@ -223,6 +223,21 @@ describe('server', function () {
         });
       });
     });
+
+
+
+    it('should disallow bad requests', function (done) {
+      var engine = listen(function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'websocket' })
+          .end(function (res) {
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(3);
+            expect(res.body.message).to.be('Bad request');
+            done();
+          });
+      });
+    });
   });
 
   describe('close', function () {
