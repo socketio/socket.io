@@ -1161,8 +1161,11 @@ Socket.prototype.onClose = function (reason, desc) {
     debug('socket close with reason: "%s"', reason);
     clearTimeout(this.pingIntervalTimer);
     clearTimeout(this.pingTimeoutTimer);
+    var prev = this.readyState;
     this.readyState = 'closed';
-    this.emit('close', reason, desc);
+    if (prev == 'open') {
+      this.emit('close', reason, desc);
+    }
     this.onclose && this.onclose.call(this);
     this.id = null;
   }
