@@ -12,6 +12,7 @@
     "ws": "0.4.25",
     "xmlhttprequest": "1.5.0",
     "emitter": "git://github.com/component/emitter#1.0.0",
+    "indexof": "0.0.1",
     "engine.io-parser": "0.3.0",
     "debug": "0.7.2"
   },
