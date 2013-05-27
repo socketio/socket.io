@@ -432,6 +432,33 @@ describe('server', function () {
       });
     });
 
+    it('should trigger when calling socket.close() in payload', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
+          
+        engine.on('connection', function (conn) {
+          conn.send(null, function () {socket.close();});
+          conn.send('this should not be handled');
+
+          conn.on('close', function (reason) {
+            expect(reason).to.be('transport close');
+            done();
+          });
+        });
+
+        socket.on('open', function () {
+          
+          socket.on('message', function (msg) {
+            expect(msg).to.not.be('this should not be handled');
+          });
+
+          socket.on('close', function (reason) {
+            expect(reason).to.be('forced close');
+          });
+        });
+      });
+    });
+
     it('should abort upgrade if socket is closed (GH-35)', function (done) {
       var engine = listen({ allowUpgrades: true }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
