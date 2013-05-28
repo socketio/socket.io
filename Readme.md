@@ -1,364 +1,201 @@
-# Socket.IO
 
-Socket.IO is a Node.JS project that makes WebSockets and realtime possible in
-all browsers. It also enhances WebSockets by providing built-in multiplexing,
-horizontal scalability, automatic JSON encoding/decoding, and more.
+### This Readme corresponds to the upcoming 1.0 release. Please refer to http://socket.io for the current 0.9.x documentation.
 
-## How to Install
+<hr />
 
-```bash
-npm install socket.io
-```
+# socket.io
+
+[![Build Status](https://secure.travis-ci.org/LearnBoost/socket.io.png)](http://travis-ci.org/LearnBoost/socket.io)
 
 ## How to use
 
-First, require `socket.io`:
-
 ```js
-var io = require('socket.io');
-```
-
-Next, attach it to a HTTP/HTTPS server. If you're using the fantastic `express`
-web framework:
-
-#### Express 3.x
-
-```js
-var app = express()
-  , server = require('http').createServer(app)
-  , io = io.listen(server);
-
-server.listen(80);
-
-io.sockets.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
+var server = require('http').Server();
+var io = require('socket.io')(server);
+io.on('connection', function(socket){
+  socket.on('event', function(data){});
+  socket.on('disconnect', function(){});
 });
+server.listen(3000);
 ```
 
-#### Express 2.x
+### In conjunction with `Express`
+
+Starting with **3.0**, express applications have become request handler
+functions that you pass to `http` or `http` `Server` instances. You need
+to pass the `Server` to `socket.io`, and not the express application
+function.
 
 ```js
-var app = express.createServer()
-  , io = io.listen(app);
-
-app.listen(80);
-
-io.sockets.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
-});
+var app = require('express')();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+io.on('connection', function(){ // … });
+server.listen(3000);
 ```
 
-Finally, load it from the client side code:
+## API
 
-```html
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  var socket = io.connect('http://localhost');
-  socket.on('news', function (data) {
-    console.log(data);
-    socket.emit('my other event', { my: 'data' });
-  });
-</script>
-```
+### Server
 
-For more thorough examples, look at the `examples/` directory.
+  Exposed by `require('socket.io')`.
 
-## Short recipes
+### Server()
 
-### Sending and receiving events.
+  Creates a new `Server`. Works with and without `new`:
 
-Socket.IO allows you to emit and receive custom events.
-Besides `connect`, `message` and `disconnect`, you can emit custom events:
-
-```js
-// note, io.listen(<port>) will create a http server for you
-var io = require('socket.io').listen(80);
-
-io.sockets.on('connection', function (socket) {
-  io.sockets.emit('this', { will: 'be received by everyone' });
+  ```js
+  var io = require('socket.io')();
+  // or
+  var Server = require('socket.io');
+  var io = new Server();
+  ```
 
-  socket.on('private message', function (from, msg) {
-    console.log('I received a private message by ', from, ' saying ', msg);
-  });
+### Server(opts:Object)
 
-  socket.on('disconnect', function () {
-    io.sockets.emit('user disconnected');
-  });
-});
-```
+  Optionally, the first or second argument (see below) of the `Server`
+  constructor can be an options object.
 
-### Storing data associated to a client
+  The following options are supported:
 
-Sometimes it's necessary to store data associated with a client that's
-necessary for the duration of the session.
+  - `static` sets the value for Server#static()
+  - `path` sets the value for Server#path()
 
-#### Server side
+  Options are always passed to the `engine.io` `Server` that gets created.
 
-```js
-var io = require('socket.io').listen(80);
+### Server(srv:http#Server, opts:Object)
 
-io.sockets.on('connection', function (socket) {
-  socket.on('set nickname', function (name) {
-    socket.set('nickname', name, function () { socket.emit('ready'); });
-  });
+  Creates a new `Server` and attaches it to the given `srv`. Optionally
+  `opts` can be passed.
 
-  socket.on('msg', function () {
-    socket.get('nickname', function (err, name) {
-      console.log('Chat message by ', name);
-    });
-  });
-});
-```
+### Server(port:Number, opts:Object)
 
-#### Client side
+  Binds socket.io to a new `http.Server` that listens on `port`.
 
-```html
-<script>
-  var socket = io.connect('http://localhost');
+### Server#static(v:Boolean):Server
 
-  socket.on('connect', function () {
-    socket.emit('set nickname', prompt('What is your nickname?'));
-    socket.on('ready', function () {
-      console.log('Connected !');
-      socket.emit('msg', prompt('What is your message?'));
-    });
-  });
-</script>
-```
+  If `v` is `true` the attached server (see `Server#attach`) will serve
+  the client files. Defaults to `true`.
 
-### Restricting yourself to a namespace
+  This method has no effect after `attach` is called.
 
-If you have control over all the messages and events emitted for a particular
-application, using the default `/` namespace works.
+  ```js
+  // pass a server and the `static` option
+  var io = require('socket.io')(http, { static: false });
 
-If you want to leverage 3rd-party code, or produce code to share with others,
-socket.io provides a way of namespacing a `socket`.
+  // or pass no server and then you can call the method
+  var io = require('socket.io')();
+  io.static(false);
+  io.attach(http);
+  ```
 
-This has the benefit of `multiplexing` a single connection. Instead of
-socket.io using two `WebSocket` connections, it'll use one.
+  If no arguments are supplied this method returns the current value.
 
-The following example defines a socket that listens on '/chat' and one for
-'/news':
+### Server#path(v:String):Server
 
-#### Server side
+  Sets the path `v` under which `engine.io` and the static files will be
+  served. Defaults to `/socket.io`.
 
-```js
-var io = require('socket.io').listen(80);
+  If no arguments are supplied this method returns the current value.
 
-var chat = io
-  .of('/chat')
-  .on('connection', function (socket) {
-    socket.emit('a message', { that: 'only', '/chat': 'will get' });
-    chat.emit('a message', { everyone: 'in', '/chat': 'will get' });
-  });
+### Server#adapter(v:Adapter):Server
 
-var news = io
-  .of('/news');
-  .on('connection', function (socket) {
-    socket.emit('item', { news: 'item' });
-  });
-```
+  Sets the adapter `v`. Defaults to an instance of the `Adapter` that
+  ships with socket.io which is memory based (see below).
 
-#### Client side:
+  If no arguments are supplied this method returns the current value.
 
-```html
-<script>
-  var chat = io.connect('http://localhost/chat')
-    , news = io.connect('http://localhost/news');
+### Server#sockets:Namespace
 
-  chat.on('connect', function () {
-    chat.emit('hi!');
-  });
+  The default (`/`) namespace.
 
-  news.on('news', function () {
-    news.emit('woot');
-  });
-</script>
-```
+### Server#attach(srv:http#Server, opts:Object):Server
 
-### Sending volatile messages.
+  Attaches the `Server` to an engine.io instance on `srv` with the
+  supplied `opts` (optionally).
 
-Sometimes certain messages can be dropped. Let's say you have an app that
-shows realtime tweets for the keyword `bieber`. 
+### Server#attach(port:Number, opts:Object):Server
 
-If a certain client is not ready to receive messages (because of network slowness
-or other issues, or because he's connected through long polling and is in the
-middle of a request-response cycle), if he doesn't receive ALL the tweets related
-to bieber your application won't suffer.
+  Attaches the `Server` to an engine.io instance that is bound to `port`
+  with the given `opts` (optionally).
 
-In that case, you might want to send those messages as volatile messages.
+### Server#bind(srv:engine#Server):Server
 
-#### Server side
+  Advanced use only. Binds the server to a specific engine.io `Server` 
+  (or compatible API) instance.
 
-```js
-var io = require('socket.io').listen(80);
+### Server#onconnection(socket:engine#Socket):Server
 
-io.sockets.on('connection', function (socket) {
-  var tweets = setInterval(function () {
-    getBieberTweet(function (tweet) {
-      socket.volatile.emit('bieber tweet', tweet);
-    });
-  }, 100);
+  Advanced use only. Creates a new `socket.io` client from the incoming
+  engine.io (or compatible API) `socket`.
 
-  socket.on('disconnect', function () {
-    clearInterval(tweets);
-  });
-});
-```
+### Server#of(nsp:String):Namespace
 
-#### Client side
+  Initializes and retrieves the given `Namespace` by its pathname 
+  identifier `nsp`.
 
-In the client side, messages are received the same way whether they're volatile
-or not.
+  If the namespace was already initialized it returns it right away.
 
-### Getting acknowledgements
+### Server#emit
 
-Sometimes, you might want to get a callback when the client confirmed the message
-reception.
+  Emits an event to all connected clients. The following two are 
+  equivalent:
 
-To do this, simply pass a function as the last parameter of `.send` or `.emit`.
-What's more, when you use `.emit`, the acknowledgement is done by you, which
-means you can also pass data along:
+  ```js
+  var io = require('socket.io');
+  io.sockets.emit('an event sent to all connected clients');
+  io.emit('an event sent to all connected clients');
+  ```
 
-#### Server side
+  For other available methods, see `Namespace` below.
 
-```js
-var io = require('socket.io').listen(80);
+### Namespace
 
-io.sockets.on('connection', function (socket) {
-  socket.on('ferret', function (name, fn) {
-    fn('woot');
-  });
-});
-```
+  Represents a pool of sockets connected under a given scope identified
+  by a pathname (eg: `/chat`).
 
-#### Client side
+  By default the client always connects to `/`.
 
-```html
-<script>
-  var socket = io.connect(); // TIP: .connect with no args does auto-discovery
-  socket.on('connect', function () { // TIP: you can avoid listening on `connect` and listen on events directly too!
-    socket.emit('ferret', 'tobi', function (data) {
-      console.log(data); // data will be 'woot'
-    });
-  });
-</script>
-```
+#### Events
 
-### Broadcasting messages
+  - `connection` / `connect`. Fired upon a connection.
 
-To broadcast, simply add a `broadcast` flag to `emit` and `send` method calls.
-Broadcasting means sending a message to everyone else except for the socket
-that starts it.
+    Parameters:
+    - `Socket` the incoming socket.
 
-#### Server side
+### Namespace#name:String
 
-```js
-var io = require('socket.io').listen(80);
+  The namespace identifier property.
 
-io.sockets.on('connection', function (socket) {
-  socket.broadcast.emit('user connected');
-  socket.broadcast.json.send({ a: 'message' });
-});
-```
+### Namespace#connected:Object<Socket>
 
-### Rooms
+  Hash of `Socket` objects that are connected to this namespace indexed
+  by `id`.
 
-Sometimes you want to put certain sockets in the same room, so that it's easy
-to broadcast to all of them together.
+### Socket
 
-Think of this as built-in channels for sockets. Sockets `join` and `leave`
-rooms in each socket.
+  A `Socket` is the fundamental class for interacting with browser
+  clients.
 
-#### Server side
+### Socket#rooms:Array
 
-```js
-var io = require('socket.io').listen(80);
+  A list of strings identifying the rooms this socket is in.
 
-io.sockets.on('connection', function (socket) {
-  socket.join('justin bieber fans');
-  socket.broadcast.to('justin bieber fans').emit('new fan');
-  io.sockets.in('rammstein fans').emit('new non-fan');
-});
-```
+### Client
 
-### Using it just as a cross-browser WebSocket
+  The `Client` class represents an incoming transport (engine.io)
+  connection. A `Client` can be associated with many multiplexed `Socket`
+  that belong to different `Namespace`s.
 
-If you just want the WebSocket semantics, you can do that too.
-Simply leverage `send` and listen on the `message` event:
+### Adapter
 
-#### Server side
+  The `Adapter` is in charge of keeping track of what rooms each socket
+  is connected to, and passing messages to them.
 
-```js
-var io = require('socket.io').listen(80);
+  By default the `Adapter` is memory based. In order to pass messages
+  across multiple processes, make sure to use an appropriate adapter.
+  (configurable through `Server#adapter`).
 
-io.sockets.on('connection', function (socket) {
-  socket.on('message', function () { });
-  socket.on('disconnect', function () { });
-});
-```
+## License
 
-#### Client side
-
-```html
-<script>
-  var socket = io.connect('http://localhost/');
-  socket.on('connect', function () {
-    socket.send('hi');
-
-    socket.on('message', function (msg) {
-      // my msg
-    });
-  });
-</script>
-```
-
-### Changing configuration
-
-Configuration in socket.io is TJ-style:
-
-#### Server side
-
-```js
-var io = require('socket.io').listen(80);
-
-io.configure(function () {
-  io.set('transports', ['websocket', 'flashsocket', 'xhr-polling']);
-});
-
-io.configure('development', function () {
-  io.set('transports', ['websocket', 'xhr-polling']);
-  io.enable('log');
-});
-```
-
-## License 
-
-(The MIT License)
-
-Copyright (c) 2011 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+MIT
