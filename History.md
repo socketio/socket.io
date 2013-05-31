@@ -1,4 +1,16 @@
 
+0.6.0 / 2013-05-31
+==================
+
+  * does not emit close on incorrect socket connection
+  * use indexof component for ie8 and below
+  * improved x-domain handling
+  * introduce public `ping` api
+  * added drain event
+  * fix `flush` and `flushComplete` events
+  * fixed `drain` bug splicing with upgrading
+  * add support for callbacks with socket.send()
+
 0.5.0 / 2013-03-16
 ==================
 
