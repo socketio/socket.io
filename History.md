@@ -1,4 +1,14 @@
 
+0.6.0 / 2013-05-31
+==================
+
+  * socket: clear timer after sending one noop packet (fixes #174)
+  * clear all timers on socket close
+  * sending error on transport creation upon a bad request
+  * added test for client-side buffer cleanup
+  * changed flushComplete to flush
+  * ended support for node 0.6
+
 0.5.0 / 2013-03-16
 ==================
 
