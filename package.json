@@ -1,7 +1,7 @@
 {
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "homepage": "https://github.com/LearnBoost/engine.io-client",
   "contributors": [
     { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" },
