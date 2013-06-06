@@ -77,10 +77,14 @@ HTMLFile.prototype.data = function (path, opts, fn) {
 
           case 2:
             if (buf.indexOf(foot) != -1) {
-              var data = buf.slice(0, buf.indexOf(foot))
-                , obj = JSON.parse(data);
+              var data = buf.slice(0, buf.indexOf(foot));
 
-              fn(obj === '' ? obj : parser.decodePayload(obj), ++messages);
+              if (false === opts.parse) {
+                fn(data, ++messages);
+              } else {
+                var obj = JSON.parse(data);
+                fn(obj === '' ? obj : parser.decodePayload(obj), ++messages);
+              }
 
               buf = buf.substr(data.length + foot.length);
               state = 1;
@@ -448,6 +452,78 @@ module.exports = {
               , name: 'aaa'
               , endpoint: ''
               , args: []
+            });
+            cl.end();
+        }
+      });
+    });
+  },
+
+  'test escaping for security': function (done) {
+    var port = ++ports
+      , cl = client(port)
+      , io = create(cl)
+      , messaged = false;
+
+    io.configure(function () {
+      io.set('close timeout', 0);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.emit('</script> woot');
+
+      socket.on('disconnect', function () {
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.data('/socket.io/{protocol}/htmlfile/' + sid, { parse: false }, function (msg, i) {
+        switch (i) {
+          case 2:
+            msg.should.not.include('</script');
+            cl.end();
+        }
+      });
+    });
+  },
+
+  'test that unescaping works': function(done){
+    var port = ++ports
+      , cl = client(port)
+      , io = create(cl)
+      , messaged = false;
+
+    io.configure(function () {
+      io.set('close timeout', 0);
+    });
+
+    io.sockets.on('connection', function (socket) {
+      socket.emit('woot </script> <//script>', '</script><script>');
+
+      socket.on('disconnect', function () {
+        io.server.close();
+        done();
+      });
+    });
+
+    cl.handshake(function (sid) {
+      cl.data('/socket.io/{protocol}/htmlfile/' + sid, function (msgs, i) {
+        switch (i) {
+          case 1:
+            msgs.should.have.length(1);
+            msgs[0].type.should.eql('connect');
+            msgs[0].endpoint.should.eql('');
+            break;
+
+          case 2:
+            msgs.should.have.length(1);
+            msgs[0].should.eql({
+                type: 'event'
+              , name: 'woot </script> <//script>'
+              , endpoint: ''
+              , args: ['</script><script>']
             });
             cl.end();
         }
