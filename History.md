@@ -1,4 +1,9 @@
 
+0.9.16 / 2013-06-06
+===================
+
+  * transports: added tests for htmlfile escaping/unescaping
+
 0.9.15 / 2013-06-06
 ===================
 
