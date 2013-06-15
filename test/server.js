@@ -4,8 +4,8 @@
  * Tests dependencies.
  */
 
-var http = require('http')
-  WebSocket = require('ws');
+var http = require('http');
+var WebSocket = require('ws');
 
 /**
  * Tests.
@@ -263,7 +263,7 @@ describe('server', function () {
       var opts = {allowUpgrades: false};
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('http://localhost:%d'.s(port));
-        socket.on('open', function() {          
+        socket.on('open', function() {
           socket.on('close', function (reason) {
             expect(socket.writeBuffer.length).to.be(1);
             expect(socket.callbackBuffer.length).to.be(1);
@@ -434,8 +434,8 @@ describe('server', function () {
 
     it('should trigger when calling socket.close() in payload', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
-          
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+
         engine.on('connection', function (conn) {
           conn.send(null, function () {socket.close();});
           conn.send('this should not be handled');
@@ -447,7 +447,6 @@ describe('server', function () {
         });
 
         socket.on('open', function () {
-          
           socket.on('message', function (msg) {
             expect(msg).to.not.be('this should not be handled');
           });
@@ -671,6 +670,22 @@ describe('server', function () {
             }, 500);
           });
         });
+      });
+    });
+
+    // tests https://github.com/LearnBoost/engine.io-client/issues/164
+    it('should not trigger close without open', function(done){
+      var opts = { allowUpgrades: false };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.close();
+        socket.on('open', function(){
+          throw new Error('Nope');
+        });
+        socket.on('close', function(){
+          throw new Error('Nope');
+        });
+        setTimeout(done, 100);
       });
     });
   });
@@ -1226,13 +1241,11 @@ describe('server', function () {
           });
 
           engine.on('connection', function (conn) {
-            var err = undefined;
-
+            var err;
             conn.send('a');
             conn.send('b', function (transport) {
               err = new Error('Test invalidation');
             });
-
             conn.on('close', function (reason) {
               done(err);
             });

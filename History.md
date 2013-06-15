@@ -1,4 +1,11 @@
 
+0.6.2 / 2013-06-15
+==================
+
+  * fix upgrade stalling edge case introduced with #174 fix
+  * remove unneeded client code related to iOS
+  * added test for `engine.io-client` `0.6.1`
+
 0.6.1 / 2013-06-06
 ==================
 
