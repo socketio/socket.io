@@ -1,4 +1,14 @@
 
+0.6.2 / 2013-06-15
+==================
+
+  * transports: improve polling orderly close (fixes #164)
+  * socket: ignore further transport communication upon `onClose`
+  * socket: added missing `socket#onerror` support
+  * socket: don't call `socket#onclose` if previous state was not `open`
+  * transports: fix iOS5 crash issue
+  * Makefile: extra precaution when building to avoid 0.6.0 build problem
+
 0.6.1 / 2013-06-06
 ==================
 

@@ -1149,7 +1149,7 @@ Socket.prototype.setPing = function () {
 };
 
 /**
-* Sends a ping packet 
+* Sends a ping packet.
 *
 * @api public
 */
@@ -1160,38 +1160,31 @@ Socket.prototype.ping = function () {
 
 /**
  * Called on `drain` event
- * 
+ *
  * @api private
  */
 
  Socket.prototype.onDrain = function() {
-  this.callbacks();
-  this.writeBuffer.splice(0, this.prevBufferLen);
-  this.callbackBuffer.splice(0, this.prevBufferLen);
-  // setting prevBufferLen = 0 is very important
-  // for example, when upgrading, upgrade packet is sent over,
-  // and a nonzero prevBufferLen could cause problems on `drain`
-  this.prevBufferLen = 0;
-  if (this.writeBuffer.length == 0) {
-    this.emit('drain');
-  } else {
-    this.flush();
-  }
- }
-
-/**
- * Calls all the callback functions associated with sending packets
- * 
- * @api private
- */
-
-Socket.prototype.callbacks = function() {
   for (var i = 0; i < this.prevBufferLen; i++) {
     if (this.callbackBuffer[i]) {
       this.callbackBuffer[i]();
     }
   }
-}
+
+  this.writeBuffer.splice(0, this.prevBufferLen);
+  this.callbackBuffer.splice(0, this.prevBufferLen);
+
+  // setting prevBufferLen = 0 is very important
+  // for example, when upgrading, upgrade packet is sent over,
+  // and a nonzero prevBufferLen could cause problems on `drain`
+  this.prevBufferLen = 0;
+
+  if (this.writeBuffer.length == 0) {
+    this.emit('drain');
+  } else {
+    this.flush();
+  }
+};
 
 /**
  * Flush write buffers.
@@ -1254,7 +1247,6 @@ Socket.prototype.close = function () {
     this.onClose('forced close');
     debug('socket closing - telling transport to close');
     this.transport.close();
-    this.transport.removeAllListeners();
   }
 
   return this;
@@ -1269,6 +1261,7 @@ Socket.prototype.close = function () {
 Socket.prototype.onError = function (err) {
   debug('socket error %j', err);
   this.emit('error', err);
+  this.onerror && this.onerror.call(this, err);
   this.onClose('transport error', err);
 };
 
@@ -1282,21 +1275,33 @@ Socket.prototype.onClose = function (reason, desc) {
   if ('opening' == this.readyState || 'open' == this.readyState) {
     debug('socket close with reason: "%s"', reason);
     var self = this;
+
+    // clear timers
     clearTimeout(this.pingIntervalTimer);
     clearTimeout(this.pingTimeoutTimer);
+
     // clean buffers in next tick, so developers can still
     // grab the buffers on `close` event
     setTimeout(function() {
       self.writeBuffer = [];
       self.callbackBuffer = [];
     }, 0);
+
+    // ignore further transport communication
+    this.transport.removeAllListeners();
+
+    // set ready state
     var prev = this.readyState;
     this.readyState = 'closed';
+
+    // clear session id
+    this.id = null;
+
+    // emit events
     if (prev == 'open') {
       this.emit('close', reason, desc);
+      this.onclose && this.onclose.call(this);
     }
-    this.onclose && this.onclose.call(this);
-    this.id = null;
   }
 };
 
@@ -2018,8 +2023,22 @@ Polling.prototype.onData = function(data){
  */
 
 Polling.prototype.doClose = function(){
-  debug('sending close packet');
-  this.send([{ type: 'close' }]);
+  var self = this;
+
+  function close(){
+    debug('writing close packet');
+    self.write([{ type: 'close' }]);
+  }
+
+  if (this.open) {
+    debug('transport open - closing');
+    close();
+  } else {
+    // in case we're trying to close while
+    // handshaking is in progress (GH-164)
+    debug('transport not open - defering close');
+    this.once('open', close);
+  }
 };
 
 /**
@@ -2688,6 +2707,23 @@ WS.prototype.doOpen = function(){
 };
 
 /**
+ * Override `onData` to use a timer on iOS.
+ * See: https://gist.github.com/mloughran/2052006
+ *
+ * @api private
+ */
+
+if ('undefined' != typeof navigator
+  && /iPad|iPhone|iPod/i.test(navigator.userAgent)) {
+  WS.prototype.onData = function(data){
+    var self = this;
+    setTimeout(function(){
+      Transport.prototype.onData.call(self, data);
+    }, 0);
+  };
+}
+
+/**
  * Writes data to socket.
  *
  * @param {Array} array of packets.
@@ -2731,7 +2767,7 @@ WS.prototype.onClose = function(){
   // stop checking to see if websocket is done sending buffer
   clearInterval(this.bufferedAmountId);
   Transport.prototype.onClose.call(this);
-}
+};
 
 /**
  * Closes socket.
