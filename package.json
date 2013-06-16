@@ -24,7 +24,7 @@
         "mocha": "*"
       , "expect.js": "*"
       , "superagent": "*"
-      , "engine.io-client": "git://github.com/LearnBoost/engine.io-client#0.6.2"
+      , "engine.io-client": "0.6.2"
       , "s": "*"
     }
   , "scripts" : { "test" : "make test" }
