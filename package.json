@@ -2,6 +2,10 @@
   "name": "socket.io-parser",
   "version": "1.0.3",
   "description": "socket.io protocol parser",
+  "repository":{
+    "type": "git",
+    "url": "https://github.com/LearnBoost/socket.io-protocol.git"
+  },
   "dependencies": {
     "debug": "*"
   },
