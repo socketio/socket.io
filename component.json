@@ -1,6 +1,6 @@
 {
   "name": "engine.io",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "dependencies": {
     "component/emitter": "1.0.0",
     "component/indexof": "*",

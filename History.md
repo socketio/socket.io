@@ -1,4 +1,10 @@
 
+0.6.3 / 2013-06-21
+==================
+
+  * fix check readyState in polling transport (Naoyuki Kanezawa)
+  * use http url in npm dependencies for emitter (Eric Schoffstall)
+
 0.6.2 / 2013-06-15
 ==================
 
