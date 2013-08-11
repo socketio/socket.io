@@ -59,7 +59,7 @@ describe('engine', function () {
     });
 
     it('should respond to flash policy requests', function (done) {
-      var server = http.createServer()
+      var server = net.createServer({allowHalfOpen: true})
         , engine = eio.attach(server);
 
       server.listen(function () {
