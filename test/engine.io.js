@@ -230,6 +230,9 @@ describe('engine', function () {
             client.write('foo');
           }, 200);
 
+          client.on('data', function (data) {
+          });
+
           client.on('end', done);
         });
       });
