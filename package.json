@@ -43,5 +43,9 @@
       "name": "Einar Otto Stangvik",
       "email": "einaros@gmail.com"
     }
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LearnBoost/socket.io.git"
+  }
 }
