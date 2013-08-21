@@ -13,5 +13,9 @@
     "scripts": {
       "emitter": "index.js"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/component/emitter.git"
   }
 }
