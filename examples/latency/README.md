@@ -7,6 +7,8 @@ First, execute:
 
 ```
 $ npm install
+$ component install
+$ component build
 ```
 
 Then execute the server:

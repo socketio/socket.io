@@ -1,4 +1,12 @@
-/*global SmoothieChart,TimeSeries,eio*/
+
+/**
+ * Module dependencies.
+ */
+
+var SmoothieChart = require("smoothie").SmoothieChart
+  , TimeSeries = require("smoothie").TimeSeries
+  , eio = require("engine.io");
+
 
 // helper
 

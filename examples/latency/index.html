@@ -2,15 +2,16 @@
 <html>
   <head>
     <title>EIO Latency</title>
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/build.css" />
   </head>
   <body>
     <h1>EIO Latency <span id="latency"></span></h1>
     <h2 id="transport">(connecting)</h2>
     <canvas id="chart" height="200"></canvas>
 
-    <script src="/engine.io-dev.js"></script>
-    <script src="/smoothie.js"></script>
-    <script src="/index.js"></script>
+    <script src="/build.js"></script>
+    <script>
+      require("eio-latency");
+    </script>
   </body>
 </html>
