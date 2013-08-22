@@ -5,6 +5,7 @@
     "component/emitter": "1.0.0",
     "component/indexof": "*",
     "component/global": "*",
+    "component/has-cors": "*",
     "LearnBoost/engine.io-protocol": "0.3.0",
     "visionmedia/debug": "*"
   },
