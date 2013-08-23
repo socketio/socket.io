@@ -1,0 +1,16 @@
+{
+  "name": "eio-latency",
+  "version": "0.1.0",
+  "dependencies": {
+    "LearnBoost/engine.io-client": "0.6.3",
+    "mahnunchik/smoothie": "*"
+  },
+  "development": {},
+  "main": "public/index.js",
+  "scripts": [
+    "public/index.js"
+  ],
+  "styles": [
+    "public/style.css"
+  ]
+}

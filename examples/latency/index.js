@@ -4,11 +4,11 @@
  */
 
 var express = require('express')
-  , app = express(app)
+  , app = express()
   , server = require('http').createServer(app)
   , io = require('engine.io').attach(server);
 
-app.use(express.static('public'));
+app.use(express.static('build'));
 app.get('/', function(req, res, next){
   res.sendfile('index.html');
 });
