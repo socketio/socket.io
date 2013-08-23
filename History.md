@@ -1,4 +1,9 @@
 
+0.7.2 / 2013-08-23
+==================
+
+ * package: bump `engine.io-client` for `WebSocket` browser fix
+
 0.7.1 / 2013-08-23
 ==================
 
