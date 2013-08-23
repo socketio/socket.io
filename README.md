@@ -1,4 +1,3 @@
-
 ### This Readme corresponds to the upcoming 1.0 release. Please refer to http://socket.io for the current 0.9.x documentation.
 
 # socket.io-client
@@ -19,7 +18,7 @@
     var socket = io('http://localhost');
     socket.on('connect', function(){
       socket.on('event', function(data){});
-      socket.on('disconnect', fucntion(){});
+      socket.on('disconnect', function(){});
     });
   </script>
   ```
