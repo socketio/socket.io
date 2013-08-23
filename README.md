@@ -109,6 +109,7 @@ Exposed as `eio` in the browser standalone build.
       - `String` uri
       - `Object`: optional, options object
     - **Options**
+      - `agent` (`http.Agent`): `http.Agent` to use, defaults to `false` (NodeJS only)
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
       to upgrade the transport from long-polling to something better.
       - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
