@@ -99,4 +99,31 @@ describe('Transport', function () {
     });
   });
 
+  describe('options', function () {
+    it('should accept an `agent` option for WebSockets', function (done) {
+      var polling = new eio.transports.websocket({
+          path: '/engine.io'
+        , hostname: 'localhost'
+        , agent: {
+            addRequest: function () {
+              done();
+            }
+          }
+      });
+      polling.doOpen();
+    });
+    it('should accept an `agent` option for XMLHttpRequest', function (done) {
+      var polling = new eio.transports.polling({
+          path: '/engine.io'
+        , hostname: 'localhost'
+        , agent: {
+            addRequest: function () {
+              done();
+            }
+          }
+      });
+      polling.doOpen();
+    });
+  });
+
 });
