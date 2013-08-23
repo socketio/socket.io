@@ -1,4 +1,10 @@
 
+0.7.1 / 2013-08-23
+==================
+
+ * transports: fix WebSocket transport in the web browser
+ * package: upgrade "ws" to v0.4.29
+
 0.7.0 / 2013-08-23
 ==================
 
