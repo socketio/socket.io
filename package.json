@@ -20,7 +20,7 @@
   "dependencies": {
     "global": "component/global",
     "has-cors": "component/has-cors",
-    "ws": "https://github.com/einaros/ws/archive/2b4663655c9133a8131cf2a3a664caf1825c2409.tar.gz",
+    "ws": "0.4.29",
     "xmlhttprequest": "LearnBoost/node-XMLHttpRequest",
     "emitter": "http://github.com/component/emitter/archive/1.0.1.tar.gz",
     "indexof": "0.0.1",
