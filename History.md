@@ -1,4 +1,10 @@
 
+0.7.3 / 2013-08-23
+==================
+
+ * package: bump engine.io-client (noop)
+ * package: fix regresison in upgrade cause by ws update
+
 0.7.2 / 2013-08-23
 ==================
 
