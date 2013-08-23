@@ -1,4 +1,18 @@
 
+0.7.0 / 2013-08-23
+==================
+
+ * socket: add `agent` option
+ * package: point "xmlhttprequest" to our LearnBoost fork for agent support
+ * package: specify a newer version of "ws" that includes `agent` support
+ * util: use "component/has-cors"
+ * transport: fix whitespace
+ * util: use "component/global"
+ * package: Add repository field to readme
+ * socket: Don't lose packets writen during upgrade after a re-open
+ * socket: use a consistent "debug" name for socket.js
+ * package: Update emitter dep to 1.0.1 for old IE support
+
 0.6.3 / 2013-06-21
 ==================
 
