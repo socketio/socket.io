@@ -2,7 +2,7 @@
   "name": "eio-latency",
   "version": "0.1.0",
   "dependencies": {
-    "LearnBoost/engine.io-client": "0.6.3",
+    "LearnBoost/engine.io-client": "0.7.0",
     "mahnunchik/smoothie": "*"
   },
   "development": {},

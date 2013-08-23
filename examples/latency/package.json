@@ -3,6 +3,6 @@
   "version": "0.1.0",
   "dependencies": {
     "express": "3.3.5",
-    "engine.io": "0.6.3"
+    "engine.io": "0.7.0"
   }
 }
