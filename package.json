@@ -24,6 +24,9 @@
     "expect.js": "*",
     "istanbul": "*"
   },
+  "scripts": {
+    "test": "make test"
+  },
   "component": {
     "scripts": {
       "engine.io/index.js": "lib/index.js",
