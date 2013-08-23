@@ -1,4 +1,9 @@
 
+0.7.2 / 2013-08-23
+==================
+
+ * transports: fix WebSocket transport in the web browser (again)
+
 0.7.1 / 2013-08-23
 ==================
 
