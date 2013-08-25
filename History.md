@@ -1,4 +1,9 @@
 
+0.7.4 / 2013-08-25
+==================
+
+ * package: rolling back to `ws` `0.4.25` due to disconnection bug
+
 0.7.3 / 2013-08-23
 ==================
 
