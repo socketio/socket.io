@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "global": "https://github.com/component/global/archive/v2.0.1.tar.gz",
-    "has-cors": "component/has-cors",
+    "has-cors": "https://github.com/component/has-cors/archive/v1.0.1.tar.gz",
     "ws": "0.4.25",
     "xmlhttprequest": "LearnBoost/node-XMLHttpRequest",
     "emitter": "http://github.com/component/emitter/archive/1.0.1.tar.gz",
