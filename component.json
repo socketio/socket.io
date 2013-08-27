@@ -4,7 +4,7 @@
   "dependencies": {
     "component/emitter": "1.0.1",
     "component/indexof": "*",
-    "component/global": "*",
+    "component/global": "2.0.1",
     "component/has-cors": "*",
     "LearnBoost/engine.io-protocol": "0.3.0",
     "visionmedia/debug": "*"
