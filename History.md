@@ -1,4 +1,11 @@
 
+0.7.7 / 2013-08-30
+==================
+
+ * package: bump ws to 0.4.30
+ * websocket: no more env sniffing, just require `ws` [TooTallNate]
+ * websocket: remove the "bufferedAmount" checking logic [TooTallNate]
+
 0.7.6 / 2013-08-30
 ==================
 
