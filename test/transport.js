@@ -100,8 +100,6 @@ describe('Transport', function () {
   });
 
   describe('options', function () {
-    console.log('¯\\_(ツ)_/¯');
-    return;
     it('should accept an `agent` option for WebSockets', function (done) {
       var polling = new eio.transports.websocket({
           path: '/engine.io'
