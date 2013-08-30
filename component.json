@@ -6,6 +6,7 @@
     "component/indexof": "*",
     "component/global": "2.0.1",
     "component/has-cors": "1.0.2",
+    "component/ws": "1.0.0",
     "LearnBoost/engine.io-protocol": "0.3.0",
     "visionmedia/debug": "*"
   },
