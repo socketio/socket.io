@@ -1,4 +1,9 @@
 
+0.7.9 / 2013-08-30
+==================
+
+ * websocket: pass `undefined` as the WebSocket "protocols"
+
 0.7.8 / 2013-08-30
 ==================
 
