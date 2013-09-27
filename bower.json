@@ -1,0 +1,24 @@
+{
+  "name": "emitter",
+  "description": "Event emitter",
+  "keywords": [
+    "emitter",
+    "events"
+  ],
+  "dependencies": {
+    "indexof": "component/indexof#0.0.1"
+  },
+  "version": "1.0.2",
+  "license": "MIT",
+  "main": "index.js",
+  "homepage": "https://github.com/component/emitter",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "Makefile",
+    "package.json",
+    "component.json"
+  ]
+}
