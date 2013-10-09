@@ -1,7 +1,7 @@
 {
   "name": "emitter-component",
   "description": "Event emitter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "dependencies": {
     "indexof": "0.0.1"
   },
