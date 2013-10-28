@@ -1,4 +1,13 @@
 
+0.7.10 / 2013-10-28
+===================
+
+ * fixed issue which prevented IE9 and under to pass Cookies to server during handshake
+ * package: update "ws" to v0.4.31
+ * fixed - there is no host property only hostname
+ * fixed - flash socket creation
+ * fixed - emit errors thrown by xhr.send()
+
 0.7.9 / 2013-08-30
 ==================
 
