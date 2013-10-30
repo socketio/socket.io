@@ -294,6 +294,23 @@ describe('server', function () {
       });
     });
 
+    it('should trigger on server after close following polling socket drop and server write (GH-198)', function (done) {
+      var opts = { allowUpgrades: false, pingInterval: 5, pingTimeout: 5 };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('http://localhost:%d'.s(port));
+        socket.sendPacket = socket.onPacket = function (){};
+        socket.close();
+        engine.on('connection', function (conn) {
+          conn.on('close', function (reason) {
+            expect(reason).to.be('ping timeout');
+            done();
+          });
+          conn.send('testing123');
+          conn.close();
+        });
+      });
+    });
+
     it('should trigger on client if server does not meet ping timeout', function (done) {
       var opts = { allowUpgrades: false, pingInterval: 50, pingTimeout: 30 };
       var engine = listen(opts, function (port) {
