@@ -294,18 +294,19 @@ describe('server', function () {
       });
     });
 
-    it('should trigger on server after close following polling socket drop and server write (GH-198)', function (done) {
-      var opts = { allowUpgrades: false, pingInterval: 5, pingTimeout: 5 };
+    it('should trigger on server even when there is no outstanding polling request (GH-198)', function (done) {
+      var opts = { allowUpgrades: false, pingInterval: 500, pingTimeout: 500 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('http://localhost:%d'.s(port));
-        socket.sendPacket = socket.onPacket = function (){};
-        socket.close();
         engine.on('connection', function (conn) {
           conn.on('close', function (reason) {
             expect(reason).to.be('ping timeout');
             done();
           });
-          conn.send('testing123');
+          // client abruptly disconnects, no polling request on this tick since we've just connected
+          socket.sendPacket = socket.onPacket = function (){};
+          socket.close();
+          // then server app tries to close the socket, since client disappeared
           conn.close();
         });
       });
