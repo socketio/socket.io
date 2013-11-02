@@ -36,6 +36,9 @@
   "scripts": {
     "test": "make test"
   },
+  "browser": {
+    "xmlhttprequest": "./lib/xmlhttprequest.js"
+  },
   "component": {
     "scripts": {
       "engine.io/index.js": "lib/index.js",
