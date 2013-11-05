@@ -1,4 +1,7 @@
 
+var eio = require('../');
+var expect = require('expect.js');
+
 describe('Transport', function () {
 
   describe('public constructors', function () {
@@ -99,6 +102,9 @@ describe('Transport', function () {
     });
   });
 
+// these are server only
+// TODO put in separate file for clarity?
+if (!global.navigator) {
   describe('options', function () {
     it('should accept an `agent` option for WebSockets', function (done) {
       var polling = new eio.transports.websocket({
@@ -125,5 +131,6 @@ describe('Transport', function () {
       polling.doOpen();
     });
   });
+}
 
 });

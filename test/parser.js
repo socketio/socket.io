@@ -3,6 +3,9 @@
  * Test dependencies.
  */
 
+var expect = require('expect.js');
+var eio = require('../');
+
 var parser = eio.parser
 
 /**

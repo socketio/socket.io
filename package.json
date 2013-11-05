@@ -28,6 +28,7 @@
     "debug": "0.7.2"
   },
   "devDependencies": {
+    "zuul": "1.0.0",
     "mocha": "*",
     "serve": "*",
     "expect.js": "*",
