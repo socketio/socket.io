@@ -1,6 +1,7 @@
 
-var eio = require('../');
 var expect = require('expect.js');
+var eio = require('../');
+var env = require('./support/env');
 
 describe('Transport', function () {
 
@@ -103,8 +104,7 @@ describe('Transport', function () {
   });
 
 // these are server only
-// TODO put in separate file for clarity?
-if (!global.navigator) {
+if (!env.browser) {
   describe('options', function () {
     it('should accept an `agent` option for WebSockets', function (done) {
       var polling = new eio.transports.websocket({

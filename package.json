@@ -33,7 +33,8 @@
     "serve": "*",
     "expect.js": "*",
     "istanbul": "*",
-    "browserify": "2.35.1"
+    "browserify": "2.35.1",
+    "engine.io": "0.7.10"
   },
   "scripts": {
     "test": "make test"
