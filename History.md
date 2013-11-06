@@ -1,4 +1,11 @@
 
+0.7.11 / 2013-11-06
+===================
+
+ * AMD support
+ * Makefile: build now smaller thanks to browserify
+ * add browserify support
+
 0.7.10 / 2013-10-28
 ===================
 
