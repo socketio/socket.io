@@ -25,14 +25,14 @@
     "emitter": "http://github.com/component/emitter/archive/1.0.1.tar.gz",
     "indexof": "0.0.1",
     "engine.io-parser": "0.3.0",
-    "debug": "0.7.2",
-    "browserify": "2.35.1"
+    "debug": "0.7.2"
   },
   "devDependencies": {
     "mocha": "*",
     "serve": "*",
     "expect.js": "*",
-    "istanbul": "*"
+    "istanbul": "*",
+    "browserify": "2.35.1"
   },
   "scripts": {
     "test": "make test"
