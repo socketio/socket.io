@@ -1,0 +1,83 @@
+
+body {
+  color: #333;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body {
+  display: block;
+  -webkit-animation-name: appear;
+  -webkit-animation-duration: 0.5s;
+  -webkit-animation-iteration-count: once;
+  -webkit-animation-timing-function: ease-in;
+}
+
+@-webkit-keyframes appear {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+body {
+  font-family: Droid Serif;
+  max-width: 570px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-top: 100px;
+  margin-bottom: 100px;
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Open Sans;
+}
+
+h1 {
+  margin-bottom: 40px;
+}
+
+h2 {
+  margin: 40px 0;
+}
+
+h3 { 
+  margin: 20px 0;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+li {
+  margin: 15px 0;
+}
+
+a {
+  color: #999;
+}
+
+p {
+  line-height: 24px;
+}
+
+#name {
+  font-style: oblique;
+}
+
+#close {
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid #999;
+}
+
+@media screen and (max-width: 500px) {
+  body {
+    width: auto;
+    margin: 0;
+    padding-top: 20px;
+  }
+}
