@@ -7,6 +7,7 @@ describe('connection', function() {
     socket.on('open', function () {
       socket.on('message', function (data) {
         expect(data).to.equal('hi');
+        socket.close();
         done();
       });
     });
