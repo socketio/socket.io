@@ -4,4 +4,4 @@ node_js:
   - "0.8"
 
 notifications:
-  irc: "irc.freenode.org##socket.io"
+  irc: "irc.freenode.org#socket.io"
