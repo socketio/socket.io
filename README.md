@@ -119,6 +119,7 @@ Exposed as `eio` in the browser standalone build.
       - `timestampParam` (`String`): timestamp parameter (`t`)
       - `flashPath` (`String`): path to flash client files with trailing slash
       - `policyPort` (`Number`): port the policy server listens on (`843`)
+      - `path` (`String`): path to connect to, default is `/engine.io`
       - `transports` (`Array`): a list of transports to try (in order).
       Defaults to `['polling', 'websocket', 'flashsocket']`. `Engine`
       always attempts to connect directly with the first one, provided the
