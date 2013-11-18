@@ -28,14 +28,16 @@
     "debug": "0.7.2"
   },
   "devDependencies": {
+    "zuul": "1.0.3",
     "mocha": "*",
     "serve": "*",
     "expect.js": "*",
     "istanbul": "*",
-    "browserify": "2.35.1"
+    "browserify": "2.35.1",
+    "engine.io": "0.7.10"
   },
   "scripts": {
-    "test": "make test"
+    "test": "make test && zuul -- test/index.js"
   },
   "browser": {
     "xmlhttprequest": "./lib/xmlhttprequest.js"

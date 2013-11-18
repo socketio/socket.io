@@ -1,3 +1,5 @@
+var expect = require('expect.js');
+var eio = require('../');
 
 describe('Socket', function () {
 
