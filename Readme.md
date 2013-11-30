@@ -53,8 +53,9 @@ Emitter(User.prototype);
 
 ### Emitter#off(event, fn)
 
-  Remove `event` handler `fn`, or pass only the `event`
-  name to remove all handlers for `event`.
+  * Pass `event` and `fn` to remove a listener.
+  * Pass `event` to remove all listeners on that event.
+  * Pass nothing to remove all listeners on all events.
 
 ### Emitter#emit(event, ...)
 
