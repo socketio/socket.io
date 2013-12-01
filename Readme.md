@@ -1,4 +1,4 @@
-# Emitter
+# Emitter [![Build Status](https://travis-ci.org/component/emitter.png)](https://travis-ci.org/component/emitter)
 
   Event emitter component.
 
@@ -40,7 +40,7 @@ user.emit('im a user');
 var Emitter = require('emitter');
 Emitter(User.prototype);
 ```
-  
+
 ### Emitter#on(event, fn)
 
   Register an `event` handler `fn`.

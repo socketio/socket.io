@@ -14,5 +14,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/component/emitter.git"
+  },
+  "scripts": {
+    "test": "make test"
   }
 }
