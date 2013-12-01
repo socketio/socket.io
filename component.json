@@ -3,9 +3,6 @@
   "repo": "component/emitter",
   "description": "Event emitter",
   "keywords": ["emitter", "events"],
-  "dependencies": {
-    "component/indexof": "*"
-  },
   "version": "1.1.0",
   "scripts": ["index.js"],
   "license": "MIT"

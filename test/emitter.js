@@ -81,6 +81,7 @@ describe('Emitter', function(){
       function one() { calls.push('one'); }
 
       emitter.once('foo', one);
+      emitter.once('fee', one);
       emitter.off('foo', one);
 
       emitter.emit('foo');
