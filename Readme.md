@@ -1,4 +1,3 @@
-
 ### This Readme corresponds to the upcoming 1.0 release. Please refer to http://socket.io for the current 0.9.x documentation.
 
 <hr />
@@ -190,7 +189,7 @@ server.listen(3000);
 ### Adapter
 
   The `Adapter` is in charge of keeping track of what rooms each socket
-  is connected to, and passing messages to them.
+  is connected to and passing messages to them.
 
   By default the `Adapter` is memory based. In order to pass messages
   across multiple processes, make sure to use an appropriate adapter.
