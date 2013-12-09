@@ -23,9 +23,6 @@
     "expect.js": "*",
     "supertest": "*"
   },
-  "optionalDependencies": {
-    "redis": "0.7.3"
-  },
   "contributors": [
     {
       "name": "Guillermo Rauch",
