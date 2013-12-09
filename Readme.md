@@ -1,4 +1,3 @@
-
 ### This Readme corresponds to the upcoming 1.0 release. Please refer to http://socket.io for the current 0.9.x documentation.
 
 <hr />
@@ -29,7 +28,7 @@ function.
 ```js
 var app = require('express')();
 var server = require('http').Server(app);
-var io = require('socket.io')(server);
+var io = require('socket.io').listen(server);
 io.on('connection', function(){ // … });
 server.listen(3000);
 ```
