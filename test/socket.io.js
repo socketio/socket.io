@@ -537,6 +537,54 @@ describe('socket.io', function(){
       });
     });
   });
+describe ('Global events', function (done) {
+  it ('should add an event to every socket', function (done) {
+    var srv = http();
+    var sio = io(srv);
+    var counter = 0;
+    srv.listen(function(){
+      for ( var i = 0; i < 2; i++ ) {
+        var socket = client(srv);
+        socket.emit('test', 1, 2, function () {
+          counter++;
+          if (counter >= 2) {
+            done();
+          }
+        });
+      };
+      sio.globalListen('test', function (a, b, fn) {
+        expect(a).to.be(1);
+        expect(b).to.be(2);
+        fn();
+      });
+    });
+  });
+  it ('should also add an event to future sockets', function (done) {
+    var srv = http();
+    var sio = io(srv);
+    var counter = 0;
+    var sockets = [];
+    srv.listen( function () {
+      for (var i = 0; i < 2; i++) {
+         sockets.push(client(srv));
+      };
+      sio.globalListen('test', function (a, b) {
+        expect(a).to.be(1);
+        expect(b).to.be(2);
+        counter++;
+        if (counter >= 5) {
+          done();
+        } 
+      });
+      for (var i = 0; i < 3; i++) {
+        sockets.push(client(srv));
+      };
+      for (var i = 0; i < sockets.length; i++) {
+        sockets[i].emit('test', 1, 2);
+      };
+    });
+  });
+});
 
   describe('middleware', function(done){
     var Socket = require('../lib/socket');
