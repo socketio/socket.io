@@ -20,5 +20,5 @@ io.on('connection', function(socket){
 });
 
 server.listen(process.env.PORT || 3000, function(){
-  console.log('\033[96mlistening on localhost:3000 \033[39m');
+  console.log('\033[96mlistening on localhost:' + process.env.PORT || 3000 + ' \033[39m');
 });
