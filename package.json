@@ -24,7 +24,7 @@
         "mocha": "*"
       , "expect.js": "*"
       , "superagent": "*"
-      , "engine.io-client": "0.7.12"
+      , "engine.io-client": "0.7.13"
       , "s": "*"
     }
   , "scripts" : { "test" : "make test" }
