@@ -1,4 +1,10 @@
 
+0.7.13 / 2013-12-20
+===================
+
+ * package: bump `engine.io-client`
+ * transports: added support for XSS filters on IE [guille, 3rd-eden]
+
 0.7.12 / 2013-11-11
 ===================
 
