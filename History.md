@@ -1,4 +1,12 @@
 
+0.7.13 / 2013-12-20
+===================
+
+ * use `jsonp` in favor of `XDomainRequest` to preserve `Cookie`
+   headers in all situations [3rd-eden] (fixes #217)
+ * run zuul tests after node tests [defunctzombie]
+ * add zuul support for easier browser testing [defunctzombie]
+
 0.7.12 / 2013-11-11
 ===================
 
