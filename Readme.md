@@ -21,6 +21,14 @@ io.on('connection', function(socket){
 server.listen(3000);
 ```
 
+### Standalone
+
+```js
+var io = require('socket.io')();
+io.on('connection', function(socket){});
+io.listen(3000);
+```
+
 ### In conjunction with `Express`
 
 Starting with **3.0**, express applications have become request handler
@@ -136,6 +144,10 @@ server.listen(3000);
 
   Attaches the `Server` to an engine.io instance that is bound to `port`
   with the given `opts` (optionally).
+
+### Server#listen
+
+  Synonym of `Server#attach`.
 
 ### Server#bind(srv:engine#Server):Server
 
