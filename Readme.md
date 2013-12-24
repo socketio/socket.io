@@ -33,6 +33,19 @@ io.on('connection', function(){ // … });
 server.listen(3000);
 ```
 
+### In conjunction with `Koa`
+
+Like Express.JS, Koa works by exposing an application as a request
+handler function, but only by calling the `callback` method.
+
+```js
+var app = require('koa')();
+var server = require('http').Server(app.callback());
+var io = require('socket.io')(server);
+io.on('connection', function(){ // … });
+server.listen(3000);
+```
+
 ## API
 
 ### Server
