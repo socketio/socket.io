@@ -79,7 +79,7 @@ server.listen(3000);
   This method has no effect after `attach` is called.
 
   ```js
-  // pass a server and the `static` option
+  // pass a server and the `serveClient` option
   var io = require('socket.io')(http, { serveClient: false });
 
   // or pass no server and then you can call the method
