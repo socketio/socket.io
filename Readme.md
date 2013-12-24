@@ -8,6 +8,9 @@
 
 ## How to use
 
+The following example attaches socket.io to a plain Node.JS
+HTTP server listening on port `3000`.
+
 ```js
 var server = require('http').Server();
 var io = require('socket.io')(server);
