@@ -38,7 +38,7 @@ describe('socket.io', function(){
 
       it('should not serve static files', function(done){
         var srv = http();
-        io(srv, { static: false });
+        io(srv, { serveClient: false });
         request(srv)
         .get('/socket.io/socket.io.js')
         .expect(400, done);

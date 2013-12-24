@@ -57,7 +57,7 @@ server.listen(3000);
 
   The following options are supported:
 
-  - `static` sets the value for Server#static()
+  - `serveClient` sets the value for Server#serveClient()
   - `path` sets the value for Server#path()
 
   Options are always passed to the `engine.io` `Server` that gets created.
@@ -71,7 +71,7 @@ server.listen(3000);
 
   Binds socket.io to a new `http.Server` that listens on `port`.
 
-### Server#static(v:Boolean):Server
+### Server#serveClient(v:Boolean):Server
 
   If `v` is `true` the attached server (see `Server#attach`) will serve
   the client files. Defaults to `true`.
@@ -80,11 +80,11 @@ server.listen(3000);
 
   ```js
   // pass a server and the `static` option
-  var io = require('socket.io')(http, { static: false });
+  var io = require('socket.io')(http, { serveClient: false });
 
   // or pass no server and then you can call the method
   var io = require('socket.io')();
-  io.static(false);
+  io.serveClient(false);
   io.attach(http);
   ```
 
