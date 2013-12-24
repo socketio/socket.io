@@ -73,7 +73,10 @@ server.listen(3000);
   - `serveClient` sets the value for Server#serveClient()
   - `path` sets the value for Server#path()
 
-  Options are always passed to the `engine.io` `Server` that gets created.
+  The same options passed to socket.io are always passed to
+  the `engine.io` `Server` that gets created. See engine.io
+  [options](https://github.com/learnboost/engine.io#methods-1)
+  as reference.
 
 ### Server(srv:http#Server, opts:Object)
 
