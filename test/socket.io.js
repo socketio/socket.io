@@ -85,7 +85,7 @@ describe('socket.io', function(){
         var sio = io();
         expect(sio.use).to.be.a('function');
         expect(sio.to).to.be.a('function');
-        expect(sio.in).to.be.a('function');
+        expect(sio['in']).to.be.a('function');
         expect(sio.emit).to.be.a('function');
         expect(sio.send).to.be.a('function');
         expect(sio.write).to.be.a('function');
