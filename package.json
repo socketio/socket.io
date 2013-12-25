@@ -14,21 +14,13 @@
   "devDependencies": {
     "mocha": "*",
     "expect.js": "*",
-    "uglify-js": "*"
+    "uglify-js": "*",
+    "browserify": "2.35.1"
   },
   "contributors": [
     { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" },
     { "name": "Arnout Kazemier", "email": "info@3rd-eden.com" },
     { "name": "Vladimir Dronnikov", "email": "dronnikov@gmail.com" },
     { "name": "Einar Otto Stangvik", "email": "einaros@gmail.com" }
-  ],
-  "component": {
-    "scripts": {
-      "engine.io/index.js": "lib/index.js",
-      "engine.io/manager.js": "lib/manager.js",
-      "engine.io/engine.js": "lib/engine.js",
-      "engine.io/socket.js": "lib/socket.js",
-      "engine.io/emitter.js": "lib/emitter.js"
-    }
-  }
+  ]
 }
