@@ -179,6 +179,10 @@ server.listen(3000);
 
   For other available methods, see `Namespace` below.
 
+### Server#use
+
+  See `Namespace#use` below.
+
 ### Namespace
 
   Represents a pool of sockets connected under a given scope identified
