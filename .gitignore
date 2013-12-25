@@ -3,3 +3,4 @@ build
 build.js
 components
 .DS_Store
+coverage
