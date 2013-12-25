@@ -82,6 +82,18 @@ Socket.IO is also compatible with
   The `opts` are also passed to `engine.io` upon initialization of the
   underlying `Socket`.
 
+  Options:
+  - `reconnection` whether to reconnect automatically (`true`)
+  - `reconnectionDelay` how long to wait before attempting a new
+    reconnection (`1000`)
+  - `reconnectionDelayMax` maximum amount of time to wait between
+    reconnections (`5000`). Each attempt increases the reconnection by
+    the amount specified by `reconnectionDelay`.
+  - `timeout` connection timeout before a `connect_error`
+    and `connect_timeout` events are emitted (`10000`)
+
+#### Events
+
   - `connect`. Fired upon a succesful connection.
   - `connect_error`. Fired upon a connection error.
     Parameters:
@@ -94,16 +106,6 @@ Socket.IO is also compatible with
     Parameters:
       - `Object` error object
   - `reconnect_failed`
-
-  Options:
-  - `reconnection` whether to reconnect automatically (`true`)
-  - `reconnectionDelay` how long to wait before attempting a new
-    reconnection (`1000`)
-  - `reconnectionDelayMax` maximum amount of time to wait between
-    reconnections (`5000`). Each attempt increases the reconnection by
-    the amount specified by `reconnectionDelay`.
-  - `timeout` connection timeout before a `connect_error`
-    and `connect_timeout` events are emitted (`10000`)
 
 ### Manager#reconnection(v:Boolean):Manager
 
