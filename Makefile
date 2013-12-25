@@ -2,7 +2,7 @@
 REPORTER = dot
 
 build: components lib
-	@component build --standalone io
+	@./node_modules/.bin/component build --standalone io
 	@mv build/build.js build.js
 	@rm -rf build
 	@./node_modules/.bin/uglifyjs < build.js > socket.io-client.js
@@ -10,7 +10,7 @@ build: components lib
 	@echo "… done"
 
 components: component.json
-	@component install --dev
+	@./node_modules/.bin/component install --dev
 
 clean:
 	rm -fr components build build.js
