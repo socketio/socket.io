@@ -6,37 +6,26 @@
 
 ## How to use
 
-### Standalone
+A standalone build of `socket.io-client` is exposed automatically by the
+socket.io server as `/socket.io/socket.io.js`. Alternatively you can
+serve the file `socket.io.js` found at the root of this repository.
 
-  A standalone build of `socket.io-client` is exposed automatically by the
-  socket.io server as `/socket.io/socket.io.js`. Alternatively you can
-  serve the file `socket.io-client.js` found at the root of this repository.
-
-  ```html
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    var socket = io('http://localhost');
-    socket.on('connect', function(){
-      socket.on('event', function(data){});
-      socket.on('disconnect', function(){});
-    });
-  </script>
-  ```
-
-### Component
-
-  Socket.IO is a [component](http://github.com/component/component), which
-  means you can include it by using `require` on the browser:
-
-  ```js
-  var socket = require('socket.io')('http://localhost');
+```html
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io('http://localhost');
   socket.on('connect', function(){
     socket.on('event', function(data){});
-    socket.on('disconnect', fucntion(){});
+    socket.on('disconnect', function(){});
   });
-  ```
+</script>
+```
 
-### Node.JS
+Socket.IO is also compatible with
+[component](http://github.com/component/component) and
+[browserify](http://github.com/substack/browserify).
+
+### Node.JS (server-side usage)
 
   Add `socket.io-client` to your `package.json` and then:
 
