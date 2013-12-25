@@ -347,6 +347,44 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should have access to the client', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          expect(s.client).to.be.an('object');
+          done();
+        });
+      });
+    });
+
+    it('should have access to the connection', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          expect(s.client.conn).to.be.an('object');
+          expect(s.conn).to.be.an('object');
+          done();
+        });
+      });
+    });
+
+    it('should have access to the request', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          expect(s.client.request.headers).to.be.an('object');
+          expect(s.request.headers).to.be.an('object');
+          done();
+        });
+      });
+    });
   });
 
   describe('messaging many', function(){

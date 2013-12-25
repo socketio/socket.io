@@ -202,20 +202,64 @@ server.listen(3000);
   Hash of `Socket` objects that are connected to this namespace indexed
   by `id`.
 
+### Namespace#use(fn:Function):Namespace
+
+  Registers a middleware, which is a function that gets executed for
+  every incoming `Socket` and receives as parameter the socket and a
+  function to optionally defer execution to the next registered
+  middleware.
+
+  ```
+  var io = require('socket.io')();
+  io.use(function(socket, next){
+    if (socket.request.headers.cookie) return next();
+    done(new Error('Authentication error'));
+  });
+  ```
+
+  Errors passed to middleware callbacks are sent as special `error`
+  packets to clients.
+
 ### Socket
 
   A `Socket` is the fundamental class for interacting with browser
-  clients.
+  clients. A `Socket` belongs to a certain `Namespace` (by default `/`)
+  and uses an underlying `Client` to communicate.
 
 ### Socket#rooms:Array
 
   A list of strings identifying the rooms this socket is in.
+
+### Socket#client:Client
+
+  A reference to the underlying `Client` object.
+
+### Socket#conn:Socket
+
+  A reference to the underyling `Client` transport connection (engine.io
+  `Socket` object).
+
+### Socket#request:Request
+
+  A getter proxy that returns the reference to the `request` that
+  originated the underlying engine.io `Client`. Useful for accessing
+  request headers such as `Cookie` or `User-Agent`.
 
 ### Client
 
   The `Client` class represents an incoming transport (engine.io)
   connection. A `Client` can be associated with many multiplexed `Socket`
   that belong to different `Namespace`s.
+
+### Client#conn
+
+  A reference to the underlying `engine.io` `Socket` connection.
+
+### Client#request
+
+  A getter proxy that returns the reference to the `request` that
+  originated the engine.io connection. Useful for accessing
+  request headers such as `Cookie` or `User-Agent`.
 
 ### Adapter
 
