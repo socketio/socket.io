@@ -4,13 +4,7 @@
  */
 
 var debug = require('debug')('socket.io-parser');
-var json;
-
-try {
-  json = require('json');
-} catch(e){
-  json = JSON;
-}
+var json = require('json3');
 
 /**
  * Protocol version.
