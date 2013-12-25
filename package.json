@@ -37,7 +37,7 @@
     "engine.io": "0.7.13"
   },
   "scripts": {
-    "test": "make test && zuul -- test/index.js"
+    "test": "make test"
   },
   "browser": {
     "xmlhttprequest": "./lib/xmlhttprequest.js"
