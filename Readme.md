@@ -172,7 +172,7 @@ server.listen(3000);
   equivalent:
 
   ```js
-  var io = require('socket.io');
+  var io = require('socket.io')();
   io.sockets.emit('an event sent to all connected clients');
   io.emit('an event sent to all connected clients');
   ```
