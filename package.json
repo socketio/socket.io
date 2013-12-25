@@ -11,8 +11,8 @@
     "json3": "3.2.6"
   },
   "devDependencies": {
-    "mocha": "*",
-    "expect.js": "*"
+    "mocha": "1.16.2",
+    "expect.js": "0.2.0"
   },
   "component": {
     "scripts": [
