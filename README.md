@@ -95,6 +95,41 @@ Socket.IO is also compatible with
       - `Object` error object
   - `reconnect_failed`
 
+  Options:
+  - `reconnection` whether to reconnect automatically (`true`)
+  - `reconnectionDelay` how long to wait before attempting a new
+    reconnection (`1000`)
+  - `reconnectionDelayMax` maximum amount of time to wait between
+    reconnections (`5000`). Each attempt increases the reconnection by
+    the amount specified by `reconnectionDelay`.
+  - `timeout` connection timeout before a `connect_error`
+    and `connect_timeout` events are emitted (`10000`)
+
+### Manager#reconnection(v:Boolean):Manager
+
+  Sets the `reconnection` option, or returns it if no parameters
+  are passed.
+
+### Manager#reconnectionAttempts(v:Boolean):Manager
+
+  Sets the `reconnectionAttempts` option, or returns it if no parameters
+  are passed.
+
+### Manager#reconnectionDelay(v:Boolean):Manager
+
+  Sets the `reconectionDelay` option, or returns it if no parameters
+  are passed.
+
+### Manager#reconnectionDelayMax(v:Boolean):Manager
+
+  Sets the `reconectionDelayMax` option, or returns it if no parameters
+  are passed.
+
+### Manager#timeout(v:Boolean):Manager
+
+  Sets the `timeout` option, or returns it if no parameters
+  are passed.
+
 ### Socket
 
 #### Events
