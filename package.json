@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "keywords": ["realtime", "framework", "websocket", "tcp", "events", "client"],
   "dependencies": {
-    "engine.io-client": "0.4.3",
-    "emitter-component": "0.0.6",
-    "bind-component": "0.0.1",
+    "engine.io-client": "0.7.13",
+    "emitter": "http://github.com/component/emitter/archive/1.0.1.tar.gz",
+    "bind": "http://github.com/component/bind/archive/0.0.1.tar.gz",
     "object-component": "0.0.3",
-    "socket.io-parser": "1.0.2",
+    "socket.io-parser": "1.1.0",
     "to-array": "0.1.3",
     "debug": "0.6.0"
   },
