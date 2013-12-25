@@ -9,7 +9,7 @@
     "object-component": "0.0.3",
     "socket.io-parser": "1.0.2",
     "to-array": "0.1.3",
-    "debug": "*"
+    "debug": "0.6.0"
   },
   "devDependencies": {
     "mocha": "*",
