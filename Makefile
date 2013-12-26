@@ -16,7 +16,4 @@ test-cov:
 		--reporter $(REPORTER) \
 		$(TESTS)
 
-test-browser:
-	@./node_modules/.bin/serve test/
-
-.PHONY: test test-browser clean
+.PHONY: test
