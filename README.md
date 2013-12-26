@@ -3,7 +3,7 @@
 [![Build Status](https://secure.travis-ci.org/LearnBoost/engine.io-client.png)](http://travis-ci.org/LearnBoost/engine.io-client)
 [![NPM version](https://badge.fury.io/js/engine.io-client.png)](http://badge.fury.io/js/engine.io-client)
 
-This is the client for [Engine](http://github.com/learnboost/engine.io), the
+This is the client for [Engine.IO](http://github.com/learnboost/engine.io), the
 implementation of transport-based cross-browser/cross-device bi-directional
 communication layer for [Socket.IO](http://github.com/learnboost/socket.io).
 
