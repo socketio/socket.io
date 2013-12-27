@@ -75,6 +75,13 @@ describe('socket.io', function(){
         .get('/socket.io/socket.io.js')
         .expect(200, done);
       });
+
+      it('as a string', function(done){
+        var sockets = io().listen('54012');
+        request('http://localhost:54012')
+        .get('/socket.io/socket.io.js')
+        .expect(200, done);
+      });
     });
   });
 
