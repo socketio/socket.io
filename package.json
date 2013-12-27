@@ -12,7 +12,9 @@
     "debug": "0.6.0"
   },
   "devDependencies": {
+    "socket.io": "1.0.0",
     "mocha": "1.16.2",
+    "zuul": "1.0.9",
     "istanbul": "0.2.1",
     "expect.js": "0.2.0",
     "uglify-js": "2.4.8",
