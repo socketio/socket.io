@@ -4,7 +4,7 @@ return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof requi
 module.exports = require('./lib/');
 
 },{"./lib/":2}],2:[function(require,module,exports){
-var process=require("__browserify_process"),__dirname="/lib";
+var __dirname="/lib";
 /**
  * Module dependencies.
  */
@@ -62,7 +62,7 @@ function lookup(uri, opts){
  * @api public
  */
 
-if ('undefined' != typeof process) {
+if ('undefined' == typeof window) {
   var read = require('fs').readFileSync;
   exports.source = read(__dirname + '/../socket.io.js');
 }
@@ -93,7 +93,7 @@ exports.connect = lookup;
 exports.Manager = require('./manager');
 exports.Socket = require('./socket');
 
-},{"./manager":3,"./socket":5,"./url":6,"__browserify_process":18,"fs":10,"socket.io-parser":45}],3:[function(require,module,exports){
+},{"./manager":3,"./socket":5,"./url":6,"fs":10,"socket.io-parser":45}],3:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -857,8 +857,10 @@ module.exports = parse;
 function parse(uri){
   var obj = uri;
 
-  if (null == url) url = location.protocol + '//' + location.hostname;
+  // default to window's location
+  if (null == uri) uri = location.protocol + '//' + location.host;
 
+  // parse string
   if ('string' == typeof uri) {
     if ('/' == uri.charAt(0)) {
       if ('undefined' != typeof location) {
