@@ -1,7 +1,10 @@
 
 var env = require('./support/env');
 
-require('./url');
+// node only tests
+if (env.node) {
+  require('./url');
+}
 
 // browser only tests
 if (env.browser) {
