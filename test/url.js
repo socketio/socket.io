@@ -1,9 +1,15 @@
 
+var old = global.location;
 var loc = global.location = {};
 var url = require('../lib/url');
 var expect = require('expect.js');
 
 describe('url', function(){
+
+  after(function(){
+    // restore location
+    global.location = old;
+  });
 
   it('works with relative paths', function(){
     loc.hostname = 'woot.com';
