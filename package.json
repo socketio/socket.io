@@ -20,6 +20,9 @@
     "uglify-js": "2.4.8",
     "browserify": "2.35.1"
   },
+  "scripts": {
+    "test": "make test"
+  },
   "contributors": [
     { "name": "Guillermo Rauch", "email": "rauchg@gmail.com" },
     { "name": "Arnout Kazemier", "email": "info@3rd-eden.com" },
