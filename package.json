@@ -12,7 +12,7 @@
     "debug": "0.6.0"
   },
   "devDependencies": {
-    "socket.io": "1.0.0",
+    "socket.io": "https://github.com/LearnBoost/socket.io/archive/48936231eaca61f557dd44a5200a5cd4ac1545c9.tar.gz",
     "mocha": "1.16.2",
     "zuul": "1.0.9",
     "istanbul": "0.2.1",
