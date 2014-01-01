@@ -29,10 +29,9 @@
   },
   "devDependencies": {
     "zuul": "1.0.10",
-    "mocha": "*",
-    "serve": "*",
-    "expect.js": "*",
-    "istanbul": "*",
+    "mocha": "1.16.2",
+    "expect.js": "0.2.0",
+    "istanbul": "0.2.3",
     "browserify": "2.35.1",
     "engine.io": "0.7.14"
   },
