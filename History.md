@@ -1,4 +1,19 @@
 
+0.7.14 / 2014-01-01
+===================
+
+ * test: increase timeouts for network tests
+ * test: whitelist globals
+ * test: improve socket closing test
+ * polling: improve url timestamp for ie11 and allow force disabling
+ * polling-xhr: handle errors for xhr creation (fixes `access denied` issues)
+ * polling-xhr: style
+ * socket: more instrumentation for transport creation
+ * socket: allow explicit `false` for `timestampRequests`
+ * socket: accept `null` as first argument
+ * Makefile: cleanup
+ * .travis: deprecate 0.6
+
 0.7.13 / 2013-12-20
 ===================
 

@@ -83,7 +83,7 @@ var global = require('global');
  * @api private
  */
 
-function noop () {};
+function noop(){}
 
 /**
  * Socket constructor.
@@ -98,7 +98,7 @@ function Socket(uri, opts){
 
   opts = opts || {};
 
-  if ('object' == typeof uri) {
+  if (uri && 'object' == typeof uri) {
     opts = uri;
     uri = null;
   }
@@ -132,7 +132,7 @@ function Socket(uri, opts){
   this.path = (opts.path || '/engine.io').replace(/\/$/, '') + '/';
   this.forceJSONP = !!opts.forceJSONP;
   this.timestampParam = opts.timestampParam || 't';
-  this.timestampRequests = !!opts.timestampRequests;
+  this.timestampRequests = opts.timestampRequests;
   this.flashPath = opts.flashPath || '';
   this.transports = opts.transports || ['polling', 'websocket', 'flashsocket'];
   this.readyState = '';
@@ -143,7 +143,7 @@ function Socket(uri, opts){
 
   Socket.sockets.push(this);
   Socket.sockets.evs.emit('add', this);
-};
+}
 
 /**
  * Mix in `Emitter`.
@@ -233,8 +233,9 @@ function clone (obj) {
  */
 
 Socket.prototype.open = function () {
+  var transport = this.transports[0];
   this.readyState = 'opening';
-  var transport = this.createTransport(this.transports[0]);
+  var transport = this.createTransport(transport);
   transport.open();
   this.setTransport(transport);
 };
@@ -245,11 +246,12 @@ Socket.prototype.open = function () {
  * @api private
  */
 
-Socket.prototype.setTransport = function (transport) {
+Socket.prototype.setTransport = function(transport){
+  debug('setting transport %s', transport.name);
   var self = this;
 
   if (this.transport) {
-    debug('clearing existing transport');
+    debug('clearing existing transport %s', this.transport.name);
     this.transport.removeAllListeners();
   }
 
@@ -258,18 +260,18 @@ Socket.prototype.setTransport = function (transport) {
 
   // set up transport listeners
   transport
-    .on('drain', function () {
-      self.onDrain();
-    })
-    .on('packet', function (packet) {
-      self.onPacket(packet);
-    })
-    .on('error', function (e) {
-      self.onError(e);
-    })
-    .on('close', function () {
-      self.onClose('transport close');
-    });
+  .on('drain', function(){
+    self.onDrain();
+  })
+  .on('packet', function(packet){
+    self.onPacket(packet);
+  })
+  .on('error', function(e){
+    self.onError(e);
+  })
+  .on('close', function(){
+    self.onClose('transport close');
+  });
 };
 
 /**
@@ -337,7 +339,7 @@ Socket.prototype.probe = function (name) {
     debug('probe transport "%s" failed because of error: %s', name, err);
 
     self.emit('error', error);
-  };
+  }
 
   transport.open();
 
@@ -688,7 +690,7 @@ function Transport (opts) {
   this.timestampRequests = opts.timestampRequests;
   this.readyState = '';
   this.agent = opts.agent || false;
-};
+}
 
 /**
  * Mix in `Emitter`.
@@ -1096,8 +1098,7 @@ var global = require('global');
 
 function polling (opts) {
   var xhr
-    , xd = false
-    , isXProtocol = false;
+    , xd = false;
 
   if (global.location) {
     var isSSL = 'https:' == location.protocol;
@@ -1109,14 +1110,9 @@ function polling (opts) {
     }
 
     xd = opts.hostname != location.hostname || port != opts.port;
-    isXProtocol = opts.secure != isSSL;
   }
 
   xhr = util.request(xd, opts);
-  /* See #7 at http://blogs.msdn.com/b/ieinternals/archive/2010/05/13/xdomainrequest-restrictions-limitations-and-workarounds.aspx */
-  if (isXProtocol && global.XDomainRequest && xhr instanceof global.XDomainRequest) {
-    return new JSONP(opts);
-  }
 
   if (xhr && !opts.forceJSONP) {
     return new XHR(opts);
@@ -1416,7 +1412,7 @@ function XHR(opts){
     this.xd = opts.hostname != global.location.hostname ||
       port != opts.port;
   }
-};
+}
 
 /**
  * Inherits from Polling.
@@ -1522,29 +1518,16 @@ Request.prototype.create = function(){
   var xhr = this.xhr = util.request(this.xd, { agent: this.agent });
   var self = this;
 
-  xhr.open(this.method, this.uri, this.async);
+  try {
+    debug('xhr open %s: %s', this.method, this.uri);
+    xhr.open(this.method, this.uri, this.async);
 
-  if ('POST' == this.method) {
-    try {
-      if (xhr.setRequestHeader) {
-        // xmlhttprequest
+    if ('POST' == this.method) {
+      try {
         xhr.setRequestHeader('Content-type', 'text/plain;charset=UTF-8');
-      } else {
-        // xdomainrequest
-        xhr.contentType = 'text/plain';
-      }
-    } catch (e) {}
-  }
+      } catch (e) {}
+    }
 
-  if (this.xd && global.XDomainRequest && xhr instanceof XDomainRequest) {
-    xhr.onerror = function(e){
-      self.onError(e);
-    };
-    xhr.onload = function(){
-      self.onData(xhr.responseText);
-    };
-    xhr.onprogress = empty;
-  } else {
     // ie6 check
     if ('withCredentials' in xhr) {
       xhr.withCredentials = true;
@@ -1564,14 +1547,12 @@ Request.prototype.create = function(){
         self.onError(e);
       }
 
-      if (undefined !== data) {
+      if (null != data) {
         self.onData(data);
       }
     };
-  }
 
-  debug('sending xhr with url %s | data %s', this.uri, this.data);
-  try {
+    debug('xhr data %s', this.data);
     xhr.send(this.data);
   } catch (e) {
     // Need to defer since .create() is called directly from the constructor
@@ -1634,9 +1615,6 @@ Request.prototype.cleanup = function(){
   }
   // xmlhttprequest
   this.xhr.onreadystatechange = empty;
-
-  // xdomainrequest
-  this.xhr.onload = this.xhr.onerror = empty;
 
   try {
     this.xhr.abort();
@@ -1880,9 +1858,14 @@ Polling.prototype.uri = function(){
   var port = '';
 
   // cache busting is forced for IE / android / iOS6 ಠ_ಠ
-  if (global.ActiveXObject || util.ua.chromeframe || util.ua.android || util.ua.ios6 ||
-      this.timestampRequests) {
-    query[this.timestampParam] = +new Date;
+  if ('ActiveXObject' in global
+    || util.ua.chromeframe
+    || util.ua.android
+    || util.ua.ios6
+    || this.timestampRequests) {
+    if (false !== this.timestampRequests) {
+      query[this.timestampParam] = +new Date;
+    }
   }
 
   query = util.qs(query);
@@ -2300,10 +2283,6 @@ exports.request = function request (xdomain, opts) {
     return new _XMLHttpRequest(opts);
   } catch (e) {}
 
-  if (xdomain && 'undefined' != typeof XDomainRequest && !exports.ua.hasCORS) {
-    return new XDomainRequest();
-  }
-
   // XMLHttpRequest can be disabled on IE
   try {
     if ('undefined' != typeof XMLHttpRequest && (!xdomain || exports.ua.hasCORS)) {
@@ -2387,9 +2366,6 @@ var hasCORS = require('has-cors');
 
 module.exports = function(opts) {
   var xdomain = opts.xdomain;
-  if (xdomain && 'undefined' != typeof XDomainRequest && !hasCORS) {
-    return new XDomainRequest();
-  }
 
   // XMLHttpRequest can be disabled on IE
   try {

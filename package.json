@@ -1,7 +1,7 @@
 {
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
-  "version": "0.7.13",
+  "version": "0.7.14",
   "homepage": "https://github.com/LearnBoost/engine.io-client",
   "contributors": [
     {
@@ -34,7 +34,7 @@
     "expect.js": "*",
     "istanbul": "*",
     "browserify": "2.35.1",
-    "engine.io": "0.7.13"
+    "engine.io": "0.7.14"
   },
   "scripts": {
     "test": "make test"
