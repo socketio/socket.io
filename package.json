@@ -16,7 +16,7 @@
     "engine.io": "0.7.12",
     "socket.io-parser": "1.0.2",
     "socket.io-client": "LearnBoost/socket.io-client",
-    "send": "~0.1.0"
+    "send": "0.1.0"
   },
   "devDependencies": {
     "mocha": "*",
