@@ -2,7 +2,7 @@
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
   "version": "0.7.14",
-  "homepage": "https://github.com/LearnBoost/engine.io-client",
+  "homepage": "http://socket.io",
   "contributors": [
     {
       "name": "Guillermo Rauch",
