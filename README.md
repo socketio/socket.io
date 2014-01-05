@@ -100,6 +100,8 @@ Exposed as `eio` in the browser standalone build.
   - Fired upon completing a buffer flush
 - `drain`
   - Fired after `drain` event of transport if writeBuffer is empty
+- `upgradeError`
+  - Fired if an error occurs with a transport we're trying to upgrade to.
 
 #### Methods
 
