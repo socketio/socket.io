@@ -1,4 +1,9 @@
 
+0.8.0 / 2014-01-05
+==================
+
+ * socket: emit upgrade errors as `upgradeError` instead of `error`
+
 0.7.14 / 2014-01-01
 ===================
 

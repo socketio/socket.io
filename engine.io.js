@@ -318,7 +318,7 @@ Socket.prototype.probe = function (name) {
         debug('probe transport "%s" failed', name);
         var err = new Error('probe error');
         err.transport = transport.name;
-        self.emit('error', err);
+        self.emit('upgradeError', err);
       }
     });
   });
@@ -338,7 +338,7 @@ Socket.prototype.probe = function (name) {
 
     debug('probe transport "%s" failed because of error: %s', name, err);
 
-    self.emit('error', error);
+    self.emit('upgradeError', error);
   }
 
   transport.open();
