@@ -1,11 +1,14 @@
-/*global eio,listen,request,expect*/
 
 /**
  * Test dependencies.
  */
 
-var net = require('net')
-  , http = require('http');
+var net = require('net');
+var eio = require('..');
+var listen = require('./common').listen;
+var expect = require('expect.js');
+var request = require('superagent');
+var http = require('http');
 
 /**
  * Tests.

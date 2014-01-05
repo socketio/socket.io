@@ -5,7 +5,6 @@ REPORTER = dot
 
 test:
 	@./node_modules/.bin/mocha \
-		--require test/common \
 		--reporter $(REPORTER) \
 		--slow 500ms \
 		--bail \

@@ -1,10 +1,14 @@
-/*global eio,eioc,listen,request,expect*/
 
 /**
  * Tests dependencies.
  */
 
 var http = require('http');
+var eio = require('..');
+var eioc = require('engine.io-client');
+var listen = require('./common').listen;
+var expect = require('expect.js');
+var request = require('superagent');
 var WebSocket = require('ws');
 
 /**
@@ -683,7 +687,7 @@ describe('server', function () {
               expect(clientCloseReason).to.be(null);
             }, 350);
             setTimeout(function() {
-              expect(clientCloseReason).to.be("ping timeout");
+              expect(clientCloseReason).to.be('ping timeout');
               done();
             }, 500);
           });

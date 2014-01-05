@@ -1,6 +1,13 @@
-/*global eio,eioc,listen,request,expect*/
+
+/**
+ * Module dependencies.
+ */
 
 var http = require('http');
+var eioc = require('engine.io-client');
+var listen = require('./common').listen;
+var expect = require('expect.js');
+var request = require('superagent');
 var WebSocket = require('ws');
 
 describe('JSONP', function () {
@@ -8,10 +15,10 @@ describe('JSONP', function () {
     // we have to override the browser's functionality for JSONP
     document = {
       body: {
-        appendChild: function () {}
-        , removeChild: function () {}
+        appendChild: function(){},
+        removeChild: function(){}
       }
-    }
+    };
 
     document.createElement = function (name) {
       var self = this;
@@ -31,16 +38,20 @@ describe('JSONP', function () {
         return script;
       } else if ('form' == name) {
         var form = {
-          style: {}
-            , action: ''
-            , parentNode: { removeChild: function () {} }
-            , removeChild: function () {}
-            , setAttribute: function () {}
-            , appendChild: function (elem) { area: elem; }
-            , submit: function () {
-              request.post(this.action).type('form').send({ d: self.areaValue }).end(function (res) {});
-            }
-        }
+          style: {},
+          action: '',
+          parentNode: { removeChild: function(){} },
+          removeChild: function(){},
+          setAttribute: function(){},
+          appendChild: function(){},
+          submit: function(){
+            request
+            .post(this.action)
+            .type('form')
+            .send({ d: self.areaValue })
+            .end(function(){});
+          }
+        };
         return form;
       } else if ('textarea' == name) {
         var textarea = {};
@@ -134,9 +145,9 @@ describe('JSONP', function () {
 
     it('should trigger when client closes', function (done) {
       var engine = listen( { allowUpgrades: false, transports: ['polling'] }, function (port) {
-          var socket = new eioc.Socket('ws://localhost:' + port
-            , { transports: ['polling'], forceJSONP: true, upgrade: false })
-            , total = 2;
+        var socket = new eioc.Socket('ws://localhost:' + port
+          , { transports: ['polling'], forceJSONP: true, upgrade: false })
+          , total = 2;
 
         engine.on('connection', function (conn) {
           conn.on('close', function (reason) {
