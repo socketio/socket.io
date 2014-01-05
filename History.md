@@ -1,4 +1,10 @@
 
+0.8.0 / 2014-01-05
+==================
+
+ * package: bump `engine.io-client` to `0.8.0`
+ * test: fix syntax, remove globals
+
 0.7.14 / 2014-01-01
 ===================
 
