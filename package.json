@@ -21,11 +21,11 @@
     "base64id": "0.1.0"
   },
   "devDependencies": {
-    "mocha": "*",
-    "expect.js": "*",
-    "superagent": "*",
+    "mocha": "1.12.0",
+    "expect.js": "0.2.0",
+    "superagent": "0.15.4",
     "engine.io-client": "0.8.0",
-    "s": "*"
+    "s": "0.1.1"
   },
   "scripts": { "test" : "make test" },
   "repository": {
