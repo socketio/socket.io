@@ -6,9 +6,14 @@
 var express = require('express')
   , app = express()
   , server = require('http').createServer(app)
+  , enchilada = require('enchilada')
   , io = require('engine.io').attach(server);
 
-app.use(express.static('build'));
+app.use(enchilada({
+  src: __dirname + '/public',
+  debug: true
+}));
+app.use(express.static(__dirname + '/public'));
 app.get('/', function(req, res, next){
   res.sendfile('index.html');
 });

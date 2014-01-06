@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "dependencies": {
     "express": "3.3.5",
-    "engine.io": "0.7.0"
+    "enchilada": "0.7.1",
+    "engine.io": "0.8.0",
+    "engine.io-client": "0.8.0",
+    "smoothie": "1.19.0"
   }
 }
