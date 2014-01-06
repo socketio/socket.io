@@ -5,7 +5,7 @@
 
 var SmoothieChart = require("smoothie").SmoothieChart
   , TimeSeries = require("smoothie").TimeSeries
-  , eio = require("engine.io");
+  , eio = require("engine.io-client");
 
 
 // helper
