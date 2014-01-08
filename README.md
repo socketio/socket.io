@@ -56,10 +56,7 @@ socket.onopen = function(){
 - Lightweight
   - Lazyloads Flash transport
 - Isomorphic with WebSocket API
-- Written for node, runs on browser thanks to
-  [browserbuild](http://github.com/learnboost/browserbuild)
-  - Maximizes code readability / maintenance.
-  - Simplifies testing.
+- Runs on browser and node.js seamlessly
 - Transports are independent of `Engine`
   - Easy to debug
   - Easy to unit test
