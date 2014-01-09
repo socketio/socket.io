@@ -21,7 +21,8 @@
   "devDependencies": {
     "mocha": "*",
     "expect.js": "*",
-    "supertest": "*"
+    "supertest": "*",
+    "istanbul": "0.2.3"
   },
   "contributors": [
     {
