@@ -20,6 +20,8 @@ function client(srv, nsp, opts){
 describe('socket.io', function(){
   describe('server attachment', function(){
     describe('http.Server', function(){
+      var clientVersion = require('socket.io-client/package').version;
+
       it('should serve static files', function(done){
         var srv = http();
         io(srv);
@@ -30,8 +32,22 @@ describe('socket.io', function(){
           if (err) return done(err);
           var ctype = res.headers['content-type'];
           expect(ctype).to.be('application/javascript');
+          expect(res.headers.etag).to.be(clientVersion);
           expect(res.text).to.match(/engine\.io/);
           expect(res.status).to.be(200);
+          done();
+        });
+      });
+
+      it('should handle 304', function(done){
+        var srv = http();
+        io(srv);
+        request(srv)
+        .get('/socket.io/socket.io.js')
+        .set('ETag', clientVersion)
+        .end(function(err, res){
+          if (err) return done(err);
+          expect(res.statusCode).to.be(304);
           done();
         });
       });
