@@ -14,7 +14,7 @@ describe('Socket', function () {
 
   describe('socketClosing', function(){
     it('should not emit close on incorrect connection', function (done) {
-      var socket = new eio.Socket('ws://localhost:8080');
+      var socket = new eio.Socket('ws://0.0.0.0:8080');
       var closed = false;
 
       socket.once('error', function(){

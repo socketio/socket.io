@@ -3,10 +3,11 @@ server: ./test/support/server.js
 browsers:
   - name: chrome
     version: 29..latest
-    platform: "Mac 10.9"
   - name: firefox
     version: latest
   - name: safari
     version: latest
   - name: ie
     version: 6..latest
+  - name: iphone
+    version: oldest..latest
