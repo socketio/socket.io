@@ -5,3 +5,8 @@ node_js:
 
 notifications:
   irc: "irc.freenode.org#socket.io"
+
+env:
+  global:
+  - secure: wn0UtEtmR0+5ecvr8mXaLJey5XZ4a3j2f5EDoBW0ItALKixqRR6wCrdplwp9MMEDGuer11byIy2YJ+HRazgpcdf+3IuHmSvLb5IItbAaEwcjskawarGcYQO8Gy6GffkbYLFsjEhlkFk9+yXPJuws9msY2+9Y0IymgY8rT9O4D98=
+  - secure: f5EAsqnJNW//oUgShxSGcDQsz6NUbwfkZCKoPymTamjyK69N5/Q70MQ5UrF3gih3ZiwWDK7Cd6T394vU+Jdrf+LdOdzgef3sz8YJbF3HiOOLp5tYuFVOtOMCBkefdJ/JkqFvrBQUgo3klSD6jUz2SdRlwi33iYlYO8mleO8IxRo=
