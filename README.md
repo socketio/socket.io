@@ -155,11 +155,6 @@ The transport class. Private. _Inherits from EventEmitter_.
 - `pollComplete`: emitted by polling transports upon completing a request
 - `drain`: emitted by polling transports upon a buffer drain
 
-## Reconnecting
-
-A `Socket` instance can be reused. After closing (either by calling
-`Socket#close()` or network close), you can summon `open` again.
-
 ## Flash transport
 
 In order for the Flash transport to work correctly, ensure the `flashPath`
