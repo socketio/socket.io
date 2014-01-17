@@ -9,26 +9,42 @@ communication layer for [Socket.IO](http://github.com/learnboost/socket.io).
 
 ## Hello World
 
-### With component
+### With browserify
 
-Engine.IO is a [component](http://github.com/component/component), which
-means you can include it by using `require` on the browser:
+Engine.IO is a commonjs module, which means you can include it by using
+`require` on the browser and package using [browserify](http://browserify.org/):
 
+1. install the client package
+``` shell
+npm install engine.io-client
+```
+
+1. write your app code
 ```js
-var socket = require('engine.io')('ws://localhost');
+var socket = require('engine.io-client')('ws://localhost');
 socket.onopen = function(){
-  socket.onmessage = function(data){};
-  socket.onclose = function(){};
+    socket.onmessage = function(data){};
+    socket.onclose = function(){};
 };
+```
+
+1. build your app bundle
+```
+browserify app.js > bundle.js
+```
+
+1. include on your page
+```html
+<script src="/path/to/bundle.js"></script>
 ```
 
 ### Standalone
 
-If you decide not to use component you can find a `engine.io.js` file in
+If you decide not to use browserify (or similar tool) you can find an `engine.io.js` file in
 this repository, which is a standalone build you can use as follows:
 
 ```html
-<script src="/path/to/build.js"></script>
+<script src="/path/to/engine.io.js"></script>
 <script>
   // eio = Socket
   var socket = eio('ws://localhost');
@@ -56,18 +72,13 @@ socket.onopen = function(){
 - Lightweight
   - Lazyloads Flash transport
 - Isomorphic with WebSocket API
-- Written for node, runs on browser thanks to
-  [browserbuild](http://github.com/learnboost/browserbuild)
-  - Maximizes code readability / maintenance.
-  - Simplifies testing.
+- Runs on browser and node.js seamlessly
 - Transports are independent of `Engine`
   - Easy to debug
   - Easy to unit test
 - Runs inside HTML5 WebWorker
 
 ## API
-
-<hr><br>
 
 ### Socket
 
@@ -164,8 +175,16 @@ These files can be found here
 [engine](http://github.com/learnboost/engine.io). Running the `engine.io`
 test suite ensures the client works and vice-versa.
 
+Browser tests are run using [zuul](https://github.com/defunctzombie/zuul). You can
+run the tests locally using the following command.
+
+```
+./node_modules/.bin/zuul --local 8080 -- test/index.js
+```
+
 Additionally, `engine.io-client` has a standalone test suite you can run
-with `make test` or in the browser with `make test-browser`.
+with `make test` which will run node.js and browser tests. You must have zuul setup with
+a saucelabs account.
 
 ## Support
 
@@ -189,6 +208,8 @@ Then:
 cd engine.io-client
 npm install
 ```
+
+See the `Tests` section above for how to run tests before submitting any patches.
 
 ## License
 
