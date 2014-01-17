@@ -1,4 +1,14 @@
 
+0.8.1 / 2014-01-17
+==================
+
+ * package: bump debug to fix `localStorage` issue (fixes #213)
+ * remove duplicate xmlhttprequest code
+ * add iphone automated testing
+ * bump zuul to 1.3.0 to improve tests performance
+ * use invalid ip address for incorrect connection test
+ * Fix GH-224, remove sockets array
+
 0.8.0 / 2014-01-05
 ==================
 

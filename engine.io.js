@@ -140,9 +140,6 @@ function Socket(uri, opts){
   this.callbackBuffer = [];
   this.policyPort = opts.policyPort || 843;
   this.open();
-
-  Socket.sockets.push(this);
-  Socket.sockets.evs.emit('add', this);
 }
 
 /**
@@ -158,13 +155,6 @@ Emitter(Socket.prototype);
  */
 
 Socket.protocol = parser.protocol; // this is an int
-
-/**
- * Static EventEmitter.
- */
-
-Socket.sockets = [];
-Socket.sockets.evs = new Emitter;
 
 /**
  * Expose deps for legacy compatibility
@@ -1069,11 +1059,11 @@ function load (arr, fn) {
  * Module dependencies
  */
 
-var XHR = require('./polling-xhr')
+var XMLHttpRequest = require('xmlhttprequest')
+  , XHR = require('./polling-xhr')
   , JSONP = require('./polling-jsonp')
   , websocket = require('./websocket')
   , flashsocket = require('./flashsocket')
-  , util = require('../util');
 
 /**
  * Export transports.
@@ -1112,7 +1102,8 @@ function polling (opts) {
     xd = opts.hostname != location.hostname || port != opts.port;
   }
 
-  xhr = util.request(xd, opts);
+  opts.xdomain = xd;
+  xhr = new XMLHttpRequest(opts);
 
   if (xhr && !opts.forceJSONP) {
     return new XHR(opts);
@@ -1121,7 +1112,7 @@ function polling (opts) {
   }
 };
 
-},{"../util":12,"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"global":19}],8:[function(require,module,exports){
+},{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"global":19,"xmlhttprequest":13}],8:[function(require,module,exports){
 
 /**
  * Module requirements.
@@ -1360,7 +1351,8 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
  * Module requirements.
  */
 
-var Polling = require('./polling')
+var XMLHttpRequest = require('xmlhttprequest')
+  , Polling = require('./polling')
   , util = require('../util')
   , Emitter = require('../emitter')
   , debug = require('debug')('engine.io-client:polling-xhr');
@@ -1515,7 +1507,7 @@ Emitter(Request.prototype);
  */
 
 Request.prototype.create = function(){
-  var xhr = this.xhr = util.request(this.xd, { agent: this.agent });
+  var xhr = this.xhr = new XMLHttpRequest({ agent: this.agent, xdomain: this.xd });
   var self = this;
 
   try {
@@ -1650,7 +1642,7 @@ if (xobject) {
   });
 }
 
-},{"../emitter":2,"../util":12,"./polling":10,"debug":14,"global":19}],10:[function(require,module,exports){
+},{"../emitter":2,"../util":12,"./polling":10,"debug":14,"global":19,"xmlhttprequest":13}],10:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -2267,37 +2259,6 @@ exports.ua.ios6 = exports.ua.ios && /OS 6_/.test(navigator.userAgent);
 exports.ua.chromeframe = Boolean(global.externalHost);
 
 /**
- * XHR request helper.
- *
- * @param {Boolean} whether we need xdomain
- * @param {Object} opts Optional "options" object
- * @api private
- */
-
-exports.request = function request (xdomain, opts) {
-  opts = opts || {};
-  opts.xdomain = xdomain;
-
-  try {
-    var _XMLHttpRequest = require('xmlhttprequest');
-    return new _XMLHttpRequest(opts);
-  } catch (e) {}
-
-  // XMLHttpRequest can be disabled on IE
-  try {
-    if ('undefined' != typeof XMLHttpRequest && (!xdomain || exports.ua.hasCORS)) {
-      return new XMLHttpRequest();
-    }
-  } catch (e) { }
-
-  if (!xdomain) {
-    try {
-      return new ActiveXObject('Microsoft.XMLHTTP');
-    } catch(e) { }
-  }
-};
-
-/**
  * Parses an URI
  *
  * @author Steven Levithan <stevenlevithan.com> (MIT license)
@@ -2360,7 +2321,7 @@ exports.qsParse = function(qs){
   return qry;
 };
 
-},{"global":19,"has-cors":20,"xmlhttprequest":13}],13:[function(require,module,exports){
+},{"global":19,"has-cors":20}],13:[function(require,module,exports){
 // browser shim for xmlhttprequest module
 var hasCORS = require('has-cors');
 
