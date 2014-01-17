@@ -1,4 +1,12 @@
 
+0.8.1 / 2014-01-17
+==================
+
+ * package: bump `engine.io-client`
+ * package: pin dev deps
+ * examples: fix port output
+ * fix latency example
+
 0.8.0 / 2014-01-05
 ==================
 
