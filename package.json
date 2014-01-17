@@ -28,5 +28,9 @@
     { "name": "Arnout Kazemier", "email": "info@3rd-eden.com" },
     { "name": "Vladimir Dronnikov", "email": "dronnikov@gmail.com" },
     { "name": "Einar Otto Stangvik", "email": "einaros@gmail.com" }
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LearnBoost/socket.io-client.git"
+  }
 }
