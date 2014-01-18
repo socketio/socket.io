@@ -15,11 +15,14 @@ describe('connection', function() {
     });
   });
 
-  it('should work in a worker', function(done){
-    var worker = new Worker('/test/support/worker.js');
-    worker.onmessage = function(e){
-      expect(e.data);
-      done();
-    };
-  });
+  // no `Worker` on old IE
+  if (global.Worker) {
+    it('should work in a worker', function(done){
+      var worker = new Worker('/test/support/worker.js');
+      worker.onmessage = function(e){
+        expect(e.data);
+        done();
+      };
+    });
+  }
 });
