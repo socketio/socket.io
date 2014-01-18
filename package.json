@@ -37,7 +37,8 @@
     "expect.js": "0.2.0",
     "istanbul": "0.2.3",
     "browserify": "2.35.1",
-    "engine.io": "0.8.1"
+    "engine.io": "0.8.1",
+    "express": "3.4.8"
   },
   "scripts": {
     "test": "make test"
