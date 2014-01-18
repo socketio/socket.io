@@ -1,4 +1,12 @@
 
+0.8.2 / 2014-01-18
+==================
+
+ * polling-xhr: avoid catching user-thrown errors
+ * util: remove unused `hasCORS`
+ * polling: remove deferring for faster startup (fixes #174)
+ * engine now works perfectly on workers
+
 0.8.1 / 2014-01-17
 ==================
 
