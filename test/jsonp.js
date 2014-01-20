@@ -115,6 +115,27 @@ describe('JSONP', function () {
         });
       });
     }); 
+
+    it('should arrive from server to client and back with binary data (pollingJSONP)', function(done) {
+      var binaryData = new Buffer(5);
+      for (var i = 0; i < 5; i++) binaryData[i] = i;
+      var engine = listen( { allowUpgrades: false, transports: ['polling'] }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:' + port, { transports: ['polling'], forceJSONP: true, upgrade: false});
+        engine.on('connection', function (conn) {
+          conn.on('message', function (msg) {
+            conn.send(msg);
+          });
+        });
+
+        socket.on('open', function() {
+          socket.send(binaryData);
+          socket.on('message', function (msg) {
+            for (var i = 0; i < msg.length; i++) expect(msg[i]).to.be(i);
+            done();
+          });
+        });
+      });
+    });
   });
   
   describe('close', function () {
