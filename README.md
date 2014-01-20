@@ -120,6 +120,30 @@ These are exposed by `require('engine.io')`:
 
 ##### Methods
 
+- `()`
+    - Returns a new `Server` instance. If the first argument is an `http.Server` then the
+      new `Server` instance will be attached to it. Otherwise, the arguments are passed
+      directly to the `Server` constructor.
+    - **Parameters**
+      - `http.Server`: optional, server to attach to.
+      - `Object`: optional, options object (see `Server#constructor` api docs below)
+
+  The following are identical ways to instantiate a server and then attach it.
+  ```js
+  var httpServer; // previously created with `http.createServer();` from node.js api.
+
+  // create a server first, and then attach
+  var eioServer = require('engine.io').Server();
+  eioServer.attach(httpServer);
+
+  // or call the module as a function to get `Server`
+  var eioServer = require('engine.io')();
+  eioServer.attach(httpServer);
+
+  // immediately attach
+  var eioServer = require('engine.io')(http_server);
+  ```
+
 - `listen`
     - Creates an `http.Server` which listens on the given port and attaches WS
       to it. It returns `501 Not Implemented` for regular http requests.
