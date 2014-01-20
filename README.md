@@ -134,11 +134,9 @@ These are exposed by `require('engine.io')`:
       - `http.Server`: server to attach to.
       - `Object`: optional, options object
     - **Options**
-      - `path` (`String`): name of the path to capture (`/engine.io`).
-      - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
-      - `destroyUpgradeTimeout` (`Number`): milliseconds after which unhandled requests are ended (`1000`)
-      - **See Server options below for additional options you can pass**
-    - **Returns** `Server`
+      - All options from `Server.attach` method, documented below.
+      - **Additionally** See Server `constructor` below for options you can pass for creating the new Server
+    - **Returns** `Server` a new Server instance.
 
 <hr><br>
 
@@ -205,6 +203,17 @@ to a single process.
       - `net.Stream`: TCP socket for the request
       - `Buffer`: legacy tail bytes
     - **Returns** `Server` for chaining
+- `attach`
+    - Attach this Server instance to an `http.Server`
+    - Captures `upgrade` requests for a `http.Server`. In other words, makes
+      a regular http.Server WebSocket-compatible.
+    - **Parameters**
+      - `http.Server`: server to attach to.
+      - `Object`: optional, options object
+    - **Options**
+      - `path` (`String`): name of the path to capture (`/engine.io`).
+      - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
+      - `destroyUpgradeTimeout` (`Number`): milliseconds after which unhandled requests are ended (`1000`)
 
 <hr><br>
 
