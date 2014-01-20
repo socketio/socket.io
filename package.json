@@ -17,5 +17,6 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:LearnBoost/engine.io-protocol.git"
-  }
+  },
+  "browser": "./lib/browser.js"
 }
