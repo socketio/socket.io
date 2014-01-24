@@ -78,6 +78,11 @@ socket.onopen = function(){
   - Easy to debug
   - Easy to unit test
 - Runs inside HTML5 WebWorker
+- Can send and receive binary data
+  - Receives in ArrayBuffer or Blob when in browser, and Buffer or ArrayBuffer
+    in Node
+  - With browsers that don't support ArrayBuffer, an object { base64: true,
+    data: dataAsBase64String } is emitted in onmessage
 
 ## API
 
@@ -95,6 +100,9 @@ Exposed as `eio` in the browser standalone build.
   - `message` event handler
 - `onclose` (_Function_)
   - `message` event handler
+- `binaryType` _(String)_ : can be set to 'arraybuffer' or 'blob' in browsers,
+  and `buffer` or `arraybuffer` in Node. Blob is only used in browser if it's
+  supported.
 
 #### Events
 
@@ -103,7 +111,8 @@ Exposed as `eio` in the browser standalone build.
 - `message`
   - Fired when data is received from the server.
   - **Arguments**
-    - `String`: utf-8 encoded data
+    - `String` | `ArrayBuffer`: utf-8 encoded data or ArrayBuffer containing
+      binary data
 - `close`
   - Fired upon disconnection.
 - `error`
@@ -141,7 +150,7 @@ Exposed as `eio` in the browser standalone build.
 - `send`
     - Sends a message to the server
     - **Parameters**
-      - `String`: data to send
+      - `String` | `ArrayBuffer` | `ArrayBufferView`: data to send
       - `Function`: optional, callback upon `drain`
 - `close`
     - Disconnects the client.

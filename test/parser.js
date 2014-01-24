@@ -15,7 +15,7 @@ var parser = eio.parser
 var encode = parser.encodePacket
   , decode = parser.decodePacket
   , encPayload = parser.encodePayload
-  , decPayload = parser.decodePayload
+  , decPayload = parser.decodePayload;
 
 /**
  * Tests.
@@ -182,5 +182,4 @@ describe('parser', function () {
       });
     });
   });
-
 });

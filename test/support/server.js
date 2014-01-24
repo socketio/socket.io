@@ -12,4 +12,9 @@ app.use('/test/support', express.static(join(__dirname, 'public')));
 
 server.on('connection', function(socket){
   socket.send('hi');
+
+  // Bounce any received messages back
+  socket.on('message', function (data) {
+    socket.send(data);
+  });
 });

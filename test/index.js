@@ -16,4 +16,5 @@ require('./transport');
 // browser only tests
 if (env.browser) {
   require('./connection');
+  require('./browser-only-parser');
 }
