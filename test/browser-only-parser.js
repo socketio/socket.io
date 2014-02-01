@@ -12,12 +12,12 @@ var parser = eio.parser
  * Shortcuts
  */
 
-var encode = parser.encodePacket
-  , decode = parser.decodePacket
-  , encPayload = parser.encodePayload
-  , decPayload = parser.decodePayload
-  , encPayloadB = parser.encodePayloadAsBinary
-  , decPayloadB = parser.decodePayloadAsBinary
+var encode = parser.encodePacket;
+var decode = parser.decodePacket;
+var encPayload = parser.encodePayload;
+var decPayload = parser.decodePayload;
+var encPayloadB = parser.encodePayloadAsBinary;
+var decPayloadB = parser.decodePayloadAsBinary;
 
 /**
  * Tests.

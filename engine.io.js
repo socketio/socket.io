@@ -1509,7 +1509,7 @@ Emitter(Request.prototype);
 
 Request.prototype.create = function(isBinary, supportsBinary){
   var xhr = this.xhr = new XMLHttpRequest({ agent: this.agent, xdomain: this.xd });
-  if (supportsBinary) xhr.responseType = 'arraybuffer';
+  if (supportsBinary) { xhr.responseType = 'arraybuffer'; }
   var self = this;
 
   try {
@@ -1538,8 +1538,8 @@ Request.prototype.create = function(isBinary, supportsBinary){
           if (contentType === 'application/octet-stream') {
             data = xhr.response;
           } else {
-            if (!supportsBinary) data = xhr.responseText;
-            else data = 'ok';
+            if (!supportsBinary) { data = xhr.responseText; }
+            else { data = 'ok'; }
           }
         } else {
           // make sure the `error` event handler that's user-set
@@ -1678,6 +1678,13 @@ module.exports = Polling;
 var global = require('global');
 
 /**
+ * Is XHR2 supported?
+ */
+
+var xhr2 = global.XMLHttpRequest !== undefined
+  && (new XMLHttpRequest()).responseType !== undefined;
+
+/**
  * Polling interface.
  *
  * @param {Object} opts
@@ -1686,7 +1693,7 @@ var global = require('global');
 
 function Polling(opts){
   var forceBase64 = (opts && opts.forceBase64);
-  if (!util.bs.xhr2 || forceBase64) this.supportsBinary = false;
+  if (!xhr2 || forceBase64) this.supportsBinary = false;
   Transport.call(this, opts);
 }
 
@@ -1967,8 +1974,8 @@ WS.prototype.doOpen = function(){
   var protocols = void(0);
   var opts = { agent: this.agent };
 
-  this.webSocket = new WebSocket(uri, protocols, opts);
-  this.webSocket.binaryType = 'arraybuffer';
+  this.ws = new WebSocket(uri, protocols, opts);
+  this.ws.binaryType = 'arraybuffer';
   this.addEventListeners();
 };
 
@@ -1981,16 +1988,16 @@ WS.prototype.doOpen = function(){
 WS.prototype.addEventListeners = function(){
   var self = this;
 
-  this.webSocket.onopen = function(){
+  this.ws.onopen = function(){
     self.onOpen();
   };
-  this.webSocket.onclose = function(){
+  this.ws.onclose = function(){
     self.onClose();
   };
-  this.webSocket.onmessage = function(ev){
+  this.ws.onmessage = function(ev){
     self.onData(ev.data);
   };
-  this.webSocket.onerror = function(e){
+  this.ws.onerror = function(e){
     self.onError('websocket error', e);
   };
 };
@@ -2025,7 +2032,7 @@ WS.prototype.write = function(packets){
   // encodePacket efficient as it uses WS framing
   // no need for encodePayload
   for (var i = 0, l = packets.length; i < l; i++) {
-    this.webSocket.send(parser.encodePacket(packets[i]));
+    this.ws.send(parser.encodePacket(packets[i]));
   }
   function ondrain() {
     self.writable = true;
@@ -2053,8 +2060,8 @@ WS.prototype.onClose = function(){
  */
 
 WS.prototype.doClose = function(){
-  if (typeof this.webSocket !== 'undefined') {
-    this.webSocket.close();
+  if (typeof this.ws !== 'undefined') {
+    this.ws.close();
   }
 };
 
@@ -2259,32 +2266,6 @@ exports.ua.ios6 = exports.ua.ios && /OS 6_/.test(navigator.userAgent);
  */
 
 exports.ua.chromeframe = Boolean(global.externalHost);
-
-/**
- * Binary support detection namespace.
- *
- * @namespace
- */
-
-exports.bs = {};
-
-/** 
- * Detect ArrayBuffer
- */
-
-exports.bs.arraybuffer = global.ArrayBuffer !== undefined;
-
-/**
- * Detect Blob
- */
-
-exports.bs.blob = global.Blob !== undefined;
-
-/**
- * Detect XHR 2
- */
-
-exports.bs.xhr2 = global.XMLHttpRequest !== undefined && (new XMLHttpRequest()).responseType !== undefined;
 
 /**
  * Parses an URI
