@@ -96,8 +96,11 @@ socket.onopen = function(){
   - Easy to unit test
 - Runs inside HTML5 WebWorker
 - Can send and receive binary data
-  - Receives in ArrayBuffer or Blob when in browser, and Buffer or ArrayBuffer
+  - Receives as ArrayBuffer or Blob when in browser, and Buffer or ArrayBuffer
     in Node
+  - When XHR2 or WebSockets are used, binary is emitted directly. Otherwise
+    binary is encoded into base64 strings, and decoded when binary types are
+    supported.
   - With browsers that don't support ArrayBuffer, an object { base64: true,
     data: dataAsBase64String } is emitted in onmessage
 
@@ -153,6 +156,7 @@ Exposed as `eio` in the browser standalone build.
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
       to upgrade the transport from long-polling to something better.
       - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
+      - `forceBase64` (`Boolean`): forces base 64 encoding for polling transport even when XHR2 responseType is available.
       - `timestampRequests` (`Boolean`): whether to add the timestamp with
         each transport request. Note: this is ignored if the browser is
         IE or Android, in which case requests are always stamped (`false`)

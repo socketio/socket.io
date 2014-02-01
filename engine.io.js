@@ -652,7 +652,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   return filteredUpgrades;
 };
 
-},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"debug":14,"engine.io-parser":16,"global":18,"indexof":20}],5:[function(require,module,exports){
+},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"debug":14,"engine.io-parser":16,"global":20,"indexof":22}],5:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -1066,7 +1066,7 @@ function load(arr, fn){
   process(0);
 }
 
-},{"../util":12,"./websocket":11,"debug":14,"global":18}],7:[function(require,module,exports){
+},{"../util":12,"./websocket":11,"debug":14,"global":20}],7:[function(require,module,exports){
 
 /**
  * Module dependencies
@@ -1125,7 +1125,7 @@ function polling (opts) {
   }
 };
 
-},{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"global":18,"xmlhttprequest":13}],8:[function(require,module,exports){
+},{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"global":20,"xmlhttprequest":13}],8:[function(require,module,exports){
 
 /**
  * Module requirements.
@@ -1352,7 +1352,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   }
 };
 
-},{"../util":12,"./polling":10,"global":18}],9:[function(require,module,exports){
+},{"../util":12,"./polling":10,"global":20}],9:[function(require,module,exports){
 /**
  * Module requirements.
  */
@@ -1655,7 +1655,7 @@ if (xobject) {
   });
 }
 
-},{"../emitter":2,"../util":12,"./polling":10,"debug":14,"global":18,"xmlhttprequest":13}],10:[function(require,module,exports){
+},{"../emitter":2,"../util":12,"./polling":10,"debug":14,"global":20,"xmlhttprequest":13}],10:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -1903,7 +1903,7 @@ Polling.prototype.uri = function(){
   return schema + '://' + this.hostname + port + this.path + query;
 };
 
-},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":18}],11:[function(require,module,exports){
+},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":20}],11:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -2108,7 +2108,7 @@ WS.prototype.check = function(){
   return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 };
 
-},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":18,"ws":21}],12:[function(require,module,exports){
+},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":20,"ws":23}],12:[function(require,module,exports){
 
 var global = require('global');
 
@@ -2330,7 +2330,7 @@ exports.qsParse = function(qs){
   return qry;
 };
 
-},{"global":18}],13:[function(require,module,exports){
+},{"global":20}],13:[function(require,module,exports){
 // browser shim for xmlhttprequest module
 var hasCORS = require('has-cors');
 
@@ -2351,7 +2351,7 @@ module.exports = function(opts) {
   }
 }
 
-},{"has-cors":19}],14:[function(require,module,exports){
+},{"has-cors":21}],14:[function(require,module,exports){
 
 /**
  * Expose `debug()` as the module.
@@ -2654,12 +2654,14 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{"indexof":20}],16:[function(require,module,exports){
+},{"indexof":22}],16:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Module dependencies.
  */
 
 var keys = require('./keys');
+var base64encoder = require('base64-arraybuffer');
+require('arraybuffer-slice');
 
 /**
  * A utility for doing slicing, even when ArrayBuffer.prototype.slice doesn't
@@ -2668,16 +2670,16 @@ var keys = require('./keys');
  * @api private
  */
 
-function sliceBuffer(arraybuffer, start, end) {
-  if (arraybuffer.slice !== undefined) return arraybuffer.slice(start, end);
-  if (end === undefined) end = this.arraybuffer.byteLength;
-  if (start === undefined) start = 0;
-
-  var abView = new Uin8Array(ab);
-  var newView = new Uint8Array(end - start);
-  for (var i = start, ii = 0; i < end; i++, ii++) newView[ii] = abView[i];
-  return newView.buffer;
-};
+//function sliceBuffer(arraybuffer, start, end) {
+//  if (arraybuffer.slice !== undefined) return arraybuffer.slice(start, end);
+//  if (end === undefined) end = this.arraybuffer.byteLength;
+//  if (start === undefined) start = 0;
+//
+//  var abView = new Uin8Array(ab);
+//  var newView = new Uint8Array(end - start);
+//  for (var i = start, ii = 0; i < end; i++, ii++) newView[ii] = abView[i];
+//  return newView.buffer;
+//};
 
 /**
  * Current protocol version.
@@ -2705,61 +2707,6 @@ var packetslist = keys(packets);
  */
 
 var err = { type: 'error', data: 'parser error' };
-
-/**
- * Converting base64 to arraybuffer helper
- *
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Base64_encoding_and_decoding
- *
- * @api private
- */
-
-function b64ToUint6 (nChr) {
-
-  return nChr > 64 && nChr < 91 ?
-      nChr - 65
-    : nChr > 96 && nChr < 123 ?
-      nChr - 71
-    : nChr > 47 && nChr < 58 ?
-      nChr + 4
-    : nChr === 43 ?
-      62
-    : nChr === 47 ?
-      63
-    :
-      0;
-
-}
-
-/**
- * Converting base64 to arraybuffer
- *
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Base64_encoding_and_decoding
- *
- * @api private
- */
-function base64DecToArr (sBase64, nBlocksSize) {
-
-  var
-    sB64Enc = sBase64.replace(/[^A-Za-z0-9\+\/]/g, ""), nInLen = sB64Enc.length,
-    nOutLen = nBlocksSize 
-      ? Math.ceil((nInLen * 3 + 1 >> 2) / nBlocksSize) * nBlocksSize 
-      : nInLen * 3 + 1 >> 2, taBytes = new Uint8Array(nOutLen);
-
-  for (var nMod3, nMod4, nUint24 = 0, nOutIdx = 0, nInIdx = 0; nInIdx < nInLen; nInIdx++) {
-    nMod4 = nInIdx & 3;
-    nUint24 |= b64ToUint6(sB64Enc.charCodeAt(nInIdx)) << 18 - 6 * nMod4;
-    if (nMod4 === 3 || nInLen - nInIdx === 1) {
-      for (nMod3 = 0; nMod3 < 3 && nOutIdx < nOutLen; nMod3++, nOutIdx++) {
-        taBytes[nOutIdx] = nUint24 >>> (16 >>> nMod3 & 24) & 255;
-      }
-      nUint24 = 0;
-
-    }
-  }
-
-  return taBytes;
-}
 
 /**
  * Encodes a packet.
@@ -2842,7 +2789,7 @@ exports.decodePacket = function (data, binaryType) {
   
   var asArray = new Uint8Array(data);
   var type = asArray[0];
-  var rest = sliceBuffer(data, 1);
+  var rest = data.slice(1);
   if (global.Blob && Blob.prototype.slice && binaryType === 'blob') {
     rest = new Blob([rest]);
   }
@@ -2860,7 +2807,7 @@ exports.decodeBase64Packet = function(msg, binaryType) {
   var type = packetslist[msg.charAt(0)];
   var data = (!global.ArrayBuffer)
     ? { base64: true, data: msg.substr(1) }
-    : base64DecToArr(msg.substr(1)).buffer;
+    : base64encoder.decode(msg.substr(1));
 
   if (binaryType === 'blob') data = new Blob([data]);
   return { type: type, data: data };
@@ -3061,13 +3008,13 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
       if (tailArray[i] == 255) break;
       msgLength += tailArray[i];
     }
-    bufferTail = sliceBuffer(bufferTail, 2 + msgLength.length);
+    bufferTail = bufferTail.slice(2 + msgLength.length);
     msgLength = parseInt(msgLength);
 
-    var msg = sliceBuffer(bufferTail, 0, msgLength);
+    var msg = bufferTail.slice(0, msgLength);
     if (isString) msg = String.fromCharCode.apply(null, new Uint8Array(msg));
     buffers.push(msg);
-    bufferTail = sliceBuffer(bufferTail, msgLength);
+    bufferTail = bufferTail.slice(msgLength);
   }
 
   var total = buffers.length;
@@ -3076,7 +3023,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
   });
 };
 
-},{"./keys":17}],17:[function(require,module,exports){
+},{"./keys":17,"arraybuffer-slice":18,"base64-arraybuffer":19}],17:[function(require,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -3098,6 +3045,95 @@ module.exports = Object.keys || function keys (obj){
 };
 
 },{}],18:[function(require,module,exports){
+// https://github.com/ttaubert/node-arraybuffer-slice
+// (c) 2013 Tim Taubert <tim@timtaubert.de>
+// arraybuffer-slice may be freely distributed under the MIT license.
+
+"use strict";
+
+if (!ArrayBuffer.prototype.slice) {
+  ArrayBuffer.prototype.slice = function (begin, end) {
+    begin = (begin|0) || 0;
+    var num = this.byteLength;
+    end = end === (void 0) ? num : (end|0);
+
+    // Handle negative values.
+    if (begin < 0) begin += num;
+    if (end < 0) end += num;
+
+    if (num === 0 || begin >= num || begin >= end) {
+      return new ArrayBuffer(0);
+    }
+
+    var length = Math.min(num - begin, end - begin);
+    var target = new ArrayBuffer(length);
+    var targetArray = new Uint8Array(target);
+    targetArray.set(new Uint8Array(this, begin, length));
+    return target;
+  };
+}
+
+},{}],19:[function(require,module,exports){
+/*
+ * base64-arraybuffer
+ * https://github.com/niklasvh/base64-arraybuffer
+ *
+ * Copyright (c) 2012 Niklas von Hertzen
+ * Licensed under the MIT license.
+ */
+(function(chars){
+  "use strict";
+
+  exports.encode = function(arraybuffer) {
+    var bytes = new Uint8Array(arraybuffer),
+    i, len = bytes.buffer.byteLength, base64 = "";
+
+    for (i = 0; i < len; i+=3) {
+      base64 += chars[bytes.buffer[i] >> 2];
+      base64 += chars[((bytes.buffer[i] & 3) << 4) | (bytes.buffer[i + 1] >> 4)];
+      base64 += chars[((bytes.buffer[i + 1] & 15) << 2) | (bytes.buffer[i + 2] >> 6)];
+      base64 += chars[bytes.buffer[i + 2] & 63];
+    }
+
+    if ((len % 3) === 2) {
+      base64 = base64.substring(0, base64.length - 1) + "=";
+    } else if (len % 3 === 1) {
+      base64 = base64.substring(0, base64.length - 2) + "==";
+    }
+
+    return base64;
+  };
+
+  exports.decode =  function(base64) {
+    var bufferLength = base64.length * 0.75,
+    len = base64.length, i, p = 0,
+    encoded1, encoded2, encoded3, encoded4;
+
+    if (base64[base64.length - 1] === "=") {
+      bufferLength--;
+      if (base64[base64.length - 2] === "=") {
+        bufferLength--;
+      }
+    }
+
+    var arraybuffer = new ArrayBuffer(bufferLength),
+    bytes = new Uint8Array(arraybuffer);
+
+    for (i = 0; i < len; i+=4) {
+      encoded1 = chars.indexOf(base64[i]);
+      encoded2 = chars.indexOf(base64[i+1]);
+      encoded3 = chars.indexOf(base64[i+2]);
+      encoded4 = chars.indexOf(base64[i+3]);
+
+      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+    }
+
+    return arraybuffer;
+  };
+})("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+},{}],20:[function(require,module,exports){
 
 /**
  * Returns `this`. Execute this without a "context" (i.e. without it being
@@ -3107,7 +3143,7 @@ module.exports = Object.keys || function keys (obj){
 
 module.exports = (function () { return this; })();
 
-},{}],19:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -3126,7 +3162,7 @@ var global = require('global');
 module.exports = 'XMLHttpRequest' in global &&
   'withCredentials' in new global.XMLHttpRequest();
 
-},{"global":18}],20:[function(require,module,exports){
+},{"global":20}],22:[function(require,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -3137,7 +3173,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 
 /**
  * Module dependencies.
