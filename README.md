@@ -61,11 +61,25 @@ httpServer.on('request', function (req, res) {
 <script src="/path/to/engine.io.js"></script>
 <script>
   var socket = new eio.Socket('ws://localhost/');
-  // by default binary type is: socket.binaryType = 'arraybuffer'
-  socket.binaryType = 'blob';
   socket.on('open', function () {
-    socket.send(new Int8Array(15));
     socket.on('message', function (data) { });
+    socket.on('close', function () { });
+  });
+</script>
+```
+
+Sending and receiving binary
+
+```html
+<script src="/path/to/engine.io.js"></script>
+<script>
+  var socket = new eio.Socket('ws://localhost/');
+  socket.binaryType = 'blob'; // receives Blob instead of ArrayBuffer (default)
+  socket.on('open', function () {
+    socket.send(new Int8Array(5));
+    socket.on('message', function (data) {
+      // data instanceof Blob => true when receiving binary
+    });
     socket.on('close', function () { });
   });
 </script>
