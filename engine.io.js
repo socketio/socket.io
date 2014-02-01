@@ -1796,11 +1796,7 @@ Polling.prototype.onData = function(data){
   };
 
   // decode payload
-  if (typeof data === 'string') {
-    parser.decodePayload(data, this.socket.binaryType, callback);
-  } else {
-    parser.decodePayloadAsBinary(data, this.socket.binaryType, callback);
-  }
+  parser.decodePayload(data, this.socket.binaryType, callback);
 
   // if an event did not trigger closing
   if ('closed' != this.readyState) {
@@ -1857,11 +1853,7 @@ Polling.prototype.write = function(packets){
     self.emit('drain');
   };
 
-  if (!this.supportsBinary) {
-    this.doWrite(parser.encodePayload(packets), callbackfn);
-  } else {
-    this.doWrite(parser.encodePayloadAsBinary(packets), callbackfn);
-  }
+  this.doWrite(parser.encodePayload(packets, this.supportsBinary), callbackfn);
 };
 
 /**
@@ -2909,7 +2901,9 @@ exports.decodeBase64Packet = function(msg, binaryType) {
  * @api private
  */
 
-exports.encodePayload = function (packets) {
+exports.encodePayload = function (packets, supportsBinary) {
+  if (supportsBinary) { return exports.encodePayloadAsBinary(packets); }
+
   if (!packets.length) {
     return '0:';
   }
@@ -2939,6 +2933,10 @@ exports.encodePayload = function (packets) {
  */
 
 exports.decodePayload = function (data, binaryType, callback) {
+  if (!(typeof data == 'string')) {
+    return exports.decodePayloadAsBinary(data, binaryType, callback);
+  }
+
   if (typeof binaryType === 'function') {
     callback = binaryType;
     binaryType = null;

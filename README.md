@@ -56,6 +56,23 @@ this repository, which is a standalone build you can use as follows:
 </script>
 ```
 
+Sending and receiving binary
+
+```html
+<script src="/path/to/engine.io.js"></script>
+<script>
+  var socket = new eio.Socket('ws://localhost/');
+  socket.binaryType = 'blob'; // receives Blob instead of ArrayBuffer (default)
+  socket.on('open', function () {
+    socket.send(new Int8Array(5));
+    socket.on('message', function (data) {
+      // data instanceof Blob => true when receiving binary
+    });
+    socket.on('close', function () { });
+  });
+</script>
+```
+
 ### Node.JS
 
 Add `engine.io-client` to your `package.json` and then:
