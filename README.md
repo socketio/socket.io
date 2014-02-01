@@ -36,7 +36,7 @@ An Engine.IO url is composed as follows:
     must be set with the JSONP response index.
   - `sid`: if the client has been given a session id, it must be included
     in the querystring.
-  - `b`: if the client doesn't support XHR2, `b=1` is sent in the query string
+  - `b`: if the client doesn't support XHR2, `b64=1` is sent in the query string
     to signal the server that all binary data should be sent base64 encoded.
 
 *FAQ:* Is the `/engine.io` portion modifiable?
