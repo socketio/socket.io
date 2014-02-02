@@ -2671,7 +2671,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
 
 var keys = require('./keys');
 var base64encoder = require('base64-arraybuffer');
-require('arraybuffer-slice');
+var sliceBuffer = require('./slice-buffer');
 
 /**
  * A utility for doing slicing, even when ArrayBuffer.prototype.slice doesn't
@@ -2797,7 +2797,7 @@ exports.decodePacket = function (data, binaryType) {
   
   var asArray = new Uint8Array(data);
   var type = asArray[0];
-  var rest = data.slice(1);
+  var rest = sliceBuffer(data, 1);
   if (global.Blob && Blob.prototype.slice && binaryType === 'blob') {
     rest = new Blob([rest]);
   }
@@ -3016,13 +3016,13 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
       if (tailArray[i] == 255) break;
       msgLength += tailArray[i];
     }
-    bufferTail = bufferTail.slice(2 + msgLength.length);
+    bufferTail = sliceBuffer(bufferTail, 2 + msgLength.length);
     msgLength = parseInt(msgLength);
 
-    var msg = bufferTail.slice(0, msgLength);
+    var msg = sliceBuffer(bufferTail, 0, msgLength);
     if (isString) msg = String.fromCharCode.apply(null, new Uint8Array(msg));
     buffers.push(msg);
-    bufferTail = bufferTail.slice(msgLength);
+    bufferTail = sliceBuffer(bufferTail, msgLength);
   }
 
   var total = buffers.length;
@@ -3031,7 +3031,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
   });
 };
 
-},{"./keys":17,"arraybuffer-slice":18,"base64-arraybuffer":19}],17:[function(require,module,exports){
+},{"./keys":17,"./slice-buffer":18,"base64-arraybuffer":19}],17:[function(require,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -3053,33 +3053,35 @@ module.exports = Object.keys || function keys (obj){
 };
 
 },{}],18:[function(require,module,exports){
-// https://github.com/ttaubert/node-arraybuffer-slice
-// (c) 2013 Tim Taubert <tim@timtaubert.de>
-// arraybuffer-slice may be freely distributed under the MIT license.
+/**
+ * An abstraction for slicing an arraybuffer even when
+ * ArrayBuffer.prototype.slice is not supported
+ *
+ * @api private
+ */
 
-"use strict";
+module.exports = function(arraybuffer, start, end) {
+  var bytes = arraybuffer.byteLength;
+  start = start || 0;
+  end = end || bytes;
 
-if (!ArrayBuffer.prototype.slice) {
-  ArrayBuffer.prototype.slice = function (begin, end) {
-    begin = (begin|0) || 0;
-    var num = this.byteLength;
-    end = end === (void 0) ? num : (end|0);
+  if (arraybuffer.slice) { return arraybuffer.slice(start, end); }
+  
+  if (start < 0) { start += bytes; }
+  if (end < 0) { end += bytes; }
+  if (end > bytes) { end = bytes; }
 
-    // Handle negative values.
-    if (begin < 0) begin += num;
-    if (end < 0) end += num;
+  if (start >= bytes || start >= end || bytes == 0) { 
+    return new ArrayBuffer(0);
+  }
 
-    if (num === 0 || begin >= num || begin >= end) {
-      return new ArrayBuffer(0);
-    }
-
-    var length = Math.min(num - begin, end - begin);
-    var target = new ArrayBuffer(length);
-    var targetArray = new Uint8Array(target);
-    targetArray.set(new Uint8Array(this, begin, length));
-    return target;
-  };
-}
+  var abv = new Uint8Array(arraybuffer);
+  var result = Uint8Array(end - start);
+  for (var i = start, ii = 0; i < end; i++, ii++) {
+    result[ii] = abv[i];
+  }
+  return result.buffer;
+};
 
 },{}],19:[function(require,module,exports){
 /*

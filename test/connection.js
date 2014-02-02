@@ -24,7 +24,7 @@ describe('connection', function() {
       socket.on('message', function (data) {
         if (data === 'hi') return;
 
-        expect(data instanceof ArrayBuffer).to.be(true);
+        expect(data).to.be.an(ArrayBuffer);
         expect(new Int8Array(data)).to.eql(binaryData);
         socket.close();
         done();
@@ -42,7 +42,7 @@ describe('connection', function() {
       socket.on('message', function (data) {
         if (typeof data === 'string') return;
 
-        expect(data instanceof Blob).to.be(true);
+        expect(data).to.be.a(Blob);
         var fr = new FileReader();
         fr.onload = function() {
           var ab = this.result;
@@ -65,7 +65,7 @@ describe('connection', function() {
       socket.on('message', function (data) {
         if (typeof data === 'string') return;
 
-        expect(data instanceof ArrayBuffer).to.be(true);
+        expect(data).to.be.an(ArrayBuffer);
         var ia = new Int8Array(data);
         expect(ia).to.eql(binaryData);
         socket.close();
@@ -74,7 +74,7 @@ describe('connection', function() {
     });
   });
 
-   it('should be able to receive binary data when forcing base64 and not decode it when overriding ArrayBuffer (polling)', function(done) {
+  it('should be able to receive binary data when forcing base64 and not decode it when overriding ArrayBuffer (polling)', function(done) {
     var binaryData = new Int8Array(5);
     for (var i = 0; i < 5; i++) binaryData[i] = i;
     var socket = new eio.Socket({ forceBase64: true });
@@ -108,7 +108,7 @@ describe('connection', function() {
         socket.on('message', function (data) {
           if (typeof data === 'string') return;
 
-          expect(data instanceof ArrayBuffer).to.be(true);
+          expect(data).to.be.an(ArrayBuffer);
           expect(new Int8Array(data)).to.eql(binaryData);
 
           socket.close();
@@ -129,7 +129,7 @@ describe('connection', function() {
         socket.on('message', function (data) {
           if (typeof data === 'string') return;
 
-          expect(data instanceof Blob).to.be(true);
+          expect(data).to.be.a(Blob);
           var fr = new FileReader();
           var ab = fr.readAsArrayBuffer(data);
           var ia = new Int8Array(ab);
@@ -151,7 +151,7 @@ describe('connection', function() {
         socket.on('message', function (data) {
           if (typeof data === 'string') return;
 
-          expect(data instanceof ArrayBuffer).to.be(true);
+          expect(data).to.be.an(ArrayBuffer);
           expect(new Int8Array(data)).to.eql(binaryData);
 
           socket.close();
