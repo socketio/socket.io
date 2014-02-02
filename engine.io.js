@@ -303,7 +303,9 @@ Socket.prototype.probe = function (name) {
           transport.removeListener('error', onerror);
           self.emit('upgrade', transport);
           self.setTransport(transport);
-          transport.send([{ type: 'upgrade' }]);
+          var upgradePacket = { type: 'upgrade' };
+          if (!transport.supportsBinary) { upgradePacket.data = 'b64' };
+          transport.send([upgradePacket]);
           transport = null;
           self.upgrading = false;
           self.flush();
@@ -1693,7 +1695,7 @@ var xhr2 = global.XMLHttpRequest !== undefined
 
 function Polling(opts){
   var forceBase64 = (opts && opts.forceBase64);
-  if (!xhr2 || forceBase64) this.supportsBinary = false;
+  if (!xhr2 || forceBase64) { this.supportsBinary = false; }
   Transport.call(this, opts);
 }
 
@@ -1927,6 +1929,12 @@ module.exports = WS;
 var global = require('global');
 
 /**
+ * Does the supported WebSocket standard support binary data if on browser?
+ */
+
+var standardBinarySupport = (!global.document || 'binaryType' in (new WebSocket('ws://0.0.0.0')));
+
+/**
  * WebSocket transport constructor.
  *
  * @api {Object} connection options
@@ -1934,6 +1942,8 @@ var global = require('global');
  */
 
 function WS(opts){
+  var forceBase64 = (opts && opts.forceBase64);
+  if (forceBase64 || !standardBinarySupport) { this.supportsBinary = false; }
   Transport.call(this, opts);
 }
 
@@ -2032,7 +2042,7 @@ WS.prototype.write = function(packets){
   // encodePacket efficient as it uses WS framing
   // no need for encodePayload
   for (var i = 0, l = packets.length; i < l; i++) {
-    this.ws.send(parser.encodePacket(packets[i]));
+    this.ws.send(parser.encodePacket(packets[i], this.supportsBinary));
   }
   function ondrain() {
     self.writable = true;
@@ -2670,20 +2680,10 @@ require('arraybuffer-slice');
  * @api private
  */
 
-//function sliceBuffer(arraybuffer, start, end) {
-//  if (arraybuffer.slice !== undefined) return arraybuffer.slice(start, end);
-//  if (end === undefined) end = this.arraybuffer.byteLength;
-//  if (start === undefined) start = 0;
-//
-//  var abView = new Uin8Array(ab);
-//  var newView = new Uint8Array(end - start);
-//  for (var i = start, ii = 0; i < end; i++, ii++) newView[ii] = abView[i];
-//  return newView.buffer;
-//};
-
 /**
  * Current protocol version.
  */
+
 exports.protocol = 2;
 
 /**
@@ -2724,12 +2724,16 @@ var err = { type: 'error', data: 'parser error' };
  * @api private
  */
 
-exports.encodePacket = function (packet) {
+exports.encodePacket = function (packet, supportsBinary) {
+  if (supportsBinary === undefined) { supportsBinary = true; }
+
   var data = (packet.data === undefined)
     ? undefined
     : packet.data.buffer || packet.data;
 
   if (global.ArrayBuffer && data instanceof ArrayBuffer) {
+    if (!supportsBinary) { return 'b' + exports.encodeBase64Packet(packet); }
+
     var contentArray = new Uint8Array(data);
     var resultBuffer = new Uint8Array(1 + data.byteLength);
 
@@ -2774,6 +2778,10 @@ exports.encodeBase64Packet = function(packet) {
 exports.decodePacket = function (data, binaryType) {
   // String data
   if (typeof data == 'string' || data === undefined) {
+    if (data.charAt(0) == 'b') {
+      return exports.decodeBase64Packet(data.substr(1));
+    }
+
     var type = data.charAt(0);
 
     if (Number(type) != type || !packetslist[type]) {

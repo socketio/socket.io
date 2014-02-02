@@ -156,7 +156,7 @@ Exposed as `eio` in the browser standalone build.
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
       to upgrade the transport from long-polling to something better.
       - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
-      - `forceBase64` (`Boolean`): forces base 64 encoding for polling transport even when XHR2 responseType is available.
+      - `forceBase64` (`Boolean`): forces base 64 encoding for polling transport even when XHR2 responseType is available and WebSocket even if the used standard supports binary.
       - `timestampRequests` (`Boolean`): whether to add the timestamp with
         each transport request. Note: this is ignored if the browser is
         IE or Android, in which case requests are always stamped (`false`)

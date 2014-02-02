@@ -44,11 +44,14 @@ describe('connection', function() {
 
         expect(data instanceof Blob).to.be(true);
         var fr = new FileReader();
-        var ab = fr.readAsArrayBuffer(data);
-        var ia = new Int8Array(ab);
-        for (var i = 0; i < ia.length; i++) expect(ia[i]).to.equal(i);
-        socket.close();
-        done();
+        fr.onload = function() {
+          var ab = this.result;
+          var ia = new Int8Array(ab);
+          expect(ia).to.eql(binaryData);
+          socket.close();
+          done();
+        };
+        fr.readAsArrayBuffer(data);
       });
     });
   });
@@ -137,6 +140,27 @@ describe('connection', function() {
       });
     });
   });
+
+  it('should be able to receive binary data when bouncing it back and forcing base64 (ws)', function(done) {
+    var binaryData = new Int8Array(5);
+    for (var i = 0; i < 5; i++) binaryData[i] = i;
+    var socket = new eio.Socket({ forceBase64: true });
+    socket.on('open', function() {
+      socket.on('upgrade', function() {
+        socket.send(binaryData);
+        socket.on('message', function (data) {
+          if (typeof data === 'string') return;
+
+          expect(data instanceof ArrayBuffer).to.be(true);
+          expect(new Int8Array(data)).to.eql(binaryData);
+
+          socket.close();
+          done();
+        });
+      });
+    });
+  });
+
 
   // no `Worker` on old IE
   if (global.Worker) {
