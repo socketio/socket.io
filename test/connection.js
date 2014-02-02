@@ -128,15 +128,40 @@ describe('connection', function() {
       socket.on('upgrade', function() {
         socket.send(binaryData);
         socket.on('message', function (data) {
-          if (typeof data === 'string') return;
-
           expect(data).to.be.a(Blob);
           var fr = new FileReader();
-          var ab = fr.readAsArrayBuffer(data);
-          var ia = new Int8Array(ab);
-          for (var i = 0; i < ia.length; i++) expect(ia[i]).to.equal(i);
-          socket.close();
-          done();
+          fr.onload = function() {
+            var ab = this.result;
+            var ia = new Int8Array(ab);
+            expect(ia).to.eql(binaryData);
+            socket.close();
+            done();
+          };
+          fr.readAsArrayBuffer(data);
+        });
+      });
+    });
+  });
+
+  it('should be able to send and receive data as a blob when bouncing it back (ws)', function(done) {
+    var binaryData = new Int8Array(5);
+    for (var i = 0; i < 5; i++) binaryData[i] = i;
+    var socket = new eio.Socket();
+    socket.binaryType = 'blob';
+    socket.on('open', function() {
+      socket.on('upgrade', function() {
+        socket.send(new Blob([binaryData]));
+        socket.on('message', function (data) {
+          expect(data).to.be.a(Blob);
+          var fr = new FileReader();
+          fr.onload = function() {
+            var ab = this.result;
+            var ia = new Int8Array(ab);
+            expect(ia).to.eql(binaryData);
+            socket.close();
+            done();
+          };
+          fr.readAsArrayBuffer(data);
         });
       });
     });
