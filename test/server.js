@@ -1368,6 +1368,7 @@ describe('server', function () {
           conn.on('upgrade', function (to) {
             upgraded = true;
             expect(to.name).to.be('websocket');
+            expect(conn.transport.name).to.be('websocket');
           });
 
           conn.on('close', function (reason) {
