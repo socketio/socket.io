@@ -88,8 +88,9 @@ describe('connection', function() {
           firstPacket = false;
           return;
         }
+
         expect(data.base64).to.be(true);
-        expect(data.data).to.eql('AAECAwQ=');
+        expect(data.data).to.equal('AAECAwQ=');
 
         global.ArrayBuffer = ab;
         socket.close();

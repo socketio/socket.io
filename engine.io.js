@@ -1683,8 +1683,8 @@ var global = require('global');
  * Is XHR2 supported?
  */
 
-var xhr2 = global.XMLHttpRequest !== undefined
-  && (new XMLHttpRequest()).responseType !== undefined;
+var xhr2 = !!(global.XMLHttpRequest
+  && (new XMLHttpRequest()).responseType !== undefined);
 
 /**
  * Polling interface.
@@ -1932,7 +1932,16 @@ var global = require('global');
  * Does the supported WebSocket standard support binary data if on browser?
  */
 
-var standardBinarySupport = (!global.document || 'binaryType' in (new WebSocket('ws://0.0.0.0')));
+var standardBinarySupport = (function() {
+  (!global.document || 'binaryType' in (new WebSocket('ws://0.0.0.0')));
+  if (global.document) {
+    try {
+      return 'binaryType' in (new WebSocket('ws://0.0.0.0'));
+    } catch(e) { return false; }
+  }
+
+  return true;
+})();
 
 /**
  * WebSocket transport constructor.
