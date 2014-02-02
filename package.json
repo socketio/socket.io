@@ -9,7 +9,6 @@
     "expect.js": "*"
   },
   "dependencies": {
-    "arraybuffer-slice": "0.0.2",
     "base64-arraybuffer": "0.1.0"
   },
   "component": {
