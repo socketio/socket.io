@@ -303,9 +303,7 @@ Socket.prototype.probe = function (name) {
           transport.removeListener('error', onerror);
           self.emit('upgrade', transport);
           self.setTransport(transport);
-          var upgradePacket = { type: 'upgrade' };
-          if (!transport.supportsBinary) { upgradePacket.data = 'b64' };
-          transport.send([upgradePacket]);
+          transport.send([{ type: 'upgrade' }]);
           transport = null;
           self.upgrading = false;
           self.flush();
@@ -2105,6 +2103,9 @@ WS.prototype.uri = function(){
   if (this.timestampRequests) {
     query[this.timestampParam] = +new Date;
   }
+
+  // communicate binary support capabilities
+  if (!this.supportsBinary) { query.b64 = 1; }
 
   query = util.qs(query);
 
