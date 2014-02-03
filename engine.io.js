@@ -1860,7 +1860,10 @@ Polling.prototype.write = function(packets){
     self.emit('drain');
   };
 
-  this.doWrite(parser.encodePayload(packets, this.supportsBinary), callbackfn);
+  var self = this;
+  parser.encodePayload(packets, this.supportsBinary, function(data) {
+    self.doWrite(data, callbackfn);
+  });
 };
 
 /**
@@ -2049,8 +2052,11 @@ WS.prototype.write = function(packets){
   // encodePacket efficient as it uses WS framing
   // no need for encodePayload
   for (var i = 0, l = packets.length; i < l; i++) {
-    this.ws.send(parser.encodePacket(packets[i], this.supportsBinary));
+    parser.encodePacket(packets[i], this.supportsBinary, function(data) {
+      self.ws.send(data);
+    });
   }
+
   function ondrain() {
     self.writable = true;
     self.emit('drain');
@@ -2719,6 +2725,18 @@ var packetslist = keys(packets);
 var err = { type: 'error', data: 'parser error' };
 
 /**
+ * Check if Blob constructor is supported
+ */
+
+var blobSupported = (function() {
+  try {
+    new Blob([1, 2, 3]);
+    return true;
+  } catch(e) {}
+  return false;
+})();
+
+/**
  * Encodes a packet.
  *
  *     <packet type id> [ <data> ]
@@ -2734,22 +2752,27 @@ var err = { type: 'error', data: 'parser error' };
  * @api private
  */
 
-exports.encodePacket = function (packet, supportsBinary) {
-  if (supportsBinary === undefined) { supportsBinary = true; }
+exports.encodePacket = function (packet, supportsBinary, callback) {
+  if (typeof supportsBinary == 'function') {
+    callback = supportsBinary;
+    supportsBinary = false;
+  }
 
   var data = (packet.data === undefined)
     ? undefined
     : packet.data.buffer || packet.data;
 
   if (global.ArrayBuffer && data instanceof ArrayBuffer) {
-    if (!supportsBinary) { return 'b' + exports.encodeBase64Packet(packet); }
+    if (!supportsBinary) {
+      return callback('b' + exports.encodeBase64Packet(packet));
+    }
 
     var contentArray = new Uint8Array(data);
     var resultBuffer = new Uint8Array(1 + data.byteLength);
 
     resultBuffer[0] = packets[packet.type];
     for (var i = 0; i < contentArray.length; i++) resultBuffer[i+1] = contentArray[i];
-    return resultBuffer.buffer;
+    return callback(resultBuffer.buffer);
   }
 
   // Sending data as a utf-8 string
@@ -2760,7 +2783,7 @@ exports.encodePacket = function (packet, supportsBinary) {
     encoded += String(packet.data);
   }
 
-  return '' + encoded;
+  return callback('' + encoded);
 
 };
 
@@ -2775,7 +2798,7 @@ exports.encodeBase64Packet = function(packet) {
   var message = '' + exports.packets[packet.type];
   var b64data = String.fromCharCode.apply(null, new Uint8Array(packet.data));
   message += global.btoa(b64data);
-  return message;
+  return callback(message);
 };
 
 /**
@@ -2789,7 +2812,7 @@ exports.decodePacket = function (data, binaryType) {
   // String data
   if (typeof data == 'string' || data === undefined) {
     if (data.charAt(0) == 'b') {
-      return exports.decodeBase64Packet(data.substr(1));
+      return exports.decodeBase64Packet(data.substr(1), binaryType);
     }
 
     var type = data.charAt(0);
@@ -2808,7 +2831,7 @@ exports.decodePacket = function (data, binaryType) {
   var asArray = new Uint8Array(data);
   var type = asArray[0];
   var rest = sliceBuffer(data, 1);
-  if (global.Blob && Blob.prototype.slice && binaryType === 'blob') {
+  if (blobSupported && binaryType === 'blob') {
     rest = new Blob([rest]);
   }
   return { type: packetslist[type], data: rest };
@@ -2847,27 +2870,30 @@ exports.decodeBase64Packet = function(msg, binaryType) {
  * @api private
  */
 
-exports.encodePayload = function (packets, supportsBinary) {
-  if (supportsBinary) { return exports.encodePayloadAsBinary(packets); }
+exports.encodePayload = function (packets, supportsBinary, callback) {
+  if (typeof supportsBinary == 'function') {
+    callback = supportsBinary;
+    supportsBinary = null;
+  }
+
+  if (supportsBinary) {
+    return exports.encodePayloadAsBinary(packets, callback);
+  }
 
   if (!packets.length) {
-    return '0:';
+    return callback('0:');
   }
 
   var encoded = '';
   var message;
 
   for (var i = 0, l = packets.length; i < l; i++) {
-    if (!packets[i].data || typeof packets[i].data === 'string') {
-      var message = exports.encodePacket(packets[i]);
+    exports.encodePacket(packets[i], supportsBinary, function(message) {
       encoded += message.length + ':' + message;
-    } else {
-      var message = exports.encodeBase64Packet(packets[i]);
-      encoded += 'b' + message.length + ':' + message;
-    }
+    });
   }
   
-  return encoded;
+  return callback(encoded);
 };
 
 /*
@@ -2889,7 +2915,6 @@ exports.decodePayload = function (data, binaryType, callback) {
   }
 
   var packet;
-  var base64 = false;
   if (data == '') {
     // parser error - ignoring payload
     return callback(err, 0, 1);
@@ -2901,8 +2926,7 @@ exports.decodePayload = function (data, binaryType, callback) {
   for (var i = 0, l = data.length; i < l; i++) {
     var chr = data.charAt(i);
    
-    if (chr == 'b') base64 = true;
-    else if (':' != chr) {
+    if (':' != chr) {
       length += chr;
     } else {
       if ('' == length || (length != (n = Number(length)))) {
@@ -2918,11 +2942,7 @@ exports.decodePayload = function (data, binaryType, callback) {
       }
 
       if (msg.length) {
-        if (base64) {
-          packet = exports.decodeBase64Packet(msg, binaryType);
-        } else {
-          packet = exports.decodePacket(msg, binaryType);
-        }
+        packet = exports.decodePacket(msg, binaryType);
 
         if (err.type == packet.type && err.data == packet.data) {
           // parser error in individual packet - ignoring payload
@@ -2936,7 +2956,6 @@ exports.decodePayload = function (data, binaryType, callback) {
       // advance cursor
       i += n;
       length = '';
-      base64 = false;
     }
   }
 
@@ -2961,19 +2980,25 @@ exports.decodePayload = function (data, binaryType, callback) {
  * @api private
  */
 
-exports.encodePayloadAsBinary = function (packets) {
+exports.encodePayloadAsBinary = function (packets, callback) {
   if (!packets.length) {
-    return new ArrayBuffer(0);
+    return callback(new ArrayBuffer(0));
   }
 
-  var encodedPackets = packets.map(exports.encodePacket);
+  var encodedPackets = [];
+  packets.forEach(function(p) {
+    exports.encodePacket(p, function(data) {
+      encodedPackets.push(data);
+    });
+  });
+
   var totalLength = encodedPackets.reduce(function(acc, p) {
     var len;
     if (typeof p === 'string') len = p.length;
     else len = p.byteLength;
     return acc + (new String(len)).length + len + 2; // string/binary identifier + separator = 2
   }, 0);
-  
+
   var resultArray = new Uint8Array(totalLength);
 
   var bufferIndex = 0;
@@ -2986,8 +3011,8 @@ exports.encodePayloadAsBinary = function (packets) {
       ab = view.buffer;
     }
 
-    if (isString) resultArray[bufferIndex++] = 0; // not true binary
-    else resultArray[bufferIndex++] = 1; // true binary
+    if (isString) { resultArray[bufferIndex++] = 0; } // not true binary
+    else { resultArray[bufferIndex++] = 1; } // true binary
 
     var lenStr = new String(ab.byteLength);
     for (var i = 0; i < lenStr.length; i++) resultArray[bufferIndex++] = parseInt(lenStr[i]);
@@ -2997,7 +3022,7 @@ exports.encodePayloadAsBinary = function (packets) {
     for (var i = 0; i < view.length; i++) resultArray[bufferIndex++] = view[i];
   });
 
-  return resultArray.buffer;
+  return callback(resultArray.buffer);
 };
 
 /*
