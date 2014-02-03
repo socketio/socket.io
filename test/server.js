@@ -1360,12 +1360,16 @@ describe('server', function () {
             }
           }, 2);
 
+          expect(conn.request.query.transport).to.be('polling');
+
           conn.on('message', function (msg) {
+            expect(conn.request.query).to.be.an('object');
             lastReceived++;
             expect(msg).to.eql(lastReceived);
           });
 
           conn.on('upgrade', function (to) {
+            expect(conn.request.query.transport).to.be('polling');
             upgraded = true;
             expect(to.name).to.be('websocket');
           });
