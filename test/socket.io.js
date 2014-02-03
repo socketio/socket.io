@@ -713,5 +713,36 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should call functions in expected order', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var result = [];
+
+      sio.use(function(socket, next) {
+        result.push(1);
+        setTimeout(next, 50);
+      });
+      sio.use(function(socket, next) {
+        result.push(2);
+        setTimeout(next, 50);
+      });
+      sio.of('/chat').use(function(socket, next) {
+        result.push(3);
+        setTimeout(next, 50);
+      });
+      sio.of('/chat').use(function(socket, next) {
+        result.push(4);
+        setTimeout(next, 50);
+      });
+
+      srv.listen(function() {
+        var chat = client(srv, '/chat');
+        chat.on('connect', function() {
+          expect(result).to.eql([1, 2, 3, 4]);
+          done();
+        });
+      });
+    });
   });
 });
