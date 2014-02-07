@@ -11,6 +11,9 @@
     "socket",
     "io"
   ],
+  "scripts": {
+    "test": "make test"
+  },
   "dependencies": {
     "debug": "*",
     "engine.io": "0.7.14",
