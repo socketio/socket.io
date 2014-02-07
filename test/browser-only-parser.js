@@ -1,4 +1,4 @@
- 
+
 /**
  * Test dependencies.
  */
@@ -16,7 +16,7 @@ var encode = parser.encodePacket;
 var decode = parser.decodePacket;
 var encPayload = parser.encodePayload;
 var decPayload = parser.decodePayload;
-var encPayloadB = parser.encodePayloadAsBinary;
+var encPayloadB = parser.encodePayloadAsArrayBuffer;
 var decPayloadB = parser.decodePayloadAsBinary;
 
 /**
