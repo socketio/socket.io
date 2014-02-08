@@ -1678,17 +1678,10 @@ module.exports = Polling;
 var global = require('global');
 
 /**
- * Is XHR2 supported?
+ * Is XHR2 supported? This is implied by has-cors
  */
 
-var xhr2 = (function() {
-  var XMLHttpRequest = require('xmlhttprequest');
-  try {
-    return !!(new XMLHttpRequest()).responseType !== undefined;
-  } catch (e) {
-    return false;
-  }
-})();
+var hasCORS = require('has-cors');
 
 /**
  * Polling interface.
@@ -1699,7 +1692,8 @@ var xhr2 = (function() {
 
 function Polling(opts){
   var forceBase64 = (opts && opts.forceBase64);
-  if (!xhr2 || forceBase64) { this.supportsBinary = false; }
+  if (!hasCORS || forceBase64) { this.supportsBinary = false; }
+  console.log(this.supportsBinary);
   Transport.call(this, opts);
 }
 
@@ -1912,7 +1906,7 @@ Polling.prototype.uri = function(){
   return schema + '://' + this.hostname + port + this.path + query;
 };
 
-},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21,"xmlhttprequest":13}],11:[function(require,module,exports){
+},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21,"has-cors":22}],11:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -3142,14 +3136,15 @@ exports.encodePayloadAsArrayBuffer = function(packets, callback) {
 exports.encodePayloadAsBlob = function(packets, callback) {
   function encodeOne(packet, doneCallback) {
     exports.encodePacket(packet, true, function(encoded) {
-      var binaryIdentifier = 1;
+      var binaryIdentifier = new Uint8Array(1);
+      binaryIdentifier[0] = 1;
       if (typeof encoded === 'string') {
         var view = new Uint8Array(encoded.length);
         for (var i = 0; i < encoded.length; i++) {
           view[i] = encoded.charCodeAt(i);
         }
         encoded = view.buffer;
-        binaryIdentifier = 0;
+        binaryIdentifier[0] = 0;
       }
 
       var len = (encoded instanceof ArrayBuffer)
