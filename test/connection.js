@@ -18,7 +18,7 @@ describe('connection', function() {
   it('should be able to receive binary data when bouncing it back (polling)', function(done) {
     var binaryData = new Int8Array(5);
     for (var i = 0; i < 5; i++) binaryData[i] = i;
-    var socket = new eio.Socket('ws://localhost', { transports: ['polling'] });
+    var socket = new eio.Socket({ transports: ['polling'] });
     socket.on('open', function() {
       socket.send(binaryData);
       socket.on('message', function (data) {

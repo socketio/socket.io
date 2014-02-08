@@ -123,7 +123,6 @@ describe('browser-only-parser', function () {
       var fr = new FileReader();
       fr.onload = function() {
         decPayloadB(this.result, function(packet, index, total) {
-          console.log(packet);
           if (index == 0) {
             expect(packet.type).to.eql('message');
             expect(new Int8Array(packet.data)).to.eql(first);
