@@ -205,6 +205,34 @@ describe('server', function () {
       });
     });
 
+    it('default to polling when proxy doesn\'t support websocket', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+
+        engine.on('connection', function (socket) {
+          socket.on('message', function (msg) {
+            if ('echo' == msg) socket.send(msg);
+          });
+        });
+
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.on('open', function () {
+          request.get('http://localhost:%d/engine.io/'.s(port))
+          .set({ connection: 'close' })
+          .query({ transport: 'websocket', sid: socket.id })
+          .end(function (err, res) {
+            expect(err).to.be(null);
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(3);
+            socket.send('echo');
+            socket.on('message', function (msg) {
+              expect(msg).to.be('echo');
+              done();
+            });
+          });
+        });
+      });
+    });
+
     it('should allow arbitrary data through query string', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { query: { a: 'b' } });
