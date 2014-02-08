@@ -16,5 +16,11 @@ require('./transport');
 // browser only tests
 if (env.browser) {
   require('./connection');
-  require('./browser-only-parser');
+  if (global.ArrayBuffer) {
+    require('./browser-only-parser');
+    require('./arraybuffer');
+  }
+  if (global.Blob) {
+    require('./blob');
+  }
 }

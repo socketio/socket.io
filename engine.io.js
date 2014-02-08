@@ -1933,21 +1933,6 @@ module.exports = WS;
 var global = require('global');
 
 /**
- * Does the supported WebSocket standard support binary data if on browser?
- */
-
-var standardBinarySupport = (function() {
-  (!global.document || 'binaryType' in (new WebSocket('ws://0.0.0.0')));
-  if (global.document) {
-    try {
-      return 'binaryType' in (new WebSocket('ws://0.0.0.0'));
-    } catch(e) { return false; }
-  }
-
-  return true;
-})();
-
-/**
  * WebSocket transport constructor.
  *
  * @api {Object} connection options
@@ -1998,13 +1983,8 @@ WS.prototype.doOpen = function(){
   var opts = { agent: this.agent };
 
   this.ws = new WebSocket(uri, protocols, opts);
-  var standardBinarySupport = (function() {
-    try {
-      return 'binaryType' in this.ws;
-    } catch(e) { return false; }
-  })();
 
-  if (!standardBinarySupport) {
+  if (!this.ws.binaryType) {
     this.supportsBinary = false;
   }
 
