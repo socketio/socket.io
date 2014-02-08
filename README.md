@@ -1,3 +1,4 @@
+
 # Engine.IO: the realtime engine
 
 [![Build Status](https://secure.travis-ci.org/LearnBoost/engine.io.png)](http://travis-ci.org/LearnBoost/engine.io)
@@ -14,8 +15,8 @@ bi-directional communication layer for
 #### (A) Listening on a port
 
 ```js
-var engine = require('engine.io')
-  , server = engine.listen(80)
+var engine = require('engine.io');
+var server = engine.listen(80);
 
 server.on('connection', function (socket) {
   socket.send('utf 8 string');
@@ -25,9 +26,9 @@ server.on('connection', function (socket) {
 #### (B) Intercepting requests for a http.Server
 
 ```js
-var engine = require('engine.io')
-  , http = require('http').createServer().listen(3000)
-  , server = engine.attach(http)
+var engine = require('engine.io');
+var http = require('http').createServer().listen(3000);
+var server = engine.attach(http);
 
 server.on('connection', function (socket) {
   socket.on('message', function () { });
@@ -38,8 +39,8 @@ server.on('connection', function (socket) {
 #### (C) Passing in requests
 
 ```js
-var engine = require('engine.io')
-  , server = new engine.Server()
+var engine = require('engine.io');
+var server = new engine.Server();
 
 server.on('connection', function (socket) {
   socket.send('hi');
