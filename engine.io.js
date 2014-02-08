@@ -1681,8 +1681,14 @@ var global = require('global');
  * Is XHR2 supported?
  */
 
-var xhr2 = !!(global.XMLHttpRequest
-  && (new XMLHttpRequest()).responseType !== undefined);
+var xhr2 = (function() {
+  var XMLHttpRequest = require('xmlhttprequest');
+  try {
+    return !!(new XMLHttpRequest()).responseType !== undefined;
+  } catch (e) {
+    return false;
+  }
+})();
 
 /**
  * Polling interface.
@@ -1906,7 +1912,7 @@ Polling.prototype.uri = function(){
   return schema + '://' + this.hostname + port + this.path + query;
 };
 
-},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21}],11:[function(require,module,exports){
+},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21,"xmlhttprequest":13}],11:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -2686,8 +2692,8 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
  */
 
 var keys = require('./keys');
-var base64encoder = require('base64-arraybuffer');
 var sliceBuffer = require('./slice-buffer');
+var base64encoder = require('base64-arraybuffer');
 var after = require('after');
 
 /**
@@ -2913,7 +2919,9 @@ exports.decodeBase64Packet = function(msg, binaryType) {
     ? { base64: true, data: msg.substr(1) }
     : base64encoder.decode(msg.substr(1));
 
-  if (binaryType === 'blob') data = new Blob([data]);
+  if (binaryType === 'blob'){
+    data = new Blob([data]);
+  }
   return { type: type, data: data };
 };
 
@@ -2940,7 +2948,7 @@ exports.encodePayload = function (packets, supportsBinary, callback) {
   }
 
   if (supportsBinary) {
-    if (blobSupported) {
+    if (blobSupported || blobBuilderSupported) {
       return exports.encodePayloadAsBlob(packets, callback);
     }
     return exports.encodePayloadAsArrayBuffer(packets, callback);
@@ -3083,8 +3091,11 @@ exports.encodePayloadAsArrayBuffer = function(packets, callback) {
   map(packets, encodeOne, function(err, encodedPackets) {
     var totalLength = encodedPackets.reduce(function(acc, p) {
       var len;
-      if (typeof p === 'string') len = p.length;
-      else len = p.byteLength;
+      if (typeof p === 'string'){
+        len = p.length;
+      } else {
+        len = p.byteLength;
+      }
       return acc + (new String(len)).length + len + 2; // string/binary identifier + separator = 2
     }, 0);
 
@@ -3096,19 +3107,28 @@ exports.encodePayloadAsArrayBuffer = function(packets, callback) {
       var ab = p;
       if (isString) {
         var view = new Uint8Array(p.length);
-        for (var i = 0; i < p.length; i++) view[i] = p.charCodeAt(i);
+        for (var i = 0; i < p.length; i++) {
+          view[i] = p.charCodeAt(i);
+        }
         ab = view.buffer;
       }
 
-      if (isString) { resultArray[bufferIndex++] = 0; } // not true binary
-      else { resultArray[bufferIndex++] = 1; } // true binary
+      if (isString) { // not true binary
+        resultArray[bufferIndex++] = 0;
+      } else { // true binary
+        resultArray[bufferIndex++] = 1;
+      }
 
       var lenStr = new String(ab.byteLength);
-      for (var i = 0; i < lenStr.length; i++) resultArray[bufferIndex++] = parseInt(lenStr[i]);
+      for (var i = 0; i < lenStr.length; i++) {
+        resultArray[bufferIndex++] = parseInt(lenStr[i]);
+      }
       resultArray[bufferIndex++] = 255;
 
       var view = new Uint8Array(ab);
-      for (var i = 0; i < view.length; i++) resultArray[bufferIndex++] = view[i];
+      for (var i = 0; i < view.length; i++) {
+        resultArray[bufferIndex++] = view[i];
+      }
     });
 
     return callback(resultArray.buffer);
@@ -3123,9 +3143,11 @@ exports.encodePayloadAsBlob = function(packets, callback) {
   function encodeOne(packet, doneCallback) {
     exports.encodePacket(packet, true, function(encoded) {
       var binaryIdentifier = 1;
-      if (typeof encoded == 'string') {
+      if (typeof encoded === 'string') {
         var view = new Uint8Array(encoded.length);
-        for (var i = 0; i < encoded.length; i++) view[i] = encoded.charCodeAt(i);
+        for (var i = 0; i < encoded.length; i++) {
+          view[i] = encoded.charCodeAt(i);
+        }
         encoded = view.buffer;
         binaryIdentifier = 0;
       }
@@ -3136,7 +3158,9 @@ exports.encodePayloadAsBlob = function(packets, callback) {
 
       var lenStr = new String(len);
       var lengthAry = new Uint8Array(lenStr.length + 1);
-      for (var i = 0; i < lenStr.length; i++) { lengthAry[i] = parseInt(lenStr[i]); }
+      for (var i = 0; i < lenStr.length; i++) {
+        lengthAry[i] = parseInt(lenStr[i]);
+      }
       lengthAry[lenStr.length] = 255;
 
       if (blobSupported) {
