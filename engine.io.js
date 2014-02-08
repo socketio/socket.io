@@ -1956,7 +1956,7 @@ var standardBinarySupport = (function() {
 
 function WS(opts){
   var forceBase64 = (opts && opts.forceBase64);
-  if (forceBase64 || !standardBinarySupport) { this.supportsBinary = false; }
+  if (forceBase64) { this.supportsBinary = false; }
   Transport.call(this, opts);
 }
 
@@ -1998,6 +1998,16 @@ WS.prototype.doOpen = function(){
   var opts = { agent: this.agent };
 
   this.ws = new WebSocket(uri, protocols, opts);
+  var standardBinarySupport = (function() {
+    try {
+      return 'binaryType' in this.ws;
+    } catch(e) { return false; }
+  })();
+
+  if (!standardBinarySupport) {
+    this.supportsBinary = false;
+  }
+
   this.ws.binaryType = 'arraybuffer';
   this.addEventListeners();
 };
@@ -2734,7 +2744,7 @@ var err = { type: 'error', data: 'parser error' };
 
 var blobSupported = (function() {
   try {
-    new Blob([1, 2, 3]);
+    new Blob(["hi"]);
     return true;
   } catch(e) {}
   return false;
