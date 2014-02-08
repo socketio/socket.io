@@ -244,6 +244,7 @@ A representation of a client. _Inherits from EventEmitter_.
 
 ##### Properties
 
+- `id` _(String)_: unique identifier
 - `server` _(Server)_: engine parent reference
 - `request` _(http.ServerRequest)_: request that originated the Socket
 - `upgraded` _(Boolean)_: whether the transport has been upgraded
@@ -482,7 +483,7 @@ at all times, and the parser implementation in JavaScript.
 
 (The MIT License)
 
-Copyright (c) 2011 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
+Copyright (c) 2014 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
