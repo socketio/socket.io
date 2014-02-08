@@ -1509,12 +1509,16 @@ Emitter(Request.prototype);
 
 Request.prototype.create = function(isBinary, supportsBinary){
   var xhr = this.xhr = new XMLHttpRequest({ agent: this.agent, xdomain: this.xd });
-  if (supportsBinary) { xhr.responseType = 'arraybuffer'; }
   var self = this;
 
   try {
     debug('xhr open %s: %s', this.method, this.uri);
     xhr.open(this.method, this.uri, this.async);
+    if (supportsBinary) {
+      // This has to be done after open because Firefox is stupid
+      // http://stackoverflow.com/questions/13216903/get-binary-data-with-xmlhttprequest-in-a-firefox-extension
+      xhr.responseType = 'arraybuffer';
+    }
 
     if ('POST' == this.method) {
       try {
@@ -1693,7 +1697,6 @@ var hasCORS = require('has-cors');
 function Polling(opts){
   var forceBase64 = (opts && opts.forceBase64);
   if (!hasCORS || forceBase64) { this.supportsBinary = false; }
-  console.log(this.supportsBinary);
   Transport.call(this, opts);
 }
 

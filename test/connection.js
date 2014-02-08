@@ -56,7 +56,7 @@ describe('connection', function() {
     });
   });
 
-   it('should be able to receive binary data when forcing base64 (polling)', function(done) {
+  it('should be able to receive binary data when forcing base64 (polling)', function(done) {
     var binaryData = new Int8Array(5);
     for (var i = 0; i < 5; i++) binaryData[i] = i;
     var socket = new eio.Socket({ forceBase64: true });
