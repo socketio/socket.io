@@ -7,6 +7,14 @@ global.WEB_SOCKET_SUPPRESS_CROSS_DOMAIN_SWF_ERROR = null;
 global.WEB_SOCKET_DISABLE_AUTO_INITIALIZATION = null;
 global.WEB_SOCKET_SWF_LOCATION = null;
 
+var blobSupported = (function() {
+  try {
+    new Blob(["hi"]);
+    return true;
+  } catch(e) {}
+  return false;
+})();
+
 require('./engine.io-client');
 require('./util');
 require('./parser');
@@ -20,7 +28,7 @@ if (env.browser) {
     require('./browser-only-parser');
     require('./arraybuffer');
   }
-  if (global.Blob) {
+  if (blobSupported) {
     require('./blob');
   }
 }
