@@ -1,6 +1,6 @@
 
 var old = global.location;
-var loc = global.location = {};
+var loc = {};
 var url = require('../lib/url');
 var expect = require('expect.js');
 
@@ -9,14 +9,14 @@ describe('url', function(){
   it('works with relative paths', function(){
     loc.hostname = 'woot.com';
     loc.protocol = 'https:';
-    var parsed = url('/test');
+    var parsed = url('/test', loc);
     expect(parsed.hostname).to.be('woot.com');
     expect(parsed.protocol).to.be('https:');
   });
 
   it('works with no protocol', function(){
     loc.protocol = 'http:';
-    var parsed = url('localhost:3000');
+    var parsed = url('localhost:3000', loc);
     expect(parsed.protocol).to.be('http:');
     expect(parsed.hostname).to.be('localhost');
     expect(parsed.host).to.be('localhost:3000');
