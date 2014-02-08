@@ -1582,7 +1582,8 @@ Request.prototype.onError = function(err){
  */
 
 Request.prototype.cleanup = function(){
-  if ('undefined' == typeof this.xhr ) {
+  // !this.xhr is used to check both undefined and null, see issue #180
+  if (!this.xhr) {
     return;
   }
   // xmlhttprequest
