@@ -24,6 +24,7 @@ exports.types = [
   'CONNECT',
   'DISCONNECT',
   'EVENT',
+  'BINARY_EVENT',
   'ACK',
   'ERROR'
 ];
@@ -69,14 +70,40 @@ exports.ACK = 3;
 exports.ERROR = 4;
 
 /**
- * Encode.
+ * Packet type 'binary event'
+ *
+ * @api public
+ */
+
+ exports.BINARY_EVENT = 5;
+
+/**
+ * Encode a packet as a string or buffer, depending on packet type.
  *
  * @param {Object} packet
- * @return {String} encoded
+ * @return {String | Buffer} encoded
  * @api public
  */
 
 exports.encode = function(obj){
+  debug('encoding packet %j', obj);
+  if (obj.type === exports.BINARY_EVENT) {
+    return encodeAsBinary(obj);
+  }
+  else {
+    return encodeAsString(obj);
+  }
+};
+
+/**
+ * Encode packet as string (used for anything that is not a binary event).
+ *
+ * @param {Object} packet
+ * @return {String} encoded
+ * @api private
+ */
+
+function encodeAsString(obj) {
   var str = '';
   var nsp = false;
 
@@ -107,17 +134,92 @@ exports.encode = function(obj){
 
   debug('encoded %j as %s', obj, str);
   return str;
-};
+}
 
 /**
- * Decode.
+ * Encode packet as Buffer (used for binary events).
+ *
+ * @param {Object} packet
+ * @return {Buffer} encoded
+ * @api private
+ */
+
+function encodeAsBinary(obj) {
+  //console.log(obj);
+
+  var buffers = [];
+
+  // if there is a namespace, encode it
+  if (obj.nsp && '/' != obj.nsp) {
+    buffers.push(new Buffer('nsp' + obj.nsp, 'utf8'));
+    buffers.push(new Buffer(',', 'utf8')); // separator
+  }
+
+  // if there is an id, encode it
+  if (null != obj.id) {
+    buffers.push(new Buffers('pid' + obj.id, 'utf8'));
+    buffers.push(new Buffer(',', 'utf8')); // separator
+  }
+
+  // then encode the event name
+  var eventName = obj.data[0];
+  buffers.push(new Buffer(eventName, 'utf8'));
+  buffers.push(new Buffer(',', 'utf8')); // separator
+
+
+  function encodeObject(obj) {
+    for (var key in obj) {
+      var val = obj[key];
+      if (Buffer.isBuffer(val)) {
+        buffers.push(val);
+        buffers.push(new Buffer(',', 'utf8')); // seperator
+      }
+      else if ('object' === typeof val) {
+        encodeObject(val);
+      }
+      else {
+        buffers.push(new Buffer(val, 'utf8'));
+        buffers.push(new Buffer(',', 'utf8')); // seperator
+      }
+    }
+  }
+
+  // then add the actual data
+  for (var i=1; i < obj.data.length; i++) {
+    var d = obj.data[i];
+    if (Buffer.isBuffer(d)) {
+      buffers.push(d);
+      buffers.push(new Buffer(',', 'utf8')); // seperator
+    }
+    else {
+      buffers.push(encodeObject(d));
+    }
+  }
+
+  return Buffer.concat(buffers);
+}
+
+exports.decode = function(obj) {
+  if ('string' === typeof obj) {
+    return decodeString(obj);
+  }
+  else if (Buffer.isBuffer(obj)) {
+    return decodeBuffer(obj);
+  }
+  else {
+    throw new Error('type is weird: ' + obj);
+  }
+}
+
+/**
+ * Decode a packet String (JSON data)
  *
  * @param {String} str
  * @return {Object} packet
- * @api public
+ * @api private
  */
 
-exports.decode = function(str){
+function decodeString(str) {
   var p = {};
   var i = 0;
 
@@ -164,6 +266,58 @@ exports.decode = function(str){
   }
 
   debug('decoded %s as %j', str, p);
+  return p;
+};
+
+/**
+ * Decode a packet Buffer (binary data)
+ *
+ * @param {Buffer} buf
+ * @return {Object} packet
+ * @api private
+ */
+
+function decodeBuffer(buf) {
+  var p = {};
+  var i = 0;
+  var iChar;
+
+  p.type = exports.BINARY_EVENT;
+
+  // handle namespace if it is there
+  if ('nsp' == buf.slice(0, 3).toString('utf8')) {
+    var namespace = '';
+    for (i = 3; ',' != (iChar = buf.slice(i, i+1).toString('utf8')) && i < buf.length; i++) {
+      namespace += iChar;
+    }
+    p.nsp = namespace;
+  }
+  else {
+    p.nsp = '/';
+  }
+
+  // handle id if its there
+  if ('pid' == buf.slice(i, i+3).toString('utf8')) {
+    var pid = '';
+    for (i; ',' != (iChar = buf.slice(i, i+1).toString('utf8')) && i < buf.length; i++) {
+      pid += iChar;
+    }
+    p.id = Number(pid);
+  }
+
+  // handle event name
+  var eventName = '';
+  for (i; ',' != (iChar = buf.slice(i, i+1).toString('utf8')) && i < buf.length; i++) {
+    eventName += iChar;
+  }
+
+  // handle binary data
+  var binaryData = buf.slice(i+1, buf.length);
+
+  var packetData = [eventName, binaryData];
+  p.data = packetData;
+
+  debug('decoded binary with event name: %s', p.data[0]);
   return p;
 };
 
