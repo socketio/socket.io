@@ -5,6 +5,7 @@
 
 var debug = require('debug')('socket.io-parser');
 var json = require('json3');
+var msgpack = require('msgpack-js');
 
 /**
  * Protocol version.
@@ -145,58 +146,7 @@ function encodeAsString(obj) {
  */
 
 function encodeAsBinary(obj) {
-  //console.log(obj);
-
-  var buffers = [];
-
-  // if there is a namespace, encode it
-  if (obj.nsp && '/' != obj.nsp) {
-    buffers.push(new Buffer('nsp' + obj.nsp, 'utf8'));
-    buffers.push(new Buffer(',', 'utf8')); // separator
-  }
-
-  // if there is an id, encode it
-  if (null != obj.id) {
-    buffers.push(new Buffers('pid' + obj.id, 'utf8'));
-    buffers.push(new Buffer(',', 'utf8')); // separator
-  }
-
-  // then encode the event name
-  var eventName = obj.data[0];
-  buffers.push(new Buffer(eventName, 'utf8'));
-  buffers.push(new Buffer(',', 'utf8')); // separator
-
-
-  function encodeObject(obj) {
-    for (var key in obj) {
-      var val = obj[key];
-      if (Buffer.isBuffer(val)) {
-        buffers.push(val);
-        buffers.push(new Buffer(',', 'utf8')); // seperator
-      }
-      else if ('object' === typeof val) {
-        encodeObject(val);
-      }
-      else {
-        buffers.push(new Buffer(val, 'utf8'));
-        buffers.push(new Buffer(',', 'utf8')); // seperator
-      }
-    }
-  }
-
-  // then add the actual data
-  for (var i=1; i < obj.data.length; i++) {
-    var d = obj.data[i];
-    if (Buffer.isBuffer(d)) {
-      buffers.push(d);
-      buffers.push(new Buffer(',', 'utf8')); // seperator
-    }
-    else {
-      buffers.push(encodeObject(d));
-    }
-  }
-
-  return Buffer.concat(buffers);
+  return msgpack.encode(obj);
 }
 
 exports.decode = function(obj) {
@@ -278,47 +228,7 @@ function decodeString(str) {
  */
 
 function decodeBuffer(buf) {
-  var p = {};
-  var i = 0;
-  var iChar;
-
-  p.type = exports.BINARY_EVENT;
-
-  // handle namespace if it is there
-  if ('nsp' == buf.slice(0, 3).toString('utf8')) {
-    var namespace = '';
-    for (i = 3; ',' != (iChar = buf.slice(i, i+1).toString('utf8')) && i < buf.length; i++) {
-      namespace += iChar;
-    }
-    p.nsp = namespace;
-  }
-  else {
-    p.nsp = '/';
-  }
-
-  // handle id if its there
-  if ('pid' == buf.slice(i, i+3).toString('utf8')) {
-    var pid = '';
-    for (i; ',' != (iChar = buf.slice(i, i+1).toString('utf8')) && i < buf.length; i++) {
-      pid += iChar;
-    }
-    p.id = Number(pid);
-  }
-
-  // handle event name
-  var eventName = '';
-  for (i; ',' != (iChar = buf.slice(i, i+1).toString('utf8')) && i < buf.length; i++) {
-    eventName += iChar;
-  }
-
-  // handle binary data
-  var binaryData = buf.slice(i+1, buf.length);
-
-  var packetData = [eventName, binaryData];
-  p.data = packetData;
-
-  debug('decoded binary with event name: %s', p.data[0]);
-  return p;
+  return msgpack.decode(buf);
 };
 
 function error(data){

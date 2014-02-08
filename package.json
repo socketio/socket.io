@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "debug": "0.6.0",
+    "msgpack-js": "0.3.0",
     "json3": "3.2.6"
   },
   "devDependencies": {
