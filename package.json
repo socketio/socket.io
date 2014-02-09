@@ -9,12 +9,12 @@
     "object-component": "0.0.3",
     "socket.io-parser": "1.1.0",
     "to-array": "0.1.3",
-    "debug": "0.6.0"
+    "debug": "0.7.4"
   },
   "devDependencies": {
     "socket.io": "https://github.com/LearnBoost/socket.io/archive/48936231eaca61f557dd44a5200a5cd4ac1545c9.tar.gz",
     "mocha": "1.16.2",
-    "zuul": "1.3.0",
+    "zuul": "1.5.2",
     "istanbul": "0.2.1",
     "expect.js": "0.2.0",
     "uglify-js": "2.4.8",
