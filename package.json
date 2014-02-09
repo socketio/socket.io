@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "keywords": ["realtime", "framework", "websocket", "tcp", "events", "client"],
   "dependencies": {
-    "engine.io-client": "0.7.14",
+    "engine.io-client": "0.9.0",
     "emitter": "http://github.com/component/emitter/archive/1.0.1.tar.gz",
     "bind": "http://github.com/component/bind/archive/0.0.1.tar.gz",
     "object-component": "0.0.3",
