@@ -5,7 +5,9 @@
 
 var debug = require('debug')('socket.io-parser');
 var json = require('json3');
-var msgpack = require('msgpack-js');
+if (!global.document) { var msgpack = require('msgpack-js'); } // in node
+else { var msgpack = require('msgpack-js-browser'); } // in browswer
+
 
 /**
  * Protocol version.
@@ -156,6 +158,9 @@ exports.decode = function(obj) {
   else if (Buffer.isBuffer(obj)) {
     return decodeBuffer(obj);
   }
+  else if (global.ArrayBuffer && obj instanceof ArrayBuffer) {
+    return decodeArrayBuffer(obj);
+  }
   else {
     throw new Error('type is weird: ' + obj);
   }
@@ -228,6 +233,18 @@ function decodeString(str) {
  */
 
 function decodeBuffer(buf) {
+  return msgpack.decode(buf);
+};
+
+/**
+ * Decode a packet ArrayBuffer (binary data)
+ *
+ * @param {ArrayBuffer} buf
+ * @return {Object} packet
+ * @api private
+ */
+
+function decodeArrayBuffer(buf) {
   return msgpack.decode(buf);
 };
 

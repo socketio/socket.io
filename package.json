@@ -2,14 +2,15 @@
   "name": "socket.io-parser",
   "version": "1.1.0",
   "description": "socket.io protocol parser",
-  "repository":{
+  "repository": {
     "type": "git",
     "url": "https://github.com/LearnBoost/socket.io-protocol.git"
   },
   "dependencies": {
     "debug": "0.6.0",
     "msgpack-js": "0.3.0",
-    "json3": "3.2.6"
+    "json3": "3.2.6",
+    "msgpack-js-browser": "~0.1.4"
   },
   "devDependencies": {
     "mocha": "1.16.2",
