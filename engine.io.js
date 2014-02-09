@@ -365,7 +365,7 @@ Socket.prototype.onOpen = function () {
   this.flush();
 
   // we check for `readyState` in case an `open`
-  // listener alreay closed the socket
+  // listener already closed the socket
   if ('open' == this.readyState && this.upgrade && this.transport.pause) {
     debug('starting upgrade probes');
     for (var i = 0, l = this.upgrades.length; i < l; i++) {
@@ -617,17 +617,14 @@ Socket.prototype.onClose = function (reason, desc) {
     this.transport.removeAllListeners();
 
     // set ready state
-    var prev = this.readyState;
     this.readyState = 'closed';
 
     // clear session id
     this.id = null;
 
-    // emit events
-    if (prev == 'open') {
-      this.emit('close', reason, desc);
-      this.onclose && this.onclose.call(this);
-    }
+    // emit close event
+    this.emit('close', reason, desc);
+    this.onclose && this.onclose.call(this);
   }
 };
 
@@ -1363,7 +1360,7 @@ var global = require('global');
  * Obfuscated key for Blue Coat.
  */
 
-var xobject = global[['Active'].concat('Object').join('X')];
+var hasAttachEvent = global.document && global.document.attachEvent;
 
 /**
  * Empty function
@@ -1536,7 +1533,7 @@ Request.prototype.create = function(){
     return;
   }
 
-  if (xobject) {
+  if (hasAttachEvent) {
     this.index = Request.requestsCount++;
     Request.requests[this.index] = this;
   }
@@ -1582,8 +1579,7 @@ Request.prototype.onError = function(err){
  */
 
 Request.prototype.cleanup = function(){
-  // !this.xhr is used to check both undefined and null, see issue #180
-  if (!this.xhr) {
+  if ('undefined' == typeof this.xhr ) {
     return;
   }
   // xmlhttprequest
@@ -1593,7 +1589,7 @@ Request.prototype.cleanup = function(){
     this.xhr.abort();
   } catch(e) {}
 
-  if (xobject) {
+  if (hasAttachEvent) {
     delete Request.requests[this.index];
   }
 
@@ -1610,7 +1606,12 @@ Request.prototype.abort = function(){
   this.cleanup();
 };
 
-if (xobject) {
+/**
+ * Cleanup is needed for old versions of IE
+ * that leak memory unless we abort request before unload.
+ */
+
+if (hasAttachEvent) {
   Request.requestsCount = 0;
   Request.requests = {};
 
@@ -1863,10 +1864,17 @@ Polling.prototype.uri = function(){
  */
 
 var Transport = require('../transport');
-var WebSocket = require('ws');
 var parser = require('engine.io-parser');
 var util = require('../util');
 var debug = require('debug')('engine.io-client:websocket');
+
+/**
+ * `ws` exposes a WebSocket-compatible interface in
+ * Node, or the `WebSocket` or `MozWebSocket` globals
+ * in the browser.
+ */
+
+var WebSocket = require('ws');
 
 /**
  * Module exports.
@@ -2221,7 +2229,7 @@ exports.ua.chromeframe = Boolean(global.externalHost);
  * @api private
  */
 
-var re = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+var re = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
 
 var parts = [
     'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host'
@@ -2821,8 +2829,14 @@ var global = require('global');
  *   - https://github.com/Modernizr/Modernizr/blob/master/feature-detects/cors.js
  */
 
-module.exports = 'XMLHttpRequest' in global &&
-  'withCredentials' in new global.XMLHttpRequest();
+try {
+  module.exports = 'XMLHttpRequest' in global &&
+    'withCredentials' in new global.XMLHttpRequest();
+} catch (err) {
+  // if XMLHttp support is disabled in IE then it will throw
+  // when trying to create
+  module.exports = false;
+}
 
 },{"global":19}],21:[function(require,module,exports){
 
