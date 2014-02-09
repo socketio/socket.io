@@ -723,21 +723,72 @@ describe('server', function () {
       });
     });
 
-    // tests https://github.com/LearnBoost/engine.io-client/issues/164
-    it('should not trigger close without open', function(done){
-      var opts = { allowUpgrades: false };
+    // tests https://github.com/LearnBoost/engine.io-client/issues/207
+    // websocket test, transport error
+    it('should trigger transport close before open for ws', function(done){
+      var opts = { transports: ['websocket'] };
       var engine = listen(opts, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
-        socket.close();
+        var socket = new eioc.Socket('ws://invalidserver:%d'.s(port));
         socket.on('open', function(){
-          throw new Error('Nope');
+          done(new Error('Test invalidation'));
         });
-        socket.on('close', function(){
-          throw new Error('Nope');
+        socket.on('close', function(reason){
+          expect(reason).to.be('transport error');
+          done();
         });
-        setTimeout(done, 100);
       });
     });
+
+    // tests https://github.com/LearnBoost/engine.io-client/issues/207
+    // polling test, transport error
+    it('should trigger transport close before open for xhr', function(done){
+      var opts = { transports: ['polling'] };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('http://invalidserver:%d'.s(port));
+        socket.on('open', function(){
+          done(new Error('Test invalidation'));
+        });
+        socket.on('close', function(reason){
+          expect(reason).to.be('transport error');
+          done();
+        });
+      });
+    });
+
+    // tests https://github.com/LearnBoost/engine.io-client/issues/207
+    // websocket test, force close
+    it('should trigger force close before open for ws', function(done){
+      var opts = { transports: ['websocket'] };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.on('open', function(){
+          done(new Error('Test invalidation'));
+        });
+        socket.on('close', function(reason){
+          expect(reason).to.be('forced close');
+          done();
+        });
+        socket.close();
+      });
+    });
+
+    // tests https://github.com/LearnBoost/engine.io-client/issues/207
+    // polling test, force close
+    it('should trigger force close before open for xhr', function(done){
+      var opts = { transports: ['polling'] };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('http://localhost:%d'.s(port));
+        socket.on('open', function(){
+          done(new Error('Test invalidation'));
+        });
+        socket.on('close', function(reason){
+          expect(reason).to.be('forced close');
+          done();
+        });
+        socket.close();
+      });
+    });
+
   });
 
   describe('messages', function () {
