@@ -94,7 +94,7 @@ Socket.IO is also compatible with
 
 #### Events
 
-  - `connect`. Fired upon a succesful connection.
+  - `connect`. Fired upon a successful connection.
   - `connect_error`. Fired upon a connection error.
     Parameters:
       - `Object` error object
