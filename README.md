@@ -115,6 +115,8 @@ Exposed as `eio` in the browser standalone build.
   - Fired after `drain` event of transport if writeBuffer is empty
 - `upgradeError`
   - Fired if an error occurs with a transport we're trying to upgrade to.
+- `upgrade`
+  - Fired upon upgrade success, after the new transport is set
 
 #### Methods
 
