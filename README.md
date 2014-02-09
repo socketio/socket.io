@@ -321,37 +321,10 @@ npm install
 
 ## Tests
 
-### Unit/Integration
+Tests run with `make test`. It runs the server tests that are aided by
+the usage of `engine.io-client`.
 
-```
-$ make test
-```
-
-### Acceptance
-
-```
-# make test-acceptance
-```
-
-And point browser/s to `http://localhost:3000`.
-
-### Server
-
-## Benchmarks
-
-### Server
-
-```
-$ make bench
-```
-
-### Client
-
-```
-$ make bench-server
-```
-
-And point browser/s to `http://localhost:3000`.
+Make sure `npm install` is run first.
 
 ## Goals
 
