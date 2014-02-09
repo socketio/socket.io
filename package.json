@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "base64-arraybuffer": "0.1.0",
-    "after": "0.8.1"
+    "after": "0.8.1",
+    "arraybuffer.slice": "0.0.4"
   },
   "component": {
     "scripts": {
