@@ -1,6 +1,6 @@
 {
   "name": "engine.io",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server",
   "main": "./lib/engine.io",
   "author": "Guillermo Rauch <guillermo@learnboost.com>",
@@ -25,7 +25,7 @@
     "mocha": "1.12.0",
     "expect.js": "0.2.0",
     "superagent": "0.15.4",
-    "engine.io-client": "0.8.2",
+    "engine.io-client": "0.9.0",
     "s": "0.1.1"
   },
   "scripts": { "test" : "make test" },

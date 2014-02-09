@@ -1,4 +1,13 @@
 
+0.9.0 / 2014-02-09
+==================
+
+ * Prevent errors with connections behind proxies without WS support
+   like Squid [nicklagrow, samaanghani, davidhcummings]
+ * Socket#request a simple property [mokesmokes]
+ * Changed `Socket`'s `upgrade` event to happen after upgrade [mokesmokes]
+ * Document `Socket#id` [mokesmokes]
+
 0.8.2 / 2014-01-18
 ==================
 
