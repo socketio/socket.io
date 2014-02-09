@@ -105,7 +105,8 @@ Exposed as `eio` in the browser standalone build.
   - **Arguments**
     - `String`: utf-8 encoded data
 - `close`
-  - Fired upon disconnection.
+  - Fired upon disconnection. In compliance with the WebSocket API spec, this event may be 
+    fired even if the `open` event does not occur (i.e. due to connection error or `close()`).
 - `error`
   - Fired when an error occurs.
 - `flush`
