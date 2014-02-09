@@ -2679,7 +2679,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
  */
 
 var keys = require('./keys');
-var sliceBuffer = require('./slice-buffer');
+var sliceBuffer = require('arraybuffer.slice');
 var base64encoder = require('base64-arraybuffer');
 var after = require('after');
 
@@ -2852,7 +2852,18 @@ exports.encodeBase64Packet = function(packet, callback) {
     return fr.readAsDataURL(packet.data);
   }
 
-  var b64data = String.fromCharCode.apply(null, new Uint8Array(packet.data));
+  var b64data;
+  try {
+    b64data = String.fromCharCode.apply(null, new Uint8Array(packet.data));
+  } catch (e) {
+    // iPhone Safari doesn't let you apply with typed arrays
+    var typed = new Uint8Array(packet.data);
+    var basic = new Array(typed.length);
+    for (var i = 0; i < typed.length; i++) {
+      basic[i] = typed[i];
+    }
+    b64data = String.fromCharCode.apply(null, basic);
+  }
   message += global.btoa(b64data);
   return callback(message);
 };
@@ -3207,7 +3218,19 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
     msgLength = parseInt(msgLength);
 
     var msg = sliceBuffer(bufferTail, 0, msgLength);
-    if (isString) msg = String.fromCharCode.apply(null, new Uint8Array(msg));
+    if (isString) {
+      try {
+        msg = String.fromCharCode.apply(null, new Uint8Array(msg));
+      } catch (e) {
+        // iPhone Safari doesn't let you apply to typed arrays
+        var typed = new Uint8Array(msg);
+        var basic = new Array(typed.length);
+        for (var i = 0; i < typed.length; i++) {
+          basic[i] = typed[i];
+        }
+        msg = String.fromCharCode.apply(null, basic);
+      }
+    }
     buffers.push(msg);
     bufferTail = sliceBuffer(bufferTail, msgLength);
   }
@@ -3218,7 +3241,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
   });
 };
 
-},{"./keys":17,"./slice-buffer":18,"after":19,"base64-arraybuffer":20}],17:[function(require,module,exports){
+},{"./keys":17,"after":18,"arraybuffer.slice":19,"base64-arraybuffer":20}],17:[function(require,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -3240,37 +3263,6 @@ module.exports = Object.keys || function keys (obj){
 };
 
 },{}],18:[function(require,module,exports){
-/**
- * An abstraction for slicing an arraybuffer even when
- * ArrayBuffer.prototype.slice is not supported
- *
- * @api private
- */
-
-module.exports = function(arraybuffer, start, end) {
-  var bytes = arraybuffer.byteLength;
-  start = start || 0;
-  end = end || bytes;
-
-  if (arraybuffer.slice) { return arraybuffer.slice(start, end); }
-  
-  if (start < 0) { start += bytes; }
-  if (end < 0) { end += bytes; }
-  if (end > bytes) { end = bytes; }
-
-  if (start >= bytes || start >= end || bytes == 0) { 
-    return new ArrayBuffer(0);
-  }
-
-  var abv = new Uint8Array(arraybuffer);
-  var result = Uint8Array(end - start);
-  for (var i = start, ii = 0; i < end; i++, ii++) {
-    result[ii] = abv[i];
-  }
-  return result.buffer;
-};
-
-},{}],19:[function(require,module,exports){
 module.exports = after
 
 function after(count, callback, err_cb) {
@@ -3299,6 +3291,37 @@ function after(count, callback, err_cb) {
 }
 
 function noop() {}
+
+},{}],19:[function(require,module,exports){
+/**
+ * An abstraction for slicing an arraybuffer even when
+ * ArrayBuffer.prototype.slice is not supported
+ *
+ * @api private
+ */
+
+module.exports = function(arraybuffer, start, end) {
+  var bytes = arraybuffer.byteLength;
+  start = start || 0;
+  end = end || bytes;
+
+  if (arraybuffer.slice) { return arraybuffer.slice(start, end); }
+
+  if (start < 0) { start += bytes; }
+  if (end < 0) { end += bytes; }
+  if (end > bytes) { end = bytes; }
+
+  if (start >= bytes || start >= end || bytes == 0) { 
+    return new ArrayBuffer(0);
+  }
+
+  var abv = new Uint8Array(arraybuffer);
+  var result = new Uint8Array(end - start);
+  for (var i = start, ii = 0; i < end; i++, ii++) {
+    result[ii] = abv[i];
+  }
+  return result.buffer;
+};
 
 },{}],20:[function(require,module,exports){
 /*
