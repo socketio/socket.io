@@ -13,13 +13,13 @@ describe('Socket', function () {
   });
 
   describe('socketClosing', function(){
-    it('should not emit close on incorrect connection', function (done) {
+    it('should emit close on incorrect connection', function(done){
       var socket = new eio.Socket('ws://0.0.0.0:8080');
       var closed = false;
 
       socket.once('error', function(){
         setTimeout(function(){
-          expect(closed).to.be(false);
+          expect(closed).to.be(true);
           done();
         }, 20);
       });
