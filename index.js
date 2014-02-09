@@ -88,13 +88,14 @@ exports.ERROR = 4;
  * @api public
  */
 
-exports.encode = function(obj){
+exports.encode = function(obj, callback){
   debug('encoding packet %j', obj);
   if (obj.type === exports.BINARY_EVENT) {
-    return encodeAsBinary(obj);
+    encodeAsBinary(obj, callback);
   }
   else {
-    return encodeAsString(obj);
+    var encoding = encodeAsString(obj);
+    callback(encoding);
   }
 };
 
@@ -147,8 +148,61 @@ function encodeAsString(obj) {
  * @api private
  */
 
-function encodeAsBinary(obj) {
-  return msgpack.encode(obj);
+function encodeAsBinary(obj, callback) {
+  if (global.Blob) {
+    removeBlobs(obj, callback);
+  } else {
+    var encoding = msgpack.encode(obj);
+    callback(encoding);
+  }
+}
+
+function removeBlobs(data, callback) {
+
+  function removeBlobsRecursive(obj, curKey, containingObject) {
+    if (!obj) return obj;
+
+    // convert any blob
+    if ((global.Blob && obj instanceof Blob)) {
+      pendingBlobs++;
+
+      // async filereader
+      var fileReader = new FileReader();
+      fileReader.onload = function() { // this.result == arraybuffer
+        if (containingObject) {
+          containingObject[curKey] = this.result;
+        }
+        else {
+          bloblessData = this.result;
+        }
+
+        // if nothing pending its callback time
+        if(! --pendingBlobs) {
+          callback(msgpack.encode(bloblessData));
+        }
+      };
+
+      fileReader.readAsArrayBuffer(obj); // blob -> arraybuffer
+    }
+
+    // handle array
+    if (Array.isArray(obj)) {
+      for (var i = 0; i < obj.length; i++) {
+        removeBlobsRecursive(obj[i], i, obj);
+      }
+    } else if (obj && 'object' == typeof obj) { // and object
+      for (var key in obj) {
+        removeBlobsRecursive(obj[key], key, obj);
+      }
+    }
+  }
+
+  var pendingBlobs = 0;
+  var bloblessData = data;
+  removeBlobsRecursive(bloblessData);
+  if (!pendingBlobs)  {
+    callback(msgpack.encode(bloblessData));
+  }
 }
 
 exports.decode = function(obj) {
@@ -160,6 +214,9 @@ exports.decode = function(obj) {
   }
   else if (global.ArrayBuffer && obj instanceof ArrayBuffer) {
     return decodeArrayBuffer(obj);
+  }
+  else if (global.Blob && obj instanceof Blob) {
+    return decodeBlob(obj);
   }
   else {
     throw new Error('type is weird: ' + obj);
@@ -245,6 +302,18 @@ function decodeBuffer(buf) {
  */
 
 function decodeArrayBuffer(buf) {
+  return msgpack.decode(buf);
+};
+
+/**
+ * Decode a packet Blob (binary data)
+ *
+ * @param {Blob} buf
+ * @return {Object} packet
+ * @api private
+ */
+
+function decodeBlob(blob) {
   return msgpack.decode(buf);
 };
 
