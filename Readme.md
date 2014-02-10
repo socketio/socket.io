@@ -68,3 +68,7 @@ Emitter(User.prototype);
 ### Emitter#hasListeners(event)
 
   Check if this emitter has `event` handlers.
+
+## License
+
+MIT
