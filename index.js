@@ -149,7 +149,7 @@ function encodeAsString(obj) {
  */
 
 function encodeAsBinary(obj, callback) {
-  if (global.Blob) {
+  if (global.Blob || global.File) {
     removeBlobs(obj, callback);
   } else {
     var encoding = msgpack.encode(obj);
@@ -157,13 +157,24 @@ function encodeAsBinary(obj, callback) {
   }
 }
 
+/**
+ * Asynchronously removes Blobs or Files from data via
+ * FileReaders readAsArrayBuffer method. Used before encoding
+ * data as msgpack. Calls callback with the blobless data.
+ *
+ * @param {Object} data
+ * @param {Function} callback
+ * @api private
+ */
+
 function removeBlobs(data, callback) {
 
   function removeBlobsRecursive(obj, curKey, containingObject) {
     if (!obj) return obj;
 
     // convert any blob
-    if ((global.Blob && obj instanceof Blob)) {
+    if ((global.Blob && obj instanceof Blob) ||
+        (global.File && obj instanceof File)) {
       pendingBlobs++;
 
       // async filereader
@@ -204,6 +215,15 @@ function removeBlobs(data, callback) {
     callback(msgpack.encode(bloblessData));
   }
 }
+
+/**
+ * Decodes a packet Object (msgpack or string) into
+ * packet JSON.
+ *
+ * @param {Object} obj
+ * @return {Object} packet
+ * @api public
+ */
 
 exports.decode = function(obj) {
   if ('string' === typeof obj) {
