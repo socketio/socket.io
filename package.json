@@ -1,5 +1,5 @@
 {
-  "name": "emitter-component",
+  "name": "component-emitter",
   "description": "Event emitter",
   "version": "1.1.1",
   "devDependencies": {
