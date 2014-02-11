@@ -7,7 +7,7 @@
     "url": "https://github.com/LearnBoost/socket.io-protocol.git"
   },
   "dependencies": {
-    "debug": "0.6.0",
+    "debug": "0.7.4",
     "json3": "3.2.6"
   },
   "devDependencies": {
