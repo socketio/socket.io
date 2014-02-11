@@ -1,3 +1,11 @@
+
+1.1.1 / 2013-12-01
+==================
+
+  * fix .once adding .on to the listener
+  * docs: Emitter#off()
+  * component: add `.repo` prop
+
 1.1.0 / 2013-10-20
 ==================
 
