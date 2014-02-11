@@ -24,8 +24,9 @@ var canUseBlobs =  (function() {
   try {
     new Blob(["hi"]);
     return true;
-  } catch(e) {}
-  return !!global.BlobBuilder;
+  } catch(e) {
+    return !!global.BlobBuilder;
+  }
 })();
 
 /**

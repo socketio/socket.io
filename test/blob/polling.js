@@ -31,7 +31,7 @@ describe('blob', function() {
     for (var i = 0; i < 5; i++) binaryData[i] = i;
     var socket = new eio.Socket();
     socket.on('open', function() {
-      socket.send(new Blob([binaryData]));
+      socket.send(new Blob([binaryData.buffer]));
       socket.on('message', function (data) {
         if (typeof data == 'string') { return; }
 

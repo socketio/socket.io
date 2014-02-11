@@ -32,7 +32,7 @@ describe('blob', function() {
     var socket = new eio.Socket();
     socket.on('open', function() {
       socket.on('upgrade', function() {
-        socket.send(new Blob([binaryData]));
+        socket.send(new Blob([binaryData.buffer]));
         socket.on('message', function (data) {
           expect(data).to.be.an(ArrayBuffer);
           expect(new Int8Array(data)).to.eql(binaryData);
@@ -49,7 +49,7 @@ describe('blob', function() {
     var socket = new eio.Socket({ forceBase64: true });
     socket.on('open', function() {
       socket.on('upgrade', function() {
-        socket.send(new Blob([binaryData]));
+        socket.send(new Blob([binaryData.buffer]));
         socket.on('message', function (data) {
           expect(data).to.be.an(ArrayBuffer);
           expect(new Int8Array(data)).to.eql(binaryData);
