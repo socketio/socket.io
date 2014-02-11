@@ -1,8 +1,0 @@
-ui: mocha-qunit
-browsers:
-  - name: chrome
-    version: 27..latest
-  - name: ie
-    version: latest
-  - name: iphone
-    version: 6.1
