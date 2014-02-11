@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "debug": "0.7.4",
-    "json3": "3.2.6"
+    "json3": "3.3.0"
   },
   "devDependencies": {
     "mocha": "1.16.2",
