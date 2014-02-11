@@ -7,12 +7,12 @@
     "emitter": "http://github.com/component/emitter/archive/1.0.1.tar.gz",
     "bind": "http://github.com/component/bind/archive/0.0.1.tar.gz",
     "object-component": "0.0.3",
-    "socket.io-parser": "1.1.0",
+    "socket.io-parser": "1.1.1",
     "to-array": "0.1.3",
     "debug": "0.7.4"
   },
   "devDependencies": {
-    "socket.io": "https://github.com/LearnBoost/socket.io/archive/48936231eaca61f557dd44a5200a5cd4ac1545c9.tar.gz",
+    "socket.io": "https://github.com/LearnBoost/socket.io/archive/980b6a7c40ff4d32bd3377cc1f16009f3bf189c9.tar.gz",
     "mocha": "1.16.2",
     "zuul": "1.5.2",
     "istanbul": "0.2.1",
