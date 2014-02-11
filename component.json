@@ -2,8 +2,13 @@
   "name": "emitter",
   "repo": "component/emitter",
   "description": "Event emitter",
-  "keywords": ["emitter", "events"],
-  "version": "1.1.1",
-  "scripts": ["index.js"],
+  "keywords": [
+    "emitter",
+    "events"
+  ],
+  "version": "1.1.2",
+  "scripts": [
+    "index.js"
+  ],
   "license": "MIT"
 }

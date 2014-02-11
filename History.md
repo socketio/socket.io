@@ -1,4 +1,13 @@
 
+1.1.2 / 2014-02-10
+==================
+
+  * package: rename to "component-emitter"
+  * package: update "main" and "component" fields
+  * Add license to Readme (same format as the other components)
+  * created .npmignore
+  * travis stuff
+
 1.1.1 / 2013-12-01
 ==================
 
