@@ -6,15 +6,8 @@
   "scripts": {
     "test": "node app"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/grant/socket.io-chat"
-  },
   "author": "Grant Timmerman",
   "license": "BSD",
-  "bugs": {
-    "url": "https://github.com/grant/socket.io-chat/issues"
-  },
   "dependencies": {
     "express": "~3.4.8"
   }
