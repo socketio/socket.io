@@ -10,7 +10,7 @@ $(function() {
   $inputMessage.attr('placeholder', 'username').focus();
   $sendMessage.html('set username');
 
-  var socket = io.connect();
+  var socket = io();
 
   // Sets the client's username
   function setUsername () {

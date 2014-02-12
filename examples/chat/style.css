@@ -1,4 +1,5 @@
 /* Fix user-agent */
+
 * {
   box-sizing: border-box;
 }
@@ -10,6 +11,7 @@ html, body {
 }
 
 /* Font */
+
 .messages, .inputMessage, .sendMessage {
   font-family: Arial;
   font-size: 20px;
@@ -20,6 +22,7 @@ html, body {
 }
 
 /* Messages */
+
 .messages {
   height: 100%;
   margin: 0;
@@ -47,6 +50,7 @@ html, body {
 }
 
 /* Input */
+
 .inputArea {
   bottom: 0;
   height: 50px;
@@ -63,6 +67,7 @@ html, body {
 }
 
 /* Send message button */
+
 .sendMessage {
   float: left;
   height: 100%;

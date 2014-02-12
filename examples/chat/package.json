@@ -9,6 +9,6 @@
   "author": "Grant Timmerman",
   "license": "BSD",
   "dependencies": {
-    "express": "~3.4.8"
+    "express": "3.4.8"
   }
 }
