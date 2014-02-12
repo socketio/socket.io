@@ -7,6 +7,7 @@ var debug = require('debug')('socket.io-parser');
 var json = require('json3');
 if (!global.document) { var msgpack = require('msgpack-js'); } // in node
 else { var msgpack = require('msgpack-js-browser'); } // in browswer
+var isArray = require('isarray');
 
 
 /**
@@ -197,7 +198,7 @@ function removeBlobs(data, callback) {
     }
 
     // handle array
-    if (Array.isArray(obj)) {
+    if (isArray(obj)) {
       for (var i = 0; i < obj.length; i++) {
         removeBlobsRecursive(obj[i], i, obj);
       }

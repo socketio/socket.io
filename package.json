@@ -10,7 +10,8 @@
     "debug": "0.7.4",
     "msgpack-js": "0.3.0",
     "json3": "3.2.6",
-    "msgpack-js-browser": "~0.1.4"
+    "isarray": "0.0.1",
+    "msgpack-js-browser": "0.1.4"
   },
   "devDependencies": {
     "mocha": "1.16.2",
