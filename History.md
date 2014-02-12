@@ -1,4 +1,43 @@
 
+0.9.0 / 2014-02-09
+==================
+
+ * Prevent errors with connections behind proxies without WS support
+   like Squid [nicklagrow, samaanghani, davidhcummings]
+ * Socket#request a simple property [mokesmokes]
+ * Changed `Socket`'s `upgrade` event to happen after upgrade [mokesmokes]
+ * Document `Socket#id` [mokesmokes]
+
+0.8.2 / 2014-01-18
+==================
+
+ * package: bump `engine.io-client`
+
+0.8.1 / 2014-01-17
+==================
+
+ * package: bump `engine.io-client`
+ * package: pin dev deps
+ * examples: fix port output
+ * fix latency example
+
+0.8.0 / 2014-01-05
+==================
+
+ * package: bump `engine.io-client` to `0.8.0`
+ * test: fix syntax, remove globals
+
+0.7.14 / 2014-01-01
+===================
+
+ * package: bump `engine.io-client` to `0.7.14`
+
+0.7.13 / 2013-12-20
+===================
+
+ * package: bump `engine.io-client`
+ * transports: added support for XSS filters on IE [guille, 3rd-eden]
+
 0.7.12 / 2013-11-11
 ===================
 

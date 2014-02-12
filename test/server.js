@@ -1,10 +1,14 @@
-/*global eio,eioc,listen,request,expect*/
 
 /**
  * Tests dependencies.
  */
 
 var http = require('http');
+var eio = require('..');
+var eioc = require('engine.io-client');
+var listen = require('./common').listen;
+var expect = require('expect.js');
+var request = require('superagent');
 var WebSocket = require('ws');
 
 /**
@@ -197,6 +201,34 @@ describe('server', function () {
           expect(obj.upgrades).to.have.contain('flashsocket');
           expect(obj.upgrades).to.have.contain('websocket');
           done();
+        });
+      });
+    });
+
+    it('default to polling when proxy doesn\'t support websocket', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+
+        engine.on('connection', function (socket) {
+          socket.on('message', function (msg) {
+            if ('echo' == msg) socket.send(msg);
+          });
+        });
+
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.on('open', function () {
+          request.get('http://localhost:%d/engine.io/'.s(port))
+          .set({ connection: 'close' })
+          .query({ transport: 'websocket', sid: socket.id })
+          .end(function (err, res) {
+            expect(err).to.be(null);
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(3);
+            socket.send('echo');
+            socket.on('message', function (msg) {
+              expect(msg).to.be('echo');
+              done();
+            });
+          });
         });
       });
     });
@@ -683,7 +715,7 @@ describe('server', function () {
               expect(clientCloseReason).to.be(null);
             }, 350);
             setTimeout(function() {
-              expect(clientCloseReason).to.be("ping timeout");
+              expect(clientCloseReason).to.be('ping timeout');
               done();
             }, 500);
           });
@@ -691,21 +723,72 @@ describe('server', function () {
       });
     });
 
-    // tests https://github.com/LearnBoost/engine.io-client/issues/164
-    it('should not trigger close without open', function(done){
-      var opts = { allowUpgrades: false };
+    // tests https://github.com/LearnBoost/engine.io-client/issues/207
+    // websocket test, transport error
+    it('should trigger transport close before open for ws', function(done){
+      var opts = { transports: ['websocket'] };
       var engine = listen(opts, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
-        socket.close();
+        var socket = new eioc.Socket('ws://invalidserver:%d'.s(port));
         socket.on('open', function(){
-          throw new Error('Nope');
+          done(new Error('Test invalidation'));
         });
-        socket.on('close', function(){
-          throw new Error('Nope');
+        socket.on('close', function(reason){
+          expect(reason).to.be('transport error');
+          done();
         });
-        setTimeout(done, 100);
       });
     });
+
+    // tests https://github.com/LearnBoost/engine.io-client/issues/207
+    // polling test, transport error
+    it('should trigger transport close before open for xhr', function(done){
+      var opts = { transports: ['polling'] };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('http://invalidserver:%d'.s(port));
+        socket.on('open', function(){
+          done(new Error('Test invalidation'));
+        });
+        socket.on('close', function(reason){
+          expect(reason).to.be('transport error');
+          done();
+        });
+      });
+    });
+
+    // tests https://github.com/LearnBoost/engine.io-client/issues/207
+    // websocket test, force close
+    it('should trigger force close before open for ws', function(done){
+      var opts = { transports: ['websocket'] };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.on('open', function(){
+          done(new Error('Test invalidation'));
+        });
+        socket.on('close', function(reason){
+          expect(reason).to.be('forced close');
+          done();
+        });
+        socket.close();
+      });
+    });
+
+    // tests https://github.com/LearnBoost/engine.io-client/issues/207
+    // polling test, force close
+    it('should trigger force close before open for xhr', function(done){
+      var opts = { transports: ['polling'] };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('http://localhost:%d'.s(port));
+        socket.on('open', function(){
+          done(new Error('Test invalidation'));
+        });
+        socket.on('close', function(reason){
+          expect(reason).to.be('forced close');
+          done();
+        });
+        socket.close();
+      });
+    });
+
   });
 
   describe('messages', function () {
@@ -1356,14 +1439,19 @@ describe('server', function () {
             }
           }, 2);
 
+          expect(conn.request.query.transport).to.be('polling');
+
           conn.on('message', function (msg) {
+            expect(conn.request.query).to.be.an('object');
             lastReceived++;
             expect(msg).to.eql(lastReceived);
           });
 
           conn.on('upgrade', function (to) {
+            expect(conn.request.query.transport).to.be('polling');
             upgraded = true;
             expect(to.name).to.be('websocket');
+            expect(conn.transport.name).to.be('websocket');
           });
 
           conn.on('close', function (reason) {

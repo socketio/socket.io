@@ -1,3 +1,4 @@
+
 # Engine.IO: the realtime engine
 
 [![Build Status](https://secure.travis-ci.org/LearnBoost/engine.io.png)](http://travis-ci.org/LearnBoost/engine.io)
@@ -14,8 +15,8 @@ bi-directional communication layer for
 #### (A) Listening on a port
 
 ```js
-var engine = require('engine.io')
-  , server = engine.listen(80)
+var engine = require('engine.io');
+var server = engine.listen(80);
 
 server.on('connection', function (socket) {
   socket.send('utf 8 string');
@@ -25,9 +26,9 @@ server.on('connection', function (socket) {
 #### (B) Intercepting requests for a http.Server
 
 ```js
-var engine = require('engine.io')
-  , http = require('http').createServer().listen(3000)
-  , server = engine.attach(http)
+var engine = require('engine.io');
+var http = require('http').createServer().listen(3000);
+var server = engine.attach(http);
 
 server.on('connection', function (socket) {
   socket.on('message', function () { });
@@ -38,8 +39,8 @@ server.on('connection', function (socket) {
 #### (C) Passing in requests
 
 ```js
-var engine = require('engine.io')
-  , server = new engine.Server()
+var engine = require('engine.io');
+var server = new engine.Server();
 
 server.on('connection', function (socket) {
   socket.send('hi');
@@ -244,6 +245,7 @@ A representation of a client. _Inherits from EventEmitter_.
 
 ##### Properties
 
+- `id` _(String)_: unique identifier
 - `server` _(Server)_: engine parent reference
 - `request` _(http.ServerRequest)_: request that originated the Socket
 - `upgraded` _(Boolean)_: whether the transport has been upgraded
@@ -319,37 +321,10 @@ npm install
 
 ## Tests
 
-### Unit/Integration
+Tests run with `make test`. It runs the server tests that are aided by
+the usage of `engine.io-client`.
 
-```
-$ make test
-```
-
-### Acceptance
-
-```
-# make test-acceptance
-```
-
-And point browser/s to `http://localhost:3000`.
-
-### Server
-
-## Benchmarks
-
-### Server
-
-```
-$ make bench
-```
-
-### Client
-
-```
-$ make bench-server
-```
-
-And point browser/s to `http://localhost:3000`.
+Make sure `npm install` is run first.
 
 ## Goals
 
@@ -474,19 +449,15 @@ has you covered.
 
 ### Can I implement `Engine` in other languages?
 
-Absolutely. The [SPEC](https://github.com/LearnBoost/engine.io-client/blob/master/SPEC.md)
-file contains the most up to date description of the implementation specification
-at all times. If you're targeting the latest stable release of `Engine`, make sure
-to look at the file in the appropriate git branch/tag.
-
-The Java/NIO implementation will be officially supported, and is being worked
-on by the author.
+Absolutely. The [engine.io-protocol](https://github.com/LearnBoost/engine.io-protocol)
+repository contains the most up to date description of the specification
+at all times, and the parser implementation in JavaScript.
 
 ## License 
 
 (The MIT License)
 
-Copyright (c) 2011 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
+Copyright (c) 2014 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

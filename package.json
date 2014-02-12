@@ -1,35 +1,36 @@
 {
-    "name": "engine.io"
-  , "version": "0.7.12"
-  , "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server"
-  , "main": "./lib/engine.io"
-  , "author": "Guillermo Rauch <guillermo@learnboost.com>"
-  , "homepage": "https://github.com/LearnBoost/engine.io"
-  , "repository" : {
-          "type" : "git"
-        , "url" : "git://github.com/LearnBoost/engine.io.git"
-    }
-  , "contributors": [
-        { "name": "Eugen Dueck", "web": "https://github.com/EugenDueck" },
-        { "name": "Afshin Mehrabani", "web": "https://github.com/afshinm" },
-        { "name": "Christoph Dorn", "web": "https://github.com/cadorn" }
-    ]
-  , "dependencies": {
-        "debug": "0.6.0"
-      , "ws": "0.4.31"
-      , "engine.io-parser": "0.3.0"
-      , "base64id": "0.1.0"
-    }
-  , "devDependencies": {
-        "mocha": "*"
-      , "expect.js": "*"
-      , "superagent": "*"
-      , "engine.io-client": "0.7.12"
-      , "s": "*"
-    }
-  , "scripts" : { "test" : "make test" }
-  , "repository": {
-        "type": "git"
-      , "url": "git@github.com:LearnBoost/engine.io.git"
+  "name": "engine.io",
+  "version": "0.9.0",
+  "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server",
+  "main": "./lib/engine.io",
+  "author": "Guillermo Rauch <guillermo@learnboost.com>",
+  "homepage": "https://github.com/LearnBoost/engine.io",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/LearnBoost/engine.io.git"
+  },
+  "contributors": [
+    { "name": "Eugen Dueck", "web": "https://github.com/EugenDueck" },
+    { "name": "Afshin Mehrabani", "web": "https://github.com/afshinm" },
+    { "name": "Christoph Dorn", "web": "https://github.com/cadorn" },
+    { "name": "Mark Mokryn", "email": "mokesmokes@gmail.com"}
+  ],
+  "dependencies": {
+    "debug": "0.6.0",
+    "ws": "0.4.31",
+    "engine.io-parser": "0.3.0",
+    "base64id": "0.1.0"
+  },
+  "devDependencies": {
+    "mocha": "1.12.0",
+    "expect.js": "0.2.0",
+    "superagent": "0.15.4",
+    "engine.io-client": "0.9.0",
+    "s": "0.1.1"
+  },
+  "scripts": { "test" : "make test" },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:LearnBoost/engine.io.git"
   }
 }

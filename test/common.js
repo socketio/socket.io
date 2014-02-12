@@ -1,39 +1,21 @@
 
 /**
- * Expose `eio` global.
+ * Module dependencies.
  */
 
-global.eio = require('../index');
-
-/**
- * Expose client.
- */
-
-global.eioc = require('engine.io-client');
-
-/**
- * Expose `request` global.
- */
-
-global.request = require('superagent');
-
-/**
- * Expose `expect` global
- */
-
-global.expect = require('expect.js');
+var eio = require('..');
 
 /**
  * Listen shortcut that fires a callback on an epheemal port.
  */
 
-global.listen = function (opts, fn) {
+exports.listen = function (opts, fn) {
   if ('function' == typeof opts) {
     fn = opts;
     opts = {};
   }
 
-  var e = global.eio.listen(null, opts, function () {
+  var e = eio.listen(null, opts, function () {
     fn(e.httpServer.address().port);
   });
 
