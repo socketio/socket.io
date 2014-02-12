@@ -8,6 +8,7 @@ var json = require('json3');
 if (!global.document) { var msgpack = require('msgpack-js'); } // in node
 else { var msgpack = require('msgpack-js-browser'); } // in browswer
 var isArray = require('isarray');
+var base64 = require('base64-js');
 
 
 /**
@@ -230,14 +231,13 @@ exports.decode = function(obj) {
   if ('string' === typeof obj) {
     return decodeString(obj);
   }
-  else if (Buffer.isBuffer(obj)) {
+  else if (Buffer.isBuffer(obj) ||
+          (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
+          (global.Blob && obj instanceof Blob)) {
     return decodeBuffer(obj);
   }
-  else if (global.ArrayBuffer && obj instanceof ArrayBuffer) {
-    return decodeArrayBuffer(obj);
-  }
-  else if (global.Blob && obj instanceof Blob) {
-    return decodeBlob(obj);
+  else if (obj.base64) {
+    return decodeBase64(obj.data);
   }
   else {
     throw new Error('type is weird: ' + obj);
@@ -303,9 +303,9 @@ function decodeString(str) {
 };
 
 /**
- * Decode a packet Buffer (binary data)
+ * Decode binary data packet into JSON packet
  *
- * @param {Buffer} buf
+ * @param {Buffer | ArrayBuffer | Blob} buf
  * @return {Object} packet
  * @api private
  */
@@ -315,27 +315,58 @@ function decodeBuffer(buf) {
 };
 
 /**
- * Decode a packet ArrayBuffer (binary data)
+ * Decode base64 msgpack string into a packet
  *
- * @param {ArrayBuffer} buf
+ * @param {String} b64
  * @return {Object} packet
  * @api private
  */
 
-function decodeArrayBuffer(buf) {
-  return msgpack.decode(buf);
-};
+var NSP_SEP = 163;
+var EVENT_SEP = 146;
+var EVENT_STOP = 216;
 
-/**
- * Decode a packet Blob (binary data)
- *
- * @param {Blob} buf
- * @return {Object} packet
- * @api private
- */
+function decodeBase64(b64) {
+  var packet = {type: exports.BINARY_EVENT};
+  var bytes = base64.toByteArray(b64);
 
-function decodeBlob(blob) {
-  return msgpack.decode(buf);
+  var nsp = '';
+  var eventName = '';
+  var data = [];
+  var currentThing;
+
+  for (var i = 0; i < bytes.length; i++) {
+    var b = bytes[i];
+    if (!currentThing) {
+      if (b == EVENT_SEP && !eventName) {
+        currentThing = 'ev';
+        i += 1; // skip the next thing which is another seperator
+      }
+    }
+    else if (currentThing == 'nsp') {
+      nsp += String.fromCharCode(b);
+    }
+    else if (currentThing == 'ev') {
+      if (b != EVENT_STOP) {
+        eventName += String.fromCharCode(b);
+      } else {
+        currentThing = 'data';
+        i += 2; // next two bytes are 0 and another seperator
+      }
+    }
+    else if (currentThing == 'data') {
+      if (b != NSP_SEP) {
+        data.push(b);
+      } else {
+        currentThing = 'nsp';
+        i += 4; // next three chars are 'nsp', then another seperator
+      }
+    }
+  }
+
+  packet.nsp = nsp;
+  packet.data = [eventName, {base64: true, data: base64.fromByteArray(data)}];
+  return packet;
 };
 
 function error(data){

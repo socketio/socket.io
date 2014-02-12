@@ -11,6 +11,7 @@
     "msgpack-js": "0.3.0",
     "json3": "3.2.6",
     "isarray": "0.0.1",
+    "base64-js": "0.0.6",
     "msgpack-js-browser": "0.1.4"
   },
   "devDependencies": {
