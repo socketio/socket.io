@@ -1,67 +1,67 @@
 /* Fix user-agent */
 * {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 html, body {
-	padding: 0;
-	margin: 0;
-	height: 100%;
+  padding: 0;
+  margin: 0;
+  height: 100%;
 }
 
 /* Font */
 .messages, .inputMessage, .sendMessage {
-	font-size: 20px;
-	font-family: Arial;
+  font-size: 20px;
+  font-family: Arial;
 }
 .log {
-	color: gray;
+  color: gray;
 }
 
 /* Messages */
 .messages {
-	height: 100%;
+  height: 100%;
 
-	padding: 10px 10px 60px 10px;
-	margin: 0;
+  padding: 10px 10px 60px 10px;
+  margin: 0;
 
-	overflow-y: scroll;
+  overflow-y: scroll;
 }
 .message {
-	overflow: hidden;
+  overflow: hidden;
 }
 .username {
-	color: rgb(255, 133, 0);
-	float: left;
-	padding-right: 10px;
-	width: 15%;
-	text-align: right;
+  color: rgb(255, 133, 0);
+  float: left;
+  padding-right: 10px;
+  width: 15%;
+  text-align: right;
 
-	overflow: hidden;
-	text-overflow: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .messageBody {
-	float: left;
-	width: 75%;
+  float: left;
+  width: 75%;
 }
 
 /* Input */
 .inputArea {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	height: 50px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
 }
 
 .inputMessage {
-	float: left;
-	width: 90%;
-	height: 100%;
-	padding-left: 10px;
+  float: left;
+  width: 90%;
+  height: 100%;
+  padding-left: 10px;
 }
 /* Send message button */
 .sendMessage {
-	float: left;
-	width: 10%;
-	height: 100%;
+  float: left;
+  width: 10%;
+  height: 100%;
 }
