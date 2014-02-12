@@ -5,6 +5,7 @@ $(function() {
   var $sendMessage = $('.sendMessage'); // Send message button
   var $inputMessage = $('.inputMessage'); // Input message input box
 
+  // Prompt for setting a username
   var username;
   addChatMessage('CHAT', 'Enter your username below...');
   $inputMessage.attr('placeholder', 'username').focus();
