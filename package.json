@@ -15,6 +15,7 @@
     "bind": "http://github.com/component/bind/archive/0.0.1.tar.gz",
     "object-component": "0.0.3",
     "socket.io-parser": "1.1.2",
+    "parseuri": "0.0.2",
     "to-array": "0.1.3",
     "debug": "0.7.4"
   },
