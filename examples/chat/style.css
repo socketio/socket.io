@@ -2,17 +2,19 @@
 * {
   box-sizing: border-box;
 }
+
 html, body {
-  padding: 0;
-  margin: 0;
   height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 /* Font */
 .messages, .inputMessage, .sendMessage {
-  font-size: 20px;
   font-family: Arial;
+  font-size: 20px;
 }
+
 .log {
   color: gray;
 }
@@ -20,25 +22,25 @@ html, body {
 /* Messages */
 .messages {
   height: 100%;
-
-  padding: 10px 10px 60px 10px;
   margin: 0;
-
   overflow-y: scroll;
+  padding: 10px 10px 60px 10px;
 }
+
 .message {
   overflow: hidden;
 }
+
 .username {
   color: rgb(255, 133, 0);
   float: left;
-  padding-right: 10px;
-  width: 15%;
-  text-align: right;
-
   overflow: hidden;
+  padding-right: 10px;
+  text-align: right;
   text-overflow: ellipsis;
+  width: 15%;
 }
+
 .messageBody {
   float: left;
   width: 75%;
@@ -46,22 +48,23 @@ html, body {
 
 /* Input */
 .inputArea {
-  position: absolute;
   bottom: 0;
-  left: 0;
-  right: 0;
   height: 50px;
+  left: 0;
+  position: absolute;
+  right: 0;
 }
 
 .inputMessage {
   float: left;
-  width: 90%;
   height: 100%;
   padding-left: 10px;
+  width: 90%;
 }
+
 /* Send message button */
 .sendMessage {
   float: left;
-  width: 10%;
   height: 100%;
+  width: 10%;
 }

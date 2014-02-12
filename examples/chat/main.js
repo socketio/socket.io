@@ -1,46 +1,44 @@
-var socket = io.connect();
+$(function() {
+  // Initialize varibles
+  var $messages = $('.messages'); // Messages area
+  var $sendMessage = $('.sendMessage'); // Send message button
+  var $inputMessage = $('.inputMessage'); // Input message input box
 
-// on connection to server, ask for user's name with an anonymous callback
-socket.on('connect', function(){
-  // call the server-side function 'adduser' and send one parameter (value of prompt)
-  socket.emit('adduser', prompt("What's your name?"));
-});
+  // Prompt for a username
+  var username = prompt("What's your name?");
 
-// listener, whenever the server emits 'updatechat', this updates the chat body
-socket.on('updatechat', function (username, message) {
-  var usernameDiv = '<div class="username">' + username + '</div>';
-  var messageBodyDiv = '<div class="messageBody">' + message + '</div>';
-  var messageDiv = '<div class="message">' + usernameDiv + messageBodyDiv + '</div>';
-  var $messages = $('.messages');
-  $messages.append(messageDiv);
-  $messages[0].scrollTop = $messages[0].scrollHeight;
-});
+  var socket = io.connect();
 
-// listener, whenever the server emits 'updateusers', this updates the username list
-socket.on('updateusers', function(data) {
-  $('.users').empty();
-  $.each(data, function(key, value) {
-    $('.users').append('<div>' + key + '</div>');
+  // on connection to server
+  socket.on('connect', function() {
+    // call the server-side function 'add user' and send along one parameter (the username)
+    socket.emit('add user', username);
   });
-});
 
-// on load of page
-$(function(){
+  // whenever the server emits 'update chat', update the chat body
+  socket.on('update chat', function (username, message) {
+    var usernameDiv = '<div class="username">' + username + '</div>';
+    var messageBodyDiv = '<div class="messageBody">' + message + '</div>';
+    var messageDiv = '<div class="message">' + usernameDiv + messageBodyDiv + '</div>';
+    $messages.append(messageDiv);
+    $messages[0].scrollTop = $messages[0].scrollHeight;
+  });
+
   // when the client clicks SEND
-  $('.sendMessage').click( function() {
-    var message = $('.inputMessage').val();
-    // If there is a non-empty message
+  $sendMessage.click(function () {
+    var message = $inputMessage.val();
+    // if there is a non-empty message
     if (message) {
-      $('.inputMessage').val('');
-      // tell server to execute 'sendchat' and send along one parameter
-      socket.emit('sendchat', message);
+      $inputMessage.val('');
+      // tell server to execute 'new message' and send along one parameter
+      socket.emit('new message', message);
     }
   });
 
   // when the client hits ENTER on their keyboard
-  $(window).keypress(function(e) {
-    if(e.which == 13) {
-      $('.sendMessage').click();
+  $(window).keypress(function (e) {
+    if (e.which === 13) {
+      $sendMessage.click();
     }
   });
 });
