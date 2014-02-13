@@ -18,7 +18,7 @@
     "debug": "0.7.4",
     "engine.io": "0.9.0",
     "socket.io-parser": "1.0.2",
-    "socket.io-client": "LearnBoost/socket.io-client#525de3c"
+    "socket.io-client": "LearnBoost/socket.io-client#a34d4e54"
   },
   "devDependencies": {
     "mocha": "*",
