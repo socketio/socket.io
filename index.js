@@ -6,7 +6,7 @@
 var debug = require('debug')('socket.io-parser');
 var json = require('json3');
 if (!global.document) { var msgpack = require('msgpack-js'); } // in node
-else { var msgpack = require('msgpack-js-browser'); } // in browswer
+else { var msgpack = require('msgpack-allbrowsers'); } // in browswer
 var isArray = require('isarray');
 var base64 = require('base64-js');
 

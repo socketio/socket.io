@@ -12,7 +12,7 @@
     "json3": "3.2.6",
     "isarray": "0.0.1",
     "base64-js": "0.0.6",
-    "msgpack-js-browser": "0.1.4"
+    "msgpack-allbrowsers": "0.0.1"
   },
   "devDependencies": {
     "mocha": "1.16.2",
