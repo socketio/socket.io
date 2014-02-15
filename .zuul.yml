@@ -3,9 +3,10 @@ server: ./test/support/server.js
 browsers:
   - name: chrome
     version: 29..latest
-  - name: firefox
-    version: latest
-    platform: Mac 10.9
+# Right now firefox just doesn't work. This is an issue with saucelabs (wd)
+#  - name: firefox
+#    version: latest
+#    platform: Mac 10.9
   - name: safari
     version: latest
   - name: ie

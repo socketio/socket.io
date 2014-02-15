@@ -14,7 +14,9 @@ describe('blob', function() {
   this.timeout = 20000;
   it('should be able to receive binary data as blob when bouncing it back (ws)', function(done) {
     var binaryData = new Int8Array(5);
-    for (var i = 0; i < 5; i++) binaryData[i] = i;
+    for (var i = 0; i < 5; i++) {
+      binaryData[i] = i;
+    }
     var socket = new eio.Socket();
     socket.binaryType = 'blob';
     socket.on('open', function() {
@@ -38,7 +40,9 @@ describe('blob', function() {
 
   it('should be able to send data as a blob when bouncing it back (ws)', function(done) {
     var binaryData = new Int8Array(5);
-    for (var i = 0; i < 5; i++) binaryData[i] = i;
+    for (var i = 0; i < 5; i++) {
+      binaryData[i] = i;
+    }
     var socket = new eio.Socket();
     socket.on('open', function() {
       socket.on('upgrade', function() {
@@ -61,7 +65,9 @@ describe('blob', function() {
 
   it('should be able to send data as a blob encoded into base64 when bouncing it back (ws)', function(done) {
     var binaryData = new Int8Array(5);
-    for (var i = 0; i < 5; i++) binaryData[i] = i;
+    for (var i = 0; i < 5; i++) {
+      binaryData[i] = i;
+    }
     var socket = new eio.Socket({ forceBase64: true });
     socket.on('open', function() {
       socket.on('upgrade', function() {
