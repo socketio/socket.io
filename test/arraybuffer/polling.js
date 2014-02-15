@@ -2,7 +2,7 @@ var expect = require('expect.js');
 var eio = require('../../');
 
 describe('arraybuffer', function() {
-  this.timeout(10000);
+  this.timeout(30000);
 
   it('should be able to receive binary data when bouncing it back (polling)', function(done) {
     var binaryData = new Int8Array(5);
