@@ -9,7 +9,7 @@ global.WEB_SOCKET_SWF_LOCATION = null;
 
 var blobSupported = (function() {
   try {
-    new Blob([]);
+    new Blob(['hi']);
     return true;
   } catch(e) {}
   return false;
@@ -35,7 +35,7 @@ if (env.browser) {
     require('./browser-only-parser');
     require('./arraybuffer');
   }
-  if (blobSupported) {
+  if (blobSupported || blobBuilderSupported) {
     require('./blob');
   }
 }

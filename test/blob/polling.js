@@ -11,7 +11,8 @@ var blobSupported = (function() {
 })();
 
 describe('blob', function() {
-  this.timeout = 20000;
+  this.timeout(10000);
+
   it('should be able to receive binary data as blob when bouncing it back (polling)', function(done) {
     var binaryData = new Int8Array(5);
     for (var i = 0; i < 5; i++) {
