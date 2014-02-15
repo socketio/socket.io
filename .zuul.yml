@@ -10,6 +10,6 @@ browsers:
   - name: safari
     version: latest
   - name: ie
-    version: 6..latest
+    version: [6..9, latest]
   - name: iphone
     version: oldest..latest

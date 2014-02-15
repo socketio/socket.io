@@ -2,7 +2,7 @@ var expect = require('expect.js');
 var eio = require('../');
 
 describe('connection', function() {
-  this.timeout(10000);
+  this.timeout(20000);
 
   it('should connect to localhost', function(done){
     var socket = new eio.Socket();
