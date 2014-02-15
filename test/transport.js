@@ -5,6 +5,48 @@ var env = require('./support/env');
 
 describe('Transport', function () {
 
+  describe('rememberUpgrade', function () {
+    it('should remember websocket connection', function (done) {
+      var socket = new eio.Socket();
+      expect(socket.transport.name).to.be('polling');
+
+      var timeout = setTimeout(function(){
+        socket.close();
+        done();
+      }, 300);
+
+      socket.on('upgrade', function (transport) {
+        clearTimeout(timeout);
+        socket.close();
+        if(transport.name == 'websocket') {
+          var socket2 = new eio.Socket({ 'rememberUpgrade': true });
+          expect(socket2.transport.name).to.be('websocket');
+        }
+        done();
+      });
+    });
+
+    it('should not remember websocket connection', function (done) {
+      var socket = new eio.Socket();
+      expect(socket.transport.name).to.be('polling');
+
+      var timeout = setTimeout(function(){
+        socket.close();
+        done();
+      }, 300);
+
+      socket.on('upgrade', function (transport) {
+        clearTimeout(timeout);
+        socket.close();
+        if(transport.name == 'websocket') {
+          var socket2 = new eio.Socket({ 'rememberUpgrade': false });
+          expect(socket2.transport.name).to.not.be('websocket');
+        }
+        done();
+      });
+    });
+  });
+
   describe('public constructors', function () {
     it('should include Transport', function () {
       expect(eio.Transport).to.be.a('function');
