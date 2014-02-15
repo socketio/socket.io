@@ -3,8 +3,8 @@ server: ./test/support/server.js
 browsers:
   - name: chrome
     version: 29..latest
-  - name: firefox
-    version: latest
+#  - name: firefox
+#    version: latest
   - name: safari
     version: latest
   - name: ie
