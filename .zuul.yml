@@ -5,6 +5,7 @@ browsers:
     version: 29..latest
   - name: firefox
     version: latest
+    platform: Mac 10.9
   - name: safari
     version: latest
   - name: ie

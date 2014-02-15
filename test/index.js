@@ -9,11 +9,18 @@ global.WEB_SOCKET_SWF_LOCATION = null;
 
 var blobSupported = (function() {
   try {
-    new Blob(["hi"]);
+    new Blob([]);
     return true;
   } catch(e) {}
   return false;
 })();
+
+/**
+ * Create a blob builder even when vendor prefixes exist
+ */
+
+var BlobBuilder = global.BlobBuilder || global.WebKitBlobBuilder || global.MSBlobBuilder || global.MozBlobBuilder;
+var blobBuilderSupported = !!BlobBuilder && !!BlobBuilder.prototype.append && !!BlobBuilder.prototype.getBlob;
 
 require('./engine.io-client');
 require('./util');
