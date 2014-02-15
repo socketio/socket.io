@@ -23,13 +23,14 @@ app.get('/style.css', function (req, res) {
 
 // usernames which are currently connected to the chat
 var usernames = {};
+var numUsers = 0;
 
-io.sockets.on('connection', function (socket) {
+io.on('connection', function (socket) {
 
   // when the client emits 'new message', this listens and executes
   socket.on('new message', function (data) {
     // we tell the client to execute 'update chat' with 2 parameters
-    io.sockets.emit('update chat', socket.username, data);
+    io.emit('update chat', socket.username, data);
   });
 
   // when the client emits 'add user', this listens and executes
@@ -38,6 +39,7 @@ io.sockets.on('connection', function (socket) {
     socket.username = username;
     // add the client's username to the global list
     usernames[username] = username;
+    ++numUsers;
     // echo to client they've connected
     socket.emit('update chat', 'SERVER', 'you (' + username + ') have connected. ' + getNumberOfUsersString());
     // echo globally (all clients) that a person has connected
@@ -48,6 +50,7 @@ io.sockets.on('connection', function (socket) {
   socket.on('disconnect', function () {
     // remove the username from global usernames list
     delete usernames[socket.username];
+    --numUsers;
     // echo globally that this client has left
     socket.broadcast.emit('update chat', 'SERVER', socket.username + ' has disconnected. ' + getNumberOfUsersString());
   });
@@ -55,7 +58,6 @@ io.sockets.on('connection', function (socket) {
 
 // Gets a string that contains the number of users in the chatroom
 function getNumberOfUsersString () {
-  var numUsers = Object.keys(usernames).length;
   var numUsersString = '<span class="log">(' + numUsers + ' ' + ((numUsers === 1) ? 'user' : 'users') + ' in chatroom)</span>';
   return numUsersString;
 }
