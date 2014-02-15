@@ -138,6 +138,12 @@ Exposed as `eio` in the browser standalone build.
       Defaults to `['polling', 'websocket', 'flashsocket']`. `Engine`
       always attempts to connect directly with the first one, provided the
       feature detection test for it passes.
+      - `rememberUpgrade` (`Boolean`): defaults to false.
+        If true and if the previous websocket connection to the server succeeded,
+        the connection attempt will bypass the normal upgrade process and will initially
+        try websocket. A connection attempt following a transport error will use the 
+        normal upgrade process. It is recommended you turn this on only when using
+        SSL/TLS connections, or if you know that your network does not block websockets.
 - `send`
     - Sends a message to the server
     - **Parameters**
