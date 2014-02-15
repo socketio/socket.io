@@ -835,19 +835,21 @@ describe('server', function () {
 
     it('should arrive when binary data is sent as Int8Array (ws)', function (done) {
       var binaryData = new Int8Array(5);
-      for (var i = 0; i < binaryData.length; i++) binaryData[i] = i;
-      
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData[i] = i;
+      }
+
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function(port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
-        
+
         engine.on('connection', function (conn) {
           conn.send(binaryData);
         });
 
         socket.on('open', function () {
           socket.on('message', function(msg) {
-            for (var i = 0; i < msg.length; i++) {
+            for (var i = 0; i < binaryData.length; i++) {
               var num = msg.readInt8(i);
               expect(num).to.be(i);
             }
@@ -859,19 +861,21 @@ describe('server', function () {
 
     it('should arrive when binary data is sent as Int32Array (ws)', function (done) {
       var binaryData = new Int32Array(5);
-      for (var i = 0; i < binaryData.length; i++) binaryData[i] = (i + 100) * 9823;
-      
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData[i] = (i + 100) * 9823;
+      }
+
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function(port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
-        
+
         engine.on('connection', function (conn) {
           conn.send(binaryData);
         });
 
         socket.on('open', function () {
           socket.on('message', function(msg) {
-            for (var i = 0, ii = 0; i < msg.length; i += 4, ii++) {
+            for (var i = 0, ii = 0; i < binaryData.length; i += 4, ii++) {
               var num = msg.readInt32LE(i);
               expect(num).to.be((ii + 100) * 9823);
             }
@@ -883,19 +887,21 @@ describe('server', function () {
 
     it('should arrive when binary data is sent as Int32Array, given as ArrayBuffer(ws)', function (done) {
       var binaryData = new Int32Array(5);
-      for (var i = 0; i < binaryData.length; i++) binaryData[i] = (i + 100) * 9823;
-      
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData[i] = (i + 100) * 9823;
+      }
+
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function(port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
-        
+
         engine.on('connection', function (conn) {
           conn.send(binaryData.buffer);
         });
 
         socket.on('open', function () {
           socket.on('message', function(msg) {
-            for (var i = 0, ii = 0; i < msg.length; i += 4, ii++) {
+            for (var i = 0, ii = 0; i < binaryData.length; i += 4, ii++) {
               var num = msg.readInt32LE(i);
               expect(num).to.be((ii + 100) * 9823);
             }
@@ -907,7 +913,9 @@ describe('server', function () {
 
     it('should arrive when binary data is sent as Buffer (ws)', function (done) {
       var binaryData = Buffer(5);
-      for (var i = 0; i < binaryData.length; i++) binaryData.writeInt8(i, i);
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData.writeInt8(i, i);
+      }
 
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function(port) {
@@ -919,7 +927,7 @@ describe('server', function () {
 
         socket.on('open', function () {
           socket.on('message', function(msg) {
-            for (var i = 0; i < msg.length; i++) {
+            for (var i = 0; i < binaryData.length; i++) {
               var num = msg.readInt8(i);
               expect(num).to.be(i);
             }
@@ -931,7 +939,9 @@ describe('server', function () {
 
     it('should arrive when binary data sent as Buffer (polling)', function (done) {
       var binaryData = Buffer(5);
-      for (var i = 0; i < binaryData.length; i++) binaryData.writeInt8(i, i);
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData.writeInt8(i, i);
+      }
 
       var opts = { allowUpgrades: false, transports: ['polling'] };
       var engine = listen(opts, function(port) {
@@ -943,7 +953,7 @@ describe('server', function () {
 
         socket.on('open', function() {
           socket.on('message', function(msg) {
-            for (var i = 0; i < msg.length; i++) {
+            for (var i = 0; i < binaryData.length; i++) {
               var num = msg.readInt8(i);
               expect(num).to.be(i);
             }
@@ -956,7 +966,9 @@ describe('server', function () {
 
     it('should arrive as ArrayBuffer if requested when binary data sent as Buffer (ws)', function (done) {
       var binaryData = Buffer(5);
-      for (var i = 0; i < binaryData.length; i++) binaryData.writeInt8(i, i);
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData.writeInt8(i, i);
+      }
 
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function(port) {
@@ -971,7 +983,7 @@ describe('server', function () {
           socket.on('message', function(msg) {
             expect(msg instanceof ArrayBuffer).to.be(true);
             var intArray = new Int8Array(msg);
-            for (var i = 0; i < intArray.length; i++) {
+            for (var i = 0; i < binaryData.length; i++) {
               expect(intArray[i]).to.be(i);
             }
 
@@ -983,7 +995,9 @@ describe('server', function () {
 
     it('should arrive as ArrayBuffer if requested when binary data sent as Buffer (polling)', function (done) {
       var binaryData = Buffer(5);
-      for (var i = 0; i < binaryData.length; i++) binaryData.writeInt8(i, i);
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData.writeInt8(i, i);
+      }
 
       var opts = { allowUpgrades: false, transports: ['polling'] };
       var engine = listen(opts, function(port) {
@@ -998,7 +1012,7 @@ describe('server', function () {
           socket.on('message', function(msg) {
             expect(msg instanceof ArrayBuffer).to.be(true);
             var intArray = new Int8Array(msg);
-            for (var i = 0; i < intArray.length; i++) {
+            for (var i = 0; i < binaryData.length; i++) {
               expect(intArray[i]).to.be(i);
             }
 
