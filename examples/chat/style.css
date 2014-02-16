@@ -4,21 +4,100 @@
   box-sizing: border-box;
 }
 
+html {
+  font-family:
+    "HelveticaNeue-Light",
+    "Helvetica Neue Light",
+    "Helvetica Neue",
+    Helvetica,
+    Arial,
+    "Lucida Grande",
+    sans-serif;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+}
+
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
+ul {
+  list-style: none;
+}
+
+/* Pages */
+
+.pages {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+/* Login Page */
+
+.login.page {
+  background-color: #000;
+}
+
+.login.page .form {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  height: 100px;
+  margin-top: -100px;
+
+  text-align: center;
+}
+
+.login.page .form .usernameInput {
+  width: 400px;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid #fff;
+  padding-bottom: 15px;
+  text-align: center;
+  outline: none;
+}
+
+.login.page .title {
+  font-size: 200%;
+}
+
+.login.page .usernameInput {
+  font-size: 300%;
+  letter-spacing: 3px;
+}
+
+.login.page .title, .login.page .usernameInput {
+  color: #fff;
+  font-weight: 100;
+}
+
+/* Chat page */
+
+.chat.page {
+  visibility: hidden;
+}
+
 /* Font */
 
 .messages, .inputMessage, .sendMessage {
-  font-family: Arial;
   font-size: 20px;
 }
 
 .log {
   color: gray;
+  text-align: center;
+  margin: 5px;
 }
 
 /* Messages */
@@ -34,7 +113,7 @@ html, body {
   overflow: hidden;
 }
 
-.username {
+/*.username {
   color: rgb(255, 133, 0);
   float: left;
   overflow: hidden;
@@ -43,7 +122,7 @@ html, body {
   text-overflow: ellipsis;
   width: 15%;
 }
-
+*/
 .messageBody {
   float: left;
   width: 75%;
@@ -63,13 +142,5 @@ html, body {
   float: left;
   height: 100%;
   padding-left: 10px;
-  width: 90%;
-}
-
-/* Send message button */
-
-.sendMessage {
-  float: left;
-  height: 100%;
-  width: 10%;
+  width: 100%;
 }

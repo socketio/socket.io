@@ -2,7 +2,6 @@ $(function() {
   // Initialize varibles
   var $window = $(window);
   var $messages = $('.messages'); // Messages area
-  var $sendMessage = $('.sendMessage'); // Send message button
   var $inputMessage = $('.inputMessage'); // Input message input box
 
   // Prompt for setting a username
@@ -41,7 +40,7 @@ $(function() {
   function addChatMessage (username, message) {
     var usernameDiv = '<div class="username">' + username + '</div>';
     var messageBodyDiv = '<div class="messageBody">' + message + '</div>';
-    var messageDiv = '<div class="message">' + usernameDiv + messageBodyDiv + '</div>';
+    var messageDiv = '<li class="message">' + usernameDiv + messageBodyDiv + '</li>';
     $messages.append(messageDiv);
     $messages[0].scrollTop = $messages[0].scrollHeight;
   }

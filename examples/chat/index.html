@@ -6,11 +6,20 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <ul class="messages"></ul>
-  <div class="inputArea">
-    <input class="inputMessage" />
-    <button class="sendMessage" />
-  </div>
+  <ul class="pages">
+    <li class="login page">
+      <div class="form">
+        <h3 class="title">What's your nickname?</h3>
+        <input class="usernameInput" type="text" maxlength="14" />
+      </div>
+    </li>
+    <li class="chat page">
+      <ul class="messages"></ul>
+      <div class="inputArea">
+        <input class="inputMessage" placeholder="Type here..."/>
+      </div>
+    </li>
+  </ul>
 
   <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
