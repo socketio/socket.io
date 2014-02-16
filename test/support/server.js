@@ -15,6 +15,15 @@ server.on('connection', function(socket){
 
   // Bounce any received messages back
   socket.on('message', function (data) {
+    if (data === 'give binary') {
+      var abv = new Int8Array(5);
+      for (var i = 0; i < 5; i++) {
+        abv[i] = i;
+      }
+      socket.send(abv);
+      return;
+    }
+
     socket.send(data);
   });
 });

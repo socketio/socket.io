@@ -34,7 +34,10 @@ if (env.browser) {
   if (global.ArrayBuffer) {
     require('./browser-only-parser');
     require('./arraybuffer');
+  } else {
+    require('./binary-fallback');
   }
+
   if (blobSupported || blobBuilderSupported) {
     require('./blob');
   }
