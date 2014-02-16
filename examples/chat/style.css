@@ -95,6 +95,7 @@ ul {
 }
 
 .log {
+  font-size: 70%;
   color: gray;
   text-align: center;
   margin: 5px;
@@ -106,26 +107,19 @@ ul {
   height: 100%;
   margin: 0;
   overflow-y: scroll;
-  padding: 10px 10px 70px 10px;
-}
-
-.message {
-  overflow: hidden;
+  padding: 10px 20px 70px 20px;
 }
 
 .username {
-  /*color: rgb(255, 133, 0);*/
+  font-weight: 700;
   float: left;
   overflow: hidden;
-  padding-right: 10px;
+  padding-right: 15px;
   text-align: right;
-  text-overflow: ellipsis;
-  width: 15%;
 }
 
 .messageBody {
-  float: left;
-  width: 75%;
+  /*float: left;*/
 }
 
 /* Input */

@@ -10,6 +10,8 @@ $(function() {
 
   // Prompt for setting a username
   var username;
+  var color;
+  var connected = false;
   var $currentInput = $usernameInput.focus();
 
   var socket = io();
@@ -32,22 +34,43 @@ $(function() {
   // Sends a chat message
   function sendMessage () {
     var message = $inputMessage.val();
+    // Prevent markup from being injected into the message
+    message = $('<div/>').text(message).html() || message;
     // if there is a non-empty message and a socket connection
-    if (message && socket) {
+    if (message && connected) {
       $inputMessage.val('');
+      addChatMessage({
+        username: username,
+        color: color,
+        message: message
+      });
       // tell server to execute 'new message' and send along one parameter
       socket.emit('new message', message);
     }
   }
 
+  // Log a message
+  function log (message) {
+    var el = '<li class="log">' + message + '</li>';
+    addMessageElement(el);
+  }
+
   // Adds the visual chat message to the message list
-  function addChatMessage (username, message) {
-    var usernameDiv = '<div class="username">' + username + '</div>';
-    var messageBodyDiv = '<div class="messageBody">' + message + '</div>';
+  function addChatMessage (data) {
+    var colorStyle = 'style="color:' + data.color + '"';
+    var usernameDiv = '<span class="username"' + colorStyle + '>' + data.username + '</span>';
+    var messageBodyDiv = '<span class="messageBody">' + data.message + '</span>';
     var messageDiv = '<li class="message">' + usernameDiv + messageBodyDiv + '</li>';
-    $messages.append(messageDiv);
+    addMessageElement(messageDiv);
+  }
+
+  // Adds a message element to the messages and scrolls to the bottom
+  function addMessageElement (el) {
+    $messages.append(el);
     $messages[0].scrollTop = $messages[0].scrollHeight;
   }
+
+  // Keyboard events
 
   // When the client hits ENTER on their keyboard
   $window.keypress(function (e) {
@@ -67,8 +90,35 @@ $(function() {
     }
   });
 
-  // Whenever the server emits 'update chat', update the chat body
-  socket.on('update chat', function (username, message) {
-    addChatMessage(username, message);
+  // Socket events
+
+  // Whenever the server emits 'login', log the login message
+  socket.on('login', function (data) {
+    connected = true;
+    // Save the color
+    color = data.color;
+    // Display the welcome message
+    var message = "Welcome to Socket.IO Chat - ";
+    if (data.numUsers === 1) {
+      message += "there's 1 participant";
+    } else {
+      message += "there're " + data.numUsers + " participants";
+    }
+    log(message);
+  });
+
+  // Whenever the server emits 'new message', update the chat body
+  socket.on('new message', function (data) {
+    addChatMessage(data);
+  });
+
+  // Whenever the server emits 'user joined', log it in the chat body
+  socket.on('user joined', function (data) {
+    log(data.username + ' joined');
+  });
+
+  // Whenever the server emits 'user left', log it in the chat body
+  socket.on('user left', function (data) {
+    log(data.username + ' left');
   });
 });
