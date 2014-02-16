@@ -1,6 +1,8 @@
 var wsSupport = require('has-cors');
 
 require('./polling.js');
-if (wsSupport && !~navigator.userAgent.indexOf('iPhone')) {
+var uagent = navigator.userAgent;
+var isOldSimulator = ~uagent.indexOf('iPhone OS 4') || ~uagent.indexOf('iPhone OS 5');
+if (wsSupport && !isOldSimulator) {
   require ('./ws.js');
 }
