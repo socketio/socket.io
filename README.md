@@ -36,7 +36,7 @@ An Engine.IO url is composed as follows:
     must be set with the JSONP response index.
   - `sid`: if the client has been given a session id, it must be included
     in the querystring.
-  - `b`: if the client doesn't support XHR2, `b64=1` is sent in the query string
+  - `b64`: if the client doesn't support XHR2, `b64=1` is sent in the query string
     to signal the server that all binary data should be sent base64 encoded.
 
 *FAQ:* Is the `/engine.io` portion modifiable?
@@ -155,7 +155,7 @@ number of strings and base64 encoded strings can be sent. Here is an example of
 base 64 encoded messages:
 
 ```
-b<length of base64 representation of the data + 1 (packet type)>:<packet1 type><packet1 data in b64>[...]
+<length of base64 representation of the data + 1 (for packet type)>:b<packet1 type><packet1 data in b64>[...]
 ```
 
 When XHR2 is supported, a similar principle is used, but everything is encoded
