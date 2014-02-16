@@ -103,11 +103,16 @@ ul {
 
 /* Messages */
 
+.chatArea {
+  height: 100%;
+  padding-bottom: 60px;
+}
+
 .messages {
   height: 100%;
   margin: 0;
   overflow-y: scroll;
-  padding: 10px 20px 70px 20px;
+  padding: 10px 20px 10px 20px;
 }
 
 .message.typing .messageBody {

@@ -62,7 +62,12 @@ $(function() {
 
   // Adds the visual chat message to the message list
   function addChatMessage (data) {
-    getTypingMessages(data).remove();
+    var $typingMessages = getTypingMessages(data);
+    var fade = true; // Whether we should fade-in the new message or not
+    if ($typingMessages.length !== 0) {
+      fade = false;
+      $typingMessages.remove();
+    }
 
     var colorStyle = 'style="color:' + data.color + '"';
     var usernameDiv = '<span class="username"' + colorStyle + '>' +
@@ -71,10 +76,10 @@ $(function() {
       data.message + '</span>';
 
     var typingClass = data.typing ? 'typing' : '';
-    var messageDiv = '<li class="message ' + typingClass + '">' + usernameDiv +
-      messageBodyDiv + '</li>';
+    var messageDiv = '<li class="message ' + typingClass + '">' +
+    usernameDiv + messageBodyDiv + '</li>';
     var $messageDiv = $(messageDiv).data('username', data.username);
-    addMessageElement($messageDiv);
+    addMessageElement($messageDiv, fade);
   }
 
   // Adds the visual chat typing message
@@ -92,8 +97,14 @@ $(function() {
   }
 
   // Adds a message element to the messages and scrolls to the bottom
-  function addMessageElement (el) {
-    $messages.append($(el).hide().fadeIn(FADE_TIME));
+  // Fades-in if not specified
+  function addMessageElement (el, fade) {
+    var $el = $(el);
+    fade = (typeof fade === 'undefined') ? true : fade;
+    if (fade) {
+      $el.hide().fadeIn(FADE_TIME);
+    }
+    $messages.append($el);
     $messages[0].scrollTop = $messages[0].scrollHeight;
   }
 
@@ -145,15 +156,11 @@ $(function() {
       } else {
         setUsername();
       }
-    } else {
-      updateTyping();
     }
   });
 
-  $window.keyup(function (event) {
-    if (event.which !== 13) {
-      updateTyping();
-    }
+  $inputMessage.on('input', function() {
+    updateTyping();
   });
 
   // Socket events

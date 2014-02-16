@@ -84,11 +84,12 @@ io.on('connection', function (socket) {
     if (addedUser) {
       delete usernames[socket.username];
       --numUsers;
+
+      // echo globally that this client has left
+      socket.broadcast.emit('user left', {
+        username: socket.username
+      });
     }
-    // echo globally that this client has left
-    socket.broadcast.emit('user left', {
-      username: socket.username
-    });
     // remove typing messages
     socket.broadcast.emit('stop typing', {
       username: socket.username
