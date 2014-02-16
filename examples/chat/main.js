@@ -1,24 +1,28 @@
 $(function() {
   // Initialize varibles
   var $window = $(window);
+  var $usernameInput = $('.usernameInput'); // Input for username
   var $messages = $('.messages'); // Messages area
   var $inputMessage = $('.inputMessage'); // Input message input box
 
+  var $loginPage = $('.login.page'); // The login page
+  var $chatPage = $('.chat.page'); // The chatroom page
+
   // Prompt for setting a username
   var username;
-  addChatMessage('CHAT', 'Enter your username below...');
-  $inputMessage.attr('placeholder', 'username').focus();
-  $sendMessage.html('set username');
+  var $currentInput = $usernameInput.focus();
 
   var socket = io();
 
   // Sets the client's username
   function setUsername () {
-    username = $inputMessage.val().trim();
+    username = $usernameInput.val().trim();
+
+    // If the username is valid
     if (username) {
-      $inputMessage.val('');
-      $inputMessage.attr('placeholder', 'message');
-      $sendMessage.html('send');
+      $loginPage.fadeOut();
+      $chatPage.show();
+      $currentInput = $inputMessage.focus();
 
       // Tell the server your username
       socket.emit('add user', username);
@@ -45,26 +49,21 @@ $(function() {
     $messages[0].scrollTop = $messages[0].scrollHeight;
   }
 
-  // When the client clicks SEND
-  $sendMessage.click(function () {
-    if (username) {
-      sendMessage();
-    } else {
-      setUsername();
-    }
-  });
-
   // When the client hits ENTER on their keyboard
   $window.keypress(function (e) {
     if (e.which === 13) {
-      $sendMessage.click();
+      if (username) {
+        sendMessage();
+      } else {
+        setUsername();
+      }
     }
   });
 
-  // Auto-focus the chat when a key is typed
+  // Auto-focus the current input when a key is typed
   $window.keydown(function (event) {
     if (!(event.ctrlKey || event.metaKey || event.altKey)) {
-      $inputMessage.focus();
+      $currentInput.focus();
     }
   });
 

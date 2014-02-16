@@ -85,13 +85,13 @@ ul {
 /* Chat page */
 
 .chat.page {
-  visibility: hidden;
+  display: none;
 }
 
 /* Font */
 
-.messages, .inputMessage, .sendMessage {
-  font-size: 20px;
+.messages, .inputMessage {
+  font-size: 150%;
 }
 
 .log {
@@ -106,15 +106,15 @@ ul {
   height: 100%;
   margin: 0;
   overflow-y: scroll;
-  padding: 10px 10px 60px 10px;
+  padding: 10px 10px 70px 10px;
 }
 
 .message {
   overflow: hidden;
 }
 
-/*.username {
-  color: rgb(255, 133, 0);
+.username {
+  /*color: rgb(255, 133, 0);*/
   float: left;
   overflow: hidden;
   padding-right: 10px;
@@ -122,7 +122,7 @@ ul {
   text-overflow: ellipsis;
   width: 15%;
 }
-*/
+
 .messageBody {
   float: left;
   width: 75%;
@@ -130,17 +130,14 @@ ul {
 
 /* Input */
 
-.inputArea {
-  bottom: 0;
-  height: 50px;
-  left: 0;
-  position: absolute;
-  right: 0;
-}
-
 .inputMessage {
-  float: left;
-  height: 100%;
+  outline: none;
+  position: absolute;
+  bottom: 0;
+  height: 60px;
+  left: 0;
+  right: 0;
   padding-left: 10px;
   width: 100%;
+  border: 10px solid #000;
 }

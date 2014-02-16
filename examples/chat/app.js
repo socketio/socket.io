@@ -26,6 +26,7 @@ var usernames = {};
 var numUsers = 0;
 
 io.on('connection', function (socket) {
+  var addedUser = false;
 
   // when the client emits 'new message', this listens and executes
   socket.on('new message', function (data) {
@@ -40,6 +41,7 @@ io.on('connection', function (socket) {
     // add the client's username to the global list
     usernames[username] = username;
     ++numUsers;
+    addedUser = true;
     // echo to client they've connected
     socket.emit('update chat', 'SERVER', 'you (' + username + ') have connected. ' + getNumberOfUsersString());
     // echo globally (all clients) that a person has connected
@@ -49,8 +51,10 @@ io.on('connection', function (socket) {
   // when the user disconnects.. perform this
   socket.on('disconnect', function () {
     // remove the username from global usernames list
-    delete usernames[socket.username];
-    --numUsers;
+    if (addedUser) {
+      delete usernames[socket.username];
+      --numUsers;
+    }
     // echo globally that this client has left
     socket.broadcast.emit('update chat', 'SERVER', socket.username + ' has disconnected. ' + getNumberOfUsersString());
   });
