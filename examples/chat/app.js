@@ -63,6 +63,21 @@ io.on('connection', function (socket) {
     });
   });
 
+  // when the client emits 'typing', we broadcast it to others
+  socket.on('typing', function () {
+    socket.broadcast.emit('typing', {
+      username: socket.username,
+      color: socket.color
+    });
+  });
+
+  // when the client emits 'stop typing', we broadcast it to others
+  socket.on('stop typing', function () {
+    socket.broadcast.emit('stop typing', {
+      username: socket.username
+    });
+  });
+
   // when the user disconnects.. perform this
   socket.on('disconnect', function () {
     // remove the username from global usernames list
@@ -72,6 +87,10 @@ io.on('connection', function (socket) {
     }
     // echo globally that this client has left
     socket.broadcast.emit('user left', {
+      username: socket.username
+    });
+    // remove typing messages
+    socket.broadcast.emit('stop typing', {
       username: socket.username
     });
   });

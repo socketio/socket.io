@@ -30,16 +30,16 @@ ul {
 /* Pages */
 
 .pages {
+  height: 100%;
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
 }
 
 .page {
+  height: 100%;
   position: absolute;
   width: 100%;
-  height: 100%;
 }
 
 /* Login Page */
@@ -49,23 +49,23 @@ ul {
 }
 
 .login.page .form {
-  position: absolute;
-  top: 50%;
-  width: 100%;
   height: 100px;
   margin-top: -100px;
+  position: absolute;
 
   text-align: center;
+  top: 50%;
+  width: 100%;
 }
 
 .login.page .form .usernameInput {
-  width: 400px;
   background-color: transparent;
   border: none;
   border-bottom: 2px solid #fff;
+  outline: none;
   padding-bottom: 15px;
   text-align: center;
-  outline: none;
+  width: 400px;
 }
 
 .login.page .title {
@@ -95,10 +95,10 @@ ul {
 }
 
 .log {
-  font-size: 70%;
   color: gray;
-  text-align: center;
+  font-size: 70%;
   margin: 5px;
+  text-align: center;
 }
 
 /* Messages */
@@ -110,28 +110,28 @@ ul {
   padding: 10px 20px 70px 20px;
 }
 
+.message.typing .messageBody {
+  color: gray;
+}
+
 .username {
-  font-weight: 700;
   float: left;
+  font-weight: 700;
   overflow: hidden;
   padding-right: 15px;
   text-align: right;
 }
 
-.messageBody {
-  /*float: left;*/
-}
-
 /* Input */
 
 .inputMessage {
-  outline: none;
-  position: absolute;
+  border: 10px solid #000;
   bottom: 0;
   height: 60px;
   left: 0;
-  right: 0;
+  outline: none;
   padding-left: 10px;
+  position: absolute;
+  right: 0;
   width: 100%;
-  border: 10px solid #000;
 }

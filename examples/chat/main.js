@@ -1,4 +1,7 @@
 $(function() {
+  var FADE_TIME = 150; // ms
+  var TYPING_TIMER_LENGTH = 400; // ms
+
   // Initialize varibles
   var $window = $(window);
   var $usernameInput = $('.usernameInput'); // Input for username
@@ -12,13 +15,15 @@ $(function() {
   var username;
   var color;
   var connected = false;
+  var typing = false;
+  var lastTypingTime;
   var $currentInput = $usernameInput.focus();
 
   var socket = io();
 
   // Sets the client's username
   function setUsername () {
-    username = $usernameInput.val().trim();
+    username = cleanInput($usernameInput.val().trim());
 
     // If the username is valid
     if (username) {
@@ -35,7 +40,7 @@ $(function() {
   function sendMessage () {
     var message = $inputMessage.val();
     // Prevent markup from being injected into the message
-    message = $('<div/>').text(message).html() || message;
+    message = cleanInput(message);
     // if there is a non-empty message and a socket connection
     if (message && connected) {
       $inputMessage.val('');
@@ -57,36 +62,97 @@ $(function() {
 
   // Adds the visual chat message to the message list
   function addChatMessage (data) {
+    getTypingMessages(data).remove();
+
     var colorStyle = 'style="color:' + data.color + '"';
-    var usernameDiv = '<span class="username"' + colorStyle + '>' + data.username + '</span>';
-    var messageBodyDiv = '<span class="messageBody">' + data.message + '</span>';
-    var messageDiv = '<li class="message">' + usernameDiv + messageBodyDiv + '</li>';
-    addMessageElement(messageDiv);
+    var usernameDiv = '<span class="username"' + colorStyle + '>' +
+      data.username + '</span>';
+    var messageBodyDiv = '<span class="messageBody">' +
+      data.message + '</span>';
+
+    var typingClass = data.typing ? 'typing' : '';
+    var messageDiv = '<li class="message ' + typingClass + '">' + usernameDiv +
+      messageBodyDiv + '</li>';
+    var $messageDiv = $(messageDiv).data('username', data.username);
+    addMessageElement($messageDiv);
+  }
+
+  // Adds the visual chat typing message
+  function addChatTyping (data) {
+    data.typing = true;
+    data.message = 'is typing';
+    addChatMessage(data);
+  }
+
+  // Removes the visual chat typing message
+  function removeChatTyping (data) {
+    getTypingMessages(data).fadeOut(function () {
+      $(this).remove();
+    });
   }
 
   // Adds a message element to the messages and scrolls to the bottom
   function addMessageElement (el) {
-    $messages.append(el);
+    $messages.append($(el).hide().fadeIn(FADE_TIME));
     $messages[0].scrollTop = $messages[0].scrollHeight;
+  }
+
+  // Prevents input from having injected markup
+  function cleanInput (input) {
+    return $('<div/>').text(input).html() || input;
+  }
+
+  // Updates the typing event
+  function updateTyping () {
+    if (connected) {
+      if (!typing) {
+        typing = true;
+        socket.emit('typing');
+      }
+      lastTypingTime = (new Date()).getTime();
+
+      setTimeout(function () {
+        var typingTimer = (new Date()).getTime();
+        var timeDiff = typingTimer - lastTypingTime;
+        if (timeDiff >= TYPING_TIMER_LENGTH && typing) {
+          socket.emit('stop typing');
+          typing = false;
+        }
+      }, TYPING_TIMER_LENGTH);
+    }
+  }
+
+  // Gets the 'X is typing' messages of a user
+  function getTypingMessages (data) {
+    return $('.typing.message').filter(function (i) {
+      return $(this).data('username') === data.username;
+    });
   }
 
   // Keyboard events
 
-  // When the client hits ENTER on their keyboard
-  $window.keypress(function (e) {
-    if (e.which === 13) {
+  $window.keydown(function (event) {
+    // Auto-focus the current input when a key is typed
+    if (!(event.ctrlKey || event.metaKey || event.altKey)) {
+      $currentInput.focus();
+    }
+    // When the client hits ENTER on their keyboard
+    if (event.which === 13) {
       if (username) {
         sendMessage();
+        socket.emit('stop typing');
+        typing = false;
       } else {
         setUsername();
       }
+    } else {
+      updateTyping();
     }
   });
 
-  // Auto-focus the current input when a key is typed
-  $window.keydown(function (event) {
-    if (!(event.ctrlKey || event.metaKey || event.altKey)) {
-      $currentInput.focus();
+  $window.keyup(function (event) {
+    if (event.which !== 13) {
+      updateTyping();
     }
   });
 
@@ -98,7 +164,7 @@ $(function() {
     // Save the color
     color = data.color;
     // Display the welcome message
-    var message = "Welcome to Socket.IO Chat - ";
+    var message = "Welcome to Socket.IO Chat &mdash; ";
     if (data.numUsers === 1) {
       message += "there's 1 participant";
     } else {
@@ -120,5 +186,15 @@ $(function() {
   // Whenever the server emits 'user left', log it in the chat body
   socket.on('user left', function (data) {
     log(data.username + ' left');
+  });
+
+  // Whenever the server emits 'typing', show the typing message
+  socket.on('typing', function (data) {
+    addChatTyping(data);
+  });
+
+  // Whenever the server emits 'stop typing', kill the typing message
+  socket.on('stop typing', function (data) {
+    removeChatTyping(data);
   });
 });
