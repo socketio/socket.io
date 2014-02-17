@@ -12,6 +12,13 @@ describe('Socket', function () {
     });
   });
 
+  describe('socketOpening', function() {
+    it('should not override empty port in uri', function () {
+      var socket = new eio.Socket('ws://0.0.0.0');
+      expect(socket.port).to.be('');
+    });
+  });
+
   describe('socketClosing', function(){
     it('should emit close on incorrect connection', function(done){
       var socket = new eio.Socket('ws://0.0.0.0:8080');
