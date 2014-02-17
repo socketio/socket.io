@@ -30,4 +30,30 @@ describe('Socket', function () {
     });
   });
 
+  it('should give sockets different ids or mandate timestamps', function(done) {
+    var sockets = [];
+    var remaining, total;
+    // Create this many sockets during this event loop
+    remaining = total = 4;
+    for (var i = 0; i < total; i++)
+    {
+      sockets[i] = new eio.Socket();
+      sockets[i].on('open', function() {
+        remaining--;
+        if (remaining == 0) {
+          // Ensure sockets don't have same ids, if they are not using time stamps
+          for (var j = 0; j < sockets.length; j++) {
+            for (var k = j + 1; k < sockets.length; k++) {
+              if (!sockets[j].timestampRequests && !sockets[k].timestampRequests) {
+                expect(sockets[j].id).not.to.equal(sockets[k].id);
+              }
+            }
+            sockets[j].close();
+          }
+          done();
+        }
+      });
+    }
+  });
+
 });
