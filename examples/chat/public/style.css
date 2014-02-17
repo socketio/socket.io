@@ -73,7 +73,7 @@ ul {
 }
 
 .login.page .usernameInput {
-  font-size: 300%;
+  font-size: 200%;
   letter-spacing: 3px;
 }
 
@@ -90,8 +90,12 @@ ul {
 
 /* Font */
 
-.messages, .inputMessage {
+.messages {
   font-size: 150%;
+}
+
+.inputMessage {
+  font-size: 100%;
 }
 
 .log {

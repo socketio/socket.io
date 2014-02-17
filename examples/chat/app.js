@@ -3,29 +3,16 @@ var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
 var io = require('../..').listen(server);
-var port = 8000;
+var port = process.env.PORT || 8000;
 
-server.listen(port);
-console.log('Server listening at port %d', port);
+server.listen(port, function () {
+  console.log('Server listening at port %d', port);
+});
 
 // Routing
-app.get('/', function (req, res) {
-  res.sendfile(__dirname + '/index.html');
-});
-app.get('/main.js', function (req, res) {
-  res.sendfile(__dirname + '/main.js');
-});
-app.get('/style.css', function (req, res) {
-  res.sendfile(__dirname + '/style.css');
-});
+app.use(express.static(__dirname + '/public'));
 
 // Chatroom
-
-var COLORS = [
-  '#e21400', '#91580f', '#f8a700', '#f78b00',
-  '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
-  '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
-];
 
 // usernames which are currently connected to the chat
 var usernames = {};
@@ -39,7 +26,6 @@ io.on('connection', function (socket) {
     // we tell the client to execute 'new message'
     socket.broadcast.emit('new message', {
       username: socket.username,
-      color: socket.color,
       message: data
     });
   });
@@ -48,14 +34,12 @@ io.on('connection', function (socket) {
   socket.on('add user', function (username) {
     // we store the username in the socket session for this client
     socket.username = username;
-    socket.color = COLORS[Math.floor(Math.random() * COLORS.length)];
     // add the client's username to the global list
     usernames[username] = username;
     ++numUsers;
     addedUser = true;
     socket.emit('login', {
-      numUsers: numUsers,
-      color: socket.color
+      numUsers: numUsers
     });
     // echo globally (all clients) that a person has connected
     socket.broadcast.emit('user joined', {
@@ -66,8 +50,7 @@ io.on('connection', function (socket) {
   // when the client emits 'typing', we broadcast it to others
   socket.on('typing', function () {
     socket.broadcast.emit('typing', {
-      username: socket.username,
-      color: socket.color
+      username: socket.username
     });
   });
 
@@ -90,9 +73,5 @@ io.on('connection', function (socket) {
         username: socket.username
       });
     }
-    // remove typing messages
-    socket.broadcast.emit('stop typing', {
-      username: socket.username
-    });
   });
 });

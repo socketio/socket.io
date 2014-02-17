@@ -1,6 +1,11 @@
 $(function() {
   var FADE_TIME = 150; // ms
   var TYPING_TIMER_LENGTH = 400; // ms
+  var COLORS = [
+    '#e21400', '#91580f', '#f8a700', '#f78b00',
+    '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
+    '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
+  ];
 
   // Initialize varibles
   var $window = $(window);
@@ -13,7 +18,6 @@ $(function() {
 
   // Prompt for setting a username
   var username;
-  var color;
   var connected = false;
   var typing = false;
   var lastTypingTime;
@@ -46,7 +50,6 @@ $(function() {
       $inputMessage.val('');
       addChatMessage({
         username: username,
-        color: color,
         message: message
       });
       // tell server to execute 'new message' and send along one parameter
@@ -62,6 +65,7 @@ $(function() {
 
   // Adds the visual chat message to the message list
   function addChatMessage (data) {
+    // Don't fade the message in if there is an 'X was typing'
     var $typingMessages = getTypingMessages(data);
     var fade = true; // Whether we should fade-in the new message or not
     if ($typingMessages.length !== 0) {
@@ -69,7 +73,7 @@ $(function() {
       $typingMessages.remove();
     }
 
-    var colorStyle = 'style="color:' + data.color + '"';
+    var colorStyle = 'style="color:' + getUsernameColor(data.username) + '"';
     var usernameDiv = '<span class="username"' + colorStyle + '>' +
       data.username + '</span>';
     var messageBodyDiv = '<span class="messageBody">' +
@@ -140,6 +144,19 @@ $(function() {
     });
   }
 
+  // Gets the color of a username through our hash function
+  function getUsernameColor (username) {
+    // Compute hash code
+    var hash = 7;
+    for (var i = 0; i < username.length; i++) {
+       hash = username.charCodeAt(i) + (hash * 31);
+    }
+    hash >>= 3;
+    // Calculate color
+    var index = Math.abs(hash % COLORS.length);
+    return COLORS[index];
+  }
+
   // Keyboard events
 
   $window.keydown(function (event) {
@@ -168,8 +185,6 @@ $(function() {
   // Whenever the server emits 'login', log the login message
   socket.on('login', function (data) {
     connected = true;
-    // Save the color
-    color = data.color;
     // Display the welcome message
     var message = "Welcome to Socket.IO Chat &mdash; ";
     if (data.numUsers === 1) {
@@ -193,6 +208,7 @@ $(function() {
   // Whenever the server emits 'user left', log it in the chat body
   socket.on('user left', function (data) {
     log(data.username + ' left');
+    removeChatTyping(data);
   });
 
   // Whenever the server emits 'typing', show the typing message
