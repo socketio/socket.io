@@ -149,9 +149,8 @@ $(function() {
     // Compute hash code
     var hash = 7;
     for (var i = 0; i < username.length; i++) {
-       hash = username.charCodeAt(i) + (hash * 31);
+       hash = username.charCodeAt(i) + (hash << 5) - hash;
     }
-    hash >>= 3;
     // Calculate color
     var index = Math.abs(hash % COLORS.length);
     return COLORS[index];
