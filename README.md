@@ -10,6 +10,23 @@ communication layer for [Socket.IO](http://github.com/learnboost/socket.io).
 
 ## Hello World
 
+### Standalone
+
+You can find an `engine.io.js` file in this repository, which is a
+standalone build you can use as follows:
+
+```html
+<script src="/path/to/engine.io.js"></script>
+<script>
+  // eio = Socket
+  var socket = eio('ws://localhost');
+  socket.onopen = function(){
+    socket.onmessage = function(data){};
+    socket.onclose = function(){};
+  };
+</script>
+```
+
 ### With browserify
 
 Engine.IO is a commonjs module, which means you can include it by using
@@ -37,23 +54,6 @@ browserify app.js > bundle.js
 1. include on your page
 ```html
 <script src="/path/to/bundle.js"></script>
-```
-
-### Standalone
-
-If you decide not to use browserify (or similar tool) you can find an `engine.io.js` file in
-this repository, which is a standalone build you can use as follows:
-
-```html
-<script src="/path/to/engine.io.js"></script>
-<script>
-  // eio = Socket
-  var socket = eio('ws://localhost');
-  socket.onopen = function(){
-    socket.onmessage = function(data){};
-    socket.onclose = function(){};
-  };
-</script>
 ```
 
 ### Node.JS
