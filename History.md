@@ -1,4 +1,14 @@
 
+1.1.2 / 2014-02-11
+==================
+
+ * package: bump `json3` to fix IE6-7
+
+1.1.1 / 2014-02-10
+==================
+
+ * package: bump debug to fix browserify issues
+
 1.1.0 / 2013-12-25
 ==================
 
