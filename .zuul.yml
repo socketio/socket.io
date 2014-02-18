@@ -3,9 +3,10 @@ server: ./test/support/server.js
 browsers:
   - name: chrome
     version: 29..latest
-  - name: firefox
-    version: latest
-    platform: Mac 10.9
+# Firefox disabled for now because it can cause infinite wait loops when
+# running any tests
+#  - name: firefox
+#    version: latest
   - name: safari
     version: latest
   - name: ie
