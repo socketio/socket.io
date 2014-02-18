@@ -171,7 +171,7 @@ Exposed as `eio` in the browser standalone build.
 - `send`
     - Sends a message to the server
     - **Parameters**
-      - `String` | `ArrayBuffer` | `ArrayBufferView`: data to send
+      - `String` | `ArrayBuffer` | `ArrayBufferView` | `Blob`: data to send
       - `Function`: optional, callback upon `drain`
 - `close`
     - Disconnects the client.
