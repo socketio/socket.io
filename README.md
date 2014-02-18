@@ -28,7 +28,7 @@ An Engine.IO url is composed as follows:
 - The `engine.io` pathname should only be changed by higher-level
   frameworks whose protocol sits on top of engine's.
 
-- The query string is optional and has three reserved keys:
+- The query string is optional and has four reserved keys:
 
   - `transport`: indicates the transport name. Supported ones by default are
     `polling`, `flashsocket`, `websocket`.
@@ -36,6 +36,8 @@ An Engine.IO url is composed as follows:
     must be set with the JSONP response index.
   - `sid`: if the client has been given a session id, it must be included
     in the querystring.
+  - `b64`: if the client doesn't support XHR2, `b64=1` is sent in the query string
+    to signal the server that all binary data should be sent base64 encoded.
 
 *FAQ:* Is the `/engine.io` portion modifiable?
 
@@ -60,7 +62,7 @@ There's two distinct types of encodings
 
 ### Packet
 
-An encoded packet is a UTF-8 string. The packet encoding format is as follows
+An encoded packet can be UTF-8 string or binary data. The packet encoding format for a string is as follows
 
 ```
 <packet type id>[<data>]
@@ -69,6 +71,19 @@ example:
 ```
 2probe
 ```
+For binary data the encoding is identical. When sending binary data, the packet
+type id is sent in the first byte of the binary contents, followed by the
+actual packet data. Example:
+
+```
+4|0|1|2|3|4|5
+```
+
+In the above example each byte is separated by a pipe character and shown as an
+integer. So the above packet is of type message (see below), and contains
+binary data that corresponds to an array of integers with values 0, 1, 2, 3, 4
+and 5.
+
 The packet type id is an integer. The following are the accepted packet
 types.
 
@@ -125,13 +140,34 @@ A noop packet. Used primarily to force a poll cycle when an incoming websocket c
 
 ### Payload
 
-A payload is a series of encoded packets tied together. The payload encoding format is as follows:
+A payload is a series of encoded packets tied together. The payload encoding format is as follows when only strings are sent and XHR2 is not supported:
 
 ```
 <length1>:<packet1>[<length2>:<packet2>[...]]
 ```
 * length: length of the packet in __characters__
 * packet: actual packets as descriped above
+
+When XHR2 is not supported, the same encoding principle is used also when
+binary data is sent, but it is sent as base64 encoded strings. For the purposes of decoding, an identifier `b` is
+put before a packet encoding that contains binary data. A combination of any
+number of strings and base64 encoded strings can be sent. Here is an example of
+base 64 encoded messages:
+
+```
+<length of base64 representation of the data + 1 (for packet type)>:b<packet1 type><packet1 data in b64>[...]
+```
+
+When XHR2 is supported, a similar principle is used, but everything is encoded
+directly into binary, so that it can be sent as binary over XHR. The format is
+the following:
+
+<0 for string data, 1 for binary data><Any number of numbers between 0 and 9><The number 255><packet1 (first type,
+then data)>[...]
+
+If a combination of UTF-8 strings and binary data is sent, the string values
+are represented so that each character is written as a character code into a
+byte.
 
 The payload is used for transports which do not support framing, as the polling protocol for example.
 

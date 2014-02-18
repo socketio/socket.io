@@ -8,6 +8,11 @@
     "mocha": "*",
     "expect.js": "*"
   },
+  "dependencies": {
+    "base64-arraybuffer": "0.1.0",
+    "after": "0.8.1",
+    "arraybuffer.slice": "0.0.5"
+  },
   "component": {
     "scripts": {
       "engine.io-parser/index.js": "lib/index.js",
@@ -17,5 +22,6 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:LearnBoost/engine.io-protocol.git"
-  }
+  },
+  "browser": "./lib/browser.js"
 }
