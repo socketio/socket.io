@@ -3,7 +3,7 @@
 
 ## Revision
 
-This is revision **1** of the Engine.IO protocol.
+This is revision **3** of the Engine.IO protocol.
 
 ## Anatomy of an Engine.IO session
 

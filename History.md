@@ -1,4 +1,10 @@
 
+1.0.0 / 2014-02-18
+==================
+
+ * parser: added binary encoding [Rase-]
+ * parser: switched to an async interface [Rase-]
+
 0.3.0 / 2013-03-16
 ==================
 
