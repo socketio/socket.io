@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:LearnBoost/engine.io-protocol.git"
+    "url": "git@github.com:LearnBoost/engine.io-parser.git"
   },
   "browser": "./lib/browser.js"
 }
