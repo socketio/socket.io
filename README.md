@@ -1,6 +1,12 @@
 
 # Engine.IO Protocol
 
+This document describes the Engine.IO protocol. For a reference JavaScript
+implementation, take a look at
+[engine.io-parser](https://github.com/learnboost/engine.io-parser), 
+[engine.io-client](https://github.com/learnboost/engine.io-client)
+and [engine.io](https://github.com/learnboost/engine.io).
+
 ## Revision
 
 This is revision **3** of the Engine.IO protocol.
@@ -259,4 +265,3 @@ the `open` packet) to determine whether the server is unresponsive.
 
 If no packet type is received withing `pingTimeout`, the client considers
 the socket disconnected.
-
