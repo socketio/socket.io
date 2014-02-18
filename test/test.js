@@ -15,15 +15,15 @@ function test(obj){
 // array buffer's slice is native code that is not transported across
 // socket.io via msgpack, so regular .eql fails
 function testArrayBuffers(buf1, buf2) {
-   buf1.slice = undefined;
-   buf2.slice = undefined;
-   expect(buf1).to.eql(buf2);
+  buf1.slice = undefined;
+  buf2.slice = undefined;
+  expect(buf1).to.eql(buf2);
 }
 
 function testPacketMetadata(p1, p2) {
-      expect(p1.type).to.eql(p2.type);
-      expect(p1.id).to.eql(p2.id);
-      expect(p1.nsp).to.eql(p2.nsp);
+  expect(p1.type).to.eql(p2.type);
+  expect(p1.id).to.eql(p2.id);
+  expect(p1.nsp).to.eql(p2.nsp);
 }
 
 describe('parser', function(){

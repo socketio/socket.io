@@ -6,6 +6,9 @@
     "type": "git",
     "url": "https://github.com/LearnBoost/socket.io-protocol.git"
   },
+  "browser": {
+    "msgpack-js": "msgpack-allbrowsers"
+  },
   "dependencies": {
     "debug": "0.7.4",
     "msgpack-js": "0.3.0",

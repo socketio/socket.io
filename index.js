@@ -5,8 +5,7 @@
 
 var debug = require('debug')('socket.io-parser');
 var json = require('json3');
-if (!global.document) { var msgpack = require('msgpack-js'); } // in node
-else { var msgpack = require('msgpack-allbrowsers'); } // in browswer
+var msgpack = require('msgpack-js');
 var isArray = require('isarray');
 var base64 = require('base64-js');
 
@@ -213,7 +212,7 @@ function removeBlobs(data, callback) {
   var pendingBlobs = 0;
   var bloblessData = data;
   removeBlobsRecursive(bloblessData);
-  if (!pendingBlobs)  {
+  if (!pendingBlobs) {
     callback(msgpack.encode(bloblessData));
   }
 }
@@ -228,7 +227,7 @@ function removeBlobs(data, callback) {
  */
 
 exports.decode = function(obj) {
-  if ('string' === typeof obj) {
+  if ('string' == typeof obj) {
     return decodeString(obj);
   }
   else if (Buffer.isBuffer(obj) ||
@@ -240,7 +239,7 @@ exports.decode = function(obj) {
     return decodeBase64(obj.data);
   }
   else {
-    throw new Error('type is weird: ' + obj);
+    throw new Error('Unknown type: ' + obj);
   }
 }
 
