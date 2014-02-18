@@ -12,13 +12,15 @@
 
 ## Parser API
 
-### Parser#encode(Object:packet):String
+### Parser#encode(Object:packet):String|Binary
 
-  Encodes a `Packet` object as a string.
+  Encodes a `Packet` object as a string if the object is all JSON, or as a
+  binary type if it contains an ArrayBuffer, Buffer, Blob, or File.
 
-### Parser#decode(String:packet):Packet
+### Parser#decode(Binary|String:packet):Packet
 
-  Returns a `Packet` object for the given string. If a parsing error
+  Returns a `Packet` object for the given binary data or string. Performs the
+  correct decoding depending on type of packet. If a parsing error
   occurs the returned packet is an error object.
 
 ### Parser#types
@@ -36,6 +38,7 @@
   - `Packet#EVENT` (`2`)
   - `Packet#ACK` (`3`)
   - `Packet#ERROR` (`4`)
+  - `Packet#BINARY_EVENT` (`5`)
 
 #### EVENT
 
@@ -45,6 +48,17 @@
 
   - `id` (`Number`) if the `id` identifier is present, it indicates that the
     server wishes to be acknowledged of the reception of this event.
+
+#### BINARY_EVENT
+
+  - `data` (`Array`) see `EVENT` `data`, but with addition that any of the arguments
+    may contain non-JSON arbitrary binary data. On server, all binary data is a Buffer;
+    on modern clients binary data is an ArrayBuffer. On older browsers that don't
+    support binary, all of an event's data is a base64 encoded string, and `data` is an
+    array with the first item the event name and the second item an object with base64: true
+    and data: the encoded string.
+
+  - `id` (`Number`) see `EVENT` `id`.
 
 #### ACK
 

@@ -5,6 +5,10 @@
 
 var debug = require('debug')('socket.io-parser');
 var json = require('json3');
+var msgpack = require('msgpack-js');
+var isArray = require('isarray');
+var base64 = require('base64-js');
+
 
 /**
  * Protocol version.
@@ -24,6 +28,7 @@ exports.types = [
   'CONNECT',
   'DISCONNECT',
   'EVENT',
+  'BINARY_EVENT',
   'ACK',
   'ERROR'
 ];
@@ -69,14 +74,41 @@ exports.ACK = 3;
 exports.ERROR = 4;
 
 /**
- * Encode.
+ * Packet type 'binary event'
  *
- * @param {Object} packet
- * @return {String} encoded
  * @api public
  */
 
-exports.encode = function(obj){
+ exports.BINARY_EVENT = 5;
+
+/**
+ * Encode a packet as a string or buffer, depending on packet type.
+ *
+ * @param {Object} packet
+ * @return {String | Buffer} encoded
+ * @api public
+ */
+
+exports.encode = function(obj, callback){
+  debug('encoding packet %j', obj);
+  if (obj.type === exports.BINARY_EVENT) {
+    encodeAsBinary(obj, callback);
+  }
+  else {
+    var encoding = encodeAsString(obj);
+    callback(encoding);
+  }
+};
+
+/**
+ * Encode packet as string (used for anything that is not a binary event).
+ *
+ * @param {Object} packet
+ * @return {String} encoded
+ * @api private
+ */
+
+function encodeAsString(obj) {
   var str = '';
   var nsp = false;
 
@@ -107,17 +139,119 @@ exports.encode = function(obj){
 
   debug('encoded %j as %s', obj, str);
   return str;
-};
+}
 
 /**
- * Decode.
+ * Encode packet as Buffer (used for binary events).
  *
- * @param {String} str
+ * @param {Object} packet
+ * @return {Buffer} encoded
+ * @api private
+ */
+
+function encodeAsBinary(obj, callback) {
+  if (global.Blob || global.File) {
+    removeBlobs(obj, callback);
+  } else {
+    var encoding = msgpack.encode(obj);
+    callback(encoding);
+  }
+}
+
+/**
+ * Asynchronously removes Blobs or Files from data via
+ * FileReaders readAsArrayBuffer method. Used before encoding
+ * data as msgpack. Calls callback with the blobless data.
+ *
+ * @param {Object} data
+ * @param {Function} callback
+ * @api private
+ */
+
+function removeBlobs(data, callback) {
+
+  function removeBlobsRecursive(obj, curKey, containingObject) {
+    if (!obj) return obj;
+
+    // convert any blob
+    if ((global.Blob && obj instanceof Blob) ||
+        (global.File && obj instanceof File)) {
+      pendingBlobs++;
+
+      // async filereader
+      var fileReader = new FileReader();
+      fileReader.onload = function() { // this.result == arraybuffer
+        if (containingObject) {
+          containingObject[curKey] = this.result;
+        }
+        else {
+          bloblessData = this.result;
+        }
+
+        // if nothing pending its callback time
+        if(! --pendingBlobs) {
+          callback(msgpack.encode(bloblessData));
+        }
+      };
+
+      fileReader.readAsArrayBuffer(obj); // blob -> arraybuffer
+    }
+
+    // handle array
+    if (isArray(obj)) {
+      for (var i = 0; i < obj.length; i++) {
+        removeBlobsRecursive(obj[i], i, obj);
+      }
+    } else if (obj && 'object' == typeof obj) { // and object
+      for (var key in obj) {
+        removeBlobsRecursive(obj[key], key, obj);
+      }
+    }
+  }
+
+  var pendingBlobs = 0;
+  var bloblessData = data;
+  removeBlobsRecursive(bloblessData);
+  if (!pendingBlobs) {
+    callback(msgpack.encode(bloblessData));
+  }
+}
+
+/**
+ * Decodes a packet Object (msgpack or string) into
+ * packet JSON.
+ *
+ * @param {Object} obj
  * @return {Object} packet
  * @api public
  */
 
-exports.decode = function(str){
+exports.decode = function(obj) {
+  if ('string' == typeof obj) {
+    return decodeString(obj);
+  }
+  else if (Buffer.isBuffer(obj) ||
+          (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
+          (global.Blob && obj instanceof Blob)) {
+    return decodeBuffer(obj);
+  }
+  else if (obj.base64) {
+    return decodeBase64(obj.data);
+  }
+  else {
+    throw new Error('Unknown type: ' + obj);
+  }
+}
+
+/**
+ * Decode a packet String (JSON data)
+ *
+ * @param {String} str
+ * @return {Object} packet
+ * @api private
+ */
+
+function decodeString(str) {
   var p = {};
   var i = 0;
 
@@ -165,6 +299,73 @@ exports.decode = function(str){
 
   debug('decoded %s as %j', str, p);
   return p;
+};
+
+/**
+ * Decode binary data packet into JSON packet
+ *
+ * @param {Buffer | ArrayBuffer | Blob} buf
+ * @return {Object} packet
+ * @api private
+ */
+
+function decodeBuffer(buf) {
+  return msgpack.decode(buf);
+};
+
+/**
+ * Decode base64 msgpack string into a packet
+ *
+ * @param {String} b64
+ * @return {Object} packet
+ * @api private
+ */
+
+var NSP_SEP = 163;
+var EVENT_SEP = 146;
+var EVENT_STOP = 216;
+
+function decodeBase64(b64) {
+  var packet = {type: exports.BINARY_EVENT};
+  var bytes = base64.toByteArray(b64);
+
+  var nsp = '';
+  var eventName = '';
+  var data = [];
+  var currentThing;
+
+  for (var i = 0; i < bytes.length; i++) {
+    var b = bytes[i];
+    if (!currentThing) {
+      if (b == EVENT_SEP && !eventName) {
+        currentThing = 'ev';
+        i += 1; // skip the next thing which is another seperator
+      }
+    }
+    else if (currentThing == 'nsp') {
+      nsp += String.fromCharCode(b);
+    }
+    else if (currentThing == 'ev') {
+      if (b != EVENT_STOP) {
+        eventName += String.fromCharCode(b);
+      } else {
+        currentThing = 'data';
+        i += 2; // next two bytes are 0 and another seperator
+      }
+    }
+    else if (currentThing == 'data') {
+      if (b != NSP_SEP) {
+        data.push(b);
+      } else {
+        currentThing = 'nsp';
+        i += 4; // next three chars are 'nsp', then another seperator
+      }
+    }
+  }
+
+  packet.nsp = nsp;
+  packet.data = [eventName, {base64: true, data: base64.fromByteArray(data)}];
+  return packet;
 };
 
 function error(data){
