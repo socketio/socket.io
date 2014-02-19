@@ -131,7 +131,6 @@ function Socket(uri, opts){
   this.upgrade = false !== opts.upgrade;
   this.path = (opts.path || '/engine.io').replace(/\/$/, '') + '/';
   this.forceJSONP = !!opts.forceJSONP;
-  this.forceBase64 = !!opts.forceBase64;
   this.timestampParam = opts.timestampParam || 't';
   this.timestampRequests = opts.timestampRequests;
   this.flashPath = opts.flashPath || '';
@@ -141,7 +140,6 @@ function Socket(uri, opts){
   this.callbackBuffer = [];
   this.policyPort = opts.policyPort || 843;
   this.open();
-  this.binaryType = null;
 }
 
 /**
@@ -199,12 +197,10 @@ Socket.prototype.createTransport = function (name) {
     path: this.path,
     query: query,
     forceJSONP: this.forceJSONP,
-    forceBase64: this.forceBase64,
     timestampRequests: this.timestampRequests,
     timestampParam: this.timestampParam,
     flashPath: this.flashPath,
-    policyPort: this.policyPort,
-    socket: this
+    policyPort: this.policyPort
   });
 
   return transport;
@@ -415,7 +411,6 @@ Socket.prototype.onPacket = function (packet) {
         event.toString = function () {
           return packet.data;
         };
-
         this.onmessage && this.onmessage.call(this, event);
         break;
     }
@@ -494,7 +489,7 @@ Socket.prototype.ping = function () {
  * @api private
  */
 
-Socket.prototype.onDrain = function() {
+ Socket.prototype.onDrain = function() {
   for (var i = 0; i < this.prevBufferLen; i++) {
     if (this.callbackBuffer[i]) {
       this.callbackBuffer[i]();
@@ -652,7 +647,8 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   return filteredUpgrades;
 };
 
-},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"debug":14,"engine.io-parser":16,"global":21,"indexof":23}],5:[function(require,module,exports){
+},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"debug":14,"engine.io-parser":16,"global":19,"indexof":21}],5:[function(require,module,exports){
+
 /**
  * Module dependencies.
  */
@@ -684,7 +680,6 @@ function Transport (opts) {
   this.timestampRequests = opts.timestampRequests;
   this.readyState = '';
   this.agent = opts.agent || false;
-  this.socket = opts.socket;
 }
 
 /**
@@ -774,7 +769,7 @@ Transport.prototype.onOpen = function () {
  */
 
 Transport.prototype.onData = function (data) {
-  this.onPacket(parser.decodePacket(data, this.socket.binaryType));
+  this.onPacket(parser.decodePacket(data));
 };
 
 /**
@@ -850,12 +845,6 @@ util.inherits(FlashWS, WS);
 
 FlashWS.prototype.name = 'flashsocket';
 
-/*
- * FlashSockets only support binary as base64 encoded strings
- */
-
-FlashWS.prototype.supportsBinary = false;
-
 /**
  * Opens the transport.
  *
@@ -896,7 +885,7 @@ FlashWS.prototype.doOpen = function(){
   load(deps, function(){
     self.ready(function(){
       WebSocket.__addTask(function () {
-        self.webSocket = new WebSocket(self.uri());
+        self.socket = new WebSocket(self.uri());
         self.addEventListeners();
       });
     });
@@ -910,7 +899,7 @@ FlashWS.prototype.doOpen = function(){
  */
 
 FlashWS.prototype.doClose = function(){
-  if (!this.webSocket) return;
+  if (!this.socket) return;
   var self = this;
   WebSocket.__addTask(function(){
     WS.prototype.doClose.call(self);
@@ -1066,7 +1055,7 @@ function load(arr, fn){
   process(0);
 }
 
-},{"../util":12,"./websocket":11,"debug":14,"global":21}],7:[function(require,module,exports){
+},{"../util":12,"./websocket":11,"debug":14,"global":19}],7:[function(require,module,exports){
 
 /**
  * Module dependencies
@@ -1125,7 +1114,7 @@ function polling (opts) {
   }
 };
 
-},{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"global":21,"xmlhttprequest":13}],8:[function(require,module,exports){
+},{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"global":19,"xmlhttprequest":13}],8:[function(require,module,exports){
 
 /**
  * Module requirements.
@@ -1206,12 +1195,6 @@ function JSONPPolling (opts) {
  */
 
 util.inherits(JSONPPolling, Polling);
-
-/*
- * JSONP only supports binary as base64 encoded strings
- */
-
-JSONPPolling.prototype.supportsBinary = false;
 
 /**
  * Closes the socket
@@ -1352,7 +1335,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   }
 };
 
-},{"../util":12,"./polling":10,"global":21}],9:[function(require,module,exports){
+},{"../util":12,"./polling":10,"global":19}],9:[function(require,module,exports){
 /**
  * Module requirements.
  */
@@ -1419,12 +1402,6 @@ function XHR(opts){
 util.inherits(XHR, Polling);
 
 /**
- * XHR supports binary
- */
-
-XHR.prototype.supportsBinary = true;
-
-/**
  * Creates a request.
  *
  * @param {String} method
@@ -1436,7 +1413,6 @@ XHR.prototype.request = function(opts){
   opts.uri = this.uri();
   opts.xd = this.xd;
   opts.agent = this.agent || false;
-  opts.supportsBinary = this.supportsBinary;
   return new Request(opts);
 };
 
@@ -1449,8 +1425,7 @@ XHR.prototype.request = function(opts){
  */
 
 XHR.prototype.doWrite = function(data, fn){
-  var isBinary = typeof data !== 'string' && data !== undefined;
-  var req = this.request({ method: 'POST', data: data, isBinary: isBinary });
+  var req = this.request({ method: 'POST', data: data });
   var self = this;
   req.on('success', fn);
   req.on('error', function(err){
@@ -1492,7 +1467,7 @@ function Request(opts){
   this.async = false !== opts.async;
   this.data = undefined != opts.data ? opts.data : null;
   this.agent = opts.agent;
-  this.create(opts.isBinary, opts.supportsBinary);
+  this.create();
 }
 
 /**
@@ -1507,23 +1482,17 @@ Emitter(Request.prototype);
  * @api private
  */
 
-Request.prototype.create = function(isBinary, supportsBinary){
+Request.prototype.create = function(){
   var xhr = this.xhr = new XMLHttpRequest({ agent: this.agent, xdomain: this.xd });
   var self = this;
 
   try {
     debug('xhr open %s: %s', this.method, this.uri);
     xhr.open(this.method, this.uri, this.async);
-    if (supportsBinary) {
-      // This has to be done after open because Firefox is stupid
-      // http://stackoverflow.com/questions/13216903/get-binary-data-with-xmlhttprequest-in-a-firefox-extension
-      xhr.responseType = 'arraybuffer';
-    }
 
     if ('POST' == this.method) {
       try {
-        if (isBinary) xhr.setRequestHeader('Content-type', 'application/octet-stream');
-        else xhr.setRequestHeader('Content-type', 'text/plain;charset=UTF-8');
+        xhr.setRequestHeader('Content-type', 'text/plain;charset=UTF-8');
       } catch (e) {}
     }
 
@@ -1538,13 +1507,7 @@ Request.prototype.create = function(isBinary, supportsBinary){
       try {
         if (4 != xhr.readyState) return;
         if (200 == xhr.status || 1223 == xhr.status) {
-          var contentType = xhr.getResponseHeader('Content-Type');
-          if (contentType === 'application/octet-stream') {
-            data = xhr.response;
-          } else {
-            if (!supportsBinary) { data = xhr.responseText; }
-            else { data = 'ok'; }
-          }
+          data = xhr.responseText;
         } else {
           // make sure the `error` event handler that's user-set
           // does not throw in the same tick and gets caught here
@@ -1564,7 +1527,7 @@ Request.prototype.create = function(isBinary, supportsBinary){
     debug('xhr data %s', this.data);
     xhr.send(this.data);
   } catch (e) {
-    // Need to defer since .create() is called directly fhrom the constructor
+    // Need to defer since .create() is called directly from the constructor
     // and thus the 'error' event can only be only bound *after* this exception
     // occurs.  Therefore, also, we cannot throw here at all.
     setTimeout(function() {
@@ -1650,22 +1613,16 @@ if (xobject) {
   Request.requestsCount = 0;
   Request.requests = {};
 
-  function unloadHandler() {
+  global.attachEvent('onunload', function(){
     for (var i in Request.requests) {
       if (Request.requests.hasOwnProperty(i)) {
         Request.requests[i].abort();
       }
     }
-  }
-
-  if (global.addEventListener) {
-    global.addEventListener('unload', unloadHandler);
-  } else if (global.attachEvent) {
-    global.attachEvent('onunload', unloadHandler);
-  }
+  });
 }
 
-},{"../emitter":2,"../util":12,"./polling":10,"debug":14,"global":21,"xmlhttprequest":13}],10:[function(require,module,exports){
+},{"../emitter":2,"../util":12,"./polling":10,"debug":14,"global":19,"xmlhttprequest":13}],10:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -1688,16 +1645,6 @@ module.exports = Polling;
 var global = require('global');
 
 /**
- * Is XHR2 supported?
- */
-
-var hasXHR2 = (function() {
-  var XMLHttpRequest = require('xmlhttprequest');
-  var xhr = new XMLHttpRequest({ agent: this.agent, xdomain: false });
-  return xhr.responseType !== undefined;
-})();
-
-/**
  * Polling interface.
  *
  * @param {Object} opts
@@ -1705,8 +1652,6 @@ var hasXHR2 = (function() {
  */
 
 function Polling(opts){
-  var forceBase64 = (opts && opts.forceBase64);
-  if (!hasXHR2 || forceBase64) { this.supportsBinary = false; }
   Transport.call(this, opts);
 }
 
@@ -1799,8 +1744,10 @@ Polling.prototype.poll = function(){
 Polling.prototype.onData = function(data){
   var self = this;
   debug('polling got data %s', data);
-  var callback = function(packet, index, total) {
-     // if its the first message we consider the transport open
+
+  // decode payload
+  parser.decodePayload(data, function(packet, index, total) {
+    // if its the first message we consider the transport open
     if ('opening' == self.readyState) {
       self.onOpen();
     }
@@ -1813,10 +1760,7 @@ Polling.prototype.onData = function(data){
 
     // otherwise bypass onData and handle the message
     self.onPacket(packet);
-  };
-
-  // decode payload
-  parser.decodePayload(data, this.socket.binaryType, callback);
+  });
 
   // if an event did not trigger closing
   if ('closed' != this.readyState) {
@@ -1868,14 +1812,9 @@ Polling.prototype.doClose = function(){
 Polling.prototype.write = function(packets){
   var self = this;
   this.writable = false;
-  var callbackfn = function() {
+  this.doWrite(parser.encodePayload(packets), function(){
     self.writable = true;
     self.emit('drain');
-  };
-
-  var self = this;
-  parser.encodePayload(packets, this.supportsBinary, function(data) {
-    self.doWrite(data, callbackfn);
   });
 };
 
@@ -1901,8 +1840,6 @@ Polling.prototype.uri = function(){
     }
   }
 
-  if (!this.supportsBinary && !query.sid) query.b64 = 1;
-
   query = util.qs(query);
 
   // avoid port if default for schema
@@ -1919,7 +1856,7 @@ Polling.prototype.uri = function(){
   return schema + '://' + this.hostname + port + this.path + query;
 };
 
-},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21,"xmlhttprequest":13}],11:[function(require,module,exports){
+},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":19}],11:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -1950,8 +1887,6 @@ var global = require('global');
  */
 
 function WS(opts){
-  var forceBase64 = (opts && opts.forceBase64);
-  if (forceBase64) { this.supportsBinary = false; }
   Transport.call(this, opts);
 }
 
@@ -1968,12 +1903,6 @@ util.inherits(WS, Transport);
  */
 
 WS.prototype.name = 'websocket';
-
-/*
- * WebSockets support binary
- */
-
-WS.prototype.supportsBinary = true;
 
 /**
  * Opens socket.
@@ -1992,13 +1921,7 @@ WS.prototype.doOpen = function(){
   var protocols = void(0);
   var opts = { agent: this.agent };
 
-  this.ws = new WebSocket(uri, protocols, opts);
-
-  if (!this.ws.binaryType) {
-    this.supportsBinary = false;
-  }
-
-  this.ws.binaryType = 'arraybuffer';
+  this.socket = new WebSocket(uri, protocols, opts);
   this.addEventListeners();
 };
 
@@ -2011,16 +1934,16 @@ WS.prototype.doOpen = function(){
 WS.prototype.addEventListeners = function(){
   var self = this;
 
-  this.ws.onopen = function(){
+  this.socket.onopen = function(){
     self.onOpen();
   };
-  this.ws.onclose = function(){
+  this.socket.onclose = function(){
     self.onClose();
   };
-  this.ws.onmessage = function(ev){
+  this.socket.onmessage = function(ev){
     self.onData(ev.data);
   };
-  this.ws.onerror = function(e){
+  this.socket.onerror = function(e){
     self.onError('websocket error', e);
   };
 };
@@ -2055,11 +1978,8 @@ WS.prototype.write = function(packets){
   // encodePacket efficient as it uses WS framing
   // no need for encodePayload
   for (var i = 0, l = packets.length; i < l; i++) {
-    parser.encodePacket(packets[i], this.supportsBinary, function(data) {
-      self.ws.send(data);
-    });
+    this.socket.send(parser.encodePacket(packets[i]));
   }
-
   function ondrain() {
     self.writable = true;
     self.emit('drain');
@@ -2086,8 +2006,8 @@ WS.prototype.onClose = function(){
  */
 
 WS.prototype.doClose = function(){
-  if (typeof this.ws !== 'undefined') {
-    this.ws.close();
+  if (typeof this.socket !== 'undefined') {
+    this.socket.close();
   }
 };
 
@@ -2113,9 +2033,6 @@ WS.prototype.uri = function(){
     query[this.timestampParam] = +new Date;
   }
 
-  // communicate binary support capabilities
-  if (!this.supportsBinary) { query.b64 = 1; }
-
   query = util.qs(query);
 
   // prepend ? to query
@@ -2137,7 +2054,7 @@ WS.prototype.check = function(){
   return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 };
 
-},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21,"ws":24}],12:[function(require,module,exports){
+},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":19,"ws":22}],12:[function(require,module,exports){
 
 var global = require('global');
 
@@ -2359,7 +2276,7 @@ exports.qsParse = function(qs){
   return qry;
 };
 
-},{"global":21}],13:[function(require,module,exports){
+},{"global":19}],13:[function(require,module,exports){
 // browser shim for xmlhttprequest module
 var hasCORS = require('has-cors');
 
@@ -2380,7 +2297,7 @@ module.exports = function(opts) {
   }
 }
 
-},{"has-cors":22}],14:[function(require,module,exports){
+},{"has-cors":20}],14:[function(require,module,exports){
 
 /**
  * Expose `debug()` as the module.
@@ -2683,27 +2600,20 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{"indexof":23}],16:[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
+},{"indexof":21}],16:[function(require,module,exports){
+
+module.exports = require('./lib/');
+
+},{"./lib/":17}],17:[function(require,module,exports){
+/**
  * Module dependencies.
  */
 
 var keys = require('./keys');
-var sliceBuffer = require('arraybuffer.slice');
-var base64encoder = require('base64-arraybuffer');
-var after = require('after');
-
-/**
- * A utility for doing slicing, even when ArrayBuffer.prototype.slice doesn't
- * exist
- *
- * @api private
- */
 
 /**
  * Current protocol version.
  */
-
 exports.protocol = 2;
 
 /**
@@ -2729,63 +2639,20 @@ var packetslist = keys(packets);
 var err = { type: 'error', data: 'parser error' };
 
 /**
- * Create a blob builder even when vendor prefixes exist
- */
-
-var BlobBuilder = global.BlobBuilder || global.WebKitBlobBuilder || global.MSBlobBuilder || global.MozBlobBuilder;
-
-/**
- * Check if Blob constructor is supported
- */
-
-var blobSupported = (function() {
-  try {
-    var b = new Blob(['hi']);
-    return b.size == 2;
-  } catch(e) {
-    return false;
-  }
-})();
-
-/**
- * Check if BlobBuilder is supported
- */
-
-var blobBuilderSupported = !!BlobBuilder && !!BlobBuilder.prototype.append && !!BlobBuilder.prototype.getBlob;
-
-/**
  * Encodes a packet.
  *
- *     <packet type id> [ <data> ]
+ *     <packet type id> [ `:` <data> ]
  *
  * Example:
  *
- *     5hello world
+ *     5:hello world
  *     3
  *     4
- *
- * Binary is encoded in an identical principle
  *
  * @api private
  */
 
-exports.encodePacket = function (packet, supportsBinary, callback) {
-  if (typeof supportsBinary == 'function') {
-    callback = supportsBinary;
-    supportsBinary = false;
-  }
-
-  var data = (packet.data === undefined)
-    ? undefined
-    : packet.data.buffer || packet.data;
-
-  if (global.ArrayBuffer && data instanceof ArrayBuffer) {
-    return encodeArrayBuffer(packet, supportsBinary, callback);
-  } else if (blobSupported && data instanceof Blob) {
-    return encodeBlob(packet, supportsBinary, callback);
-  }
-
-  // Sending data as a utf-8 string
+exports.encodePacket = function (packet) {
   var encoded = packets[packet.type];
 
   // data fragment is optional
@@ -2793,160 +2660,28 @@ exports.encodePacket = function (packet, supportsBinary, callback) {
     encoded += String(packet.data);
   }
 
-  return callback('' + encoded);
-
+  return '' + encoded;
 };
 
 /**
- * Encode packet helpers for binary types
- */
-
-function encodeArrayBuffer(packet, supportsBinary, callback) {
-  if (!supportsBinary) {
-    return exports.encodeBase64Packet(packet, callback);
-  }
-
-  var data = packet.data;
-  var contentArray = new Uint8Array(data);
-  var resultBuffer = new Uint8Array(1 + data.byteLength);
-
-  resultBuffer[0] = packets[packet.type];
-  for (var i = 0; i < contentArray.length; i++) {
-    resultBuffer[i+1] = contentArray[i];
-  }
-
-  return callback(resultBuffer.buffer);
-};
-
-function encodeBlobAsArrayBuffer(packet, supportsBinary, callback) {
-  if (!supportsBinary) {
-    return exports.encodeBase64Packet(packet, callback);
-  }
-
-  var fr = new FileReader();
-  fr.onload = function() {
-    packet.data = fr.result;
-    exports.encodePacket(packet, supportsBinary, callback);
-  };
-  return fr.readAsArrayBuffer(packet.data);
-};
-
-function encodeBlob(packet, supportsBinary, callback) {
-  if (!supportsBinary) {
-    return exports.encodeBase64Packet(packet, callback);
-  }
-
-  var length = new Uint8Array(1);
-  length[0] = packets[packet.type];
-  var blob;
-  if (blobSupported) {
-    blob = new Blob([length.buffer, packet.data]);
-  } else {
-    var bb = new BlobBuilder();
-    bb.append(length);
-    bb.append(packet.data);
-    blob = bb.getBlob();
-  }
-
-  return callback(blob);
-};
-
-/**
- * Encodes a packet with binary data in a base64 string
- *
- * @param {Object} packet, has `type` and `data`
- * @return {String} base64 encoded message
- */
-
-exports.encodeBase64Packet = function(packet, callback) {
-  var message = 'b' + exports.packets[packet.type];
-  if (blobSupported && packet.data instanceof Blob) {
-    var fr = new FileReader();
-    fr.onload = function() {
-      var b64 = fr.result.split(',')[1];
-      callback(message + b64);
-    };
-    return fr.readAsDataURL(packet.data);
-  }
-
-  var b64data;
-  try {
-    b64data = String.fromCharCode.apply(null, new Uint8Array(packet.data));
-  } catch (e) {
-    // iPhone Safari doesn't let you apply with typed arrays
-    var typed = new Uint8Array(packet.data);
-    var basic = new Array(typed.length);
-    for (var i = 0; i < typed.length; i++) {
-      basic[i] = typed[i];
-    }
-    b64data = String.fromCharCode.apply(null, basic);
-  }
-  message += global.btoa(b64data);
-  return callback(message);
-};
-
-/**
- * Decodes a packet. Changes format to Blob if requested.
+ * Decodes a packet.
  *
  * @return {Object} with `type` and `data` (if any)
  * @api private
  */
 
-exports.decodePacket = function (data, binaryType) {
-  // String data
-  if (typeof data == 'string' || data === undefined) {
-    if (data.charAt(0) == 'b') {
-      return exports.decodeBase64Packet(data.substr(1), binaryType);
-    }
+exports.decodePacket = function (data) {
+  var type = data.charAt(0);
 
-    var type = data.charAt(0);
-
-    if (Number(type) != type || !packetslist[type]) {
-      return err;
-    }
-
-    if (data.length > 1) {
-      return { type: packetslist[type], data: data.substring(1) };
-    } else {
-      return { type: packetslist[type] };
-    }
-  }
- 
-  var asArray = new Uint8Array(data);
-  var type = asArray[0];
-  var rest = sliceBuffer(data, 1);
-  if (blobSupported && binaryType === 'blob') {
-    rest = new Blob([rest]);
-  } else if (blobBuilderSupported && binaryType === 'blob') {
-    var bb = new BlobBuilder();
-    bb.append(rest);
-    rest = bb.getBlob();
-  }
-  return { type: packetslist[type], data: rest };
-};
-
-/**
- * Decodes a packet encoded in a base64 string 
- *
- * @param {String} base64 encoded message
- * @return {Object} with `type` and `data` (if any)
- */
-
-exports.decodeBase64Packet = function(msg, binaryType) {
-  var type = packetslist[msg.charAt(0)];
-  var data = (!global.ArrayBuffer)
-    ? { base64: true, data: msg.substr(1) }
-    : base64encoder.decode(msg.substr(1));
-
-  if (binaryType === 'blob' && blobSupported){
-    data = new Blob([data]);
-  } else if (binaryType === 'blob' && blobBuilderSupported) {
-    var bb = new BlobBuilder();
-    bb.append(data);
-    data = bb.getBlob();
+  if (Number(type) != type || !packetslist[type]) {
+    return err;
   }
 
-  return { type: type, data: data };
+  if (data.length > 1) {
+    return { type: packetslist[type], data: data.substring(1) };
+  } else {
+    return { type: packetslist[type] };
+  }
 };
 
 /**
@@ -2958,83 +2693,34 @@ exports.decodeBase64Packet = function(msg, binaryType) {
  *
  *     11:hello world2:hi
  *
- * If any contents are binary, they will be encoded as base64 strings. Base64
- * encoded strings are marked with a b before the length specifier
- *
  * @param {Array} packets
  * @api private
  */
 
-exports.encodePayload = function (packets, supportsBinary, callback) {
-  if (typeof supportsBinary == 'function') {
-    callback = supportsBinary;
-    supportsBinary = null;
-  }
-
-  if (supportsBinary) {
-    if (blobSupported || blobBuilderSupported) {
-      return exports.encodePayloadAsBlob(packets, callback);
-    }
-    return exports.encodePayloadAsArrayBuffer(packets, callback);
-  }
-
+exports.encodePayload = function (packets) {
   if (!packets.length) {
-    return callback('0:');
+    return '0:';
   }
 
-  function setLengthHeader(message) {
-    return message.length + ':' + message;
-  };
+  var encoded = '';
+  var message;
 
-  function encodeOne(packet, doneCallback) {
-    exports.encodePacket(packet, supportsBinary, function(message) {
-      doneCallback(null, setLengthHeader(message));
-    });
-  };
+  for (var i = 0, l = packets.length; i < l; i++) {
+    message = exports.encodePacket(packets[i]);
+    encoded += message.length + ':' + message;
+  }
 
-  map(packets, encodeOne, function(err, results) {
-    return callback(results.join(''));
-  });
-};
-
-/**
- * Async array map using after
- */
-
-function map(ary, doOne, done) {
-  var result = new Array(ary.length);
-  var next = after(ary.length, done);
-
-  var one = function(i, el, cb) {
-    doOne(el, function(error, msg) {
-      result[i] = msg;
-      cb(error, result);
-    });
-  };
-
-  for (var i = 0; i < ary.length; i++) {
-    one(i, ary[i], next);
-  };
+  return encoded;
 };
 
 /*
- * Decodes data when a payload is maybe expected. Possible binary contents are
- * decoded from their base64 representation
+ * Decodes data when a payload is maybe expected.
  *
  * @param {String} data, callback method
  * @api public
  */
 
-exports.decodePayload = function (data, binaryType, callback) {
-  if (!(typeof data == 'string')) {
-    return exports.decodePayloadAsBinary(data, binaryType, callback);
-  }
-
-  if (typeof binaryType === 'function') {
-    callback = binaryType;
-    binaryType = null;
-  }
-
+exports.decodePayload = function (data, callback) {
   var packet;
   if (data == '') {
     // parser error - ignoring payload
@@ -3046,7 +2732,7 @@ exports.decodePayload = function (data, binaryType, callback) {
 
   for (var i = 0, l = data.length; i < l; i++) {
     var chr = data.charAt(i);
-   
+
     if (':' != chr) {
       length += chr;
     } else {
@@ -3063,7 +2749,7 @@ exports.decodePayload = function (data, binaryType, callback) {
       }
 
       if (msg.length) {
-        packet = exports.decodePacket(msg, binaryType);
+        packet = exports.decodePacket(msg);
 
         if (err.type == packet.type && err.data == packet.data) {
           // parser error in individual packet - ignoring payload
@@ -3087,188 +2773,7 @@ exports.decodePayload = function (data, binaryType, callback) {
 
 };
 
-/**
- * Encodes multiple messages (payload) as binary.
- *
- * <1 = binary, 0 = string><number from 0-9><number from 0-9>[...]<number
- * 255><data>
- *
- * Example:
- * 1 3 255 1 2 3, if the binary contents are interpreted as 8 bit integers
- *
- * @param {Array} packets
- * @return {ArrayBuffer} encoded payload
- * @api private
- */
-
-exports.encodePayloadAsArrayBuffer = function(packets, callback) {
-  if (!packets.length) {
-    return callback(new ArrayBuffer(0));
-  }
-
-  function encodeOne(packet, doneCallback) {
-    exports.encodePacket(packet, true, function(data) {
-      return doneCallback(null, data);
-    });
-  };
-
-  map(packets, encodeOne, function(err, encodedPackets) {
-    var totalLength = encodedPackets.reduce(function(acc, p) {
-      var len;
-      if (typeof p === 'string'){
-        len = p.length;
-      } else {
-        len = p.byteLength;
-      }
-      return acc + (new String(len)).length + len + 2; // string/binary identifier + separator = 2
-    }, 0);
-
-    var resultArray = new Uint8Array(totalLength);
-
-    var bufferIndex = 0;
-    encodedPackets.forEach(function(p) {
-      var isString = typeof p === 'string';
-      var ab = p;
-      if (isString) {
-        var view = new Uint8Array(p.length);
-        for (var i = 0; i < p.length; i++) {
-          view[i] = p.charCodeAt(i);
-        }
-        ab = view.buffer;
-      }
-
-      if (isString) { // not true binary
-        resultArray[bufferIndex++] = 0;
-      } else { // true binary
-        resultArray[bufferIndex++] = 1;
-      }
-
-      var lenStr = new String(ab.byteLength);
-      for (var i = 0; i < lenStr.length; i++) {
-        resultArray[bufferIndex++] = parseInt(lenStr[i]);
-      }
-      resultArray[bufferIndex++] = 255;
-
-      var view = new Uint8Array(ab);
-      for (var i = 0; i < view.length; i++) {
-        resultArray[bufferIndex++] = view[i];
-      }
-    });
-
-    return callback(resultArray.buffer);
-  });
-};
-
-/**
- * Encode as Blob
- */
-
-exports.encodePayloadAsBlob = function(packets, callback) {
-  function encodeOne(packet, doneCallback) {
-    exports.encodePacket(packet, true, function(encoded) {
-      var binaryIdentifier = new Uint8Array(1);
-      binaryIdentifier[0] = 1;
-      if (typeof encoded === 'string') {
-        var view = new Uint8Array(encoded.length);
-        for (var i = 0; i < encoded.length; i++) {
-          view[i] = encoded.charCodeAt(i);
-        }
-        encoded = view.buffer;
-        binaryIdentifier[0] = 0;
-      }
-
-      var len = (encoded instanceof ArrayBuffer)
-        ? encoded.byteLength
-        : encoded.size;
-
-      var lenStr = new String(len);
-      var lengthAry = new Uint8Array(lenStr.length + 1);
-      for (var i = 0; i < lenStr.length; i++) {
-        lengthAry[i] = parseInt(lenStr[i]);
-      }
-      lengthAry[lenStr.length] = 255;
-
-      if (blobSupported) {
-        var blob = new Blob([binaryIdentifier.buffer, lengthAry.buffer, encoded]);
-        doneCallback(null, blob);
-      } else {
-        var bb = new BlobBuilder();
-        bb.append(binaryIdentifier);
-        bb.append(lengthAry.buffer);
-        bb.append(encoded);
-        var blob = bb.getBlob();
-        doneCallback(null, blob);
-      }
-    });
-  };
-
-  map(packets, encodeOne, function(err, results) {
-    if (blobSupported) {
-      return callback(new Blob(results));
-    }
-
-    var bb = new BlobBuilder();
-    results.forEach(function(encoding) {
-      bb.append(encoding);
-    });
-    return callback(bb.getBlob());
-  });
-};
-
-/*
- * Decodes data when a payload is maybe expected. Strings are decoded by
- * interpreting each byte as a key code for entries marked to start with 0. See
- * description of encodePayloadAsBinary
- *
- * @param {ArrayBuffer} data, callback method
- * @api public
- */
-
-exports.decodePayloadAsBinary = function (data, binaryType, callback) {
-  if (typeof binaryType === 'function') {
-    callback = binaryType;
-    binaryType = null;
-  }
-
-  var bufferTail = data;
-  var buffers = [];
-
-  while (bufferTail.byteLength > 0) {
-    var tailArray = new Uint8Array(bufferTail);
-    var isString = tailArray[0] == 0;
-    var msgLength = '';
-    for (var i = 1; ; i++) {
-      if (tailArray[i] == 255) break;
-      msgLength += tailArray[i];
-    }
-    bufferTail = sliceBuffer(bufferTail, 2 + msgLength.length);
-    msgLength = parseInt(msgLength);
-
-    var msg = sliceBuffer(bufferTail, 0, msgLength);
-    if (isString) {
-      try {
-        msg = String.fromCharCode.apply(null, new Uint8Array(msg));
-      } catch (e) {
-        // iPhone Safari doesn't let you apply to typed arrays
-        var typed = new Uint8Array(msg);
-        var basic = new Array(typed.length);
-        for (var i = 0; i < typed.length; i++) {
-          basic[i] = typed[i];
-        }
-        msg = String.fromCharCode.apply(null, basic);
-      }
-    }
-    buffers.push(msg);
-    bufferTail = sliceBuffer(bufferTail, msgLength);
-  }
-
-  var total = buffers.length;
-  buffers.forEach(function(buffer, i) {
-    callback(exports.decodePacket(buffer, binaryType), i, total);
-  });
-};
-
-},{"./keys":17,"after":18,"arraybuffer.slice":19,"base64-arraybuffer":20}],17:[function(require,module,exports){
+},{"./keys":18}],18:[function(require,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -3289,128 +2794,7 @@ module.exports = Object.keys || function keys (obj){
   return arr;
 };
 
-},{}],18:[function(require,module,exports){
-module.exports = after
-
-function after(count, callback, err_cb) {
-    var bail = false
-    err_cb = err_cb || noop
-    proxy.count = count
-
-    return (count === 0) ? callback() : proxy
-
-    function proxy(err, result) {
-        if (proxy.count <= 0) {
-            throw new Error('after called too many times')
-        }
-        --proxy.count
-
-        // after first error, rest are passed to err_cb
-        if (err) {
-            bail = true
-            callback(err)
-            // future error callbacks will go to error handler
-            callback = err_cb
-        } else if (proxy.count === 0 && !bail) {
-            callback(null, result)
-        }
-    }
-}
-
-function noop() {}
-
 },{}],19:[function(require,module,exports){
-/**
- * An abstraction for slicing an arraybuffer even when
- * ArrayBuffer.prototype.slice is not supported
- *
- * @api private
- */
-
-module.exports = function(arraybuffer, start, end) {
-  var bytes = arraybuffer.byteLength;
-  start = start || 0;
-  end = end || bytes;
-
-  if (arraybuffer.slice) { return arraybuffer.slice(start, end); }
-
-  if (start < 0) { start += bytes; }
-  if (end < 0) { end += bytes; }
-  if (end > bytes) { end = bytes; }
-
-  if (start >= bytes || start >= end || bytes == 0) { 
-    return new ArrayBuffer(0);
-  }
-
-  var abv = new Uint8Array(arraybuffer);
-  var result = new Uint8Array(end - start);
-  for (var i = start, ii = 0; i < end; i++, ii++) {
-    result[ii] = abv[i];
-  }
-  return result.buffer;
-};
-
-},{}],20:[function(require,module,exports){
-/*
- * base64-arraybuffer
- * https://github.com/niklasvh/base64-arraybuffer
- *
- * Copyright (c) 2012 Niklas von Hertzen
- * Licensed under the MIT license.
- */
-(function(chars){
-  "use strict";
-
-  exports.encode = function(arraybuffer) {
-    var bytes = new Uint8Array(arraybuffer),
-    i, len = bytes.buffer.byteLength, base64 = "";
-
-    for (i = 0; i < len; i+=3) {
-      base64 += chars[bytes.buffer[i] >> 2];
-      base64 += chars[((bytes.buffer[i] & 3) << 4) | (bytes.buffer[i + 1] >> 4)];
-      base64 += chars[((bytes.buffer[i + 1] & 15) << 2) | (bytes.buffer[i + 2] >> 6)];
-      base64 += chars[bytes.buffer[i + 2] & 63];
-    }
-
-    if ((len % 3) === 2) {
-      base64 = base64.substring(0, base64.length - 1) + "=";
-    } else if (len % 3 === 1) {
-      base64 = base64.substring(0, base64.length - 2) + "==";
-    }
-
-    return base64;
-  };
-
-  exports.decode =  function(base64) {
-    var bufferLength = base64.length * 0.75,
-    len = base64.length, i, p = 0,
-    encoded1, encoded2, encoded3, encoded4;
-
-    if (base64[base64.length - 1] === "=") {
-      bufferLength--;
-      if (base64[base64.length - 2] === "=") {
-        bufferLength--;
-      }
-    }
-
-    var arraybuffer = new ArrayBuffer(bufferLength),
-    bytes = new Uint8Array(arraybuffer);
-
-    for (i = 0; i < len; i+=4) {
-      encoded1 = chars.indexOf(base64[i]);
-      encoded2 = chars.indexOf(base64[i+1]);
-      encoded3 = chars.indexOf(base64[i+2]);
-      encoded4 = chars.indexOf(base64[i+3]);
-
-      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
-      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
-      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
-    }
-
-    return arraybuffer;
-  };
-})("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-},{}],21:[function(require,module,exports){
 
 /**
  * Returns `this`. Execute this without a "context" (i.e. without it being
@@ -3420,7 +2804,7 @@ module.exports = function(arraybuffer, start, end) {
 
 module.exports = (function () { return this; })();
 
-},{}],22:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -3439,7 +2823,7 @@ var global = require('global');
 module.exports = 'XMLHttpRequest' in global &&
   'withCredentials' in new global.XMLHttpRequest();
 
-},{"global":21}],23:[function(require,module,exports){
+},{"global":19}],21:[function(require,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -3450,7 +2834,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],24:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 
 /**
  * Module dependencies.
