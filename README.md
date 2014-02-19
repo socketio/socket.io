@@ -56,6 +56,23 @@ browserify app.js > bundle.js
 <script src="/path/to/bundle.js"></script>
 ```
 
+### Sending and receiving binary
+
+```html
+<script src="/path/to/engine.io.js"></script>
+<script>
+  var socket = new eio.Socket('ws://localhost/');
+  socket.binaryType = 'blob'; // receives Blob instead of ArrayBuffer (default)
+  socket.on('open', function () {
+    socket.send(new Int8Array(5));
+    socket.on('message', function (data) {
+      // data instanceof Blob => true when receiving binary
+    });
+    socket.on('close', function () { });
+  });
+</script>
+```
+
 ### Node.JS
 
 Add `engine.io-client` to your `package.json` and then:
@@ -78,6 +95,14 @@ socket.onopen = function(){
   - Easy to debug
   - Easy to unit test
 - Runs inside HTML5 WebWorker
+- Can send and receive binary data
+  - Receives as ArrayBuffer or Blob when in browser, and Buffer or ArrayBuffer
+    in Node
+  - When XHR2 or WebSockets are used, binary is emitted directly. Otherwise
+    binary is encoded into base64 strings, and decoded when binary types are
+    supported.
+  - With browsers that don't support ArrayBuffer, an object { base64: true,
+    data: dataAsBase64String } is emitted in onmessage
 
 ## API
 
@@ -95,6 +120,9 @@ Exposed as `eio` in the browser standalone build.
   - `message` event handler
 - `onclose` (_Function_)
   - `message` event handler
+- `binaryType` _(String)_ : can be set to 'arraybuffer' or 'blob' in browsers,
+  and `buffer` or `arraybuffer` in Node. Blob is only used in browser if it's
+  supported.
 
 #### Events
 
@@ -103,7 +131,8 @@ Exposed as `eio` in the browser standalone build.
 - `message`
   - Fired when data is received from the server.
   - **Arguments**
-    - `String`: utf-8 encoded data
+    - `String` | `ArrayBuffer`: utf-8 encoded data or ArrayBuffer containing
+      binary data
 - `close`
   - Fired upon disconnection. In compliance with the WebSocket API spec, this event may be 
     fired even if the `open` event does not occur (i.e. due to connection error or `close()`).
@@ -130,6 +159,7 @@ Exposed as `eio` in the browser standalone build.
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
       to upgrade the transport from long-polling to something better.
       - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
+      - `forceBase64` (`Boolean`): forces base 64 encoding for polling transport even when XHR2 responseType is available and WebSocket even if the used standard supports binary.
       - `timestampRequests` (`Boolean`): whether to add the timestamp with
         each transport request. Note: this is ignored if the browser is
         IE or Android, in which case requests are always stamped (`false`)
@@ -150,7 +180,7 @@ Exposed as `eio` in the browser standalone build.
 - `send`
     - Sends a message to the server
     - **Parameters**
-      - `String`: data to send
+      - `String` | `ArrayBuffer` | `ArrayBufferView` | `Blob`: data to send
       - `Function`: optional, callback upon `drain`
 - `close`
     - Disconnects the client.

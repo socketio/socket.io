@@ -18,4 +18,4 @@ test-cov:
 		--reporter $(REPORTER) \
 		$(TESTS)
 
-.PHONY: test
+.PHONY: test build
