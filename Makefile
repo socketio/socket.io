@@ -1,7 +1,9 @@
 
 REPORTER = dot
 
-build:
+build: engine.io.js
+
+engine.io.js: lib/*.js lib/transports/*.js
 	@./node_modules/.bin/browserify --standalone eio -o engine.io.js .
 
 test:

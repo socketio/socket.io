@@ -10,6 +10,23 @@ communication layer for [Socket.IO](http://github.com/learnboost/socket.io).
 
 ## Hello World
 
+### Standalone
+
+You can find an `engine.io.js` file in this repository, which is a
+standalone build you can use as follows:
+
+```html
+<script src="/path/to/engine.io.js"></script>
+<script>
+  // eio = Socket
+  var socket = eio('ws://localhost');
+  socket.onopen = function(){
+    socket.onmessage = function(data){};
+    socket.onclose = function(){};
+  };
+</script>
+```
+
 ### With browserify
 
 Engine.IO is a commonjs module, which means you can include it by using
@@ -39,24 +56,7 @@ browserify app.js > bundle.js
 <script src="/path/to/bundle.js"></script>
 ```
 
-### Standalone
-
-If you decide not to use browserify (or similar tool) you can find an `engine.io.js` file in
-this repository, which is a standalone build you can use as follows:
-
-```html
-<script src="/path/to/engine.io.js"></script>
-<script>
-  // eio = Socket
-  var socket = eio('ws://localhost');
-  socket.onopen = function(){
-    socket.onmessage = function(data){};
-    socket.onclose = function(){};
-  };
-</script>
-```
-
-Sending and receiving binary
+### Sending and receiving binary
 
 ```html
 <script src="/path/to/engine.io.js"></script>
@@ -134,7 +134,8 @@ Exposed as `eio` in the browser standalone build.
     - `String` | `ArrayBuffer`: utf-8 encoded data or ArrayBuffer containing
       binary data
 - `close`
-  - Fired upon disconnection.
+  - Fired upon disconnection. In compliance with the WebSocket API spec, this event may be 
+    fired even if the `open` event does not occur (i.e. due to connection error or `close()`).
 - `error`
   - Fired when an error occurs.
 - `flush`
@@ -143,6 +144,8 @@ Exposed as `eio` in the browser standalone build.
   - Fired after `drain` event of transport if writeBuffer is empty
 - `upgradeError`
   - Fired if an error occurs with a transport we're trying to upgrade to.
+- `upgrade`
+  - Fired upon upgrade success, after the new transport is set
 
 #### Methods
 
@@ -168,6 +171,12 @@ Exposed as `eio` in the browser standalone build.
       Defaults to `['polling', 'websocket', 'flashsocket']`. `Engine`
       always attempts to connect directly with the first one, provided the
       feature detection test for it passes.
+      - `rememberUpgrade` (`Boolean`): defaults to false.
+        If true and if the previous websocket connection to the server succeeded,
+        the connection attempt will bypass the normal upgrade process and will initially
+        try websocket. A connection attempt following a transport error will use the 
+        normal upgrade process. It is recommended you turn this on only when using
+        SSL/TLS connections, or if you know that your network does not block websockets.
 - `send`
     - Sends a message to the server
     - **Parameters**
@@ -185,11 +194,6 @@ The transport class. Private. _Inherits from EventEmitter_.
 - `poll`: emitted by polling transports upon starting a new request
 - `pollComplete`: emitted by polling transports upon completing a request
 - `drain`: emitted by polling transports upon a buffer drain
-
-## Reconnecting
-
-A `Socket` instance can be reused. After closing (either by calling
-`Socket#close()` or network close), you can summon `open` again.
 
 ## Flash transport
 
@@ -246,7 +250,7 @@ See the `Tests` section above for how to run tests before submitting any patches
 
 (The MIT License)
 
-Copyright (c) 2011 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
+Copyright (c) 2014 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

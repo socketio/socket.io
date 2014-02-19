@@ -1,4 +1,15 @@
 
+0.9.0 / 2014-02-09
+==================
+
+ * Fix simple `host:port` URLs and IPV6 [bmalehorn]
+ * Fix XHR cleanup method [poohlty]
+ * Match semantics of `close` event with `WebSocket`. If an error occurs
+   and `open` hadn't fired before, we still emit `close` as per
+   WebSocket spec [mokesmokes].
+ * Removed SPEC (now in `engine.io-protocol` repository)
+ * Remove `Socket#open` docs (private API) [mokesmokes]
+
 0.8.2 / 2014-01-18
 ==================
 
