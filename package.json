@@ -4,7 +4,7 @@
   "description": "socket.io protocol parser",
   "repository": {
     "type": "git",
-    "url": "https://github.com/LearnBoost/socket.io-protocol.git"
+    "url": "https://github.com/LearnBoost/socket.io-parser.git"
   },
   "browser": {
     "msgpack-js": "msgpack-allbrowsers"
