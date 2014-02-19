@@ -33,6 +33,7 @@ $(function() {
     if (username) {
       $loginPage.fadeOut();
       $chatPage.show();
+      $loginPage.off('click');
       $currentInput = $inputMessage.focus();
 
       // Tell the server your username
@@ -58,18 +59,18 @@ $(function() {
   }
 
   // Log a message
-  function log (message) {
+  function log (message, options) {
     var el = '<li class="log">' + message + '</li>';
-    addMessageElement(el);
+    addMessageElement(el, options);
   }
 
   // Adds the visual chat message to the message list
-  function addChatMessage (data) {
+  function addChatMessage (data, options) {
     // Don't fade the message in if there is an 'X was typing'
     var $typingMessages = getTypingMessages(data);
-    var fade = true; // Whether we should fade-in the new message or not
+    options = options || {};
     if ($typingMessages.length !== 0) {
-      fade = false;
+      options.fade = false;
       $typingMessages.remove();
     }
 
@@ -83,7 +84,8 @@ $(function() {
     var messageDiv = '<li class="message ' + typingClass + '">' +
     usernameDiv + messageBodyDiv + '</li>';
     var $messageDiv = $(messageDiv).data('username', data.username);
-    addMessageElement($messageDiv, fade);
+
+    addMessageElement($messageDiv, options);
   }
 
   // Adds the visual chat typing message
@@ -101,14 +103,33 @@ $(function() {
   }
 
   // Adds a message element to the messages and scrolls to the bottom
-  // Fades-in if not specified
-  function addMessageElement (el, fade) {
+  // el - The element to add as a message
+  // options.fade - If the element should fade-in (default = true)
+  // options.prepend - If the element should prepend
+  //   all other messages (default = false)
+  function addMessageElement (el, options) {
     var $el = $(el);
-    fade = (typeof fade === 'undefined') ? true : fade;
-    if (fade) {
+
+    // Setup default options
+    if (!options) {
+      options = {};
+    }
+    if (typeof options.fade === 'undefined') {
+      options.fade = true;
+    }
+    if (typeof options.prepend === 'undefined') {
+      options.prepend = false;
+    }
+
+    // Apply options
+    if (options.fade) {
       $el.hide().fadeIn(FADE_TIME);
     }
-    $messages.append($el);
+    if (options.prepend) {
+      $messages.prepend($el);
+    } else {
+      $messages.append($el);
+    }
     $messages[0].scrollTop = $messages[0].scrollHeight;
   }
 
@@ -179,6 +200,18 @@ $(function() {
     updateTyping();
   });
 
+  // Click events
+
+  // Focus input when clicking anywhere on login page
+  $loginPage.click(function () {
+    $currentInput.focus();
+  });
+
+  // Focus input when clicking on the message input's border
+  $inputMessage.click(function () {
+    $inputMessage.focus();
+  });
+
   // Socket events
 
   // Whenever the server emits 'login', log the login message
@@ -191,7 +224,9 @@ $(function() {
     } else {
       message += "there're " + data.numUsers + " participants";
     }
-    log(message);
+    log(message, {
+      prepend: true
+    });
   });
 
   // Whenever the server emits 'new message', update the chat body
