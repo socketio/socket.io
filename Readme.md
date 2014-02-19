@@ -1,14 +1,15 @@
 
 # socket.io-protocol
 
-  [![Build Status](https://secure.travis-ci.org/LearnBoost/socket.io-protocol.png)](http://travis-ci.org/LearnBoost/socket.io-protocol)
-
-  This repository contains the protocol specification and JavaScript
-  parser for the Socket.IO protocol.
+  This document describes the Socket.IO protocol. For a reference JavaScript
+  implementation, take a look at
+  [socket.io-parser](https://github.com/learnboost/socket.io-parser),
+  [socket.io-client](https://github.com/learnboost/socket.io-client)
+  and [socket.io](https://github.com/learnboost/socket.io).
 
 ## Protocol version
 
-  **Current protocol revision:** `1`.
+  **Current protocol revision:** `2`.
 
 ## Parser API
 
