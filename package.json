@@ -15,10 +15,11 @@
     "test": "make test"
   },
   "dependencies": {
-    "debug": "*",
-    "engine.io": "0.7.14",
+    "engine.io": "rase-/engine.io",
     "socket.io-parser": "1.0.2",
-    "socket.io-client": "LearnBoost/socket.io-client"
+    "socket.io-client": "LearnBoost/socket.io-client",
+    "has-binarydata": "0.0.31",
+    "debug": "0.7.4"
   },
   "devDependencies": {
     "mocha": "*",
