@@ -6,12 +6,16 @@
   "dependencies": {},
   "devDependencies": {
     "mocha": "*",
-    "expect.js": "*"
+    "expect.js": "*",
+    "zuul": "1.5.4"
   },
   "dependencies": {
     "base64-arraybuffer": "0.1.0",
     "after": "0.8.1",
     "arraybuffer.slice": "0.0.5"
+  },
+  "scripts": {
+    "test": "make test"
   },
   "component": {
     "scripts": {
