@@ -63,7 +63,7 @@ describe('server', function () {
     it('should send the io cookie', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .query({ transport: 'polling' })
+          .query({ transport: 'polling', b64: 1 })
           .end(function (res) {
             // hack-obtain sid
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
@@ -76,7 +76,7 @@ describe('server', function () {
     it('should send the io cookie custom name', function (done) {
       var engine = listen({ cookie: 'woot' }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .query({ transport: 'polling' })
+          .query({ transport: 'polling', b64: 1 })
           .end(function (res) {
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('woot=' + sid);
@@ -911,6 +911,196 @@ describe('server', function () {
         });
       });
     });
+
+    it('should arrive when binary data is sent as Int8Array (ws)', function (done) {
+      var binaryData = new Int8Array(5);
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData[i] = i;
+      }
+
+      var opts = { allowUpgrades: false, transports: ['websocket'] };
+      var engine = listen(opts, function(port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
+
+        engine.on('connection', function (conn) {
+          conn.send(binaryData);
+        });
+
+        socket.on('open', function () {
+          socket.on('message', function(msg) {
+            for (var i = 0; i < binaryData.length; i++) {
+              var num = msg.readInt8(i);
+              expect(num).to.be(i);
+            }
+            done();
+          });
+        });
+      });
+    });
+
+    it('should arrive when binary data is sent as Int32Array (ws)', function (done) {
+      var binaryData = new Int32Array(5);
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData[i] = (i + 100) * 9823;
+      }
+
+      var opts = { allowUpgrades: false, transports: ['websocket'] };
+      var engine = listen(opts, function(port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
+
+        engine.on('connection', function (conn) {
+          conn.send(binaryData);
+        });
+
+        socket.on('open', function () {
+          socket.on('message', function(msg) {
+            for (var i = 0, ii = 0; i < binaryData.length; i += 4, ii++) {
+              var num = msg.readInt32LE(i);
+              expect(num).to.be((ii + 100) * 9823);
+            }
+            done();
+          });
+        });
+      });
+    });
+
+    it('should arrive when binary data is sent as Int32Array, given as ArrayBuffer(ws)', function (done) {
+      var binaryData = new Int32Array(5);
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData[i] = (i + 100) * 9823;
+      }
+
+      var opts = { allowUpgrades: false, transports: ['websocket'] };
+      var engine = listen(opts, function(port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
+
+        engine.on('connection', function (conn) {
+          conn.send(binaryData.buffer);
+        });
+
+        socket.on('open', function () {
+          socket.on('message', function(msg) {
+            for (var i = 0, ii = 0; i < binaryData.length; i += 4, ii++) {
+              var num = msg.readInt32LE(i);
+              expect(num).to.be((ii + 100) * 9823);
+            }
+            done();
+          });
+        });
+      });
+    });
+
+    it('should arrive when binary data is sent as Buffer (ws)', function (done) {
+      var binaryData = Buffer(5);
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData.writeInt8(i, i);
+      }
+
+      var opts = { allowUpgrades: false, transports: ['websocket'] };
+      var engine = listen(opts, function(port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        
+        engine.on('connection', function (conn) {
+          conn.send(binaryData);
+        });
+
+        socket.on('open', function () {
+          socket.on('message', function(msg) {
+            for (var i = 0; i < binaryData.length; i++) {
+              var num = msg.readInt8(i);
+              expect(num).to.be(i);
+            }
+            done();
+          });
+        });
+      });
+    });
+
+    it('should arrive when binary data sent as Buffer (polling)', function (done) {
+      var binaryData = Buffer(5);
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData.writeInt8(i, i);
+      }
+
+      var opts = { allowUpgrades: false, transports: ['polling'] };
+      var engine = listen(opts, function(port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+
+        engine.on('connection', function (conn) {
+          conn.send(binaryData);
+        });
+
+        socket.on('open', function() {
+          socket.on('message', function(msg) {
+            for (var i = 0; i < binaryData.length; i++) {
+              var num = msg.readInt8(i);
+              expect(num).to.be(i);
+            }
+
+            done();
+          });
+        });
+      });
+    });
+
+    it('should arrive as ArrayBuffer if requested when binary data sent as Buffer (ws)', function (done) {
+      var binaryData = Buffer(5);
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData.writeInt8(i, i);
+      }
+
+      var opts = { allowUpgrades: false, transports: ['websocket'] };
+      var engine = listen(opts, function(port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        socket.binaryType = 'arraybuffer';
+
+        engine.on('connection', function (conn) {
+          conn.send(binaryData);
+        });
+
+        socket.on('open', function() {
+          socket.on('message', function(msg) {
+            expect(msg instanceof ArrayBuffer).to.be(true);
+            var intArray = new Int8Array(msg);
+            for (var i = 0; i < binaryData.length; i++) {
+              expect(intArray[i]).to.be(i);
+            }
+
+            done();
+          });
+        });
+      });
+    });
+
+    it('should arrive as ArrayBuffer if requested when binary data sent as Buffer (polling)', function (done) {
+      var binaryData = Buffer(5);
+      for (var i = 0; i < binaryData.length; i++) {
+        binaryData.writeInt8(i, i);
+      }
+
+      var opts = { allowUpgrades: false, transports: ['polling'] };
+      var engine = listen(opts, function(port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+        socket.binaryType = 'arraybuffer';
+
+        engine.on('connection', function (conn) {
+          conn.send(binaryData);
+        });
+
+        socket.on('open', function() {
+          socket.on('message', function(msg) {
+            expect(msg instanceof ArrayBuffer).to.be(true);
+            var intArray = new Int8Array(msg);
+            for (var i = 0; i < binaryData.length; i++) {
+              expect(intArray[i]).to.be(i);
+            }
+
+            done();
+          });
+        });
+      });
+    });
+
 
     it('should trigger a flush/drain event', function(done){
       var engine = listen({ allowUpgrades: false }, function(port){

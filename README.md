@@ -20,6 +20,7 @@ var server = engine.listen(80);
 
 server.on('connection', function (socket) {
   socket.send('utf 8 string');
+  socket.send(new Buffer([0, 1, 2, 3, 4, 5])); // binary data
 });
 ```
 
@@ -63,6 +64,23 @@ httpServer.on('request', function (req, res) {
   var socket = new eio.Socket('ws://localhost/');
   socket.on('open', function () {
     socket.on('message', function (data) { });
+    socket.on('close', function () { });
+  });
+</script>
+```
+
+Sending and receiving binary
+
+```html
+<script src="/path/to/engine.io.js"></script>
+<script>
+  var socket = new eio.Socket('ws://localhost/');
+  socket.binaryType = 'blob'; // receives Blob instead of ArrayBuffer (default)
+  socket.on('open', function () {
+    socket.send(new Int8Array(5));
+    socket.on('message', function (data) {
+      // data instanceof Blob => true when receiving binary
+    });
     socket.on('close', function () { });
   });
 </script>
@@ -221,7 +239,7 @@ A representation of a client. _Inherits from EventEmitter_.
 - `message`
     - Fired when the client sends a message.
     - **Arguments**
-      - `String`: Unicode string
+      - `String` or `Buffer`: Unicode string or Buffer with binary contents
 - `error`
     - Fired when an error occurs.
     - **Arguments**
@@ -255,9 +273,10 @@ A representation of a client. _Inherits from EventEmitter_.
 ##### Methods
 
 - `send`:
-    - Sends a message, performing `message = toString(arguments[0])`.
+    - Sends a message, performing `message = toString(arguments[0])` unless
+      sending binary data, which is sent as is.
     - **Parameters**
-      - `String`: a string or any object implementing `toString()`, with outgoing data
+      - `String` | `Buffer` | `ArrayBuffer` | `ArrayBufferView`: a string or any object implementing `toString()`, with outgoing data, or a Buffer or ArrayBuffer with binary data. Also any ArrayBufferView can be sent as is.
       - `Function`: optional, a callback executed when the message gets flushed out by the transport
     - **Returns** `Socket` for chaining
 - `close`
