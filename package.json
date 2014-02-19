@@ -15,7 +15,7 @@
     "test": "make test"
   },
   "dependencies": {
-    "engine.io": "rase-/engine.io",
+    "engine.io": "0.9.0",
     "socket.io-parser": "1.0.2",
     "socket.io-client": "LearnBoost/socket.io-client",
     "has-binarydata": "0.0.31",
