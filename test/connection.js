@@ -26,14 +26,13 @@ function getTextBlob(text) {
 }
 
 describe('connection', function() {
-  var socket = io();
   this.timeout(10000);
   var socket = io();
 
   it('should connect to localhost', function(done) {
     socket.emit('hi');
-    socket.on('hi', function(data) {
-        done();
+    socket.on('hi', function(data){
+      done();
     });
   });
 

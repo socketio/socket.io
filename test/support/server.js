@@ -92,5 +92,4 @@ server.on('connection', function(socket){
     buf = new Buffer('asdfasdf', 'utf8');
     socket.emit('takebin', buf);
   });
-
 });
