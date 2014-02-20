@@ -2,28 +2,7 @@ var expect = require('expect.js');
 var io = require('../');
 var hasCORS = require('has-cors');
 var b64 = require('base64-js');
-
-/**
- * Builds a blob from text in a cross-browser way
- */
-function getTextBlob(text) {
-  var blob = null;
-  try {
-    blob = new Blob([text], {type: 'text/html'});
-  }
-  catch(e) {
-     window.BlobBuilder = window.BlobBuilder ||
-                         window.WebKitBlobBuilder ||
-                         window.MozBlobBuilder ||
-                         window.MSBlobBuilder;
-    if(window.BlobBuilder) {
-        var bb = new BlobBuilder();
-        bb.append([text]);
-        blob = bb.getBlob('text/html');
-    }
-  }
-  return blob;
-}
+var textBlobBuilder = require('text-blob-builder');
 
 describe('connection', function() {
   this.timeout(10000);
@@ -102,12 +81,12 @@ if (global.ArrayBuffer) {
   });
 }
 
-if (global.Blob && null != getTextBlob('xxx')) {
+if (global.Blob && null != textBlobBuilder('xxx')) {
   it('should send binary data (as a Blob)', function(done){
     socket.on('back', function(){
       done();
     });
-    var blob = getTextBlob('hello world');
+    var blob = textBlobBuilder('hello world');
     socket.emit('blob', blob);
   });
 
@@ -115,7 +94,7 @@ if (global.Blob && null != getTextBlob('xxx')) {
     socket.on('jsonblob-ack', function() {
       done();
     });
-    var blob = getTextBlob('EEEEEEEEE');
+    var blob = textBlobBuilder('EEEEEEEEE');
     socket.emit('jsonblob', {hello: 'lol', message: blob, goodbye: 'gotcha'});
   });
 
@@ -123,14 +102,14 @@ if (global.Blob && null != getTextBlob('xxx')) {
     socket.on('blob3-ack', function() {
       done();
     });
-    var blob = getTextBlob('BLOBBLOB');
+    var blob = textBlobBuilder('BLOBBLOB');
     socket.emit('blob1', blob);
     socket.emit('blob2', 'second');
     socket.emit('blob3', blob);
   });
 
   it('should clear its packet buffer in case of disconnect', function(done) {
-    var blob = getTextBlob('BLOBBLOB');
+    var blob = textBlobBuilder('BLOBBLOB');
     for (var i=0; i < 10; i++) { // fill the buffer
       socket.emit('asdf', blob);
     }

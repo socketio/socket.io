@@ -30,6 +30,7 @@
     "uglify-js": "2.4.8",
     "browserify": "2.35.1",
     "base64-js": "0.0.6",
+    "text-blob-builder": "0.0.1",
     "has-cors": "1.0.3"
   },
   "scripts": {
