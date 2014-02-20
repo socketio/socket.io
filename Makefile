@@ -1,8 +1,10 @@
 
 REPORTER = dot
 
-build:
-	@./node_modules/.bin/browserify --standalone io -o socket.io.js .
+build: socket.io.js
+
+socket.io.js: lib/*.js package.json
+	@./support/browserify.sh > socket.io.js
 
 test:
 	@./node_modules/.bin/mocha \
