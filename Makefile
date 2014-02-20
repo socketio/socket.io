@@ -3,7 +3,7 @@ REPORTER = dot
 
 build: engine.io.js
 
-engine.io.js: lib/*.js lib/transports/*.js
+engine.io.js: lib/*.js lib/transports/*.js package.json
 	@./support/browserify.sh > engine.io.js
 
 test:
