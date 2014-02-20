@@ -37,7 +37,7 @@
     "expect.js": "0.2.0",
     "istanbul": "0.2.3",
     "browserify": "3.30.1",
-    "engine.io": "LearnBoost/engine.io#f071471",
+    "engine.io": "LearnBoost/engine.io#78164e",
     "express": "3.4.8"
   },
   "scripts": {
