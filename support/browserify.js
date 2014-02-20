@@ -24,5 +24,5 @@ function build(fn){
   opts.builtins = false;
   opts.standalone = 'eio';
   opts.insertGlobals = 'global';
-  browserify(path, opts).bundle(fn);
+  browserify(path, opts).bundle(opts, fn);
 }
