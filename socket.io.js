@@ -3798,10 +3798,13 @@ function Socket(uri, opts){
   this.writeBuffer = [];
   this.callbackBuffer = [];
   this.policyPort = opts.policyPort || 843;
+  this.rememberUpgrade = opts.rememberUpgrade || false;
   this.open();
   this.binaryType = null;
   this.onlyBinaryUpgrades = opts.onlyBinaryUpgrades;
 }
+
+Socket.priorWebsocketSuccess = false;
 
 /**
  * Mix in `Emitter`.
@@ -3884,9 +3887,13 @@ function clone (obj) {
  *
  * @api private
  */
-
 Socket.prototype.open = function () {
-  var transport = this.transports[0];
+  var transport;
+  if (this.rememberUpgrade && Socket.priorWebsocketSuccess && this.transports.indexOf('websocket') != -1) {
+    transport = 'websocket';
+  } else {
+    transport = this.transports[0];
+  }
   this.readyState = 'opening';
   var transport = this.createTransport(transport);
   transport.open();
@@ -3940,6 +3947,8 @@ Socket.prototype.probe = function (name) {
     , failed = false
     , self = this;
 
+  Socket.priorWebsocketSuccess = false;
+
   transport.once('open', function () {
     if (this.onlyBinaryUpgrades) {
       var upgradeLosesBinary = !this.supportsBinary && self.transport.supportsBinary;
@@ -3955,6 +3964,7 @@ Socket.prototype.probe = function (name) {
         debug('probe transport "%s" pong', name);
         self.upgrading = true;
         self.emit('upgrading', transport);
+        Socket.priorWebsocketSuccess = 'websocket' == transport.name;
 
         debug('pausing current transport "%s"', self.transport.name);
         self.transport.pause(function () {
@@ -3964,9 +3974,9 @@ Socket.prototype.probe = function (name) {
           }
           debug('changing transport and sending upgrade packet');
           transport.removeListener('error', onerror);
-          self.emit('upgrade', transport);
           self.setTransport(transport);
           transport.send([{ type: 'upgrade' }]);
+          self.emit('upgrade', transport);
           transport = null;
           self.upgrading = false;
           self.flush();
@@ -4027,12 +4037,13 @@ Socket.prototype.probe = function (name) {
 Socket.prototype.onOpen = function () {
   debug('socket open');
   this.readyState = 'open';
+  Socket.priorWebsocketSuccess = 'websocket' == this.transport.name;
   this.emit('open');
   this.onopen && this.onopen.call(this);
   this.flush();
 
   // we check for `readyState` in case an `open`
-  // listener alreay closed the socket
+  // listener already closed the socket
   if ('open' == this.readyState && this.upgrade && this.transport.pause) {
     debug('starting upgrade probes');
     for (var i = 0, l = this.upgrades.length; i < l; i++) {
@@ -4253,6 +4264,7 @@ Socket.prototype.close = function () {
 
 Socket.prototype.onError = function (err) {
   debug('socket error %j', err);
+  Socket.priorWebsocketSuccess = false;
   this.emit('error', err);
   this.onerror && this.onerror.call(this, err);
   this.onClose('transport error', err);
@@ -4285,17 +4297,14 @@ Socket.prototype.onClose = function (reason, desc) {
     this.transport.removeAllListeners();
 
     // set ready state
-    var prev = this.readyState;
     this.readyState = 'closed';
 
     // clear session id
     this.id = null;
 
-    // emit events
-    if (prev == 'open') {
-      this.emit('close', reason, desc);
-      this.onclose && this.onclose.call(this);
-    }
+    // emit close event
+    this.emit('close', reason, desc);
+    this.onclose && this.onclose.call(this);
   }
 };
 
@@ -4559,7 +4568,7 @@ FlashWS.prototype.doOpen = function(){
   load(deps, function(){
     self.ready(function(){
       WebSocket.__addTask(function () {
-        self.webSocket = new WebSocket(self.uri());
+        self.ws = new WebSocket(self.uri());
         self.addEventListeners();
       });
     });
@@ -4573,7 +4582,7 @@ FlashWS.prototype.doOpen = function(){
  */
 
 FlashWS.prototype.doClose = function(){
-  if (!this.webSocket) return;
+  if (!this.ws) return;
   var self = this;
   WebSocket.__addTask(function(){
     WS.prototype.doClose.call(self);
@@ -5043,7 +5052,7 @@ var global = require('global');
  * Obfuscated key for Blue Coat.
  */
 
-var xobject = global[['Active'].concat('Object').join('X')];
+var hasAttachEvent = global.document && global.document.attachEvent;
 
 /**
  * Empty function
@@ -5242,7 +5251,7 @@ Request.prototype.create = function(isBinary, supportsBinary){
     return;
   }
 
-  if (xobject) {
+  if (hasAttachEvent) {
     this.index = Request.requestsCount++;
     Request.requests[this.index] = this;
   }
@@ -5298,7 +5307,7 @@ Request.prototype.cleanup = function(){
     this.xhr.abort();
   } catch(e) {}
 
-  if (xobject) {
+  if (hasAttachEvent) {
     delete Request.requests[this.index];
   }
 
@@ -5315,7 +5324,12 @@ Request.prototype.abort = function(){
   this.cleanup();
 };
 
-if (xobject) {
+/**
+ * Cleanup is needed for old versions of IE
+ * that leak memory unless we abort request before unload.
+ */
+
+if (hasAttachEvent) {
   Request.requestsCount = 0;
   Request.requests = {};
 
@@ -5327,11 +5341,7 @@ if (xobject) {
     }
   }
 
-  if (global.addEventListener) {
-    global.addEventListener('unload', unloadHandler);
-  } else if (global.attachEvent) {
-    global.attachEvent('onunload', unloadHandler);
-  }
+  global.attachEvent('onunload', unloadHandler);
 }
 
 },{"../emitter":13,"../util":23,"./polling":21,"debug":25,"global":32,"xmlhttprequest":24}],21:[function(require,module,exports){
@@ -5363,7 +5373,7 @@ var global = require('global');
 var hasXHR2 = (function() {
   var XMLHttpRequest = require('xmlhttprequest');
   var xhr = new XMLHttpRequest({ agent: this.agent, xdomain: false });
-  return xhr.responseType !== undefined;
+  return null != xhr.responseType;
 })();
 
 /**
@@ -5598,10 +5608,17 @@ Polling.prototype.uri = function(){
  */
 
 var Transport = require('../transport');
-var WebSocket = require('ws');
 var parser = require('engine.io-parser');
 var util = require('../util');
 var debug = require('debug')('engine.io-client:websocket');
+
+/**
+ * `ws` exposes a WebSocket-compatible interface in
+ * Node, or the `WebSocket` or `MozWebSocket` globals
+ * in the browser.
+ */
+
+var WebSocket = require('ws');
 
 /**
  * Module exports.
@@ -5624,7 +5641,9 @@ var global = require('global');
 
 function WS(opts){
   var forceBase64 = (opts && opts.forceBase64);
-  if (forceBase64) { this.supportsBinary = false; }
+  if (forceBase64) {
+    this.supportsBinary = false;
+  }
   Transport.call(this, opts);
 }
 
@@ -5667,7 +5686,7 @@ WS.prototype.doOpen = function(){
 
   this.ws = new WebSocket(uri, protocols, opts);
 
-  if (!this.ws.binaryType) {
+  if (this.ws.binaryType !== undefined) {
     this.supportsBinary = false;
   }
 
@@ -5978,7 +5997,7 @@ exports.ua.chromeframe = Boolean(global.externalHost);
  * @api private
  */
 
-var re = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+var re = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
 
 var parts = [
     'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host'
