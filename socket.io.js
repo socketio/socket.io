@@ -7301,7 +7301,7 @@ exports.decode = function(obj) {
   if ('string' == typeof obj) {
     return decodeString(obj);
   }
-  else if (Buffer.isBuffer(obj) ||
+  else if ((global.Buffer && Buffer.isBuffer(obj)) ||
           (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
           (global.Blob && obj instanceof Blob)) {
     return decodeBuffer(obj);
