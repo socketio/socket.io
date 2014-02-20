@@ -64,7 +64,6 @@ var Emitter = require('./emitter');
 var debug = require('debug')('engine.io-client:socket');
 var index = require('indexof');
 var parser = require('engine.io-parser');
-var parseuri = require('parseuri');
 
 /**
  * Module exports.
@@ -105,7 +104,7 @@ function Socket(uri, opts){
   }
 
   if (uri) {
-    uri = parseuri(uri);
+    uri = util.parseUri(uri);
     opts.host = uri.host;
     opts.secure = uri.protocol == 'https' || uri.protocol == 'wss';
     opts.port = uri.port;
@@ -366,7 +365,7 @@ Socket.prototype.onOpen = function () {
   this.flush();
 
   // we check for `readyState` in case an `open`
-  // listener already closed the socket
+  // listener alreay closed the socket
   if ('open' == this.readyState && this.upgrade && this.transport.pause) {
     debug('starting upgrade probes');
     for (var i = 0, l = this.upgrades.length; i < l; i++) {
@@ -618,14 +617,17 @@ Socket.prototype.onClose = function (reason, desc) {
     this.transport.removeAllListeners();
 
     // set ready state
+    var prev = this.readyState;
     this.readyState = 'closed';
 
     // clear session id
     this.id = null;
 
-    // emit close event
-    this.emit('close', reason, desc);
-    this.onclose && this.onclose.call(this);
+    // emit events
+    if (prev == 'open') {
+      this.emit('close', reason, desc);
+      this.onclose && this.onclose.call(this);
+    }
   }
 };
 
@@ -645,7 +647,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   return filteredUpgrades;
 };
 
-},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"debug":14,"engine.io-parser":16,"global":19,"indexof":21,"parseuri":22}],5:[function(require,module,exports){
+},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"debug":14,"engine.io-parser":16,"global":19,"indexof":21}],5:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -1361,7 +1363,7 @@ var global = require('global');
  * Obfuscated key for Blue Coat.
  */
 
-var hasAttachEvent = global.document && global.document.attachEvent;
+var xobject = global[['Active'].concat('Object').join('X')];
 
 /**
  * Empty function
@@ -1534,7 +1536,7 @@ Request.prototype.create = function(){
     return;
   }
 
-  if (hasAttachEvent) {
+  if (xobject) {
     this.index = Request.requestsCount++;
     Request.requests[this.index] = this;
   }
@@ -1580,7 +1582,8 @@ Request.prototype.onError = function(err){
  */
 
 Request.prototype.cleanup = function(){
-  if ('undefined' == typeof this.xhr ) {
+  // !this.xhr is used to check both undefined and null, see issue #180
+  if (!this.xhr) {
     return;
   }
   // xmlhttprequest
@@ -1590,7 +1593,7 @@ Request.prototype.cleanup = function(){
     this.xhr.abort();
   } catch(e) {}
 
-  if (hasAttachEvent) {
+  if (xobject) {
     delete Request.requests[this.index];
   }
 
@@ -1607,12 +1610,7 @@ Request.prototype.abort = function(){
   this.cleanup();
 };
 
-/**
- * Cleanup is needed for old versions of IE
- * that leak memory unless we abort request before unload.
- */
-
-if (hasAttachEvent) {
+if (xobject) {
   Request.requestsCount = 0;
   Request.requests = {};
 
@@ -1865,17 +1863,10 @@ Polling.prototype.uri = function(){
  */
 
 var Transport = require('../transport');
+var WebSocket = require('ws');
 var parser = require('engine.io-parser');
 var util = require('../util');
 var debug = require('debug')('engine.io-client:websocket');
-
-/**
- * `ws` exposes a WebSocket-compatible interface in
- * Node, or the `WebSocket` or `MozWebSocket` globals
- * in the browser.
- */
-
-var WebSocket = require('ws');
 
 /**
  * Module exports.
@@ -2064,7 +2055,7 @@ WS.prototype.check = function(){
   return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 };
 
-},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":19,"ws":23}],12:[function(require,module,exports){
+},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":19,"ws":22}],12:[function(require,module,exports){
 
 var global = require('global');
 
@@ -2222,6 +2213,32 @@ exports.ua.ios6 = exports.ua.ios && /OS 6_/.test(navigator.userAgent);
  */
 
 exports.ua.chromeframe = Boolean(global.externalHost);
+
+/**
+ * Parses an URI
+ *
+ * @author Steven Levithan <stevenlevithan.com> (MIT license)
+ * @api private
+ */
+
+var re = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+
+var parts = [
+    'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host'
+  , 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'
+];
+
+exports.parseUri = function (str) {
+  var m = re.exec(str || '')
+    , uri = {}
+    , i = 14;
+
+  while (i--) {
+    uri[parts[i]] = m[i] || '';
+  }
+
+  return uri;
+};
 
 /**
  * Compiles a querystring
@@ -2804,14 +2821,8 @@ var global = require('global');
  *   - https://github.com/Modernizr/Modernizr/blob/master/feature-detects/cors.js
  */
 
-try {
-  module.exports = 'XMLHttpRequest' in global &&
-    'withCredentials' in new global.XMLHttpRequest();
-} catch (err) {
-  // if XMLHttp support is disabled in IE then it will throw
-  // when trying to create
-  module.exports = false;
-}
+module.exports = 'XMLHttpRequest' in global &&
+  'withCredentials' in new global.XMLHttpRequest();
 
 },{"global":19}],21:[function(require,module,exports){
 
@@ -2825,33 +2836,6 @@ module.exports = function(arr, obj){
   return -1;
 };
 },{}],22:[function(require,module,exports){
-/**
- * Parses an URI
- *
- * @author Steven Levithan <stevenlevithan.com> (MIT license)
- * @api private
- */
-
-var re = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
-
-var parts = [
-    'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host'
-  , 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'
-];
-
-module.exports = function parseuri(str) {
-  var m = re.exec(str || '')
-    , uri = {}
-    , i = 14;
-
-  while (i--) {
-    uri[parts[i]] = m[i] || '';
-  }
-
-  return uri;
-};
-
-},{}],23:[function(require,module,exports){
 
 /**
  * Module dependencies.
