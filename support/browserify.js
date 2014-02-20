@@ -22,7 +22,6 @@ module.exports = build;
 function build(fn){
   var opts = {};
   opts.builtins = false;
-  opts.standalone = 'eio';
   opts.insertGlobals = 'global';
-  browserify(path, opts).bundle(opts, fn);
+  browserify(path, opts).bundle({ standalone: 'eio' }, fn);
 }
