@@ -19,11 +19,15 @@
   },
   "devDependencies": {
     "mocha": "1.16.2",
-    "expect.js": "0.2.0"
+    "expect.js": "0.2.0",
+    "zuul": "1.5.4"
   },
   "component": {
     "scripts": [
       "index.js"
     ]
+  },
+  "scripts": {
+    "test": "make test"
   }
 }
