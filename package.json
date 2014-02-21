@@ -18,7 +18,7 @@
     "engine.io": "LearnBoost/engine.io#f071471",
     "socket.io-parser": "2.0.0",
     "socket.io-client": "LearnBoost/socket.io-client#c7ac415",
-    "has-binarydata": "0.0.31",
+    "has-binary-data": "0.1.0",
     "debug": "0.7.4"
   },
   "devDependencies": {
