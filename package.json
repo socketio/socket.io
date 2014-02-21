@@ -22,7 +22,7 @@
     "indexof": "0.0.1"
   },
   "devDependencies": {
-    "socket.io": "https://github.com/LearnBoost/socket.io/archive/980b6a7c40ff4d32bd3377cc1f16009f3bf189c9.tar.gz",
+    "socket.io": "LearnBoost/socket.io#573b32c",
     "mocha": "1.16.2",
     "zuul": "1.5.4",
     "istanbul": "0.2.1",
