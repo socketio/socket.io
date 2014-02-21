@@ -1,6 +1,8 @@
 
 var http = require('http').Server;
 var io = require('..');
+var fs = require('fs');
+var join = require('path').join;
 var ioc = require('socket.io-client');
 var request = require('supertest');
 var expect = require('expect.js');
@@ -282,6 +284,97 @@ describe('socket.io', function(){
         });
         sio.on('connection', function(s){
           s.emit('woot', 'tobi');
+        });
+      });
+    });
+
+    it('should emit events with binary data', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        var imageData;
+        socket.on('doge', function(a){
+          expect(Buffer.isBuffer(a)).to.be(true);
+          expect(imageData.length).to.equal(a.length);
+          expect(imageData[0]).to.equal(a[0]);
+          expect(imageData[imageData.length - 1]).to.equal(a[a.length - 1]);
+          done();
+        });
+        sio.on('connection', function(s){
+          fs.readFile(join(__dirname, 'support', 'doge.jpg'), function(err, data){
+            if (err) return done(err);
+            imageData = data;
+            s.emit('doge', data);
+          });
+        });
+      });
+    });
+
+    it('should emit events with several types of data (including binary)', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        socket.on('multiple', function(a, b, c, d, e, f){
+          expect(a).to.be(1);
+          expect(Buffer.isBuffer(b)).to.be(true);
+          expect(c).to.be('3');
+          expect(d).to.eql([4]);
+          expect(Buffer.isBuffer(e)).to.be(true);
+          expect(Buffer.isBuffer(f[0])).to.be(true);
+          expect(f[1]).to.be('swag');
+          expect(Buffer.isBuffer(f[2])).to.be(true);
+          done();
+        });
+        sio.on('connection', function(s){
+          fs.readFile(join(__dirname, 'support', 'doge.jpg'), function(err, data){
+            if (err) return done(err);
+            buf = new Buffer('asdfasdf', 'utf8');
+            s.emit('multiple', 1, data, '3', [4], buf, [data, 'swag', buf]);
+          });
+        });
+      });
+    });
+
+    it('should receive events with binary data', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.on('buff', function(a){
+            expect(Buffer.isBuffer(a)).to.be(true);
+            done();
+          });
+          buf = new Buffer('abcdefg', 'utf8');
+          socket.emit('buff', buf);
+        });
+      });
+    });
+
+    it('should receive events with several types of data (including binary)', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.on('multiple', function(a, b, c, d, e, f){
+          expect(a).to.be(1);
+          expect(Buffer.isBuffer(b)).to.be(true);
+          expect(c).to.be('3');
+          expect(d).to.eql([4]);
+          expect(Buffer.isBuffer(e)).to.be(true);
+          expect(Buffer.isBuffer(f[0])).to.be(true);
+          expect(f[1]).to.be('swag');
+          expect(Buffer.isBuffer(f[2])).to.be(true);
+          done();
+          });
+          fs.readFile(join(__dirname, 'support', 'doge.jpg'), function(err, data){
+            if (err) return done(err);
+            buf = new Buffer('asdfasdf', 'utf8');
+            socket.emit('multiple', 1, data, '3', [4], buf, [data, 'swag', buf]);
+          });
         });
       });
     });
