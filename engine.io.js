@@ -1,14 +1,15 @@
-!function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.eio=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.eio=e():"undefined"!=typeof global?global.eio=e():"undefined"!=typeof self&&(self.eio=e())}(function(){var define,module,exports;
+return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
-module.exports =  _dereq_('./lib/');
+module.exports =  require('./lib/');
 
-},{"./lib/":3}],2:[function(_dereq_,module,exports){
+},{"./lib/":3}],2:[function(require,module,exports){
 
 /**
  * Module dependencies.
  */
 
-var Emitter = _dereq_('emitter');
+var Emitter = require('emitter');
 
 /**
  * Module exports.
@@ -40,9 +41,9 @@ Emitter.prototype.removeEventListener = Emitter.prototype.off;
 
 Emitter.prototype.removeListener = Emitter.prototype.off;
 
-},{"emitter":16}],3:[function(_dereq_,module,exports){
+},{"emitter":15}],3:[function(require,module,exports){
 
-module.exports = _dereq_('./socket');
+module.exports = require('./socket');
 
 /**
  * Exports parser
@@ -50,20 +51,19 @@ module.exports = _dereq_('./socket');
  * @api public
  *
  */
-module.exports.parser = _dereq_('engine.io-parser');
+module.exports.parser = require('engine.io-parser');
 
-},{"./socket":4,"engine.io-parser":17}],4:[function(_dereq_,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+},{"./socket":4,"engine.io-parser":16}],4:[function(require,module,exports){
 /**
  * Module dependencies.
  */
 
-var util = _dereq_('./util');
-var transports = _dereq_('./transports');
-var Emitter = _dereq_('./emitter');
-var debug = _dereq_('debug')('engine.io-client:socket');
-var index = _dereq_('indexof');
-var parser = _dereq_('engine.io-parser');
+var util = require('./util');
+var transports = require('./transports');
+var Emitter = require('./emitter');
+var debug = require('debug')('engine.io-client:socket');
+var index = require('indexof');
+var parser = require('engine.io-parser');
 
 /**
  * Module exports.
@@ -75,7 +75,7 @@ module.exports = Socket;
  * Global reference.
  */
 
-var global = _dereq_('global');
+var global = require('global');
 
 /**
  * Noop function.
@@ -168,11 +168,11 @@ Socket.protocol = parser.protocol; // this is an int
  */
 
 Socket.Socket = Socket;
-Socket.Transport = _dereq_('./transport');
-Socket.Emitter = _dereq_('./emitter');
-Socket.transports = _dereq_('./transports');
-Socket.util = _dereq_('./util');
-Socket.parser = _dereq_('engine.io-parser');
+Socket.Transport = require('./transport');
+Socket.Emitter = require('./emitter');
+Socket.transports = require('./transports');
+Socket.util = require('./util');
+Socket.parser = require('engine.io-parser');
 
 /**
  * Creates transport of the given type.
@@ -666,15 +666,14 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   return filteredUpgrades;
 };
 
-}).call(this,_dereq_("/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/lib/socket.js","/lib")
-},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14,"debug":15,"engine.io-parser":17,"global":22,"indexof":24}],5:[function(_dereq_,module,exports){
+},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"debug":14,"engine.io-parser":16,"global":21,"indexof":23}],5:[function(require,module,exports){
 /**
  * Module dependencies.
  */
 
-var util = _dereq_('./util');
-var parser = _dereq_('engine.io-parser');
-var Emitter = _dereq_('./emitter');
+var util = require('./util');
+var parser = require('engine.io-parser');
+var Emitter = require('./emitter');
 
 /**
  * Module exports.
@@ -811,16 +810,15 @@ Transport.prototype.onClose = function () {
   this.emit('close');
 };
 
-},{"./emitter":2,"./util":12,"engine.io-parser":17}],6:[function(_dereq_,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+},{"./emitter":2,"./util":12,"engine.io-parser":16}],6:[function(require,module,exports){
 
 /**
  * Module dependencies.
  */
 
-var WS = _dereq_('./websocket');
-var util = _dereq_('../util');
-var debug = _dereq_('debug')('engine.io-client:flashsocket');
+var WS = require('./websocket');
+var util = require('../util');
+var debug = require('debug')('engine.io-client:flashsocket');
 
 /**
  * Module exports.
@@ -832,7 +830,7 @@ module.exports = FlashWS;
  * Global reference.
  */
 
-var global = _dereq_('global');
+var global = require('global');
 
 /**
  * Obfuscated key for Blue Coat.
@@ -1082,19 +1080,17 @@ function load(arr, fn){
   process(0);
 }
 
-}).call(this,_dereq_("/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/lib/transports/flashsocket.js","/lib/transports")
-},{"../util":12,"./websocket":11,"/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14,"debug":15,"global":22}],7:[function(_dereq_,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+},{"../util":12,"./websocket":11,"debug":14,"global":21}],7:[function(require,module,exports){
 
 /**
  * Module dependencies
  */
 
-var XMLHttpRequest = _dereq_('xmlhttprequest')
-  , XHR = _dereq_('./polling-xhr')
-  , JSONP = _dereq_('./polling-jsonp')
-  , websocket = _dereq_('./websocket')
-  , flashsocket = _dereq_('./flashsocket')
+var XMLHttpRequest = require('xmlhttprequest')
+  , XHR = require('./polling-xhr')
+  , JSONP = require('./polling-jsonp')
+  , websocket = require('./websocket')
+  , flashsocket = require('./flashsocket')
 
 /**
  * Export transports.
@@ -1108,7 +1104,7 @@ exports.flashsocket = flashsocket;
  * Global reference.
  */
 
-var global = _dereq_('global');
+var global = require('global');
 
 /**
  * Polling transport polymorphic constructor.
@@ -1143,16 +1139,14 @@ function polling (opts) {
   }
 };
 
-}).call(this,_dereq_("/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/lib/transports/index.js","/lib/transports")
-},{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14,"global":22,"xmlhttprequest":13}],8:[function(_dereq_,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+},{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"global":21,"xmlhttprequest":13}],8:[function(require,module,exports){
 
 /**
  * Module requirements.
  */
 
-var Polling = _dereq_('./polling');
-var util = _dereq_('../util');
+var Polling = require('./polling');
+var util = require('../util');
 
 /**
  * Module exports.
@@ -1164,7 +1158,7 @@ module.exports = JSONPPolling;
  * Global reference.
  */
 
-var global = _dereq_('global');
+var global = require('global');
 
 /**
  * Cached regular expressions.
@@ -1372,18 +1366,16 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   }
 };
 
-}).call(this,_dereq_("/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/lib/transports/polling-jsonp.js","/lib/transports")
-},{"../util":12,"./polling":10,"/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14,"global":22}],9:[function(_dereq_,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+},{"../util":12,"./polling":10,"global":21}],9:[function(require,module,exports){
 /**
  * Module requirements.
  */
 
-var XMLHttpRequest = _dereq_('xmlhttprequest');
-var Polling = _dereq_('./polling');
-var util = _dereq_('../util');
-var Emitter = _dereq_('../emitter');
-var debug = _dereq_('debug')('engine.io-client:polling-xhr');
+var XMLHttpRequest = require('xmlhttprequest');
+var Polling = require('./polling');
+var util = require('../util');
+var Emitter = require('../emitter');
+var debug = require('debug')('engine.io-client:polling-xhr');
 
 /**
  * Module exports.
@@ -1396,7 +1388,7 @@ module.exports.Request = Request;
  * Global reference.
  */
 
-var global = _dereq_('global');
+var global = require('global');
 
 /**
  * Obfuscated key for Blue Coat.
@@ -1694,17 +1686,15 @@ if (hasAttachEvent) {
   global.attachEvent('onunload', unloadHandler);
 }
 
-}).call(this,_dereq_("/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/lib/transports/polling-xhr.js","/lib/transports")
-},{"../emitter":2,"../util":12,"./polling":10,"/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14,"debug":15,"global":22,"xmlhttprequest":13}],10:[function(_dereq_,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+},{"../emitter":2,"../util":12,"./polling":10,"debug":14,"global":21,"xmlhttprequest":13}],10:[function(require,module,exports){
 /**
  * Module dependencies.
  */
 
-var Transport = _dereq_('../transport');
-var util = _dereq_('../util');
-var parser = _dereq_('engine.io-parser');
-var debug = _dereq_('debug')('engine.io-client:polling');
+var Transport = require('../transport');
+var util = require('../util');
+var parser = require('engine.io-parser');
+var debug = require('debug')('engine.io-client:polling');
 
 /**
  * Module exports.
@@ -1716,14 +1706,14 @@ module.exports = Polling;
  * Global reference.
  */
 
-var global = _dereq_('global');
+var global = require('global');
 
 /**
  * Is XHR2 supported?
  */
 
 var hasXHR2 = (function() {
-  var XMLHttpRequest = _dereq_('xmlhttprequest');
+  var XMLHttpRequest = require('xmlhttprequest');
   var xhr = new XMLHttpRequest({ agent: this.agent, xdomain: false });
   return null != xhr.responseType;
 })();
@@ -1954,17 +1944,15 @@ Polling.prototype.uri = function(){
   return schema + '://' + this.hostname + port + this.path + query;
 };
 
-}).call(this,_dereq_("/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/lib/transports/polling.js","/lib/transports")
-},{"../transport":5,"../util":12,"/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14,"debug":15,"engine.io-parser":17,"global":22,"xmlhttprequest":13}],11:[function(_dereq_,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21,"xmlhttprequest":13}],11:[function(require,module,exports){
 /**
  * Module dependencies.
  */
 
-var Transport = _dereq_('../transport');
-var parser = _dereq_('engine.io-parser');
-var util = _dereq_('../util');
-var debug = _dereq_('debug')('engine.io-client:websocket');
+var Transport = require('../transport');
+var parser = require('engine.io-parser');
+var util = require('../util');
+var debug = require('debug')('engine.io-client:websocket');
 
 /**
  * `ws` exposes a WebSocket-compatible interface in
@@ -1972,7 +1960,7 @@ var debug = _dereq_('debug')('engine.io-client:websocket');
  * in the browser.
  */
 
-var WebSocket = _dereq_('ws');
+var WebSocket = require('ws');
 
 /**
  * Module exports.
@@ -1984,7 +1972,7 @@ module.exports = WS;
  * Global reference.
  */
 
-var global = _dereq_('global');
+var global = require('global');
 
 /**
  * WebSocket transport constructor.
@@ -2185,11 +2173,9 @@ WS.prototype.check = function(){
   return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 };
 
-}).call(this,_dereq_("/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/lib/transports/websocket.js","/lib/transports")
-},{"../transport":5,"../util":12,"/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14,"debug":15,"engine.io-parser":17,"global":22,"ws":25}],12:[function(_dereq_,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21,"ws":24}],12:[function(require,module,exports){
 
-var global = _dereq_('global');
+var global = require('global');
 
 /**
  * Status of page load.
@@ -2409,10 +2395,9 @@ exports.qsParse = function(qs){
   return qry;
 };
 
-}).call(this,_dereq_("/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/lib/util.js","/lib")
-},{"/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14,"global":22}],13:[function(_dereq_,module,exports){
+},{"global":21}],13:[function(require,module,exports){
 // browser shim for xmlhttprequest module
-var hasCORS = _dereq_('has-cors');
+var hasCORS = require('has-cors');
 
 module.exports = function(opts) {
   var xdomain = opts.xdomain;
@@ -2431,64 +2416,7 @@ module.exports = function(opts) {
   }
 }
 
-},{"has-cors":23}],14:[function(_dereq_,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-// shim for using process in browser
-
-var process = module.exports = {};
-
-process.nextTick = (function () {
-    var canSetImmediate = typeof window !== 'undefined'
-    && window.setImmediate;
-    var canPost = typeof window !== 'undefined'
-    && window.postMessage && window.addEventListener
-    ;
-
-    if (canSetImmediate) {
-        return function (f) { return window.setImmediate(f) };
-    }
-
-    if (canPost) {
-        var queue = [];
-        window.addEventListener('message', function (ev) {
-            var source = ev.source;
-            if ((source === window || source === null) && ev.data === 'process-tick') {
-                ev.stopPropagation();
-                if (queue.length > 0) {
-                    var fn = queue.shift();
-                    fn();
-                }
-            }
-        }, true);
-
-        return function nextTick(fn) {
-            queue.push(fn);
-            window.postMessage('process-tick', '*');
-        };
-    }
-
-    return function nextTick(fn) {
-        setTimeout(fn, 0);
-    };
-})();
-
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-}
-
-// TODO(shtylman)
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-
-}).call(this,_dereq_("/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js","/node_modules/browserify/node_modules/insert-module-globals/node_modules/process")
-},{"/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14}],15:[function(_dereq_,module,exports){
+},{"has-cors":22}],14:[function(require,module,exports){
 
 /**
  * Expose `debug()` as the module.
@@ -2627,13 +2555,13 @@ try {
   if (window.localStorage) debug.enable(localStorage.debug);
 } catch(e){}
 
-},{}],16:[function(_dereq_,module,exports){
+},{}],15:[function(require,module,exports){
 
 /**
  * Module dependencies.
  */
 
-var index = _dereq_('indexof');
+var index = require('indexof');
 
 /**
  * Expose `Emitter`.
@@ -2791,16 +2719,15 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{"indexof":24}],17:[function(_dereq_,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-/**
+},{"indexof":23}],16:[function(require,module,exports){
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Module dependencies.
  */
 
-var keys = _dereq_('./keys');
-var sliceBuffer = _dereq_('arraybuffer.slice');
-var base64encoder = _dereq_('base64-arraybuffer');
-var after = _dereq_('after');
+var keys = require('./keys');
+var sliceBuffer = require('arraybuffer.slice');
+var base64encoder = require('base64-arraybuffer');
+var after = require('after');
 
 /**
  * A utility for doing slicing, even when ArrayBuffer.prototype.slice doesn't
@@ -3384,8 +3311,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
   });
 };
 
-}).call(this,_dereq_("/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/node_modules/engine.io-parser/lib/browser.js","/node_modules/engine.io-parser/lib")
-},{"./keys":18,"/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14,"after":19,"arraybuffer.slice":20,"base64-arraybuffer":21}],18:[function(_dereq_,module,exports){
+},{"./keys":17,"after":18,"arraybuffer.slice":19,"base64-arraybuffer":20}],17:[function(require,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -3406,7 +3332,7 @@ module.exports = Object.keys || function keys (obj){
   return arr;
 };
 
-},{}],19:[function(_dereq_,module,exports){
+},{}],18:[function(require,module,exports){
 module.exports = after
 
 function after(count, callback, err_cb) {
@@ -3436,7 +3362,7 @@ function after(count, callback, err_cb) {
 
 function noop() {}
 
-},{}],20:[function(_dereq_,module,exports){
+},{}],19:[function(require,module,exports){
 /**
  * An abstraction for slicing an arraybuffer even when
  * ArrayBuffer.prototype.slice is not supported
@@ -3467,7 +3393,7 @@ module.exports = function(arraybuffer, start, end) {
   return result.buffer;
 };
 
-},{}],21:[function(_dereq_,module,exports){
+},{}],20:[function(require,module,exports){
 /*
  * base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
@@ -3527,8 +3453,7 @@ module.exports = function(arraybuffer, start, end) {
     return arraybuffer;
   };
 })("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-},{}],22:[function(_dereq_,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+},{}],21:[function(require,module,exports){
 
 /**
  * Returns `this`. Execute this without a "context" (i.e. without it being
@@ -3538,15 +3463,13 @@ module.exports = function(arraybuffer, start, end) {
 
 module.exports = (function () { return this; })();
 
-}).call(this,_dereq_("/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/node_modules/global/index.js","/node_modules/global")
-},{"/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14}],23:[function(_dereq_,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+},{}],22:[function(require,module,exports){
 
 /**
  * Module dependencies.
  */
 
-var global = _dereq_('global');
+var global = require('global');
 
 /**
  * Module exports.
@@ -3565,8 +3488,7 @@ try {
   module.exports = false;
 }
 
-}).call(this,_dereq_("/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/node_modules/has-cors/index.js","/node_modules/has-cors")
-},{"/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14,"global":22}],24:[function(_dereq_,module,exports){
+},{"global":21}],23:[function(require,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -3577,8 +3499,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],25:[function(_dereq_,module,exports){
-(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+},{}],24:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -3623,7 +3544,7 @@ function ws(uri, protocols, opts) {
 
 if (WebSocket) ws.prototype = WebSocket.prototype;
 
-}).call(this,_dereq_("/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/node_modules/ws/lib/browser.js","/node_modules/ws/lib")
-},{"/Users/guillermorauch/Projects/engine.io-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14}]},{},[1])
+},{}]},{},[1])
 (1)
 });
+;
