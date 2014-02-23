@@ -1,17 +1,16 @@
 language: node_js
 node_js:
-  - "0.10"
-  - "0.11"
-
+- '0.10'
+- '0.11'
 matrix:
   fast_finish: true
   allow_failures:
-    - node_js: "0.11"
-
+  - node_js: '0.11'
 notifications:
-  irc: "irc.freenode.org#socket.io"
-
+  irc: irc.freenode.org#socket.io
 env:
   global:
   - secure: wn0UtEtmR0+5ecvr8mXaLJey5XZ4a3j2f5EDoBW0ItALKixqRR6wCrdplwp9MMEDGuer11byIy2YJ+HRazgpcdf+3IuHmSvLb5IItbAaEwcjskawarGcYQO8Gy6GffkbYLFsjEhlkFk9+yXPJuws9msY2+9Y0IymgY8rT9O4D98=
   - secure: f5EAsqnJNW//oUgShxSGcDQsz6NUbwfkZCKoPymTamjyK69N5/Q70MQ5UrF3gih3ZiwWDK7Cd6T394vU+Jdrf+LdOdzgef3sz8YJbF3HiOOLp5tYuFVOtOMCBkefdJ/JkqFvrBQUgo3klSD6jUz2SdRlwi33iYlYO8mleO8IxRo=
+  - secure: 0ah52GLAyJYZwJpnYbTscXgSuSoRLQBj/X0mZeeNGofPbQdWyhQoyBJMq77cTZJQ0mPKd3acojRH5DzYO5q0sMMPkN5mW3couqlyMk94PoYgaiTYRj7dzPnegi1myeVTioX9jomwkh1j+kg1diIHz+VHOgp9n7u595F0HnVXRwA=
+  - secure: MFEtLhbKZKQDsU9h6dXLRSSZfBUWRJgVV4pucS0bSVA4SZ3Cqq405mg83EiUCww0L0jMXkKKojxcbNl5aHHIzWtTDJTiDw1ifQrIWsbSZ4IPFixd98hU9N7fI4BkEiNhN2j5W4iF+52GDr6Msuy9+6bbuUXEWcJnhjrJ4ePNlBs=
