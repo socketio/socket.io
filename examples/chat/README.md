@@ -6,7 +6,7 @@ A simple chat demo for socket.io
 ### Quickstart
 ```
 $ npm install
-$ node app
+$ node .
 ```
 
 ### Features
