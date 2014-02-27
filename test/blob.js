@@ -16,17 +16,14 @@ describe('parser', function() {
     } else {
       data = new Blob([new ArrayBuffer(2)]);
     }
+
     var packet = {
       type: parser.BINARY_EVENT,
       data: data,
       id: 0,
       nsp: '/'
     };
-    parser.encode(packet, function(encodedData) {
-      var decodedPacket = parser.decode(encodedData);
-      helpers.testPacketMetadata(packet, decodedPacket);
-      helpers.testArrayBuffers(packet.data, decodedPacket.data);
-    });
+    helpers.test_bin(packet);
   });
 
   it('encodes an Blob deep in JSON', function() {
@@ -45,13 +42,7 @@ describe('parser', function() {
       id: 999,
       nsp: '/deep'
     };
-    parser.encode(packet, function(encodedData) {
-      var decodedPacket = parser.decode(encodedData);
-      helpers.testPacketMetadata(packet, decodedPacket);
-      expect(packet.data.a).to.eql(decodedPacket.data.a);
-      expect(packet.data.c).to.eql(decodedPacket.data.c);
-      helpers.testArrayBuffers(packet.data.b.why, decodedPacket.data.b.why);
-    });
+    helpers.test_bin(packet);
   });
 
 });

@@ -6,16 +6,10 @@
     "type": "git",
     "url": "https://github.com/LearnBoost/socket.io-parser.git"
   },
-  "browser": {
-    "msgpack-js": "msgpack-allbrowsers"
-  },
   "dependencies": {
     "debug": "0.7.4",
-    "msgpack-js": "0.3.0",
     "json3": "3.2.6",
-    "isarray": "0.0.1",
-    "base64-js": "0.0.6",
-    "msgpack-allbrowsers": "0.0.1"
+    "isarray": "0.0.1"
   },
   "devDependencies": {
     "mocha": "1.16.2",

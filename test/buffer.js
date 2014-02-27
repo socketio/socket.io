@@ -6,7 +6,7 @@ var decode = parser.decode;
 
 describe('parser', function() {
   it('encodes a Buffer', function() {
-      helpers.test({
+      helpers.test_bin({
         type: parser.BINARY_EVENT,
         data: new Buffer('abc', 'utf8'),
         id: 23,
