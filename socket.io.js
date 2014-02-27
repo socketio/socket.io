@@ -88,7 +88,7 @@ exports.Manager = require('./manager');
 exports.Socket = require('./socket');
 
 },{"./manager":3,"./socket":5,"./url":6,"debug":9,"socket.io-parser":42}],3:[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},Buffer=require("__browserify_Buffer").Buffer;
+
 /**
  * Module dependencies.
  */
@@ -135,7 +135,8 @@ function Manager(socket, opts){
   this.attempts = 0;
   this.encoding = false;
   this.packetBuffer = [];
-  this.reconstructor = null;
+  this.encoder = new parser.Encoder();
+  this.decoder = new parser.Decoder();
   this.open();
 }
 
@@ -293,6 +294,7 @@ Manager.prototype.onopen = function(){
   // add new subs
   var socket = this.engine;
   this.subs.push(on(socket, 'data', bind(this, 'ondata')));
+  this.subs.push(on(this.decoder, 'decoded', bind(this, 'ondecoded')));
   this.subs.push(on(socket, 'error', bind(this, 'onerror')));
   this.subs.push(on(socket, 'close', bind(this, 'onclose')));
 };
@@ -304,27 +306,18 @@ Manager.prototype.onopen = function(){
  */
 
 Manager.prototype.ondata = function(data){
-  if ((global.Buffer && Buffer.isBuffer(data)) ||
-      (global.ArrayBuffer && data instanceof ArrayBuffer) ||
-      data.base64) { // this is binary data
-    if (!this.reconstructor) {
-      throw new Error('got binary data when not reconstructing a packet')
-    } else {
-      var packet = this.reconstructor.takeBinaryData(data);
-      if (packet) { // received final buffer
-        this.reconstructor = null;
-        this.emit('packet', packet);
-      }
-    }
-  } else { // not a binary object
-    var packet = parser.decode(data);
-    if (packet.type == parser.BINARY_EVENT) { // first part of 'buffer sequence'
-      this.reconstructor = new parser.BinaryReconstructor(packet);
-    } else { // this is a non-binary regular json packet
-      this.emit('packet', packet);
-    }
-  }
+  this.decoder.add(data);
 };
+
+/**
+ * Called when parser fully decodes a packet.
+ *
+ * @api private
+ */
+
+Manager.prototype.ondecoded = function(packet) {
+  this.emit('packet', packet);
+}
 
 /**
  * Called upon socket error.
@@ -382,7 +375,7 @@ Manager.prototype.packet = function(packet){
 
   if (!self.encoding) { // encode, then write to engine with result
     self.encoding = true;
-    parser.encode(packet, function(encodedPackets) {
+    this.encoder.encode(packet, function(encodedPackets) {
       for (var i = 0; i < encodedPackets.length; i++) {
         self.engine.write(encodedPackets[i]);
       }
@@ -420,6 +413,8 @@ Manager.prototype.cleanup = function(){
 
   this.packetBuffer = [];
   this.encoding = false;
+
+  this.decoder.destroy();
 };
 
 /**
@@ -503,7 +498,7 @@ Manager.prototype.onreconnect = function(){
   this.emit('reconnect', attempt);
 };
 
-},{"./on":4,"./socket":5,"./url":6,"__browserify_Buffer":8,"bind":7,"debug":9,"emitter":10,"engine.io-client":12,"object-component":39,"socket.io-parser":42}],4:[function(require,module,exports){
+},{"./on":4,"./socket":5,"./url":6,"bind":7,"debug":9,"emitter":10,"engine.io-client":12,"object-component":39,"socket.io-parser":42}],4:[function(require,module,exports){
 
 /**
  * Module exports.
@@ -889,7 +884,7 @@ Socket.prototype.disconnect = function(){
   return this;
 };
 
-},{"./on":4,"bind":7,"debug":9,"emitter":10,"has-binary-data":36,"indexof":37,"socket.io-parser":42,"to-array":46}],6:[function(require,module,exports){
+},{"./on":4,"bind":7,"debug":9,"emitter":10,"has-binary-data":36,"indexof":37,"socket.io-parser":42,"to-array":48}],6:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 /**
  * Module dependencies.
@@ -7233,8 +7228,8 @@ exports.removeBlobs = function(data, callback) {
     callback(bloblessData);
   }
 }
-},{"__browserify_Buffer":8,"isarray":44}],42:[function(require,module,exports){
-
+},{"__browserify_Buffer":8,"isarray":46}],42:[function(require,module,exports){
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},Buffer=require("__browserify_Buffer").Buffer;
 /**
  * Module dependencies.
  */
@@ -7242,6 +7237,7 @@ exports.removeBlobs = function(data, callback) {
 var debug = require('debug')('socket.io-parser');
 var json = require('json3');
 var isArray = require('isarray');
+var Emitter = require('emitter');
 var binary = require('./binary');
 
 
@@ -7314,7 +7310,16 @@ exports.ERROR = 4;
  * @api public
  */
 
- exports.BINARY_EVENT = 5;
+exports.BINARY_EVENT = 5;
+
+exports.Encoder = Encoder
+
+/**
+ * A socket.io Encoder instance
+ *
+ * @api public
+ */
+function Encoder() {};
 
 /**
  * Encode a packet as a single string if non-binary, or as a
@@ -7326,7 +7331,7 @@ exports.ERROR = 4;
  * @api public
  */
 
-exports.encode = function(obj, callback){
+Encoder.prototype.encode = function(obj, callback){
   debug('encoding packet %j', obj);
 
   if (obj.type == exports.BINARY_EVENT) {
@@ -7409,6 +7414,25 @@ function encodeAsBinary(obj, callback) {
   binary.removeBlobs(obj, writeEncoding);
 }
 
+exports.Decoder = Decoder
+
+/**
+ * A socket.io Decoder instance
+ *
+ * @return {Object} decoder
+ * @api public
+ */
+
+function Decoder() {
+  this.reconstructor = null;
+}
+
+/**
+ * Mix in `Emitter` with Decoder.
+ */
+
+Emitter(Decoder.prototype);
+
 /**
  * Decodes an ecoded packet string into packet JSON.
  *
@@ -7417,9 +7441,28 @@ function encodeAsBinary(obj, callback) {
  * @api public
  */
 
-exports.decode = function(obj) {
+Decoder.prototype.add = function(obj) {
+  var packet;
   if ('string' == typeof obj) {
-    return decodeString(obj);
+    packet = decodeString(obj);
+    if (packet.type == exports.BINARY_EVENT) { // binary packet's json
+      this.reconstructor = new BinaryReconstructor(packet);
+    } else { // non-binary full packet
+      this.emit('decoded', packet);
+    }
+  }
+  else if ((global.Buffer && Buffer.isBuffer(obj)) ||
+            (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
+            obj.base64) { // raw binary data
+    if (!this.reconstructor) {
+      throw new Error('got binary data when not reconstructing a packet');
+    } else {
+      packet = this.reconstructor.takeBinaryData(obj);
+      if (packet) { // received final buffer
+        this.reconstructor = null;
+        this.emit('decoded', packet);
+      }
+    }
   }
   else {
     throw new Error('Unknown type: ' + obj);
@@ -7493,7 +7536,17 @@ function decodeString(str) {
   return p;
 };
 
-exports.BinaryReconstructor = BinaryReconstructor;
+/**
+ * Deallocates a parser's resources
+ *
+ * @api public
+ */
+
+Decoder.prototype.destroy = function() {
+  if (this.reconstructor) {
+    this.reconstructor.finishedReconstruction();
+  }
+}
 
 /**
  * A manager of a binary event's 'buffer sequence'. Should
@@ -7502,7 +7555,7 @@ exports.BinaryReconstructor = BinaryReconstructor;
  *
  * @param {Object} packet
  * @return {BinaryReconstructor} initialized reconstructor
- * @api public
+ * @api private
  */
 
 function BinaryReconstructor(packet) {
@@ -7517,7 +7570,7 @@ function BinaryReconstructor(packet) {
  * @param {Buffer | ArrayBuffer} binData - the raw binary data received
  * @return {null | Object} returns null if more binary data is expected or
  *   a reconstructed packet object if all buffers have been received.
- * @api public
+ * @api private
  */
 
 BinaryReconstructor.prototype.takeBinaryData = function(binData) {
@@ -7548,11 +7601,15 @@ function error(data){
   };
 }
 
-},{"./binary":41,"debug":43,"isarray":44,"json3":45}],43:[function(require,module,exports){
+},{"./binary":41,"__browserify_Buffer":8,"debug":43,"emitter":44,"isarray":46,"json3":47}],43:[function(require,module,exports){
 module.exports=require(9)
 },{}],44:[function(require,module,exports){
+module.exports=require(10)
+},{"indexof":45}],45:[function(require,module,exports){
+module.exports=require(11)
+},{}],46:[function(require,module,exports){
 module.exports=require(38)
-},{}],45:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 /*! JSON v3.2.6 | http://bestiejs.github.io/json3 | Copyright 2012-2013, Kit Cambridge | http://kit.mit-license.org */
 ;(function (window) {
   // Convenience aliases.
@@ -8415,7 +8472,7 @@ module.exports=require(38)
   }
 }(this));
 
-},{}],46:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module.exports = toArray
 
 function toArray(list, index) {
