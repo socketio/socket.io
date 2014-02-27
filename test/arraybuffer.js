@@ -1,8 +1,7 @@
 var parser = require('../index.js');
 var expect = require('expect.js');
 var helpers = require('./helpers.js');
-var encode = parser.encode;
-var decode = parser.decode;
+var encoder = new parser.Encoder();
 
 describe('parser', function() {
   it('encodes an ArrayBuffer', function() {
@@ -23,5 +22,26 @@ describe('parser', function() {
       nsp: '/deep'
     };
     helpers.test_bin(packet);
+  });
+
+  it('cleans itself up on close', function() {
+    var packet = {
+      type: parser.BINARY_EVENT,
+      data: [new ArrayBuffer(2), new ArrayBuffer(3)],
+      id: 0,
+      nsp: '/'
+    };
+
+    encoder.encode(packet, function(encodedPackets) {
+      var decoder = new parser.Decoder();
+      decoder.on('decoded', function(packet) {
+        throw new Error("received a packet when not all binary data was sent.");
+      });
+
+      decoder.add(encodedPackets[0]); // add metadata
+      decoder.add(encodedPackets[1]); // add first attachment
+      decoder.destroy(); // destroy before all data added
+      expect(decoder.reconstructor.buffers.length).to.be(0); // expect that buffer is clean
+    });
   });
 });

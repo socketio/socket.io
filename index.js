@@ -6,6 +6,7 @@
 var debug = require('debug')('socket.io-parser');
 var json = require('json3');
 var isArray = require('isarray');
+var Emitter = require('emitter');
 var binary = require('./binary');
 
 
@@ -78,7 +79,16 @@ exports.ERROR = 4;
  * @api public
  */
 
- exports.BINARY_EVENT = 5;
+exports.BINARY_EVENT = 5;
+
+exports.Encoder = Encoder
+
+/**
+ * A socket.io Encoder instance
+ *
+ * @api public
+ */
+function Encoder() {};
 
 /**
  * Encode a packet as a single string if non-binary, or as a
@@ -90,7 +100,7 @@ exports.ERROR = 4;
  * @api public
  */
 
-exports.encode = function(obj, callback){
+Encoder.prototype.encode = function(obj, callback){
   debug('encoding packet %j', obj);
 
   if (obj.type == exports.BINARY_EVENT) {
@@ -173,6 +183,25 @@ function encodeAsBinary(obj, callback) {
   binary.removeBlobs(obj, writeEncoding);
 }
 
+exports.Decoder = Decoder
+
+/**
+ * A socket.io Decoder instance
+ *
+ * @return {Object} decoder
+ * @api public
+ */
+
+function Decoder() {
+  this.reconstructor = null;
+}
+
+/**
+ * Mix in `Emitter` with Decoder.
+ */
+
+Emitter(Decoder.prototype);
+
 /**
  * Decodes an ecoded packet string into packet JSON.
  *
@@ -181,9 +210,28 @@ function encodeAsBinary(obj, callback) {
  * @api public
  */
 
-exports.decode = function(obj) {
+Decoder.prototype.add = function(obj) {
+  var packet;
   if ('string' == typeof obj) {
-    return decodeString(obj);
+    packet = decodeString(obj);
+    if (packet.type == exports.BINARY_EVENT) { // binary packet's json
+      this.reconstructor = new BinaryReconstructor(packet);
+    } else { // non-binary full packet
+      this.emit('decoded', packet);
+    }
+  }
+  else if ((global.Buffer && Buffer.isBuffer(obj)) ||
+            (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
+            obj.base64) { // raw binary data
+    if (!this.reconstructor) {
+      throw new Error('got binary data when not reconstructing a packet');
+    } else {
+      packet = this.reconstructor.takeBinaryData(obj);
+      if (packet) { // received final buffer
+        this.reconstructor = null;
+        this.emit('decoded', packet);
+      }
+    }
   }
   else {
     throw new Error('Unknown type: ' + obj);
@@ -257,7 +305,17 @@ function decodeString(str) {
   return p;
 };
 
-exports.BinaryReconstructor = BinaryReconstructor;
+/**
+ * Deallocates a parser's resources
+ *
+ * @api public
+ */
+
+Decoder.prototype.destroy = function() {
+  if (this.reconstructor) {
+    this.reconstructor.finishedReconstruction();
+  }
+}
 
 /**
  * A manager of a binary event's 'buffer sequence'. Should
@@ -266,7 +324,7 @@ exports.BinaryReconstructor = BinaryReconstructor;
  *
  * @param {Object} packet
  * @return {BinaryReconstructor} initialized reconstructor
- * @api public
+ * @api private
  */
 
 function BinaryReconstructor(packet) {
@@ -281,7 +339,7 @@ function BinaryReconstructor(packet) {
  * @param {Buffer | ArrayBuffer} binData - the raw binary data received
  * @return {null | Object} returns null if more binary data is expected or
  *   a reconstructed packet object if all buffers have been received.
- * @api public
+ * @api private
  */
 
 BinaryReconstructor.prototype.takeBinaryData = function(binData) {

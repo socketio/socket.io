@@ -1,29 +1,33 @@
 var parser = require('../index.js');
 var expect = require('expect.js');
-var encode = parser.encode;
-var decode = parser.decode;
+var encoder = new parser.Encoder();
 
 // tests encoding and decoding a single packet
 module.exports.test = function(obj){
-  encode(obj, function(encodedPackets) {
-    expect(decode(encodedPackets[0])).to.eql(obj);
+  encoder.encode(obj, function(encodedPackets) {
+    var decoder = new parser.Decoder();
+    decoder.on('decoded', function(packet) {
+      expect(packet).to.eql(obj);
+    });
+
+    decoder.add(encodedPackets[0]);
   });
 }
 
 // tests encoding of binary packets
 module.exports.test_bin = function test_bin(obj) {
   var originalData = obj.data;
-  encode(obj, function(encodedPackets) {
-    var reconPack = decode(encodedPackets[0]);
-    var reconstructor = new parser.BinaryReconstructor(reconPack);
-    var packet;
-    for (var i = 1; i < encodedPackets.length; i++) {
-      packet = reconstructor.takeBinaryData(encodedPackets[i]);
-    }
+  encoder.encode(obj, function(encodedPackets) {
+    var decoder = new parser.Decoder();
+    decoder.on('decoded', function(packet) {
+      obj.data = originalData;
+      obj.attachments = undefined;
+      expect(obj).to.eql(packet);
+    });
 
-    obj.data = originalData;
-    obj.attachments = undefined;
-    expect(obj).to.eql(packet);
+    for (var i = 0; i < encodedPackets.length; i++) {
+      decoder.add(encodedPackets[i]);
+    }
   });
 }
 
