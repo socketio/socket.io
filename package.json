@@ -9,6 +9,7 @@
   "dependencies": {
     "debug": "0.7.4",
     "json3": "3.2.6",
+    "emitter": "http://github.com/component/emitter/archive/1.0.1.tar.gz",
     "isarray": "0.0.1"
   },
   "devDependencies": {
