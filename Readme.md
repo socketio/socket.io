@@ -9,20 +9,41 @@
 
 ## Protocol version
 
-  **Current protocol revision:** `2`.
+  **Current protocol revision:** `3`.
 
 ## Parser API
 
-### Parser#encode(Object:packet):String|Binary
+### Parser#encode(Object:packet):Array
 
-  Encodes a `Packet` object as a string if the object is all JSON, or as a
-  binary type if it contains an ArrayBuffer, Buffer, Blob, or File.
+  Encodes a `Packet` object into an array of engine.io-transportable encodings.
+  If the object is all JSON the array will contain a single string. If the object
+  contains binary data (ArrayBuffer, Buffer, Blob, or File) the array will contain
+  one string with the packet metadata and placeholders in the JSON where the binary
+  data was, and the raw binary data for each binary instance in the packet as
+  a separate entry.
 
-### Parser#decode(Binary|String:packet):Packet
+### Parser#decode(String:packet):Packet
 
-  Returns a `Packet` object for the given binary data or string. Performs the
-  correct decoding depending on type of packet. If a parsing error
-  occurs the returned packet is an error object.
+  Returns a `Packet` object for the given string. If a parsing error occurs
+  the returned packet is an error object. If the returned packet's type is
+  `Packet#BINARY_EVENT`, the next data to arrive will be raw binary, and a
+  `Parser#BinaryReconstructor` should be created from it.
+
+### Parser#BinaryReconstructor(Packet:packet):BinaryReconstructor
+
+  Object that handles reconstruction of a `Packet` with binary data. Should
+  be constructed whenever a packet of type `Packet#BINARY_EVENT` is returned
+  from `Parser#decode`.
+
+#### BinaryReconstructor#takeBinaryData(Binary:binData):null|Packet
+
+  Should be called whenever raw binary data is received from transport after
+  the reception of a packet of type `Packet#BINARY_EVENT`. Will return null
+  if the reconstructor expects more binary data from the transport, or the fully
+  reconstructed packet with binary data if all of the expected binary data has
+  been received. Essentially this should be called with all incoming binary data
+  until it returns non-null, in which case the packet has been fully reconstructed
+  and the BinaryReconstructor can be discarded.
 
 ### Parser#types
 
@@ -55,9 +76,11 @@
   - `data` (`Array`) see `EVENT` `data`, but with addition that any of the arguments
     may contain non-JSON arbitrary binary data. On server, all binary data is a Buffer;
     on modern clients binary data is an ArrayBuffer. On older browsers that don't
-    support binary, all of an event's data is a base64 encoded string, and `data` is an
-    array with the first item the event name and the second item an object with base64: true
-    and data: the encoded string.
+    support binary, every binary data item is replaced with an object like so:
+    `{base64: true, data: <the_binary_data_encoded_as_base64>}. When a BINARY_EVENT
+    packet is initially decoded, all of the binary data items will be placeholders,
+    and should be filled by a `Parser#BinaryReconstructor` as binary data arrives
+    via transport.
 
   - `id` (`Number`) see `EVENT` `id`.
 
