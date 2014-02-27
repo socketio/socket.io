@@ -5,7 +5,5 @@ notifications:
   irc: irc.freenode.org##socket.io
 env:
   global:
-  - secure: v76/Y3hGIGsANoFAW0US3X8cuDFY7g8stMFrwGUxiQnm4HN3j83w+FfoZay0mESKhNIpqk4nCJQwMCd1gJnLL7ybjGOt5LeEuQVlLDXkRVrXSViy2XwAW+mLj7H/++/LTHWo/Ma6pOa1YC2o4SbSsiK1NdhdAK5ZGluonPBIG18=
-  - secure: P2zFTMeI9duoPBXhAZZLddqeJS+dUI27Q02tTdr+AjvUkr8f7Zga57SZxP6Jbn8bxUPI3ZQzAm1KMsyUo4IAegXLJ4j9VCF6ab65NkE1k8UH99kXXS30Ha27NS1aQafCbaOTxxQfqQHmnjt2HJtvk04nqCEDhoZCdDUZNVSGCOc=
   - secure: 28HHk1J0H64KNjzmmlxG/Ro0EPuLnhO0rU+kZjjthDHj/FaugIsqjAVQ1Dl6heWV2/MlVzw6nDCyMNiGwiVk0ruZPQ0SYdAKLplrdMtzAihbU3xx+ULFQPLM3SoW0ZFCEpe8dWPGy4WdgW7aLByeel9TJb3vlhAu7p7AvrcO7Fs=
   - secure: rKEG0Cfw0vkw8thk63RHYG7h8XWYcBlvZ0w1IWpr2dAfnnLMi1palSTrBrFQc77flk7rN00zGIe76FhKydV9r4WWYAUYKPqo4k+9/FkpzjZlNtL49QRoNwC9jmJ8OeUwGowA13gZPyl/5P13wVaKCB0YrKnzz5LHo3Sp7So6J8U=
