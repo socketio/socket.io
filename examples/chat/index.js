@@ -43,7 +43,8 @@ io.on('connection', function (socket) {
     });
     // echo globally (all clients) that a person has connected
     socket.broadcast.emit('user joined', {
-      username: socket.username
+      username: socket.username,
+      numUsers: numUsers
     });
   });
 
@@ -70,7 +71,8 @@ io.on('connection', function (socket) {
 
       // echo globally that this client has left
       socket.broadcast.emit('user left', {
-        username: socket.username
+        username: socket.username,
+        numUsers: numUsers
       });
     }
   });
