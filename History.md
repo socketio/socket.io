@@ -1,4 +1,9 @@
 
+2.1.0 / 2014-03-01
+==================
+
+ * faster and smaller binary parser and protocol [kevin-roark]
+
 2.0.0 / 2014-02-19
 ==================
 
