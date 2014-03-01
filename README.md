@@ -3,6 +3,7 @@
 # socket.io-client
 
 [![Build Status](https://secure.travis-ci.org/LearnBoost/socket.io-client.png)](http://travis-ci.org/LearnBoost/socket.io-client)
+[![NPM version](https://badge.fury.io/js/socket.io-client.png)](http://badge.fury.io/js/socket.io-client)
 
 ## How to use
 
@@ -21,9 +22,7 @@ serve the file `socket.io.js` found at the root of this repository.
 </script>
 ```
 
-Socket.IO is also compatible with
-[component](http://github.com/component/component) and
-[browserify](http://github.com/substack/browserify).
+Socket.IO is compatible with [browserify](http://github.com/substack/browserify).
 
 ### Node.JS (server-side usage)
 
