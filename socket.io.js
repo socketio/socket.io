@@ -87,7 +87,7 @@ exports.connect = lookup;
 exports.Manager = require('./manager');
 exports.Socket = require('./socket');
 
-},{"./manager":3,"./socket":5,"./url":6,"debug":11,"socket.io-parser":39}],3:[function(require,module,exports){
+},{"./manager":3,"./socket":5,"./url":6,"debug":9,"socket.io-parser":42}],3:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -135,6 +135,8 @@ function Manager(socket, opts){
   this.attempts = 0;
   this.encoding = false;
   this.packetBuffer = [];
+  this.encoder = new parser.Encoder();
+  this.decoder = new parser.Decoder();
   this.open();
 }
 
@@ -292,6 +294,7 @@ Manager.prototype.onopen = function(){
   // add new subs
   var socket = this.engine;
   this.subs.push(on(socket, 'data', bind(this, 'ondata')));
+  this.subs.push(on(this.decoder, 'decoded', bind(this, 'ondecoded')));
   this.subs.push(on(socket, 'error', bind(this, 'onerror')));
   this.subs.push(on(socket, 'close', bind(this, 'onclose')));
 };
@@ -303,8 +306,18 @@ Manager.prototype.onopen = function(){
  */
 
 Manager.prototype.ondata = function(data){
-  this.emit('packet', parser.decode(data));
+  this.decoder.add(data);
 };
+
+/**
+ * Called when parser fully decodes a packet.
+ *
+ * @api private
+ */
+
+Manager.prototype.ondecoded = function(packet) {
+  this.emit('packet', packet);
+}
 
 /**
  * Called upon socket error.
@@ -362,8 +375,10 @@ Manager.prototype.packet = function(packet){
 
   if (!self.encoding) { // encode, then write to engine with result
     self.encoding = true;
-    parser.encode(packet, function(encodedPacket) {
-      self.engine.write(encodedPacket);
+    this.encoder.encode(packet, function(encodedPackets) {
+      for (var i = 0; i < encodedPackets.length; i++) {
+        self.engine.write(encodedPackets[i]);
+      }
       self.encoding = false;
       self.processPacketQueue();
     });
@@ -398,6 +413,8 @@ Manager.prototype.cleanup = function(){
 
   this.packetBuffer = [];
   this.encoding = false;
+
+  this.decoder.destroy();
 };
 
 /**
@@ -481,7 +498,7 @@ Manager.prototype.onreconnect = function(){
   this.emit('reconnect', attempt);
 };
 
-},{"./on":4,"./socket":5,"./url":6,"bind":9,"debug":11,"emitter":12,"engine.io-client":13,"object-component":37,"socket.io-parser":39}],4:[function(require,module,exports){
+},{"./on":4,"./socket":5,"./url":6,"bind":7,"debug":9,"emitter":10,"engine.io-client":12,"object-component":39,"socket.io-parser":42}],4:[function(require,module,exports){
 
 /**
  * Module exports.
@@ -519,7 +536,7 @@ var toArray = require('to-array');
 var on = require('./on');
 var bind = require('bind');
 var debug = require('debug')('socket.io-client:socket');
-var hasBin = require('has-binarydata');
+var hasBin = require('has-binary-data');
 var indexOf = require('indexof');
 
 /**
@@ -867,7 +884,7 @@ Socket.prototype.disconnect = function(){
   return this;
 };
 
-},{"./on":4,"bind":9,"debug":11,"emitter":12,"has-binarydata":32,"indexof":36,"socket.io-parser":39,"to-array":45}],6:[function(require,module,exports){
+},{"./on":4,"bind":7,"debug":9,"emitter":10,"has-binary-data":36,"indexof":37,"socket.io-parser":42,"to-array":48}],6:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 /**
  * Module dependencies.
@@ -937,190 +954,7 @@ function url(uri, loc){
   return obj;
 }
 
-},{"debug":11,"parseuri":38}],7:[function(require,module,exports){
-/*
- * base64-arraybuffer
- * https://github.com/niklasvh/base64-arraybuffer
- *
- * Copyright (c) 2012 Niklas von Hertzen
- * Licensed under the MIT license.
- */
-(function(chars){
-  "use strict";
-
-  exports.encode = function(arraybuffer) {
-    var bytes = new Uint8Array(arraybuffer),
-    i, len = bytes.buffer.byteLength, base64 = "";
-
-    for (i = 0; i < len; i+=3) {
-      base64 += chars[bytes.buffer[i] >> 2];
-      base64 += chars[((bytes.buffer[i] & 3) << 4) | (bytes.buffer[i + 1] >> 4)];
-      base64 += chars[((bytes.buffer[i + 1] & 15) << 2) | (bytes.buffer[i + 2] >> 6)];
-      base64 += chars[bytes.buffer[i + 2] & 63];
-    }
-
-    if ((len % 3) === 2) {
-      base64 = base64.substring(0, base64.length - 1) + "=";
-    } else if (len % 3 === 1) {
-      base64 = base64.substring(0, base64.length - 2) + "==";
-    }
-
-    return base64;
-  };
-
-  exports.decode =  function(base64) {
-    var bufferLength = base64.length * 0.75,
-    len = base64.length, i, p = 0,
-    encoded1, encoded2, encoded3, encoded4;
-
-    if (base64[base64.length - 1] === "=") {
-      bufferLength--;
-      if (base64[base64.length - 2] === "=") {
-        bufferLength--;
-      }
-    }
-
-    var arraybuffer = new ArrayBuffer(bufferLength),
-    bytes = new Uint8Array(arraybuffer);
-
-    for (i = 0; i < len; i+=4) {
-      encoded1 = chars.indexOf(base64[i]);
-      encoded2 = chars.indexOf(base64[i+1]);
-      encoded3 = chars.indexOf(base64[i+2]);
-      encoded4 = chars.indexOf(base64[i+3]);
-
-      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
-      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
-      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
-    }
-
-    return arraybuffer;
-  };
-})("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-},{}],8:[function(require,module,exports){
-var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-
-;(function (exports) {
-	'use strict';
-
-  var Arr = (typeof Uint8Array !== 'undefined')
-    ? Uint8Array
-    : Array
-
-	var ZERO   = '0'.charCodeAt(0)
-	var PLUS   = '+'.charCodeAt(0)
-	var SLASH  = '/'.charCodeAt(0)
-	var NUMBER = '0'.charCodeAt(0)
-	var LOWER  = 'a'.charCodeAt(0)
-	var UPPER  = 'A'.charCodeAt(0)
-
-	function decode (elt) {
-		var code = elt.charCodeAt(0)
-		if (code === PLUS)
-			return 62 // '+'
-		if (code === SLASH)
-			return 63 // '/'
-		if (code < NUMBER)
-			return -1 //no match
-		if (code < NUMBER + 10)
-			return code - NUMBER + 26 + 26
-		if (code < UPPER + 26)
-			return code - UPPER
-		if (code < LOWER + 26)
-			return code - LOWER + 26
-	}
-
-	function b64ToByteArray (b64) {
-		var i, j, l, tmp, placeHolders, arr
-
-		if (b64.length % 4 > 0) {
-			throw new Error('Invalid string. Length must be a multiple of 4')
-		}
-
-		// the number of equal signs (place holders)
-		// if there are two placeholders, than the two characters before it
-		// represent one byte
-		// if there is only one, then the three characters before it represent 2 bytes
-		// this is just a cheap hack to not do indexOf twice
-		var len = b64.length
-		placeHolders = '=' === b64.charAt(len - 2) ? 2 : '=' === b64.charAt(len - 1) ? 1 : 0
-
-		// base64 is 4/3 + up to two characters of the original data
-		arr = new Arr(b64.length * 3 / 4 - placeHolders)
-
-		// if there are placeholders, only get up to the last complete 4 chars
-		l = placeHolders > 0 ? b64.length - 4 : b64.length
-
-		var L = 0
-
-		function push (v) {
-			arr[L++] = v
-		}
-
-		for (i = 0, j = 0; i < l; i += 4, j += 3) {
-			tmp = (decode(b64.charAt(i)) << 18) | (decode(b64.charAt(i + 1)) << 12) | (decode(b64.charAt(i + 2)) << 6) | decode(b64.charAt(i + 3))
-			push((tmp & 0xFF0000) >> 16)
-			push((tmp & 0xFF00) >> 8)
-			push(tmp & 0xFF)
-		}
-
-		if (placeHolders === 2) {
-			tmp = (decode(b64.charAt(i)) << 2) | (decode(b64.charAt(i + 1)) >> 4)
-			push(tmp & 0xFF)
-		} else if (placeHolders === 1) {
-			tmp = (decode(b64.charAt(i)) << 10) | (decode(b64.charAt(i + 1)) << 4) | (decode(b64.charAt(i + 2)) >> 2)
-			push((tmp >> 8) & 0xFF)
-			push(tmp & 0xFF)
-		}
-
-		return arr
-	}
-
-	function uint8ToBase64 (uint8) {
-		var i,
-			extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
-			output = "",
-			temp, length
-
-		function encode (num) {
-			return lookup.charAt(num)
-		}
-
-		function tripletToBase64 (num) {
-			return encode(num >> 18 & 0x3F) + encode(num >> 12 & 0x3F) + encode(num >> 6 & 0x3F) + encode(num & 0x3F)
-		}
-
-		// go through the array every three bytes, we'll deal with trailing stuff later
-		for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
-			temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
-			output += tripletToBase64(temp)
-		}
-
-		// pad the end with zeros, but make sure to not forget the extra bytes
-		switch (extraBytes) {
-			case 1:
-				temp = uint8[uint8.length - 1]
-				output += encode(temp >> 2)
-				output += encode((temp << 4) & 0x3F)
-				output += '=='
-				break
-			case 2:
-				temp = (uint8[uint8.length - 2] << 8) + (uint8[uint8.length - 1])
-				output += encode(temp >> 10)
-				output += encode((temp >> 4) & 0x3F)
-				output += encode((temp << 2) & 0x3F)
-				output += '='
-				break
-		}
-
-		return output
-	}
-
-	module.exports.toByteArray = b64ToByteArray
-	module.exports.fromByteArray = uint8ToBase64
-}())
-
-},{}],9:[function(require,module,exports){
+},{"debug":9,"parseuri":40}],7:[function(require,module,exports){
 
 /**
  * Slice reference.
@@ -1146,7 +980,7 @@ module.exports = function(obj, fn){
   }
 };
 
-},{}],10:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 exports.readIEEE754 = function(buffer, offset, isBE, mLen, nBytes) {
   var e, m,
@@ -3526,7 +3360,7 @@ function hasOwnProperty(obj, prop) {
 },{"_shims":5}]},{},[])
 ;;module.exports=require("buffer-browserify")
 
-},{}],11:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 
 /**
  * Expose `debug()` as the module.
@@ -3665,7 +3499,7 @@ try {
   if (window.localStorage) debug.enable(localStorage.debug);
 } catch(e){}
 
-},{}],12:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -3829,11 +3663,22 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{"indexof":36}],13:[function(require,module,exports){
+},{"indexof":11}],11:[function(require,module,exports){
+
+var indexOf = [].indexOf;
+
+module.exports = function(arr, obj){
+  if (indexOf) return arr.indexOf(obj);
+  for (var i = 0; i < arr.length; ++i) {
+    if (arr[i] === obj) return i;
+  }
+  return -1;
+};
+},{}],12:[function(require,module,exports){
 
 module.exports =  require('./lib/');
 
-},{"./lib/":15}],14:[function(require,module,exports){
+},{"./lib/":14}],13:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -3871,7 +3716,7 @@ Emitter.prototype.removeEventListener = Emitter.prototype.off;
 
 Emitter.prototype.removeListener = Emitter.prototype.off;
 
-},{"emitter":12}],15:[function(require,module,exports){
+},{"emitter":26}],14:[function(require,module,exports){
 
 module.exports = require('./socket');
 
@@ -3883,7 +3728,7 @@ module.exports = require('./socket');
  */
 module.exports.parser = require('engine.io-parser');
 
-},{"./socket":16,"engine.io-parser":26}],16:[function(require,module,exports){
+},{"./socket":15,"engine.io-parser":27}],15:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -4496,7 +4341,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   return filteredUpgrades;
 };
 
-},{"./emitter":14,"./transport":17,"./transports":19,"./util":24,"debug":11,"engine.io-parser":26,"global":30,"indexof":36}],17:[function(require,module,exports){
+},{"./emitter":13,"./transport":16,"./transports":18,"./util":23,"debug":25,"engine.io-parser":27,"global":32,"indexof":34}],16:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -4640,7 +4485,7 @@ Transport.prototype.onClose = function () {
   this.emit('close');
 };
 
-},{"./emitter":14,"./util":24,"engine.io-parser":26}],18:[function(require,module,exports){
+},{"./emitter":13,"./util":23,"engine.io-parser":27}],17:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -4910,7 +4755,7 @@ function load(arr, fn){
   process(0);
 }
 
-},{"../util":24,"./websocket":23,"debug":11,"global":30}],19:[function(require,module,exports){
+},{"../util":23,"./websocket":22,"debug":25,"global":32}],18:[function(require,module,exports){
 
 /**
  * Module dependencies
@@ -4969,7 +4814,7 @@ function polling (opts) {
   }
 };
 
-},{"./flashsocket":18,"./polling-jsonp":20,"./polling-xhr":21,"./websocket":23,"global":30,"xmlhttprequest":25}],20:[function(require,module,exports){
+},{"./flashsocket":17,"./polling-jsonp":19,"./polling-xhr":20,"./websocket":22,"global":32,"xmlhttprequest":24}],19:[function(require,module,exports){
 
 /**
  * Module requirements.
@@ -5196,7 +5041,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   }
 };
 
-},{"../util":24,"./polling":22,"global":30}],21:[function(require,module,exports){
+},{"../util":23,"./polling":21,"global":32}],20:[function(require,module,exports){
 /**
  * Module requirements.
  */
@@ -5516,7 +5361,7 @@ if (hasAttachEvent) {
   global.attachEvent('onunload', unloadHandler);
 }
 
-},{"../emitter":14,"../util":24,"./polling":22,"debug":11,"global":30,"xmlhttprequest":25}],22:[function(require,module,exports){
+},{"../emitter":13,"../util":23,"./polling":21,"debug":25,"global":32,"xmlhttprequest":24}],21:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -5774,7 +5619,7 @@ Polling.prototype.uri = function(){
   return schema + '://' + this.hostname + port + this.path + query;
 };
 
-},{"../transport":17,"../util":24,"debug":11,"engine.io-parser":26,"global":30,"xmlhttprequest":25}],23:[function(require,module,exports){
+},{"../transport":16,"../util":23,"debug":25,"engine.io-parser":27,"global":32,"xmlhttprequest":24}],22:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -6003,7 +5848,7 @@ WS.prototype.check = function(){
   return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 };
 
-},{"../transport":17,"../util":24,"debug":11,"engine.io-parser":26,"global":30,"ws":31}],24:[function(require,module,exports){
+},{"../transport":16,"../util":23,"debug":25,"engine.io-parser":27,"global":32,"ws":35}],23:[function(require,module,exports){
 
 var global = require('global');
 
@@ -6225,7 +6070,7 @@ exports.qsParse = function(qs){
   return qry;
 };
 
-},{"global":30}],25:[function(require,module,exports){
+},{"global":32}],24:[function(require,module,exports){
 // browser shim for xmlhttprequest module
 var hasCORS = require('has-cors');
 
@@ -6246,7 +6091,11 @@ module.exports = function(opts) {
   }
 }
 
-},{"has-cors":34}],26:[function(require,module,exports){
+},{"has-cors":33}],25:[function(require,module,exports){
+module.exports=require(9)
+},{}],26:[function(require,module,exports){
+module.exports=require(10)
+},{"indexof":34}],27:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Module dependencies.
  */
@@ -6838,7 +6687,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
   });
 };
 
-},{"./keys":27,"after":28,"arraybuffer.slice":29,"base64-arraybuffer":7}],27:[function(require,module,exports){
+},{"./keys":28,"after":29,"arraybuffer.slice":30,"base64-arraybuffer":31}],28:[function(require,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -6859,7 +6708,7 @@ module.exports = Object.keys || function keys (obj){
   return arr;
 };
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 module.exports = after
 
 function after(count, callback, err_cb) {
@@ -6889,7 +6738,7 @@ function after(count, callback, err_cb) {
 
 function noop() {}
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /**
  * An abstraction for slicing an arraybuffer even when
  * ArrayBuffer.prototype.slice is not supported
@@ -6920,7 +6769,67 @@ module.exports = function(arraybuffer, start, end) {
   return result.buffer;
 };
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
+/*
+ * base64-arraybuffer
+ * https://github.com/niklasvh/base64-arraybuffer
+ *
+ * Copyright (c) 2012 Niklas von Hertzen
+ * Licensed under the MIT license.
+ */
+(function(chars){
+  "use strict";
+
+  exports.encode = function(arraybuffer) {
+    var bytes = new Uint8Array(arraybuffer),
+    i, len = bytes.buffer.byteLength, base64 = "";
+
+    for (i = 0; i < len; i+=3) {
+      base64 += chars[bytes.buffer[i] >> 2];
+      base64 += chars[((bytes.buffer[i] & 3) << 4) | (bytes.buffer[i + 1] >> 4)];
+      base64 += chars[((bytes.buffer[i + 1] & 15) << 2) | (bytes.buffer[i + 2] >> 6)];
+      base64 += chars[bytes.buffer[i + 2] & 63];
+    }
+
+    if ((len % 3) === 2) {
+      base64 = base64.substring(0, base64.length - 1) + "=";
+    } else if (len % 3 === 1) {
+      base64 = base64.substring(0, base64.length - 2) + "==";
+    }
+
+    return base64;
+  };
+
+  exports.decode =  function(base64) {
+    var bufferLength = base64.length * 0.75,
+    len = base64.length, i, p = 0,
+    encoded1, encoded2, encoded3, encoded4;
+
+    if (base64[base64.length - 1] === "=") {
+      bufferLength--;
+      if (base64[base64.length - 2] === "=") {
+        bufferLength--;
+      }
+    }
+
+    var arraybuffer = new ArrayBuffer(bufferLength),
+    bytes = new Uint8Array(arraybuffer);
+
+    for (i = 0; i < len; i+=4) {
+      encoded1 = chars.indexOf(base64[i]);
+      encoded2 = chars.indexOf(base64[i+1]);
+      encoded3 = chars.indexOf(base64[i+2]);
+      encoded4 = chars.indexOf(base64[i+3]);
+
+      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+    }
+
+    return arraybuffer;
+  };
+})("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+},{}],32:[function(require,module,exports){
 
 /**
  * Returns `this`. Execute this without a "context" (i.e. without it being
@@ -6930,7 +6839,34 @@ module.exports = function(arraybuffer, start, end) {
 
 module.exports = (function () { return this; })();
 
-},{}],31:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
+
+/**
+ * Module dependencies.
+ */
+
+var global = require('global');
+
+/**
+ * Module exports.
+ *
+ * Logic borrowed from Modernizr:
+ *
+ *   - https://github.com/Modernizr/Modernizr/blob/master/feature-detects/cors.js
+ */
+
+try {
+  module.exports = 'XMLHttpRequest' in global &&
+    'withCredentials' in new global.XMLHttpRequest();
+} catch (err) {
+  // if XMLHttp support is disabled in IE then it will throw
+  // when trying to create
+  module.exports = false;
+}
+
+},{"global":32}],34:[function(require,module,exports){
+module.exports=require(11)
+},{}],35:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -6975,7 +6911,7 @@ function ws(uri, protocols, opts) {
 
 if (WebSocket) ws.prototype = WebSocket.prototype;
 
-},{}],32:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},Buffer=require("__browserify_Buffer").Buffer;/*
  * Module requirements.
  */
@@ -7030,50 +6966,14 @@ function hasBinary(data) {
   return recursiveCheckForBinary(data);
 }
 
-},{"__browserify_Buffer":10,"isarray":33}],33:[function(require,module,exports){
+},{"__browserify_Buffer":8,"isarray":38}],37:[function(require,module,exports){
+module.exports=require(11)
+},{}],38:[function(require,module,exports){
 module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-},{}],34:[function(require,module,exports){
-
-/**
- * Module dependencies.
- */
-
-var global = require('global');
-
-/**
- * Module exports.
- *
- * Logic borrowed from Modernizr:
- *
- *   - https://github.com/Modernizr/Modernizr/blob/master/feature-detects/cors.js
- */
-
-try {
-  module.exports = 'XMLHttpRequest' in global &&
-    'withCredentials' in new global.XMLHttpRequest();
-} catch (err) {
-  // if XMLHttp support is disabled in IE then it will throw
-  // when trying to create
-  module.exports = false;
-}
-
-},{"global":35}],35:[function(require,module,exports){
-module.exports=require(30)
-},{}],36:[function(require,module,exports){
-
-var indexOf = [].indexOf;
-
-module.exports = function(arr, obj){
-  if (indexOf) return arr.indexOf(obj);
-  for (var i = 0; i < arr.length; ++i) {
-    if (arr[i] === obj) return i;
-  }
-  return -1;
-};
-},{}],37:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 
 /**
  * HOP ref.
@@ -7158,7 +7058,7 @@ exports.length = function(obj){
 exports.isEmpty = function(obj){
   return 0 == exports.length(obj);
 };
-},{}],38:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 /**
  * Parses an URI
  *
@@ -7185,7 +7085,150 @@ module.exports = function parseuri(str) {
   return uri;
 };
 
-},{}],39:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},Buffer=require("__browserify_Buffer").Buffer;/**
+ * Modle requirements
+ */
+
+var isArray = require('isarray');
+
+/**
+ * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
+ * Anything with blobs or files should be fed through removeBlobs before coming
+ * here.
+ *
+ * @param {Object} packet - socket.io event packet
+ * @return {Object} with deconstructed packet and list of buffers
+ * @api public
+ */
+
+exports.deconstructPacket = function(packet) {
+    var buffers = [];
+    var packetData = packet.data;
+
+    function deconstructBinPackRecursive(data) {
+        if (!data) return data;
+
+        if ((global.Buffer && Buffer.isBuffer(data)) ||
+            (global.ArrayBuffer && data instanceof ArrayBuffer)) { // replace binary
+            var placeholder = {_placeholder: true, num: buffers.length};
+            buffers.push(data);
+            return placeholder;
+        } else if (isArray(data)) {
+            var newData = new Array(data.length);
+            for (var i = 0; i < data.length; i++) {
+                newData[i] = deconstructBinPackRecursive(data[i]);
+            }
+            return newData;
+        } else if ('object' == typeof data) {
+            var newData = {};
+            for (var key in data) {
+                newData[key] = deconstructBinPackRecursive(data[key]);
+            }
+            return newData;
+        }
+        return data;
+    }
+
+    var pack = packet;
+    pack.data = deconstructBinPackRecursive(packetData);
+    pack.attachments = buffers.length; // number of binary 'attachments'
+    return {packet: pack, buffers: buffers};
+}
+
+/**
+ * Reconstructs a binary packet from its placeholder packet and buffers
+ *
+ * @param {Object} packet - event packet with placeholders
+ * @param {Array} buffers - binary buffers to put in placeholder positions
+ * @return {Object} reconstructed packet
+ * @api public
+ */
+
+ exports.reconstructPacket = function(packet, buffers) {
+    var curPlaceHolder = 0;
+
+    function reconstructBinPackRecursive(data) {
+        if (data._placeholder) {
+            var buf = buffers[data.num]; // appropriate buffer (should be natural order anyway)
+            return buf;
+        } else if (isArray(data)) {
+            for (var i = 0; i < data.length; i++) {
+                data[i] = reconstructBinPackRecursive(data[i]);
+            }
+            return data;
+        } else if ('object' == typeof data) {
+            for (var key in data) {
+                data[key] = reconstructBinPackRecursive(data[key]);
+            }
+            return data;
+        }
+        return data;
+    }
+
+    packet.data = reconstructBinPackRecursive(packet.data);
+    packet.attachments = undefined; // no longer useful
+    return packet;
+ }
+
+/**
+ * Asynchronously removes Blobs or Files from data via
+ * FileReader's readAsArrayBuffer method. Used before encoding
+ * data as msgpack. Calls callback with the blobless data.
+ *
+ * @param {Object} data
+ * @param {Function} callback
+ * @api private
+ */
+
+exports.removeBlobs = function(data, callback) {
+
+  function removeBlobsRecursive(obj, curKey, containingObject) {
+    if (!obj) return obj;
+
+    // convert any blob
+    if ((global.Blob && obj instanceof Blob) ||
+        (global.File && obj instanceof File)) {
+      pendingBlobs++;
+
+      // async filereader
+      var fileReader = new FileReader();
+      fileReader.onload = function() { // this.result == arraybuffer
+        if (containingObject) {
+          containingObject[curKey] = this.result;
+        }
+        else {
+          bloblessData = this.result;
+        }
+
+        // if nothing pending its callback time
+        if(! --pendingBlobs) {
+          callback(bloblessData);
+        }
+      };
+
+      fileReader.readAsArrayBuffer(obj); // blob -> arraybuffer
+    }
+
+    if (isArray(obj)) { // handle array
+      for (var i = 0; i < obj.length; i++) {
+        removeBlobsRecursive(obj[i], i, obj);
+      }
+    } else if (obj && 'object' == typeof obj) { // and object
+      for (var key in obj) {
+        removeBlobsRecursive(obj[key], key, obj);
+      }
+    }
+  }
+
+  var pendingBlobs = 0;
+  var bloblessData = data;
+  removeBlobsRecursive(bloblessData);
+  if (!pendingBlobs) {
+    callback(bloblessData);
+  }
+}
+},{"__browserify_Buffer":8,"isarray":46}],42:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},Buffer=require("__browserify_Buffer").Buffer;
 /**
  * Module dependencies.
@@ -7193,9 +7236,9 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
 
 var debug = require('debug')('socket.io-parser');
 var json = require('json3');
-var msgpack = require('msgpack-js');
 var isArray = require('isarray');
-var base64 = require('base64-js');
+var Emitter = require('emitter');
+var binary = require('./binary');
 
 
 /**
@@ -7267,29 +7310,41 @@ exports.ERROR = 4;
  * @api public
  */
 
- exports.BINARY_EVENT = 5;
+exports.BINARY_EVENT = 5;
+
+exports.Encoder = Encoder
 
 /**
- * Encode a packet as a string or buffer, depending on packet type.
+ * A socket.io Encoder instance
  *
- * @param {Object} packet
- * @return {String | Buffer} encoded
+ * @api public
+ */
+function Encoder() {};
+
+/**
+ * Encode a packet as a single string if non-binary, or as a
+ * buffer sequence, depending on packet type.
+ *
+ * @param {Object} obj - packet object
+ * @param {Function} callback - function to handle encodings (likely engine.write)
+ * @return Calls callback with Array of encodings
  * @api public
  */
 
-exports.encode = function(obj, callback){
+Encoder.prototype.encode = function(obj, callback){
   debug('encoding packet %j', obj);
-  if (obj.type === exports.BINARY_EVENT) {
+
+  if (obj.type == exports.BINARY_EVENT) {
     encodeAsBinary(obj, callback);
   }
   else {
     var encoding = encodeAsString(obj);
-    callback(encoding);
+    callback([encoding]);
   }
 };
 
 /**
- * Encode packet as string (used for anything that is not a binary event).
+ * Encode packet as string.
  *
  * @param {Object} packet
  * @return {String} encoded
@@ -7302,6 +7357,12 @@ function encodeAsString(obj) {
 
   // first is type
   str += obj.type;
+
+  // attachments if we have them
+  if (exports.BINARY_EVENT == obj.type) {
+    str += obj.attachments;
+    str += '-';
+  }
 
   // if we have a namespace other than `/`
   // we append it followed by a comma `,`
@@ -7330,7 +7391,9 @@ function encodeAsString(obj) {
 }
 
 /**
- * Encode packet as Buffer (used for binary events).
+ * Encode packet as 'buffer sequence' by removing blobs, and
+ * deconstructing packet into object with placeholders and
+ * a list of buffers.
  *
  * @param {Object} packet
  * @return {Buffer} encoded
@@ -7338,93 +7401,68 @@ function encodeAsString(obj) {
  */
 
 function encodeAsBinary(obj, callback) {
-  if (global.Blob || global.File) {
-    removeBlobs(obj, callback);
-  } else {
-    var encoding = msgpack.encode(obj);
-    callback(encoding);
+
+  function writeEncoding(bloblessData) {
+    var deconstruction = binary.deconstructPacket(bloblessData);
+    var pack = encodeAsString(deconstruction.packet);
+    var buffers = deconstruction.buffers;
+
+    buffers.unshift(pack); // add packet info to beginning of data list
+    callback(buffers); // write all the buffers
   }
+
+  binary.removeBlobs(obj, writeEncoding);
 }
 
+exports.Decoder = Decoder
+
 /**
- * Asynchronously removes Blobs or Files from data via
- * FileReaders readAsArrayBuffer method. Used before encoding
- * data as msgpack. Calls callback with the blobless data.
+ * A socket.io Decoder instance
  *
- * @param {Object} data
- * @param {Function} callback
- * @api private
+ * @return {Object} decoder
+ * @api public
  */
 
-function removeBlobs(data, callback) {
-
-  function removeBlobsRecursive(obj, curKey, containingObject) {
-    if (!obj) return obj;
-
-    // convert any blob
-    if ((global.Blob && obj instanceof Blob) ||
-        (global.File && obj instanceof File)) {
-      pendingBlobs++;
-
-      // async filereader
-      var fileReader = new FileReader();
-      fileReader.onload = function() { // this.result == arraybuffer
-        if (containingObject) {
-          containingObject[curKey] = this.result;
-        }
-        else {
-          bloblessData = this.result;
-        }
-
-        // if nothing pending its callback time
-        if(! --pendingBlobs) {
-          callback(msgpack.encode(bloblessData));
-        }
-      };
-
-      fileReader.readAsArrayBuffer(obj); // blob -> arraybuffer
-    }
-
-    // handle array
-    if (isArray(obj)) {
-      for (var i = 0; i < obj.length; i++) {
-        removeBlobsRecursive(obj[i], i, obj);
-      }
-    } else if (obj && 'object' == typeof obj) { // and object
-      for (var key in obj) {
-        removeBlobsRecursive(obj[key], key, obj);
-      }
-    }
-  }
-
-  var pendingBlobs = 0;
-  var bloblessData = data;
-  removeBlobsRecursive(bloblessData);
-  if (!pendingBlobs) {
-    callback(msgpack.encode(bloblessData));
-  }
+function Decoder() {
+  this.reconstructor = null;
 }
 
 /**
- * Decodes a packet Object (msgpack or string) into
- * packet JSON.
+ * Mix in `Emitter` with Decoder.
+ */
+
+Emitter(Decoder.prototype);
+
+/**
+ * Decodes an ecoded packet string into packet JSON.
  *
- * @param {Object} obj
+ * @param {String} obj - encoded packet
  * @return {Object} packet
  * @api public
  */
 
-exports.decode = function(obj) {
+Decoder.prototype.add = function(obj) {
+  var packet;
   if ('string' == typeof obj) {
-    return decodeString(obj);
+    packet = decodeString(obj);
+    if (packet.type == exports.BINARY_EVENT) { // binary packet's json
+      this.reconstructor = new BinaryReconstructor(packet);
+    } else { // non-binary full packet
+      this.emit('decoded', packet);
+    }
   }
-  else if (Buffer.isBuffer(obj) ||
-          (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
-          (global.Blob && obj instanceof Blob)) {
-    return decodeBuffer(obj);
-  }
-  else if (obj.base64) {
-    return decodeBase64(obj.data);
+  else if ((global.Buffer && Buffer.isBuffer(obj)) ||
+            (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
+            obj.base64) { // raw binary data
+    if (!this.reconstructor) {
+      throw new Error('got binary data when not reconstructing a packet');
+    } else {
+      packet = this.reconstructor.takeBinaryData(obj);
+      if (packet) { // received final buffer
+        this.reconstructor = null;
+        this.emit('decoded', packet);
+      }
+    }
   }
   else {
     throw new Error('Unknown type: ' + obj);
@@ -7446,6 +7484,15 @@ function decodeString(str) {
   // look up type
   p.type = Number(str.charAt(0));
   if (null == exports.types[p.type]) return error();
+
+  // look up attachments if type binary
+  if (exports.BINARY_EVENT == p.type) {
+    p.attachments = '';
+    while (str.charAt(++i) != '-') {
+      p.attachments += str.charAt(i);
+    }
+    p.attachments = Number(p.attachments);
+  }
 
   // look up namespace (if any)
   if ('/' == str.charAt(i + 1)) {
@@ -7490,71 +7537,62 @@ function decodeString(str) {
 };
 
 /**
- * Decode binary data packet into JSON packet
+ * Deallocates a parser's resources
  *
- * @param {Buffer | ArrayBuffer | Blob} buf
- * @return {Object} packet
- * @api private
+ * @api public
  */
 
-function decodeBuffer(buf) {
-  return msgpack.decode(buf);
-};
+Decoder.prototype.destroy = function() {
+  if (this.reconstructor) {
+    this.reconstructor.finishedReconstruction();
+  }
+}
 
 /**
- * Decode base64 msgpack string into a packet
+ * A manager of a binary event's 'buffer sequence'. Should
+ * be constructed whenever a packet of type BINARY_EVENT is
+ * decoded.
  *
- * @param {String} b64
- * @return {Object} packet
+ * @param {Object} packet
+ * @return {BinaryReconstructor} initialized reconstructor
  * @api private
  */
 
-var NSP_SEP = 163;
-var EVENT_SEP = 146;
-var EVENT_STOP = 216;
+function BinaryReconstructor(packet) {
+  this.reconPack = packet;
+  this.buffers = [];
+}
 
-function decodeBase64(b64) {
-  var packet = {type: exports.BINARY_EVENT};
-  var bytes = base64.toByteArray(b64);
+/**
+ * Method to be called when binary data received from connection
+ * after a BINARY_EVENT packet.
+ *
+ * @param {Buffer | ArrayBuffer} binData - the raw binary data received
+ * @return {null | Object} returns null if more binary data is expected or
+ *   a reconstructed packet object if all buffers have been received.
+ * @api private
+ */
 
-  var nsp = '';
-  var eventName = '';
-  var data = [];
-  var currentThing;
-
-  for (var i = 0; i < bytes.length; i++) {
-    var b = bytes[i];
-    if (!currentThing) {
-      if (b == EVENT_SEP && !eventName) {
-        currentThing = 'ev';
-        i += 1; // skip the next thing which is another seperator
-      }
-    }
-    else if (currentThing == 'nsp') {
-      nsp += String.fromCharCode(b);
-    }
-    else if (currentThing == 'ev') {
-      if (b != EVENT_STOP) {
-        eventName += String.fromCharCode(b);
-      } else {
-        currentThing = 'data';
-        i += 2; // next two bytes are 0 and another seperator
-      }
-    }
-    else if (currentThing == 'data') {
-      if (b != NSP_SEP) {
-        data.push(b);
-      } else {
-        currentThing = 'nsp';
-        i += 4; // next three chars are 'nsp', then another seperator
-      }
-    }
+BinaryReconstructor.prototype.takeBinaryData = function(binData) {
+  this.buffers.push(binData);
+  if (this.buffers.length == this.reconPack.attachments) { // done with buffer list
+    var packet = binary.reconstructPacket(this.reconPack, this.buffers);
+    this.finishedReconstruction();
+    return packet;
   }
+  return null;
+}
 
-  packet.nsp = nsp;
-  packet.data = [eventName, {base64: true, data: base64.fromByteArray(data)}];
-  return packet;
-};
+/**
+ * Cleans up binary packet reconstruction variables.
+ *
+ * @api private
+ */
+
+BinaryReconstructor.prototype.finishedReconstruction = function() {
+  this.reconPack = null;
+  this.buffers = [];
+}
 
 function error(data){
   return {
@@ -7563,9 +7601,15 @@ function error(data){
   };
 }
 
-},{"__browserify_Buffer":10,"base64-js":8,"debug":11,"isarray":40,"json3":41,"msgpack-js":42}],40:[function(require,module,exports){
-module.exports=require(33)
-},{}],41:[function(require,module,exports){
+},{"./binary":41,"__browserify_Buffer":8,"debug":43,"emitter":44,"isarray":46,"json3":47}],43:[function(require,module,exports){
+module.exports=require(9)
+},{}],44:[function(require,module,exports){
+module.exports=require(10)
+},{"indexof":45}],45:[function(require,module,exports){
+module.exports=require(11)
+},{}],46:[function(require,module,exports){
+module.exports=require(38)
+},{}],47:[function(require,module,exports){
 /*! JSON v3.2.6 | http://bestiejs.github.io/json3 | Copyright 2012-2013, Kit Cambridge | http://kit.mit-license.org */
 ;(function (window) {
   // Convenience aliases.
@@ -8428,1381 +8472,7 @@ module.exports=require(33)
   }
 }(this));
 
-},{}],42:[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};var msgpack = require('msgpack-js-browser');
-
-if (!global.DataView) {
-  global.DataView = require('jdataview');
-}
-
-module.exports = msgpack;
-},{"jdataview":43,"msgpack-js-browser":44}],43:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;//
-// jDataView by Vjeux <vjeuxx@gmail.com> - Jan 2010
-// Continued by RReverser <me@rreverser.com> - Feb 2013
-//
-// A unique way to work with a binary file in the browser
-// http://github.com/jDataView/jDataView
-// http://jDataView.github.io/
-
-(function (global) {
-
-'use strict';
-
-var compatibility = {
-	// NodeJS Buffer in v0.5.5 and newer
-	NodeBuffer: 'Buffer' in global && 'readInt16LE' in Buffer.prototype,
-	DataView: 'DataView' in global && (
-		'getFloat64' in DataView.prototype ||            // Chrome
-		'getFloat64' in new DataView(new ArrayBuffer(1)) // Node
-	),
-	ArrayBuffer: 'ArrayBuffer' in global,
-	PixelData: 'CanvasPixelArray' in global && 'ImageData' in global && 'document' in global
-};
-
-// we don't want to bother with old Buffer implementation
-if (compatibility.NodeBuffer) {
-	(function (buffer) {
-		try {
-			buffer.writeFloatLE(Infinity, 0);
-		} catch (e) {
-			compatibility.NodeBuffer = false;
-		}
-	})(new Buffer(4));
-}
-
-if (compatibility.PixelData) {
-	var createPixelData = function (byteLength, buffer) {
-		var data = createPixelData.context2d.createImageData((byteLength + 3) / 4, 1).data;
-		data.byteLength = byteLength;
-		if (buffer !== undefined) {
-			for (var i = 0; i < byteLength; i++) {
-				data[i] = buffer[i];
-			}
-		}
-		return data;
-	};
-	createPixelData.context2d = document.createElement('canvas').getContext('2d');
-}
-
-var dataTypes = {
-	'Int8': 1,
-	'Int16': 2,
-	'Int32': 4,
-	'Uint8': 1,
-	'Uint16': 2,
-	'Uint32': 4,
-	'Float32': 4,
-	'Float64': 8
-};
-
-var nodeNaming = {
-	'Int8': 'Int8',
-	'Int16': 'Int16',
-	'Int32': 'Int32',
-	'Uint8': 'UInt8',
-	'Uint16': 'UInt16',
-	'Uint32': 'UInt32',
-	'Float32': 'Float',
-	'Float64': 'Double'
-};
-
-function arrayFrom(arrayLike, forceCopy) {
-	return (!forceCopy && (arrayLike instanceof Array)) ? arrayLike : Array.prototype.slice.call(arrayLike);
-}
-
-function defined(value, defaultValue) {
-	return value !== undefined ? value : defaultValue;
-}
-
-function jDataView(buffer, byteOffset, byteLength, littleEndian) {
-	/* jshint validthis:true */
-
-	if (buffer instanceof jDataView) {
-		var result = buffer.slice(byteOffset, byteOffset + byteLength);
-		result._littleEndian = defined(littleEndian, result._littleEndian);
-		return result;
-	}
-
-	if (!(this instanceof jDataView)) {
-		return new jDataView(buffer, byteOffset, byteLength, littleEndian);
-	}
-
-	this.buffer = buffer = jDataView.wrapBuffer(buffer);
-
-	// Check parameters and existing functionnalities
-	this._isArrayBuffer = compatibility.ArrayBuffer && buffer instanceof ArrayBuffer;
-	this._isPixelData = compatibility.PixelData && buffer instanceof CanvasPixelArray;
-	this._isDataView = compatibility.DataView && this._isArrayBuffer;
-	this._isNodeBuffer = compatibility.NodeBuffer && buffer instanceof Buffer;
-
-	// Handle Type Errors
-	if (!this._isNodeBuffer && !this._isArrayBuffer && !this._isPixelData && !(buffer instanceof Array)) {
-		throw new TypeError('jDataView buffer has an incompatible type');
-	}
-
-	// Default Values
-	this._littleEndian = !!littleEndian;
-
-	var bufferLength = 'byteLength' in buffer ? buffer.byteLength : buffer.length;
-	this.byteOffset = byteOffset = defined(byteOffset, 0);
-	this.byteLength = byteLength = defined(byteLength, bufferLength - byteOffset);
-
-	if (!this._isDataView) {
-		this._checkBounds(byteOffset, byteLength, bufferLength);
-	} else {
-		this._view = new DataView(buffer, byteOffset, byteLength);
-	}
-
-	// Create uniform methods (action wrappers) for the following data types
-
-	this._engineAction =
-		this._isDataView
-			? this._dataViewAction
-		: this._isNodeBuffer
-			? this._nodeBufferAction
-		: this._isArrayBuffer
-			? this._arrayBufferAction
-		: this._arrayAction;
-}
-
-function getCharCodes(string) {
-	if (compatibility.NodeBuffer) {
-		return new Buffer(string, 'binary');
-	}
-
-	var Type = compatibility.ArrayBuffer ? Uint8Array : Array,
-		codes = new Type(string.length);
-
-	for (var i = 0, length = string.length; i < length; i++) {
-		codes[i] = string.charCodeAt(i) & 0xff;
-	}
-	return codes;
-}
-
-// mostly internal function for wrapping any supported input (String or Array-like) to best suitable buffer format
-jDataView.wrapBuffer = function (buffer) {
-	switch (typeof buffer) {
-		case 'number':
-			if (compatibility.NodeBuffer) {
-				buffer = new Buffer(buffer);
-				buffer.fill(0);
-			} else
-			if (compatibility.ArrayBuffer) {
-				buffer = new Uint8Array(buffer).buffer;
-			} else
-			if (compatibility.PixelData) {
-				buffer = createPixelData(buffer);
-			} else {
-				buffer = new Array(buffer);
-				for (var i = 0; i < buffer.length; i++) {
-					buffer[i] = 0;
-				}
-			}
-			return buffer;
-
-		case 'string':
-			buffer = getCharCodes(buffer);
-			/* falls through */
-		default:
-			if ('length' in buffer && !((compatibility.NodeBuffer && buffer instanceof Buffer) || (compatibility.ArrayBuffer && buffer instanceof ArrayBuffer) || (compatibility.PixelData && buffer instanceof CanvasPixelArray))) {
-				if (compatibility.NodeBuffer) {
-					buffer = new Buffer(buffer);
-				} else
-				if (compatibility.ArrayBuffer) {
-					if (!(buffer instanceof ArrayBuffer)) {
-						buffer = new Uint8Array(buffer).buffer;
-						// bug in Node.js <= 0.8:
-						if (!(buffer instanceof ArrayBuffer)) {
-							buffer = new Uint8Array(arrayFrom(buffer, true)).buffer;
-						}
-					}
-				} else
-				if (compatibility.PixelData) {
-					buffer = createPixelData(buffer.length, buffer);
-				} else {
-					buffer = arrayFrom(buffer);
-				}
-			}
-			return buffer;
-	}
-};
-
-function pow2(n) {
-	return (n >= 0 && n < 31) ? (1 << n) : (pow2[n] || (pow2[n] = Math.pow(2, n)));
-}
-
-// left for backward compatibility
-jDataView.createBuffer = function () {
-	return jDataView.wrapBuffer(arguments);
-};
-
-function Uint64(lo, hi) {
-	this.lo = lo;
-	this.hi = hi;
-}
-
-jDataView.Uint64 = Uint64;
-
-Uint64.prototype = {
-	valueOf: function () {
-		return this.lo + pow2(32) * this.hi;
-	},
-
-	toString: function () {
-		return Number.prototype.toString.apply(this.valueOf(), arguments);
-	}
-};
-
-Uint64.fromNumber = function (number) {
-	var hi = Math.floor(number / pow2(32)),
-		lo = number - hi * pow2(32);
-
-	return new Uint64(lo, hi);
-};
-
-function Int64(lo, hi) {
-	Uint64.apply(this, arguments);
-}
-
-jDataView.Int64 = Int64;
-
-Int64.prototype = 'create' in Object ? Object.create(Uint64.prototype) : new Uint64();
-
-Int64.prototype.valueOf = function () {
-	if (this.hi < pow2(31)) {
-		return Uint64.prototype.valueOf.apply(this, arguments);
-	}
-	return -((pow2(32) - this.lo) + pow2(32) * (pow2(32) - 1 - this.hi));
-};
-
-Int64.fromNumber = function (number) {
-	var lo, hi;
-	if (number >= 0) {
-		var unsigned = Uint64.fromNumber(number);
-		lo = unsigned.lo;
-		hi = unsigned.hi;
-	} else {
-		hi = Math.floor(number / pow2(32));
-		lo = number - hi * pow2(32);
-		hi += pow2(32);
-	}
-	return new Int64(lo, hi);
-};
-
-jDataView.prototype = {
-	_offset: 0,
-	_bitOffset: 0,
-
-	compatibility: compatibility,
-
-	_checkBounds: function (byteOffset, byteLength, maxLength) {
-		// Do additional checks to simulate DataView
-		if (typeof byteOffset !== 'number') {
-			throw new TypeError('Offset is not a number.');
-		}
-		if (typeof byteLength !== 'number') {
-			throw new TypeError('Size is not a number.');
-		}
-		if (byteLength < 0) {
-			throw new RangeError('Length is negative.');
-		}
-		if (byteOffset < 0 || byteOffset + byteLength > defined(maxLength, this.byteLength)) {
-			throw new RangeError('Offsets are out of bounds.');
-		}
-	},
-
-	_action: function (type, isReadAction, byteOffset, littleEndian, value) {
-		return this._engineAction(
-			type,
-			isReadAction,
-			defined(byteOffset, this._offset),
-			defined(littleEndian, this._littleEndian),
-			value
-		);
-	},
-
-	_dataViewAction: function (type, isReadAction, byteOffset, littleEndian, value) {
-		// Move the internal offset forward
-		this._offset = byteOffset + dataTypes[type];
-		return isReadAction ? this._view['get' + type](byteOffset, littleEndian) : this._view['set' + type](byteOffset, value, littleEndian);
-	},
-
-	_nodeBufferAction: function (type, isReadAction, byteOffset, littleEndian, value) {
-		// Move the internal offset forward
-		this._offset = byteOffset + dataTypes[type];
-		var nodeName = nodeNaming[type] + ((type === 'Int8' || type === 'Uint8') ? '' : littleEndian ? 'LE' : 'BE');
-		byteOffset += this.byteOffset;
-		return isReadAction ? this.buffer['read' + nodeName](byteOffset) : this.buffer['write' + nodeName](value, byteOffset);
-	},
-
-	_arrayBufferAction: function (type, isReadAction, byteOffset, littleEndian, value) {
-		var size = dataTypes[type], TypedArray = global[type + 'Array'], typedArray;
-
-		littleEndian = defined(littleEndian, this._littleEndian);
-
-		// ArrayBuffer: we use a typed array of size 1 from original buffer if alignment is good and from slice when it's not
-		if (size === 1 || ((this.byteOffset + byteOffset) % size === 0 && littleEndian)) {
-			typedArray = new TypedArray(this.buffer, this.byteOffset + byteOffset, 1);
-			this._offset = byteOffset + size;
-			return isReadAction ? typedArray[0] : (typedArray[0] = value);
-		} else {
-			var bytes = new Uint8Array(isReadAction ? this.getBytes(size, byteOffset, littleEndian, true) : size);
-			typedArray = new TypedArray(bytes.buffer, 0, 1);
-
-			if (isReadAction) {
-				return typedArray[0];
-			} else {
-				typedArray[0] = value;
-				this._setBytes(byteOffset, bytes, littleEndian);
-			}
-		}
-	},
-
-	_arrayAction: function (type, isReadAction, byteOffset, littleEndian, value) {
-		return isReadAction ? this['_get' + type](byteOffset, littleEndian) : this['_set' + type](byteOffset, value, littleEndian);
-	},
-
-	// Helpers
-
-	_getBytes: function (length, byteOffset, littleEndian) {
-		littleEndian = defined(littleEndian, this._littleEndian);
-		byteOffset = defined(byteOffset, this._offset);
-		length = defined(length, this.byteLength - byteOffset);
-
-		this._checkBounds(byteOffset, length);
-
-		byteOffset += this.byteOffset;
-
-		this._offset = byteOffset - this.byteOffset + length;
-
-		var result = this._isArrayBuffer
-					 ? new Uint8Array(this.buffer, byteOffset, length)
-					 : (this.buffer.slice || Array.prototype.slice).call(this.buffer, byteOffset, byteOffset + length);
-
-		return littleEndian || length <= 1 ? result : arrayFrom(result).reverse();
-	},
-
-	// wrapper for external calls (do not return inner buffer directly to prevent it's modifying)
-	getBytes: function (length, byteOffset, littleEndian, toArray) {
-		var result = this._getBytes(length, byteOffset, defined(littleEndian, true));
-		return toArray ? arrayFrom(result) : result;
-	},
-
-	_setBytes: function (byteOffset, bytes, littleEndian) {
-		var length = bytes.length;
-
-		// needed for Opera
-		if (length === 0) {
-			return;
-		}
-
-		littleEndian = defined(littleEndian, this._littleEndian);
-		byteOffset = defined(byteOffset, this._offset);
-
-		this._checkBounds(byteOffset, length);
-
-		if (!littleEndian && length > 1) {
-			bytes = arrayFrom(bytes, true).reverse();
-		}
-
-		byteOffset += this.byteOffset;
-
-		if (this._isArrayBuffer) {
-			new Uint8Array(this.buffer, byteOffset, length).set(bytes);
-		}
-		else {
-			if (this._isNodeBuffer) {
-				new Buffer(bytes).copy(this.buffer, byteOffset);
-			} else {
-				for (var i = 0; i < length; i++) {
-					this.buffer[byteOffset + i] = bytes[i];
-				}
-			}
-		}
-
-		this._offset = byteOffset - this.byteOffset + length;
-	},
-
-	setBytes: function (byteOffset, bytes, littleEndian) {
-		this._setBytes(byteOffset, bytes, defined(littleEndian, true));
-	},
-
-	getString: function (byteLength, byteOffset, encoding) {
-		if (this._isNodeBuffer) {
-			byteOffset = defined(byteOffset, this._offset);
-			byteLength = defined(byteLength, this.byteLength - byteOffset);
-
-			this._checkBounds(byteOffset, byteLength);
-
-			this._offset = byteOffset + byteLength;
-			return this.buffer.toString(encoding || 'binary', this.byteOffset + byteOffset, this.byteOffset + this._offset);
-		}
-		var bytes = this._getBytes(byteLength, byteOffset, true), string = '';
-		byteLength = bytes.length;
-		for (var i = 0; i < byteLength; i++) {
-			string += String.fromCharCode(bytes[i]);
-		}
-		if (encoding === 'utf8') {
-			string = decodeURIComponent(escape(string));
-		}
-		return string;
-	},
-
-	setString: function (byteOffset, subString, encoding) {
-		if (this._isNodeBuffer) {
-			byteOffset = defined(byteOffset, this._offset);
-			this._checkBounds(byteOffset, subString.length);
-			this._offset = byteOffset + this.buffer.write(subString, this.byteOffset + byteOffset, encoding || 'binary');
-			return;
-		}
-		if (encoding === 'utf8') {
-			subString = unescape(encodeURIComponent(subString));
-		}
-		this._setBytes(byteOffset, getCharCodes(subString), true);
-	},
-
-	getChar: function (byteOffset) {
-		return this.getString(1, byteOffset);
-	},
-
-	setChar: function (byteOffset, character) {
-		this.setString(byteOffset, character);
-	},
-
-	tell: function () {
-		return this._offset;
-	},
-
-	seek: function (byteOffset) {
-		this._checkBounds(byteOffset, 0);
-		/* jshint boss: true */
-		return this._offset = byteOffset;
-	},
-
-	skip: function (byteLength) {
-		return this.seek(this._offset + byteLength);
-	},
-
-	slice: function (start, end, forceCopy) {
-		function normalizeOffset(offset, byteLength) {
-			return offset < 0 ? offset + byteLength : offset;
-		}
-
-		start = normalizeOffset(start, this.byteLength);
-		end = normalizeOffset(defined(end, this.byteLength), this.byteLength);
-
-		return forceCopy
-			   ? new jDataView(this.getBytes(end - start, start, true, true), undefined, undefined, this._littleEndian)
-			   : new jDataView(this.buffer, this.byteOffset + start, end - start, this._littleEndian);
-	},
-
-	alignBy: function (byteCount) {
-		this._bitOffset = 0;
-		if (defined(byteCount, 1) !== 1) {
-			return this.skip(byteCount - (this._offset % byteCount || byteCount));
-		} else {
-			return this._offset;
-		}
-	},
-
-	// Compatibility functions
-
-	_getFloat64: function (byteOffset, littleEndian) {
-		var b = this._getBytes(8, byteOffset, littleEndian),
-
-			sign = 1 - (2 * (b[7] >> 7)),
-			exponent = ((((b[7] << 1) & 0xff) << 3) | (b[6] >> 4)) - ((1 << 10) - 1),
-
-		// Binary operators such as | and << operate on 32 bit values, using + and Math.pow(2) instead
-			mantissa = ((b[6] & 0x0f) * pow2(48)) + (b[5] * pow2(40)) + (b[4] * pow2(32)) +
-						(b[3] * pow2(24)) + (b[2] * pow2(16)) + (b[1] * pow2(8)) + b[0];
-
-		if (exponent === 1024) {
-			if (mantissa !== 0) {
-				return NaN;
-			} else {
-				return sign * Infinity;
-			}
-		}
-
-		if (exponent === -1023) { // Denormalized
-			return sign * mantissa * pow2(-1022 - 52);
-		}
-
-		return sign * (1 + mantissa * pow2(-52)) * pow2(exponent);
-	},
-
-	_getFloat32: function (byteOffset, littleEndian) {
-		var b = this._getBytes(4, byteOffset, littleEndian),
-
-			sign = 1 - (2 * (b[3] >> 7)),
-			exponent = (((b[3] << 1) & 0xff) | (b[2] >> 7)) - 127,
-			mantissa = ((b[2] & 0x7f) << 16) | (b[1] << 8) | b[0];
-
-		if (exponent === 128) {
-			if (mantissa !== 0) {
-				return NaN;
-			} else {
-				return sign * Infinity;
-			}
-		}
-
-		if (exponent === -127) { // Denormalized
-			return sign * mantissa * pow2(-126 - 23);
-		}
-
-		return sign * (1 + mantissa * pow2(-23)) * pow2(exponent);
-	},
-
-	_get64: function (Type, byteOffset, littleEndian) {
-		littleEndian = defined(littleEndian, this._littleEndian);
-		byteOffset = defined(byteOffset, this._offset);
-
-		var parts = littleEndian ? [0, 4] : [4, 0];
-
-		for (var i = 0; i < 2; i++) {
-			parts[i] = this.getUint32(byteOffset + parts[i], littleEndian);
-		}
-
-		this._offset = byteOffset + 8;
-
-		return new Type(parts[0], parts[1]);
-	},
-
-	getInt64: function (byteOffset, littleEndian) {
-		return this._get64(Int64, byteOffset, littleEndian);
-	},
-
-	getUint64: function (byteOffset, littleEndian) {
-		return this._get64(Uint64, byteOffset, littleEndian);
-	},
-
-	_getInt32: function (byteOffset, littleEndian) {
-		var b = this._getBytes(4, byteOffset, littleEndian);
-		return (b[3] << 24) | (b[2] << 16) | (b[1] << 8) | b[0];
-	},
-
-	_getUint32: function (byteOffset, littleEndian) {
-		return this._getInt32(byteOffset, littleEndian) >>> 0;
-	},
-
-	_getInt16: function (byteOffset, littleEndian) {
-		return (this._getUint16(byteOffset, littleEndian) << 16) >> 16;
-	},
-
-	_getUint16: function (byteOffset, littleEndian) {
-		var b = this._getBytes(2, byteOffset, littleEndian);
-		return (b[1] << 8) | b[0];
-	},
-
-	_getInt8: function (byteOffset) {
-		return (this._getUint8(byteOffset) << 24) >> 24;
-	},
-
-	_getUint8: function (byteOffset) {
-		return this._getBytes(1, byteOffset)[0];
-	},
-
-	_getBitRangeData: function (bitLength, byteOffset) {
-		var startBit = (defined(byteOffset, this._offset) << 3) + this._bitOffset,
-			endBit = startBit + bitLength,
-			start = startBit >>> 3,
-			end = (endBit + 7) >>> 3,
-			b = this._getBytes(end - start, start, true),
-			wideValue = 0;
-
-		/* jshint boss: true */
-		if (this._bitOffset = endBit & 7) {
-			this._bitOffset -= 8;
-		}
-
-		for (var i = 0, length = b.length; i < length; i++) {
-			wideValue = (wideValue << 8) | b[i];
-		}
-
-		return {
-			start: start,
-			bytes: b,
-			wideValue: wideValue
-		};
-	},
-
-	getSigned: function (bitLength, byteOffset) {
-		var shift = 32 - bitLength;
-		return (this.getUnsigned(bitLength, byteOffset) << shift) >> shift;
-	},
-
-	getUnsigned: function (bitLength, byteOffset) {
-		var value = this._getBitRangeData(bitLength, byteOffset).wideValue >>> -this._bitOffset;
-		return bitLength < 32 ? (value & ~(-1 << bitLength)) : value;
-	},
-
-	_setBinaryFloat: function (byteOffset, value, mantSize, expSize, littleEndian) {
-		var signBit = value < 0 ? 1 : 0,
-			exponent,
-			mantissa,
-			eMax = ~(-1 << (expSize - 1)),
-			eMin = 1 - eMax;
-
-		if (value < 0) {
-			value = -value;
-		}
-
-		if (value === 0) {
-			exponent = 0;
-			mantissa = 0;
-		} else if (isNaN(value)) {
-			exponent = 2 * eMax + 1;
-			mantissa = 1;
-		} else if (value === Infinity) {
-			exponent = 2 * eMax + 1;
-			mantissa = 0;
-		} else {
-			exponent = Math.floor(Math.log(value) / Math.LN2);
-			if (exponent >= eMin && exponent <= eMax) {
-				mantissa = Math.floor((value * pow2(-exponent) - 1) * pow2(mantSize));
-				exponent += eMax;
-			} else {
-				mantissa = Math.floor(value / pow2(eMin - mantSize));
-				exponent = 0;
-			}
-		}
-
-		var b = [];
-		while (mantSize >= 8) {
-			b.push(mantissa % 256);
-			mantissa = Math.floor(mantissa / 256);
-			mantSize -= 8;
-		}
-		exponent = (exponent << mantSize) | mantissa;
-		expSize += mantSize;
-		while (expSize >= 8) {
-			b.push(exponent & 0xff);
-			exponent >>>= 8;
-			expSize -= 8;
-		}
-		b.push((signBit << expSize) | exponent);
-
-		this._setBytes(byteOffset, b, littleEndian);
-	},
-
-	_setFloat32: function (byteOffset, value, littleEndian) {
-		this._setBinaryFloat(byteOffset, value, 23, 8, littleEndian);
-	},
-
-	_setFloat64: function (byteOffset, value, littleEndian) {
-		this._setBinaryFloat(byteOffset, value, 52, 11, littleEndian);
-	},
-
-	_set64: function (Type, byteOffset, value, littleEndian) {
-		if (!(value instanceof Type)) {
-			value = Type.fromNumber(value);
-		}
-
-		littleEndian = defined(littleEndian, this._littleEndian);
-		byteOffset = defined(byteOffset, this._offset);
-
-		var parts = littleEndian ? {lo: 0, hi: 4} : {lo: 4, hi: 0};
-
-		for (var partName in parts) {
-			this.setUint32(byteOffset + parts[partName], value[partName], littleEndian);
-		}
-
-		this._offset = byteOffset + 8;
-	},
-
-	setInt64: function (byteOffset, value, littleEndian) {
-		this._set64(Int64, byteOffset, value, littleEndian);
-	},
-
-	setUint64: function (byteOffset, value, littleEndian) {
-		this._set64(Uint64, byteOffset, value, littleEndian);
-	},
-
-	_setUint32: function (byteOffset, value, littleEndian) {
-		this._setBytes(byteOffset, [
-			value & 0xff,
-			(value >>> 8) & 0xff,
-			(value >>> 16) & 0xff,
-			value >>> 24
-		], littleEndian);
-	},
-
-	_setUint16: function (byteOffset, value, littleEndian) {
-		this._setBytes(byteOffset, [
-			value & 0xff,
-			(value >>> 8) & 0xff
-		], littleEndian);
-	},
-
-	_setUint8: function (byteOffset, value) {
-		this._setBytes(byteOffset, [value & 0xff]);
-	},
-
-	setUnsigned: function (byteOffset, value, bitLength) {
-		var data = this._getBitRangeData(bitLength, byteOffset),
-			wideValue = data.wideValue,
-			b = data.bytes;
-
-		wideValue &= ~(~(-1 << bitLength) << -this._bitOffset); // clearing bit range before binary "or"
-		wideValue |= (bitLength < 32 ? (value & ~(-1 << bitLength)) : value) << -this._bitOffset; // setting bits
-
-		for (var i = b.length - 1; i >= 0; i--) {
-			b[i] = wideValue & 0xff;
-			wideValue >>>= 8;
-		}
-
-		this._setBytes(data.start, b, true);
-	}
-};
-
-var proto = jDataView.prototype;
-
-for (var type in dataTypes) {
-	(function (type) {
-		proto['get' + type] = function (byteOffset, littleEndian) {
-			return this._action(type, true, byteOffset, littleEndian);
-		};
-		proto['set' + type] = function (byteOffset, value, littleEndian) {
-			this._action(type, false, byteOffset, littleEndian, value);
-		};
-	})(type);
-}
-
-proto._setInt32 = proto._setUint32;
-proto._setInt16 = proto._setUint16;
-proto._setInt8 = proto._setUint8;
-proto.setSigned = proto.setUnsigned;
-
-for (var method in proto) {
-	if (method.slice(0, 3) === 'set') {
-		(function (type) {
-			proto['write' + type] = function () {
-				Array.prototype.unshift.call(arguments, undefined);
-				this['set' + type].apply(this, arguments);
-			};
-		})(method.slice(3));
-	}
-}
-
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-	module.exports = jDataView;
-} else
-if (typeof define === 'function' && define.amd) {
-	define([], function () { return jDataView });
-} else {
-	var oldGlobal = global.jDataView;
-	(global.jDataView = jDataView).noConflict = function () {
-		global.jDataView = oldGlobal;
-		return this;
-	};
-}
-
-})((function () { /* jshint strict: false */ return this })());
-},{"__browserify_Buffer":10}],44:[function(require,module,exports){
-( // Module boilerplate to support browser globals and browserify and AMD.
-  typeof define === "function" ? function (m) { define("msgpack-js", m); } :
-  typeof exports === "object" ? function (m) { module.exports = m(); } :
-  function(m){ this.msgpack = m(); }
-)(function () {
-"use strict";
-
-var exports = {};
-
-exports.inspect = inspect;
-function inspect(buffer) {
-  if (buffer === undefined) return "undefined";
-  var view;
-  var type;
-  if (buffer instanceof ArrayBuffer) {
-    type = "ArrayBuffer";
-    view = new DataView(buffer);
-  }
-  else if (buffer instanceof DataView) {
-    type = "DataView";
-    view = buffer;
-  }
-  if (!view) return JSON.stringify(buffer);
-  var bytes = [];
-  for (var i = 0; i < buffer.byteLength; i++) {
-    if (i > 20) {
-      bytes.push("...");
-      break;
-    }
-    var byte = view.getUint8(i).toString(16);
-    if (byte.length === 1) byte = "0" + byte;
-    bytes.push(byte);
-  }
-  return "<" + type + " " + bytes.join(" ") + ">";
-}
-
-// Encode string as utf8 into dataview at offset
-exports.utf8Write = utf8Write;
-function utf8Write(view, offset, string) {
-  var byteLength = view.byteLength;
-  for(var i = 0, l = string.length; i < l; i++) {
-    var codePoint = string.charCodeAt(i);
-
-    // One byte of UTF-8
-    if (codePoint < 0x80) {
-      view.setUint8(offset++, codePoint >>> 0 & 0x7f | 0x00);
-      continue;
-    }
-
-    // Two bytes of UTF-8
-    if (codePoint < 0x800) {
-      view.setUint8(offset++, codePoint >>> 6 & 0x1f | 0xc0);
-      view.setUint8(offset++, codePoint >>> 0 & 0x3f | 0x80);
-      continue;
-    }
-
-    // Three bytes of UTF-8.  
-    if (codePoint < 0x10000) {
-      view.setUint8(offset++, codePoint >>> 12 & 0x0f | 0xe0);
-      view.setUint8(offset++, codePoint >>> 6  & 0x3f | 0x80);
-      view.setUint8(offset++, codePoint >>> 0  & 0x3f | 0x80);
-      continue;
-    }
-
-    // Four bytes of UTF-8
-    if (codePoint < 0x110000) {
-      view.setUint8(offset++, codePoint >>> 18 & 0x07 | 0xf0);
-      view.setUint8(offset++, codePoint >>> 12 & 0x3f | 0x80);
-      view.setUint8(offset++, codePoint >>> 6  & 0x3f | 0x80);
-      view.setUint8(offset++, codePoint >>> 0  & 0x3f | 0x80);
-      continue;
-    }
-    throw new Error("bad codepoint " + codePoint);
-  }
-}
-
-exports.utf8Read = utf8Read;
-function utf8Read(view, offset, length) {
-  var string = "";
-  for (var i = offset, end = offset + length; i < end; i++) {
-    var byte = view.getUint8(i);
-    // One byte character
-    if ((byte & 0x80) === 0x00) {
-      string += String.fromCharCode(byte);
-      continue;
-    }
-    // Two byte character
-    if ((byte & 0xe0) === 0xc0) {
-      string += String.fromCharCode(
-        ((byte & 0x0f) << 6) | 
-        (view.getUint8(++i) & 0x3f)
-      );
-      continue;
-    }
-    // Three byte character
-    if ((byte & 0xf0) === 0xe0) {
-      string += String.fromCharCode(
-        ((byte & 0x0f) << 12) |
-        ((view.getUint8(++i) & 0x3f) << 6) |
-        ((view.getUint8(++i) & 0x3f) << 0)
-      );
-      continue;
-    }
-    // Four byte character
-    if ((byte & 0xf8) === 0xf0) {
-      string += String.fromCharCode(
-        ((byte & 0x07) << 18) |
-        ((view.getUint8(++i) & 0x3f) << 12) |
-        ((view.getUint8(++i) & 0x3f) << 6) |
-        ((view.getUint8(++i) & 0x3f) << 0)
-      );
-      continue;
-    }
-    throw new Error("Invalid byte " + byte.toString(16));
-  }
-  return string;
-}
-
-exports.utf8ByteCount = utf8ByteCount;
-function utf8ByteCount(string) {
-  var count = 0;
-  for(var i = 0, l = string.length; i < l; i++) {
-    var codePoint = string.charCodeAt(i);
-    if (codePoint < 0x80) {
-      count += 1;
-      continue;
-    }
-    if (codePoint < 0x800) {
-      count += 2;
-      continue;
-    }
-    if (codePoint < 0x10000) {
-      count += 3;
-      continue;
-    }
-    if (codePoint < 0x110000) {
-      count += 4;
-      continue;
-    }
-    throw new Error("bad codepoint " + codePoint);
-  }
-  return count;
-}
-
-exports.encode = function (value) {
-  var buffer = new ArrayBuffer(sizeof(value));
-  var view = new DataView(buffer);
-  encode(value, view, 0);
-  return buffer;
-}
-
-exports.decode = decode;
-
-// http://wiki.msgpack.org/display/MSGPACK/Format+specification
-// I've extended the protocol to have two new types that were previously reserved.
-//   buffer 16  11011000  0xd8
-//   buffer 32  11011001  0xd9
-// These work just like raw16 and raw32 except they are node buffers instead of strings.
-//
-// Also I've added a type for `undefined`
-//   undefined  11000100  0xc4
-
-function Decoder(view, offset) {
-  this.offset = offset || 0;
-  this.view = view;
-}
-Decoder.prototype.map = function (length) {
-  var value = {};
-  for (var i = 0; i < length; i++) {
-    var key = this.parse();
-    value[key] = this.parse();
-  }
-  return value;
-};
-Decoder.prototype.buf = function (length) {
-  var value = new ArrayBuffer(length);
-  (new Uint8Array(value)).set(new Uint8Array(this.view.buffer, this.offset, length), 0);
-  this.offset += length;
-  return value;
-};
-Decoder.prototype.raw = function (length) {
-  var value = utf8Read(this.view, this.offset, length);
-  this.offset += length;
-  return value;
-};
-Decoder.prototype.array = function (length) {
-  var value = new Array(length);
-  for (var i = 0; i < length; i++) {
-    value[i] = this.parse();
-  }
-  return value;
-};
-Decoder.prototype.parse = function () {
-  var type = this.view.getUint8(this.offset);
-  var value, length;
-  // FixRaw
-  if ((type & 0xe0) === 0xa0) {
-    length = type & 0x1f;
-    this.offset++;
-    return this.raw(length);
-  }
-  // FixMap
-  if ((type & 0xf0) === 0x80) {
-    length = type & 0x0f;
-    this.offset++;
-    return this.map(length);
-  }
-  // FixArray
-  if ((type & 0xf0) === 0x90) {
-    length = type & 0x0f;
-    this.offset++;
-    return this.array(length);
-  }
-  // Positive FixNum
-  if ((type & 0x80) === 0x00) {
-    this.offset++;
-    return type;
-  }
-  // Negative Fixnum
-  if ((type & 0xe0) === 0xe0) {
-    value = this.view.getInt8(this.offset);
-    this.offset++;
-    return value;
-  }
-  switch (type) {
-  // raw 16
-  case 0xda:
-    length = this.view.getUint16(this.offset + 1);
-    this.offset += 3;
-    return this.raw(length);
-  // raw 32
-  case 0xdb:
-    length = this.view.getUint32(this.offset + 1);
-    this.offset += 5;
-    return this.raw(length);
-  // nil
-  case 0xc0:
-    this.offset++;
-    return null;
-  // false
-  case 0xc2:
-    this.offset++;
-    return false;
-  // true
-  case 0xc3:
-    this.offset++;
-    return true;
-  // undefined
-  case 0xc4:
-    this.offset++;
-    return undefined;
-  // uint8
-  case 0xcc:
-    value = this.view.getUint8(this.offset + 1);
-    this.offset += 2;
-    return value;
-  // uint 16
-  case 0xcd:
-    value = this.view.getUint16(this.offset + 1);
-    this.offset += 3;
-    return value;
-  // uint 32
-  case 0xce:
-    value = this.view.getUint32(this.offset + 1);
-    this.offset += 5;
-    return value;
-  // int 8
-  case 0xd0:
-    value = this.view.getInt8(this.offset + 1);
-    this.offset += 2;
-    return value;
-  // int 16
-  case 0xd1:
-    value = this.view.getInt16(this.offset + 1);
-    this.offset += 3;
-    return value;
-  // int 32
-  case 0xd2:
-    value = this.view.getInt32(this.offset + 1);
-    this.offset += 5;
-    return value;
-  // map 16
-  case 0xde:
-    length = this.view.getUint16(this.offset + 1);
-    this.offset += 3;
-    return this.map(length);
-  // map 32
-  case 0xdf:
-    length = this.view.getUint32(this.offset + 1);
-    this.offset += 5;
-    return this.map(length);
-  // array 16
-  case 0xdc:
-    length = this.view.getUint16(this.offset + 1);
-    this.offset += 3;
-    return this.array(length);
-  // array 32
-  case 0xdd:
-    length = this.view.getUint32(this.offset + 1);
-    this.offset += 5;
-    return this.array(length);
-  // buffer 16
-  case 0xd8:
-    length = this.view.getUint16(this.offset + 1);
-    this.offset += 3;
-    return this.buf(length);
-  // buffer 32
-  case 0xd9:
-    length = this.view.getUint32(this.offset + 1);
-    this.offset += 5;
-    return this.buf(length);
-  // float
-  case 0xca:
-    value = this.view.getFloat32(this.offset + 1);
-    this.offset += 5;
-    return value;
-  // double
-  case 0xcb:
-    value = this.view.getFloat64(this.offset + 1);
-    this.offset += 9;
-    return value;
-  }
-  throw new Error("Unknown type 0x" + type.toString(16));
-};
-function decode(buffer) {
-  var view = new DataView(buffer);
-  var decoder = new Decoder(view);
-  var value = decoder.parse();
-  if (decoder.offset !== buffer.byteLength) throw new Error((buffer.byteLength - decoder.offset) + " trailing bytes");
-  return value;
-}
-
-function encode(value, view, offset) {
-  var type = typeof value;
-
-  // Strings Bytes
-  if (type === "string") {
-    var length = utf8ByteCount(value);
-    // fix raw
-    if (length < 0x20) {
-      view.setUint8(offset, length | 0xa0);
-      utf8Write(view, offset + 1, value);
-      return 1 + length;
-    }
-    // raw 16
-    if (length < 0x10000) {
-      view.setUint8(offset, 0xda);
-      view.setUint16(offset + 1, length);
-      utf8Write(view, offset + 3, value);
-      return 3 + length;
-    }
-    // raw 32
-    if (length < 0x100000000) {
-      view.setUint8(offset, 0xdb);
-      view.setUint32(offset + 1, length);
-      utf8Write(view, offset + 5, value);
-      return 5 + length;
-    }
-  }
-
-  if (value instanceof ArrayBuffer) {
-    var length = value.byteLength;
-    // buffer 16
-    if (length < 0x10000) {
-      view.setUint8(offset, 0xd8);
-      view.setUint16(offset + 1, length);
-      (new Uint8Array(view.buffer)).set(new Uint8Array(value), offset + 3);
-      return 3 + length;
-    }
-    // buffer 32
-    if (length < 0x100000000) {
-      view.setUint8(offset, 0xd9);
-      view.setUint32(offset + 1, length);
-      (new Uint8Array(view.buffer)).set(new Uint8Array(value), offset + 5);
-      return 5 + length;
-    }
-  }
-  
-  if (type === "number") {
-    // Floating Point
-    if ((value << 0) !== value) {
-      view.setUint8(offset, 0xcb);
-      view.setFloat64(offset + 1, value);
-      return 9;
-    }
-
-    // Integers
-    if (value >=0) {
-      // positive fixnum
-      if (value < 0x80) {
-        view.setUint8(offset, value);
-        return 1;
-      }
-      // uint 8
-      if (value < 0x100) {
-        view.setUint8(offset, 0xcc);
-        view.setUint8(offset + 1, value);
-        return 2;
-      }
-      // uint 16
-      if (value < 0x10000) {
-        view.setUint8(offset, 0xcd);
-        view.setUint16(offset + 1, value);
-        return 3;
-      }
-      // uint 32
-      if (value < 0x100000000) {
-        view.setUint8(offset, 0xce);
-        view.setUint32(offset + 1, value);
-        return 5;
-      }
-      throw new Error("Number too big 0x" + value.toString(16));
-    }
-    // negative fixnum
-    if (value >= -0x20) {
-      view.setInt8(offset, value);
-      return 1;
-    }
-    // int 8
-    if (value >= -0x80) {
-      view.setUint8(offset, 0xd0);
-      view.setInt8(offset + 1, value);
-      return 2;
-    }
-    // int 16
-    if (value >= -0x8000) {
-      view.setUint8(offset, 0xd1);
-      view.setInt16(offset + 1, value);
-      return 3;
-    }
-    // int 32
-    if (value >= -0x80000000) {
-      view.setUint8(offset, 0xd2);
-      view.setInt32(offset + 1, value);
-      return 5;
-    }
-    throw new Error("Number too small -0x" + (-value).toString(16).substr(1));
-  }
-  
-  // undefined
-  if (type === "undefined") {
-    view.setUint8(offset, 0xc4);
-    return 1;
-  }
-  
-  // null
-  if (value === null) {
-    view.setUint8(offset, 0xc0);
-    return 1;
-  }
-
-  // Boolean
-  if (type === "boolean") {
-    view.setUint8(offset, value ? 0xc3 : 0xc2);
-    return 1;
-  }
-  
-  // Container Types
-  if (type === "object") {
-    var length, size = 0;
-    var isArray = Array.isArray(value);
-
-    if (isArray) {
-      length = value.length;
-    }
-    else {
-      var keys = Object.keys(value);
-      length = keys.length;
-    }
-
-    var size;
-    if (length < 0x10) {
-      view.setUint8(offset, length | (isArray ? 0x90 : 0x80));
-      size = 1;
-    }
-    else if (length < 0x10000) {
-      view.setUint8(offset, isArray ? 0xdc : 0xde);
-      view.setUint16(offset + 1, length);
-      size = 3;
-    }
-    else if (length < 0x100000000) {
-      view.setUint8(offset, isArray ? 0xdd : 0xdf);
-      view.setUint32(offset + 1, length);
-      size = 5;
-    }
-
-    if (isArray) {
-      for (var i = 0; i < length; i++) {
-        size += encode(value[i], view, offset + size);
-      }
-    }
-    else {
-      for (var i = 0; i < length; i++) {
-        var key = keys[i];
-        size += encode(key, view, offset + size);
-        size += encode(value[key], view, offset + size);
-      }
-    }
-    
-    return size;
-  }
-  throw new Error("Unknown type " + type);
-}
-
-function sizeof(value) {
-  var type = typeof value;
-
-  // Raw Bytes
-  if (type === "string") {
-    var length = utf8ByteCount(value);
-    if (length < 0x20) {
-      return 1 + length;
-    }
-    if (length < 0x10000) {
-      return 3 + length;
-    }
-    if (length < 0x100000000) {
-      return 5 + length;
-    }
-  }
-  
-  if (value instanceof ArrayBuffer) {
-    var length = value.byteLength;
-    if (length < 0x10000) {
-      return 3 + length;
-    }
-    if (length < 0x100000000) {
-      return 5 + length;
-    }
-  }
-  
-  if (type === "number") {
-    // Floating Point
-    // double
-    if (value << 0 !== value) return 9;
-
-    // Integers
-    if (value >=0) {
-      // positive fixnum
-      if (value < 0x80) return 1;
-      // uint 8
-      if (value < 0x100) return 2;
-      // uint 16
-      if (value < 0x10000) return 3;
-      // uint 32
-      if (value < 0x100000000) return 5;
-      // uint 64
-      if (value < 0x10000000000000000) return 9;
-      throw new Error("Number too big 0x" + value.toString(16));
-    }
-    // negative fixnum
-    if (value >= -0x20) return 1;
-    // int 8
-    if (value >= -0x80) return 2;
-    // int 16
-    if (value >= -0x8000) return 3;
-    // int 32
-    if (value >= -0x80000000) return 5;
-    // int 64
-    if (value >= -0x8000000000000000) return 9;
-    throw new Error("Number too small -0x" + value.toString(16).substr(1));
-  }
-  
-  // Boolean, null, undefined
-  if (type === "boolean" || type === "undefined" || value === null) return 1;
-  
-  // Container Types
-  if (type === "object") {
-    var length, size = 0;
-    if (Array.isArray(value)) {
-      length = value.length;
-      for (var i = 0; i < length; i++) {
-        size += sizeof(value[i]);
-      }
-    }
-    else {
-      var keys = Object.keys(value);
-      length = keys.length;
-      for (var i = 0; i < length; i++) {
-        var key = keys[i];
-        size += sizeof(key) + sizeof(value[key]);
-      }
-    }
-    if (length < 0x10) {
-      return 1 + size;
-    }
-    if (length < 0x10000) {
-      return 3 + size;
-    }
-    if (length < 0x100000000) {
-      return 5 + size;
-    }
-    throw new Error("Array or object too long 0x" + length.toString(16));
-  }
-  throw new Error("Unknown type " + type);
-}
-
-return exports;
-
-});
-
-},{}],45:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module.exports = toArray
 
 function toArray(list, index) {
