@@ -22,7 +22,7 @@ serve the file `socket.io.js` found at the root of this repository.
 </script>
 ```
 
-Socket.IO is compatible with [browserify](http://github.com/substack/browserify).
+Socket.IO is compatible with [browserify](http://browserify.org/).
 
 ### Node.JS (server-side usage)
 
