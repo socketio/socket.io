@@ -31,6 +31,19 @@ describe('connection', function() {
     });
   });
 
+  it('should connect to a namespace after connection established', function(done) {
+    var manager = io.Manager();
+    var socket = manager.socket('/');
+    socket.on('connect', function(){
+      var foo = manager.socket('/foo');
+      foo.on('connect', function(){
+        foo.close();
+        socket.close();
+        done();
+      });
+    });
+  });
+
 if (!global.Blob && !global.ArrayBuffer) {
   it('should get base64 data as a last resort', function(done) {
     socket.on('takebin', function(a) {
