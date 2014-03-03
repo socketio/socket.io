@@ -330,7 +330,7 @@ describe('socket.io', function(){
         sio.on('connection', function(s){
           fs.readFile(join(__dirname, 'support', 'doge.jpg'), function(err, data){
             if (err) return done(err);
-            buf = new Buffer('asdfasdf', 'utf8');
+            var buf = new Buffer('asdfasdf', 'utf8');
             s.emit('multiple', 1, data, '3', [4], buf, [data, 'swag', buf]);
           });
         });
@@ -347,7 +347,7 @@ describe('socket.io', function(){
             expect(Buffer.isBuffer(a)).to.be(true);
             done();
           });
-          buf = new Buffer('abcdefg', 'utf8');
+          var buf = new Buffer('abcdefg', 'utf8');
           socket.emit('buff', buf);
         });
       });
@@ -372,7 +372,7 @@ describe('socket.io', function(){
           });
           fs.readFile(join(__dirname, 'support', 'doge.jpg'), function(err, data){
             if (err) return done(err);
-            buf = new Buffer('asdfasdf', 'utf8');
+            var buf = new Buffer('asdfasdf', 'utf8');
             socket.emit('multiple', 1, data, '3', [4], buf, [data, 'swag', buf]);
           });
         });
