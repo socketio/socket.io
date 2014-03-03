@@ -106,6 +106,9 @@ Socket.IO is compatible with [browserify](http://browserify.org/).
       - `Object` error object
   - `reconnect_failed`
 
+The events above are also emitted on the individual sockets that
+reconnect that depend on this `Manager`.
+
 ### Manager#reconnection(v:Boolean):Manager
 
   Sets the `reconnection` option, or returns it if no parameters
