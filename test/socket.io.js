@@ -537,6 +537,39 @@ describe('socket.io', function(){
       });
     });
 
+    it('emits binary data to a namespace', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var total = 2;
+
+      srv.listen(function(){
+        var socket1 = client(srv, { multiplex: false });
+        var socket2 = client(srv, { multiplex: false });
+        var socket3 = client(srv, '/test');
+        socket1.on('bin', function(a){
+          expect(Buffer.isBuffer(a)).to.be(true);
+          --total || done();
+        });
+        socket2.on('bin', function(a){
+          expect(Buffer.isBuffer(a)).to.be(true);
+          --total || done();
+        });
+        socket3.on('bin', function(){ done(new Error('not')); });
+
+        var sockets = 3;
+        sio.on('connection', function(socket){
+          --sockets || emit();
+        });
+        sio.of('/test', function(socket){
+          --sockets || emit();
+        });
+
+        function emit(){
+          sio.emit('bin', new Buffer(10));
+        }
+      });
+    });
+
     it('emits to the rest', function(done){
       var srv = http();
       var sio = io(srv);
@@ -676,6 +709,53 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('broadcasts binary data to rooms', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var total = 2;
+
+      srv.listen(function(){
+        var socket1 = client(srv, { multiplex: false });
+        var socket2 = client(srv, { multiplex: false });
+        var socket3 = client(srv, { multiplex: false });
+
+        socket1.emit('join', 'woot');
+        socket2.emit('join', 'test');
+        socket3.emit('join', 'test', function(){
+          socket3.emit('broadcast');
+        });
+
+        socket1.on('bin', function(data){
+          throw new Error('got bin in socket1');
+        });
+        socket2.on('bin', function(data){
+          expect(Buffer.isBuffer(data)).to.be(true);
+          --total || done();
+        });
+        socket2.on('bin2', function(data) {
+          throw new Error('socket2 got bin2');
+        });
+        socket3.on('bin', function(data) {
+          throw new Error('socket3 got bin');
+        });
+        socket3.on('bin2', function(data) {
+          expect(Buffer.isBuffer(data)).to.be(true);
+          --total || done();
+        });
+
+        sio.on('connection', function(socket){
+          socket.on('join', function(room, fn){
+            socket.join(room, fn);
+          });
+          socket.on('broadcast', function(){
+            socket.broadcast.to('test').emit('bin', new Buffer(5));
+            socket.emit('bin2', new Buffer(5));
+          });
+        });
+      });
+    });
+
 
     it('keeps track of rooms', function(done){
       var srv = http();
