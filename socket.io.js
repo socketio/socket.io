@@ -112,25 +112,25 @@ module.exports = Manager;
 /**
  * `Manager` constructor.
  *
- * @param {Socket|String} engine instance or engine uri/opts
+ * @param {String} engine instance or engine uri/opts
  * @param {Object} options
  * @api public
  */
 
-function Manager(socket, opts){
-  if (!(this instanceof Manager)) return new Manager(socket, opts);
+function Manager(uri, opts){
+  if (!(this instanceof Manager)) return new Manager(uri, opts);
   opts = opts || {};
   opts.path = opts.path || '/socket.io';
   this.nsps = {};
   this.subs = [];
+  this.opts = opts;
   this.reconnection(opts.reconnection);
   this.reconnectionAttempts(opts.reconnectionAttempts || Infinity);
   this.reconnectionDelay(opts.reconnectionDelay || 1000);
   this.reconnectionDelayMax(opts.reconnectionDelayMax || 5000);
-  this.timeout(null == opts.timeout ? 10000 : opts.timeout);
+  this.timeout(null == opts.timeout ? 20000 : opts.timeout);
   this.readyState = 'closed';
-  if (!socket || !socket.write) socket = eio(socket, opts);
-  this.engine = socket;
+  this.uri = uri;
   this.connected = 0;
   this.attempts = 0;
   this.encoding = false;
@@ -225,12 +225,13 @@ Manager.prototype.timeout = function(v){
 
 Manager.prototype.open =
 Manager.prototype.connect = function(fn){
+  debug('readyState %s', this.readyState);
   if (~this.readyState.indexOf('open')) return this;
 
+  debug('opening %s', this.uri);
+  this.engine = eio(this.uri, this.opts);
   var socket = this.engine;
   var self = this;
-  var timerSub;
-
   this.readyState = 'opening';
 
   // emit `open`
@@ -239,6 +240,7 @@ Manager.prototype.connect = function(fn){
   // emit `connect_error`
   var errorSub = on(socket, 'error', function(data){
     self.cleanup();
+    self.readyState = 'closed';
     self.emit('connect_error', data);
     if (fn) {
       var err = new Error('Connection error');
@@ -261,14 +263,11 @@ Manager.prototype.connect = function(fn){
       self.emit('connect_timeout', timeout);
     }, timeout);
 
-    // create handle
-    timerSub = {
+    this.subs.push({
       destroy: function(){
         clearTimeout(timer);
       }
-    };
-
-    this.subs.push(timerSub);
+    });
   }
 
   this.subs.push(openSub);
@@ -284,6 +283,8 @@ Manager.prototype.connect = function(fn){
  */
 
 Manager.prototype.onopen = function(){
+  debug('open');
+
   // clear old subs
   this.cleanup();
 
@@ -317,7 +318,7 @@ Manager.prototype.ondata = function(data){
 
 Manager.prototype.ondecoded = function(packet) {
   this.emit('packet', packet);
-}
+};
 
 /**
  * Called upon socket error.
@@ -326,6 +327,7 @@ Manager.prototype.ondecoded = function(packet) {
  */
 
 Manager.prototype.onerror = function(err){
+  debug('error', err);
   this.emit('error', err);
 };
 
@@ -373,7 +375,8 @@ Manager.prototype.packet = function(packet){
   debug('writing packet %j', packet);
   var self = this;
 
-  if (!self.encoding) { // encode, then write to engine with result
+  if (!self.encoding) {
+    // encode, then write to engine with result
     self.encoding = true;
     this.encoder.encode(packet, function(encodedPackets) {
       for (var i = 0; i < encodedPackets.length; i++) {
@@ -399,7 +402,7 @@ Manager.prototype.processPacketQueue = function() {
     var pack = this.packetBuffer.shift();
     this.packet(pack);
   }
-}
+};
 
 /**
  * Clean up transport subscriptions and packet buffer.
@@ -426,7 +429,6 @@ Manager.prototype.cleanup = function(){
 Manager.prototype.close =
 Manager.prototype.disconnect = function(){
   this.skipReconnect = true;
-  this.cleanup();
   this.engine.close();
 };
 
@@ -436,10 +438,12 @@ Manager.prototype.disconnect = function(){
  * @api private
  */
 
-Manager.prototype.onclose = function(){
+Manager.prototype.onclose = function(reason){
+  debug('close');
   this.cleanup();
+  this.readyState = 'closed';
+  this.emit('close', reason);
   if (!this.skipReconnect) {
-    var self = this;
     this.reconnect();
   }
 };
@@ -451,10 +455,13 @@ Manager.prototype.onclose = function(){
  */
 
 Manager.prototype.reconnect = function(){
+  if (this.reconnecting) return this;
+
   var self = this;
   this.attempts++;
 
   if (this.attempts > this._reconnectionAttempts) {
+    debug('reconnect failed');
     this.emit('reconnect_failed');
     this.reconnecting = false;
   } else {
@@ -464,12 +471,13 @@ Manager.prototype.reconnect = function(){
 
     this.reconnecting = true;
     var timer = setTimeout(function(){
-      debug('attemptign reconnect');
+      debug('attempting reconnect');
       self.open(function(err){
         if (err) {
           debug('reconnect attempt error');
+          self.reconnecting = false;
           self.reconnect();
-          return self.emit('reconnect_error', err.data);
+          self.emit('reconnect_error', err.data);
         } else {
           debug('reconnect success');
           self.onreconnect();
@@ -579,6 +587,7 @@ function Socket(io, nsp){
   this.open();
   this.buffer = [];
   this.connected = false;
+  this.skipReconnect = false;
   this.disconnected = true;
 }
 
@@ -596,13 +605,15 @@ Emitter(Socket.prototype);
 
 Socket.prototype.open =
 Socket.prototype.connect = function(){
+  if (this.connected) return this;
   var io = this.io;
   io.open(); // ensure open
-  if ('open' == this.io.readyState) this.onopen();
   this.subs = [
     on(io, 'open', bind(this, 'onopen')),
     on(io, 'error', bind(this, 'onerror'))
   ];
+  if ('open' == this.io.readyState) this.onopen();
+  return this;
 };
 
 /**
@@ -681,6 +692,11 @@ Socket.prototype.onerror = function(data){
  */
 
 Socket.prototype.onopen = function(){
+  if (this.io.reconnecting && this.skipReconnect) {
+    debug('ignoring reconnect');
+    return;
+  }
+
   debug('transport is open - connecting');
 
   // write connect packet if necessary
@@ -841,6 +857,7 @@ Socket.prototype.emitBuffered = function(){
 Socket.prototype.ondisconnect = function(){
   debug('server disconnect (%s)', this.nsp);
   this.destroy();
+  this.skipReconnect = true;
   this.onclose('io server disconnect');
 };
 
@@ -872,6 +889,8 @@ Socket.prototype.destroy = function(){
 Socket.prototype.close =
 Socket.prototype.disconnect = function(){
   if (!this.connected) return this;
+
+  this.skipReconnect = true;
 
   debug('performing disconnect (%s)', this.nsp);
   this.packet({ type: parser.PACKET_DISCONNECT });
