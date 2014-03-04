@@ -89,7 +89,7 @@ Socket.IO is compatible with [browserify](http://browserify.org/).
     reconnections (`5000`). Each attempt increases the reconnection by
     the amount specified by `reconnectionDelay`.
   - `timeout` connection timeout before a `connect_error`
-    and `connect_timeout` events are emitted (`10000`)
+    and `connect_timeout` events are emitted (`20000`)
 
 #### Events
 
