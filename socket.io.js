@@ -358,10 +358,7 @@ Manager.prototype.socket = function(nsp){
  */
 
 Manager.prototype.destroy = function(socket){
-  this.connected--;
-  if (!this.connected) {
-    this.close();
-  }
+  --this.connected || this.close();
 };
 
 /**
@@ -587,7 +584,6 @@ function Socket(io, nsp){
   this.open();
   this.buffer = [];
   this.connected = false;
-  this.skipReconnect = false;
   this.disconnected = true;
 }
 
@@ -610,7 +606,9 @@ Socket.prototype.connect = function(){
   io.open(); // ensure open
   this.subs = [
     on(io, 'open', bind(this, 'onopen')),
-    on(io, 'error', bind(this, 'onerror'))
+    on(io, 'error', bind(this, 'onerror')),
+    on(io, 'packet', bind(this, 'onpacket')),
+    on(io, 'close', bind(this, 'onclose'))
   ];
   if ('open' == this.io.readyState) this.onopen();
   return this;
@@ -692,24 +690,12 @@ Socket.prototype.onerror = function(data){
  */
 
 Socket.prototype.onopen = function(){
-  if (this.io.reconnecting && this.skipReconnect) {
-    debug('ignoring reconnect');
-    return;
-  }
-
   debug('transport is open - connecting');
 
   // write connect packet if necessary
   if ('/' != this.nsp) {
     this.packet({ type: parser.CONNECT });
   }
-
-  // subscribe
-  var io = this.io;
-  this.subs.push(
-    on(io, 'packet', bind(this, 'onpacket')),
-    on(io, 'close', bind(this, 'onclose'))
-  );
 };
 
 /**
@@ -857,25 +843,23 @@ Socket.prototype.emitBuffered = function(){
 Socket.prototype.ondisconnect = function(){
   debug('server disconnect (%s)', this.nsp);
   this.destroy();
-  this.skipReconnect = true;
   this.onclose('io server disconnect');
 };
 
 /**
- * Cleans up.
+ * Called upon forced client/server side disconnections,
+ * this method ensures the manager stops tracking us and
+ * that reconnections don't get triggered for this.
  *
- * @api private
+ * @api private.
  */
 
 Socket.prototype.destroy = function(){
-  debug('destroying socket (%s)', this.nsp);
-
-  // manual close means no reconnect
+  // clean subscriptions to avoid reconnections
   for (var i = 0; i < this.subs.length; i++) {
     this.subs[i].destroy();
   }
 
-  // notify manager
   this.io.destroy(this);
 };
 
@@ -890,12 +874,10 @@ Socket.prototype.close =
 Socket.prototype.disconnect = function(){
   if (!this.connected) return this;
 
-  this.skipReconnect = true;
-
   debug('performing disconnect (%s)', this.nsp);
   this.packet({ type: parser.PACKET_DISCONNECT });
 
-  // destroy subscriptions
+  // remove socket from pool
   this.destroy();
 
   // fire events
