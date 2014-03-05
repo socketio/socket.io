@@ -9,7 +9,6 @@ var isArray = require('isarray');
 var Emitter = require('emitter');
 var binary = require('./binary');
 
-
 /**
  * Protocol version.
  *

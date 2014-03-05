@@ -3,6 +3,7 @@
  */
 
 var isArray = require('isarray');
+var hasBin = require('has-binary-data');
 
 /**
  * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
@@ -126,7 +127,7 @@ exports.removeBlobs = function(data, callback) {
       for (var i = 0; i < obj.length; i++) {
         removeBlobsRecursive(obj[i], i, obj);
       }
-    } else if (obj && 'object' == typeof obj) { // and object
+    } else if (obj && 'object' == typeof obj && !hasBin(obj)) { // and object
       for (var key in obj) {
         removeBlobsRecursive(obj[key], key, obj);
       }
