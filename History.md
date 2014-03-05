@@ -1,4 +1,10 @@
 
+2.1.1 / 2014-03-04
+==================
+
+ * removed has-binary-data dependency
+ * fixed the object check in binary.removeBlobs
+
 2.1.0 / 2014-03-01
 ==================
 
