@@ -126,7 +126,7 @@ exports.removeBlobs = function(data, callback) {
       for (var i = 0; i < obj.length; i++) {
         removeBlobsRecursive(obj[i], i, obj);
       }
-    } else if (obj && 'object' == typeof obj) { // and object
+    } else if (obj && 'object' == typeof obj && !isBuf(obj)) { // and object
       for (var key in obj) {
         removeBlobsRecursive(obj[key], key, obj);
       }
@@ -139,4 +139,14 @@ exports.removeBlobs = function(data, callback) {
   if (!pendingBlobs) {
     callback(bloblessData);
   }
+}
+
+/**
+ * Returns true if obj is a buffer or an arraybuffer.
+ *
+ * @api private
+ */
+function isBuf(obj) {
+  return (global.Buffer && Buffer.isBuffer(obj)) ||
+         (global.ArrayBuffer && obj instanceof ArrayBuffer);
 }
