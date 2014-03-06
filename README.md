@@ -8,7 +8,7 @@ This is the client for [Engine.IO](http://github.com/learnboost/engine.io), the
 implementation of transport-based cross-browser/cross-device bi-directional
 communication layer for [Socket.IO](http://github.com/learnboost/socket.io).
 
-## Hello World
+## How to use
 
 ### Standalone
 
