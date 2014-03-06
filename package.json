@@ -15,7 +15,7 @@
     "test": "make test"
   },
   "dependencies": {
-    "engine.io": "LearnBoost/engine.io#f071471",
+    "engine.io": "1.0.0",
     "socket.io-parser": "2.1.1",
     "socket.io-client": "LearnBoost/socket.io-client#7e62914",
     "has-binary-data": "0.1.0",
