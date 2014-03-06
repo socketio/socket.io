@@ -12,7 +12,7 @@
   "dependencies": {
     "base64-arraybuffer": "0.1.0",
     "after": "0.8.1",
-    "arraybuffer.slice": "0.0.5"
+    "arraybuffer.slice": "0.0.6"
   },
   "scripts": {
     "test": "make test"
