@@ -1,4 +1,10 @@
 
+1.0.1 / 2014-03-06
+==================
+
+ * package: bump `engine.io-parser`
+ * transports: fix jshint warnings and style
+
 1.0.0 / 2014-03-06
 ==================
 
