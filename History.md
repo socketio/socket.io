@@ -1,4 +1,12 @@
 
+1.0.0 / 2014-03-06
+==================
+
+ * polling-xhr: added `OPTIONS` support, fixes CORS
+ * close() properly when triggered in connection handler
+ * fix DDOS vector by setting up too many intervals
+ * binary support
+
 0.9.0 / 2014-02-09
 ==================
 
