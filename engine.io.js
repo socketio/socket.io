@@ -1,15 +1,14 @@
-!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.eio=e():"undefined"!=typeof global?global.eio=e():"undefined"!=typeof self&&(self.eio=e())}(function(){var define,module,exports;
-return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.eio=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 
-module.exports =  require('./lib/');
+module.exports =  _dereq_('./lib/');
 
-},{"./lib/":3}],2:[function(require,module,exports){
+},{"./lib/":3}],2:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
  */
 
-var Emitter = require('emitter');
+var Emitter = _dereq_('emitter');
 
 /**
  * Module exports.
@@ -41,9 +40,9 @@ Emitter.prototype.removeEventListener = Emitter.prototype.off;
 
 Emitter.prototype.removeListener = Emitter.prototype.off;
 
-},{"emitter":15}],3:[function(require,module,exports){
+},{"emitter":15}],3:[function(_dereq_,module,exports){
 
-module.exports = require('./socket');
+module.exports = _dereq_('./socket');
 
 /**
  * Exports parser
@@ -51,19 +50,19 @@ module.exports = require('./socket');
  * @api public
  *
  */
-module.exports.parser = require('engine.io-parser');
+module.exports.parser = _dereq_('engine.io-parser');
 
-},{"./socket":4,"engine.io-parser":16}],4:[function(require,module,exports){
+},{"./socket":4,"engine.io-parser":16}],4:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
 
-var util = require('./util');
-var transports = require('./transports');
-var Emitter = require('./emitter');
-var debug = require('debug')('engine.io-client:socket');
-var index = require('indexof');
-var parser = require('engine.io-parser');
+var util = _dereq_('./util');
+var transports = _dereq_('./transports');
+var Emitter = _dereq_('./emitter');
+var debug = _dereq_('debug')('engine.io-client:socket');
+var index = _dereq_('indexof');
+var parser = _dereq_('engine.io-parser');
 
 /**
  * Module exports.
@@ -75,7 +74,7 @@ module.exports = Socket;
  * Global reference.
  */
 
-var global = require('global');
+var global = _dereq_('global');
 
 /**
  * Noop function.
@@ -168,11 +167,11 @@ Socket.protocol = parser.protocol; // this is an int
  */
 
 Socket.Socket = Socket;
-Socket.Transport = require('./transport');
-Socket.Emitter = require('./emitter');
-Socket.transports = require('./transports');
-Socket.util = require('./util');
-Socket.parser = require('engine.io-parser');
+Socket.Transport = _dereq_('./transport');
+Socket.Emitter = _dereq_('./emitter');
+Socket.transports = _dereq_('./transports');
+Socket.util = _dereq_('./util');
+Socket.parser = _dereq_('engine.io-parser');
 
 /**
  * Creates transport of the given type.
@@ -666,14 +665,14 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   return filteredUpgrades;
 };
 
-},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"debug":14,"engine.io-parser":16,"global":21,"indexof":23}],5:[function(require,module,exports){
+},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"debug":14,"engine.io-parser":16,"global":21,"indexof":23}],5:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
 
-var util = require('./util');
-var parser = require('engine.io-parser');
-var Emitter = require('./emitter');
+var util = _dereq_('./util');
+var parser = _dereq_('engine.io-parser');
+var Emitter = _dereq_('./emitter');
 
 /**
  * Module exports.
@@ -810,15 +809,15 @@ Transport.prototype.onClose = function () {
   this.emit('close');
 };
 
-},{"./emitter":2,"./util":12,"engine.io-parser":16}],6:[function(require,module,exports){
+},{"./emitter":2,"./util":12,"engine.io-parser":16}],6:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
  */
 
-var WS = require('./websocket');
-var util = require('../util');
-var debug = require('debug')('engine.io-client:flashsocket');
+var WS = _dereq_('./websocket');
+var util = _dereq_('../util');
+var debug = _dereq_('debug')('engine.io-client:flashsocket');
 
 /**
  * Module exports.
@@ -830,7 +829,7 @@ module.exports = FlashWS;
  * Global reference.
  */
 
-var global = require('global');
+var global = _dereq_('global');
 
 /**
  * Obfuscated key for Blue Coat.
@@ -1080,17 +1079,17 @@ function load(arr, fn){
   process(0);
 }
 
-},{"../util":12,"./websocket":11,"debug":14,"global":21}],7:[function(require,module,exports){
+},{"../util":12,"./websocket":11,"debug":14,"global":21}],7:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies
  */
 
-var XMLHttpRequest = require('xmlhttprequest')
-  , XHR = require('./polling-xhr')
-  , JSONP = require('./polling-jsonp')
-  , websocket = require('./websocket')
-  , flashsocket = require('./flashsocket')
+var XMLHttpRequest = _dereq_('xmlhttprequest')
+  , XHR = _dereq_('./polling-xhr')
+  , JSONP = _dereq_('./polling-jsonp')
+  , websocket = _dereq_('./websocket')
+  , flashsocket = _dereq_('./flashsocket')
 
 /**
  * Export transports.
@@ -1104,7 +1103,7 @@ exports.flashsocket = flashsocket;
  * Global reference.
  */
 
-var global = require('global');
+var global = _dereq_('global');
 
 /**
  * Polling transport polymorphic constructor.
@@ -1139,14 +1138,14 @@ function polling (opts) {
   }
 };
 
-},{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"global":21,"xmlhttprequest":13}],8:[function(require,module,exports){
+},{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"global":21,"xmlhttprequest":13}],8:[function(_dereq_,module,exports){
 
 /**
  * Module requirements.
  */
 
-var Polling = require('./polling');
-var util = require('../util');
+var Polling = _dereq_('./polling');
+var util = _dereq_('../util');
 
 /**
  * Module exports.
@@ -1158,7 +1157,7 @@ module.exports = JSONPPolling;
  * Global reference.
  */
 
-var global = require('global');
+var global = _dereq_('global');
 
 /**
  * Cached regular expressions.
@@ -1366,16 +1365,16 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   }
 };
 
-},{"../util":12,"./polling":10,"global":21}],9:[function(require,module,exports){
+},{"../util":12,"./polling":10,"global":21}],9:[function(_dereq_,module,exports){
 /**
  * Module requirements.
  */
 
-var XMLHttpRequest = require('xmlhttprequest');
-var Polling = require('./polling');
-var util = require('../util');
-var Emitter = require('../emitter');
-var debug = require('debug')('engine.io-client:polling-xhr');
+var XMLHttpRequest = _dereq_('xmlhttprequest');
+var Polling = _dereq_('./polling');
+var util = _dereq_('../util');
+var Emitter = _dereq_('../emitter');
+var debug = _dereq_('debug')('engine.io-client:polling-xhr');
 
 /**
  * Module exports.
@@ -1388,7 +1387,7 @@ module.exports.Request = Request;
  * Global reference.
  */
 
-var global = require('global');
+var global = _dereq_('global');
 
 /**
  * Obfuscated key for Blue Coat.
@@ -1686,15 +1685,15 @@ if (hasAttachEvent) {
   global.attachEvent('onunload', unloadHandler);
 }
 
-},{"../emitter":2,"../util":12,"./polling":10,"debug":14,"global":21,"xmlhttprequest":13}],10:[function(require,module,exports){
+},{"../emitter":2,"../util":12,"./polling":10,"debug":14,"global":21,"xmlhttprequest":13}],10:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
 
-var Transport = require('../transport');
-var util = require('../util');
-var parser = require('engine.io-parser');
-var debug = require('debug')('engine.io-client:polling');
+var Transport = _dereq_('../transport');
+var util = _dereq_('../util');
+var parser = _dereq_('engine.io-parser');
+var debug = _dereq_('debug')('engine.io-client:polling');
 
 /**
  * Module exports.
@@ -1706,14 +1705,14 @@ module.exports = Polling;
  * Global reference.
  */
 
-var global = require('global');
+var global = _dereq_('global');
 
 /**
  * Is XHR2 supported?
  */
 
 var hasXHR2 = (function() {
-  var XMLHttpRequest = require('xmlhttprequest');
+  var XMLHttpRequest = _dereq_('xmlhttprequest');
   var xhr = new XMLHttpRequest({ agent: this.agent, xdomain: false });
   return null != xhr.responseType;
 })();
@@ -1944,15 +1943,15 @@ Polling.prototype.uri = function(){
   return schema + '://' + this.hostname + port + this.path + query;
 };
 
-},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21,"xmlhttprequest":13}],11:[function(require,module,exports){
+},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21,"xmlhttprequest":13}],11:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
 
-var Transport = require('../transport');
-var parser = require('engine.io-parser');
-var util = require('../util');
-var debug = require('debug')('engine.io-client:websocket');
+var Transport = _dereq_('../transport');
+var parser = _dereq_('engine.io-parser');
+var util = _dereq_('../util');
+var debug = _dereq_('debug')('engine.io-client:websocket');
 
 /**
  * `ws` exposes a WebSocket-compatible interface in
@@ -1960,7 +1959,7 @@ var debug = require('debug')('engine.io-client:websocket');
  * in the browser.
  */
 
-var WebSocket = require('ws');
+var WebSocket = _dereq_('ws');
 
 /**
  * Module exports.
@@ -1972,7 +1971,7 @@ module.exports = WS;
  * Global reference.
  */
 
-var global = require('global');
+var global = _dereq_('global');
 
 /**
  * WebSocket transport constructor.
@@ -2173,9 +2172,9 @@ WS.prototype.check = function(){
   return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 };
 
-},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21,"ws":24}],12:[function(require,module,exports){
+},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21,"ws":24}],12:[function(_dereq_,module,exports){
 
-var global = require('global');
+var global = _dereq_('global');
 
 /**
  * Status of page load.
@@ -2395,9 +2394,9 @@ exports.qsParse = function(qs){
   return qry;
 };
 
-},{"global":21}],13:[function(require,module,exports){
+},{"global":21}],13:[function(_dereq_,module,exports){
 // browser shim for xmlhttprequest module
-var hasCORS = require('has-cors');
+var hasCORS = _dereq_('has-cors');
 
 module.exports = function(opts) {
   var xdomain = opts.xdomain;
@@ -2416,7 +2415,7 @@ module.exports = function(opts) {
   }
 }
 
-},{"has-cors":22}],14:[function(require,module,exports){
+},{"has-cors":22}],14:[function(_dereq_,module,exports){
 
 /**
  * Expose `debug()` as the module.
@@ -2555,13 +2554,13 @@ try {
   if (window.localStorage) debug.enable(localStorage.debug);
 } catch(e){}
 
-},{}],15:[function(require,module,exports){
+},{}],15:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
  */
 
-var index = require('indexof');
+var index = _dereq_('indexof');
 
 /**
  * Expose `Emitter`.
@@ -2719,15 +2718,16 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{"indexof":23}],16:[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
+},{"indexof":23}],16:[function(_dereq_,module,exports){
+(function (global){
+/**
  * Module dependencies.
  */
 
-var keys = require('./keys');
-var sliceBuffer = require('arraybuffer.slice');
-var base64encoder = require('base64-arraybuffer');
-var after = require('after');
+var keys = _dereq_('./keys');
+var sliceBuffer = _dereq_('arraybuffer.slice');
+var base64encoder = _dereq_('base64-arraybuffer');
+var after = _dereq_('after');
 
 /**
  * A utility for doing slicing, even when ArrayBuffer.prototype.slice doesn't
@@ -3311,7 +3311,8 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
   });
 };
 
-},{"./keys":17,"after":18,"arraybuffer.slice":19,"base64-arraybuffer":20}],17:[function(require,module,exports){
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./keys":17,"after":18,"arraybuffer.slice":19,"base64-arraybuffer":20}],17:[function(_dereq_,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -3332,7 +3333,7 @@ module.exports = Object.keys || function keys (obj){
   return arr;
 };
 
-},{}],18:[function(require,module,exports){
+},{}],18:[function(_dereq_,module,exports){
 module.exports = after
 
 function after(count, callback, err_cb) {
@@ -3362,7 +3363,7 @@ function after(count, callback, err_cb) {
 
 function noop() {}
 
-},{}],19:[function(require,module,exports){
+},{}],19:[function(_dereq_,module,exports){
 /**
  * An abstraction for slicing an arraybuffer even when
  * ArrayBuffer.prototype.slice is not supported
@@ -3393,7 +3394,7 @@ module.exports = function(arraybuffer, start, end) {
   return result.buffer;
 };
 
-},{}],20:[function(require,module,exports){
+},{}],20:[function(_dereq_,module,exports){
 /*
  * base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
@@ -3453,7 +3454,7 @@ module.exports = function(arraybuffer, start, end) {
     return arraybuffer;
   };
 })("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-},{}],21:[function(require,module,exports){
+},{}],21:[function(_dereq_,module,exports){
 
 /**
  * Returns `this`. Execute this without a "context" (i.e. without it being
@@ -3463,13 +3464,13 @@ module.exports = function(arraybuffer, start, end) {
 
 module.exports = (function () { return this; })();
 
-},{}],22:[function(require,module,exports){
+},{}],22:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
  */
 
-var global = require('global');
+var global = _dereq_('global');
 
 /**
  * Module exports.
@@ -3488,7 +3489,7 @@ try {
   module.exports = false;
 }
 
-},{"global":21}],23:[function(require,module,exports){
+},{"global":21}],23:[function(_dereq_,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -3499,7 +3500,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],24:[function(require,module,exports){
+},{}],24:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
@@ -3547,4 +3548,3 @@ if (WebSocket) ws.prototype = WebSocket.prototype;
 },{}]},{},[1])
 (1)
 });
-;
