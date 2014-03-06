@@ -3,7 +3,6 @@
   "description": "Parser for the client for the realtime Engine",
   "version": "1.0.0",
   "homepage": "https://github.com/LearnBoost/engine.io-protocol",
-  "dependencies": {},
   "devDependencies": {
     "mocha": "*",
     "expect.js": "*",
@@ -12,7 +11,8 @@
   "dependencies": {
     "base64-arraybuffer": "0.1.0",
     "after": "0.8.1",
-    "arraybuffer.slice": "0.0.6"
+    "arraybuffer.slice": "0.0.6",
+    "blob": "0.0.2"
   },
   "scripts": {
     "test": "make test"
