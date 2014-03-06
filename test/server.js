@@ -920,7 +920,7 @@ describe('server', function () {
 
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function(port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
 
         engine.on('connection', function (conn) {
           conn.send(binaryData);
@@ -946,7 +946,7 @@ describe('server', function () {
 
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function(port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
 
         engine.on('connection', function (conn) {
           conn.send(binaryData);
@@ -972,7 +972,7 @@ describe('server', function () {
 
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function(port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
 
         engine.on('connection', function (conn) {
           conn.send(binaryData.buffer);
