@@ -102,7 +102,7 @@ function Encoder() {};
 Encoder.prototype.encode = function(obj, callback){
   debug('encoding packet %j', obj);
 
-  if (obj.type == exports.BINARY_EVENT) {
+  if (exports.BINARY_EVENT == obj.type || exports.ACK == obj.type) {
     encodeAsBinary(obj, callback);
   }
   else {
@@ -127,7 +127,7 @@ function encodeAsString(obj) {
   str += obj.type;
 
   // attachments if we have them
-  if (exports.BINARY_EVENT == obj.type) {
+  if (exports.BINARY_EVENT == obj.type || exports.ACK == obj.type) {
     str += obj.attachments;
     str += '-';
   }
@@ -213,8 +213,13 @@ Decoder.prototype.add = function(obj) {
   var packet;
   if ('string' == typeof obj) {
     packet = decodeString(obj);
-    if (packet.type == exports.BINARY_EVENT) { // binary packet's json
+    if (exports.BINARY_EVENT == packet.type || exports.ACK == packet.type) { // binary packet's json
       this.reconstructor = new BinaryReconstructor(packet);
+
+      // no attachments, labeled binary but no binary data to follow
+      if (this.reconstructor.reconPack.attachments == 0) {
+        this.emit('decoded', packet);
+      }
     } else { // non-binary full packet
       this.emit('decoded', packet);
     }
@@ -254,7 +259,7 @@ function decodeString(str) {
   if (null == exports.types[p.type]) return error();
 
   // look up attachments if type binary
-  if (exports.BINARY_EVENT == p.type) {
+  if (exports.BINARY_EVENT == p.type || exports.ACK == p.type) {
     p.attachments = '';
     while (str.charAt(++i) != '-') {
       p.attachments += str.charAt(i);
