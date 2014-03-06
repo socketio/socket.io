@@ -20,6 +20,12 @@ function client(srv, nsp, opts){
 }
 
 describe('socket.io', function(){
+
+  it('should be the same version as client', function(){
+    var version = require('../package').version;
+    expect(version).to.be(require('socket.io-client/package').version);
+  });
+
   describe('server attachment', function(){
     describe('http.Server', function(){
       var clientVersion = require('socket.io-client/package').version;
@@ -83,6 +89,13 @@ describe('socket.io', function(){
       it('should be bound', function(done){
         var sockets = io(54010);
         request('http://localhost:54010')
+        .get('/socket.io/socket.io.js')
+        .expect(200, done);
+      });
+
+      it('should be bound as a string', function(done) {
+        var sockets = io('54020');
+        request('http://localhost:54020')
         .get('/socket.io/socket.io.js')
         .expect(200, done);
       });
@@ -458,6 +471,76 @@ describe('socket.io', function(){
             fn();
           });
           s.emit('hi', 1, 2, function(){
+            done();
+          });
+        });
+      });
+    });
+
+    it('should receive events with binary args and callbacks', function(done) {
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.on('woot', function(buf, fn){
+            expect(Buffer.isBuffer(buf)).to.be(true);
+            fn(1, 2);
+          });
+          socket.emit('woot', new Buffer(3), function(a, b){
+            expect(a).to.be(1);
+            expect(b).to.be(2);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should emit events with binary args and callback', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          socket.on('hi', function(a, fn){
+            expect(Buffer.isBuffer(a)).to.be(true);
+            fn();
+          });
+          s.emit('hi', new Buffer(4), function(){
+            done();
+          });
+        });
+      });
+    });
+
+    it('should emit events and receive binary data in a callback', function(done) {
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          socket.on('hi', function(fn){
+            fn(new Buffer(1));
+          });
+          s.emit('hi', function(a){
+            expect(Buffer.isBuffer(a)).to.be(true);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should receive events and pass binary data in a callback', function(done) {
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.on('woot', function(fn){
+            fn(new Buffer(2));
+          });
+          socket.emit('woot', function(a){
+            expect(Buffer.isBuffer(a)).to.be(true);
             done();
           });
         });
