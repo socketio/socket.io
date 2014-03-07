@@ -259,12 +259,23 @@ server.listen(3000);
   All datastructures are supported, including `Buffer`. JavaScript
   functions can't be serialized/deserialized.
 
-  Example:
-
   ```js
   var io = require('socket.io')();
   io.on('connection', function(socket){
     socket.emit('an event', { some: 'data' });
+  });
+  ```
+
+### Socket#to(name:String):Socket
+### Socket#in(name:String):Socket
+
+  Sets a modifier for a subsequent event emission that the event will
+  only be _broadcasted_ to sockets that have joined the given `room`.
+
+  ```js
+  var io = require('socket.io')();
+  io.on('connection', function(socket){
+    socket.to('others').emit('an event', { some: 'data' });
   });
   ```
 
