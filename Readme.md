@@ -215,7 +215,7 @@ server.listen(3000);
   function to optionally defer execution to the next registered
   middleware.
 
-  ```
+  ```js
   var io = require('socket.io')();
   io.use(function(socket, next){
     if (socket.request.headers.cookie) return next();
@@ -250,6 +250,23 @@ server.listen(3000);
   A getter proxy that returns the reference to the `request` that
   originated the underlying engine.io `Client`. Useful for accessing
   request headers such as `Cookie` or `User-Agent`.
+
+### Socket#emit(name:String[, …]):Socket
+
+  Emits an event to the socket identified by the string `name`. Any
+  other parameters can be included.
+
+  All datastructures are supported, including `Buffer`. JavaScript
+  functions can't be serialized/deserialized.
+
+  Example:
+
+  ```js
+  var io = require('socket.io')();
+  io.on('connection', function(socket){
+    socket.emit('an event', { some: 'data' });
+  });
+  ```
 
 ### Client
 
