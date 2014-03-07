@@ -266,8 +266,28 @@ server.listen(3000);
   });
   ```
 
-### Socket#to(name:String):Socket
-### Socket#in(name:String):Socket
+### Socket#join(name:String[, fn:Function]):Socket
+
+  Adds the socket to the `room`, and fires optionally a callback `fn`
+  with `err` signature (if any).
+
+  The mechanics of joining  rooms are handled by the `Adapter`
+  that has been configured (see `Server#adapter` above), defaulting to
+  [socket.io-adapter](https://github.com/socket.io/socket.io-adapter).
+
+### Socket#leave(name:String[, fn:Function]):Socket
+
+  Removes the socket from `room`, and fires optionally a callback `fn`
+  with `err` signature (if any).
+
+  **Rooms are left automatically upon disconnection**.
+
+  The mechanics of leaving rooms are handled by the `Adapter`
+  that has been configured (see `Server#adapter` above), defaulting to
+  [socket.io-adapter](https://github.com/socket.io/socket.io-adapter).
+
+### Socket#to(room:String):Socket
+### Socket#in(room:String):Socket
 
   Sets a modifier for a subsequent event emission that the event will
   only be _broadcasted_ to sockets that have joined the given `room`.
