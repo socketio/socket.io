@@ -128,7 +128,8 @@ server.listen(3000);
 ### Server#adapter(v:Adapter):Server
 
   Sets the adapter `v`. Defaults to an instance of the `Adapter` that
-  ships with socket.io which is memory based (see below).
+  ships with socket.io which is memory based. See
+  [socket.io-adapter](https://github.com/learnboost/socket.io-adapter).
 
   If no arguments are supplied this method returns the current value.
 
@@ -265,15 +266,6 @@ server.listen(3000);
   A getter proxy that returns the reference to the `request` that
   originated the engine.io connection. Useful for accessing
   request headers such as `Cookie` or `User-Agent`.
-
-### Adapter
-
-  The `Adapter` is in charge of keeping track of what rooms each socket
-  is connected to and passing messages to them.
-
-  By default the `Adapter` is memory based. In order to pass messages
-  across multiple processes, make sure to use an appropriate adapter.
-  (configurable through `Server#adapter`).
 
 ## License
 
