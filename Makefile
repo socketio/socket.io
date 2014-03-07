@@ -3,8 +3,8 @@ REPORTER = dot
 
 build: engine.io.js
 
-engine.io.js: lib/*.js lib/transports/*.js
-	@./node_modules/.bin/browserify --standalone eio -o engine.io.js .
+engine.io.js: lib/*.js lib/transports/*.js package.json
+	@./support/browserify.sh > engine.io.js
 
 test:
 	@./node_modules/.bin/mocha \
@@ -18,4 +18,4 @@ test-cov:
 		--reporter $(REPORTER) \
 		$(TESTS)
 
-.PHONY: test
+.PHONY: test build

@@ -1,4 +1,29 @@
 
+1.0.1 / 2014-03-06
+==================
+
+ * package: bump `engine.io-parser`
+
+1.0.0 / 2014-03-06
+==================
+
+ * run browserify without shims
+ * emit socket upgrade event after upgrade done
+ * better feature detection for XHR2
+ * added `rememberUpgrade` option
+ * binary support
+
+0.9.0 / 2014-02-09
+==================
+
+ * Fix simple `host:port` URLs and IPV6 [bmalehorn]
+ * Fix XHR cleanup method [poohlty]
+ * Match semantics of `close` event with `WebSocket`. If an error occurs
+   and `open` hadn't fired before, we still emit `close` as per
+   WebSocket spec [mokesmokes].
+ * Removed SPEC (now in `engine.io-protocol` repository)
+ * Remove `Socket#open` docs (private API) [mokesmokes]
+
 0.8.2 / 2014-01-18
 ==================
 

@@ -1,7 +1,7 @@
 {
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
-  "version": "0.8.2",
+  "version": "1.0.1",
   "homepage": "http://socket.io",
   "contributors": [
     {
@@ -34,12 +34,12 @@
     "parsejson": "0.0.1"
   },
   "devDependencies": {
-    "zuul": "1.5.2",
+    "zuul": "1.5.4",
     "mocha": "1.16.2",
     "expect.js": "0.2.0",
     "istanbul": "0.2.3",
-    "browserify": "2.35.1",
-    "engine.io": "0.8.2",
+    "browserify": "3.30.1",
+    "engine.io": "1.0.1",
     "express": "3.4.8"
   },
   "scripts": {

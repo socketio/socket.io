@@ -5,7 +5,7 @@ var app = express();
 var join = require('path').join;
 var http = require('http').Server(app);
 var server = require('engine.io').attach(http);
-var browserify = require('browserify');
+var browserify = require('../../support/browserify');
 
 http.listen(process.env.ZUUL_PORT);
 
@@ -14,11 +14,8 @@ app.use('/test/support', express.static(join(__dirname, 'public')));
 
 // server engine.io.js via browserify
 app.get('/test/support/engine.io.js', function(err, res, next) {
-  var opts = { standalone: 'eio' };
-  browserify(require.resolve('../../')).bundle(opts, function(err, src) {
-    if (err) {
-      return next(err);
-    }
+  browserify(function(err, src) {
+    if (err) return next(err);
     res.set('Content-Type', 'application/javascript');
     res.send(src);
   });
@@ -26,4 +23,18 @@ app.get('/test/support/engine.io.js', function(err, res, next) {
 
 server.on('connection', function(socket){
   socket.send('hi');
+
+  // Bounce any received messages back
+  socket.on('message', function (data) {
+    if (data === 'give binary') {
+      var abv = new Int8Array(5);
+      for (var i = 0; i < 5; i++) {
+        abv[i] = i;
+      }
+      socket.send(abv);
+      return;
+    }
+
+    socket.send(data);
+  });
 });

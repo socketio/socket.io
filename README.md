@@ -8,7 +8,24 @@ This is the client for [Engine.IO](http://github.com/learnboost/engine.io), the
 implementation of transport-based cross-browser/cross-device bi-directional
 communication layer for [Socket.IO](http://github.com/learnboost/socket.io).
 
-## Hello World
+## How to use
+
+### Standalone
+
+You can find an `engine.io.js` file in this repository, which is a
+standalone build you can use as follows:
+
+```html
+<script src="/path/to/engine.io.js"></script>
+<script>
+  // eio = Socket
+  var socket = eio('ws://localhost');
+  socket.onopen = function(){
+    socket.onmessage = function(data){};
+    socket.onclose = function(){};
+  };
+</script>
+```
 
 ### With browserify
 
@@ -39,20 +56,20 @@ browserify app.js > bundle.js
 <script src="/path/to/bundle.js"></script>
 ```
 
-### Standalone
-
-If you decide not to use browserify (or similar tool) you can find an `engine.io.js` file in
-this repository, which is a standalone build you can use as follows:
+### Sending and receiving binary
 
 ```html
 <script src="/path/to/engine.io.js"></script>
 <script>
-  // eio = Socket
-  var socket = eio('ws://localhost');
-  socket.onopen = function(){
-    socket.onmessage = function(data){};
-    socket.onclose = function(){};
-  };
+  var socket = new eio.Socket('ws://localhost/');
+  socket.binaryType = 'blob'; // receives Blob instead of ArrayBuffer (default)
+  socket.on('open', function () {
+    socket.send(new Int8Array(5));
+    socket.on('message', function (data) {
+      // data instanceof Blob => true when receiving binary
+    });
+    socket.on('close', function () { });
+  });
 </script>
 ```
 
@@ -78,6 +95,14 @@ socket.onopen = function(){
   - Easy to debug
   - Easy to unit test
 - Runs inside HTML5 WebWorker
+- Can send and receive binary data
+  - Receives as ArrayBuffer or Blob when in browser, and Buffer or ArrayBuffer
+    in Node
+  - When XHR2 or WebSockets are used, binary is emitted directly. Otherwise
+    binary is encoded into base64 strings, and decoded when binary types are
+    supported.
+  - With browsers that don't support ArrayBuffer, an object { base64: true,
+    data: dataAsBase64String } is emitted in onmessage
 
 ## API
 
@@ -95,6 +120,9 @@ Exposed as `eio` in the browser standalone build.
   - `message` event handler
 - `onclose` (_Function_)
   - `message` event handler
+- `binaryType` _(String)_ : can be set to 'arraybuffer' or 'blob' in browsers,
+  and `buffer` or `arraybuffer` in Node. Blob is only used in browser if it's
+  supported.
 
 #### Events
 
@@ -103,7 +131,8 @@ Exposed as `eio` in the browser standalone build.
 - `message`
   - Fired when data is received from the server.
   - **Arguments**
-    - `String`: utf-8 encoded data
+    - `String` | `ArrayBuffer`: utf-8 encoded data or ArrayBuffer containing
+      binary data
 - `close`
   - Fired upon disconnection. In compliance with the WebSocket API spec, this event may be 
     fired even if the `open` event does not occur (i.e. due to connection error or `close()`).
@@ -115,6 +144,8 @@ Exposed as `eio` in the browser standalone build.
   - Fired after `drain` event of transport if writeBuffer is empty
 - `upgradeError`
   - Fired if an error occurs with a transport we're trying to upgrade to.
+- `upgrade`
+  - Fired upon upgrade success, after the new transport is set
 
 #### Methods
 
@@ -128,6 +159,7 @@ Exposed as `eio` in the browser standalone build.
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
       to upgrade the transport from long-polling to something better.
       - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
+      - `forceBase64` (`Boolean`): forces base 64 encoding for polling transport even when XHR2 responseType is available and WebSocket even if the used standard supports binary.
       - `timestampRequests` (`Boolean`): whether to add the timestamp with
         each transport request. Note: this is ignored if the browser is
         IE or Android, in which case requests are always stamped (`false`)
@@ -139,10 +171,16 @@ Exposed as `eio` in the browser standalone build.
       Defaults to `['polling', 'websocket', 'flashsocket']`. `Engine`
       always attempts to connect directly with the first one, provided the
       feature detection test for it passes.
+      - `rememberUpgrade` (`Boolean`): defaults to false.
+        If true and if the previous websocket connection to the server succeeded,
+        the connection attempt will bypass the normal upgrade process and will initially
+        try websocket. A connection attempt following a transport error will use the 
+        normal upgrade process. It is recommended you turn this on only when using
+        SSL/TLS connections, or if you know that your network does not block websockets.
 - `send`
     - Sends a message to the server
     - **Parameters**
-      - `String`: data to send
+      - `String` | `ArrayBuffer` | `ArrayBufferView` | `Blob`: data to send
       - `Function`: optional, callback upon `drain`
 - `close`
     - Disconnects the client.
@@ -212,7 +250,7 @@ See the `Tests` section above for how to run tests before submitting any patches
 
 (The MIT License)
 
-Copyright (c) 2011 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
+Copyright (c) 2014 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
