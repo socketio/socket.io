@@ -251,6 +251,11 @@ server.listen(3000);
   originated the underlying engine.io `Client`. Useful for accessing
   request headers such as `Cookie` or `User-Agent`.
 
+### Socket#id:String
+
+  A unique identifier for the socket session, that comes from the
+  underlying `Client`.
+
 ### Socket#emit(name:String[, …]):Socket
 
   Emits an event to the socket identified by the string `name`. Any
@@ -270,6 +275,9 @@ server.listen(3000);
 
   Adds the socket to the `room`, and fires optionally a callback `fn`
   with `err` signature (if any).
+
+  The socket is automatically a member of a room identified with its
+  session id (see `Socket#id`).
 
   The mechanics of joining  rooms are handled by the `Adapter`
   that has been configured (see `Server#adapter` above), defaulting to
