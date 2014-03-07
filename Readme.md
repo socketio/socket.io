@@ -272,6 +272,8 @@ server.listen(3000);
   Sets a modifier for a subsequent event emission that the event will
   only be _broadcasted_ to sockets that have joined the given `room`.
 
+  To emit to multiple rooms, you can call `to` several times.
+
   ```js
   var io = require('socket.io')();
   io.on('connection', function(socket){
