@@ -30,8 +30,8 @@
     "indexof": "0.0.1",
     "engine.io-parser": "0.3.0",
     "debug": "0.7.4",
-	"parseuri": "0.0.2",
-	"parsejson": "0.0.1"
+    "parseuri": "0.0.2",
+    "parsejson": "0.0.1"
   },
   "devDependencies": {
     "zuul": "1.5.2",

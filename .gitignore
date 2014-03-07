@@ -4,4 +4,3 @@ build
 components
 /coverage
 npm-debug.log
-engine.io.js
