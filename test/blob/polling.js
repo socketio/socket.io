@@ -54,7 +54,7 @@ describe('blob', function() {
         socket.send(bb.getBlob());
       }
       socket.on('message', function (data) {
-        if (typeof data == 'string') { return; }
+        if (typeof data == 'string') return;
 
         expect(data).to.be.an(ArrayBuffer);
         expect(new Int8Array(data)).to.eql(binaryData);
