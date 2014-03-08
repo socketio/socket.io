@@ -24,7 +24,6 @@ var blobBuilderSupported = !!BlobBuilder && !!BlobBuilder.prototype.append && !!
 
 require('./engine.io-client');
 require('./util');
-require('./parser');
 require('./socket');
 require('./transport');
 
@@ -32,7 +31,6 @@ require('./transport');
 if (env.browser) {
   require('./connection');
   if (global.ArrayBuffer) {
-    require('./browser-only-parser');
     require('./arraybuffer');
   } else {
     require('./binary-fallback');
