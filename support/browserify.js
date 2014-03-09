@@ -21,7 +21,7 @@ module.exports = build;
 
 function build(fn){
   var opts = {};
+  opts.entries = [path];
   opts.builtins = false;
-  opts.insertGlobals = 'global';
-  browserify(path, opts).bundle({ standalone: 'io' }, fn);
+  browserify(opts).bundle({ standalone: 'io' }, fn);
 }
