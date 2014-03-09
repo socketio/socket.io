@@ -39,7 +39,8 @@
     "istanbul": "0.2.3",
     "browserify": "3.30.1",
     "engine.io": "1.0.1",
-    "express": "3.4.8"
+    "express": "3.4.8",
+    "blob": "0.0.2"
   },
   "scripts": {
     "test": "make test"
