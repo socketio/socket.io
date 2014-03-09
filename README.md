@@ -47,8 +47,8 @@ socket.onopen = function(){
 ```
 
 1. build your app bundle
-```
-browserify app.js > bundle.js
+```bash
+$ browserify app.js > bundle.js
 ```
 
 1. include on your page
@@ -233,13 +233,13 @@ The support channels for `engine.io-client` are the same as `socket.io`:
 To contribute patches, run tests or benchmarks, make sure to clone the
 repository:
 
-```
+```bash
 git clone git://github.com/LearnBoost/engine.io-client.git
 ```
 
 Then:
 
-```
+```bash
 cd engine.io-client
 npm install
 ```
