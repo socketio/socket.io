@@ -17,7 +17,7 @@
   "dependencies": {
     "engine.io": "1.0.0",
     "socket.io-parser": "2.1.1",
-    "socket.io-client": "LearnBoost/socket.io-client#7e62914",
+    "socket.io-client": "LearnBoost/socket.io-client#bb5f73",
     "socket.io-adapter": "0.1.0",
     "has-binary-data": "0.1.0",
     "debug": "0.7.4"
