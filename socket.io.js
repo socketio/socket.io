@@ -39,7 +39,12 @@ var cache = exports.managers = {};
  * @api public
  */
 
-function lookup(uri, opts){
+function lookup(uri, opts) {
+  if (typeof uri == 'object') {
+    opts = uri;
+    uri = undefined;
+  }
+
   opts = opts || {};
 
   var parsed = url(uri);
@@ -784,6 +789,7 @@ Socket.prototype.ack = function(id){
   return function(){
     // prevent double callbacks
     if (sent) return;
+    sent = true;
     var args = toArray(arguments);
     debug('sending ack %j', args);
     self.packet({
