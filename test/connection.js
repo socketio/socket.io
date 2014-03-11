@@ -51,6 +51,95 @@ describe('connection', function() {
     });
   });
 
+
+  it('should try to reconnect with incorrect address and reconnect enabled', function(done) {
+    var manager = io.Manager('http://localhost:3939', { reconnection: true });
+    var socket = manager.socket('/');
+    var cb = function() {
+      manager.removeListener('reconnect_attempt', cb);
+      socket.close();
+      done();
+    };
+
+    manager.on('reconnect_attempt', cb);
+  });
+
+  it('should try to reconnect twice and fail when requested two attempts with incorrect address and reconnect enabled', function(done) {
+    var manager = io.Manager('http://localhost:3940', { reconnection: true, reconnectionAttempts: 2 });
+    var socket = manager.socket('/asd');
+    var reconnects = 0;
+    var cb = function() {
+      reconnects++;
+    };
+
+    manager.on('reconnect_attempt', cb);
+
+    manager.on('reconnect_failed', function failed() {
+      expect(reconnects).to.be(2);
+      manager.removeListener('reconnect_attempt', cb);
+      manager.removeListener('reconnect_failed', failed);
+      socket.close();
+      done();
+    });
+  });
+
+  it('should try to reconnect twice and fail when requested two attempts with immediate timeout and reconnect enabled', function(done) {
+    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2 });
+    var socket;
+
+    var reconnects = 0;
+    var reconnectCb = function() {
+      reconnects++;
+    };
+
+    manager.on('reconnect_attempt', reconnectCb);
+    manager.on('reconnect_failed', function failed() {
+      expect(reconnects).to.be(2);
+      manager.removeListener('reconnect_attempt', reconnectCb);
+      manager.removeListener('reconnect_failed', failed);
+      socket.close();
+      done();
+    });
+
+    socket = manager.socket('/timeout-two');
+  });
+
+  it('should try to reconnect when the connection times out before opening', function(done) {
+    var manager = io.Manager({ reconnection: true, timeout: 0 });
+    var socket;
+
+    var reconnectCb = function() {
+      manager.removeListener('reconnect_attempt', reconnectCb);
+      socket.close();
+      done();
+    };
+
+    manager.on('reconnect_attempt', reconnectCb);
+    socket = manager.socket('/timeout');
+  });
+
+
+  it('should not try to reconnect and should form a connection when connecting to correct port with default timeout', function(done) {
+    var manager = io.Manager({ reconnection: true });
+    var cb = function() {
+      manager.removeListener('reconnect_attempt', cb);
+      socket.close();
+      expect().fail();
+    };
+    manager.on('reconnect_attempt', cb);
+
+    var socket = manager.socket('/valid');
+    socket.on('connect', function(){
+      // set a timeout to let reconnection possibly fire
+      setTimeout(function() {
+        manager.removeListener('reconnect_attempt', cb);
+        socket.close();
+        done();
+      }, 1000);
+    });
+  });
+
+
 if (!global.Blob && !global.ArrayBuffer) {
   it('should get base64 data as a last resort', function(done) {
     socket.on('takebin', function(a) {
@@ -141,5 +230,4 @@ if (global.Blob && null != textBlobBuilder('xxx')) {
     done();
   });
 }
-
 });
