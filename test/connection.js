@@ -44,6 +44,13 @@ describe('connection', function() {
     });
   });
 
+  it('should reconnect by default', function(done){
+    socket.io.engine.close();
+    socket.io.on('reconnect', function() {
+      done();
+    });
+  });
+
 if (!global.Blob && !global.ArrayBuffer) {
   it('should get base64 data as a last resort', function(done) {
     socket.on('takebin', function(a) {
