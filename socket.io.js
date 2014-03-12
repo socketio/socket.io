@@ -124,7 +124,12 @@ module.exports = Manager;
 
 function Manager(uri, opts){
   if (!(this instanceof Manager)) return new Manager(uri, opts);
+  if ('object' == typeof uri) {
+    opts = uri;
+    uri = undefined;
+  }
   opts = opts || {};
+
   opts.path = opts.path || '/socket.io';
   this.nsps = {};
   this.subs = [];
@@ -221,6 +226,22 @@ Manager.prototype.timeout = function(v){
 };
 
 /**
+ * Starts trying to reconnect if reconnection is enabled and we have not
+ * started reconnecting yet
+ *
+ * @api private
+ */
+
+Manager.prototype.maybeReconnectOnOpen = function() {
+  if (!this.openReconnect && !this.reconnecting && this._reconnection) {
+    // keeps reconnection from firing twice for the same reconnection loop
+    this.openReconnect = true;
+    this.reconnect();
+  }
+};
+
+
+/**
  * Sets the current transport `socket`.
  *
  * @param {Function} optional, callback
@@ -247,6 +268,7 @@ Manager.prototype.connect = function(fn){
 
   // emit `connect_error`
   var errorSub = on(socket, 'error', function(data){
+    debug('connect_error');
     self.cleanup();
     self.readyState = 'closed';
     self.emit('connect_error', data);
@@ -255,6 +277,8 @@ Manager.prototype.connect = function(fn){
       err.data = data;
       fn(err);
     }
+
+    self.maybeReconnectOnOpen();
   });
 
   // emit `connect_timeout`
@@ -477,6 +501,7 @@ Manager.prototype.reconnect = function(){
     this.reconnecting = true;
     var timer = setTimeout(function(){
       debug('attempting reconnect');
+      self.emit('reconnect_attempt');
       self.open(function(err){
         if (err) {
           debug('reconnect attempt error');
@@ -895,7 +920,7 @@ Socket.prototype.disconnect = function(){
 };
 
 },{"./on":4,"bind":8,"debug":9,"emitter":10,"has-binary-data":30,"indexof":34,"socket.io-parser":38,"to-array":41}],6:[function(require,module,exports){
-
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 /**
  * Module dependencies.
  */
@@ -3771,7 +3796,7 @@ module.exports = function(opts) {
 }
 
 },{"has-cors":32}],24:[function(require,module,exports){
-/**
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Module dependencies.
  */
 
@@ -4500,7 +4525,7 @@ function ws(uri, protocols, opts) {
 if (WebSocket) ws.prototype = WebSocket.prototype;
 
 },{}],30:[function(require,module,exports){
-/*
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/*
  * Module requirements.
  */
 
@@ -4710,7 +4735,7 @@ module.exports = function parseuri(str) {
 };
 
 },{}],37:[function(require,module,exports){
-/**
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Modle requirements
  */
 
@@ -4864,7 +4889,7 @@ function isBuf(obj) {
 }
 
 },{"isarray":39}],38:[function(require,module,exports){
-
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 /**
  * Module dependencies.
  */
