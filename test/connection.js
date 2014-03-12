@@ -5,7 +5,7 @@ var b64 = require('base64-js');
 var textBlobBuilder = require('text-blob-builder');
 
 describe('connection', function() {
-  this.timeout(10000);
+  this.timeout(20000);
   var socket = io();
 
   it('should connect to localhost', function(done) {
