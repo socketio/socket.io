@@ -53,6 +53,7 @@ module.exports = _dereq_('./socket');
 module.exports.parser = _dereq_('engine.io-parser');
 
 },{"./socket":4,"engine.io-parser":17}],4:[function(_dereq_,module,exports){
+(function (global){
 /**
  * Module dependencies.
  */
@@ -661,6 +662,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   return filteredUpgrades;
 };
 
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"debug":15,"engine.io-parser":17,"indexof":24,"parsejson":25,"parseuri":26}],5:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
@@ -806,6 +808,7 @@ Transport.prototype.onClose = function () {
 };
 
 },{"./emitter":2,"./util":12,"engine.io-parser":17}],6:[function(_dereq_,module,exports){
+(function (global){
 
 /**
  * Module dependencies.
@@ -1069,7 +1072,9 @@ function load(arr, fn){
   process(0);
 }
 
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../util":12,"./websocket":11,"debug":15}],7:[function(_dereq_,module,exports){
+(function (global){
 
 /**
  * Module dependencies
@@ -1122,7 +1127,9 @@ function polling (opts) {
   }
 };
 
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"xmlhttprequest":13}],8:[function(_dereq_,module,exports){
+(function (global){
 
 /**
  * Module requirements.
@@ -1343,7 +1350,9 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   }
 };
 
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../util":12,"./polling":10}],9:[function(_dereq_,module,exports){
+(function (global){
 /**
  * Module requirements.
  */
@@ -1657,7 +1666,9 @@ if (hasAttachEvent) {
   global.attachEvent('onunload', unloadHandler);
 }
 
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../emitter":2,"../util":12,"./polling":10,"debug":15,"xmlhttprequest":13}],10:[function(_dereq_,module,exports){
+(function (global){
 /**
  * Module dependencies.
  */
@@ -1909,6 +1920,7 @@ Polling.prototype.uri = function(){
   return schema + '://' + this.hostname + port + this.path + query;
 };
 
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../transport":5,"../util":12,"debug":15,"engine.io-parser":17,"xmlhttprequest":13}],11:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
@@ -2133,6 +2145,7 @@ WS.prototype.check = function(){
 };
 
 },{"../transport":5,"../util":12,"debug":15,"engine.io-parser":17,"ws":27}],12:[function(_dereq_,module,exports){
+(function (global){
 
 /**
  * Status of page load.
@@ -2293,6 +2306,7 @@ exports.qsParse = function(qs){
   return qry;
 };
 
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],13:[function(_dereq_,module,exports){
 // browser shim for xmlhttprequest module
 var hasCORS = _dereq_('has-cors');
@@ -2315,6 +2329,7 @@ module.exports = function(opts) {
 }
 
 },{"has-cors":23}],14:[function(_dereq_,module,exports){
+(function (global){
 /**
  * Create a blob builder even when vendor prefixes exist
  */
@@ -2365,6 +2380,7 @@ module.exports = (function() {
   }
 })();
 
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],15:[function(_dereq_,module,exports){
 
 /**
@@ -2669,6 +2685,7 @@ Emitter.prototype.hasListeners = function(event){
 };
 
 },{"indexof":24}],17:[function(_dereq_,module,exports){
+(function (global){
 /**
  * Module dependencies.
  */
@@ -3198,6 +3215,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
   });
 };
 
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./keys":18,"after":19,"arraybuffer.slice":20,"base64-arraybuffer":21,"blob":14}],18:[function(_dereq_,module,exports){
 
 /**
@@ -3387,6 +3405,7 @@ module.exports = function(arr, obj){
   return -1;
 };
 },{}],25:[function(_dereq_,module,exports){
+(function (global){
 /**
  * JSON parse.
  *
@@ -3419,6 +3438,7 @@ module.exports = function parsejson(data) {
     return (new Function('return ' + data))();
   }
 };
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],26:[function(_dereq_,module,exports){
 /**
  * Parses an URI
