@@ -6,9 +6,9 @@ var textBlobBuilder = require('text-blob-builder');
 
 describe('connection', function() {
   this.timeout(20000);
-  var socket = io();
 
   it('should connect to localhost', function(done) {
+    var socket = io();
     socket.emit('hi');
     socket.on('hi', function(data){
       done();
@@ -16,6 +16,7 @@ describe('connection', function() {
   });
 
   it('should work with acks', function(done){
+    var socket = io();
     socket.emit('ack');
     socket.on('ack', function(fn){
       fn(5, { test: true });
@@ -24,6 +25,7 @@ describe('connection', function() {
   });
 
   it('should work with false', function(done){
+    var socket = io();
     socket.emit('false');
     socket.on('false', function(f){
       expect(f).to.be(false);
@@ -45,23 +47,11 @@ describe('connection', function() {
   });
 
   it('should reconnect by default', function(done){
+    var socket = io();
     socket.io.engine.close();
     socket.io.on('reconnect', function() {
       done();
     });
-  });
-
-
-  it('should try to reconnect with incorrect address and reconnect enabled', function(done) {
-    var manager = io.Manager('http://localhost:3939', { reconnection: true });
-    var socket = manager.socket('/');
-    var cb = function() {
-      manager.removeListener('reconnect_attempt', cb);
-      socket.close();
-      done();
-    };
-
-    manager.on('reconnect_attempt', cb);
   });
 
   it('should try to reconnect twice and fail when requested two attempts with incorrect address and reconnect enabled', function(done) {
@@ -74,17 +64,14 @@ describe('connection', function() {
 
     manager.on('reconnect_attempt', cb);
 
-    manager.on('reconnect_failed', function failed() {
+    manager.on('reconnect_failed', function() {
       expect(reconnects).to.be(2);
-      manager.removeListener('reconnect_attempt', cb);
-      manager.removeListener('reconnect_failed', failed);
-      socket.close();
       done();
     });
   });
 
   it('should try to reconnect twice and fail when requested two attempts with immediate timeout and reconnect enabled', function(done) {
-    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2 });
+    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
     var socket;
 
     var reconnects = 0;
@@ -95,34 +82,16 @@ describe('connection', function() {
     manager.on('reconnect_attempt', reconnectCb);
     manager.on('reconnect_failed', function failed() {
       expect(reconnects).to.be(2);
-      manager.removeListener('reconnect_attempt', reconnectCb);
-      manager.removeListener('reconnect_failed', failed);
       socket.close();
       done();
     });
 
-    socket = manager.socket('/timeout-two');
-  });
-
-  it('should try to reconnect when the connection times out before opening', function(done) {
-    var manager = io.Manager({ reconnection: true, timeout: 0 });
-    var socket;
-
-    var reconnectCb = function() {
-      manager.removeListener('reconnect_attempt', reconnectCb);
-      socket.close();
-      done();
-    };
-
-    manager.on('reconnect_attempt', reconnectCb);
     socket = manager.socket('/timeout');
   });
-
 
   it('should not try to reconnect and should form a connection when connecting to correct port with default timeout', function(done) {
     var manager = io.Manager({ reconnection: true });
     var cb = function() {
-      manager.removeListener('reconnect_attempt', cb);
       socket.close();
       expect().fail();
     };
@@ -132,7 +101,6 @@ describe('connection', function() {
     socket.on('connect', function(){
       // set a timeout to let reconnection possibly fire
       setTimeout(function() {
-        manager.removeListener('reconnect_attempt', cb);
         socket.close();
         done();
       }, 1000);
@@ -142,6 +110,7 @@ describe('connection', function() {
 
 if (!global.Blob && !global.ArrayBuffer) {
   it('should get base64 data as a last resort', function(done) {
+    var socket = io();
     socket.on('takebin', function(a) {
       expect(a.base64).to.be(true);
       var bytes = b64.toByteArray(a.data);
@@ -157,6 +126,7 @@ if (global.ArrayBuffer) {
   var base64 = require('base64-arraybuffer');
 
   it('should get binary data (as an ArrayBuffer)', function(done){
+    var socket = io();
     socket.emit('doge');
     socket.on('doge', function(buffer){
       expect(buffer instanceof ArrayBuffer).to.be(true);
@@ -165,6 +135,7 @@ if (global.ArrayBuffer) {
   });
 
   it('should send binary data (as an ArrayBuffer)', function(done){
+    var socket = io();
     socket.on('buffack', function(){
       done();
     });
@@ -173,6 +144,7 @@ if (global.ArrayBuffer) {
   });
 
   it('should send binary data (as an ArrayBuffer) mixed with json', function(done) {
+    var socket = io();
     socket.on('jsonbuff-ack', function() {
       done();
     });
@@ -181,6 +153,7 @@ if (global.ArrayBuffer) {
   });
 
   it('should send events with ArrayBuffers in the correct order', function(done) {
+    var socket = io();
     socket.on('abuff2-ack', function() {
       done();
     });
@@ -192,6 +165,7 @@ if (global.ArrayBuffer) {
 
 if (global.Blob && null != textBlobBuilder('xxx')) {
   it('should send binary data (as a Blob)', function(done){
+    var socket = io();
     socket.on('back', function(){
       done();
     });
@@ -200,6 +174,7 @@ if (global.Blob && null != textBlobBuilder('xxx')) {
   });
 
   it('should send binary data (as a Blob) mixed with json', function(done) {
+    var socket = io();
     socket.on('jsonblob-ack', function() {
       done();
     });
@@ -208,6 +183,7 @@ if (global.Blob && null != textBlobBuilder('xxx')) {
   });
 
   it('should send events with Blobs in the correct order', function(done) {
+    var socket = io();
     socket.on('blob3-ack', function() {
       done();
     });
@@ -218,6 +194,7 @@ if (global.Blob && null != textBlobBuilder('xxx')) {
   });
 
   it('should clear its packet buffer in case of disconnect', function(done) {
+    var socket = io();
     var blob = textBlobBuilder('BLOBBLOB');
     for (var i=0; i < 10; i++) { // fill the buffer
       socket.emit('asdf', blob);
