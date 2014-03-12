@@ -40,7 +40,7 @@ Emitter.prototype.removeEventListener = Emitter.prototype.off;
 
 Emitter.prototype.removeListener = Emitter.prototype.off;
 
-},{"emitter":15}],3:[function(_dereq_,module,exports){
+},{"emitter":16}],3:[function(_dereq_,module,exports){
 
 module.exports = _dereq_('./socket');
 
@@ -52,7 +52,7 @@ module.exports = _dereq_('./socket');
  */
 module.exports.parser = _dereq_('engine.io-parser');
 
-},{"./socket":4,"engine.io-parser":16}],4:[function(_dereq_,module,exports){
+},{"./socket":4,"engine.io-parser":17}],4:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
@@ -63,18 +63,14 @@ var Emitter = _dereq_('./emitter');
 var debug = _dereq_('debug')('engine.io-client:socket');
 var index = _dereq_('indexof');
 var parser = _dereq_('engine.io-parser');
+var parseuri = _dereq_('parseuri');
+var parsejson = _dereq_('parsejson');
 
 /**
  * Module exports.
  */
 
 module.exports = Socket;
-
-/**
- * Global reference.
- */
-
-var global = _dereq_('global');
 
 /**
  * Noop function.
@@ -103,7 +99,7 @@ function Socket(uri, opts){
   }
 
   if (uri) {
-    uri = util.parseUri(uri);
+    uri = parseuri(uri);
     opts.host = uri.host;
     opts.secure = uri.protocol == 'https' || uri.protocol == 'wss';
     opts.port = uri.port;
@@ -410,7 +406,7 @@ Socket.prototype.onPacket = function (packet) {
 
     switch (packet.type) {
       case 'open':
-        this.onHandshake(util.parseJSON(packet.data));
+        this.onHandshake(parsejson(packet.data));
         break;
 
       case 'pong':
@@ -665,7 +661,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   return filteredUpgrades;
 };
 
-},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"debug":14,"engine.io-parser":16,"global":21,"indexof":23}],5:[function(_dereq_,module,exports){
+},{"./emitter":2,"./transport":5,"./transports":7,"./util":12,"debug":15,"engine.io-parser":17,"indexof":24,"parsejson":25,"parseuri":26}],5:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
@@ -809,7 +805,7 @@ Transport.prototype.onClose = function () {
   this.emit('close');
 };
 
-},{"./emitter":2,"./util":12,"engine.io-parser":16}],6:[function(_dereq_,module,exports){
+},{"./emitter":2,"./util":12,"engine.io-parser":17}],6:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
@@ -824,12 +820,6 @@ var debug = _dereq_('debug')('engine.io-client:flashsocket');
  */
 
 module.exports = FlashWS;
-
-/**
- * Global reference.
- */
-
-var global = _dereq_('global');
 
 /**
  * Obfuscated key for Blue Coat.
@@ -1079,7 +1069,7 @@ function load(arr, fn){
   process(0);
 }
 
-},{"../util":12,"./websocket":11,"debug":14,"global":21}],7:[function(_dereq_,module,exports){
+},{"../util":12,"./websocket":11,"debug":15}],7:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies
@@ -1098,12 +1088,6 @@ var XMLHttpRequest = _dereq_('xmlhttprequest')
 exports.polling = polling;
 exports.websocket = websocket;
 exports.flashsocket = flashsocket;
-
-/**
- * Global reference.
- */
-
-var global = _dereq_('global');
 
 /**
  * Polling transport polymorphic constructor.
@@ -1138,7 +1122,7 @@ function polling (opts) {
   }
 };
 
-},{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"global":21,"xmlhttprequest":13}],8:[function(_dereq_,module,exports){
+},{"./flashsocket":6,"./polling-jsonp":8,"./polling-xhr":9,"./websocket":11,"xmlhttprequest":13}],8:[function(_dereq_,module,exports){
 
 /**
  * Module requirements.
@@ -1152,12 +1136,6 @@ var util = _dereq_('../util');
  */
 
 module.exports = JSONPPolling;
-
-/**
- * Global reference.
- */
-
-var global = _dereq_('global');
 
 /**
  * Cached regular expressions.
@@ -1365,7 +1343,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   }
 };
 
-},{"../util":12,"./polling":10,"global":21}],9:[function(_dereq_,module,exports){
+},{"../util":12,"./polling":10}],9:[function(_dereq_,module,exports){
 /**
  * Module requirements.
  */
@@ -1382,12 +1360,6 @@ var debug = _dereq_('debug')('engine.io-client:polling-xhr');
 
 module.exports = XHR;
 module.exports.Request = Request;
-
-/**
- * Global reference.
- */
-
-var global = _dereq_('global');
 
 /**
  * Obfuscated key for Blue Coat.
@@ -1685,7 +1657,7 @@ if (hasAttachEvent) {
   global.attachEvent('onunload', unloadHandler);
 }
 
-},{"../emitter":2,"../util":12,"./polling":10,"debug":14,"global":21,"xmlhttprequest":13}],10:[function(_dereq_,module,exports){
+},{"../emitter":2,"../util":12,"./polling":10,"debug":15,"xmlhttprequest":13}],10:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
@@ -1700,12 +1672,6 @@ var debug = _dereq_('debug')('engine.io-client:polling');
  */
 
 module.exports = Polling;
-
-/**
- * Global reference.
- */
-
-var global = _dereq_('global');
 
 /**
  * Is XHR2 supported?
@@ -1943,7 +1909,7 @@ Polling.prototype.uri = function(){
   return schema + '://' + this.hostname + port + this.path + query;
 };
 
-},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21,"xmlhttprequest":13}],11:[function(_dereq_,module,exports){
+},{"../transport":5,"../util":12,"debug":15,"engine.io-parser":17,"xmlhttprequest":13}],11:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
@@ -1966,12 +1932,6 @@ var WebSocket = _dereq_('ws');
  */
 
 module.exports = WS;
-
-/**
- * Global reference.
- */
-
-var global = _dereq_('global');
 
 /**
  * WebSocket transport constructor.
@@ -2172,9 +2132,7 @@ WS.prototype.check = function(){
   return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 };
 
-},{"../transport":5,"../util":12,"debug":14,"engine.io-parser":16,"global":21,"ws":24}],12:[function(_dereq_,module,exports){
-
-var global = _dereq_('global');
+},{"../transport":5,"../util":12,"debug":15,"engine.io-parser":17,"ws":27}],12:[function(_dereq_,module,exports){
 
 /**
  * Status of page load.
@@ -2252,39 +2210,6 @@ if ('undefined' != typeof window) {
 }
 
 /**
- * JSON parse.
- *
- * @see Based on jQuery#parseJSON (MIT) and JSON2
- * @api private
- */
-
-var rvalidchars = /^[\],:{}\s]*$/;
-var rvalidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
-var rvalidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
-var rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g;
-var rtrimLeft = /^\s+/;
-var rtrimRight = /\s+$/;
-
-exports.parseJSON = function (data) {
-  if ('string' != typeof data || !data) {
-    return null;
-  }
-
-  data = data.replace(rtrimLeft, '').replace(rtrimRight, '');
-
-  // Attempt to parse using the native JSON parser first
-  if (global.JSON && JSON.parse) {
-    return JSON.parse(data);
-  }
-
-  if (rvalidchars.test(data.replace(rvalidescape, '@')
-      .replace(rvalidtokens, ']')
-      .replace(rvalidbraces, ''))) {
-    return (new Function('return ' + data))();
-  }
-};
-
-/**
  * UA / engines detection namespace.
  *
  * @namespace
@@ -2332,32 +2257,6 @@ exports.ua.ios6 = exports.ua.ios && /OS 6_/.test(navigator.userAgent);
 exports.ua.chromeframe = Boolean(global.externalHost);
 
 /**
- * Parses an URI
- *
- * @author Steven Levithan <stevenlevithan.com> (MIT license)
- * @api private
- */
-
-var re = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
-
-var parts = [
-    'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host'
-  , 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'
-];
-
-exports.parseUri = function (str) {
-  var m = re.exec(str || '')
-    , uri = {}
-    , i = 14;
-
-  while (i--) {
-    uri[parts[i]] = m[i] || '';
-  }
-
-  return uri;
-};
-
-/**
  * Compiles a querystring
  *
  * @param {Object}
@@ -2394,7 +2293,7 @@ exports.qsParse = function(qs){
   return qry;
 };
 
-},{"global":21}],13:[function(_dereq_,module,exports){
+},{}],13:[function(_dereq_,module,exports){
 // browser shim for xmlhttprequest module
 var hasCORS = _dereq_('has-cors');
 
@@ -2415,7 +2314,58 @@ module.exports = function(opts) {
   }
 }
 
-},{"has-cors":22}],14:[function(_dereq_,module,exports){
+},{"has-cors":23}],14:[function(_dereq_,module,exports){
+/**
+ * Create a blob builder even when vendor prefixes exist
+ */
+
+var BlobBuilder = global.BlobBuilder
+  || global.WebKitBlobBuilder
+  || global.MSBlobBuilder
+  || global.MozBlobBuilder;
+
+/**
+ * Check if Blob constructor is supported
+ */
+
+var blobSupported = (function() {
+  try {
+    var b = new Blob(['hi']);
+    return b.size == 2;
+  } catch(e) {
+    return false;
+  }
+})();
+
+/**
+ * Check if BlobBuilder is supported
+ */
+
+var blobBuilderSupported = BlobBuilder
+  && BlobBuilder.prototype.append
+  && BlobBuilder.prototype.getBlob;
+
+function BlobBuilderConstructor(ary, options) {
+  options = options || {};
+
+  var bb = new BlobBuilder();
+  for (var i = 0; i < ary.length; i++) {
+    bb.append(ary[i]);
+  }
+  return (options.type) ? bb.getBlob(options.type) : bb.getBlob();
+};
+
+module.exports = (function() {
+  if (blobSupported) {
+    return global.Blob;
+  } else if (blobBuilderSupported) {
+    return BlobBuilderConstructor;
+  } else {
+    return undefined;
+  }
+})();
+
+},{}],15:[function(_dereq_,module,exports){
 
 /**
  * Expose `debug()` as the module.
@@ -2554,7 +2504,7 @@ try {
   if (window.localStorage) debug.enable(localStorage.debug);
 } catch(e){}
 
-},{}],15:[function(_dereq_,module,exports){
+},{}],16:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
@@ -2718,8 +2668,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{"indexof":23}],16:[function(_dereq_,module,exports){
-(function (global){
+},{"indexof":24}],17:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
@@ -2728,13 +2677,6 @@ var keys = _dereq_('./keys');
 var sliceBuffer = _dereq_('arraybuffer.slice');
 var base64encoder = _dereq_('base64-arraybuffer');
 var after = _dereq_('after');
-
-/**
- * A utility for doing slicing, even when ArrayBuffer.prototype.slice doesn't
- * exist
- *
- * @api private
- */
 
 /**
  * Current protocol version.
@@ -2765,34 +2707,10 @@ var packetslist = keys(packets);
 var err = { type: 'error', data: 'parser error' };
 
 /**
- * Create a blob builder even when vendor prefixes exist
+ * Create a blob api even for blob builder when vendor prefixes exist
  */
 
-var BlobBuilder = global.BlobBuilder
-  || global.WebKitBlobBuilder
-  || global.MSBlobBuilder
-  || global.MozBlobBuilder;
-
-/**
- * Check if Blob constructor is supported
- */
-
-var blobSupported = (function() {
-  try {
-    var b = new Blob(['hi']);
-    return b.size == 2;
-  } catch(e) {
-    return false;
-  }
-})();
-
-/**
- * Check if BlobBuilder is supported
- */
-
-var blobBuilderSupported = !!BlobBuilder
-  && !!BlobBuilder.prototype.append
-  && !!BlobBuilder.prototype.getBlob;
+var Blob = _dereq_('blob');
 
 /**
  * Encodes a packet.
@@ -2818,11 +2736,11 @@ exports.encodePacket = function (packet, supportsBinary, callback) {
 
   var data = (packet.data === undefined)
     ? undefined
-    : packet.data.buffer || packet.data;
+    : packet.data.buffer || packet.data;
 
   if (global.ArrayBuffer && data instanceof ArrayBuffer) {
     return encodeArrayBuffer(packet, supportsBinary, callback);
-  } else if (blobSupported && data instanceof Blob) {
+  } else if (Blob && data instanceof Blob) {
     return encodeBlob(packet, supportsBinary, callback);
   }
 
@@ -2857,7 +2775,7 @@ function encodeArrayBuffer(packet, supportsBinary, callback) {
   }
 
   return callback(resultBuffer.buffer);
-};
+}
 
 function encodeBlobAsArrayBuffer(packet, supportsBinary, callback) {
   if (!supportsBinary) {
@@ -2870,7 +2788,7 @@ function encodeBlobAsArrayBuffer(packet, supportsBinary, callback) {
     exports.encodePacket(packet, supportsBinary, callback);
   };
   return fr.readAsArrayBuffer(packet.data);
-};
+}
 
 function encodeBlob(packet, supportsBinary, callback) {
   if (!supportsBinary) {
@@ -2879,18 +2797,10 @@ function encodeBlob(packet, supportsBinary, callback) {
 
   var length = new Uint8Array(1);
   length[0] = packets[packet.type];
-  var blob;
-  if (blobSupported) {
-    blob = new Blob([length.buffer, packet.data]);
-  } else {
-    var bb = new BlobBuilder();
-    bb.append(length);
-    bb.append(packet.data);
-    blob = bb.getBlob();
-  }
+  var blob = new Blob([length.buffer, packet.data]);
 
   return callback(blob);
-};
+}
 
 /**
  * Encodes a packet with binary data in a base64 string
@@ -2901,7 +2811,7 @@ function encodeBlob(packet, supportsBinary, callback) {
 
 exports.encodeBase64Packet = function(packet, callback) {
   var message = 'b' + exports.packets[packet.type];
-  if (blobSupported && packet.data instanceof Blob) {
+  if (Blob && packet.data instanceof Blob) {
     var fr = new FileReader();
     fr.onload = function() {
       var b64 = fr.result.split(',')[1];
@@ -2935,7 +2845,7 @@ exports.encodeBase64Packet = function(packet, callback) {
 
 exports.decodePacket = function (data, binaryType) {
   // String data
-  if (typeof data == 'string' || data === undefined) {
+  if (typeof data == 'string' || data === undefined) {
     if (data.charAt(0) == 'b') {
       return exports.decodeBase64Packet(data.substr(1), binaryType);
     }
@@ -2952,22 +2862,18 @@ exports.decodePacket = function (data, binaryType) {
       return { type: packetslist[type] };
     }
   }
- 
+
   var asArray = new Uint8Array(data);
   var type = asArray[0];
   var rest = sliceBuffer(data, 1);
-  if (blobSupported && binaryType === 'blob') {
+  if (Blob && binaryType === 'blob') {
     rest = new Blob([rest]);
-  } else if (blobBuilderSupported && binaryType === 'blob') {
-    var bb = new BlobBuilder();
-    bb.append(rest);
-    rest = bb.getBlob();
   }
-  return { type: packetslist[type], data: rest };
+  return { type: packetslist[type], data: rest };
 };
 
 /**
- * Decodes a packet encoded in a base64 string 
+ * Decodes a packet encoded in a base64 string
  *
  * @param {String} base64 encoded message
  * @return {Object} with `type` and `data` (if any)
@@ -2976,17 +2882,13 @@ exports.decodePacket = function (data, binaryType) {
 exports.decodeBase64Packet = function(msg, binaryType) {
   var type = packetslist[msg.charAt(0)];
   if (!global.ArrayBuffer) {
-    return { type: type, data: { base64: true, data: msg.substr(1) } };
+    return { type: type, data: { base64: true, data: msg.substr(1) } };
   }
 
   var data = base64encoder.decode(msg.substr(1));
 
-  if (binaryType === 'blob' && blobSupported) {
+  if (binaryType === 'blob' && Blob) {
     data = new Blob([data]);
-  } else if (binaryType === 'blob' && blobBuilderSupported) {
-    var bb = new BlobBuilder();
-    bb.append(data);
-    data = bb.getBlob();
   }
 
   return { type: type, data: data };
@@ -3015,7 +2917,7 @@ exports.encodePayload = function (packets, supportsBinary, callback) {
   }
 
   if (supportsBinary) {
-    if (blobSupported || blobBuilderSupported) {
+    if (Blob) {
       return exports.encodePayloadAsBlob(packets, callback);
     }
     return exports.encodePayloadAsArrayBuffer(packets, callback);
@@ -3025,15 +2927,15 @@ exports.encodePayload = function (packets, supportsBinary, callback) {
     return callback('0:');
   }
 
-  function setLengthHeader(message) {
+  function setLengthHeader(message) {
     return message.length + ':' + message;
-  };
+  }
 
   function encodeOne(packet, doneCallback) {
     exports.encodePacket(packet, supportsBinary, function(message) {
       doneCallback(null, setLengthHeader(message));
     });
-  };
+  }
 
   map(packets, encodeOne, function(err, results) {
     return callback(results.join(''));
@@ -3057,8 +2959,8 @@ function map(ary, each, done) {
 
   for (var i = 0; i < ary.length; i++) {
     eachWithIndex(i, ary[i], next);
-  };
-};
+  }
+}
 
 /*
  * Decodes data when a payload is maybe expected. Possible binary contents are
@@ -3069,7 +2971,7 @@ function map(ary, each, done) {
  */
 
 exports.decodePayload = function (data, binaryType, callback) {
-  if (!(typeof data == 'string')) {
+  if (typeof data != 'string') {
     return exports.decodePayloadAsBinary(data, binaryType, callback);
   }
 
@@ -3089,7 +2991,7 @@ exports.decodePayload = function (data, binaryType, callback) {
 
   for (var i = 0, l = data.length; i < l; i++) {
     var chr = data.charAt(i);
-   
+
     if (':' != chr) {
       length += chr;
     } else {
@@ -3153,7 +3055,7 @@ exports.encodePayloadAsArrayBuffer = function(packets, callback) {
     exports.encodePacket(packet, true, function(data) {
       return doneCallback(null, data);
     });
-  };
+  }
 
   map(packets, encodeOne, function(err, encodedPackets) {
     var totalLength = encodedPackets.reduce(function(acc, p) {
@@ -3163,7 +3065,7 @@ exports.encodePayloadAsArrayBuffer = function(packets, callback) {
       } else {
         len = p.byteLength;
       }
-      return acc + (new String(len)).length + len + 2; // string/binary identifier + separator = 2
+      return acc + len.toString().length + len + 2; // string/binary identifier + separator = 2
     }, 0);
 
     var resultArray = new Uint8Array(totalLength);
@@ -3186,7 +3088,7 @@ exports.encodePayloadAsArrayBuffer = function(packets, callback) {
         resultArray[bufferIndex++] = 1;
       }
 
-      var lenStr = new String(ab.byteLength);
+      var lenStr = ab.byteLength.toString();
       for (var i = 0; i < lenStr.length; i++) {
         resultArray[bufferIndex++] = parseInt(lenStr[i]);
       }
@@ -3224,37 +3126,22 @@ exports.encodePayloadAsBlob = function(packets, callback) {
         ? encoded.byteLength
         : encoded.size;
 
-      var lenStr = new String(len);
+      var lenStr = len.toString();
       var lengthAry = new Uint8Array(lenStr.length + 1);
       for (var i = 0; i < lenStr.length; i++) {
         lengthAry[i] = parseInt(lenStr[i]);
       }
       lengthAry[lenStr.length] = 255;
 
-      if (blobSupported) {
+      if (Blob) {
         var blob = new Blob([binaryIdentifier.buffer, lengthAry.buffer, encoded]);
-        doneCallback(null, blob);
-      } else {
-        var bb = new BlobBuilder();
-        bb.append(binaryIdentifier);
-        bb.append(lengthAry.buffer);
-        bb.append(encoded);
-        var blob = bb.getBlob();
         doneCallback(null, blob);
       }
     });
-  };
+  }
 
   map(packets, encodeOne, function(err, results) {
-    if (blobSupported) {
-      return callback(new Blob(results));
-    }
-
-    var bb = new BlobBuilder();
-    results.forEach(function(encoding) {
-      bb.append(encoding);
-    });
-    return callback(bb.getBlob());
+    return callback(new Blob(results));
   });
 };
 
@@ -3278,7 +3165,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
 
   while (bufferTail.byteLength > 0) {
     var tailArray = new Uint8Array(bufferTail);
-    var isString = tailArray[0] == 0;
+    var isString = tailArray[0] === 0;
     var msgLength = '';
     for (var i = 1; ; i++) {
       if (tailArray[i] == 255) break;
@@ -3311,8 +3198,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
   });
 };
 
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./keys":17,"after":18,"arraybuffer.slice":19,"base64-arraybuffer":20}],17:[function(_dereq_,module,exports){
+},{"./keys":18,"after":19,"arraybuffer.slice":20,"base64-arraybuffer":21,"blob":14}],18:[function(_dereq_,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -3333,7 +3219,7 @@ module.exports = Object.keys || function keys (obj){
   return arr;
 };
 
-},{}],18:[function(_dereq_,module,exports){
+},{}],19:[function(_dereq_,module,exports){
 module.exports = after
 
 function after(count, callback, err_cb) {
@@ -3363,12 +3249,12 @@ function after(count, callback, err_cb) {
 
 function noop() {}
 
-},{}],19:[function(_dereq_,module,exports){
+},{}],20:[function(_dereq_,module,exports){
 /**
  * An abstraction for slicing an arraybuffer even when
  * ArrayBuffer.prototype.slice is not supported
  *
- * @api private
+ * @api public
  */
 
 module.exports = function(arraybuffer, start, end) {
@@ -3378,11 +3264,11 @@ module.exports = function(arraybuffer, start, end) {
 
   if (arraybuffer.slice) { return arraybuffer.slice(start, end); }
 
-  if (start < 0) { start += bytes; }
+  if (start < 0) { start += bytes; }
   if (end < 0) { end += bytes; }
   if (end > bytes) { end = bytes; }
 
-  if (start >= bytes || start >= end || bytes == 0) { 
+  if (start >= bytes || start >= end || bytes === 0) {
     return new ArrayBuffer(0);
   }
 
@@ -3394,7 +3280,7 @@ module.exports = function(arraybuffer, start, end) {
   return result.buffer;
 };
 
-},{}],20:[function(_dereq_,module,exports){
+},{}],21:[function(_dereq_,module,exports){
 /*
  * base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
@@ -3454,7 +3340,7 @@ module.exports = function(arraybuffer, start, end) {
     return arraybuffer;
   };
 })("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-},{}],21:[function(_dereq_,module,exports){
+},{}],22:[function(_dereq_,module,exports){
 
 /**
  * Returns `this`. Execute this without a "context" (i.e. without it being
@@ -3464,7 +3350,7 @@ module.exports = function(arraybuffer, start, end) {
 
 module.exports = (function () { return this; })();
 
-},{}],22:[function(_dereq_,module,exports){
+},{}],23:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
@@ -3489,7 +3375,7 @@ try {
   module.exports = false;
 }
 
-},{"global":21}],23:[function(_dereq_,module,exports){
+},{"global":22}],24:[function(_dereq_,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -3500,7 +3386,67 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],24:[function(_dereq_,module,exports){
+},{}],25:[function(_dereq_,module,exports){
+/**
+ * JSON parse.
+ *
+ * @see Based on jQuery#parseJSON (MIT) and JSON2
+ * @api private
+ */
+
+var rvalidchars = /^[\],:{}\s]*$/;
+var rvalidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+var rvalidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+var rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g;
+var rtrimLeft = /^\s+/;
+var rtrimRight = /\s+$/;
+
+module.exports = function parsejson(data) {
+  if ('string' != typeof data || !data) {
+    return null;
+  }
+
+  data = data.replace(rtrimLeft, '').replace(rtrimRight, '');
+
+  // Attempt to parse using the native JSON parser first
+  if (global.JSON && JSON.parse) {
+    return JSON.parse(data);
+  }
+
+  if (rvalidchars.test(data.replace(rvalidescape, '@')
+      .replace(rvalidtokens, ']')
+      .replace(rvalidbraces, ''))) {
+    return (new Function('return ' + data))();
+  }
+};
+},{}],26:[function(_dereq_,module,exports){
+/**
+ * Parses an URI
+ *
+ * @author Steven Levithan <stevenlevithan.com> (MIT license)
+ * @api private
+ */
+
+var re = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+
+var parts = [
+    'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host'
+  , 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'
+];
+
+module.exports = function parseuri(str) {
+  var m = re.exec(str || '')
+    , uri = {}
+    , i = 14;
+
+  while (i--) {
+    uri[parts[i]] = m[i] || '';
+  }
+
+  return uri;
+};
+
+},{}],27:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
