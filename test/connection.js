@@ -55,7 +55,7 @@ describe('connection', function() {
   });
 
   it('should try to reconnect twice and fail when requested two attempts with incorrect address and reconnect enabled', function(done) {
-    var manager = io.Manager('http://localhost:3940', { reconnection: true, reconnectionAttempts: 2 });
+    var manager = io.Manager('http://localhost:3940', { reconnection: true, reconnectionAttempts: 2, reconnectionDelay: 10 });
     var socket = manager.socket('/asd');
     var reconnects = 0;
     var cb = function() {
@@ -90,7 +90,7 @@ describe('connection', function() {
   });
 
   it('should not try to reconnect and should form a connection when connecting to correct port with default timeout', function(done) {
-    var manager = io.Manager({ reconnection: true });
+    var manager = io.Manager({ reconnection: true, reconnectionDelay: 10 });
     var cb = function() {
       socket.close();
       expect().fail();
@@ -106,6 +106,25 @@ describe('connection', function() {
       }, 1000);
     });
   });
+
+  it('should not try to reconnect with incorrect port when reconnection disabled', function(done) {
+    var manager = io.Manager('http://localhost:9823', { reconnection: false });
+    var cb = function() {
+      socket.close();
+      expect().fail();
+    };
+    manager.on('reconnect_attempt', cb);
+
+    manager.on('connect_error', function(){
+      // set a timeout to let reconnection possibly fire
+      setTimeout(function() {
+        done();
+      }, 1000);
+    });
+
+    var socket = manager.socket('/invalid');
+  });
+
 
 
 if (!global.Blob && !global.ArrayBuffer) {
