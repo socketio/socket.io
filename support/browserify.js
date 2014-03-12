@@ -20,9 +20,11 @@ module.exports = build;
 
 
 function build(fn){
-  var opts = {
-    builtins: false,
-    entries: [path]
-  };
-  browserify(opts).bundle({ standalone: 'eio' }, fn);
+  var opts = {};
+  opts.builtins = false;
+  opts.entries = [path];
+  var bundle = {};
+  bundle.standalone = 'eio';
+  bundle.insertGlobalVars = ['global'];
+  browserify(opts).bundle(bundle, fn);
 }
