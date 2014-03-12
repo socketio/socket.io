@@ -92,7 +92,7 @@ exports.connect = lookup;
 exports.Manager = require('./manager');
 exports.Socket = require('./socket');
 
-},{"./manager":3,"./socket":5,"./url":6,"debug":9,"socket.io-parser":38}],3:[function(require,module,exports){
+},{"./manager":3,"./socket":5,"./url":6,"debug":9,"socket.io-parser":39}],3:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -536,7 +536,7 @@ Manager.prototype.onreconnect = function(){
   this.emit('reconnect', attempt);
 };
 
-},{"./on":4,"./socket":5,"./url":6,"bind":8,"debug":9,"emitter":10,"engine.io-client":11,"object-component":35,"socket.io-parser":38}],4:[function(require,module,exports){
+},{"./on":4,"./socket":5,"./url":6,"bind":8,"debug":9,"emitter":10,"engine.io-client":11,"object-component":36,"socket.io-parser":39}],4:[function(require,module,exports){
 
 /**
  * Module exports.
@@ -919,7 +919,7 @@ Socket.prototype.disconnect = function(){
   return this;
 };
 
-},{"./on":4,"bind":8,"debug":9,"emitter":10,"has-binary-data":30,"indexof":34,"socket.io-parser":38,"to-array":41}],6:[function(require,module,exports){
+},{"./on":4,"bind":8,"debug":9,"emitter":10,"has-binary-data":31,"indexof":35,"socket.io-parser":39,"to-array":42}],6:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 /**
  * Module dependencies.
@@ -989,7 +989,7 @@ function url(uri, loc){
   return obj;
 }
 
-},{"debug":9,"parseuri":36}],7:[function(require,module,exports){
+},{"debug":9,"parseuri":37}],7:[function(require,module,exports){
 /*
  * base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
@@ -1378,7 +1378,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{"indexof":34}],11:[function(require,module,exports){
+},{"indexof":35}],11:[function(require,module,exports){
 
 module.exports =  require('./lib/');
 
@@ -1433,7 +1433,7 @@ module.exports = require('./socket');
 module.exports.parser = require('engine.io-parser');
 
 },{"./socket":14,"engine.io-parser":24}],14:[function(require,module,exports){
-/**
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Module dependencies.
  */
 
@@ -1443,18 +1443,14 @@ var Emitter = require('./emitter');
 var debug = require('debug')('engine.io-client:socket');
 var index = require('indexof');
 var parser = require('engine.io-parser');
+var parseuri = require('parseuri');
+var parsejson = require('parsejson');
 
 /**
  * Module exports.
  */
 
 module.exports = Socket;
-
-/**
- * Global reference.
- */
-
-var global = require('global');
 
 /**
  * Noop function.
@@ -1483,7 +1479,7 @@ function Socket(uri, opts){
   }
 
   if (uri) {
-    uri = util.parseUri(uri);
+    uri = parseuri(uri);
     opts.host = uri.host;
     opts.secure = uri.protocol == 'https' || uri.protocol == 'wss';
     opts.port = uri.port;
@@ -1790,7 +1786,7 @@ Socket.prototype.onPacket = function (packet) {
 
     switch (packet.type) {
       case 'open':
-        this.onHandshake(util.parseJSON(packet.data));
+        this.onHandshake(parsejson(packet.data));
         break;
 
       case 'pong':
@@ -2045,7 +2041,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   return filteredUpgrades;
 };
 
-},{"./emitter":12,"./transport":15,"./transports":17,"./util":22,"debug":9,"engine.io-parser":24,"global":28,"indexof":34}],15:[function(require,module,exports){
+},{"./emitter":12,"./transport":15,"./transports":17,"./util":22,"debug":9,"engine.io-parser":24,"indexof":35,"parsejson":29,"parseuri":37}],15:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -2190,7 +2186,7 @@ Transport.prototype.onClose = function () {
 };
 
 },{"./emitter":12,"./util":22,"engine.io-parser":24}],16:[function(require,module,exports){
-
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 /**
  * Module dependencies.
  */
@@ -2204,12 +2200,6 @@ var debug = require('debug')('engine.io-client:flashsocket');
  */
 
 module.exports = FlashWS;
-
-/**
- * Global reference.
- */
-
-var global = require('global');
 
 /**
  * Obfuscated key for Blue Coat.
@@ -2459,8 +2449,8 @@ function load(arr, fn){
   process(0);
 }
 
-},{"../util":22,"./websocket":21,"debug":9,"global":28}],17:[function(require,module,exports){
-
+},{"../util":22,"./websocket":21,"debug":9}],17:[function(require,module,exports){
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 /**
  * Module dependencies
  */
@@ -2478,12 +2468,6 @@ var XMLHttpRequest = require('xmlhttprequest')
 exports.polling = polling;
 exports.websocket = websocket;
 exports.flashsocket = flashsocket;
-
-/**
- * Global reference.
- */
-
-var global = require('global');
 
 /**
  * Polling transport polymorphic constructor.
@@ -2518,8 +2502,8 @@ function polling (opts) {
   }
 };
 
-},{"./flashsocket":16,"./polling-jsonp":18,"./polling-xhr":19,"./websocket":21,"global":28,"xmlhttprequest":23}],18:[function(require,module,exports){
-
+},{"./flashsocket":16,"./polling-jsonp":18,"./polling-xhr":19,"./websocket":21,"xmlhttprequest":23}],18:[function(require,module,exports){
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 /**
  * Module requirements.
  */
@@ -2532,12 +2516,6 @@ var util = require('../util');
  */
 
 module.exports = JSONPPolling;
-
-/**
- * Global reference.
- */
-
-var global = require('global');
 
 /**
  * Cached regular expressions.
@@ -2745,8 +2723,8 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   }
 };
 
-},{"../util":22,"./polling":20,"global":28}],19:[function(require,module,exports){
-/**
+},{"../util":22,"./polling":20}],19:[function(require,module,exports){
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Module requirements.
  */
 
@@ -2762,12 +2740,6 @@ var debug = require('debug')('engine.io-client:polling-xhr');
 
 module.exports = XHR;
 module.exports.Request = Request;
-
-/**
- * Global reference.
- */
-
-var global = require('global');
 
 /**
  * Obfuscated key for Blue Coat.
@@ -3065,8 +3037,8 @@ if (hasAttachEvent) {
   global.attachEvent('onunload', unloadHandler);
 }
 
-},{"../emitter":12,"../util":22,"./polling":20,"debug":9,"global":28,"xmlhttprequest":23}],20:[function(require,module,exports){
-/**
+},{"../emitter":12,"../util":22,"./polling":20,"debug":9,"xmlhttprequest":23}],20:[function(require,module,exports){
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Module dependencies.
  */
 
@@ -3080,12 +3052,6 @@ var debug = require('debug')('engine.io-client:polling');
  */
 
 module.exports = Polling;
-
-/**
- * Global reference.
- */
-
-var global = require('global');
 
 /**
  * Is XHR2 supported?
@@ -3323,7 +3289,7 @@ Polling.prototype.uri = function(){
   return schema + '://' + this.hostname + port + this.path + query;
 };
 
-},{"../transport":15,"../util":22,"debug":9,"engine.io-parser":24,"global":28,"xmlhttprequest":23}],21:[function(require,module,exports){
+},{"../transport":15,"../util":22,"debug":9,"engine.io-parser":24,"xmlhttprequest":23}],21:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -3346,12 +3312,6 @@ var WebSocket = require('ws');
  */
 
 module.exports = WS;
-
-/**
- * Global reference.
- */
-
-var global = require('global');
 
 /**
  * WebSocket transport constructor.
@@ -3552,10 +3512,8 @@ WS.prototype.check = function(){
   return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 };
 
-},{"../transport":15,"../util":22,"debug":9,"engine.io-parser":24,"global":28,"ws":29}],22:[function(require,module,exports){
-
-var global = require('global');
-
+},{"../transport":15,"../util":22,"debug":9,"engine.io-parser":24,"ws":30}],22:[function(require,module,exports){
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 /**
  * Status of page load.
  */
@@ -3632,39 +3590,6 @@ if ('undefined' != typeof window) {
 }
 
 /**
- * JSON parse.
- *
- * @see Based on jQuery#parseJSON (MIT) and JSON2
- * @api private
- */
-
-var rvalidchars = /^[\],:{}\s]*$/;
-var rvalidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
-var rvalidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
-var rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g;
-var rtrimLeft = /^\s+/;
-var rtrimRight = /\s+$/;
-
-exports.parseJSON = function (data) {
-  if ('string' != typeof data || !data) {
-    return null;
-  }
-
-  data = data.replace(rtrimLeft, '').replace(rtrimRight, '');
-
-  // Attempt to parse using the native JSON parser first
-  if (global.JSON && JSON.parse) {
-    return JSON.parse(data);
-  }
-
-  if (rvalidchars.test(data.replace(rvalidescape, '@')
-      .replace(rvalidtokens, ']')
-      .replace(rvalidbraces, ''))) {
-    return (new Function('return ' + data))();
-  }
-};
-
-/**
  * UA / engines detection namespace.
  *
  * @namespace
@@ -3712,32 +3637,6 @@ exports.ua.ios6 = exports.ua.ios && /OS 6_/.test(navigator.userAgent);
 exports.ua.chromeframe = Boolean(global.externalHost);
 
 /**
- * Parses an URI
- *
- * @author Steven Levithan <stevenlevithan.com> (MIT license)
- * @api private
- */
-
-var re = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
-
-var parts = [
-    'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host'
-  , 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'
-];
-
-exports.parseUri = function (str) {
-  var m = re.exec(str || '')
-    , uri = {}
-    , i = 14;
-
-  while (i--) {
-    uri[parts[i]] = m[i] || '';
-  }
-
-  return uri;
-};
-
-/**
  * Compiles a querystring
  *
  * @param {Object}
@@ -3774,7 +3673,7 @@ exports.qsParse = function(qs){
   return qry;
 };
 
-},{"global":28}],23:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 // browser shim for xmlhttprequest module
 var hasCORS = require('has-cors');
 
@@ -3795,7 +3694,7 @@ module.exports = function(opts) {
   }
 }
 
-},{"has-cors":32}],24:[function(require,module,exports){
+},{"has-cors":33}],24:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Module dependencies.
  */
@@ -3804,13 +3703,6 @@ var keys = require('./keys');
 var sliceBuffer = require('arraybuffer.slice');
 var base64encoder = require('base64-arraybuffer');
 var after = require('after');
-
-/**
- * A utility for doing slicing, even when ArrayBuffer.prototype.slice doesn't
- * exist
- *
- * @api private
- */
 
 /**
  * Current protocol version.
@@ -3841,34 +3733,10 @@ var packetslist = keys(packets);
 var err = { type: 'error', data: 'parser error' };
 
 /**
- * Create a blob builder even when vendor prefixes exist
+ * Create a blob api even for blob builder when vendor prefixes exist
  */
 
-var BlobBuilder = global.BlobBuilder
-  || global.WebKitBlobBuilder
-  || global.MSBlobBuilder
-  || global.MozBlobBuilder;
-
-/**
- * Check if Blob constructor is supported
- */
-
-var blobSupported = (function() {
-  try {
-    var b = new Blob(['hi']);
-    return b.size == 2;
-  } catch(e) {
-    return false;
-  }
-})();
-
-/**
- * Check if BlobBuilder is supported
- */
-
-var blobBuilderSupported = !!BlobBuilder
-  && !!BlobBuilder.prototype.append
-  && !!BlobBuilder.prototype.getBlob;
+var Blob = require('blob');
 
 /**
  * Encodes a packet.
@@ -3894,11 +3762,11 @@ exports.encodePacket = function (packet, supportsBinary, callback) {
 
   var data = (packet.data === undefined)
     ? undefined
-    : packet.data.buffer || packet.data;
+    : packet.data.buffer || packet.data;
 
   if (global.ArrayBuffer && data instanceof ArrayBuffer) {
     return encodeArrayBuffer(packet, supportsBinary, callback);
-  } else if (blobSupported && data instanceof Blob) {
+  } else if (Blob && data instanceof Blob) {
     return encodeBlob(packet, supportsBinary, callback);
   }
 
@@ -3933,7 +3801,7 @@ function encodeArrayBuffer(packet, supportsBinary, callback) {
   }
 
   return callback(resultBuffer.buffer);
-};
+}
 
 function encodeBlobAsArrayBuffer(packet, supportsBinary, callback) {
   if (!supportsBinary) {
@@ -3946,7 +3814,7 @@ function encodeBlobAsArrayBuffer(packet, supportsBinary, callback) {
     exports.encodePacket(packet, supportsBinary, callback);
   };
   return fr.readAsArrayBuffer(packet.data);
-};
+}
 
 function encodeBlob(packet, supportsBinary, callback) {
   if (!supportsBinary) {
@@ -3955,18 +3823,10 @@ function encodeBlob(packet, supportsBinary, callback) {
 
   var length = new Uint8Array(1);
   length[0] = packets[packet.type];
-  var blob;
-  if (blobSupported) {
-    blob = new Blob([length.buffer, packet.data]);
-  } else {
-    var bb = new BlobBuilder();
-    bb.append(length);
-    bb.append(packet.data);
-    blob = bb.getBlob();
-  }
+  var blob = new Blob([length.buffer, packet.data]);
 
   return callback(blob);
-};
+}
 
 /**
  * Encodes a packet with binary data in a base64 string
@@ -3977,7 +3837,7 @@ function encodeBlob(packet, supportsBinary, callback) {
 
 exports.encodeBase64Packet = function(packet, callback) {
   var message = 'b' + exports.packets[packet.type];
-  if (blobSupported && packet.data instanceof Blob) {
+  if (Blob && packet.data instanceof Blob) {
     var fr = new FileReader();
     fr.onload = function() {
       var b64 = fr.result.split(',')[1];
@@ -4011,7 +3871,7 @@ exports.encodeBase64Packet = function(packet, callback) {
 
 exports.decodePacket = function (data, binaryType) {
   // String data
-  if (typeof data == 'string' || data === undefined) {
+  if (typeof data == 'string' || data === undefined) {
     if (data.charAt(0) == 'b') {
       return exports.decodeBase64Packet(data.substr(1), binaryType);
     }
@@ -4028,22 +3888,18 @@ exports.decodePacket = function (data, binaryType) {
       return { type: packetslist[type] };
     }
   }
- 
+
   var asArray = new Uint8Array(data);
   var type = asArray[0];
   var rest = sliceBuffer(data, 1);
-  if (blobSupported && binaryType === 'blob') {
+  if (Blob && binaryType === 'blob') {
     rest = new Blob([rest]);
-  } else if (blobBuilderSupported && binaryType === 'blob') {
-    var bb = new BlobBuilder();
-    bb.append(rest);
-    rest = bb.getBlob();
   }
-  return { type: packetslist[type], data: rest };
+  return { type: packetslist[type], data: rest };
 };
 
 /**
- * Decodes a packet encoded in a base64 string 
+ * Decodes a packet encoded in a base64 string
  *
  * @param {String} base64 encoded message
  * @return {Object} with `type` and `data` (if any)
@@ -4052,17 +3908,13 @@ exports.decodePacket = function (data, binaryType) {
 exports.decodeBase64Packet = function(msg, binaryType) {
   var type = packetslist[msg.charAt(0)];
   if (!global.ArrayBuffer) {
-    return { type: type, data: { base64: true, data: msg.substr(1) } };
+    return { type: type, data: { base64: true, data: msg.substr(1) } };
   }
 
   var data = base64encoder.decode(msg.substr(1));
 
-  if (binaryType === 'blob' && blobSupported) {
+  if (binaryType === 'blob' && Blob) {
     data = new Blob([data]);
-  } else if (binaryType === 'blob' && blobBuilderSupported) {
-    var bb = new BlobBuilder();
-    bb.append(data);
-    data = bb.getBlob();
   }
 
   return { type: type, data: data };
@@ -4091,7 +3943,7 @@ exports.encodePayload = function (packets, supportsBinary, callback) {
   }
 
   if (supportsBinary) {
-    if (blobSupported || blobBuilderSupported) {
+    if (Blob) {
       return exports.encodePayloadAsBlob(packets, callback);
     }
     return exports.encodePayloadAsArrayBuffer(packets, callback);
@@ -4101,15 +3953,15 @@ exports.encodePayload = function (packets, supportsBinary, callback) {
     return callback('0:');
   }
 
-  function setLengthHeader(message) {
+  function setLengthHeader(message) {
     return message.length + ':' + message;
-  };
+  }
 
   function encodeOne(packet, doneCallback) {
     exports.encodePacket(packet, supportsBinary, function(message) {
       doneCallback(null, setLengthHeader(message));
     });
-  };
+  }
 
   map(packets, encodeOne, function(err, results) {
     return callback(results.join(''));
@@ -4133,8 +3985,8 @@ function map(ary, each, done) {
 
   for (var i = 0; i < ary.length; i++) {
     eachWithIndex(i, ary[i], next);
-  };
-};
+  }
+}
 
 /*
  * Decodes data when a payload is maybe expected. Possible binary contents are
@@ -4145,7 +3997,7 @@ function map(ary, each, done) {
  */
 
 exports.decodePayload = function (data, binaryType, callback) {
-  if (!(typeof data == 'string')) {
+  if (typeof data != 'string') {
     return exports.decodePayloadAsBinary(data, binaryType, callback);
   }
 
@@ -4165,7 +4017,7 @@ exports.decodePayload = function (data, binaryType, callback) {
 
   for (var i = 0, l = data.length; i < l; i++) {
     var chr = data.charAt(i);
-   
+
     if (':' != chr) {
       length += chr;
     } else {
@@ -4229,7 +4081,7 @@ exports.encodePayloadAsArrayBuffer = function(packets, callback) {
     exports.encodePacket(packet, true, function(data) {
       return doneCallback(null, data);
     });
-  };
+  }
 
   map(packets, encodeOne, function(err, encodedPackets) {
     var totalLength = encodedPackets.reduce(function(acc, p) {
@@ -4239,7 +4091,7 @@ exports.encodePayloadAsArrayBuffer = function(packets, callback) {
       } else {
         len = p.byteLength;
       }
-      return acc + (new String(len)).length + len + 2; // string/binary identifier + separator = 2
+      return acc + len.toString().length + len + 2; // string/binary identifier + separator = 2
     }, 0);
 
     var resultArray = new Uint8Array(totalLength);
@@ -4262,7 +4114,7 @@ exports.encodePayloadAsArrayBuffer = function(packets, callback) {
         resultArray[bufferIndex++] = 1;
       }
 
-      var lenStr = new String(ab.byteLength);
+      var lenStr = ab.byteLength.toString();
       for (var i = 0; i < lenStr.length; i++) {
         resultArray[bufferIndex++] = parseInt(lenStr[i]);
       }
@@ -4300,37 +4152,22 @@ exports.encodePayloadAsBlob = function(packets, callback) {
         ? encoded.byteLength
         : encoded.size;
 
-      var lenStr = new String(len);
+      var lenStr = len.toString();
       var lengthAry = new Uint8Array(lenStr.length + 1);
       for (var i = 0; i < lenStr.length; i++) {
         lengthAry[i] = parseInt(lenStr[i]);
       }
       lengthAry[lenStr.length] = 255;
 
-      if (blobSupported) {
+      if (Blob) {
         var blob = new Blob([binaryIdentifier.buffer, lengthAry.buffer, encoded]);
-        doneCallback(null, blob);
-      } else {
-        var bb = new BlobBuilder();
-        bb.append(binaryIdentifier);
-        bb.append(lengthAry.buffer);
-        bb.append(encoded);
-        var blob = bb.getBlob();
         doneCallback(null, blob);
       }
     });
-  };
+  }
 
   map(packets, encodeOne, function(err, results) {
-    if (blobSupported) {
-      return callback(new Blob(results));
-    }
-
-    var bb = new BlobBuilder();
-    results.forEach(function(encoding) {
-      bb.append(encoding);
-    });
-    return callback(bb.getBlob());
+    return callback(new Blob(results));
   });
 };
 
@@ -4354,7 +4191,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
 
   while (bufferTail.byteLength > 0) {
     var tailArray = new Uint8Array(bufferTail);
-    var isString = tailArray[0] == 0;
+    var isString = tailArray[0] === 0;
     var msgLength = '';
     for (var i = 1; ; i++) {
       if (tailArray[i] == 255) break;
@@ -4387,7 +4224,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
   });
 };
 
-},{"./keys":25,"after":26,"arraybuffer.slice":27,"base64-arraybuffer":7}],25:[function(require,module,exports){
+},{"./keys":25,"after":26,"arraybuffer.slice":27,"base64-arraybuffer":7,"blob":28}],25:[function(require,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -4443,7 +4280,7 @@ function noop() {}
  * An abstraction for slicing an arraybuffer even when
  * ArrayBuffer.prototype.slice is not supported
  *
- * @api private
+ * @api public
  */
 
 module.exports = function(arraybuffer, start, end) {
@@ -4453,11 +4290,11 @@ module.exports = function(arraybuffer, start, end) {
 
   if (arraybuffer.slice) { return arraybuffer.slice(start, end); }
 
-  if (start < 0) { start += bytes; }
+  if (start < 0) { start += bytes; }
   if (end < 0) { end += bytes; }
   if (end > bytes) { end = bytes; }
 
-  if (start >= bytes || start >= end || bytes == 0) { 
+  if (start >= bytes || start >= end || bytes === 0) {
     return new ArrayBuffer(0);
   }
 
@@ -4470,16 +4307,90 @@ module.exports = function(arraybuffer, start, end) {
 };
 
 },{}],28:[function(require,module,exports){
-
-/**
- * Returns `this`. Execute this without a "context" (i.e. without it being
- * attached to an object of the left-hand side), and `this` points to the
- * "global" scope of the current JS execution.
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
+ * Create a blob builder even when vendor prefixes exist
  */
 
-module.exports = (function () { return this; })();
+var BlobBuilder = global.BlobBuilder
+  || global.WebKitBlobBuilder
+  || global.MSBlobBuilder
+  || global.MozBlobBuilder;
+
+/**
+ * Check if Blob constructor is supported
+ */
+
+var blobSupported = (function() {
+  try {
+    var b = new Blob(['hi']);
+    return b.size == 2;
+  } catch(e) {
+    return false;
+  }
+})();
+
+/**
+ * Check if BlobBuilder is supported
+ */
+
+var blobBuilderSupported = BlobBuilder
+  && BlobBuilder.prototype.append
+  && BlobBuilder.prototype.getBlob;
+
+function BlobBuilderConstructor(ary, options) {
+  options = options || {};
+
+  var bb = new BlobBuilder();
+  for (var i = 0; i < ary.length; i++) {
+    bb.append(ary[i]);
+  }
+  return (options.type) ? bb.getBlob(options.type) : bb.getBlob();
+};
+
+module.exports = (function() {
+  if (blobSupported) {
+    return global.Blob;
+  } else if (blobBuilderSupported) {
+    return BlobBuilderConstructor;
+  } else {
+    return undefined;
+  }
+})();
 
 },{}],29:[function(require,module,exports){
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
+ * JSON parse.
+ *
+ * @see Based on jQuery#parseJSON (MIT) and JSON2
+ * @api private
+ */
+
+var rvalidchars = /^[\],:{}\s]*$/;
+var rvalidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+var rvalidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+var rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g;
+var rtrimLeft = /^\s+/;
+var rtrimRight = /\s+$/;
+
+module.exports = function parsejson(data) {
+  if ('string' != typeof data || !data) {
+    return null;
+  }
+
+  data = data.replace(rtrimLeft, '').replace(rtrimRight, '');
+
+  // Attempt to parse using the native JSON parser first
+  if (global.JSON && JSON.parse) {
+    return JSON.parse(data);
+  }
+
+  if (rvalidchars.test(data.replace(rvalidescape, '@')
+      .replace(rvalidtokens, ']')
+      .replace(rvalidbraces, ''))) {
+    return (new Function('return ' + data))();
+  }
+};
+},{}],30:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -4524,7 +4435,7 @@ function ws(uri, protocols, opts) {
 
 if (WebSocket) ws.prototype = WebSocket.prototype;
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/*
  * Module requirements.
  */
@@ -4579,12 +4490,12 @@ function hasBinary(data) {
   return recursiveCheckForBinary(data);
 }
 
-},{"isarray":31}],31:[function(require,module,exports){
+},{"isarray":32}],32:[function(require,module,exports){
 module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -4609,9 +4520,17 @@ try {
   module.exports = false;
 }
 
-},{"global":33}],33:[function(require,module,exports){
-module.exports=require(28)
-},{}],34:[function(require,module,exports){
+},{"global":34}],34:[function(require,module,exports){
+
+/**
+ * Returns `this`. Execute this without a "context" (i.e. without it being
+ * attached to an object of the left-hand side), and `this` points to the
+ * "global" scope of the current JS execution.
+ */
+
+module.exports = (function () { return this; })();
+
+},{}],35:[function(require,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -4622,7 +4541,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 
 /**
  * HOP ref.
@@ -4707,7 +4626,7 @@ exports.length = function(obj){
 exports.isEmpty = function(obj){
   return 0 == exports.length(obj);
 };
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /**
  * Parses an URI
  *
@@ -4734,7 +4653,7 @@ module.exports = function parseuri(str) {
   return uri;
 };
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Modle requirements
  */
@@ -4888,7 +4807,7 @@ function isBuf(obj) {
          (global.ArrayBuffer && obj instanceof ArrayBuffer);
 }
 
-},{"isarray":39}],38:[function(require,module,exports){
+},{"isarray":40}],39:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 /**
  * Module dependencies.
@@ -5260,9 +5179,9 @@ function error(data){
   };
 }
 
-},{"./binary":37,"debug":9,"emitter":10,"isarray":39,"json3":40}],39:[function(require,module,exports){
-module.exports=require(31)
-},{}],40:[function(require,module,exports){
+},{"./binary":38,"debug":9,"emitter":10,"isarray":40,"json3":41}],40:[function(require,module,exports){
+module.exports=require(32)
+},{}],41:[function(require,module,exports){
 /*! JSON v3.2.6 | http://bestiejs.github.io/json3 | Copyright 2012-2013, Kit Cambridge | http://kit.mit-license.org */
 ;(function (window) {
   // Convenience aliases.
@@ -6125,7 +6044,7 @@ module.exports=require(31)
   }
 }(this));
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 module.exports = toArray
 
 function toArray(list, index) {
