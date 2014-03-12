@@ -1,4 +1,12 @@
 
+1.0.2 / 2014-03-12
+==================
+
+ * bump `engine.io-parser`
+ * made `parseJSON` and `parseURI` from `util` their own modules [gkoren]
+ * clean up tests
+ * clean up browserify
+
 1.0.1 / 2014-03-06
 ==================
 
