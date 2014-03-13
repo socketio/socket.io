@@ -128,7 +128,8 @@ server.listen(3000);
 ### Server#adapter(v:Adapter):Server
 
   Sets the adapter `v`. Defaults to an instance of the `Adapter` that
-  ships with socket.io which is memory based (see below).
+  ships with socket.io which is memory based. See
+  [socket.io-adapter](https://github.com/learnboost/socket.io-adapter).
 
   If no arguments are supplied this method returns the current value.
 
@@ -214,7 +215,7 @@ server.listen(3000);
   function to optionally defer execution to the next registered
   middleware.
 
-  ```
+  ```js
   var io = require('socket.io')();
   io.use(function(socket, next){
     if (socket.request.headers.cookie) return next();
@@ -250,6 +251,64 @@ server.listen(3000);
   originated the underlying engine.io `Client`. Useful for accessing
   request headers such as `Cookie` or `User-Agent`.
 
+### Socket#id:String
+
+  A unique identifier for the socket session, that comes from the
+  underlying `Client`.
+
+### Socket#emit(name:String[, …]):Socket
+
+  Emits an event to the socket identified by the string `name`. Any
+  other parameters can be included.
+
+  All datastructures are supported, including `Buffer`. JavaScript
+  functions can't be serialized/deserialized.
+
+  ```js
+  var io = require('socket.io')();
+  io.on('connection', function(socket){
+    socket.emit('an event', { some: 'data' });
+  });
+  ```
+
+### Socket#join(name:String[, fn:Function]):Socket
+
+  Adds the socket to the `room`, and fires optionally a callback `fn`
+  with `err` signature (if any).
+
+  The socket is automatically a member of a room identified with its
+  session id (see `Socket#id`).
+
+  The mechanics of joining  rooms are handled by the `Adapter`
+  that has been configured (see `Server#adapter` above), defaulting to
+  [socket.io-adapter](https://github.com/socket.io/socket.io-adapter).
+
+### Socket#leave(name:String[, fn:Function]):Socket
+
+  Removes the socket from `room`, and fires optionally a callback `fn`
+  with `err` signature (if any).
+
+  **Rooms are left automatically upon disconnection**.
+
+  The mechanics of leaving rooms are handled by the `Adapter`
+  that has been configured (see `Server#adapter` above), defaulting to
+  [socket.io-adapter](https://github.com/socket.io/socket.io-adapter).
+
+### Socket#to(room:String):Socket
+### Socket#in(room:String):Socket
+
+  Sets a modifier for a subsequent event emission that the event will
+  only be _broadcasted_ to sockets that have joined the given `room`.
+
+  To emit to multiple rooms, you can call `to` several times.
+
+  ```js
+  var io = require('socket.io')();
+  io.on('connection', function(socket){
+    socket.to('others').emit('an event', { some: 'data' });
+  });
+  ```
+
 ### Client
 
   The `Client` class represents an incoming transport (engine.io)
@@ -265,15 +324,6 @@ server.listen(3000);
   A getter proxy that returns the reference to the `request` that
   originated the engine.io connection. Useful for accessing
   request headers such as `Cookie` or `User-Agent`.
-
-### Adapter
-
-  The `Adapter` is in charge of keeping track of what rooms each socket
-  is connected to and passing messages to them.
-
-  By default the `Adapter` is memory based. In order to pass messages
-  across multiple processes, make sure to use an appropriate adapter.
-  (configurable through `Server#adapter`).
 
 ## License
 
