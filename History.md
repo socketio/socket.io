@@ -1,4 +1,9 @@
 
+1.0.4 / 2014-03-14
+==================
+
+ * no base64 encoding for no reason when using websockets
+
 1.0.3 / 2014-03-12
 ==================
 

@@ -1999,7 +1999,7 @@ WS.prototype.doOpen = function(){
 
   this.ws = new WebSocket(uri, protocols, opts);
 
-  if (this.ws.binaryType !== undefined) {
+  if (this.ws.binaryType === undefined) {
     this.supportsBinary = false;
   }
 
