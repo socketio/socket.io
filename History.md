@@ -1,4 +1,14 @@
 
+1.0.0-pre / 2014-03-14
+======================
+
+ * implemented `engine.io-client`
+ * implemented `socket.io-parser`
+ * implemented `json3` to avoid env pollution
+ * implemented `debug`
+ * added binary support
+ * added `browserify` support
+
 0.9.11 / 2012-11-02
 ===================
 
