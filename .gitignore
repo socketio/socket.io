@@ -1,6 +1,2 @@
-node_modules
-build
-build.js
-components
-.DS_Store
-coverage
+/node_modules
+/coverage
