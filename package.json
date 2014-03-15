@@ -23,9 +23,9 @@
     "debug": "0.7.4"
   },
   "devDependencies": {
-    "mocha": "*",
-    "expect.js": "*",
-    "supertest": "*",
+    "mocha": "1.16.2",
+    "expect.js": "0.2.1",
+    "supertest": "0.8.2",
     "istanbul": "0.2.3"
   },
   "contributors": [
