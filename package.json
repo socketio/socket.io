@@ -10,7 +10,7 @@
     "client"
   ],
   "dependencies": {
-    "engine.io-client": "1.0.3",
+    "engine.io-client": "1.0.4",
     "emitter": "http://github.com/component/emitter/archive/1.0.1.tar.gz",
     "bind": "http://github.com/component/bind/archive/0.0.1.tar.gz",
     "object-component": "0.0.3",
@@ -22,7 +22,7 @@
     "indexof": "0.0.1"
   },
   "devDependencies": {
-    "socket.io": "LearnBoost/socket.io#d293e3b",
+    "socket.io": "1.0.0-pre",
     "mocha": "1.16.2",
     "zuul": "1.5.4",
     "istanbul": "0.2.1",
