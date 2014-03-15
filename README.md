@@ -1,3 +1,4 @@
+
 ### This Readme corresponds to the upcoming 1.0 release. Please refer to http://socket.io for the current 0.9.x documentation.
 
 # socket.io-client
