@@ -1,4 +1,15 @@
 
+1.0.0-pre / 2014-03-14
+======================
+
+ * implemented `engine.io`
+ * implemented `socket.io-adapter`
+ * implemented `socket.io-protocol`
+ * implemented `debug` and improved instrumentation
+ * added binary support
+ * added new `require('io')(srv)` signature
+ * simplified `socket.io-client` serving
+
 0.9.14 / 2013-03-29
 ===================
 

@@ -41,7 +41,7 @@ function.
 var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-io.on('connection', function(){ // … });
+io.on('connection', function(){ /* … */ });
 server.listen(3000);
 ```
 
@@ -54,7 +54,7 @@ handler function, but only by calling the `callback` method.
 var app = require('koa')();
 var server = require('http').Server(app.callback());
 var io = require('socket.io')(server);
-io.on('connection', function(){ // … });
+io.on('connection', function(){ /* … */ });
 server.listen(3000);
 ```
 
