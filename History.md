@@ -1,4 +1,9 @@
 
+1.0.2 / 2014-03-16
+==================
+
+ * fix binary for android due to a bug in Blob XHR2 implementation [Rase-]
+
 1.0.1 / 2014-03-06
 ==================
 
