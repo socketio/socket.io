@@ -1,6 +1,6 @@
 {
   "name": "socket.io-client",
-  "version": "1.0.0",
+  "version": "1.0.0-pre",
   "keywords": [
     "realtime",
     "framework",
