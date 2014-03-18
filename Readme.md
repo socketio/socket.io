@@ -30,7 +30,7 @@ io.on('connection', function(socket){});
 io.listen(3000);
 ```
 
-### In conjunction with `Express`
+### In conjunction with Express
 
 Starting with **3.0**, express applications have become request handler
 functions that you pass to `http` or `http` `Server` instances. You need
@@ -45,7 +45,7 @@ io.on('connection', function(){ /* … */ });
 server.listen(3000);
 ```
 
-### In conjunction with `Koa`
+### In conjunction with Koa
 
 Like Express.JS, Koa works by exposing an application as a request
 handler function, but only by calling the `callback` method.
