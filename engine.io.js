@@ -1654,16 +1654,15 @@ Request.prototype.abort = function(){
 if (hasAttachEvent) {
   Request.requestsCount = 0;
   Request.requests = {};
+  global.attachEvent('onunload', unloadHandler);
+}
 
-  function unloadHandler() {
-    for (var i in Request.requests) {
-      if (Request.requests.hasOwnProperty(i)) {
-        Request.requests[i].abort();
-      }
+function unloadHandler() {
+  for (var i in Request.requests) {
+    if (Request.requests.hasOwnProperty(i)) {
+      Request.requests[i].abort();
     }
   }
-
-  global.attachEvent('onunload', unloadHandler);
 }
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
@@ -2696,6 +2695,15 @@ var base64encoder = _dereq_('base64-arraybuffer');
 var after = _dereq_('after');
 
 /**
+ * Check if we are running an android browser. That requires us to use
+ * ArrayBuffer with polling transports...
+ *
+ * http://ghinda.net/jpeg-blob-ajax-android/
+ */
+
+var isAndroid = navigator.userAgent.match(/Android/i);
+
+/**
  * Current protocol version.
  */
 
@@ -2757,7 +2765,7 @@ exports.encodePacket = function (packet, supportsBinary, callback) {
 
   if (global.ArrayBuffer && data instanceof ArrayBuffer) {
     return encodeArrayBuffer(packet, supportsBinary, callback);
-  } else if (Blob && data instanceof Blob) {
+  } else if (Blob && data instanceof global.Blob) {
     return encodeBlob(packet, supportsBinary, callback);
   }
 
@@ -2810,6 +2818,10 @@ function encodeBlobAsArrayBuffer(packet, supportsBinary, callback) {
 function encodeBlob(packet, supportsBinary, callback) {
   if (!supportsBinary) {
     return exports.encodeBase64Packet(packet, callback);
+  }
+
+  if (isAndroid) {
+    return encodeBlobAsArrayBuffer(packet, supportsBinary, callback);
   }
 
   var length = new Uint8Array(1);
@@ -2934,9 +2946,10 @@ exports.encodePayload = function (packets, supportsBinary, callback) {
   }
 
   if (supportsBinary) {
-    if (Blob) {
+    if (Blob && !isAndroid) {
       return exports.encodePayloadAsBlob(packets, callback);
     }
+
     return exports.encodePayloadAsArrayBuffer(packets, callback);
   }
 

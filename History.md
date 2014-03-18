@@ -1,4 +1,9 @@
 
+1.0.5 / 2014-03-18
+==================
+
+ * package: bump `engine.io-parser` for android binary fix
+
 1.0.4 / 2014-03-14
 ==================
 
