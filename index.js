@@ -15,7 +15,7 @@ var binary = require('./binary');
  * @api public
  */
 
-exports.protocol = 1;
+exports.protocol = 3;
 
 /**
  * Packet types.
