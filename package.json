@@ -22,7 +22,7 @@
     "indexof": "0.0.1"
   },
   "devDependencies": {
-    "socket.io": "1.0.0-pre",
+    "socket.io": "LearnBoost/socket.io#6aa553",
     "mocha": "1.16.2",
     "zuul": "1.5.4",
     "istanbul": "0.2.1",
