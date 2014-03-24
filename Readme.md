@@ -13,37 +13,52 @@
 
 ## Parser API
 
-### Parser#encode(Object:packet):Array
+### Parser#Encoder
 
-  Encodes a `Packet` object into an array of engine.io-transportable encodings.
-  If the object is all JSON the array will contain a single string. If the object
-  contains binary data (ArrayBuffer, Buffer, Blob, or File) the array will contain
-  one string with the packet metadata and placeholders in the JSON where the binary
-  data was, and the raw binary data for each binary instance in the packet as
-  a separate entry.
+  An object that encodes socket.io packets to engine.io-transportable form.
+  Its only public method is Encoder#encode.
 
-### Parser#decode(String:packet):Packet
+#### Encoder#encode(Object:packet, Function:callback)
 
-  Returns a `Packet` object for the given string. If a parsing error occurs
-  the returned packet is an error object. If the returned packet's type is
-  `Packet#BINARY_EVENT`, the next data to arrive will be raw binary, and a
-  `Parser#BinaryReconstructor` should be created from it.
+  Encodes a `Packet` object into an array of engine.io-compatible encodings.
+  If the object is pure JSON the array will contain a single item, a socket.io
+  encoded string. If the object contains binary data (ArrayBuffer, Buffer,
+  Blob, or File) the array's first item will be a string with packet-relevant
+  metadata and JSON with placeholders where the binary data was held in the
+  initial packet. The remaining items will be the raw binary data to fill in
+  the placeholders post-decoding.
 
-### Parser#BinaryReconstructor(Packet:packet):BinaryReconstructor
+  The callback function is called with the encoded array as its only argument.
+  In the socket.io-parser implementation, the callback writes each item in the
+  array to engine.io for transport. The expectation for any implementation is
+  that each item in the array is transported sequentially.
 
-  Object that handles reconstruction of a `Packet` with binary data. Should
-  be constructed whenever a packet of type `Packet#BINARY_EVENT` is returned
-  from `Parser#decode`.
+### Parser#Decoder
 
-#### BinaryReconstructor#takeBinaryData(Binary:binData):null|Packet
+  An object that decodes data from engine.io into complete socket.io packets.
 
-  Should be called whenever raw binary data is received from transport after
-  the reception of a packet of type `Packet#BINARY_EVENT`. Will return null
-  if the reconstructor expects more binary data from the transport, or the fully
-  reconstructed packet with binary data if all of the expected binary data has
-  been received. Essentially this should be called with all incoming binary data
-  until it returns non-null, in which case the packet has been fully reconstructed
-  and the BinaryReconstructor can be discarded.
+  The expected workflow for using the Decoder is to call the `Decoder#add`
+  method upon receiving any encoding from engine.io (in the sequential order in
+  which the encodings are received) and to listen to the Decoder's 'decoded'
+  events to handle fully decoded packets.
+
+#### Decoder#add(Object:encoding)
+
+  Decodes a single encoded object from engine.io transport. In the case of a
+  non-binary packet, the one encoding argument is used to reconstruct the full
+  packet. If the packet is of type `BINARY_EVENT` or `ACK`, then additional calls
+  to add are expected, one for each piece of binary data in the original packet.
+  Once the final binary data encoding is passed to add, the full socket.io
+  packet is reconstructed.
+
+  After a packet is fully decoded, the Decoder emits a 'decoded' event (via
+  Emitter) with the decoded packet as the sole argument. Listeners to this event
+  should treat the packet as ready-to-go.
+
+#### Decoder#destroy()
+
+  Deallocates the Decoder instance's resources. Should be called in the event
+  of a disconnect mid-decoding, etc. to prevent memory leaks.
 
 ### Parser#types
 
@@ -52,7 +67,7 @@
 ### Packet
 
   Each packet is represented as a vanilla `Object` with a `nsp` key that
-  indicates what namespace it belongs to (see "Multiplexing") and a 
+  indicates what namespace it belongs to (see "Multiplexing") and a
   `type` key that can be one of the following:
 
   - `Packet#CONNECT` (`0`)
@@ -65,7 +80,7 @@
 #### EVENT
 
   - `data` (`Array`) a list of arguments, the first of which is the event
-    name. Arguments can contain any type of field that can result of 
+    name. Arguments can contain any type of field that can result of
     `JSON` decoding, including objects and arrays of arbitrary size.
 
   - `id` (`Number`) if the `id` identifier is present, it indicates that the
@@ -74,19 +89,21 @@
 #### BINARY_EVENT
 
   - `data` (`Array`) see `EVENT` `data`, but with addition that any of the arguments
-    may contain non-JSON arbitrary binary data. On server, all binary data is a Buffer;
-    on modern clients binary data is an ArrayBuffer. On older browsers that don't
-    support binary, every binary data item is replaced with an object like so:
-    `{base64: true, data: <the_binary_data_encoded_as_base64>}. When a BINARY_EVENT
+    may contain non-JSON arbitrary binary data. For encoding, binary data is
+    considered either a Buffer, ArrayBuffer, Blob, or File. When decoding, all
+    binary data server-side is a Buffer; on modern clients binary data is an
+    ArrayBuffer. On older browsers that don't support binary, every binary data
+    item is replaced with an object like so:
+`{base64: true, data: <base64_bin_encoding>}`. When a `BINARY_EVENT` or `ACK`
     packet is initially decoded, all of the binary data items will be placeholders,
-    and should be filled by a `Parser#BinaryReconstructor` as binary data arrives
-    via transport.
+    and will be filled by additional calls to `Decoder#add`.
 
   - `id` (`Number`) see `EVENT` `id`.
 
 #### ACK
 
-  - `data` (`Array`) see `EVENT` `data`.
+  - `data` (`Array`) see `EVENT` `data`. Encoded in the `BINARY_EVENT` style in
+    case acknowledgement functions need binary data; see the notes above.
   - `id` (`Number`) see `EVENT` `id`.
 
 #### ERROR
@@ -127,7 +144,7 @@
   be user-defined.
 
   After a `CONNECT` packet is received by the server for a given `nsp`,
-  the client can then send and receive `EVENT` packets. If any of the 
+  the client can then send and receive `EVENT` packets. If any of the
   parties receives an `EVENT` packet with an `id` field, an `ACK` packet is
   expected to confirm the reception of said packet.
 
