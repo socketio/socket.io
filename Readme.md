@@ -219,7 +219,7 @@ server.listen(3000);
   var io = require('socket.io')();
   io.use(function(socket, next){
     if (socket.request.headers.cookie) return next();
-    done(new Error('Authentication error'));
+    next(new Error('Authentication error'));
   });
   ```
 
