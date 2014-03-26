@@ -792,6 +792,8 @@ describe('server', function () {
   });
 
   describe('messages', function () {
+    this.timeout(5000);
+
     it('should arrive from server to client', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
@@ -843,6 +845,39 @@ describe('server', function () {
         });
       });
     });
+
+    it('should not be receiving data when getting a message longer than maxHttpBufferSize when polling', function(done) {
+      var opts = { allowUpgrades: false, transports: ['polling'], maxHttpBufferSize: 5 };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.on('message', function(msg) {
+            console.log(msg);
+          });
+        });
+        socket.on('open', function () {
+          socket.send('aasdasdakjhasdkjhasdkjhasdkjhasdkjhasdkjhasdkjha');
+        });
+      });
+      setTimeout(done, 1000);
+    });
+
+    it('should receive data when getting a message shorter than maxHttpBufferSize when polling', function(done) {
+      var opts = { allowUpgrades: false, transports: ['polling'], maxHttpBufferSize: 5 };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.on('message', function(msg) {
+            expect(msg).to.be('a');
+            done();
+          });
+        });
+        socket.on('open', function () {
+          socket.send('a');
+        });
+      });
+    });
+
 
     it('should arrive from server to client (ws)', function (done) {
       var opts = { allowUpgrades: false, transports: ['websocket'] };
@@ -999,7 +1034,7 @@ describe('server', function () {
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function(port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
-        
+
         engine.on('connection', function (conn) {
           conn.send(binaryData);
         });
