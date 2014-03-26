@@ -45,6 +45,12 @@ describe('socket.io', function(){
       expect(srv.eio.transports).to.eql(['polling']);
     });
 
+    it('should be able to set maxHttpBufferSize to engine.io', function() {
+      var srv = io(http());
+      srv.set('destroy buffer size', 10);
+      expect(srv.eio.maxHttpBufferSize).to.eql(10);
+    });
+
     it('should be able to set path with setting resource', function() {
       var srv = io(http());
       srv.set('resource', '/random');
