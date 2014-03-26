@@ -193,6 +193,9 @@ to a single process.
         consider the connection closed (`60000`)
       - `pingInterval` (`Number`): how many ms before sending a new ping
         packet (`25000`)
+      - `maxHttpBufferSize` (`Number`): how many bytes or characters a message
+        can be when polling, before closing the session (to avoid DoS). Default
+        value is `10E7`.
       - `transports` (`<Array> String`): transports to allow connections
         to (`['polling', 'websocket', 'flashsocket']`)
       - `allowUpgrades` (`Boolean`): whether to allow transport upgrades
