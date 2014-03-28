@@ -325,6 +325,18 @@ server.listen(3000);
   originated the engine.io connection. Useful for accessing
   request headers such as `Cookie` or `User-Agent`.
 
+## Debug / logging
+
+Socket.IO is powered by [debug](http://github.com/visionmedia/debug).
+In order to see all the debug output, run your app with the environment variable
+`DEBUG` including the desired scope.
+
+To see the output from all of Socket.IO's debugging scopes you can use:
+
+```
+DEBUG=socket.io* node myapp
+```
+
 ## License
 
 MIT
