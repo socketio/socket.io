@@ -23,7 +23,6 @@ var BlobBuilder = global.BlobBuilder || global.WebKitBlobBuilder || global.MSBlo
 var blobBuilderSupported = !!BlobBuilder && !!BlobBuilder.prototype.append && !!BlobBuilder.prototype.getBlob;
 
 require('./engine.io-client');
-require('./util');
 require('./parser');
 require('./socket');
 require('./transport');
