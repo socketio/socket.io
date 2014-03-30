@@ -1,14 +1,7 @@
 var expect = require('expect.js');
 var eio = require('../../');
 
-var blobSupported = (function() {
-  try {
-    var b = new Blob(['hi']);
-    return b.size == 2;
-  } catch(e) {
-    return false;
-  }
-})();
+var Blob = require('blob');
 
 describe('blob', function() {
   this.timeout(30000);
@@ -25,7 +18,7 @@ describe('blob', function() {
       socket.on('message', function (data) {
         if (typeof data === 'string') return;
 
-        expect(data).to.be.a(Blob);
+        expect(data).to.be.a(global.Blob);
         var fr = new FileReader();
         fr.onload = function() {
           var ab = this.result;
@@ -46,15 +39,9 @@ describe('blob', function() {
     }
     var socket = new eio.Socket();
     socket.on('open', function() {
-      if (blobSupported) {
-        socket.send(new Blob([binaryData.buffer]));
-      } else {
-        var bb = new BlobBuilder();
-        bb.append(binaryData.buffer);
-        socket.send(bb.getBlob());
-      }
+      socket.send(new Blob([binaryData.buffer]));
       socket.on('message', function (data) {
-        if (typeof data == 'string') { return; }
+        if (typeof data == 'string') return;
 
         expect(data).to.be.an(ArrayBuffer);
         expect(new Int8Array(data)).to.eql(binaryData);

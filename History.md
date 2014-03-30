@@ -1,4 +1,27 @@
 
+1.0.5 / 2014-03-18
+==================
+
+ * package: bump `engine.io-parser` for android binary fix
+
+1.0.4 / 2014-03-14
+==================
+
+ * no base64 encoding for no reason when using websockets
+
+1.0.3 / 2014-03-12
+==================
+
+ * fix browserify
+
+1.0.2 / 2014-03-12
+==================
+
+ * bump `engine.io-parser`
+ * made `parseJSON` and `parseURI` from `util` their own modules [gkoren]
+ * clean up tests
+ * clean up browserify
+
 1.0.1 / 2014-03-06
 ==================
 

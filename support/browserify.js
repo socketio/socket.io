@@ -22,6 +22,20 @@ module.exports = build;
 function build(fn){
   var opts = {};
   opts.builtins = false;
-  opts.insertGlobals = 'global';
-  browserify(path, opts).bundle({ standalone: 'eio' }, fn);
+  opts.entries = [path];
+  var bundle = {};
+  bundle.standalone = 'eio';
+  bundle.insertGlobalVars = { global: glob };
+  browserify(opts).bundle(bundle, fn);
+}
+
+/**
+ * Populates `global`.
+ *
+ * @api private
+ */
+
+function glob(){
+  return 'typeof self !== "undefined" ? self : '
+    + 'typeof window !== "undefined" ? window : {}';
 }
