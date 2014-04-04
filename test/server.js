@@ -237,8 +237,8 @@ describe('server', function () {
       var engine = listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { query: { a: 'b' } });
         engine.on('connection', function (conn) {
-          expect(conn.request.query).to.have.keys('transport', 'a');
-          expect(conn.request.query.a).to.be('b');
+          expect(conn.request._query).to.have.keys('transport', 'a');
+          expect(conn.request._query.a).to.be('b');
           done();
         });
       });
@@ -248,9 +248,9 @@ describe('server', function () {
       var engine = listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d?a=b&c=d'.s(port));
         engine.on('connection', function (conn) {
-          expect(conn.request.query.EIO).to.be.a('string');
-          expect(conn.request.query.a).to.be('b');
-          expect(conn.request.query.c).to.be('d');
+          expect(conn.request._query.EIO).to.be.a('string');
+          expect(conn.request._query.a).to.be('b');
+          expect(conn.request._query.c).to.be('d');
           done();
         });
       });
@@ -1664,16 +1664,16 @@ describe('server', function () {
             }
           }, 2);
 
-          expect(conn.request.query.transport).to.be('polling');
+          expect(conn.request._query.transport).to.be('polling');
 
           conn.on('message', function (msg) {
-            expect(conn.request.query).to.be.an('object');
+            expect(conn.request._query).to.be.an('object');
             lastReceived++;
             expect(msg).to.eql(lastReceived);
           });
 
           conn.on('upgrade', function (to) {
-            expect(conn.request.query.transport).to.be('polling');
+            expect(conn.request._query.transport).to.be('polling');
             upgraded = true;
             expect(to.name).to.be('websocket');
             expect(conn.transport.name).to.be('websocket');
