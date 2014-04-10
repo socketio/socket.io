@@ -196,6 +196,12 @@ to a single process.
       - `maxHttpBufferSize` (`Number`): how many bytes or characters a message
         can be when polling, before closing the session (to avoid DoS). Default
         value is `10E7`.
+      - `allowRequest` (`Function`): A function that receives a given handshake
+        or upgrade request as its first parameter, and can decide whether to
+        continue or not. The second argument is a function that needs to be
+        called with the decided information: `fn(err, success)`, where
+        `success` is a boolean value where false means that the request is
+        rejected, and err is an error code.
       - `transports` (`<Array> String`): transports to allow connections
         to (`['polling', 'websocket', 'flashsocket']`)
       - `allowUpgrades` (`Boolean`): whether to allow transport upgrades
