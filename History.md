@@ -1,4 +1,9 @@
 
+1.0.3 / 2014-04-10
+==================
+
+ * Fix length calculation when encoding as binary [binlain]
+
 1.0.2 / 2014-03-16
 ==================
 
