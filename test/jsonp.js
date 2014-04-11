@@ -77,8 +77,8 @@ describe('JSONP', function () {
 
   after(function () {
     delete document.getElementsByTagName
-      , document.createElement
-      , document;
+      , document.createElement;
+    delete global.document;
   });
 
   describe('handshake', function () {
@@ -114,7 +114,7 @@ describe('JSONP', function () {
           });
         });
       });
-    }); 
+    });
 
     it('should arrive from server to client and back with binary data (pollingJSONP)', function(done) {
       var binaryData = new Buffer(5);
@@ -137,7 +137,7 @@ describe('JSONP', function () {
       });
     });
   });
-  
+
   describe('close', function () {
     it('should trigger when server closes a client', function (done) {
       var engine = listen( { allowUpgrades: false, transports: ['polling'] }, function (port) {
