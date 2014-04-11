@@ -30,7 +30,8 @@
     "engine.io-parser": "1.0.3",
     "debug": "0.7.4",
     "parseuri": "0.0.2",
-    "parsejson": "0.0.1"
+    "parsejson": "0.0.1",
+    "parseqs": "0.0.2"
   },
   "devDependencies": {
     "zuul": "1.5.4",

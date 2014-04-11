@@ -11,7 +11,6 @@ global.WEB_SOCKET_SWF_LOCATION = null;
 var Blob = require('blob');
 
 require('./engine.io-client');
-require('./util');
 require('./socket');
 require('./transport');
 
