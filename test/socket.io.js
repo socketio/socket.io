@@ -647,6 +647,23 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should see query parameters in the request', function(done) {
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function() {
+        var addr = srv.listen().address();
+        var url = 'ws://' + addr.address + ':' + addr.port + '?key1=1&key2=2';
+        var socket = ioc(url);
+        sio.on('connection', function(s) {
+          var parsed = require('url').parse(s.request.url);
+          var query = require('querystring').parse(parsed.query);
+          expect(query.key1).to.be('1');
+          expect(query.key2).to.be('2');
+          done();
+        });
+      });
+    });
   });
 
   describe('messaging many', function(){
