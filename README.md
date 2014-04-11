@@ -77,10 +77,10 @@ Add `engine.io-client` to your `package.json` and then:
 
 ```js
 var socket = require('engine.io-client')('ws://localhost');
-socket.onopen = function(){
-  socket.onmessage = function(data){};
-  socket.onclose = function(){};
-};
+socket.on('open', function(){
+  socket.on('message', function(data){});
+  socket.on('close', function(){});
+});
 ```
 
 ## Features
