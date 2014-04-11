@@ -18,7 +18,7 @@ bi-directional communication layer for
 var engine = require('engine.io');
 var server = engine.listen(80);
 
-server.on('connection', function (socket) {
+server.on('connection', function(socket){
   socket.send('utf 8 string');
   socket.send(new Buffer([0, 1, 2, 3, 4, 5])); // binary data
 });
@@ -32,8 +32,8 @@ var http = require('http').createServer().listen(3000);
 var server = engine.attach(http);
 
 server.on('connection', function (socket) {
-  socket.on('message', function () { });
-  socket.on('close', function () { });
+  socket.on('message', function(data){ });
+  socket.on('close', function(){ });
 });
 ```
 
@@ -43,15 +43,15 @@ server.on('connection', function (socket) {
 var engine = require('engine.io');
 var server = new engine.Server();
 
-server.on('connection', function (socket) {
+server.on('connection', function(socket){
   socket.send('hi');
 });
 
 // …
-httpServer.on('upgrade', function (req, socket, head) {
+httpServer.on('upgrade', function(req, socket, head){
   server.handleUpgrade(req, socket, head);
 });
-httpServer.on('request', function (req, res) {
+httpServer.on('request', function(req, res){
   server.handleRequest(req, res);
 });
 ```
@@ -62,26 +62,9 @@ httpServer.on('request', function (req, res) {
 <script src="/path/to/engine.io.js"></script>
 <script>
   var socket = new eio.Socket('ws://localhost/');
-  socket.on('open', function () {
-    socket.on('message', function (data) { });
-    socket.on('close', function () { });
-  });
-</script>
-```
-
-Sending and receiving binary
-
-```html
-<script src="/path/to/engine.io.js"></script>
-<script>
-  var socket = new eio.Socket('ws://localhost/');
-  socket.binaryType = 'blob'; // receives Blob instead of ArrayBuffer (default)
-  socket.on('open', function () {
-    socket.send(new Int8Array(5));
-    socket.on('message', function (data) {
-      // data instanceof Blob => true when receiving binary
-    });
-    socket.on('close', function () { });
+  socket.on('open', function(){
+    socket.on('message', function(data){});
+    socket.on('close', function(){});
   });
 </script>
 ```
@@ -91,8 +74,6 @@ For more information on the client refer to the
 
 ## What features does it have?
 
-- **Isomorphic with WebSocket.IO**. You can switch between a WebSocket server
-  and a multi-transport server by changing the `require`.
 - **Maximum reliability**. Connections are established even in the presence of:
   - proxies and load balancers.
   - personal firewall and antivirus software.
