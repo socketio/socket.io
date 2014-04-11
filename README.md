@@ -20,10 +20,10 @@ standalone build you can use as follows:
 <script>
   // eio = Socket
   var socket = eio('ws://localhost');
-  socket.onopen = function(){
-    socket.onmessage = function(data){};
-    socket.onclose = function(){};
-  };
+  socket.on('open', function(){
+    socket.on('message', function(data){});
+    socket.on('close', function(){});
+  });
 </script>
 ```
 
@@ -40,10 +40,10 @@ npm install engine.io-client
 1. write your app code
 ```js
 var socket = require('engine.io-client')('ws://localhost');
-socket.onopen = function(){
-    socket.onmessage = function(data){};
-    socket.onclose = function(){};
-};
+socket.on('open', function(){
+  socket.on('message', function(data){});
+  socket.on('close', function(){});
+});
 ```
 
 1. build your app bundle
@@ -62,13 +62,11 @@ $ browserify app.js > bundle.js
 <script src="/path/to/engine.io.js"></script>
 <script>
   var socket = new eio.Socket('ws://localhost/');
-  socket.binaryType = 'blob'; // receives Blob instead of ArrayBuffer (default)
+  socket.binaryType = 'blob';
   socket.on('open', function () {
     socket.send(new Int8Array(5));
-    socket.on('message', function (data) {
-      // data instanceof Blob => true when receiving binary
-    });
-    socket.on('close', function () { });
+    socket.on('message', function(blob){});
+    socket.on('close', function(){ });
   });
 </script>
 ```
@@ -89,7 +87,6 @@ socket.onopen = function(){
 
 - Lightweight
   - Lazyloads Flash transport
-- Isomorphic with WebSocket API
 - Runs on browser and node.js seamlessly
 - Transports are independent of `Engine`
   - Easy to debug
