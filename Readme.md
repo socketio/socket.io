@@ -133,6 +133,13 @@ server.listen(3000);
 
   If no arguments are supplied this method returns the current value.
 
+### Server#origins(v:String):Server
+
+  Sets the allowed origins `v`. Defaults to any origins being allowed.
+
+  If no arguments are supplied this method returns the current value.
+
+
 ### Server#sockets:Namespace
 
   The default (`/`) namespace.

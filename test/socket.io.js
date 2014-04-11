@@ -51,6 +51,12 @@ describe('socket.io', function(){
       expect(srv.path()).to.be('/random');
     });
 
+    it('should be able to set origins to engine.io', function() {
+      var srv = io(http());
+      srv.set('origins', 'http://hostname.com:*');
+      expect(srv.origins()).to.be('http://hostname.com:*');
+    });
+
     it('should be able to set authorization and send error packet', function(done) {
       var httpSrv = http();
       var srv = io(httpSrv);
@@ -176,6 +182,42 @@ describe('socket.io', function(){
         .get('/socket.io/socket.io.js')
         .expect(200, done);
       });
+    });
+  });
+
+  describe('handshake', function(){
+    var request = require('superagent');
+
+    it('should disallow request when origin defined and none specified', function(done) {
+      var sockets = io({ origins: 'http://foo.example:*' }).listen('54013');
+      request.get('http://localhost:54013/socket.io/default/')
+       .query({ transport: 'polling' })
+       .end(function (err, res) {
+          expect(res.status).to.be(400);
+          done();
+        });
+    });
+
+    it('should disallow request when origin defined and a different one specified', function(done) {
+      var sockets = io({ origins: 'http://foo.example:*' }).listen('54014');
+      request.get('http://localhost:54014/socket.io/default/')
+       .query({ transport: 'polling' })
+       .set('origin', 'http://herp.derp')
+       .end(function (err, res) {
+          expect(res.status).to.be(400);
+          done();
+       });
+    });
+
+    it('should allow request when origin defined an the same is specified', function(done) {
+      var sockets = io({ origins: 'http://foo.example:*' }).listen('54015');
+      request.get('http://localhost:54015/socket.io/default/')
+       .set('origin', 'http://foo.example')
+       .query({ transport: 'polling' })
+       .end(function (err, res) {
+          expect(res.status).to.be(200);
+          done();
+        });
     });
   });
 
