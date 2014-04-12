@@ -20,10 +20,10 @@ standalone build you can use as follows:
 <script>
   // eio = Socket
   var socket = eio('ws://localhost');
-  socket.onopen = function(){
-    socket.onmessage = function(data){};
-    socket.onclose = function(){};
-  };
+  socket.on('open', function(){
+    socket.on('message', function(data){});
+    socket.on('close', function(){});
+  });
 </script>
 ```
 
@@ -40,10 +40,10 @@ npm install engine.io-client
 1. write your app code
 ```js
 var socket = require('engine.io-client')('ws://localhost');
-socket.onopen = function(){
-    socket.onmessage = function(data){};
-    socket.onclose = function(){};
-};
+socket.on('open', function(){
+  socket.on('message', function(data){});
+  socket.on('close', function(){});
+});
 ```
 
 1. build your app bundle
@@ -62,13 +62,11 @@ $ browserify app.js > bundle.js
 <script src="/path/to/engine.io.js"></script>
 <script>
   var socket = new eio.Socket('ws://localhost/');
-  socket.binaryType = 'blob'; // receives Blob instead of ArrayBuffer (default)
+  socket.binaryType = 'blob';
   socket.on('open', function () {
     socket.send(new Int8Array(5));
-    socket.on('message', function (data) {
-      // data instanceof Blob => true when receiving binary
-    });
-    socket.on('close', function () { });
+    socket.on('message', function(blob){});
+    socket.on('close', function(){ });
   });
 </script>
 ```
@@ -79,17 +77,16 @@ Add `engine.io-client` to your `package.json` and then:
 
 ```js
 var socket = require('engine.io-client')('ws://localhost');
-socket.onopen = function(){
-  socket.onmessage = function(data){};
-  socket.onclose = function(){};
-};
+socket.on('open', function(){
+  socket.on('message', function(data){});
+  socket.on('close', function(){});
+});
 ```
 
 ## Features
 
 - Lightweight
   - Lazyloads Flash transport
-- Isomorphic with WebSocket API
 - Runs on browser and node.js seamlessly
 - Transports are independent of `Engine`
   - Easy to debug
@@ -248,25 +245,4 @@ See the `Tests` section above for how to run tests before submitting any patches
 
 ## License
 
-(The MIT License)
-
-Copyright (c) 2014 Guillermo Rauch &lt;guillermo@learnboost.com&gt;
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+MIT - Copyright (c) 2014 Automattic, Inc.
