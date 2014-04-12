@@ -99,7 +99,7 @@ socket.on('open', function(){
     binary is encoded into base64 strings, and decoded when binary types are
     supported.
   - With browsers that don't support ArrayBuffer, an object { base64: true,
-    data: dataAsBase64String } is emitted in onmessage
+    data: dataAsBase64String } is emitted on the `message` event.
 
 ## API
 
@@ -111,12 +111,6 @@ Exposed as `eio` in the browser standalone build.
 #### Properties
 
 - `protocol` _(Number)_: protocol revision number
-- `onopen` (_Function_)
-  - `open` event handler
-- `onmessage` (_Function_)
-  - `message` event handler
-- `onclose` (_Function_)
-  - `message` event handler
 - `binaryType` _(String)_ : can be set to 'arraybuffer' or 'blob' in browsers,
   and `buffer` or `arraybuffer` in Node. Blob is only used in browser if it's
   supported.
