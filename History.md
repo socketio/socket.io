@@ -1,4 +1,9 @@
 
+1.0.4 / 2014-04-13
+==================
+
+ * fix `encodePayloadAsBinary` method encodes packets to base64
+
 1.0.3 / 2014-04-10
 ==================
 
