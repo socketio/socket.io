@@ -26,6 +26,12 @@ describe('socket.io', function(){
     expect(version).to.be(require('socket.io-client/package').version);
   });
 
+  it('should have the same protocol version as client', function() {
+    var pversion = require('socket.io-parser').protocol;
+    var cparser = require('socket.io-client/node_modules/socket.io-parser');
+    expect(pversion).to.be(cparser.protocol);
+  });
+
   describe('set', function() {
     it('should be able to set ping timeout to engine.io', function() {
       var srv = io(http());
