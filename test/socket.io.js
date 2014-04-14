@@ -51,10 +51,22 @@ describe('socket.io', function(){
       expect(srv.eio.transports).to.eql(['polling']);
     });
 
+    it('should be able to set maxHttpBufferSize to engine.io', function() {
+      var srv = io(http());
+      srv.set('destroy buffer size', 10);
+      expect(srv.eio.maxHttpBufferSize).to.eql(10);
+    });
+
     it('should be able to set path with setting resource', function() {
       var srv = io(http());
       srv.set('resource', '/random');
       expect(srv.path()).to.be('/random');
+    });
+
+    it('should be able to set origins to engine.io', function() {
+      var srv = io(http());
+      srv.set('origins', 'http://hostname.com:*');
+      expect(srv.origins()).to.be('http://hostname.com:*');
     });
 
     it('should be able to set authorization and send error packet', function(done) {
@@ -182,6 +194,42 @@ describe('socket.io', function(){
         .get('/socket.io/socket.io.js')
         .expect(200, done);
       });
+    });
+  });
+
+  describe('handshake', function(){
+    var request = require('superagent');
+
+    it('should disallow request when origin defined and none specified', function(done) {
+      var sockets = io({ origins: 'http://foo.example:*' }).listen('54013');
+      request.get('http://localhost:54013/socket.io/default/')
+       .query({ transport: 'polling' })
+       .end(function (err, res) {
+          expect(res.status).to.be(400);
+          done();
+        });
+    });
+
+    it('should disallow request when origin defined and a different one specified', function(done) {
+      var sockets = io({ origins: 'http://foo.example:*' }).listen('54014');
+      request.get('http://localhost:54014/socket.io/default/')
+       .query({ transport: 'polling' })
+       .set('origin', 'http://herp.derp')
+       .end(function (err, res) {
+          expect(res.status).to.be(400);
+          done();
+       });
+    });
+
+    it('should allow request when origin defined an the same is specified', function(done) {
+      var sockets = io({ origins: 'http://foo.example:*' }).listen('54015');
+      request.get('http://localhost:54015/socket.io/default/')
+       .set('origin', 'http://foo.example')
+       .query({ transport: 'polling' })
+       .end(function (err, res) {
+          expect(res.status).to.be(200);
+          done();
+        });
     });
   });
 
@@ -649,6 +697,23 @@ describe('socket.io', function(){
         sio.on('connection', function(s){
           expect(s.client.request.headers).to.be.an('object');
           expect(s.request.headers).to.be.an('object');
+          done();
+        });
+      });
+    });
+
+    it('should see query parameters in the request', function(done) {
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function() {
+        var addr = srv.listen().address();
+        var url = 'ws://' + addr.address + ':' + addr.port + '?key1=1&key2=2';
+        var socket = ioc(url);
+        sio.on('connection', function(s) {
+          var parsed = require('url').parse(s.request.url);
+          var query = require('querystring').parse(parsed.query);
+          expect(query.key1).to.be('1');
+          expect(query.key2).to.be('2');
           done();
         });
       });
