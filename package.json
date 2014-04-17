@@ -31,7 +31,8 @@
     "debug": "0.7.4",
     "parseuri": "0.0.2",
     "parsejson": "0.0.1",
-    "parseqs": "0.0.2"
+    "parseqs": "0.0.2",
+    "inherit": "2.2.1"
   },
   "devDependencies": {
     "zuul": "1.5.4",
