@@ -6,7 +6,7 @@
   "devDependencies": {
     "mocha": "*",
     "expect.js": "*",
-    "zuul": "1.5.4"
+    "zuul": "1.6.3"
   },
   "dependencies": {
     "base64-arraybuffer": "0.1.0",
