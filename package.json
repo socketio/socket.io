@@ -9,7 +9,7 @@
     "zuul": "1.6.3"
   },
   "dependencies": {
-    "base64-arraybuffer": "0.1.0",
+    "base64-arraybuffer": "0.1.2",
     "after": "0.8.1",
     "arraybuffer.slice": "0.0.6",
     "blob": "0.0.2"
