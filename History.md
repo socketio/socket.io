@@ -1,4 +1,14 @@
 
+1.1.0 / 2014-04-27
+==================
+
+ * socket: removed unneeded `clearTimeout` (fixes #250)
+ * made the request verification process async
+ * package: bump `engine.io-parser`
+ * use _query instead of query, fixes compat with restify
+ * added a maximum buffer size to received data from polling
+ * fixing looping array via for in to normal loop
+
 1.0.5 / 2014-03-18
 ==================
 
