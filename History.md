@@ -1,4 +1,19 @@
 
+1.1.0 / 2014-04-27
+==================
+
+ * bump zuul version
+ * renamed removeAllListeners to cleanup
+ * use inherits package instead of inherit
+ * removed all references to util.js
+ * fix if statement in FlashWS.ready method
+ * polling-jsonp: prevent spurious errors from being emitted when the window is unloaded
+ * polling-xhr: fix a comment and remove unneeded `document` reference
+ * enforce cache busting for all user agents
+ * JSONP and test fixes for fails in IE
+ * package: bump `engine.io-parser`
+ * polling-xhr: abort the request when the window is unloaded
+
 1.0.5 / 2014-03-18
 ==================
 
