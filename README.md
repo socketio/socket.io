@@ -240,3 +240,4 @@ See the `Tests` section above for how to run tests before submitting any patches
 ## License
 
 MIT - Copyright (c) 2014 Automattic, Inc.
+
