@@ -1,4 +1,18 @@
 
+1.0.0-pre2 / 2014-04-27
+=======================
+
+ * package: bump `engine.io`
+ * added backwards compatible of engine.io maxHttpBufferSize
+ * added test that server and client using same protocol
+ * added support for setting allowed origins
+ * added information about logging
+ * the set function in server can be used to set some attributes for BC
+ * fix error in callback call 'done' instead of 'next' in docs
+ * package: bump `socket.io-parser`
+ * package: bump `expect.js`
+ * added some new tests, including binary with acks
+
 1.0.0-pre / 2014-03-14
 ======================
 
