@@ -48,17 +48,17 @@ function lookup(uri, opts) {
   opts = opts || {};
 
   var parsed = url(uri);
-  var href = parsed.href;
+  var source = parsed.source;
   var id = parsed.id;
   var io;
 
   if (opts.forceNew || false === opts.multiplex) {
-    debug('ignoring socket cache for %s', href);
-    io = Manager(href, opts);
+    debug('ignoring socket cache for %s', source);
+    io = Manager(source, opts);
   } else {
     if (!cache[id]) {
-      debug('new io instance for %s', href);
-      cache[id] = Manager(href, opts);
+      debug('new io instance for %s', source);
+      cache[id] = Manager(source, opts);
     }
     io = cache[id];
   }
@@ -3025,16 +3025,15 @@ Request.prototype.abort = function(){
 if (hasAttachEvent) {
   Request.requestsCount = 0;
   Request.requests = {};
+  global.attachEvent('onunload', unloadHandler);
+}
 
-  function unloadHandler() {
-    for (var i in Request.requests) {
-      if (Request.requests.hasOwnProperty(i)) {
-        Request.requests[i].abort();
-      }
+function unloadHandler() {
+  for (var i in Request.requests) {
+    if (Request.requests.hasOwnProperty(i)) {
+      Request.requests[i].abort();
     }
   }
-
-  global.attachEvent('onunload', unloadHandler);
 }
 
 },{"../emitter":12,"../util":22,"./polling":20,"debug":9,"xmlhttprequest":23}],20:[function(require,module,exports){
@@ -3367,7 +3366,7 @@ WS.prototype.doOpen = function(){
 
   this.ws = new WebSocket(uri, protocols, opts);
 
-  if (this.ws.binaryType !== undefined) {
+  if (this.ws.binaryType === undefined) {
     this.supportsBinary = false;
   }
 
@@ -3705,6 +3704,15 @@ var base64encoder = require('base64-arraybuffer');
 var after = require('after');
 
 /**
+ * Check if we are running an android browser. That requires us to use
+ * ArrayBuffer with polling transports...
+ *
+ * http://ghinda.net/jpeg-blob-ajax-android/
+ */
+
+var isAndroid = navigator.userAgent.match(/Android/i);
+
+/**
  * Current protocol version.
  */
 
@@ -3766,7 +3774,7 @@ exports.encodePacket = function (packet, supportsBinary, callback) {
 
   if (global.ArrayBuffer && data instanceof ArrayBuffer) {
     return encodeArrayBuffer(packet, supportsBinary, callback);
-  } else if (Blob && data instanceof Blob) {
+  } else if (Blob && data instanceof global.Blob) {
     return encodeBlob(packet, supportsBinary, callback);
   }
 
@@ -3819,6 +3827,10 @@ function encodeBlobAsArrayBuffer(packet, supportsBinary, callback) {
 function encodeBlob(packet, supportsBinary, callback) {
   if (!supportsBinary) {
     return exports.encodeBase64Packet(packet, callback);
+  }
+
+  if (isAndroid) {
+    return encodeBlobAsArrayBuffer(packet, supportsBinary, callback);
   }
 
   var length = new Uint8Array(1);
@@ -3943,9 +3955,10 @@ exports.encodePayload = function (packets, supportsBinary, callback) {
   }
 
   if (supportsBinary) {
-    if (Blob) {
+    if (Blob && !isAndroid) {
       return exports.encodePayloadAsBlob(packets, callback);
     }
+
     return exports.encodePayloadAsArrayBuffer(packets, callback);
   }
 
@@ -4825,7 +4838,7 @@ var binary = require('./binary');
  * @api public
  */
 
-exports.protocol = 1;
+exports.protocol = 3;
 
 /**
  * Packet types.
@@ -4912,7 +4925,7 @@ function Encoder() {};
 Encoder.prototype.encode = function(obj, callback){
   debug('encoding packet %j', obj);
 
-  if (obj.type == exports.BINARY_EVENT) {
+  if (exports.BINARY_EVENT == obj.type || exports.ACK == obj.type) {
     encodeAsBinary(obj, callback);
   }
   else {
@@ -4937,7 +4950,7 @@ function encodeAsString(obj) {
   str += obj.type;
 
   // attachments if we have them
-  if (exports.BINARY_EVENT == obj.type) {
+  if (exports.BINARY_EVENT == obj.type || exports.ACK == obj.type) {
     str += obj.attachments;
     str += '-';
   }
@@ -5023,8 +5036,13 @@ Decoder.prototype.add = function(obj) {
   var packet;
   if ('string' == typeof obj) {
     packet = decodeString(obj);
-    if (packet.type == exports.BINARY_EVENT) { // binary packet's json
+    if (exports.BINARY_EVENT == packet.type || exports.ACK == packet.type) { // binary packet's json
       this.reconstructor = new BinaryReconstructor(packet);
+
+      // no attachments, labeled binary but no binary data to follow
+      if (this.reconstructor.reconPack.attachments == 0) {
+        this.emit('decoded', packet);
+      }
     } else { // non-binary full packet
       this.emit('decoded', packet);
     }
@@ -5064,7 +5082,7 @@ function decodeString(str) {
   if (null == exports.types[p.type]) return error();
 
   // look up attachments if type binary
-  if (exports.BINARY_EVENT == p.type) {
+  if (exports.BINARY_EVENT == p.type || exports.ACK == p.type) {
     p.attachments = '';
     while (str.charAt(++i) != '-') {
       p.attachments += str.charAt(i);

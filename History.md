@@ -1,4 +1,14 @@
 
+1.0.0-pre2 / 2014-04-27
+=======================
+
+ * package: bump `engine.io-client`
+ * package: bump `zuul`
+ * allows user-level query string parameters to be in socket.request
+ * package: bump `socket.io-parser`
+ * package: bump `engine.io-client` for android fix
+ * tidy up .gitignore
+
 1.0.0-pre / 2014-03-14
 ======================
 
