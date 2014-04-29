@@ -15,6 +15,32 @@ describe('connection', function() {
     });
   });
 
+  it('should receive multibyte utf-8 strings with polling', function(done) {
+    var socket = new eio.Socket();
+    socket.on('open', function () {
+      socket.send('cash money €€€');
+      socket.on('message', function (data) {
+        if ('hi' == data) return;
+        expect(data).to.be('cash money €€€');
+        socket.close();
+        done();
+      });
+    });
+  });
+
+  it('should receive emoji', function(done) {
+    var socket = new eio.Socket();
+    socket.on('open', function () {
+      socket.send('\uD800-\uDB7F\uDB80-\uDBFF\uDC00-\uDFFF\uE000-\uF8FF');
+      socket.on('message', function (data) {
+        if ('hi' == data) return;
+        expect(data).to.be('\uD800-\uDB7F\uDB80-\uDBFF\uDC00-\uDFFF\uE000-\uF8FF');
+        socket.close();
+        done();
+      });
+    });
+  });
+
   // no `Worker` on old IE
   if (global.Worker) {
     it('should work in a worker', function(done){
