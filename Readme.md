@@ -40,14 +40,12 @@ Engine.IO Parser is a commonjs module, which means you can include it by using
 1. install the parser package
 
     ```shell
-    npm install engine.io-client
     npm install engine.io-parser
     ```
 
 1. write your app code
 
     ```js
-    var socket = require('engine.io-client')('ws://localhost');
     var parser = require('engine.io-parser');
 
     var testBuffer = new Int8Array(10);
@@ -55,21 +53,16 @@ Engine.IO Parser is a commonjs module, which means you can include it by using
 
     var packets = [{ type: 'message', data: testBuffer.buffer }, { type: 'message', data: 'hello' }];
 
-    socket.on('open', function(){
-      parser.encodePayload(packets, function(encoded) {
-        parser.decodePayload(encoded,
-          function(packet, index, total) {
-            var isLast = index + 1 == total;
-            if (!isLast) {
-              var buffer = new Int8Array(packet.data); // testBuffer
-            } else {
-              var message = packet.data; // 'hello'
-            }
-          });
-      });
-
-      socket.on('message', function(data){});
-      socket.on('close', function(){});
+    parser.encodePayload(packets, function(encoded) {
+      parser.decodePayload(encoded,
+        function(packet, index, total) {
+          var isLast = index + 1 == total;
+          if (!isLast) {
+            var buffer = new Int8Array(packet.data); // testBuffer
+          } else {
+            var message = packet.data; // 'hello'
+          }
+        });
     });
     ```
 
@@ -89,11 +82,8 @@ Engine.IO Parser is a commonjs module, which means you can include it by using
 
 - Runs on browser and node.js seamlessly
 - Runs inside HTML5 WebWorker
-- Can send and receive binary data
-  - Receives as ArrayBuffer or Blob when in browser, and Buffer or ArrayBuffer
-    in Node
-  - With browsers that don't support ArrayBuffer, an object { base64: true,
-    data: dataAsBase64String } is emitted on the `message` event.
+- Can encode and decode packets
+  - Encodes from/to ArrayBuffer or Blob when in browser, and Buffer or ArrayBuffer in Node
 
 ## API
 
@@ -167,20 +157,16 @@ Engine.IO Parser is a commonjs module, which means you can include it by using
 
 ## Tests
 
-`engine.io-parser` is used to test
-[engine](http://github.com/learnboost/engine.io). Running the `engine.io` and
-`engine.io-client` test suite ensures the parser works and vice-versa.
+Standalone tests can be run with `make test` which will run both node.js and browser tests.
 
-Browser tests are run using [zuul](https://github.com/defunctzombie/zuul). You can
-run the tests locally using the following command.
+Browser tests are run using [zuul](https://github.com/defunctzombie/zuul).
+(You must have zuul setup with a saucelabs account.)
+
+You can run the tests locally using the following command:
 
 ```
 ./node_modules/.bin/zuul --local 8080 -- test/index.js
 ```
-
-Additionally, `engine.io-parser` has a standalone test suite you can run
-with `make test` which will run node.js and browser tests. You must have zuul setup with
-a saucelabs account.
 
 ## Support
 
