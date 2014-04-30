@@ -1,4 +1,3 @@
-
 # Engine.IO client
 
 [![Build Status](https://secure.travis-ci.org/LearnBoost/engine.io-client.png)](http://travis-ci.org/LearnBoost/engine.io-client)
@@ -33,28 +32,32 @@ Engine.IO is a commonjs module, which means you can include it by using
 `require` on the browser and package using [browserify](http://browserify.org/):
 
 1. install the client package
-``` shell
-npm install engine.io-client
-```
+
+    ```shell
+    npm install engine.io-client
+    ```
 
 1. write your app code
-```js
-var socket = require('engine.io-client')('ws://localhost');
-socket.on('open', function(){
-  socket.on('message', function(data){});
-  socket.on('close', function(){});
-});
-```
+
+    ```js
+    var socket = require('engine.io-client')('ws://localhost');
+    socket.on('open', function(){
+      socket.on('message', function(data){});
+      socket.on('close', function(){});
+    });
+    ```
 
 1. build your app bundle
-```bash
-$ browserify app.js > bundle.js
-```
+
+    ```bash
+    $ browserify app.js > bundle.js
+    ```
 
 1. include on your page
-```html
-<script src="/path/to/bundle.js"></script>
-```
+
+    ```html
+    <script src="/path/to/bundle.js"></script>
+    ```
 
 ### Sending and receiving binary
 
