@@ -12,7 +12,8 @@
     "base64-arraybuffer": "0.1.2",
     "after": "0.8.1",
     "arraybuffer.slice": "0.0.6",
-    "blob": "0.0.2"
+    "blob": "0.0.2",
+    "utf8": "2.0.0"
   },
   "scripts": {
     "test": "make test"
