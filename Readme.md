@@ -15,7 +15,7 @@ shared by both
 
 The parser can encode/decode packets, payloads, and payloads as binary
 with the following methods: `encodePacket`, `decodePacket`, `encodePayload`,
-`decodePayload`, `encodePayloadAsBinary`, `decodePayloadAsBinar`.
+`decodePayload`, `encodePayloadAsBinary`, `decodePayloadAsBinary`.
 
 The browser-side parser also includes `encodePayloadAsArrayBuffer` and `encodePayloadAsBlob`.
 
@@ -111,8 +111,6 @@ Engine.IO Parser is a commonjs module, which means you can include it by using
       - `String` | `ArrayBuffer`: the packet to decode, has `type` and `data`
       - `String`: optional, the binary type
 
-----
-
 - `encodeBase64Packet`
     - Encodes a packet with binary data in a base64 string (`String`)
     - **Parameters**
@@ -123,8 +121,6 @@ Engine.IO Parser is a commonjs module, which means you can include it by using
     - **Parameters**
       - `String`: the base64 encoded message
       - `String`: optional, the binary type
-
-----
 
 - `encodePayload`
     - Encodes multiple messages (payload).
@@ -141,8 +137,6 @@ Engine.IO Parser is a commonjs module, which means you can include it by using
       - `String`: the payload
       - `String`: optional, the binary type
       - `Function`: callback, returns (`Object`: packet, `Number`:packet index, `Number`:packet total)
-
-----
 
 - `encodePayloadAsBinary`
     - Encodes multiple messages (payload) as binary.
