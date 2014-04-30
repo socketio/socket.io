@@ -8,3 +8,7 @@ This is the JavaScript parser for the engine.io protocol encoding,
 shared by both
 [engine.io-client](https://github.com/LearnBoost/engine.io-client) and
 [engine.io-server](https://github.com/LearnBoost/engine.io-server).
+
+## License
+
+MIT
