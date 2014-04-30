@@ -54,40 +54,24 @@ describe('connection', function() {
     });
   });
 
-  //it('should try to reconnect twice and fail when requested two attempts with incorrect address and reconnect enabled', function(done) {
-    //var manager = io.Manager('http://localhost:3940', { reconnection: true, reconnectionAttempts: 2, reconnectionDelay: 10 });
-    //var socket = manager.socket('/asd');
-    //var reconnects = 0;
-    //var cb = function() {
-      //reconnects++;
-    //};
+  it('should try to reconnect twice and fail when requested two attempts with immediate timeout and reconnect enabled', function(done) {
+    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
+    var socket;
 
-    //manager.on('reconnect_attempt', cb);
+    var reconnects = 0;
+    var reconnectCb = function() {
+      reconnects++;
+    };
 
-    //manager.on('reconnect_failed', function() {
-      //expect(reconnects).to.be(2);
-      //done();
-    //});
-  //});
+    manager.on('reconnect_attempt', reconnectCb);
+    manager.on('reconnect_failed', function failed() {
+      expect(reconnects).to.be(2);
+      socket.close();
+      done();
+    });
 
-  //it('should try to reconnect twice and fail when requested two attempts with immediate timeout and reconnect enabled', function(done) {
-    //var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
-    //var socket;
-
-    //var reconnects = 0;
-    //var reconnectCb = function() {
-      //reconnects++;
-    //};
-
-    //manager.on('reconnect_attempt', reconnectCb);
-    //manager.on('reconnect_failed', function failed() {
-      //expect(reconnects).to.be(2);
-      //socket.close();
-      //done();
-    //});
-
-    //socket = manager.socket('/timeout');
-  //});
+    socket = manager.socket('/timeout');
+  });
 
   it('should not try to reconnect and should form a connection when connecting to correct port with default timeout', function(done) {
     var manager = io.Manager({ reconnection: true, reconnectionDelay: 10 });
@@ -107,23 +91,43 @@ describe('connection', function() {
     });
   });
 
-  //it('should not try to reconnect with incorrect port when reconnection disabled', function(done) {
-    //var manager = io.Manager('http://localhost:9823', { reconnection: false });
-    //var cb = function() {
-      //socket.close();
-      //expect().fail();
-    //};
-    //manager.on('reconnect_attempt', cb);
+  // Ignore incorrect connection test for old IE due to no support for
+  // `script.onerror` (see: http://requirejs.org/docs/api.html#ieloadfail)
+  if (!global.document || hasCORS) {
+    it('should try to reconnect twice and fail when requested two attempts with incorrect address and reconnect enabled', function(done) {
+      var manager = io.Manager('http://localhost:3940', { reconnection: true, reconnectionAttempts: 2, reconnectionDelay: 10 });
+      var socket = manager.socket('/asd');
+      var reconnects = 0;
+      var cb = function() {
+        reconnects++;
+      };
 
-    //manager.on('connect_error', function(){
-      //// set a timeout to let reconnection possibly fire
-      //setTimeout(function() {
-        //done();
-      //}, 1000);
-    //});
+      manager.on('reconnect_attempt', cb);
 
-    //var socket = manager.socket('/invalid');
-  //});
+      manager.on('reconnect_failed', function() {
+        expect(reconnects).to.be(2);
+        done();
+      });
+    });
+
+    it('should not try to reconnect with incorrect port when reconnection disabled', function(done) {
+      var manager = io.Manager('http://localhost:9823', { reconnection: false });
+      var cb = function() {
+        socket.close();
+        expect().fail();
+      };
+      manager.on('reconnect_attempt', cb);
+
+      manager.on('connect_error', function(){
+        // set a timeout to let reconnection possibly fire
+        setTimeout(function() {
+          done();
+        }, 1000);
+      });
+
+      var socket = manager.socket('/invalid');
+    });
+  }
 
   if (!global.Blob && !global.ArrayBuffer) {
     it('should get base64 data as a last resort', function(done) {
