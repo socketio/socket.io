@@ -33,8 +33,8 @@ Engine.IO is a commonjs module, which means you can include it by using
 
 1. install the client package
 
-    ```shell
-    npm install engine.io-client
+    ```bash
+    $ npm install engine.io-client
     ```
 
 1. write your app code
