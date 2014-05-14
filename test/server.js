@@ -1162,7 +1162,7 @@ describe('server', function () {
 
       var engine = listen(opts, function (port) {
         var messageCount = 100;
-        var messagePayload = new Array(1024 * 1024 * 1).join('a');
+        var messagePayload = new Array(512 * 512 * 1).join('a');
         var connection = null;
         engine.on('connection', function (conn) {
           connection = conn;
