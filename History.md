@@ -1,4 +1,12 @@
 
+1.1.1 / 2014-05-14
+==================
+
+ * jsonp-polling: fixed newline double escaping
+ * package: bump parser
+ * remove legacy Socket#onopen call
+ * added tests for multibyte strings
+
 1.1.0 / 2014-04-27
 ==================
 

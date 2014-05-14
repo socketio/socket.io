@@ -362,7 +362,6 @@ Socket.prototype.onOpen = function () {
   this.readyState = 'open';
   Socket.priorWebsocketSuccess = 'websocket' == this.transport.name;
   this.emit('open');
-  this.onopen && this.onopen.call(this);
   this.flush();
 
   // we check for `readyState` in case an `open`
@@ -1145,6 +1144,7 @@ module.exports = JSONPPolling;
  */
 
 var rNewline = /\n/g;
+var rEscapedNewline = /\\n/g;
 
 /**
  * Global JSONP callbacks.
@@ -1339,6 +1339,8 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   initIframe();
 
   // escape \n to prevent it from being converted into \r\n by some UAs
+  // double escaping is required for escaped new lines because unescaping of new lines can be done safely on server-side
+  data = data.replace(rEscapedNewline, '\\\n');
   this.area.value = data.replace(rNewline, '\\n');
 
   try {
