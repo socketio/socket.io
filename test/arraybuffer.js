@@ -24,6 +24,16 @@ describe('parser', function() {
     helpers.test_bin(packet);
   });
 
+  it('encodes deep binary JSON with null values', function() {
+    var packet = {
+      type: parser.BINARY_EVENT,
+      data: {a: 'b', c: 4, e: {g: null}, h: new ArrayBuffer(9)},
+      nsp: '/',
+      id: 600
+    }
+    helpers.test_bin(packet);
+  });
+
   it('cleans itself up on close', function() {
     var packet = {
       type: parser.BINARY_EVENT,
