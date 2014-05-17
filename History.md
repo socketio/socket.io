@@ -1,4 +1,10 @@
 
+1.0.0-pre3 / 2014-05-17
+=======================
+
+ * package: bump parser
+ * package: bump engine.io-client
+
 1.0.0-pre2 / 2014-04-27
 =======================
 
