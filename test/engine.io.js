@@ -61,67 +61,6 @@ describe('engine', function () {
       });
     });
 
-    it('should respond to flash policy requests', function (done) {
-      var server = net.createServer({allowHalfOpen: true})
-        , engine = eio.attach(server);
-
-      server.listen(function () {
-        var client = net.createConnection(server.address().port);
-        client.write('<policy-file-request/>\0');
-        client.setEncoding('ascii');
-        client.on('data', function (data) {
-          expect(data).to.contain('<allow-access-from');
-          client.end();
-          done();
-        });
-      });
-    });
-
-    it('should not respond to borked flash policy requests', function (done) {
-      var server = http.createServer()
-        , engine = eio.attach(server);
-
-      server.listen(function () {
-        var client = net.createConnection(server.address().port);
-        client.write('<policy-file-req>\0');
-        client.setEncoding('ascii');
-        client.on('data', function () {
-          done(new Error('Should not respond'));
-        });
-        setTimeout(done, 20);
-      });
-    });
-
-    it('should not respond to flash policy requests when policyFile:false', function (done) {
-      var server = http.createServer()
-        , engine = eio.attach(server, { policyFile: false });
-
-      server.listen(function () {
-        var client = net.createConnection(server.address().port);
-        client.write('<policy-file-req>\0');
-        client.setEncoding('ascii');
-        client.on('data', function (data) {
-          done(new Error('Should not fire'));
-        });
-        setTimeout(done, 20);
-      });
-    });
-
-    it('should not respond to flash policy requests when no flashsocket', function (done) {
-      var server = http.createServer()
-        , engine = eio.attach(server, { transports: ['xhr-polling', 'websocket'] });
-
-      server.listen(function () {
-        var client = net.createConnection(server.address().port);
-        client.write('<policy-file-req>\0');
-        client.setEncoding('ascii');
-        client.on('data', function (data) {
-          done(new Error('Should not fire'));
-        });
-        setTimeout(done, 20);
-      });
-    });
-
     it('should destroy upgrades not handled by engine', function (done) {
       var server = http.createServer()
         , engine = eio.attach(server);

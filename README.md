@@ -135,7 +135,6 @@ These are exposed by `require('engine.io')`:
       - `Object`: optional, options object
     - **Options**
       - `path` (`String`): name of the path to capture (`/engine.io`).
-      - `policyFile` (`Boolean`): whether to handle policy file requests (`true`)
       - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
       - `destroyUpgradeTimeout` (`Number`): milliseconds after which unhandled requests are ended (`1000`)
       - **See Server options below for additional options you can pass**
@@ -184,7 +183,7 @@ to a single process.
         `success` is a boolean value where false means that the request is
         rejected, and err is an error code.
       - `transports` (`<Array> String`): transports to allow connections
-        to (`['polling', 'websocket', 'flashsocket']`)
+        to (`['polling', 'websocket']`)
       - `allowUpgrades` (`Boolean`): whether to allow transport upgrades
         (`true`)
       - `cookie` (`String|Boolean`): name of the HTTP cookie that
@@ -205,12 +204,6 @@ to a single process.
       - `http.ServerRequest`: a node request object
       - `net.Stream`: TCP socket for the request
       - `Buffer`: legacy tail bytes
-    - **Returns** `Server` for chaining
-- `handleSocket`
-    - Called with raw TCP sockets from http requests to intercept flash policy
-      file requests
-    - **Parameters**
-      - `net.Stream`: TCP socket on which requests are listened
     - **Returns** `Server` for chaining
 
 <hr><br>
@@ -299,7 +292,6 @@ DEBUG=engine* node myapp
 
 - `polling`: XHR / JSONP polling transport.
 - `websocket`: WebSocket transport.
-- `flashsocket`: WebSocket transport backed by flash.
 
 ## Plugins
 
@@ -351,7 +343,7 @@ with HTML5 WebSocket being the way of the future. However, to answer most busine
 needs, alternative traditional HTTP 1.1 mechanisms are just as good as delivering
 the same solution.
 
-WebSocket/FlashSocket based connections have two fundamental benefits:
+WebSocket based connections have two fundamental benefits:
 
 1. **Better server performance**
 
