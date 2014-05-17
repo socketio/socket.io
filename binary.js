@@ -61,7 +61,7 @@ exports.deconstructPacket = function(packet) {
     var curPlaceHolder = 0;
 
     function reconstructBinPackRecursive(data) {
-        if (data._placeholder) {
+        if (data && data._placeholder) {
             var buf = buffers[data.num]; // appropriate buffer (should be natural order anyway)
             return buf;
         } else if (isArray(data)) {
@@ -69,7 +69,7 @@ exports.deconstructPacket = function(packet) {
                 data[i] = reconstructBinPackRecursive(data[i]);
             }
             return data;
-        } else if ('object' == typeof data) {
+        } else if (data && 'object' == typeof data) {
             for (var key in data) {
                 data[key] = reconstructBinPackRecursive(data[key]);
             }
