@@ -89,7 +89,6 @@ socket.on('open', function(){
 ## Features
 
 - Lightweight
-  - Lazyloads Flash transport
 - Runs on browser and node.js seamlessly
 - Transports are independent of `Engine`
   - Easy to debug
@@ -158,11 +157,10 @@ Exposed as `eio` in the browser standalone build.
         each transport request. Note: this is ignored if the browser is
         IE or Android, in which case requests are always stamped (`false`)
       - `timestampParam` (`String`): timestamp parameter (`t`)
-      - `flashPath` (`String`): path to flash client files with trailing slash
       - `policyPort` (`Number`): port the policy server listens on (`843`)
       - `path` (`String`): path to connect to, default is `/engine.io`
       - `transports` (`Array`): a list of transports to try (in order).
-      Defaults to `['polling', 'websocket', 'flashsocket']`. `Engine`
+      Defaults to `['polling', 'websocket']`. `Engine`
       always attempts to connect directly with the first one, provided the
       feature detection test for it passes.
       - `rememberUpgrade` (`Boolean`): defaults to false.
@@ -188,15 +186,6 @@ The transport class. Private. _Inherits from EventEmitter_.
 - `poll`: emitted by polling transports upon starting a new request
 - `pollComplete`: emitted by polling transports upon completing a request
 - `drain`: emitted by polling transports upon a buffer drain
-
-## Flash transport
-
-In order for the Flash transport to work correctly, ensure the `flashPath`
-property points to the location where the files `web_socket.js`,
-`swfobject.js` and `WebSocketMainInsecure.swf` are located.
-
-These files can be found here
-[https://github.com/gimite/web-socket-js.git](https://github.com/gimite/web-socket-js.git)
 
 ## Tests
 

@@ -52,11 +52,10 @@ describe('Transport', function () {
       expect(eio.Transport).to.be.a('function');
     });
 
-    it('should include Polling, WebSocket and FlashSocket', function () {
+    it('should include Polling and WebSocket', function () {
       expect(eio.transports).to.be.an('object');
       expect(eio.transports.polling).to.be.a('function');
       expect(eio.transports.websocket).to.be.a('function');
-      expect(eio.transports.flashsocket).to.be.a('function');
     });
   });
 
