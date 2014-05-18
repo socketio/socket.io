@@ -1,4 +1,10 @@
 
+1.2.0 / 2014-05-18
+==================
+
+ * removed flashsocket, moving to userland
+ * new build
+
 1.1.1 / 2014-05-14
 ==================
 
