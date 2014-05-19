@@ -4,7 +4,7 @@ var express = require('express');
 var app = express();
 var join = require('path').join;
 var http = require('http').Server(app);
-var server = require('engine.io').attach(http);
+var server = require('engine.io').attach(http, {'pingInterval': 500});
 var browserify = require('../../support/browserify');
 
 http.listen(process.env.ZUUL_PORT);
