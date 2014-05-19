@@ -13,6 +13,23 @@ describe('Socket', function () {
     });
   });
 
+  describe('onClose', function () {
+    it('should not send packets if socket closes', function(done) {
+      var socket = new eio.Socket();
+      socket.on('open', function() {
+        var noPacket = true;
+        socket.on('packetCreate', function() {
+          noPacket = false;
+        });
+        socket.close();
+        setTimeout(function() {
+          expect(noPacket).to.be(true);
+          done();
+        }, 1200);
+      });
+    });
+  });
+
   // Ignore incorrect connection test for old IE due to no support for
   // `script.onerror` (see: http://requirejs.org/docs/api.html#ieloadfail)
   if (!global.document || hasCORS) {
