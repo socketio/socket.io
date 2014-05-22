@@ -1,4 +1,10 @@
 
+1.0.0-pre5 / 2014-05-22
+=======================
+
+ * package: bump `socket.io-client` for parser fixes
+ * package: bump `engine.io`
+
 1.0.0-pre4 / 2014-05-19
 =======================
 
