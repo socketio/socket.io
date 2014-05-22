@@ -1181,6 +1181,43 @@ describe('server', function () {
         });
       });
     });
+
+    it('should support chinese', function(done){
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        var shi = '石室詩士施氏，嗜獅，誓食十獅。';
+        var shi2 = '氏時時適市視獅。';
+        engine.on('connection', function (conn) {
+          conn.send('.');
+          conn.send(shi);
+          conn.send(shi2);
+          conn.once('message', function(msg0){
+            expect(msg0).to.be('.');
+            conn.once('message', function(msg){
+              expect(msg).to.be(shi);
+              conn.once('message', function(msg2){
+                expect(msg2).to.be(shi2);
+                done();
+              });
+            });
+          });
+        });
+        socket.on('open', function(){
+          socket.once('message', function(msg0){
+            expect(msg0).to.be('.');
+            socket.once('message', function(msg){
+              expect(msg).to.be(shi);
+              socket.once('message', function(msg2){
+                expect(msg2).to.be(shi2);
+                socket.send('.');
+                socket.send(shi);
+                socket.send(shi2);
+              });
+            });
+          });
+        });
+      });
+    });
   });
 
   describe('send', function() {
