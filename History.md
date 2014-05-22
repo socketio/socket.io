@@ -1,4 +1,11 @@
 
+0.9.17 / 2014-05-22
+===================
+
+ * use static channels for remote syncing instead of subscribing/unsubscribing 5 channels for every connection
+ * Use destroy buffer size on websocket transport method as well
+ * http-polling : adding 'X-XSS-Protection : 0;' to headers necessary not only to jsonp-polling but http-polling
+
 0.9.16 / 2013-06-06
 ===================
 
