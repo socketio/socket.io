@@ -24,6 +24,14 @@ describe('connection', function() {
     socket.on('got it', done);
   });
 
+  it('should receive date with ack', function(done){
+    var socket = io();
+    socket.emit('getAckDate', { test: true }, function(data){
+       expect(data).to.be.a('string');
+       done();
+    });
+  });
+
   it('should work with false', function(done){
     var socket = io();
     socket.emit('false');
@@ -128,6 +136,25 @@ describe('connection', function() {
       var socket = manager.socket('/invalid');
     });
   }
+
+  it('should emit date as string', function(done){
+      var socket = io();
+      socket.on('takeDate', function(data) {
+        expect(data).to.be.a('string');
+        done();
+      });
+      socket.emit('getDate');
+  });
+
+  it('should emit date in object', function(done){
+      var socket = io();
+      socket.on('takeDateObj', function(data) {
+        expect(data).to.be.an('object');
+        expect(data.date).to.be.a('string');
+        done();
+      });
+      socket.emit('getDateObj');
+  });
 
   if (!global.Blob && !global.ArrayBuffer) {
     it('should get base64 data as a last resort', function(done) {
