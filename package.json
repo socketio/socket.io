@@ -23,7 +23,7 @@
     "socket.io-parser": "2.1.4",
     "socket.io-client": "1.0.0-pre5",
     "socket.io-adapter": "0.2.0",
-    "has-binary-data": "0.1.0",
+    "has-binary-data": "0.1.1",
     "debug": "0.7.4"
   },
   "devDependencies": {
