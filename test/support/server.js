@@ -20,6 +20,18 @@ server.on('connection', function(socket){
     });
   });
 
+  socket.on('getAckDate', function(data, cb){
+    cb(new Date());
+  });
+
+  socket.on('getDate', function(){
+    socket.emit('takeDate', new Date());
+  });
+
+  socket.on('getDateObj', function(){
+    socket.emit('takeDateObj', { date: new Date() });
+  });
+
   // false test
   socket.on('false', function(){
     socket.emit('false', false);
