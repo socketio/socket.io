@@ -32,7 +32,7 @@ exports.deconstructPacket = function(packet) {
                 newData[i] = deconstructBinPackRecursive(data[i]);
             }
             return newData;
-        } else if ('object' == typeof data) {
+        } else if ('object' == typeof data && !(data instanceof Date)) {
             var newData = {};
             for (var key in data) {
                 newData[key] = deconstructBinPackRecursive(data[key]);
