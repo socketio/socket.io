@@ -99,6 +99,40 @@ describe('socket.io', function(){
         expect().fail();
       });
     });
+
+    it('should set the handshake BC object', function(done){
+      var httpSrv = http();
+      var srv = io(httpSrv);
+
+      srv.on('connection', function(s) {
+        expect(s.handshake).to.not.be(undefined);
+
+        // Headers set and has some valid properties
+        expect(s.handshake.headers).to.be.an('object');
+        expect(s.handshake.headers['user-agent']).to.be('node-XMLHttpRequest');
+
+        // Time set and is valid looking string
+        expect(s.handshake.time).to.be.a('string');
+        expect(s.handshake.time.split(' ').length > 0); // Is "multipart" string representation
+
+        // Address, xdomain, secure, issued and url set
+        expect(s.handshake.address).to.not.be(undefined);
+        expect(s.handshake.xdomain).to.be.a('boolean');
+        expect(s.handshake.secure).to.be.a('boolean');
+        expect(s.handshake.issued).to.be.a('number');
+        expect(s.handshake.url).to.be.a('string');
+
+        // Query set and has some right properties
+        expect(s.handshake.query).to.be.an('object');
+        expect(s.handshake.query.EIO).to.not.be(undefined);
+        expect(s.handshake.query.transport).to.not.be(undefined);
+        expect(s.handshake.query.t).to.not.be(undefined);
+
+        done();
+      });
+
+      var socket = client(httpSrv);
+    });
   });
 
   describe('server attachment', function(){
