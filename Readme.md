@@ -87,16 +87,20 @@ Engine.IO Parser is a commonjs module, which means you can include it by using
 
 ## API
 
+Note: `cb(type)` means the type is a callback function that contains a parameter of type `type` when called.
+
 ### Node
 
 - `encodePacket`
     - Encodes a packet.
     - **Parameters**
-      - `Object`: the packet to encode, has `type` and `data`
+      - `Object`: the packet to encode, has `type` and `data`.
+        - `data`: can be a `String`, `Number`, `Buffer`, `ArrayBuffer`
       - `Boolean`: optional, binary support
-      - `Function`: callback, returns the encoded packet (`String`)
+      - `Function`: callback, returns the encoded packet (`cb(String)`)
 - `decodePacket`
     - Decodes a packet. Data also available as an ArrayBuffer if requested.
+    - Returns data as `Blob` on browser, `ArrayBuffer` on Node
     - **Parameters**
       - `String` | `ArrayBuffer`: the packet to decode, has `type` and `data`
       - `String`: optional, the binary type
@@ -105,7 +109,7 @@ Engine.IO Parser is a commonjs module, which means you can include it by using
     - Encodes a packet with binary data in a base64 string (`String`)
     - **Parameters**
       - `Object`: the packet to encode, has `type` and `data`
-      - `Function`: callback, returns the base64 encoded message (`String`)
+      - `Function`: callback, returns the base64 encoded message (`cb(String)`)
 - `decodeBase64Packet`
     - Decodes a packet encoded in a base64 string.
     - **Parameters**
@@ -119,20 +123,20 @@ Engine.IO Parser is a commonjs module, which means you can include it by using
     - **Parameters**
       - `Array`: an array of packets
       - `Boolean`: optional, binary support
-      - `Function`: callback, returns the encoded payload (`String`)
+      - `Function`: callback, returns the encoded payload (`cb(String)`)
 - `decodePayload`
     - Decodes data when a payload is maybe expected. Possible binary contents are
       decoded from their base64 representation.
     - **Parameters**
       - `String`: the payload
       - `String`: optional, the binary type
-      - `Function`: callback, returns (`Object`: packet, `Number`:packet index, `Number`:packet total)
+      - `Function`: callback, returns (cb(`Object`: packet, `Number`:packet index, `Number`:packet total))
 
 - `encodePayloadAsBinary`
     - Encodes multiple messages (payload) as binary.
     - **Parameters**
       - `Array`: an array of packets
-      - `Function`: callback, returns the encoded payload (`Buffer`)
+      - `Function`: callback, returns the encoded payload (`cb(Buffer)`)
 - `decodePayloadAsBinary`
     - Decodes data when a payload is maybe expected. Strings are decoded by
       interpreting each byte as a key code for entries marked to start with 0. See
@@ -140,7 +144,7 @@ Engine.IO Parser is a commonjs module, which means you can include it by using
     - **Parameters**
       - `Buffer`: the buffer
       - `String`: optional, the binary type
-      - `Function`: callback, returns the decoded packet (`Object`)
+      - `Function`: callback, returns the decoded packet (`cb(Object)`)
 
 ### Browser
 
@@ -148,12 +152,12 @@ Engine.IO Parser is a commonjs module, which means you can include it by using
     - Encodes multiple messages (payload) as binary.
     - **Parameters**
       - `Array`: an array of packets
-      - `Function`: callback, returns the encoded payload (`ArrayBuffer`)
+      - `Function`: callback, returns the encoded payload (`cb(ArrayBuffer)`)
 - `encodePayloadAsBlob`
     - Encodes multiple messages (payload) as blob.
     - **Parameters**
       - `Array`: an array of packets
-      - `Function`: callback, returns the encoded payload (`Blob`)
+      - `Function`: callback, returns the encoded payload (`cb(Blob)`)
 
 ## Tests
 
