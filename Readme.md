@@ -100,7 +100,7 @@ Note: `cb(type)` means the type is a callback function that contains a parameter
       - `Function`: callback, returns the encoded packet (`cb(String)`)
 - `decodePacket`
     - Decodes a packet. Data also available as an ArrayBuffer if requested.
-    - Returns data as `Blob` on browser, `ArrayBuffer` on Node
+    - Returns data as `String` or (`Blob` on browser, `ArrayBuffer` on Node)
     - **Parameters**
       - `String` | `ArrayBuffer`: the packet to decode, has `type` and `data`
       - `String`: optional, the binary type
