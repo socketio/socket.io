@@ -14,3 +14,5 @@ browsers:
     version: [6..9, latest]
   - name: iphone
     version: oldest..latest
+  - name: android
+    version: oldest..latest
