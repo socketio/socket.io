@@ -1,6 +1,6 @@
 {
   "name": "socket.io-client",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "keywords": [
     "realtime",
     "framework",
@@ -22,7 +22,7 @@
     "indexof": "0.0.1"
   },
   "devDependencies": {
-    "socket.io": "1.0.1",
+    "socket.io": "1.0.2",
     "mocha": "1.16.2",
     "zuul": "1.6.3",
     "istanbul": "0.2.1",
