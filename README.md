@@ -2,7 +2,7 @@
 
 # socket.io-client
 
-[![Build Status](https://secure.travis-ci.org/LearnBoost/socket.io-client.png)](http://travis-ci.org/LearnBoost/socket.io-client)
+[![Build Status](https://secure.travis-ci.org/automattic/socket.io-client.png)](http://travis-ci.org/automattic/socket.io-client)
 [![NPM version](https://badge.fury.io/js/socket.io-client.png)](http://badge.fury.io/js/socket.io-client)
 
 ## How to use
