@@ -17,4 +17,4 @@ browsers:
   - name: iphone
     version: oldest..latest
   - name: android
-    version: latest
+    version: oldest..latest
