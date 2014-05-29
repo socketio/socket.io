@@ -1,7 +1,3 @@
-### This Readme corresponds to the upcoming 1.0 release. Please refer to http://socket.io for the current 0.9.x documentation.
-
-<hr />
-
 # socket.io
 
 [![Build Status](https://secure.travis-ci.org/automattic/socket.io.png)](http://travis-ci.org/automattic/socket.io)
