@@ -86,9 +86,9 @@ $(function() {
 
     var colorStyle = 'style="color:' + getUsernameColor(data.username) + '"';
     var usernameDiv = '<span class="username"' + colorStyle + '>' +
-      data.username + '</span>';
+      cleanInput(data.username) + '</span>';
     var messageBodyDiv = '<span class="messageBody">' +
-      data.message + '</span>';
+      cleanInput(data.message) + '</span>';
 
     var typingClass = data.typing ? 'typing' : '';
     var messageDiv = '<li class="message ' + typingClass + '">' +
