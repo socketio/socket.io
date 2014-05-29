@@ -10,16 +10,16 @@
     "client"
   ],
   "dependencies": {
-    "engine.io-client": "1.2.1",
-    "emitter": "http://github.com/component/emitter/archive/1.0.1.tar.gz",
-    "bind": "http://github.com/component/bind/archive/0.0.1.tar.gz",
-    "object-component": "0.0.3",
-    "socket.io-parser": "2.1.5",
-    "parseuri": "0.0.2",
-    "to-array": "0.1.3",
+    "component-bind": "1.0.0",
+    "component-emitter": "1.1.2",
     "debug": "0.7.4",
+    "engine.io-client": "1.2.1",
     "has-binary-data": "0.1.1",
-    "indexof": "0.0.1"
+    "indexof": "0.0.1",
+    "object-component": "0.0.3",
+    "parseuri": "0.0.2",
+    "socket.io-parser": "2.1.5",
+    "to-array": "0.1.3"
   },
   "devDependencies": {
     "socket.io": "1.0.2",
