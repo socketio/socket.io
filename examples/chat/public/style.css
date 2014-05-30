@@ -25,6 +25,7 @@ html, body {
 
 ul {
   list-style: none;
+  word-wrap: break-word;
 }
 
 /* Pages */

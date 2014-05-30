@@ -1,7 +1,3 @@
-### This Readme corresponds to the upcoming 1.0 release. Please refer to http://socket.io for the current 0.9.x documentation.
-
-<hr />
-
 # socket.io
 
 [![Build Status](https://secure.travis-ci.org/automattic/socket.io.png)](http://travis-ci.org/automattic/socket.io)
@@ -129,7 +125,7 @@ server.listen(3000);
 
   Sets the adapter `v`. Defaults to an instance of the `Adapter` that
   ships with socket.io which is memory based. See
-  [socket.io-adapter](https://github.com/learnboost/socket.io-adapter).
+  [socket.io-adapter](https://github.com/Automattic/socket.io-adapter).
 
   If no arguments are supplied this method returns the current value.
 
@@ -288,7 +284,7 @@ server.listen(3000);
 
   The mechanics of joining  rooms are handled by the `Adapter`
   that has been configured (see `Server#adapter` above), defaulting to
-  [socket.io-adapter](https://github.com/socket.io/socket.io-adapter).
+  [socket.io-adapter](https://github.com/Automattic/socket.io-adapter).
 
 ### Socket#leave(name:String[, fn:Function]):Socket
 
@@ -299,7 +295,7 @@ server.listen(3000);
 
   The mechanics of leaving rooms are handled by the `Adapter`
   that has been configured (see `Server#adapter` above), defaulting to
-  [socket.io-adapter](https://github.com/socket.io/socket.io-adapter).
+  [socket.io-adapter](https://github.com/Automattic/socket.io-adapter).
 
 ### Socket#to(room:String):Socket
 ### Socket#in(room:String):Socket
