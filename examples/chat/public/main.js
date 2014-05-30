@@ -70,8 +70,8 @@ $(function() {
 
   // Log a message
   function log (message, options) {
-    var el = '<li class="log">' + message + '</li>';
-    addMessageElement(el, options);
+    var $el = $('<li>').addClass('log').text(message);
+    addMessageElement($el, options);
   }
 
   // Adds the visual chat message to the message list
@@ -84,16 +84,17 @@ $(function() {
       $typingMessages.remove();
     }
 
-    var colorStyle = 'style="color:' + getUsernameColor(data.username) + '"';
-    var usernameDiv = '<span class="username"' + colorStyle + '>' +
-      cleanInput(data.username) + '</span>';
-    var messageBodyDiv = '<span class="messageBody">' +
-      cleanInput(data.message) + '</span>';
+    var $usernameDiv = $('<span class="username"/>')
+      .text(data.username)
+      .css('color', getUsernameColor(data.username));
+    var $messageBodyDiv = $('<span class="messageBody">')
+      .text(data.message);
 
     var typingClass = data.typing ? 'typing' : '';
-    var messageDiv = '<li class="message ' + typingClass + '">' +
-    usernameDiv + messageBodyDiv + '</li>';
-    var $messageDiv = $(messageDiv).data('username', data.username);
+    var $messageDiv = $('<li class="message"/>')
+      .data('username', data.username)
+      .addClass(typingClass)
+      .append($usernameDiv, $messageBodyDiv);
 
     addMessageElement($messageDiv, options);
   }
@@ -145,7 +146,7 @@ $(function() {
 
   // Prevents input from having injected markup
   function cleanInput (input) {
-    return $('<div/>').text(input).html() || input;
+    return $('<div/>').text(input).text();
   }
 
   // Updates the typing event
