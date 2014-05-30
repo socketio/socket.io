@@ -32,6 +32,14 @@ server.on('connection', function(socket){
     socket.emit('takeDateObj', { date: new Date() });
   });
 
+  socket.on('getUtf8', function() {
+    socket.emit('takeUtf8', 'てすと');
+    socket.emit('takeUtf8', 'Я Б Г Д Ж Й');
+    socket.emit('takeUtf8', 'Ä ä Ü ü ß');
+    socket.emit('takeUtf8', 'utf8 — string');
+    socket.emit('takeUtf8', 'utf8 — string');
+  });
+
   // false test
   socket.on('false', function(){
     socket.emit('false', false);

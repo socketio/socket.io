@@ -41,6 +41,27 @@ describe('connection', function() {
     });
   });
 
+  it('should receive utf8 multibyte characters', function(done) {
+    var correct = [
+      'てすと',
+      'Я Б Г Д Ж Й',
+      'Ä ä Ü ü ß',
+      'utf8 — string',
+      'utf8 — string'
+    ];
+
+    var socket = io();
+    var i = 0;
+    socket.on('takeUtf8', function(data) {
+      expect(data).to.be(correct[i]);
+      i++;
+      if (i == correct.length) {
+        done();
+      }
+    });
+    socket.emit('getUtf8');
+  });
+
   it('should connect to a namespace after connection established', function(done) {
     var manager = io.Manager();
     var socket = manager.socket('/');
