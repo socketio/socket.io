@@ -14,7 +14,7 @@ module.exports = _dereq_('./socket');
  */
 module.exports.parser = _dereq_('engine.io-parser');
 
-},{"./socket":3,"engine.io-parser":14}],3:[function(_dereq_,module,exports){
+},{"./socket":3,"engine.io-parser":13}],3:[function(_dereq_,module,exports){
 (function (global){
 /**
  * Module dependencies.
@@ -645,7 +645,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
 };
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./transport":4,"./transports":5,"debug":12,"emitter":13,"engine.io-parser":14,"indexof":22,"parsejson":24,"parseqs":25,"parseuri":26}],4:[function(_dereq_,module,exports){
+},{"./transport":4,"./transports":5,"debug":11,"emitter":12,"engine.io-parser":13,"indexof":22,"parsejson":24,"parseqs":25,"parseuri":26}],4:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
@@ -795,7 +795,7 @@ Transport.prototype.onClose = function () {
   this.emit('close');
 };
 
-},{"emitter":13,"engine.io-parser":14}],5:[function(_dereq_,module,exports){
+},{"emitter":12,"engine.io-parser":13}],5:[function(_dereq_,module,exports){
 (function (global){
 /**
  * Module dependencies
@@ -1397,7 +1397,7 @@ function unloadHandler() {
 }
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./polling":8,"debug":12,"emitter":13,"inherits":23,"xmlhttprequest":10}],8:[function(_dereq_,module,exports){
+},{"./polling":8,"debug":11,"emitter":12,"inherits":23,"xmlhttprequest":10}],8:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
@@ -1644,7 +1644,7 @@ Polling.prototype.uri = function(){
   return schema + '://' + this.hostname + port + this.path + query;
 };
 
-},{"../transport":4,"debug":12,"engine.io-parser":14,"inherits":23,"parseqs":25,"xmlhttprequest":10}],9:[function(_dereq_,module,exports){
+},{"../transport":4,"debug":11,"engine.io-parser":13,"inherits":23,"parseqs":25,"xmlhttprequest":10}],9:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
@@ -1875,7 +1875,7 @@ WS.prototype.check = function(){
   return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 };
 
-},{"../transport":4,"debug":12,"engine.io-parser":14,"inherits":23,"parseqs":25,"ws":27}],10:[function(_dereq_,module,exports){
+},{"../transport":4,"debug":11,"engine.io-parser":13,"inherits":23,"parseqs":25,"ws":27}],10:[function(_dereq_,module,exports){
 // browser shim for xmlhttprequest module
 var hasCORS = _dereq_('has-cors');
 
@@ -1896,60 +1896,7 @@ module.exports = function(opts) {
   }
 }
 
-},{"has-cors":21}],11:[function(_dereq_,module,exports){
-(function (global){
-/**
- * Create a blob builder even when vendor prefixes exist
- */
-
-var BlobBuilder = global.BlobBuilder
-  || global.WebKitBlobBuilder
-  || global.MSBlobBuilder
-  || global.MozBlobBuilder;
-
-/**
- * Check if Blob constructor is supported
- */
-
-var blobSupported = (function() {
-  try {
-    var b = new Blob(['hi']);
-    return b.size == 2;
-  } catch(e) {
-    return false;
-  }
-})();
-
-/**
- * Check if BlobBuilder is supported
- */
-
-var blobBuilderSupported = BlobBuilder
-  && BlobBuilder.prototype.append
-  && BlobBuilder.prototype.getBlob;
-
-function BlobBuilderConstructor(ary, options) {
-  options = options || {};
-
-  var bb = new BlobBuilder();
-  for (var i = 0; i < ary.length; i++) {
-    bb.append(ary[i]);
-  }
-  return (options.type) ? bb.getBlob(options.type) : bb.getBlob();
-};
-
-module.exports = (function() {
-  if (blobSupported) {
-    return global.Blob;
-  } else if (blobBuilderSupported) {
-    return BlobBuilderConstructor;
-  } else {
-    return undefined;
-  }
-})();
-
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],12:[function(_dereq_,module,exports){
+},{"has-cors":20}],11:[function(_dereq_,module,exports){
 
 /**
  * Expose `debug()` as the module.
@@ -2088,7 +2035,7 @@ try {
   if (window.localStorage) debug.enable(localStorage.debug);
 } catch(e){}
 
-},{}],13:[function(_dereq_,module,exports){
+},{}],12:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
@@ -2252,7 +2199,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{"indexof":22}],14:[function(_dereq_,module,exports){
+},{"indexof":22}],13:[function(_dereq_,module,exports){
 (function (global){
 /**
  * Module dependencies.
@@ -2799,7 +2746,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
 };
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./keys":15,"after":16,"arraybuffer.slice":17,"base64-arraybuffer":18,"blob":11,"utf8":19}],15:[function(_dereq_,module,exports){
+},{"./keys":14,"after":15,"arraybuffer.slice":16,"base64-arraybuffer":17,"blob":18,"utf8":19}],14:[function(_dereq_,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -2820,7 +2767,7 @@ module.exports = Object.keys || function keys (obj){
   return arr;
 };
 
-},{}],16:[function(_dereq_,module,exports){
+},{}],15:[function(_dereq_,module,exports){
 module.exports = after
 
 function after(count, callback, err_cb) {
@@ -2850,7 +2797,7 @@ function after(count, callback, err_cb) {
 
 function noop() {}
 
-},{}],17:[function(_dereq_,module,exports){
+},{}],16:[function(_dereq_,module,exports){
 /**
  * An abstraction for slicing an arraybuffer even when
  * ArrayBuffer.prototype.slice is not supported
@@ -2881,7 +2828,7 @@ module.exports = function(arraybuffer, start, end) {
   return result.buffer;
 };
 
-},{}],18:[function(_dereq_,module,exports){
+},{}],17:[function(_dereq_,module,exports){
 /*
  * base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
@@ -2894,13 +2841,13 @@ module.exports = function(arraybuffer, start, end) {
 
   exports.encode = function(arraybuffer) {
     var bytes = new Uint8Array(arraybuffer),
-    i, len = bytes.length, base64 = "";
+    i, len = bytes.buffer.byteLength, base64 = "";
 
     for (i = 0; i < len; i+=3) {
-      base64 += chars[bytes[i] >> 2];
-      base64 += chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
-      base64 += chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
-      base64 += chars[bytes[i + 2] & 63];
+      base64 += chars[bytes.buffer[i] >> 2];
+      base64 += chars[((bytes.buffer[i] & 3) << 4) | (bytes.buffer[i + 1] >> 4)];
+      base64 += chars[((bytes.buffer[i + 1] & 15) << 2) | (bytes.buffer[i + 2] >> 6)];
+      base64 += chars[bytes.buffer[i + 2] & 63];
     }
 
     if ((len % 3) === 2) {
@@ -2941,7 +2888,59 @@ module.exports = function(arraybuffer, start, end) {
     return arraybuffer;
   };
 })("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+},{}],18:[function(_dereq_,module,exports){
+(function (global){
+/**
+ * Create a blob builder even when vendor prefixes exist
+ */
 
+var BlobBuilder = global.BlobBuilder
+  || global.WebKitBlobBuilder
+  || global.MSBlobBuilder
+  || global.MozBlobBuilder;
+
+/**
+ * Check if Blob constructor is supported
+ */
+
+var blobSupported = (function() {
+  try {
+    var b = new Blob(['hi']);
+    return b.size == 2;
+  } catch(e) {
+    return false;
+  }
+})();
+
+/**
+ * Check if BlobBuilder is supported
+ */
+
+var blobBuilderSupported = BlobBuilder
+  && BlobBuilder.prototype.append
+  && BlobBuilder.prototype.getBlob;
+
+function BlobBuilderConstructor(ary, options) {
+  options = options || {};
+
+  var bb = new BlobBuilder();
+  for (var i = 0; i < ary.length; i++) {
+    bb.append(ary[i]);
+  }
+  return (options.type) ? bb.getBlob(options.type) : bb.getBlob();
+};
+
+module.exports = (function() {
+  if (blobSupported) {
+    return global.Blob;
+  } else if (blobBuilderSupported) {
+    return BlobBuilderConstructor;
+  } else {
+    return undefined;
+  }
+})();
+
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],19:[function(_dereq_,module,exports){
 (function (global){
 /*! http://mths.be/utf8js v2.0.0 by @mathias */
@@ -3188,16 +3187,6 @@ module.exports = function(arraybuffer, start, end) {
 },{}],20:[function(_dereq_,module,exports){
 
 /**
- * Returns `this`. Execute this without a "context" (i.e. without it being
- * attached to an object of the left-hand side), and `this` points to the
- * "global" scope of the current JS execution.
- */
-
-module.exports = (function () { return this; })();
-
-},{}],21:[function(_dereq_,module,exports){
-
-/**
  * Module dependencies.
  */
 
@@ -3220,7 +3209,17 @@ try {
   module.exports = false;
 }
 
-},{"global":20}],22:[function(_dereq_,module,exports){
+},{"global":21}],21:[function(_dereq_,module,exports){
+
+/**
+ * Returns `this`. Execute this without a "context" (i.e. without it being
+ * attached to an object of the left-hand side), and `this` points to the
+ * "global" scope of the current JS execution.
+ */
+
+module.exports = (function () { return this; })();
+
+},{}],22:[function(_dereq_,module,exports){
 
 var indexOf = [].indexOf;
 
