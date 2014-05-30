@@ -446,6 +446,28 @@ describe('socket.io', function(){
       });
     });
 
+    it('should emit events with utf8 multibyte character', function(done) {
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        var i = 0;
+        socket.on('hoot', function(a){
+          expect(a).to.be('utf8 — string');
+          i++;
+
+          if (3 == i) {
+            done();
+          }
+        });
+        sio.on('connection', function(s){
+          s.emit('hoot', 'utf8 — string');
+          s.emit('hoot', 'utf8 — string');
+          s.emit('hoot', 'utf8 — string');
+        });
+      });
+    });
+
     it('should emit events with binary data', function(done){
       var srv = http();
       var sio = io(srv);
