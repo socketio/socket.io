@@ -29,7 +29,7 @@ module.exports = function(parser) {
             done();
           });
         });
-  
+
         it('should decode packets as objects', function (done) {
           encode({ type: 'message', data: 'test' }, function(data) {
             expect(decode(data)).to.be.an('object');
@@ -37,7 +37,7 @@ module.exports = function(parser) {
           });
         });
       });
-  
+
       describe('encoding and decoding', function () {
         it('should allow no data', function (done) {
           encode({ type: 'message' }, function(data) {
@@ -45,56 +45,63 @@ module.exports = function(parser) {
             done();
           });
         });
-  
+
         it('should encode an open packet', function (done) {
           encode({ type: 'open', data: '{"some":"json"}' }, function(data) {
             expect(decode(data)).to.eql({ type: 'open', data: '{"some":"json"}' });
             done();
           });
         });
-  
+
         it('should encode a close packet', function (done) {
           encode({ type: 'close' }, function(data) {
             expect(decode(data)).to.eql({ type: 'close' });
             done();
           });
         });
-  
+
         it('should encode a ping packet', function (done) {
           encode({ type: 'ping', data: '1' }, function(data) {
             expect(decode(data)).to.eql({ type: 'ping', data: '1' });
             done();
           });
         });
-  
+
         it('should encode a pong packet', function (done) {
           encode({ type: 'pong', data: '1' }, function(data) {
             expect(decode(data)).to.eql({ type: 'pong', data: '1' });
             done();
           });
         });
-  
+
         it('should encode a message packet', function (done) {
           encode({ type: 'message', data: 'aaa' }, function(data) {
             expect(decode(data)).to.eql({ type: 'message', data: 'aaa' });
             done();
           });
         });
-  
+
+        it('should encode a utf8 special chars message packet', function (done) {
+          encode({ type: 'message', data: 'utf8 — string' }, function(data) {
+            expect(decode(data)).to.eql({ type: 'message', data: 'utf8 — string' });
+            done();
+          });
+        });
+
         it('should encode a message packet coercing to string', function (done) {
           encode({ type: 'message', data: 1 }, function(data) {
             expect(decode(data)).to.eql({ type: 'message', data: 1 });
             done();
           });
         });
-  
+
         it('should encode an upgrade packet', function (done) {
           encode({ type: 'upgrade' }, function(data) {
             expect(decode(data)).to.eql({ type: 'upgrade' });
             done();
           });
         });
-  
+
         it('should match the encoding format', function () {
           encode({ type: 'message', data: 'test' }, function(data) {
             expect(data).to.match(/^[0-9]/);
@@ -104,20 +111,20 @@ module.exports = function(parser) {
          });
         });
       });
-  
+
       describe('decoding error handing', function () {
         var err = { type: 'error', data: 'parser error' };
-  
+
         it('should disallow bad format', function () {
           expect(decode(':::')).to.eql(err);
         });
-  
+
         it('should disallow inexistent types', function () {
           expect(decode('94103')).to.eql(err);
         });
       });
     });
-  
+
     describe('payloads', function () {
       describe('basic functionality', function () {
         it('should encode payloads as strings', function (done) {
@@ -127,7 +134,7 @@ module.exports = function(parser) {
           });
         });
       });
-  
+
       describe('encoding and decoding', function () {
         var seen = 0;
         it('should encode/decode packets', function (done) {
@@ -139,7 +146,7 @@ module.exports = function(parser) {
                 seen++;
               });
           });
-          encPayload([{type: 'message', data: 'a'}, {type: 'ping'}], function(data) { 
+          encPayload([{type: 'message', data: 'a'}, {type: 'ping'}], function(data) {
             decPayload(data,
               function(packet, index, total) {
                 var isLast = index + 1 == total;
@@ -153,7 +160,7 @@ module.exports = function(parser) {
               });
           });
         });
-  
+
         it('should encode/decode empty payloads', function () {
           encPayload([], function(data) {
             decPayload(data,
@@ -165,10 +172,10 @@ module.exports = function(parser) {
           });
         });
       });
-  
+
       describe('decoding error handling', function () {
         var err = { type: 'error', data: 'parser error' };
-  
+
         it('should err on bad payload format', function () {
           decPayload('1!', function (packet, index, total) {
             var isLast = index + 1 == total;
@@ -186,7 +193,7 @@ module.exports = function(parser) {
             expect(isLast).to.eql(true);
           });
         });
-  
+
         it('should err on bad payload length', function () {
           // line 137
           decPayload('1:', function (packet, index, total) {
@@ -195,7 +202,7 @@ module.exports = function(parser) {
             expect(isLast).to.eql(true);
           });
         });
-  
+
         it('should err on bad packet format', function () {
           // line 137
           decPayload('3:99:', function (packet, index, total) {
