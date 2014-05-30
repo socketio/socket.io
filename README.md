@@ -1,12 +1,12 @@
 
 # Engine.IO client
 
-[![Build Status](https://secure.travis-ci.org/LearnBoost/engine.io-client.png)](http://travis-ci.org/LearnBoost/engine.io-client)
+[![Build Status](https://secure.travis-ci.org/Automattic/engine.io-client.png)](http://travis-ci.org/Automattic/engine.io-client)
 [![NPM version](https://badge.fury.io/js/engine.io-client.png)](http://badge.fury.io/js/engine.io-client)
 
-This is the client for [Engine.IO](http://github.com/learnboost/engine.io),
+This is the client for [Engine.IO](http://github.com/automattic/engine.io),
 the implementation of transport-based cross-browser/cross-device
-bi-directional communication layer for [Socket.IO](http://github.com/learnboost/socket.io).
+bi-directional communication layer for [Socket.IO](http://github.com/automattic/socket.io).
 
 ## How to use
 
@@ -191,7 +191,7 @@ The transport class. Private. _Inherits from EventEmitter_.
 ## Tests
 
 `engine.io-client` is used to test
-[engine](http://github.com/learnboost/engine.io). Running the `engine.io`
+[engine](http://github.com/automattic/engine.io). Running the `engine.io`
 test suite ensures the client works and vice-versa.
 
 Browser tests are run using [zuul](https://github.com/defunctzombie/zuul). You can
@@ -218,7 +218,7 @@ To contribute patches, run tests or benchmarks, make sure to clone the
 repository:
 
 ```bash
-git clone git://github.com/LearnBoost/engine.io-client.git
+git clone git://github.com/automattic/engine.io-client.git
 ```
 
 Then:
