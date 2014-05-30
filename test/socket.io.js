@@ -395,6 +395,33 @@ describe('socket.io', function(){
           }
         });
       });
+
+      it('should disconnect both default and custom namespace upon disconnect', function(done){
+        var srv = http();
+        var sio = io(srv);
+        srv.listen(function(){
+          var lolcats = client(srv, '/lolcats');
+          var total = 2;
+          var totald = 2;
+          var s;
+          sio.of('/', function(socket){
+            socket.on('disconnect', function(reason){
+              --totald || done();
+            });
+            --total || close();
+          });
+          sio.of('/lolcats', function(socket){
+            s = socket;
+            socket.on('disconnect', function(reason){
+              --totald || done();
+            });
+            --total || close();
+          });
+          function close(){
+            s.disconnect(true);
+          }
+        });
+      });
     });
   });
 
