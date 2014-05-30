@@ -1,4 +1,9 @@
 
+1.2.2 / 2014-05-30
+==================
+
+ * package: bump `engine.io-parser` for binary utf8 fix
+
 1.2.1 / 2014-05-22
 ==================
 
