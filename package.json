@@ -22,7 +22,7 @@
     "indexof": "0.0.1"
   },
   "devDependencies": {
-    "socket.io": "Automattic/socket.io#27dada6",
+    "socket.io": "Automattic/socket.io#039eed",
     "mocha": "1.16.2",
     "zuul": "1.6.3",
     "istanbul": "0.2.1",
