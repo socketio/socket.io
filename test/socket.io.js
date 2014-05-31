@@ -795,6 +795,59 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should handle very large json', function(done){
+      this.timeout();
+      var srv = http();
+      var sio = io(srv);
+      var received = 0;
+      srv.listen(function(){
+        var socket = client(srv);
+        socket.on('big', function(a){
+          expect(Buffer.isBuffer(a.json)).to.be(false);
+          if (++received == 3)
+            done();
+          else
+            socket.emit('big', a);
+        });
+        sio.on('connection', function(s){
+          fs.readFile(join(__dirname, 'fixtures', 'big.json'), function(err, data){
+            if (err) return done(err);
+            data = JSON.parse(data);
+            s.emit('big', {hello: 'friend', json: data});
+          });
+          s.on('big', function(a){
+            s.emit('big', a);
+          });
+        });
+      });
+    });
+
+    it('should handle very large binary data', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var received = 0;
+      srv.listen(function(){
+        var socket = client(srv);
+        socket.on('big', function(a){
+          expect(Buffer.isBuffer(a.image)).to.be(true);
+          if (++received == 3)
+            done();
+          else
+            socket.emit('big', a);
+        });
+        sio.on('connection', function(s){
+          fs.readFile(join(__dirname, 'fixtures', 'big.jpg'), function(err, data){
+            if (err) return done(err);
+            s.emit('big', {hello: 'friend', image: data});
+          });
+          s.on('big', function(a){
+            expect(Buffer.isBuffer(a.image)).to.be(true);
+            s.emit('big', a);
+          });
+        });
+      });
+    });
   });
 
   describe('messaging many', function(){
