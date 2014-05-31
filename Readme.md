@@ -9,7 +9,7 @@
 
 ## Protocol version
 
-  **Current protocol revision:** `3`.
+  **Current protocol revision:** `4`.
 
 ## Parser API
 
@@ -76,6 +76,7 @@
   - `Packet#ACK` (`3`)
   - `Packet#ERROR` (`4`)
   - `Packet#BINARY_EVENT` (`5`)
+  - `Packet#BINARY_ACK` (`6`)
 
 #### EVENT
 
@@ -102,8 +103,15 @@
 
 #### ACK
 
-  - `data` (`Array`) see `EVENT` `data`. Encoded in the `BINARY_EVENT` style in
-    case acknowledgement functions need binary data; see the notes above.
+  - `data` (`Array`) see `EVENT` `data`. Encoded as string like the `EVENT` type above.
+    Should be used when an ACK function is not called with binary data.
+  - `id` (`Number`) see `EVENT` `id`.
+
+#### BINARY_ACK
+
+  - `data` (`Array`) see `ACK` `data`. Used when the arguments for an ACK
+    function contain binary data; encodes packet in the `BINARY_EVENT` style
+    documented above.
   - `id` (`Number`) see `EVENT` `id`.
 
 #### ERROR
