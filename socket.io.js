@@ -772,6 +772,10 @@ Socket.prototype.onpacket = function(packet){
       this.onack(packet);
       break;
 
+    case parser.BINARY_ACK:
+      this.onack(packet);
+      break;
+
     case parser.DISCONNECT:
       this.ondisconnect();
       break;
@@ -820,8 +824,10 @@ Socket.prototype.ack = function(id){
     sent = true;
     var args = toArray(arguments);
     debug('sending ack %j', args);
+
+    var type = hasBin(args) ? parser.BINARY_ACK : parser.ACK;
     self.packet({
-      type: parser.ACK,
+      type: type,
       id: id,
       data: args
     });
