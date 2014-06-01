@@ -1,4 +1,12 @@
 
+1.0.3 / 2014-05-31
+==================
+
+ * package: bump `socket.io-client`
+ * package: bump `socket.io-parser` for binary ACK fix
+ * package: bump `engine.io` for binary UTF8 fix
+ * example: fix XSS in chat example
+
 1.0.2 / 2014-05-28
 ==================
 

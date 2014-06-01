@@ -1,6 +1,6 @@
 {
   "name": "socket.io",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "node.js realtime framework server",
   "keywords": [
     "realtime",
@@ -21,7 +21,7 @@
   "dependencies": {
     "engine.io": "1.2.2",
     "socket.io-parser": "2.2.0",
-    "socket.io-client": "Automattic/socket.io-client#57c8589",
+    "socket.io-client": "1.0.3",
     "socket.io-adapter": "0.2.0",
     "has-binary-data": "0.1.1",
     "debug": "0.7.4"
