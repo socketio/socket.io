@@ -619,6 +619,30 @@ describe('socket.io', function(){
       });
     });
 
+    it('should receive all events emitted from namespaced client immediately and in order', function(done) {
+      var srv = http();
+      var sio = io(srv);
+      var total = 0;
+      srv.listen(function(){
+        sio.of('/chat', function(s){
+          s.on('hi', function(letter){
+            total++;
+            if (total == 2 && letter == 'b') {
+              done();
+            } else if (total == 1 && letter != 'a') {
+              throw new Error('events out of order');
+            }
+          });
+        });
+
+        var chat = client(srv, '/chat');
+        chat.emit('hi', 'a');
+        setTimeout(function() {
+          chat.emit('hi', 'b');
+        }, 50);
+      });
+    });
+
     it('should emit events with callbacks', function(done){
       var srv = http();
       var sio = io(srv);
