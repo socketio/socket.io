@@ -4378,6 +4378,10 @@ function hasBinary(data) {
           }
       }
     } else if (obj && 'object' == typeof obj) {
+      if (obj.toJSON) {
+        obj = obj.toJSON();
+      }
+
       for (var key in obj) {
         if (recursiveCheckForBinary(obj[key])) {
           return true;
@@ -4589,7 +4593,7 @@ exports.deconstructPacket = function(packet) {
                 newData[i] = deconstructBinPackRecursive(data[i]);
             }
             return newData;
-        } else if ('object' == typeof data) {
+        } else if ('object' == typeof data && !(data instanceof Date)) {
             var newData = {};
             for (var key in data) {
                 newData[key] = deconstructBinPackRecursive(data[key]);
@@ -4740,6 +4744,7 @@ exports.types = [
   'EVENT',
   'BINARY_EVENT',
   'ACK',
+  'BINARY_ACK',
   'ERROR'
 ];
 
@@ -4791,6 +4796,14 @@ exports.ERROR = 4;
 
 exports.BINARY_EVENT = 5;
 
+/**
+ * Packet type `binary ack`. For acks with binary arguments.
+ *
+ * @api public
+ */
+
+exports.BINARY_ACK = 6;
+
 exports.Encoder = Encoder
 
 /**
@@ -4813,7 +4826,7 @@ function Encoder() {};
 Encoder.prototype.encode = function(obj, callback){
   debug('encoding packet %j', obj);
 
-  if (exports.BINARY_EVENT == obj.type || exports.ACK == obj.type) {
+  if (exports.BINARY_EVENT == obj.type || exports.BINARY_ACK == obj.type) {
     encodeAsBinary(obj, callback);
   }
   else {
@@ -4838,7 +4851,7 @@ function encodeAsString(obj) {
   str += obj.type;
 
   // attachments if we have them
-  if (exports.BINARY_EVENT == obj.type || exports.ACK == obj.type) {
+  if (exports.BINARY_EVENT == obj.type || exports.BINARY_ACK == obj.type) {
     str += obj.attachments;
     str += '-';
   }
@@ -4924,7 +4937,7 @@ Decoder.prototype.add = function(obj) {
   var packet;
   if ('string' == typeof obj) {
     packet = decodeString(obj);
-    if (exports.BINARY_EVENT == packet.type || exports.ACK == packet.type) { // binary packet's json
+    if (exports.BINARY_EVENT == packet.type || exports.BINARY_ACK == packet.type) { // binary packet's json
       this.reconstructor = new BinaryReconstructor(packet);
 
       // no attachments, labeled binary but no binary data to follow
@@ -4970,7 +4983,7 @@ function decodeString(str) {
   if (null == exports.types[p.type]) return error();
 
   // look up attachments if type binary
-  if (exports.BINARY_EVENT == p.type || exports.ACK == p.type) {
+  if (exports.BINARY_EVENT == p.type || exports.BINARY_ACK == p.type) {
     p.attachments = '';
     while (str.charAt(++i) != '-') {
       p.attachments += str.charAt(i);
