@@ -26,6 +26,7 @@ describe('server', function () {
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(0);
             expect(res.body.message).to.be('Transport unknown');
+            expect(res.header['access-control-allow-origin']).to.be('*');
             done();
           });
       });
@@ -35,11 +36,14 @@ describe('server', function () {
       // make sure we check for actual properties - not those present on every {}
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .set('Origin', 'http://engine.io')
           .query({ transport: 'constructor' })
           .end(function (res) {
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(0);
             expect(res.body.message).to.be('Transport unknown');
+            expect(res.header['access-control-allow-credentials']).to.be('true');
+            expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
             done();
           });
       });
@@ -48,11 +52,14 @@ describe('server', function () {
     it('should disallow non-existent sids', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .set('Origin', 'http://engine.io')
           .query({ transport: 'polling', sid: 'test' })
           .end(function (res) {
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(1);
             expect(res.body.message).to.be('Session ID unknown');
+            expect(res.header['access-control-allow-credentials']).to.be('true');
+            expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
             done();
           });
       });
@@ -259,11 +266,14 @@ describe('server', function () {
     it('should disallow bad requests', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .set('Origin', 'http://engine.io')
           .query({ transport: 'websocket' })
           .end(function (res) {
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(3);
             expect(res.body.message).to.be('Bad request');
+            expect(res.header['access-control-allow-credentials']).to.be('true');
+            expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
             done();
           });
       });
