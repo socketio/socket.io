@@ -25,7 +25,7 @@
     "has-cors": "1.0.3",
     "ws": "0.4.31",
     "xmlhttprequest": "https://github.com/LearnBoost/node-XMLHttpRequest/archive/0f36d0b5ebc03d85f860d42a64ae9791e1daa433.tar.gz",
-    "emitter": "http://github.com/component/emitter/archive/1.0.1.tar.gz",
+    "component-emitter": "1.1.2",
     "indexof": "0.0.1",
     "engine.io-parser": "1.0.6",
     "debug": "0.7.4",
