@@ -120,6 +120,30 @@ These are exposed by `require('engine.io')`:
 
 ##### Methods
 
+- `()`
+    - Returns a new `Server` instance. If the first argument is an `http.Server` then the
+      new `Server` instance will be attached to it. Otherwise, the arguments are passed
+      directly to the `Server` constructor.
+    - **Parameters**
+      - `http.Server`: optional, server to attach to.
+      - `Object`: optional, options object (see `Server#constructor` api docs below)
+
+  The following are identical ways to instantiate a server and then attach it.
+  ```js
+  var httpServer; // previously created with `http.createServer();` from node.js api.
+
+  // create a server first, and then attach
+  var eioServer = require('engine.io').Server();
+  eioServer.attach(httpServer);
+
+  // or call the module as a function to get `Server`
+  var eioServer = require('engine.io')();
+  eioServer.attach(httpServer);
+
+  // immediately attach
+  var eioServer = require('engine.io')(http_server);
+  ```
+
 - `listen`
     - Creates an `http.Server` which listens on the given port and attaches WS
       to it. It returns `501 Not Implemented` for regular http requests.
@@ -134,11 +158,9 @@ These are exposed by `require('engine.io')`:
       - `http.Server`: server to attach to.
       - `Object`: optional, options object
     - **Options**
-      - `path` (`String`): name of the path to capture (`/engine.io`).
-      - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
-      - `destroyUpgradeTimeout` (`Number`): milliseconds after which unhandled requests are ended (`1000`)
-      - **See Server options below for additional options you can pass**
-    - **Returns** `Server`
+      - All options from `Server.attach` method, documented below.
+      - **Additionally** See Server `constructor` below for options you can pass for creating the new Server
+    - **Returns** `Server` a new Server instance.
 
 <hr><br>
 
@@ -205,6 +227,17 @@ to a single process.
       - `net.Stream`: TCP socket for the request
       - `Buffer`: legacy tail bytes
     - **Returns** `Server` for chaining
+- `attach`
+    - Attach this Server instance to an `http.Server`
+    - Captures `upgrade` requests for a `http.Server`. In other words, makes
+      a regular http.Server WebSocket-compatible.
+    - **Parameters**
+      - `http.Server`: server to attach to.
+      - `Object`: optional, options object
+    - **Options**
+      - `path` (`String`): name of the path to capture (`/engine.io`).
+      - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
+      - `destroyUpgradeTimeout` (`Number`): milliseconds after which unhandled requests are ended (`1000`)
 
 <hr><br>
 

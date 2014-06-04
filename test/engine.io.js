@@ -26,6 +26,13 @@ describe('engine', function () {
     expect(version).to.be(require('engine.io-client/package').version);
   });
 
+  describe('engine()', function () {
+    it('should create a Server when require called with no arguments', function () {
+      var engine = eio();
+      expect(engine).to.be.an(eio.Server);
+    });
+  });
+
   describe('listen', function () {
     it('should open a http server that returns 501', function (done) {
       var server = listen(function (port) {
@@ -38,6 +45,13 @@ describe('engine', function () {
   });
 
   describe('attach()', function () {
+    it('should work from require()', function () {
+      var server = http.createServer();
+      var engine = eio(server);
+
+      expect(engine).to.be.an(eio.Server);
+    });
+
     it('should return an engine.Server', function () {
       var server = http.createServer()
         , engine = eio.attach(server);
