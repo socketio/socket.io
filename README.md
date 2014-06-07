@@ -149,7 +149,11 @@ These are exposed by `require('engine.io')`:
       to it. It returns `501 Not Implemented` for regular http requests.
     - **Parameters**
       - `Number`: port to listen on.
+      - `Object`: optional, options object
       - `Function`: callback for `listen`.
+    - **Options**
+      - All options from `Server.attach` method, documented below.
+      - **Additionally** See Server `constructor` below for options you can pass for creating the new Server
     - **Returns** `Server`
 - `attach`
     - Captures `upgrade` requests for a `http.Server`. In other words, makes
