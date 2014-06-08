@@ -33,22 +33,24 @@ describe('arraybuffer', function() {
     }
 
     var msg = 0;
-    var socket = new eio.Socket({ transports: ['polling'] });
+    var socket = new eio.Socket();
     socket.on('open', function() {
-      socket.send(binaryData);
-      socket.send('cash money €€€');
-      socket.on('message', function (data) {
-        if (data === 'hi') return;
+      socket.on('upgrade', function() {
+        socket.send(binaryData);
+        socket.send('cash money €€€');
+        socket.on('message', function (data) {
+          if (data === 'hi') return;
 
-        if (msg == 0) {
-          expect(data).to.be.an(ArrayBuffer);
-          expect(new Int8Array(data)).to.eql(binaryData);
-          msg++;
-        } else {
-          expect(data).to.be('cash money €€€');
-          socket.close();
-          done();
-        }
+          if (msg == 0) {
+            expect(data).to.be.an(ArrayBuffer);
+            expect(new Int8Array(data)).to.eql(binaryData);
+            msg++;
+          } else {
+            expect(data).to.be('cash money €€€');
+            socket.close();
+            done();
+          }
+        });
       });
     });
   });
