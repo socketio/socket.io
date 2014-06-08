@@ -52,11 +52,25 @@ module.exports = function(callback) {
     };
     test(packet, deferred);
   }})
-  .add('json with buffer parse', {defer: true, fn: function(deferred) {
+  .add('json with small binary parse', {defer: true, fn: function(deferred) {
     var packet = {
       type: parser.EVENT,
       nsp: '/bench',
-      data: {'a': [1, 2, 3], 'b': 'xxxyyyzzz', 'data': new Buffer(10000)}
+      data: {'a': [1, 2, 3], 'b': 'xxxyyyzzz', 'data': new Buffer(1000)}
+    };
+    test(packet, deferred);
+  }})
+  .add('json with big binary parse', {defer: true, fn: function(deferred) {
+    var bigBinaryData = {
+      bin1: new Buffer(10000),
+      arr: bigArray,
+      bin2: new Buffer(10000),
+      bin3: new Buffer(10000)
+    };
+    var packet = {
+      type: parser.EVENT,
+      nsp: '/bench',
+      data: bigBinaryData
     };
     test(packet, deferred);
   }})
