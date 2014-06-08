@@ -32,7 +32,7 @@
     "parseuri": "0.0.2",
     "parsejson": "0.0.1",
     "parseqs": "0.0.2",
-    "inherits": "2.0.1"
+    "component-inherit": "0.0.3"
   },
   "devDependencies": {
     "zuul": "1.6.3",
