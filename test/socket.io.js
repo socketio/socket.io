@@ -977,6 +977,39 @@ describe('socket.io', function(){
       });
     });
 
+    it('emits to rooms with a session ID exception', function(done){
+      var srv = http();
+      var sio = io(srv);
+
+      srv.listen(function(){
+        var socket1 = client(srv, { multiplex: false });
+        var socket2 = client(srv, { multiplex: false });
+
+        socket2.on('a', function(){
+          done();
+        });
+        socket1.on('a', function(){
+          // should not emit to socket1 (except)
+          done(new Error('not'));
+        });
+        socket1.emit('join', 'woot', function(){
+          socket1.emit('emit', 'woot');
+        });
+        socket2.emit('join', 'woot');
+
+        sio.on('connection', function(socket){
+          socket.on('join', function(room, fn){
+            socket.join(room, fn);
+          });
+
+          socket.on('emit', function(room){
+            var socket1ID = socket.id;
+            sio.in(room).except(socket1ID).emit('a');
+          });
+        });
+      });
+    });
+
     it('emits to rooms avoiding dupes', function(done){
       var srv = http();
       var sio = io(srv);
