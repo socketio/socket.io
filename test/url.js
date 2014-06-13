@@ -22,12 +22,13 @@ describe('url', function(){
     expect(parsed.protocol).to.be('http');
   });
 
-  it('ignores default ports for unique url ids', function(){
+  it('forces ports for unique url ids', function(){
     var id1 = url('http://google.com:80/');
     var id2 = url('http://google.com/');
     var id3 = url('https://google.com/');
     expect(id1.id).to.be(id2.id);
     expect(id1.id).to.not.be(id3.id);
+    expect(id2.id).to.not.be(id3.id);
   });
 
   it('identifies the namespace', function(){
