@@ -102,6 +102,24 @@ describe('connection', function() {
     socket = manager.socket('/timeout');
   });
 
+  it('should fire reconnect_* events on socket', function(done) {
+    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
+    var socket = manager.socket('/timeout_socket');
+
+    var reconnects = 0;
+    var reconnectCb = function() {
+      reconnects++;
+    };
+
+    socket.on('reconnect_attempt', reconnectCb);
+    socket.on('reconnect_failed', function failed() {
+      expect(reconnects).to.be(2);
+      socket.close();
+      done();
+    });
+  });
+
+
   it('should not try to reconnect and should form a connection when connecting to correct port with default timeout', function(done) {
     var manager = io.Manager({ reconnection: true, reconnectionDelay: 10 });
     var cb = function() {
