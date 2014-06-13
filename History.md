@@ -1,4 +1,11 @@
 
+1.3.0 / 2014-06-13
+==================
+
+ * smaller inherits utility
+ * fix a test for ws
+ * upgrade emitter dep to not rely on tarball
+
 1.2.2 / 2014-05-30
 ==================
 
