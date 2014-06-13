@@ -1,4 +1,13 @@
 
+1.3.0 / 2014-06-13
+==================
+
+ * update example to use v1.2.2
+ * fixed newline parsing in jsonp
+ * make require('engine.io')() return a new Server instance [defunctzombie]
+ * add Server.attach method [defunctzombie]
+ * fix GH-211, set CORS headers when sending error message [mokesmokes]
+
 1.2.2 / 2014-05-30
 ==================
 
