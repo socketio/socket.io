@@ -13,7 +13,7 @@
     "debug": "0.7.4",
     "engine.io-client": "1.2.2",
     "component-bind": "1.0.0",
-    "component-emitter": "1.0.1",
+    "component-emitter": "1.1.2",
     "object-component": "0.0.3",
     "socket.io-parser": "2.2.0",
     "has-binary-data": "0.1.1",
