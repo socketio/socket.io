@@ -83,6 +83,14 @@ describe('connection', function() {
     });
   });
 
+  it('reconnect event should fire in socket', function(done){
+    var socket = io();
+    socket.io.engine.close();
+    socket.on('reconnect', function() {
+      done();
+    });
+  });
+
   it('should try to reconnect twice and fail when requested two attempts with immediate timeout and reconnect enabled', function(done) {
     var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
     var socket;
@@ -119,6 +127,23 @@ describe('connection', function() {
     });
   });
 
+  it('should fire reconnecting (on socket) with attempts number when reconnecting twice', function(done) {
+    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
+    var socket = manager.socket('/timeout_socket');
+
+    var reconnects = 0;
+    var reconnectCb = function(attempts) {
+      reconnects++;
+      expect(attempts).to.be(reconnects);
+    };
+
+    socket.on('reconnecting', reconnectCb);
+    socket.on('reconnect_failed', function failed() {
+      expect(reconnects).to.be(2);
+      socket.close();
+      done();
+    });
+  });
 
   it('should not try to reconnect and should form a connection when connecting to correct port with default timeout', function(done) {
     var manager = io.Manager({ reconnection: true, reconnectionDelay: 10 });
