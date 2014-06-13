@@ -38,20 +38,20 @@ function send(){
   socket.send('ping');
   $('transport').innerHTML = socket.transport.name;
 }
-socket.onopen = function(){
+socket.on('open', function(){
   if ($('chart').getContext) {
     render();
     window.onresize = render;
   }
   send();
-};
-socket.onclose = function(){
+});
+socket.on('close', function(){
   if (smoothie) smoothie.stop();
   $('transport').innerHTML = '(disconnected)';
-};
-socket.onmessage = function(){
+});
+socket.on('message', function(){
   var latency = new Date - last;
   $('latency').innerHTML = latency + 'ms';
   if (time) time.append(+new Date, latency);
   setTimeout(send, 100);
-};
+});
