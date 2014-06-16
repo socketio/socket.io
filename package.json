@@ -19,7 +19,7 @@
     "test": "make test"
   },
   "dependencies": {
-    "engine.io": "1.2.2",
+    "engine.io": "1.3.0",
     "socket.io-parser": "2.2.0",
     "socket.io-client": "Automattic/socket.io-client#095acb",
     "socket.io-adapter": "0.2.0",
