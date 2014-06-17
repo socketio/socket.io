@@ -22,7 +22,7 @@
     "engine.io": "1.2.2",
     "socket.io-parser": "2.2.0",
     "socket.io-client": "Automattic/socket.io-client#095acb",
-    "socket.io-adapter": "0.2.0",
+    "socket.io-adapter": "git+ssh://git@github.com:FREEZX/socket.io-adapter.git",
     "has-binary-data": "0.1.1",
     "debug": "0.7.4"
   },
