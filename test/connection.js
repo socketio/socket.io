@@ -1,7 +1,6 @@
 var expect = require('expect.js');
 var io = require('../');
 var hasCORS = require('has-cors');
-var b64 = require('base64-js');
 var textBlobBuilder = require('text-blob-builder');
 
 describe('connection', function() {
@@ -223,7 +222,6 @@ describe('connection', function() {
     var socket = io({ forceNew: true });
     socket.on('takeDate', function(data) {
       expect(data).to.be.a('string');
-      socket.disconnect();
       done();
     });
     socket.emit('getDate');
@@ -234,7 +232,6 @@ describe('connection', function() {
     socket.on('takeDateObj', function(data) {
       expect(data).to.be.an('object');
       expect(data.date).to.be.a('string');
-      socket.disconnect();
       done();
     });
     socket.emit('getDateObj');
@@ -244,11 +241,9 @@ describe('connection', function() {
     it('should get base64 data as a last resort', function(done) {
       var socket = io({ forceNew: true });
       socket.on('takebin', function(a) {
-        expect(a.base64).to.be(true);
-        var bytes = b64.toByteArray(a.data);
-        var dataString = String.fromCharCode.apply(String, bytes);
-        expect(dataString).to.eql('asdfasdf');
         socket.disconnect();
+        expect(a.base64).to.be(true);
+        expect(a.data).to.eql('YXNkZmFzZGY=');
         done();
       });
       socket.emit('getbin');
