@@ -220,24 +220,24 @@ describe('connection', function() {
   }
 
   it('should emit date as string', function(done){
-      var socket = io({ forceNew: true });
-      socket.on('takeDate', function(data) {
-        expect(data).to.be.a('string');
-        socket.disconnect();
-        done();
-      });
-      socket.emit('getDate');
+    var socket = io({ forceNew: true });
+    socket.on('takeDate', function(data) {
+      expect(data).to.be.a('string');
+      socket.disconnect();
+      done();
+    });
+    socket.emit('getDate');
   });
 
   it('should emit date in object', function(done){
-      var socket = io({ forceNew: true });
-      socket.on('takeDateObj', function(data) {
-        expect(data).to.be.an('object');
-        expect(data.date).to.be.a('string');
-        socket.disconnect();
-        done();
-      });
-      socket.emit('getDateObj');
+    var socket = io({ forceNew: true });
+    socket.on('takeDateObj', function(data) {
+      expect(data).to.be.an('object');
+      expect(data.date).to.be.a('string');
+      socket.disconnect();
+      done();
+    });
+    socket.emit('getDateObj');
   });
 
   if (!global.Blob && !global.ArrayBuffer) {

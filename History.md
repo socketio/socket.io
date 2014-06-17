@@ -1,4 +1,16 @@
 
+1.0.5 / 2014-06-16
+==================
+
+ * package: bump `engine.io-client` for better deps and smaller build
+ * handle io.connect(null, opts) correctly [audreyt]
+ * url: fix incorrect ports in certain connections [holic]
+ * manager: propagate all reconnection events to sockets [Rase-]
+ * index: added BC for `force new connection`
+ * socket: fix event buffering while in disconnected state [kevin-roark]
+ * package: stop using tarballs in dependencies [reid]
+ * manager: relay `connect_error` and `connect_timeout` to sockets
+
 1.0.4 / 2014-06-02
 ==================
 
