@@ -11,6 +11,7 @@ describe('connection', function() {
     var socket = io({ forceNew: true });
     socket.emit('hi');
     socket.on('hi', function(data){
+      socket.disconnect();
       done();
     });
   });
@@ -21,13 +22,17 @@ describe('connection', function() {
     socket.on('ack', function(fn){
       fn(5, { test: true });
     });
-    socket.on('got it', done);
+    socket.on('got it', function(){
+      socket.disconnect();
+      done();
+    });
   });
 
   it('should receive date with ack', function(done){
     var socket = io({ forceNew: true });
     socket.emit('getAckDate', { test: true }, function(data){
        expect(data).to.be.a('string');
+       socket.disconnect();
        done();
     });
   });
@@ -37,6 +42,7 @@ describe('connection', function() {
     socket.emit('false');
     socket.on('false', function(f){
       expect(f).to.be(false);
+      socket.disconnect();
       done();
     });
   });
@@ -56,6 +62,7 @@ describe('connection', function() {
       expect(data).to.be(correct[i]);
       i++;
       if (i == correct.length) {
+        socket.disconnect();
         done();
       }
     });
@@ -78,6 +85,7 @@ describe('connection', function() {
   it('should reconnect by default', function(done){
     var socket = io({ forceNew: true });
     socket.io.on('reconnect', function() {
+      socket.disconnect();
       done();
     });
 
@@ -90,6 +98,7 @@ describe('connection', function() {
     var socket = io({ forceNew: true });
 
     socket.on('reconnect', function() {
+      socket.disconnect();
       done();
     });
 
@@ -185,6 +194,7 @@ describe('connection', function() {
 
       manager.on('reconnect_failed', function() {
         expect(reconnects).to.be(2);
+        socket.disconnect();
         done();
       });
     });
@@ -200,6 +210,7 @@ describe('connection', function() {
       manager.on('connect_error', function(){
         // set a timeout to let reconnection possibly fire
         setTimeout(function() {
+          socket.disconnect();
           done();
         }, 1000);
       });
@@ -212,6 +223,7 @@ describe('connection', function() {
       var socket = io({ forceNew: true });
       socket.on('takeDate', function(data) {
         expect(data).to.be.a('string');
+        socket.disconnect();
         done();
       });
       socket.emit('getDate');
@@ -222,6 +234,7 @@ describe('connection', function() {
       socket.on('takeDateObj', function(data) {
         expect(data).to.be.an('object');
         expect(data.date).to.be.a('string');
+        socket.disconnect();
         done();
       });
       socket.emit('getDateObj');
@@ -235,6 +248,7 @@ describe('connection', function() {
         var bytes = b64.toByteArray(a.data);
         var dataString = String.fromCharCode.apply(String, bytes);
         expect(dataString).to.eql('asdfasdf');
+        socket.diisconnect();
         done();
       });
       socket.emit('getbin');
@@ -249,6 +263,7 @@ describe('connection', function() {
       socket.emit('doge');
       socket.on('doge', function(buffer){
         expect(buffer instanceof ArrayBuffer).to.be(true);
+        socket.disconnect();
         done();
       });
     });
@@ -256,6 +271,7 @@ describe('connection', function() {
     it('should send binary data (as an ArrayBuffer)', function(done){
       var socket = io({ forceNew: true });
       socket.on('buffack', function(){
+        socket.disconnect();
         done();
       });
       var buf = base64.decode("asdfasdf");
@@ -265,6 +281,7 @@ describe('connection', function() {
     it('should send binary data (as an ArrayBuffer) mixed with json', function(done) {
       var socket = io({ forceNew: true });
       socket.on('jsonbuff-ack', function() {
+        socket.disconnect();
         done();
       });
       var buf = base64.decode("howdy");
@@ -274,6 +291,7 @@ describe('connection', function() {
     it('should send events with ArrayBuffers in the correct order', function(done) {
       var socket = io({ forceNew: true });
       socket.on('abuff2-ack', function() {
+        socket.disconnect();
         done();
       });
       var buf = base64.decode("abuff1");
@@ -286,6 +304,7 @@ describe('connection', function() {
     it('should send binary data (as a Blob)', function(done){
       var socket = io({ forceNew: true });
       socket.on('back', function(){
+        socket.disconnect();
         done();
       });
       var blob = textBlobBuilder('hello world');
@@ -295,6 +314,7 @@ describe('connection', function() {
     it('should send binary data (as a Blob) mixed with json', function(done) {
       var socket = io({ forceNew: true });
       socket.on('jsonblob-ack', function() {
+        socket.disconnect();
         done();
       });
       var blob = textBlobBuilder('EEEEEEEEE');
@@ -304,6 +324,7 @@ describe('connection', function() {
     it('should send events with Blobs in the correct order', function(done) {
       var socket = io({ forceNew: true });
       socket.on('blob3-ack', function() {
+        socket.disconnect();
         done();
       });
       var blob = textBlobBuilder('BLOBBLOB');
