@@ -248,7 +248,7 @@ describe('connection', function() {
         var bytes = b64.toByteArray(a.data);
         var dataString = String.fromCharCode.apply(String, bytes);
         expect(dataString).to.eql('asdfasdf');
-        socket.diisconnect();
+        socket.disconnect();
         done();
       });
       socket.emit('getbin');
