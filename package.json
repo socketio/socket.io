@@ -30,7 +30,6 @@
     "expect.js": "0.2.0",
     "uglify-js": "2.4.8",
     "browserify": "2.35.1",
-    "base64-js": "0.0.6",
     "base64-arraybuffer": "0.1.0",
     "text-blob-builder": "0.0.1",
     "has-cors": "1.0.3"
