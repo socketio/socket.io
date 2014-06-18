@@ -1,4 +1,13 @@
 
+1.0.5 / 2014-06-16
+==================
+
+ * package: bump `engine.io` to fix jsonp `\n` bug and CORS warnings
+ * index: fix typo [yanatan16]
+ * add `removeListener` to blacklisted events
+ * examples: clearer instructions to install chat example
+ * index: fix namespace `connectBuffer` issue
+
 1.0.4 / 2014-06-02
 ==================
 
