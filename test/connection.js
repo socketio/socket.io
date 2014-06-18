@@ -130,8 +130,9 @@ describe('connection', function() {
     var socket = manager.socket('/timeout_socket');
 
     var reconnects = 0;
-    var reconnectCb = function() {
+    var reconnectCb = function(attempts) {
       reconnects++;
+      expect(attempts).to.be(reconnects);
     };
 
     socket.on('reconnect_attempt', reconnectCb);
@@ -139,6 +140,20 @@ describe('connection', function() {
       expect(reconnects).to.be(2);
       socket.close();
       done();
+    });
+  });
+
+  it('should fire error on socket', function(done) {
+    var manager = io.Manager({ reconnection: true });
+    var socket = manager.socket('/timeout_socket');
+
+    socket.on('error', function(reason) {
+      expect(reason).to.eql({ code: 'test' });
+      done();
+    });
+
+    socket.on('connect', function() {
+      manager.engine.onPacket({ type: 'error', data: 'test' });
     });
   });
 
