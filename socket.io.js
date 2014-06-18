@@ -52,7 +52,7 @@ function lookup(uri, opts) {
   var id = parsed.id;
   var io;
 
-  if (opts.forceNew || false === opts.multiplex) {
+  if (opts.forceNew || opts['force new connection'] || false === opts.multiplex) {
     debug('ignoring socket cache for %s', source);
     io = Manager(source, opts);
   } else {
@@ -92,7 +92,7 @@ exports.connect = lookup;
 exports.Manager = require('./manager');
 exports.Socket = require('./socket');
 
-},{"./manager":3,"./socket":5,"./url":6,"debug":8,"socket.io-parser":39}],3:[function(require,module,exports){
+},{"./manager":3,"./socket":5,"./url":6,"debug":9,"socket.io-parser":40}],3:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -101,10 +101,10 @@ exports.Socket = require('./socket');
 var url = require('./url');
 var eio = require('engine.io-client');
 var Socket = require('./socket');
-var Emitter = require('emitter');
+var Emitter = require('component-emitter');
 var parser = require('socket.io-parser');
 var on = require('./on');
-var bind = require('bind');
+var bind = require('component-bind');
 var object = require('object-component');
 var debug = require('debug')('socket.io-client:manager');
 
@@ -124,7 +124,7 @@ module.exports = Manager;
 
 function Manager(uri, opts){
   if (!(this instanceof Manager)) return new Manager(uri, opts);
-  if ('object' == typeof uri) {
+  if (uri && ('object' == typeof uri)) {
     opts = uri;
     uri = undefined;
   }
@@ -149,6 +149,19 @@ function Manager(uri, opts){
   this.decoder = new parser.Decoder();
   this.open();
 }
+
+/**
+ * Propagate given event to sockets and emit on `this`
+ *
+ * @api private
+ */
+
+Manager.prototype.emitAll = function() {
+  this.emit.apply(this, arguments);
+  for (var nsp in this.nsps) {
+    this.nsps[nsp].emit.apply(this.nsps[nsp], arguments);
+  }
+};
 
 /**
  * Mix in `Emitter`.
@@ -271,7 +284,7 @@ Manager.prototype.connect = function(fn){
     debug('connect_error');
     self.cleanup();
     self.readyState = 'closed';
-    self.emit('connect_error', data);
+    self.emitAll('connect_error', data);
     if (fn) {
       var err = new Error('Connection error');
       err.data = data;
@@ -292,7 +305,7 @@ Manager.prototype.connect = function(fn){
       openSub.destroy();
       socket.close();
       socket.emit('error', 'timeout');
-      self.emit('connect_timeout', timeout);
+      self.emitAll('connect_timeout', timeout);
     }, timeout);
 
     this.subs.push({
@@ -360,7 +373,7 @@ Manager.prototype.ondecoded = function(packet) {
 
 Manager.prototype.onerror = function(err){
   debug('error', err);
-  this.emit('error', err);
+  this.emitAll('error', err);
 };
 
 /**
@@ -491,7 +504,7 @@ Manager.prototype.reconnect = function(){
 
   if (this.attempts > this._reconnectionAttempts) {
     debug('reconnect failed');
-    this.emit('reconnect_failed');
+    this.emitAll('reconnect_failed');
     this.reconnecting = false;
   } else {
     var delay = this.attempts * this.reconnectionDelay();
@@ -501,13 +514,14 @@ Manager.prototype.reconnect = function(){
     this.reconnecting = true;
     var timer = setTimeout(function(){
       debug('attempting reconnect');
-      self.emit('reconnect_attempt');
+      self.emitAll('reconnect_attempt');
+      self.emitAll('reconnecting', self.attempts);
       self.open(function(err){
         if (err) {
           debug('reconnect attempt error');
           self.reconnecting = false;
           self.reconnect();
-          self.emit('reconnect_error', err.data);
+          self.emitAll('reconnect_error', err.data);
         } else {
           debug('reconnect success');
           self.onreconnect();
@@ -533,10 +547,10 @@ Manager.prototype.onreconnect = function(){
   var attempt = this.attempts;
   this.attempts = 0;
   this.reconnecting = false;
-  this.emit('reconnect', attempt);
+  this.emitAll('reconnect', attempt);
 };
 
-},{"./on":4,"./socket":5,"./url":6,"bind":7,"debug":8,"emitter":9,"engine.io-client":10,"object-component":36,"socket.io-parser":39}],4:[function(require,module,exports){
+},{"./on":4,"./socket":5,"./url":6,"component-bind":7,"component-emitter":8,"debug":9,"engine.io-client":11,"object-component":37,"socket.io-parser":40}],4:[function(require,module,exports){
 
 /**
  * Module exports.
@@ -569,10 +583,10 @@ function on(obj, ev, fn) {
  */
 
 var parser = require('socket.io-parser');
-var Emitter = require('emitter');
+var Emitter = require('component-emitter');
 var toArray = require('to-array');
 var on = require('./on');
-var bind = require('bind');
+var bind = require('component-bind');
 var debug = require('debug')('socket.io-client:socket');
 var hasBin = require('has-binary-data');
 var indexOf = require('indexof');
@@ -592,8 +606,15 @@ module.exports = exports = Socket;
 
 var events = {
   connect: 1,
+  connect_error: 1,
+  connect_timeout: 1,
   disconnect: 1,
-  error: 1
+  error: 1,
+  reconnect: 1,
+  reconnect_attempt: 1,
+  reconnect_failed: 1,
+  reconnect_error: 1,
+  reconnecting: 1
 };
 
 /**
@@ -615,7 +636,8 @@ function Socket(io, nsp){
   this.ids = 0;
   this.acks = {};
   this.open();
-  this.buffer = [];
+  this.receiveBuffer = [];
+  this.sendBuffer = [];
   this.connected = false;
   this.disconnected = true;
 }
@@ -639,7 +661,6 @@ Socket.prototype.connect = function(){
   io.open(); // ensure open
   this.subs = [
     on(io, 'open', bind(this, 'onopen')),
-    on(io, 'error', bind(this, 'onerror')),
     on(io, 'packet', bind(this, 'onpacket')),
     on(io, 'close', bind(this, 'onclose'))
   ];
@@ -688,7 +709,11 @@ Socket.prototype.emit = function(ev){
     packet.id = this.ids++;
   }
 
-  this.packet(packet);
+  if (this.connected) {
+    this.packet(packet);
+  } else {
+    this.sendBuffer.push(packet);
+  }
 
   return this;
 };
@@ -703,17 +728,6 @@ Socket.prototype.emit = function(ev){
 Socket.prototype.packet = function(packet){
   packet.nsp = this.nsp;
   this.io.packet(packet);
-};
-
-/**
- * Called upon `error`.
- *
- * @param {Object} data
- * @api private
- */
-
-Socket.prototype.onerror = function(data){
-  this.emit('error', data);
 };
 
 /**
@@ -805,7 +819,7 @@ Socket.prototype.onevent = function(packet){
   if (this.connected) {
     emit.apply(this, args);
   } else {
-    this.buffer.push(args);
+    this.receiveBuffer.push(args);
   }
 };
 
@@ -862,16 +876,22 @@ Socket.prototype.onconnect = function(){
 };
 
 /**
- * Emit buffered events.
+ * Emit buffered events (received and emitted).
  *
  * @api private
  */
 
 Socket.prototype.emitBuffered = function(){
-  for (var i = 0; i < this.buffer.length; i++) {
-    emit.apply(this, this.buffer[i]);
+  var i;
+  for (i = 0; i < this.receiveBuffer.length; i++) {
+    emit.apply(this, this.receiveBuffer[i]);
   }
-  this.buffer = [];
+  this.receiveBuffer = [];
+
+  for (i = 0; i < this.sendBuffer.length; i++) {
+    this.packet(this.sendBuffer[i]);
+  }
+  this.sendBuffer = [];
 };
 
 /**
@@ -925,7 +945,7 @@ Socket.prototype.disconnect = function(){
   return this;
 };
 
-},{"./on":4,"bind":7,"debug":8,"emitter":9,"has-binary-data":31,"indexof":35,"socket.io-parser":39,"to-array":42}],6:[function(require,module,exports){
+},{"./on":4,"component-bind":7,"component-emitter":8,"debug":9,"has-binary-data":32,"indexof":36,"socket.io-parser":40,"to-array":43}],6:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 /**
  * Module dependencies.
@@ -979,24 +999,26 @@ function url(uri, loc){
   }
 
   // make sure we treat `localhost:80` and `localhost` equally
-  if ((/(http|ws)/.test(obj.protocol) && 80 == obj.port) ||
-     (/(http|ws)s/.test(obj.protocol) && 443 == obj.port)) {
-    delete obj.port;
+  if (!obj.port) {
+    if (/^(http|ws)$/.test(obj.protocol)) {
+      obj.port = '80';
+    }
+    else if (/^(http|ws)s$/.test(obj.protocol)) {
+      obj.port = '443';
+    }
   }
 
   obj.path = obj.path || '/';
 
   // define unique id
-  obj.id = obj.protocol + obj.host + (obj.port ? (':' + obj.port) : '');
-
+  obj.id = obj.protocol + '://' + obj.host + ':' + obj.port;
   // define href
-  obj.href = obj.protocol + '://' + obj.host + (obj.port ? (':' + obj.port) : '');
+  obj.href = obj.protocol + '://' + obj.host + (loc && loc.port == obj.port ? '' : (':' + obj.port));
 
   return obj;
 }
 
-},{"debug":8,"parseuri":37}],7:[function(require,module,exports){
-
+},{"debug":9,"parseuri":38}],7:[function(require,module,exports){
 /**
  * Slice reference.
  */
@@ -1015,13 +1037,179 @@ var slice = [].slice;
 module.exports = function(obj, fn){
   if ('string' == typeof fn) fn = obj[fn];
   if ('function' != typeof fn) throw new Error('bind() requires a function');
-  var args = [].slice.call(arguments, 2);
+  var args = slice.call(arguments, 2);
   return function(){
     return fn.apply(obj, args.concat(slice.call(arguments)));
   }
 };
 
 },{}],8:[function(require,module,exports){
+
+/**
+ * Expose `Emitter`.
+ */
+
+module.exports = Emitter;
+
+/**
+ * Initialize a new `Emitter`.
+ *
+ * @api public
+ */
+
+function Emitter(obj) {
+  if (obj) return mixin(obj);
+};
+
+/**
+ * Mixin the emitter properties.
+ *
+ * @param {Object} obj
+ * @return {Object}
+ * @api private
+ */
+
+function mixin(obj) {
+  for (var key in Emitter.prototype) {
+    obj[key] = Emitter.prototype[key];
+  }
+  return obj;
+}
+
+/**
+ * Listen on the given `event` with `fn`.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.on =
+Emitter.prototype.addEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+  (this._callbacks[event] = this._callbacks[event] || [])
+    .push(fn);
+  return this;
+};
+
+/**
+ * Adds an `event` listener that will be invoked a single
+ * time then automatically removed.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.once = function(event, fn){
+  var self = this;
+  this._callbacks = this._callbacks || {};
+
+  function on() {
+    self.off(event, on);
+    fn.apply(this, arguments);
+  }
+
+  on.fn = fn;
+  this.on(event, on);
+  return this;
+};
+
+/**
+ * Remove the given callback for `event` or all
+ * registered callbacks.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.off =
+Emitter.prototype.removeListener =
+Emitter.prototype.removeAllListeners =
+Emitter.prototype.removeEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
+  var callbacks = this._callbacks[event];
+  if (!callbacks) return this;
+
+  // remove all handlers
+  if (1 == arguments.length) {
+    delete this._callbacks[event];
+    return this;
+  }
+
+  // remove specific handler
+  var cb;
+  for (var i = 0; i < callbacks.length; i++) {
+    cb = callbacks[i];
+    if (cb === fn || cb.fn === fn) {
+      callbacks.splice(i, 1);
+      break;
+    }
+  }
+  return this;
+};
+
+/**
+ * Emit `event` with the given args.
+ *
+ * @param {String} event
+ * @param {Mixed} ...
+ * @return {Emitter}
+ */
+
+Emitter.prototype.emit = function(event){
+  this._callbacks = this._callbacks || {};
+  var args = [].slice.call(arguments, 1)
+    , callbacks = this._callbacks[event];
+
+  if (callbacks) {
+    callbacks = callbacks.slice(0);
+    for (var i = 0, len = callbacks.length; i < len; ++i) {
+      callbacks[i].apply(this, args);
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Return array of callbacks for `event`.
+ *
+ * @param {String} event
+ * @return {Array}
+ * @api public
+ */
+
+Emitter.prototype.listeners = function(event){
+  this._callbacks = this._callbacks || {};
+  return this._callbacks[event] || [];
+};
+
+/**
+ * Check if this emitter has `event` handlers.
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api public
+ */
+
+Emitter.prototype.hasListeners = function(event){
+  return !! this.listeners(event).length;
+};
+
+},{}],9:[function(require,module,exports){
 
 /**
  * Expose `debug()` as the module.
@@ -1160,7 +1348,7 @@ try {
   if (window.localStorage) debug.enable(localStorage.debug);
 } catch(e){}
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -1324,11 +1512,11 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{"indexof":35}],10:[function(require,module,exports){
+},{"indexof":36}],11:[function(require,module,exports){
 
 module.exports =  require('./lib/');
 
-},{"./lib/":11}],11:[function(require,module,exports){
+},{"./lib/":12}],12:[function(require,module,exports){
 
 module.exports = require('./socket');
 
@@ -1340,13 +1528,13 @@ module.exports = require('./socket');
  */
 module.exports.parser = require('engine.io-parser');
 
-},{"./socket":12,"engine.io-parser":20}],12:[function(require,module,exports){
+},{"./socket":13,"engine.io-parser":22}],13:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Module dependencies.
  */
 
 var transports = require('./transports');
-var Emitter = require('emitter');
+var Emitter = require('component-emitter');
 var debug = require('debug')('engine.io-client:socket');
 var index = require('indexof');
 var parser = require('engine.io-parser');
@@ -1969,13 +2157,13 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   return filteredUpgrades;
 };
 
-},{"./transport":13,"./transports":14,"debug":8,"emitter":9,"engine.io-parser":20,"indexof":35,"parsejson":28,"parseqs":29,"parseuri":37}],13:[function(require,module,exports){
+},{"./transport":14,"./transports":15,"component-emitter":8,"debug":9,"engine.io-parser":22,"indexof":36,"parsejson":29,"parseqs":30,"parseuri":38}],14:[function(require,module,exports){
 /**
  * Module dependencies.
  */
 
 var parser = require('engine.io-parser');
-var Emitter = require('emitter');
+var Emitter = require('component-emitter');
 
 /**
  * Module exports.
@@ -2119,7 +2307,7 @@ Transport.prototype.onClose = function () {
   this.emit('close');
 };
 
-},{"emitter":9,"engine.io-parser":20}],14:[function(require,module,exports){
+},{"component-emitter":8,"engine.io-parser":22}],15:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Module dependencies
  */
@@ -2169,14 +2357,14 @@ function polling(opts){
   }
 }
 
-},{"./polling-jsonp":15,"./polling-xhr":16,"./websocket":18,"xmlhttprequest":19}],15:[function(require,module,exports){
+},{"./polling-jsonp":16,"./polling-xhr":17,"./websocket":19,"xmlhttprequest":20}],16:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 /**
  * Module requirements.
  */
 
 var Polling = require('./polling');
-var inherit = require('inherits');
+var inherit = require('component-inherit');
 
 /**
  * Module exports.
@@ -2403,16 +2591,16 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
   }
 };
 
-},{"./polling":17,"inherits":27}],16:[function(require,module,exports){
+},{"./polling":18,"component-inherit":21}],17:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Module requirements.
  */
 
 var XMLHttpRequest = require('xmlhttprequest');
 var Polling = require('./polling');
-var Emitter = require('emitter');
+var Emitter = require('component-emitter');
+var inherit = require('component-inherit');
 var debug = require('debug')('engine.io-client:polling-xhr');
-var inherit = require('inherits');
 
 /**
  * Module exports.
@@ -2715,7 +2903,7 @@ function unloadHandler() {
   }
 }
 
-},{"./polling":17,"debug":8,"emitter":9,"inherits":27,"xmlhttprequest":19}],17:[function(require,module,exports){
+},{"./polling":18,"component-emitter":8,"component-inherit":21,"debug":9,"xmlhttprequest":20}],18:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -2723,8 +2911,8 @@ function unloadHandler() {
 var Transport = require('../transport');
 var parseqs = require('parseqs');
 var parser = require('engine.io-parser');
+var inherit = require('component-inherit');
 var debug = require('debug')('engine.io-client:polling');
-var inherit = require('inherits');
 
 /**
  * Module exports.
@@ -2962,7 +3150,7 @@ Polling.prototype.uri = function(){
   return schema + '://' + this.hostname + port + this.path + query;
 };
 
-},{"../transport":13,"debug":8,"engine.io-parser":20,"inherits":27,"parseqs":29,"xmlhttprequest":19}],18:[function(require,module,exports){
+},{"../transport":14,"component-inherit":21,"debug":9,"engine.io-parser":22,"parseqs":30,"xmlhttprequest":20}],19:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -2970,8 +3158,8 @@ Polling.prototype.uri = function(){
 var Transport = require('../transport');
 var parser = require('engine.io-parser');
 var parseqs = require('parseqs');
+var inherit = require('component-inherit');
 var debug = require('debug')('engine.io-client:websocket');
-var inherit = require('inherits');
 
 /**
  * `ws` exposes a WebSocket-compatible interface in
@@ -3193,7 +3381,7 @@ WS.prototype.check = function(){
   return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 };
 
-},{"../transport":13,"debug":8,"engine.io-parser":20,"inherits":27,"parseqs":29,"ws":30}],19:[function(require,module,exports){
+},{"../transport":14,"component-inherit":21,"debug":9,"engine.io-parser":22,"parseqs":30,"ws":31}],20:[function(require,module,exports){
 // browser shim for xmlhttprequest module
 var hasCORS = require('has-cors');
 
@@ -3214,7 +3402,15 @@ module.exports = function(opts) {
   }
 }
 
-},{"has-cors":33}],20:[function(require,module,exports){
+},{"has-cors":34}],21:[function(require,module,exports){
+
+module.exports = function(a, b){
+  var fn = function(){};
+  fn.prototype = b.prototype;
+  a.prototype = new fn;
+  a.prototype.constructor = a;
+};
+},{}],22:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Module dependencies.
  */
@@ -3759,7 +3955,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
   });
 };
 
-},{"./keys":21,"after":22,"arraybuffer.slice":23,"base64-arraybuffer":24,"blob":25,"utf8":26}],21:[function(require,module,exports){
+},{"./keys":23,"after":24,"arraybuffer.slice":25,"base64-arraybuffer":26,"blob":27,"utf8":28}],23:[function(require,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -3780,7 +3976,7 @@ module.exports = Object.keys || function keys (obj){
   return arr;
 };
 
-},{}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 module.exports = after
 
 function after(count, callback, err_cb) {
@@ -3810,7 +4006,7 @@ function after(count, callback, err_cb) {
 
 function noop() {}
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 /**
  * An abstraction for slicing an arraybuffer even when
  * ArrayBuffer.prototype.slice is not supported
@@ -3841,7 +4037,7 @@ module.exports = function(arraybuffer, start, end) {
   return result.buffer;
 };
 
-},{}],24:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /*
  * base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
@@ -3902,7 +4098,7 @@ module.exports = function(arraybuffer, start, end) {
   };
 })("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
 
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Create a blob builder even when vendor prefixes exist
  */
@@ -3953,7 +4149,7 @@ module.exports = (function() {
   }
 })();
 
-},{}],26:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/*! http://mths.be/utf8js v2.0.0 by @mathias */
 ;(function(root) {
 
@@ -4194,32 +4390,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
 
 }(this));
 
-},{}],27:[function(require,module,exports){
-if (typeof Object.create === 'function') {
-  // implementation from standard node.js 'util' module
-  module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    ctor.prototype = Object.create(superCtor.prototype, {
-      constructor: {
-        value: ctor,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-  };
-} else {
-  // old school shim for old browsers
-  module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    var TempCtor = function () {}
-    TempCtor.prototype = superCtor.prototype
-    ctor.prototype = new TempCtor()
-    ctor.prototype.constructor = ctor
-  }
-}
-
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * JSON parse.
  *
@@ -4252,7 +4423,7 @@ module.exports = function parsejson(data) {
     return (new Function('return ' + data))();
   }
 };
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /**
  * Compiles a querystring
  * Returns string representation of the object
@@ -4291,7 +4462,7 @@ exports.decode = function(qs){
   return qry;
 };
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -4336,7 +4507,7 @@ function ws(uri, protocols, opts) {
 
 if (WebSocket) ws.prototype = WebSocket.prototype;
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/*
  * Module requirements.
  */
@@ -4395,12 +4566,12 @@ function hasBinary(data) {
   return recursiveCheckForBinary(data);
 }
 
-},{"isarray":32}],32:[function(require,module,exports){
+},{"isarray":33}],33:[function(require,module,exports){
 module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -4425,7 +4596,7 @@ try {
   module.exports = false;
 }
 
-},{"global":34}],34:[function(require,module,exports){
+},{"global":35}],35:[function(require,module,exports){
 
 /**
  * Returns `this`. Execute this without a "context" (i.e. without it being
@@ -4435,7 +4606,7 @@ try {
 
 module.exports = (function () { return this; })();
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -4446,7 +4617,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 
 /**
  * HOP ref.
@@ -4531,7 +4702,7 @@ exports.length = function(obj){
 exports.isEmpty = function(obj){
   return 0 == exports.length(obj);
 };
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /**
  * Parses an URI
  *
@@ -4558,7 +4729,7 @@ module.exports = function parseuri(str) {
   return uri;
 };
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * Modle requirements
  */
@@ -4712,7 +4883,7 @@ function isBuf(obj) {
          (global.ArrayBuffer && obj instanceof ArrayBuffer);
 }
 
-},{"isarray":40}],39:[function(require,module,exports){
+},{"isarray":41}],40:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 /**
  * Module dependencies.
@@ -5098,9 +5269,9 @@ function error(data){
   };
 }
 
-},{"./binary":38,"debug":8,"emitter":9,"isarray":40,"json3":41}],40:[function(require,module,exports){
-module.exports=require(32)
-},{}],41:[function(require,module,exports){
+},{"./binary":39,"debug":9,"emitter":10,"isarray":41,"json3":42}],41:[function(require,module,exports){
+module.exports=require(33)
+},{}],42:[function(require,module,exports){
 /*! JSON v3.2.6 | http://bestiejs.github.io/json3 | Copyright 2012-2013, Kit Cambridge | http://kit.mit-license.org */
 ;(function (window) {
   // Convenience aliases.
@@ -5963,7 +6134,7 @@ module.exports=require(32)
   }
 }(this));
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 module.exports = toArray
 
 function toArray(list, index) {
