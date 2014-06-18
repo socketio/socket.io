@@ -426,6 +426,24 @@ describe('socket.io', function(){
   });
 
   describe('socket', function(){
+
+    it('should not fire events more than once after manually reconnecting', function(done) {
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var clientSocket = client(srv, { reconnection: false });
+        clientSocket.on('connect', function init() {
+          clientSocket.removeListener('connect', init);
+          clientSocket.io.engine.close();
+
+          clientSocket.connect();
+          clientSocket.on('connect', function() {
+            done();
+          });
+        });
+      });
+    });
+
     it('should receive events', function(done){
       var srv = http();
       var sio = io(srv);
