@@ -422,6 +422,39 @@ describe('socket.io', function(){
           }
         });
       });
+
+      it('should be able to retreive all clients in the adapter', function(done){
+        var srv = http();
+        var sio = io(srv);
+        srv.listen(function(){
+          var clientSocket = client(srv, { reconnection: false });
+          clientSocket.on('connect', function init() {
+            sio.sockets.clients(function(err, data){
+              expect(data).to.only.contain(clientSocket.io.engine.id);
+              done();
+            });
+          });
+        });
+      });
+
+      it('should be able to retreive all clients in the adapter that have joined a certain room', function(done){
+        var srv = http();
+        var sio = io(srv);
+        var room = 'room';
+        srv.listen(function(){
+          sio.on('connection', function(socket){
+            sio.sockets.clients(room, function(err, data){
+              expect(data).to.be.empty();
+              socket.join(room);
+              sio.sockets.clients(room, function(err, data){
+                expect(data).to.only.contain(socket.id);
+                done();
+              });
+            });
+          });
+          var clientSocket = client(srv, { reconnection: false });
+        });
+      });
     });
   });
 
