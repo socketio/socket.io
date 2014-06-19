@@ -1,4 +1,10 @@
 
+1.0.6 / 2014-06-19
+==================
+
+ * test fixes on internet explorer
+ * fixes for duplicate event propagation from manager instance [Rase-]
+
 1.0.5 / 2014-06-16
 ==================
 

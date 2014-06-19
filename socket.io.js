@@ -514,7 +514,7 @@ Manager.prototype.reconnect = function(){
     this.reconnecting = true;
     var timer = setTimeout(function(){
       debug('attempting reconnect');
-      self.emitAll('reconnect_attempt');
+      self.emitAll('reconnect_attempt', self.attempts);
       self.emitAll('reconnecting', self.attempts);
       self.open(function(err){
         if (err) {
@@ -640,6 +640,7 @@ function Socket(io, nsp){
   this.sendBuffer = [];
   this.connected = false;
   this.disconnected = true;
+  this.subEvents();
 }
 
 /**
@@ -647,6 +648,21 @@ function Socket(io, nsp){
  */
 
 Emitter(Socket.prototype);
+
+/**
+ * Subscribe to open, close and packet events
+ *
+ * @api private
+ */
+
+Socket.prototype.subEvents = function() {
+  var io = this.io;
+  this.subs = [
+    on(io, 'open', bind(this, 'onopen')),
+    on(io, 'packet', bind(this, 'onpacket')),
+    on(io, 'close', bind(this, 'onclose'))
+  ];
+};
 
 /**
  * Called upon engine `open`.
@@ -657,13 +673,8 @@ Emitter(Socket.prototype);
 Socket.prototype.open =
 Socket.prototype.connect = function(){
   if (this.connected) return this;
-  var io = this.io;
-  io.open(); // ensure open
-  this.subs = [
-    on(io, 'open', bind(this, 'onopen')),
-    on(io, 'packet', bind(this, 'onpacket')),
-    on(io, 'close', bind(this, 'onclose'))
-  ];
+
+  this.io.open(); // ensure open
   if ('open' == this.io.readyState) this.onopen();
   return this;
 };
@@ -2284,8 +2295,14 @@ Transport.prototype.onOpen = function () {
  * @api private
  */
 
-Transport.prototype.onData = function (data) {
-  this.onPacket(parser.decodePacket(data, this.socket.binaryType));
+Transport.prototype.onData = function(data){
+  try {
+    var packet = parser.decodePacket(data, this.socket.binaryType);
+    this.onPacket(packet);
+  } catch(e){
+    e.data = data;
+    this.onError('parser decode error', e);
+  }
 };
 
 /**
