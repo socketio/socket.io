@@ -147,8 +147,8 @@ describe('connection', function() {
     var manager = io.Manager({ reconnection: true });
     var socket = manager.socket('/timeout_socket');
 
-    socket.on('error', function(reason) {
-      expect(reason).to.eql({ code: 'test' });
+    socket.on('error', function(data) {
+      expect(data.code).to.be('test');
       done();
     });
 
