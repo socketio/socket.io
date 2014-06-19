@@ -149,6 +149,7 @@ describe('connection', function() {
 
     socket.on('error', function(data) {
       expect(data.code).to.be('test');
+      socket.close();
       done();
     });
 
