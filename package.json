@@ -1,10 +1,10 @@
 {
   "name": "socket.io-parser",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "socket.io protocol parser",
   "repository": {
     "type": "git",
-    "url": "https://github.com/LearnBoost/socket.io-parser.git"
+    "url": "https://github.com/Automattic/socket.io-parser.git"
   },
   "dependencies": {
     "debug": "0.7.4",
@@ -17,11 +17,6 @@
     "mocha": "1.16.2",
     "expect.js": "0.2.0",
     "zuul": "1.6.3"
-  },
-  "component": {
-    "scripts": [
-      "index.js"
-    ]
   },
   "scripts": {
     "test": "make test"

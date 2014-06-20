@@ -1,4 +1,12 @@
 
+2.2.1 / 2014-06-20
+==================
+
+ * added benchmarking [kevin-roark]
+ * upgrade component-emitter to 1.1.2 [kevin-roark]
+ * update protocol version [kevin-roark]
+ * less indentation and a small optimization [kevin-roark]
+
 2.2.0 / 2014-05-30
 ==================
 
