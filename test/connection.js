@@ -15,6 +15,11 @@ describe('connection', function() {
     });
   });
 
+  it('should not connect when autoConnect option set to false', function() {
+    var socket = io({autoConnect: false});
+    expect(socket.io.engine).to.not.be.ok();
+  });  
+
   it('should work with acks', function(done){
     var socket = io({ forceNew: true });
     socket.emit('ack');

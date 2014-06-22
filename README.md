@@ -89,6 +89,8 @@ Socket.IO is compatible with [browserify](http://browserify.org/).
     the amount specified by `reconnectionDelay`.
   - `timeout` connection timeout before a `connect_error`
     and `connect_timeout` events are emitted (`20000`)
+  - `autoConnect` by setting this false, you have to call `manager.open`
+    whenever you decide it's appropriate
 
 #### Events
 
