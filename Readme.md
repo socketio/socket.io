@@ -7,7 +7,7 @@
 This is the JavaScript parser for the engine.io protocol encoding,
 shared by both
 [engine.io-client](https://github.com/Automattic/engine.io-client) and
-[engine.io-server](https://github.com/Automattic/engine.io-server).
+[engine.io](https://github.com/Automattic/engine.io).
 
 ## License
 
