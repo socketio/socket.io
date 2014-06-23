@@ -87,6 +87,7 @@ describe('connection', function() {
 
       socket.on('open', function() {
         expect(socket.transport.name).to.be('websocket');
+        socket.close();
         done();
       });
     });
