@@ -477,6 +477,21 @@ describe('socket.io', function(){
       });
     });
 
+    it('should not fire reconnect_failed event more than once when server closed', function(done) {
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var clientSocket = client(srv, { reconnectionAttempts: 3, reconnectionDelay: 10 });
+        clientSocket.on('connect', function() {
+          srv.close();
+        });
+
+        clientSocket.on('reconnect_failed', function() {
+          done();
+        });
+      });
+    });
+
     it('should receive events', function(done){
       var srv = http();
       var sio = io(srv);
