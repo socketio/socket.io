@@ -1188,10 +1188,13 @@ describe('socket.io', function(){
         sio.on('connection', function(s){
           s.join('a', function(){
             expect(s.rooms).to.eql([s.id, 'a']);
+            expect(sio.nsps['/'].adapter.rooms.a).to.only.have.keys([s.id]);
             s.join('b', function(){
               expect(s.rooms).to.eql([s.id, 'a', 'b']);
+              expect(sio.nsps['/'].adapter.rooms.b).to.only.have.keys([s.id]);
               s.leave('b', function(){
                 expect(s.rooms).to.eql([s.id, 'a']);
+                expect(sio.nsps['/'].adapter.rooms.b).to.be.empty();
                 done();
               });
             });
