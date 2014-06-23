@@ -74,7 +74,7 @@ describe('connection', function() {
   }
 
   it('should not connect at all when JSONP forced and disabled', function(done) {
-    var socket = eio.Socket({ transports: ['polling'], forceJSONP: true, noJSONP: true });
+    var socket = eio.Socket({ transports: ['polling'], forceJSONP: true, jsonp: false });
     socket.on('error', function(msg) {
       expect(msg).to.be('No transports available');
       done();
@@ -83,7 +83,7 @@ describe('connection', function() {
 
   if (wsSupport && !isOldSimulator && !isAndroid && !isIE11) {
     it('should connect with ws when JSONP forced and disabled', function(done) {
-      var socket = eio.Socket({ transports: ['polling', 'websocket'], forceJSONP: true, noJSONP: true });
+      var socket = eio.Socket({ transports: ['polling', 'websocket'], forceJSONP: true, jsonp: false });
 
       socket.on('open', function() {
         expect(socket.transport.name).to.be('websocket');
