@@ -1,4 +1,10 @@
 
+1.0.7 / 2014-06-24
+==================
+
+ * fix decodePayloadAsBinary memory leak [christophwitzko]
+ * README improvements
+
 1.0.6 / 2014-05-30
 ==================
 
