@@ -157,7 +157,7 @@ server.listen(3000);
 
 ### Server#bind(srv:engine#Server):Server
 
-  Advanced use only. Binds the server to a specific engine.io `Server` 
+  Advanced use only. Binds the server to a specific engine.io `Server`
   (or compatible API) instance.
 
 ### Server#onconnection(socket:engine#Socket):Server
@@ -167,14 +167,14 @@ server.listen(3000);
 
 ### Server#of(nsp:String):Namespace
 
-  Initializes and retrieves the given `Namespace` by its pathname 
+  Initializes and retrieves the given `Namespace` by its pathname
   identifier `nsp`.
 
   If the namespace was already initialized it returns it right away.
 
 ### Server#emit
 
-  Emits an event to all connected clients. The following two are 
+  Emits an event to all connected clients. The following two are
   equivalent:
 
   ```js
@@ -184,6 +184,22 @@ server.listen(3000);
   ```
 
   For other available methods, see `Namespace` below.
+
+### Server#close
+
+  Closes socket server
+
+  ```js
+  var io = require('socket.io');
+
+  io(3030);
+
+  io.close(); // Close current server
+
+  var srv = require('http').createServer(3030);
+  io(srv);
+
+  ```
 
 ### Server#use
 
