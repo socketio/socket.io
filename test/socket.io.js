@@ -261,6 +261,64 @@ describe('socket.io', function(){
     });
   });
 
+  describe('close', function(){
+
+    it('should be able to close sio sending a srv', function(){
+      var PORT   = 3030;
+      var srv    = http().listen(PORT);
+      var sio    = io(srv);
+      var net    = require('net');
+      var server = net.createServer();
+
+      var clientSocket = client(srv, { reconnection: false });
+
+      clientSocket.on('disconnect', function init() {
+        expect(sio.nsps['/'].sockets.length).to.equal(0);
+        server.listen(PORT);
+      });
+
+      clientSocket.on('connect', function init() {
+        expect(sio.nsps['/'].sockets.length).to.equal(1);
+        sio.close();
+      });
+
+      server.once('listening', function() {
+        // PORT should be free
+        server.close(function(error){
+          expect(error).to.be(undefined);
+        });
+      });
+
+    });
+
+    it('should be able to close sio sending a port', function(){
+      var PORT   = 3131;
+      var sio    = io(PORT);
+      var net    = require('net');
+      var server = net.createServer();
+
+      var clientSocket = ioc('ws://0.0.0.0:' + PORT);
+
+      clientSocket.on('disconnect', function init() {
+        expect(sio.nsps['/'].sockets.length).to.equal(0);
+        server.listen(PORT);
+      });
+
+      clientSocket.on('connect', function init() {
+        expect(sio.nsps['/'].sockets.length).to.equal(1);
+        sio.close();
+      });
+
+      server.once('listening', function() {
+        // PORT should be free
+        server.close(function(error){
+          expect(error).to.be(undefined);
+        });
+      });
+    });
+
+  });
+
   describe('namespaces', function(){
     var Socket = require('../lib/socket');
     var Namespace = require('../lib/namespace');
