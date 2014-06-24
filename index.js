@@ -112,11 +112,13 @@ Adapter.prototype.broadcast = function(packet, opts){
         var room = self.rooms[rooms[i]];
         if (!room) continue;
         for (var id in room) {
-          if (ids[id] || ~except.indexOf(id)) continue;
-          socket = self.nsp.connected[id];
-          if (socket) {
-            socket.packet(encodedPackets, true, flags.volatile);
-            ids[id] = true;
+          if (room.hasOwnProperty(id)) {
+            if (ids[id] || ~except.indexOf(id)) continue;
+            socket = self.nsp.connected[id];
+            if (socket) {
+              socket.packet(encodedPackets, true, flags.volatile);
+              ids[id] = true;
+            }
           }
         }
       }
