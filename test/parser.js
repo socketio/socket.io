@@ -192,6 +192,11 @@ module.exports = function(parser) {
             expect(packet).to.eql(err);
             expect(isLast).to.eql(true);
           });
+          decPayload(new Buffer([64]), function (packet, index, total) {
+            var isLast = index + 1 == total;
+            expect(packet).to.eql(err);
+            expect(isLast).to.eql(true);
+          });
         });
 
         it('should err on bad payload length', function () {
