@@ -77,7 +77,9 @@ Adapter.prototype.delAll = function(id, fn){
   var rooms = this.sids[id];
   if (rooms) {
     for (var room in rooms) {
-      delete this.rooms[room][id];
+      if (rooms.hasOwnProperty(room)) {
+        delete this.rooms[room][id];
+      }
     }
   }
   delete this.sids[id];
@@ -110,19 +112,23 @@ Adapter.prototype.broadcast = function(packet, opts){
         var room = self.rooms[rooms[i]];
         if (!room) continue;
         for (var id in room) {
-          if (ids[id] || ~except.indexOf(id)) continue;
-          socket = self.nsp.connected[id];
-          if (socket) {
-            socket.packet(encodedPackets, true, flags.volatile);
-            ids[id] = true;
+          if (room.hasOwnProperty(id)) {
+            if (ids[id] || ~except.indexOf(id)) continue;
+            socket = self.nsp.connected[id];
+            if (socket) {
+              socket.packet(encodedPackets, true, flags.volatile);
+              ids[id] = true;
+            }
           }
         }
       }
     } else {
       for (var id in self.sids) {
-        if (~except.indexOf(id)) continue;
-        socket = self.nsp.connected[id];
-        if (socket) socket.packet(encodedPackets, true, flags.volatile);
+        if (self.sids.hasOwnProperty(id)) {
+          if (~except.indexOf(id)) continue;
+          socket = self.nsp.connected[id];
+          if (socket) socket.packet(encodedPackets, true, flags.volatile);
+        }
       }
     }
   });
