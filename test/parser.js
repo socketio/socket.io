@@ -192,11 +192,15 @@ module.exports = function(parser) {
             expect(packet).to.eql(err);
             expect(isLast).to.eql(true);
           });
-          decPayload(new Buffer([64]), function (packet, index, total) {
-            var isLast = index + 1 == total;
-            expect(packet).to.eql(err);
-            expect(isLast).to.eql(true);
-          });
+
+          if ('undefined' == typeof window || window.Int8Array) {
+            var data = 'undefined' !== typeof window ? (new Int8Array([64])).buffer : new Buffer([64]);
+            decPayload(data, function (packet, index, total) {
+              var isLast = index + 1 == total;
+              expect(packet).to.eql(err);
+              expect(isLast).to.eql(true);
+            });
+          }
         });
 
         it('should err on bad payload length', function () {
