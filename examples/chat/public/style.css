@@ -5,6 +5,11 @@
 }
 
 html {
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+}
+
+html, input {
   font-family:
     "HelveticaNeue-Light",
     "Helvetica Neue Light",
@@ -13,8 +18,6 @@ html {
     Arial,
     "Lucida Grande",
     sans-serif;
-  font-weight: 300;
-  -webkit-font-smoothing: antialiased;
 }
 
 html, body {
