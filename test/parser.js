@@ -122,6 +122,10 @@ module.exports = function(parser) {
         it('should disallow inexistent types', function () {
           expect(decode('94103')).to.eql(err);
         });
+
+        it('should disallow invalid utf8', function () {
+          expect(decode('4\uffff')).to.eql(err);
+        });
       });
     });
 
@@ -227,6 +231,14 @@ module.exports = function(parser) {
           });
           // line 137
           decPayload('1:a2:b', function (packet, index, total) {
+            var isLast = index + 1 == total;
+            expect(packet).to.eql(err);
+            expect(isLast).to.eql(true);
+          });
+        });
+
+        it('should err on invalid utf8', function () {
+          decPayload('2:4\uffff', function (packet, index, total) {
             var isLast = index + 1 == total;
             expect(packet).to.eql(err);
             expect(isLast).to.eql(true);
