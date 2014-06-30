@@ -264,7 +264,7 @@ describe('socket.io', function(){
   describe('close', function(){
 
     it('should be able to close sio sending a srv', function(){
-      var PORT   = 3030;
+      var PORT   = 54016;
       var srv    = http().listen(PORT);
       var sio    = io(srv);
       var net    = require('net');
@@ -292,7 +292,7 @@ describe('socket.io', function(){
     });
 
     it('should be able to close sio sending a port', function(){
-      var PORT   = 3131;
+      var PORT   = 54017;
       var sio    = io(PORT);
       var net    = require('net');
       var server = net.createServer();
