@@ -10,7 +10,7 @@ The following example attaches socket.io to a plain Node.JS
 HTTP server listening on port `3000`.
 
 ```js
-var server = new require('http').Server();
+var server = require('http').createServer();
 var io = require('socket.io')(server);
 io.on('connection', function(socket){
   socket.on('event', function(data){});
@@ -36,7 +36,7 @@ function.
 
 ```js
 var app = require('express')();
-var server = new require('http').Server(app);
+var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 io.on('connection', function(){ /* … */ });
 server.listen(3000);
@@ -49,7 +49,7 @@ handler function, but only by calling the `callback` method.
 
 ```js
 var app = require('koa')();
-var server = new require('http').Server(app.callback());
+var server = require('http').createServer(app.callback());
 var io = require('socket.io')(server);
 io.on('connection', function(){ /* … */ });
 server.listen(3000);
