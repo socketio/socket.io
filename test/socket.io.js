@@ -161,7 +161,7 @@ describe('socket.io', function(){
         io(srv);
         request(srv)
         .get('/socket.io/socket.io.js')
-        .set('ETag', clientVersion)
+        .set('If-None-Match', clientVersion)
         .end(function(err, res){
           if (err) return done(err);
           expect(res.statusCode).to.be(304);
