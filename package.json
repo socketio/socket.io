@@ -16,7 +16,7 @@
     { "name": "Mark Mokryn", "email": "mokesmokes@gmail.com"}
   ],
   "dependencies": {
-    "debug": "0.6.0",
+    "debug": "1.0.3",
     "ws": "0.4.31",
     "engine.io-parser": "1.0.7",
     "base64id": "0.1.0"
