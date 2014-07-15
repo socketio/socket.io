@@ -3,3 +3,4 @@ node_modules
 test
 npm-debug.log
 coverage.html
+.gitignore
