@@ -1,4 +1,11 @@
 
+1.0.8 / 2014-07-16
+==================
+
+ * adjust protocol revision
+ * handle invalid utf8 errors gracefully
+ * fix memory leak on browser
+
 1.0.7 / 2014-06-24
 ==================
 
