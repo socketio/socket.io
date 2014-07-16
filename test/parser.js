@@ -88,6 +88,20 @@ module.exports = function(parser) {
           });
         });
 
+        it('should not utf8 encode by default', function(done) {
+          encode({ type: 'message', data: '€€€' }, function(data) {
+            expect(data).to.be('4€€€');
+            done();
+          });
+        });
+
+        it('should not utf8 encode by default', function(done) {
+          encode({ type: 'message', data: '€€€' }, true, true, function(data) {
+            expect(data).to.be('4â¬â¬â¬');
+            done();
+          });
+        });
+
         it('should encode a message packet coercing to string', function (done) {
           encode({ type: 'message', data: 1 }, function(data) {
             expect(decode(data)).to.eql({ type: 'message', data: 1 });
