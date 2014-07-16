@@ -16,9 +16,9 @@ describe('connection', function() {
   });
 
   it('should not connect when autoConnect option set to false', function() {
-    var socket = io({autoConnect: false});
+    var socket = io({ forceNew: true, autoConnect: false });
     expect(socket.io.engine).to.not.be.ok();
-  });  
+  });
 
   it('should work with acks', function(done){
     var socket = io({ forceNew: true });
@@ -81,6 +81,20 @@ describe('connection', function() {
       foo.on('connect', function(){
         foo.close();
         socket.close();
+        done();
+      });
+    });
+  });
+
+  it('should open a new namespace after connection gets closed', function(done){
+    var manager = io.Manager();
+    var socket = manager.socket('/');
+    socket.on('connect', function() {
+      socket.disconnect();
+    }).on('disconnect', function() {
+      var foo = manager.socket('/foo');
+      foo.on('connect', function() {
+        foo.disconnect();
         done();
       });
     });
