@@ -124,7 +124,7 @@ module.exports = function(parser) {
         });
 
         it('should disallow invalid utf8', function () {
-          expect(decode('4\uffff')).to.eql(err);
+          expect(decode('4\uffff', false, true)).to.eql(err);
         });
       });
     });
