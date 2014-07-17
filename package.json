@@ -13,7 +13,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/LearnBoost/socket.io"
+    "url": "git://github.com/Automattic/socket.io"
   },
   "scripts": {
     "test": "make test"
