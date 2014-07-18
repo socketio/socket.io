@@ -39,7 +39,7 @@
     "mocha": "1.16.2",
     "expect.js": "0.2.0",
     "istanbul": "0.2.3",
-    "browserify": "4.2.0",
+    "browserify": "4.2.1",
     "engine.io": "Automattic/engine.io#08afdc",
     "express": "3.4.8",
     "blob": "0.0.2"
