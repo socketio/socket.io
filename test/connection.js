@@ -55,6 +55,58 @@ describe('connection', function() {
         noPacket = false;
       });
       socket.close();
+      socket.send('hi');
+      setTimeout(function() {
+        expect(noPacket).to.be(true);
+        done();
+      }, 1200);
+    });
+  });
+
+  it('should defer close when upgrading', function(done) {
+    var socket = new eio.Socket();
+    socket.on('open', function() {
+      var upgraded = false;
+      socket.on('upgrade', function() {
+        upgraded = true;
+      }).on('upgrading', function() {
+        socket.on('close', function() {
+          expect(upgraded).to.be(true);
+          done();
+        });
+        socket.close();
+      });
+    });
+  });
+
+  it('should close on upgradeError if closing is deferred', function(done) {
+    var socket = new eio.Socket();
+    socket.on('open', function() {
+      var upgradeError = false;
+      socket.on('upgradeError', function() {
+        upgradeError = true;
+      }).on('upgrading', function() {
+        socket.on('close', function() {
+          expect(upgradeError).to.be(true);
+          done();
+        });
+        socket.close();
+        socket.transport.onError('upgrade error');
+      });
+    });
+  });
+
+  it('should not send packets if closing is deferred', function(done) {
+    var socket = new eio.Socket();
+    socket.on('open', function() {
+      var noPacket = true;
+      socket.on('upgrading', function() {
+        socket.on('packetCreate', function() {
+          noPacket = false;
+        });
+        socket.close();
+        socket.send('hi');
+      });
       setTimeout(function() {
         expect(noPacket).to.be(true);
         done();
