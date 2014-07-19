@@ -116,7 +116,7 @@ describe('socket.io', function(){
         expect(s.handshake.time.split(' ').length > 0); // Is "multipart" string representation
 
         // Address, xdomain, secure, issued and url set
-        expect(s.handshake.address).to.not.be(undefined);
+        expect(s.handshake.address).to.be('127.0.0.1');
         expect(s.handshake.xdomain).to.be.a('boolean');
         expect(s.handshake.secure).to.be.a('boolean');
         expect(s.handshake.issued).to.be.a('number');
