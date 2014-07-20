@@ -29,7 +29,7 @@
     "indexof": "0.0.1",
     "engine.io-parser": "1.1.0",
     "debug": "0.7.4",
-    "parseuri": "0.0.2",
+    "parseuri": "0.0.4",
     "parsejson": "0.0.1",
     "parseqs": "0.0.2",
     "component-inherit": "0.0.3"
