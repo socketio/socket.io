@@ -377,6 +377,8 @@ describe('socket.io', function(){
       var srv = http();
       var sio = io(srv);
       srv.listen(function(){
+        sio.of('/chat');
+        sio.of('/news');
         var chat = client(srv, '/chat');
         var news = client(srv, '/news');
         var total = 2;
@@ -487,6 +489,18 @@ describe('socket.io', function(){
         var socket = client(srv,'/ns');
         sio.on('connection', function(socket){
           socket.disconnect();
+          done();
+        });
+      });
+    });
+
+    it('should return error connecting to non-existent namespace', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv,'/doesnotexist');
+        socket.on('error', function(err) {
+          expect(err).to.be('Invalid namespace');
           done();
         });
       });
