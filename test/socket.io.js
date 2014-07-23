@@ -51,10 +51,21 @@ describe('socket.io', function(){
       expect(srv.eio.maxHttpBufferSize).to.eql(10);
     });
 
-    it('should be able to set path with setting resource', function() {
-      var srv = io(http());
-      srv.set('resource', '/random');
-      expect(srv.path()).to.be('/random');
+    it('should be able to set path with setting resource', function(done) {
+      var eio = io();
+      var srv = http();
+
+      eio.set('resource', '/random');
+      eio.attach(srv);
+
+      // Check that the server is accessible through the specified path
+      request(srv)
+      .get('/random/socket.io.js')
+      .buffer(true)
+      .end(function(err, res){
+        if (err) return done(err);
+        done();
+      });
     });
 
     it('should be able to set origins to engine.io', function() {
