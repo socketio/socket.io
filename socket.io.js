@@ -2139,11 +2139,12 @@ Transport.prototype.onOpen = function () {
 Transport.prototype.onData = function(data){
   try {
     var packet = parser.decodePacket(data, this.socket.binaryType);
-    this.onPacket(packet);
   } catch(e){
     e.data = data;
     this.onError('parser decode error', e);
+    return;
   }
+  this.onPacket(packet);
 };
 
 /**
