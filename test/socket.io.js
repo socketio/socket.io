@@ -1240,9 +1240,14 @@ describe('socket.io', function(){
             expect(s.rooms).to.eql([s.id, 'a']);
             s.join('b', function(){
               expect(s.rooms).to.eql([s.id, 'a', 'b']);
-              s.leave('b', function(){
-                expect(s.rooms).to.eql([s.id, 'a']);
-                done();
+              s.join( 'c', function(){
+                expect(s.rooms).to.eql([s.id, 'a', 'b', 'c']);
+                s.leave('b', function(){
+                  expect(s.rooms).to.eql([s.id, 'a', 'c']);
+                  s.leaveAll();
+                  expect(s.rooms).to.eql([]);
+                  done();
+                });
               });
             });
           });
