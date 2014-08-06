@@ -44,7 +44,7 @@ Adapter.prototype.__proto__ = Emitter.prototype;
 Adapter.prototype.add = function(id, room, fn){
   this.sids[id] = this.sids[id] || {};
   this.sids[id][room] = true;
-  this.rooms[room] = this.rooms[room] || [];
+  this.rooms[room] = this.rooms[room] || {};
   this.rooms[room][id] = true;
   if (fn) process.nextTick(fn.bind(null, null));
 };
