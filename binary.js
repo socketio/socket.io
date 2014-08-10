@@ -23,9 +23,8 @@ exports.deconstructPacket = function(packet){
   function _deconstructPacket(data) {
     if (!data) return data;
 
-    if ((global.Buffer && Buffer.isBuffer(data)) ||
-      (global.ArrayBuffer && data instanceof ArrayBuffer)) { // replace binary
-      var placeholder = {_placeholder: true, num: buffers.length};
+    if (isBuf(data)) {
+      var placeholder = { _placeholder: true, num: buffers.length };
       buffers.push(data);
       return placeholder;
     } else if (isArray(data)) {
