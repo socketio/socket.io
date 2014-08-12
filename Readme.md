@@ -1,8 +1,8 @@
 
 # socket.io-parser
 
-[![Build Status](https://secure.travis-ci.org/Automattic/socket.io-parser.png)](http://travis-ci.org/Automattic/socket.io-parser)
-[![NPM version](https://badge.fury.io/js/socket.io-parser.png)](http://badge.fury.io/js/socket.io-parser)
+[![Build Status](https://secure.travis-ci.org/Automattic/socket.io-parser.svg)](http://travis-ci.org/Automattic/socket.io-parser)
+[![NPM version](https://badge.fury.io/js/socket.io-parser.svg)](http://badge.fury.io/js/socket.io-parser)
 
 A socket.io encoder and decoder written in JavaScript complying with version `3`
 of [socket.io-protocol](https://github.com/learnboost/socket.io-protocol).
