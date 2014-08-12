@@ -1,8 +1,8 @@
 
 # socket.io
 
-[![Build Status](https://secure.travis-ci.org/Automattic/socket.io.png)](http://travis-ci.org/Automattic/socket.io)
-[![NPM version](https://badge.fury.io/js/socket.io.png)](http://badge.fury.io/js/socket.io)
+[![Build Status](https://secure.travis-ci.org/Automattic/socket.io.svg)](http://travis-ci.org/Automattic/socket.io)
+[![NPM version](https://badge.fury.io/js/socket.io.svg)](http://badge.fury.io/js/socket.io)
 
 ## How to use
 
