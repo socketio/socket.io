@@ -3,6 +3,8 @@ node_js:
   - 0.10
 notifications:
   irc: irc.freenode.org##socket.io
+git:
+  depth: 1
 env:
   global:
   - secure: 28HHk1J0H64KNjzmmlxG/Ro0EPuLnhO0rU+kZjjthDHj/FaugIsqjAVQ1Dl6heWV2/MlVzw6nDCyMNiGwiVk0ruZPQ0SYdAKLplrdMtzAihbU3xx+ULFQPLM3SoW0ZFCEpe8dWPGy4WdgW7aLByeel9TJb3vlhAu7p7AvrcO7Fs=
