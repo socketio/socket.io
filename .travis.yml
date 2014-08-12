@@ -4,6 +4,9 @@ node_js:
   - "0.10"
   - "0.11"
 
+git:
+  depth: 1
+
 matrix:
   fast_finish: true
   allow_failures:
