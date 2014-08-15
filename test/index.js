@@ -17,6 +17,7 @@ require('./transport');
 // browser only tests
 if (env.browser) {
   require('./connection');
+  require('./xmlhttprequest');
   if (global.ArrayBuffer) {
     require('./arraybuffer');
   } else {
