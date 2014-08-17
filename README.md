@@ -160,6 +160,7 @@ Exposed as `eio` in the browser standalone build.
         connection (e.g. WebSocket) that transport
         will be used instead.
       - `forceBase64` (`Boolean`): forces base 64 encoding for polling transport even when XHR2 responseType is available and WebSocket even if the used standard supports binary.
+      - `enablesXDR` (`Boolean`): enables XDomainRequest for IE8 to avoid loading bar flashing with click sound. default to `false` because XDomainRequest has a flaw of not sending cookie.
       - `timestampRequests` (`Boolean`): whether to add the timestamp with
         each transport request. Note: this is ignored if the browser is
         IE or Android, in which case requests are always stamped (`false`)
