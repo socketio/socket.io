@@ -391,6 +391,33 @@ describe('socket.io', function(){
       });
     });
 
+    it('should be equivalent for "" and "/" on server', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var total = 2;
+      sio.of('').on('connection', function(){
+        --total || done();
+      });
+      sio.of('/').on('connection', function(){
+        --total || done();
+      });
+      var cio = client(srv);
+    });
+    
+    it('should be equivalent for "" and "/" on client', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var c1 = client(srv, '');
+      var c2 = client(srv, '/');
+      var total = 2;
+      c1.on('connect', function(){
+          --total || done();
+      });
+      c2.on('connect', function(){
+          --total || done();
+      });
+    });
+    
     it('should work with `of` and many sockets', function(done){
       var srv = http();
       var sio = io(srv);
