@@ -588,6 +588,32 @@ describe('socket.io', function(){
       });
     });
 
+    it('should call write when transport open and not when transport closed with volatile messages', function(){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        var i = 0;
+        sio.on('connection', function(s){
+          s.conn.transport.writable = true;
+
+          // Overwrite engine.io write function to detect if the message is
+          // written when transport writable or not
+          s.conn.write = function(){
+            if ( 0 == i ) {
+              i++;
+              s.conn.transport.writable = false;
+              s.volatile.emit('woot', 'tobi');
+            } else {
+              expect().fail();
+            }
+          };
+
+          s.volatile.emit('woot', 'tobi');
+        });
+      });
+    });
+
     it('should emit events with utf8 multibyte character', function(done) {
       var srv = http();
       var sio = io(srv);
