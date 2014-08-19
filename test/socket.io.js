@@ -588,7 +588,7 @@ describe('socket.io', function(){
       });
     });
 
-    it('should call write when transport open and not when transport closed with volatile messages', function(){
+    it('should call write when transport open and not when transport closed with volatile messages', function(done){
       var srv = http();
       var sio = io(srv);
       srv.listen(function(){
@@ -610,6 +610,12 @@ describe('socket.io', function(){
           };
 
           s.volatile.emit('woot', 'tobi');
+
+          // Make sure on the next tick that write was called once (not 0 times)
+          process.nextTick(function(){
+            expect(i).to.be(1);
+            done();
+          });
         });
       });
     });
