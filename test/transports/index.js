@@ -1,0 +1,1 @@
+require ('./polling-xhr.js');
