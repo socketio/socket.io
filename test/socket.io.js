@@ -391,6 +391,29 @@ describe('socket.io', function(){
       });
     });
 
+    it('should be able to equivalently start with "" or "/" on server', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var total = 2;
+      sio.of('').on('connection', function(){
+        --total || done();
+      });
+      sio.of('abc').on('connection', function(){
+        --total || done();
+      });
+      var c1 = client(srv, '/');
+      var c2 = client(srv, '/abc');
+    });
+    
+    it('should be equivalent for "" and "/" on client', function(done){
+      var srv = http();
+      var sio = io(srv);
+      sio.of('/').on('connection', function(){
+          done();
+      });
+      var c1 = client(srv, '');
+    });
+    
     it('should work with `of` and many sockets', function(done){
       var srv = http();
       var sio = io(srv);
