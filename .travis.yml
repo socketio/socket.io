@@ -1,13 +1,6 @@
 language: node_js
 node_js:
 - '0.10'
-- '0.11'
-git:
-  depth: 1
-matrix:
-  fast_finish: true
-  allow_failures:
-  - node_js: '0.11'
 notifications:
   irc: irc.freenode.org#socket.io
 env:
@@ -16,3 +9,37 @@ env:
   - secure: f5EAsqnJNW//oUgShxSGcDQsz6NUbwfkZCKoPymTamjyK69N5/Q70MQ5UrF3gih3ZiwWDK7Cd6T394vU+Jdrf+LdOdzgef3sz8YJbF3HiOOLp5tYuFVOtOMCBkefdJ/JkqFvrBQUgo3klSD6jUz2SdRlwi33iYlYO8mleO8IxRo=
   - secure: 0ah52GLAyJYZwJpnYbTscXgSuSoRLQBj/X0mZeeNGofPbQdWyhQoyBJMq77cTZJQ0mPKd3acojRH5DzYO5q0sMMPkN5mW3couqlyMk94PoYgaiTYRj7dzPnegi1myeVTioX9jomwkh1j+kg1diIHz+VHOgp9n7u595F0HnVXRwA=
   - secure: MFEtLhbKZKQDsU9h6dXLRSSZfBUWRJgVV4pucS0bSVA4SZ3Cqq405mg83EiUCww0L0jMXkKKojxcbNl5aHHIzWtTDJTiDw1ifQrIWsbSZ4IPFixd98hU9N7fI4BkEiNhN2j5W4iF+52GDr6Msuy9+6bbuUXEWcJnhjrJ4ePNlBs=
+matrix:
+  include:
+  - node_js: '0.10'
+    env: BROWSER_NAME=chrome BROWSER_VERSION=latest
+  - node_js: '0.10'
+    env: BROWSER_NAME=firefox BROWSER_VERSION=latest
+  - node_js: '0.10'
+    env: BROWSER_NAME=safari BROWSER_VERSION=latest
+  - node_js: '0.10'
+    env: BROWSER_NAME=ie BROWSER_VERSION=6
+  - node_js: '0.10'
+    env: BROWSER_NAME=ie BROWSER_VERSION=7
+  - node_js: '0.10'
+    env: BROWSER_NAME=ie BROWSER_VERSION=8
+  - node_js: '0.10'
+    env: BROWSER_NAME=ie BROWSER_VERSION=9
+  - node_js: '0.10'
+    env: BROWSER_NAME=ie BROWSER_VERSION=10 BROWSER_PLATFORM="Windows 2012"
+  - node_js: '0.10'
+    env: BROWSER_NAME=ie BROWSER_VERSION=latest BROWSER_PLATFORM="Windows 2012"
+  - node_js: '0.10'
+    env: BROWSER_NAME=iphone BROWSER_VERSION=6.1
+  - node_js: '0.10'
+    env: BROWSER_NAME=iphone BROWSER_VERSION=7.1
+  - node_js: '0.10'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.0
+  - node_js: '0.10'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.1
+  - node_js: '0.10'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.2
+  - node_js: '0.10'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.3
+  - node_js: '0.10'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.4
