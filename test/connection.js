@@ -4,7 +4,7 @@ var hasCORS = require('has-cors');
 var textBlobBuilder = require('text-blob-builder');
 
 describe('connection', function() {
-  this.timeout(20000);
+  this.timeout(50000);
 
   it('should connect to localhost', function(done) {
     var socket = io({ forceNew: true });
@@ -18,6 +18,7 @@ describe('connection', function() {
   it('should not connect when autoConnect option set to false', function() {
     var socket = io({ forceNew: true, autoConnect: false });
     expect(socket.io.engine).to.not.be.ok();
+    socket.disconnect();
   });
 
   it('should work with acks', function(done){
@@ -81,6 +82,7 @@ describe('connection', function() {
       foo.on('connect', function(){
         foo.close();
         socket.close();
+        manager.close();
         done();
       });
     });
@@ -95,6 +97,7 @@ describe('connection', function() {
       var foo = manager.socket('/foo');
       foo.on('connect', function() {
         foo.disconnect();
+        manager.close();
         done();
       });
     });
@@ -138,6 +141,7 @@ describe('connection', function() {
     manager.on('reconnect_failed', function failed() {
       expect(reconnects).to.be(2);
       socket.close();
+      manager.close();
       done();
     });
 
@@ -158,6 +162,7 @@ describe('connection', function() {
     socket.on('reconnect_failed', function failed() {
       expect(reconnects).to.be(2);
       socket.close();
+      manager.close();
       done();
     });
   });
@@ -169,6 +174,7 @@ describe('connection', function() {
     socket.on('error', function(data) {
       expect(data.code).to.be('test');
       socket.close();
+      manager.close();
       done();
     });
 
@@ -191,6 +197,7 @@ describe('connection', function() {
     socket.on('reconnect_failed', function failed() {
       expect(reconnects).to.be(2);
       socket.close();
+      manager.close();
       done();
     });
   });
@@ -208,6 +215,7 @@ describe('connection', function() {
       // set a timeout to let reconnection possibly fire
       setTimeout(function() {
         socket.close();
+        manager.close();
         done();
       }, 1000);
     });
@@ -229,6 +237,7 @@ describe('connection', function() {
       manager.on('reconnect_failed', function() {
         expect(reconnects).to.be(2);
         socket.disconnect();
+        manager.close();
         done();
       });
     });
@@ -245,6 +254,7 @@ describe('connection', function() {
         // set a timeout to let reconnection possibly fire
         setTimeout(function() {
           socket.disconnect();
+          manager.close();
           done();
         }, 1000);
       });
@@ -256,6 +266,7 @@ describe('connection', function() {
   it('should emit date as string', function(done){
     var socket = io({ forceNew: true });
     socket.on('takeDate', function(data) {
+      socket.close();
       expect(data).to.be.a('string');
       done();
     });
@@ -265,6 +276,7 @@ describe('connection', function() {
   it('should emit date in object', function(done){
     var socket = io({ forceNew: true });
     socket.on('takeDateObj', function(data) {
+      socket.close();
       expect(data).to.be.an('object');
       expect(data.date).to.be.a('string');
       done();
