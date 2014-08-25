@@ -4,7 +4,7 @@ var hasCORS = require('has-cors');
 var textBlobBuilder = require('text-blob-builder');
 
 describe('connection', function() {
-  this.timeout(50000);
+  this.timeout(70000);
 
   it('should connect to localhost', function(done) {
     var socket = io({ forceNew: true });
