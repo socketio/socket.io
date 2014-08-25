@@ -16,12 +16,12 @@ test-node:
 
 test-zuul:
 	@if [ "x$(BROWSER_PLATFORM)" = "x" ]; then \
-		@./node_modules/zuul/bin/zuul \
+		./node_modules/zuul/bin/zuul \
 		--browser-name $(BROWSER_NAME) \
 		--browser-version $(BROWSER_VERSION) \
 		test/index.js; \
 		else \
-		@./node_modules/zuul/bin/zuul \
+		./node_modules/zuul/bin/zuul \
 		--browser-name $(BROWSER_NAME) \
 		--browser-version $(BROWSER_VERSION) \
 		--browser-platform $(BROWSER_PLATFORM) \
