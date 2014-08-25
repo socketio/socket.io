@@ -10,50 +10,50 @@ env:
 matrix:
   include:
   - node_js: '0.10'
-    env: BROWSER="chrome 29"
+    env: BROWSER_NAME=chrome BROWSER_VERSION=29
   - node_js: '0.10'
-    env: BROWSER="chrome 30"
+    env: BROWSER_NAME=chrome BROWSER_VERSION=30
   - node_js: '0.10'
-    env: BROWSER="chrome 31"
+    env: BROWSER_NAME=chrome BROWSER_VERSION=31
   - node_js: '0.10'
-    env: BROWSER="chrome 32"
+    env: BROWSER_NAME=chrome BROWSER_VERSION=32
   - node_js: '0.10'
-    env: BROWSER="chrome 33"
+    env: BROWSER_NAME=chrome BROWSER_VERSION=33
   - node_js: '0.10'
-    env: BROWSER="chrome 34"
+    env: BROWSER_NAME=chrome BROWSER_VERSION=34
   - node_js: '0.10'
-    env: BROWSER="chrome 35"
+    env: BROWSER_NAME=chrome BROWSER_VERSION=35
   - node_js: '0.10'
-    env: BROWSER="chrome 36"
+    env: BROWSER_NAME=chrome BROWSER_VERSION=36
   - node_js: '0.10'
-    env: BROWSER="safari latest"
+    env: BROWSER_NAME=safari BROWSER_VERSION=latest
   - node_js: '0.10'
-    env: BROWSER="ie 6"
+    env: BROWSER_NAME=ie BROWSER_VERSION=6
   - node_js: '0.10'
-    env: BROWSER="ie 7"
+    env: BROWSER_NAME=ie BROWSER_VERSION=7
   - node_js: '0.10'
-    env: BROWSER="ie 8"
+    env: BROWSER_NAME=ie BROWSER_VERSION=8
   - node_js: '0.10'
-    env: BROWSER="ie 9"
+    env: BROWSER_NAME=ie BROWSER_VERSION=9
   - node_js: '0.10'
-    env: BROWSER="ie 10"
+    env: BROWSER_NAME=ie BROWSER_VERSION=10
   - node_js: '0.10'
-    env: BROWSER="ie latest"
+    env: BROWSER_NAME=ie BROWSER_VERSION=latest
   - node_js: '0.10'
-    env: BROWSER="iphone 4.3"
+    env: BROWSER_NAME=iphone BROWSER_VERSION=4.3
   - node_js: '0.10'
-    env: BROWSER="iphone 5.1"
+    env: BROWSER_NAME=iphone BROWSER_VERSION=5.1
   - node_js: '0.10'
-    env: BROWSER="iphone 6.1"
+    env: BROWSER_NAME=iphone BROWSER_VERSION=6.1
   - node_js: '0.10'
-    env: BROWSER="iphone 7.1"
+    env: BROWSER_NAME=iphone BROWSER_VERSION=7.1
   - node_js: '0.10'
-    env: BROWSER="android 4.0"
+    env: BROWSER_NAME=android BROWSER_VERSION=4.0
   - node_js: '0.10'
-    env: BROWSER="android 4.1"
+    env: BROWSER_NAME=android BROWSER_VERSION=4.1
   - node_js: '0.10'
-    env: BROWSER="android 4.2"
+    env: BROWSER_NAME=android BROWSER_VERSION=4.2
   - node_js: '0.10'
-    env: BROWSER="android 4.3"
+    env: BROWSER_NAME=android BROWSER_VERSION=4.3
   - node_js: '0.10'
-    env: BROWSER="android 4.4"
+    env: BROWSER_NAME=android BROWSER_VERSION=4.4
