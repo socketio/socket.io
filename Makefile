@@ -15,10 +15,18 @@ test-node:
 		test/index.js
 
 test-zuul:
-	@./node_modules/zuul/bin/zuul \
-			--browser-name $(BROWSER_NAME) \
-			--browser-version $(BROWSER_VERSION) \
-			test/index.js
+	@if [ "x$(BROWSER_PLATFORM)" = "x" ]; then \
+		@./node_modules/zuul/bin/zuul \
+		--browser-name $(BROWSER_NAME) \
+		--browser-version $(BROWSER_VERSION) \
+		test/index.js; \
+		else \
+		@./node_modules/zuul/bin/zuul \
+		--browser-name $(BROWSER_NAME) \
+		--browser-version $(BROWSER_VERSION) \
+		--browser-platform $(BROWSER_PLATFORM) \
+		test/index.js; \
+	fi
 
 test-cov:
 	@./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- \
