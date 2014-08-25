@@ -7,3 +7,53 @@ env:
   global:
   - secure: v76/Y3hGIGsANoFAW0US3X8cuDFY7g8stMFrwGUxiQnm4HN3j83w+FfoZay0mESKhNIpqk4nCJQwMCd1gJnLL7ybjGOt5LeEuQVlLDXkRVrXSViy2XwAW+mLj7H/++/LTHWo/Ma6pOa1YC2o4SbSsiK1NdhdAK5ZGluonPBIG18=
   - secure: P2zFTMeI9duoPBXhAZZLddqeJS+dUI27Q02tTdr+AjvUkr8f7Zga57SZxP6Jbn8bxUPI3ZQzAm1KMsyUo4IAegXLJ4j9VCF6ab65NkE1k8UH99kXXS30Ha27NS1aQafCbaOTxxQfqQHmnjt2HJtvk04nqCEDhoZCdDUZNVSGCOc=
+matrix:
+  include:
+  - node_js: '0.10'
+    env: BROWSER_NAME=chrome BROWSER_VERSION=29
+  - node_js: '0.10'
+    env: BROWSER_NAME=chrome BROWSER_VERSION=30
+  - node_js: '0.10'
+    env: BROWSER_NAME=chrome BROWSER_VERSION=31
+  - node_js: '0.10'
+    env: BROWSER_NAME=chrome BROWSER_VERSION=32
+  - node_js: '0.10'
+    env: BROWSER_NAME=chrome BROWSER_VERSION=33
+  - node_js: '0.10'
+    env: BROWSER_NAME=chrome BROWSER_VERSION=34
+  - node_js: '0.10'
+    env: BROWSER_NAME=chrome BROWSER_VERSION=35
+  - node_js: '0.10'
+    env: BROWSER_NAME=chrome BROWSER_VERSION=36
+  - node_js: '0.10'
+    env: BROWSER_NAME=safari BROWSER_VERSION=latest
+  - node_js: '0.10'
+    env: BROWSER_NAME=ie BROWSER_VERSION=6
+  - node_js: '0.10'
+    env: BROWSER_NAME=ie BROWSER_VERSION=7
+  - node_js: '0.10'
+    env: BROWSER_NAME=ie BROWSER_VERSION=8
+  - node_js: '0.10'
+    env: BROWSER_NAME=ie BROWSER_VERSION=9
+  - node_js: '0.10'
+    env: BROWSER_NAME=ie BROWSER_VERSION=10
+  - node_js: '0.10'
+    env: BROWSER_NAME=ie BROWSER_VERSION=latest
+  - node_js: '0.10'
+    env: BROWSER_NAME=iphone BROWSER_VERSION=4.3
+  - node_js: '0.10'
+    env: BROWSER_NAME=iphone BROWSER_VERSION=5.1
+  - node_js: '0.10'
+    env: BROWSER_NAME=iphone BROWSER_VERSION=6.1
+  - node_js: '0.10'
+    env: BROWSER_NAME=iphone BROWSER_VERSION=7.1
+  - node_js: '0.10'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.0
+  - node_js: '0.10'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.1
+  - node_js: '0.10'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.2
+  - node_js: '0.10'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.3
+  - node_js: '0.10'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.4

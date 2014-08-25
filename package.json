@@ -35,7 +35,7 @@
     "component-inherit": "0.0.3"
   },
   "devDependencies": {
-    "zuul": "1.6.3",
+    "zuul": "1.10.2",
     "mocha": "1.16.2",
     "expect.js": "0.2.0",
     "istanbul": "0.2.3",
