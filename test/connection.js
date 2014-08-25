@@ -316,7 +316,7 @@ describe('connection', function() {
         socket.disconnect();
         done();
       });
-      var buf = base64.decode("asdfasdf");
+      var buf = base64.decode('asdfasdf');
       socket.emit('buffa', buf);
     });
 
@@ -326,7 +326,7 @@ describe('connection', function() {
         socket.disconnect();
         done();
       });
-      var buf = base64.decode("howdy");
+      var buf = base64.decode('howdy');
       socket.emit('jsonbuff', {hello: 'lol', message: buf, goodbye: 'gotcha'});
     });
 
@@ -336,7 +336,7 @@ describe('connection', function() {
         socket.disconnect();
         done();
       });
-      var buf = base64.decode("abuff1");
+      var buf = base64.decode('abuff1');
       socket.emit('abuff1', buf);
       socket.emit('abuff2', 'please arrive second');
     });
