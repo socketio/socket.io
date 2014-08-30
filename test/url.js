@@ -1,5 +1,5 @@
 
-var old = global.location;
+var old = global.location = { protocol: 'http:', hostname: 'localhost'};
 var loc = {};
 var url = require('../lib/url');
 var expect = require('expect.js');
@@ -17,6 +17,14 @@ describe('url', function(){
   it('works with no protocol', function(){
     loc.protocol = 'http:';
     var parsed = url('localhost:3000', loc);
+    expect(parsed.host).to.be('localhost');
+    expect(parsed.port).to.be('3000');
+    expect(parsed.protocol).to.be('http');
+  });
+
+  it('works with no schema', function(){
+    loc.protocol = 'http:';
+    var parsed = url('//localhost:3000', loc);
     expect(parsed.host).to.be('localhost');
     expect(parsed.port).to.be('3000');
     expect(parsed.protocol).to.be('http');
