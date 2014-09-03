@@ -1,4 +1,14 @@
 
+1.4.0 / 2014-09-03
+==================
+
+ * add matrix support for travis runs.
+ * add `enablesXDR` option to turn on `XDomainRequest`
+ * package: bump `browserify`
+ * package: bump `engine.io-parser`
+ * style and close socket after assert
+ * add support for `jsonp` option to turn it off
+
 1.3.1 / 2014-06-19
 ==================
 
