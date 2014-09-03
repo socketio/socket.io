@@ -1,4 +1,18 @@
 
+1.4.0 / 2014-09-03
+==================
+
+ * readme: fix formatting for goals numbering
+ * server: ref fix by @nicokaiser
+ * server: fix ws memory leak (fixes #268)
+ * cache remote address in handshake since it might be lost later.
+ * correct git ref
+ * update client to commit with bumped parser
+ * package: bump parser
+ * npmignore: ignore `.gitignore`
+ * package: bump `debug`
+ * package: bump `engine.io-parser` for memleak fix
+
 1.3.1 / 2014-06-19
 ==================
 
