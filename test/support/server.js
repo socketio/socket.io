@@ -9,6 +9,18 @@ server.of('/foo').on('connection', function(){
   // register namespace
 });
 
+server.of('/timeout_socket').on('connection', function(){
+  // register namespace
+});
+
+server.of('/valid').on('connection', function(){
+  // register namespace
+});
+
+server.of('/asd').on('connection', function(){
+  // register namespace
+});
+
 server.on('connection', function(socket){
   // simple test
   socket.on('hi', function(){
