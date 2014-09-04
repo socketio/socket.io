@@ -1,4 +1,10 @@
 
+2.2.2 / 2014-09-04
+==================
+
+ * prevent direct `Buffer` reference that breaks browserify
+ * binary: reuse `isBuf` helper
+
 2.2.1 / 2014-06-20
 ==================
 
