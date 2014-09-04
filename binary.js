@@ -5,6 +5,7 @@
  */
 
 var isArray = require('isarray');
+var isBuf = require('./is-buffer');
 
 /**
  * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
@@ -138,13 +139,3 @@ exports.removeBlobs = function(data, callback) {
     callback(bloblessData);
   }
 };
-
-/**
- * Returns true if obj is a buffer or an arraybuffer.
- *
- * @api private
- */
-function isBuf(obj) {
-  return (global.Buffer && Buffer.isBuffer(obj)) ||
-         (global.ArrayBuffer && obj instanceof ArrayBuffer);
-}
