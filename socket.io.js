@@ -91,7 +91,7 @@ exports.connect = lookup;
 exports.Manager = _dereq_('./manager');
 exports.Socket = _dereq_('./socket');
 
-},{"./manager":3,"./socket":5,"./url":6,"debug":9,"socket.io-parser":39}],3:[function(_dereq_,module,exports){
+},{"./manager":3,"./socket":5,"./url":6,"debug":9,"socket.io-parser":40}],3:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
@@ -146,8 +146,8 @@ function Manager(uri, opts){
   this.packetBuffer = [];
   this.encoder = new parser.Encoder();
   this.decoder = new parser.Decoder();
-  if (opts.autoConnect !== false)
-    this.open();
+  this.autoConnect = opts.autoConnect !== false;
+  if (this.autoConnect) this.open();
 }
 
 /**
@@ -551,7 +551,7 @@ Manager.prototype.onreconnect = function(){
   this.emitAll('reconnect', attempt);
 };
 
-},{"./on":4,"./socket":5,"./url":6,"component-bind":7,"component-emitter":8,"debug":9,"engine.io-client":10,"object-component":36,"socket.io-parser":39}],4:[function(_dereq_,module,exports){
+},{"./on":4,"./socket":5,"./url":6,"component-bind":7,"component-emitter":8,"debug":9,"engine.io-client":10,"object-component":37,"socket.io-parser":40}],4:[function(_dereq_,module,exports){
 
 /**
  * Module exports.
@@ -589,7 +589,7 @@ var toArray = _dereq_('to-array');
 var on = _dereq_('./on');
 var bind = _dereq_('component-bind');
 var debug = _dereq_('debug')('socket.io-client:socket');
-var hasBin = _dereq_('has-binary-data');
+var hasBin = _dereq_('has-binary');
 var indexOf = _dereq_('indexof');
 
 /**
@@ -636,7 +636,7 @@ function Socket(io, nsp){
   this.json = this; // compat
   this.ids = 0;
   this.acks = {};
-  this.open();
+  if (this.io.autoConnect) this.open();
   this.receiveBuffer = [];
   this.sendBuffer = [];
   this.connected = false;
@@ -957,7 +957,7 @@ Socket.prototype.disconnect = function(){
   return this;
 };
 
-},{"./on":4,"component-bind":7,"component-emitter":8,"debug":9,"has-binary-data":31,"indexof":35,"socket.io-parser":39,"to-array":42}],6:[function(_dereq_,module,exports){
+},{"./on":4,"component-bind":7,"component-emitter":8,"debug":9,"has-binary":32,"indexof":36,"socket.io-parser":40,"to-array":44}],6:[function(_dereq_,module,exports){
 (function (global){
 
 /**
@@ -1032,7 +1032,7 @@ function url(uri, loc){
 }
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"debug":9,"parseuri":37}],7:[function(_dereq_,module,exports){
+},{"debug":9,"parseuri":38}],7:[function(_dereq_,module,exports){
 /**
  * Slice reference.
  */
@@ -1453,7 +1453,9 @@ function Socket(uri, opts){
   this.upgrade = false !== opts.upgrade;
   this.path = (opts.path || '/engine.io').replace(/\/$/, '') + '/';
   this.forceJSONP = !!opts.forceJSONP;
+  this.jsonp = false !== opts.jsonp;
   this.forceBase64 = !!opts.forceBase64;
+  this.enablesXDR = !!opts.enablesXDR;
   this.timestampParam = opts.timestampParam || 't';
   this.timestampRequests = opts.timestampRequests;
   this.transports = opts.transports || ['polling', 'websocket'];
@@ -1522,7 +1524,9 @@ Socket.prototype.createTransport = function (name) {
     path: this.path,
     query: query,
     forceJSONP: this.forceJSONP,
+    jsonp: this.jsonp,
     forceBase64: this.forceBase64,
+    enablesXDR: this.enablesXDR,
     timestampRequests: this.timestampRequests,
     timestampParam: this.timestampParam,
     policyPort: this.policyPort,
@@ -1551,11 +1555,28 @@ Socket.prototype.open = function () {
   var transport;
   if (this.rememberUpgrade && Socket.priorWebsocketSuccess && this.transports.indexOf('websocket') != -1) {
     transport = 'websocket';
+  } else if (0 == this.transports.length) {
+    // Emit error on next tick so it can be listened to
+    var self = this;
+    setTimeout(function() {
+      self.emit('error', 'No transports available');
+    }, 0);
+    return;
   } else {
     transport = this.transports[0];
   }
   this.readyState = 'opening';
-  var transport = this.createTransport(transport);
+
+  // Retry with the next transport if the transport is disabled (jsonp: false)
+  var transport;
+  try {
+    transport = this.createTransport(transport);
+  } catch (e) {
+    this.transports.shift();
+    this.open();
+    return;
+  }
+
   transport.open();
   this.setTransport(transport);
 };
@@ -2009,7 +2030,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
 };
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./transport":13,"./transports":14,"component-emitter":8,"debug":9,"engine.io-parser":21,"indexof":35,"parsejson":28,"parseqs":29,"parseuri":37}],13:[function(_dereq_,module,exports){
+},{"./transport":13,"./transports":14,"component-emitter":8,"debug":9,"engine.io-parser":21,"indexof":36,"parsejson":28,"parseqs":29,"parseuri":30}],13:[function(_dereq_,module,exports){
 /**
  * Module dependencies.
  */
@@ -2041,6 +2062,7 @@ function Transport (opts) {
   this.readyState = '';
   this.agent = opts.agent || false;
   this.socket = opts.socket;
+  this.enablesXDR = opts.enablesXDR;
 }
 
 /**
@@ -2137,13 +2159,7 @@ Transport.prototype.onOpen = function () {
  */
 
 Transport.prototype.onData = function(data){
-  try {
-    var packet = parser.decodePacket(data, this.socket.binaryType);
-  } catch(e){
-    e.data = data;
-    this.onError('parser decode error', e);
-    return;
-  }
+  var packet = parser.decodePacket(data, this.socket.binaryType);
   this.onPacket(packet);
 };
 
@@ -2194,6 +2210,8 @@ exports.websocket = websocket;
 function polling(opts){
   var xhr;
   var xd = false;
+  var xs = false;
+  var jsonp = false !== opts.jsonp;
 
   if (global.location) {
     var isSSL = 'https:' == location.protocol;
@@ -2205,14 +2223,17 @@ function polling(opts){
     }
 
     xd = opts.hostname != location.hostname || port != opts.port;
+    xs = opts.secure != isSSL;
   }
 
   opts.xdomain = xd;
+  opts.xscheme = xs;
   xhr = new XMLHttpRequest(opts);
 
   if ('open' in xhr && !opts.forceJSONP) {
     return new XHR(opts);
   } else {
+    if (!jsonp) throw new Error('JSONP disabled');
     return new JSONP(opts);
   }
 }
@@ -2500,6 +2521,7 @@ function XHR(opts){
 
     this.xd = opts.hostname != global.location.hostname ||
       port != opts.port;
+    this.xs = opts.secure != isSSL;
   }
 }
 
@@ -2526,8 +2548,10 @@ XHR.prototype.request = function(opts){
   opts = opts || {};
   opts.uri = this.uri();
   opts.xd = this.xd;
+  opts.xs = this.xs;
   opts.agent = this.agent || false;
   opts.supportsBinary = this.supportsBinary;
+  opts.enablesXDR = this.enablesXDR;
   return new Request(opts);
 };
 
@@ -2580,10 +2604,14 @@ function Request(opts){
   this.method = opts.method || 'GET';
   this.uri = opts.uri;
   this.xd = !!opts.xd;
+  this.xs = !!opts.xs;
   this.async = false !== opts.async;
   this.data = undefined != opts.data ? opts.data : null;
   this.agent = opts.agent;
-  this.create(opts.isBinary, opts.supportsBinary);
+  this.isBinary = opts.isBinary;
+  this.supportsBinary = opts.supportsBinary;
+  this.enablesXDR = opts.enablesXDR;
+  this.create();
 }
 
 /**
@@ -2598,14 +2626,14 @@ Emitter(Request.prototype);
  * @api private
  */
 
-Request.prototype.create = function(isBinary, supportsBinary){
-  var xhr = this.xhr = new XMLHttpRequest({ agent: this.agent, xdomain: this.xd });
+Request.prototype.create = function(){
+  var xhr = this.xhr = new XMLHttpRequest({ agent: this.agent, xdomain: this.xd, xscheme: this.xs, enablesXDR: this.enablesXDR });
   var self = this;
 
   try {
     debug('xhr open %s: %s', this.method, this.uri);
     xhr.open(this.method, this.uri, this.async);
-    if (supportsBinary) {
+    if (this.supportsBinary) {
       // This has to be done after open because Firefox is stupid
       // http://stackoverflow.com/questions/13216903/get-binary-data-with-xmlhttprequest-in-a-firefox-extension
       xhr.responseType = 'arraybuffer';
@@ -2613,7 +2641,7 @@ Request.prototype.create = function(isBinary, supportsBinary){
 
     if ('POST' == this.method) {
       try {
-        if (isBinary) {
+        if (this.isBinary) {
           xhr.setRequestHeader('Content-type', 'application/octet-stream');
         } else {
           xhr.setRequestHeader('Content-type', 'text/plain;charset=UTF-8');
@@ -2626,22 +2654,18 @@ Request.prototype.create = function(isBinary, supportsBinary){
       xhr.withCredentials = true;
     }
 
-    xhr.onreadystatechange = function(){
-      var data;
-
-      try {
+    if (this.hasXDR()) {
+      xhr.onload = function(){
+        self.onLoad();
+      };
+      xhr.onerror = function(){
+        self.onError(xhr.responseText);
+      };
+    } else {
+      xhr.onreadystatechange = function(){
         if (4 != xhr.readyState) return;
         if (200 == xhr.status || 1223 == xhr.status) {
-          var contentType = xhr.getResponseHeader('Content-Type');
-          if (contentType === 'application/octet-stream') {
-            data = xhr.response;
-          } else {
-            if (!supportsBinary) {
-              data = xhr.responseText;
-            } else {
-              data = 'ok';
-            }
-          }
+          self.onLoad();
         } else {
           // make sure the `error` event handler that's user-set
           // does not throw in the same tick and gets caught here
@@ -2649,14 +2673,8 @@ Request.prototype.create = function(isBinary, supportsBinary){
             self.onError(xhr.status);
           }, 0);
         }
-      } catch (e) {
-        self.onError(e);
-      }
-
-      if (null != data) {
-        self.onData(data);
-      }
-    };
+      };
+    }
 
     debug('xhr data %s', this.data);
     xhr.send(this.data);
@@ -2720,7 +2738,11 @@ Request.prototype.cleanup = function(){
     return;
   }
   // xmlhttprequest
-  this.xhr.onreadystatechange = empty;
+  if (this.hasXDR()) {
+    this.xhr.onload = this.xhr.onerror = empty;
+  } else {
+    this.xhr.onreadystatechange = empty;
+  }
 
   try {
     this.xhr.abort();
@@ -2731,6 +2753,46 @@ Request.prototype.cleanup = function(){
   }
 
   this.xhr = null;
+};
+
+/**
+ * Called upon load.
+ *
+ * @api private
+ */
+
+Request.prototype.onLoad = function(){
+  var data;
+  try {
+    var contentType;
+    try {
+      contentType = this.xhr.getResponseHeader('Content-Type');
+    } catch (e) {}
+    if (contentType === 'application/octet-stream') {
+      data = this.xhr.response;
+    } else {
+      if (!this.supportsBinary) {
+        data = this.xhr.responseText;
+      } else {
+        data = 'ok';
+      }
+    }
+  } catch (e) {
+    this.onError(e);
+  }
+  if (null != data) {
+    this.onData(data);
+  }
+};
+
+/**
+ * Check if it has XDomainRequest.
+ *
+ * @api private
+ */
+
+Request.prototype.hasXDR = function(){
+  return 'undefined' !== typeof global.XDomainRequest && !this.xs && this.enablesXDR;
 };
 
 /**
@@ -3246,12 +3308,29 @@ WS.prototype.check = function(){
   return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 };
 
-},{"../transport":13,"component-inherit":20,"debug":9,"engine.io-parser":21,"parseqs":29,"ws":30}],19:[function(_dereq_,module,exports){
+},{"../transport":13,"component-inherit":20,"debug":9,"engine.io-parser":21,"parseqs":29,"ws":31}],19:[function(_dereq_,module,exports){
 // browser shim for xmlhttprequest module
 var hasCORS = _dereq_('has-cors');
 
 module.exports = function(opts) {
   var xdomain = opts.xdomain;
+
+  // scheme must be same when usign XDomainRequest
+  // http://blogs.msdn.com/b/ieinternals/archive/2010/05/13/xdomainrequest-restrictions-limitations-and-workarounds.aspx
+  var xscheme = opts.xscheme;
+
+  // XDomainRequest has a flow of not sending cookie, therefore it should be disabled as a default.
+  // https://github.com/Automattic/engine.io-client/pull/217
+  var enablesXDR = opts.enablesXDR;
+
+  // Use XDomainRequest for IE8 if enablesXDR is true
+  // because loading bar keeps flashing when using jsonp-polling
+  // https://github.com/yujiosaka/socke.io-ie8-loading-example
+  try {
+    if ('undefined' != typeof XDomainRequest && !xscheme && enablesXDR) {
+      return new XDomainRequest();
+    }
+  } catch (e) { }
 
   // XMLHttpRequest can be disabled on IE
   try {
@@ -3267,7 +3346,7 @@ module.exports = function(opts) {
   }
 }
 
-},{"has-cors":33}],20:[function(_dereq_,module,exports){
+},{"has-cors":34}],20:[function(_dereq_,module,exports){
 
 module.exports = function(a, b){
   var fn = function(){};
@@ -3300,7 +3379,7 @@ var isAndroid = navigator.userAgent.match(/Android/i);
  * Current protocol version.
  */
 
-exports.protocol = 2;
+exports.protocol = 3;
 
 /**
  * Packet types.
@@ -3346,10 +3425,15 @@ var Blob = _dereq_('blob');
  * @api private
  */
 
-exports.encodePacket = function (packet, supportsBinary, callback) {
-  if (typeof supportsBinary == 'function') {
+exports.encodePacket = function (packet, supportsBinary, utf8encode, callback) {
+  if ('function' == typeof supportsBinary) {
     callback = supportsBinary;
     supportsBinary = false;
+  }
+
+  if ('function' == typeof utf8encode) {
+    callback = utf8encode;
+    utf8encode = null;
   }
 
   var data = (packet.data === undefined)
@@ -3367,7 +3451,7 @@ exports.encodePacket = function (packet, supportsBinary, callback) {
 
   // data fragment is optional
   if (undefined !== packet.data) {
-    encoded += utf8.encode(String(packet.data));
+    encoded += utf8encode ? utf8.encode(String(packet.data)) : String(packet.data);
   }
 
   return callback('' + encoded);
@@ -3403,7 +3487,7 @@ function encodeBlobAsArrayBuffer(packet, supportsBinary, callback) {
   var fr = new FileReader();
   fr.onload = function() {
     packet.data = fr.result;
-    exports.encodePacket(packet, supportsBinary, callback);
+    exports.encodePacket(packet, supportsBinary, true, callback);
   };
   return fr.readAsArrayBuffer(packet.data);
 }
@@ -3465,14 +3549,20 @@ exports.encodeBase64Packet = function(packet, callback) {
  * @api private
  */
 
-exports.decodePacket = function (data, binaryType) {
+exports.decodePacket = function (data, binaryType, utf8decode) {
   // String data
   if (typeof data == 'string' || data === undefined) {
     if (data.charAt(0) == 'b') {
       return exports.decodeBase64Packet(data.substr(1), binaryType);
     }
 
-    data = utf8.decode(data);
+    if (utf8decode) {
+      try {
+        data = utf8.decode(data);
+      } catch (e) {
+        return err;
+      }
+    }
     var type = data.charAt(0);
 
     if (Number(type) != type || !packetslist[type]) {
@@ -3556,7 +3646,7 @@ exports.encodePayload = function (packets, supportsBinary, callback) {
   }
 
   function encodeOne(packet, doneCallback) {
-    exports.encodePacket(packet, supportsBinary, function(message) {
+    exports.encodePacket(packet, supportsBinary, true, function(message) {
       doneCallback(null, setLengthHeader(message));
     });
   }
@@ -3632,7 +3722,7 @@ exports.decodePayload = function (data, binaryType, callback) {
       }
 
       if (msg.length) {
-        packet = exports.decodePacket(msg, binaryType);
+        packet = exports.decodePacket(msg, binaryType, true);
 
         if (err.type == packet.type && err.data == packet.data) {
           // parser error in individual packet - ignoring payload
@@ -3676,7 +3766,7 @@ exports.encodePayloadAsArrayBuffer = function(packets, callback) {
   }
 
   function encodeOne(packet, doneCallback) {
-    exports.encodePacket(packet, true, function(data) {
+    exports.encodePacket(packet, true, true, function(data) {
       return doneCallback(null, data);
     });
   }
@@ -3734,7 +3824,7 @@ exports.encodePayloadAsArrayBuffer = function(packets, callback) {
 
 exports.encodePayloadAsBlob = function(packets, callback) {
   function encodeOne(packet, doneCallback) {
-    exports.encodePacket(packet, true, function(encoded) {
+    exports.encodePacket(packet, true, true, function(encoded) {
       var binaryIdentifier = new Uint8Array(1);
       binaryIdentifier[0] = 1;
       if (typeof encoded === 'string') {
@@ -3787,14 +3877,25 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
   var bufferTail = data;
   var buffers = [];
 
+  var numberTooLong = false;
   while (bufferTail.byteLength > 0) {
     var tailArray = new Uint8Array(bufferTail);
     var isString = tailArray[0] === 0;
     var msgLength = '';
+
     for (var i = 1; ; i++) {
       if (tailArray[i] == 255) break;
+
+      if (msgLength.length > 310) {
+        numberTooLong = true;
+        break;
+      }
+
       msgLength += tailArray[i];
     }
+
+    if(numberTooLong) return callback(err, 0, 1);
+
     bufferTail = sliceBuffer(bufferTail, 2 + msgLength.length);
     msgLength = parseInt(msgLength);
 
@@ -3811,13 +3912,14 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
         }
       }
     }
+
     buffers.push(msg);
     bufferTail = sliceBuffer(bufferTail, msgLength);
   }
 
   var total = buffers.length;
   buffers.forEach(function(buffer, i) {
-    callback(exports.decodePacket(buffer, binaryType), i, total);
+    callback(exports.decodePacket(buffer, binaryType, true), i, total);
   });
 };
 
@@ -4336,6 +4438,47 @@ exports.decode = function(qs){
 };
 
 },{}],30:[function(_dereq_,module,exports){
+/**
+ * Parses an URI
+ *
+ * @author Steven Levithan <stevenlevithan.com> (MIT license)
+ * @api private
+ */
+
+var re = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+
+var parts = [
+    'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'
+];
+
+module.exports = function parseuri(str) {
+    var src = str,
+        b = str.indexOf('['),
+        e = str.indexOf(']');
+
+    if (b != -1 && e != -1) {
+        str = str.substring(0, b) + str.substring(b, e).replace(/:/g, ';') + str.substring(e, str.length);
+    }
+
+    var m = re.exec(str || ''),
+        uri = {},
+        i = 14;
+
+    while (i--) {
+        uri[parts[i]] = m[i] || '';
+    }
+
+    if (b != -1 && e != -1) {
+        uri.source = src;
+        uri.host = uri.host.substring(1, uri.host.length - 1).replace(/;/g, ':');
+        uri.authority = uri.authority.replace('[', '').replace(']', '').replace(/;/g, ':');
+        uri.ipv6uri = true;
+    }
+
+    return uri;
+};
+
+},{}],31:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
@@ -4380,8 +4523,9 @@ function ws(uri, protocols, opts) {
 
 if (WebSocket) ws.prototype = WebSocket.prototype;
 
-},{}],31:[function(_dereq_,module,exports){
-(function (global,Buffer){
+},{}],32:[function(_dereq_,module,exports){
+(function (global){
+
 /*
  * Module requirements.
  */
@@ -4408,7 +4552,7 @@ function hasBinary(data) {
   function _hasBinary(obj) {
     if (!obj) return false;
 
-    if ( (global.Buffer && Buffer.isBuffer(obj)) ||
+    if ( (global.Buffer && global.Buffer.isBuffer(obj)) ||
          (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
          (global.Blob && obj instanceof Blob) ||
          (global.File && obj instanceof File)
@@ -4440,13 +4584,13 @@ function hasBinary(data) {
   return _hasBinary(data);
 }
 
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer)
-},{"isarray":32}],32:[function(_dereq_,module,exports){
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"isarray":33}],33:[function(_dereq_,module,exports){
 module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-},{}],33:[function(_dereq_,module,exports){
+},{}],34:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
@@ -4471,7 +4615,7 @@ try {
   module.exports = false;
 }
 
-},{"global":34}],34:[function(_dereq_,module,exports){
+},{"global":35}],35:[function(_dereq_,module,exports){
 
 /**
  * Returns `this`. Execute this without a "context" (i.e. without it being
@@ -4481,7 +4625,7 @@ try {
 
 module.exports = (function () { return this; })();
 
-},{}],35:[function(_dereq_,module,exports){
+},{}],36:[function(_dereq_,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -4492,7 +4636,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],36:[function(_dereq_,module,exports){
+},{}],37:[function(_dereq_,module,exports){
 
 /**
  * HOP ref.
@@ -4577,7 +4721,7 @@ exports.length = function(obj){
 exports.isEmpty = function(obj){
   return 0 == exports.length(obj);
 };
-},{}],37:[function(_dereq_,module,exports){
+},{}],38:[function(_dereq_,module,exports){
 /**
  * Parses an URI
  *
@@ -4604,13 +4748,16 @@ module.exports = function parseuri(str) {
   return uri;
 };
 
-},{}],38:[function(_dereq_,module,exports){
-(function (global,Buffer){
+},{}],39:[function(_dereq_,module,exports){
+(function (global){
+/*global Blob,File*/
+
 /**
- * Modle requirements
+ * Module requirements
  */
 
 var isArray = _dereq_('isarray');
+var isBuf = _dereq_('./is-buffer');
 
 /**
  * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
@@ -4622,39 +4769,38 @@ var isArray = _dereq_('isarray');
  * @api public
  */
 
-exports.deconstructPacket = function(packet) {
-    var buffers = [];
-    var packetData = packet.data;
+exports.deconstructPacket = function(packet){
+  var buffers = [];
+  var packetData = packet.data;
 
-    function _deconstructPacket(data) {
-      if (!data) return data;
+  function _deconstructPacket(data) {
+    if (!data) return data;
 
-      if ((global.Buffer && Buffer.isBuffer(data)) ||
-        (global.ArrayBuffer && data instanceof ArrayBuffer)) { // replace binary
-        var placeholder = {_placeholder: true, num: buffers.length};
-        buffers.push(data);
-        return placeholder;
-      } else if (isArray(data)) {
-        var newData = new Array(data.length);
-        for (var i = 0; i < data.length; i++) {
-          newData[i] = _deconstructPacket(data[i]);
-        }
-        return newData;
-      } else if ('object' == typeof data && !(data instanceof Date)) {
-        var newData = {};
-        for (var key in data) {
-          newData[key] = _deconstructPacket(data[key]);
-        }
-        return newData;
+    if (isBuf(data)) {
+      var placeholder = { _placeholder: true, num: buffers.length };
+      buffers.push(data);
+      return placeholder;
+    } else if (isArray(data)) {
+      var newData = new Array(data.length);
+      for (var i = 0; i < data.length; i++) {
+        newData[i] = _deconstructPacket(data[i]);
       }
-      return data;
+      return newData;
+    } else if ('object' == typeof data && !(data instanceof Date)) {
+      var newData = {};
+      for (var key in data) {
+        newData[key] = _deconstructPacket(data[key]);
+      }
+      return newData;
     }
+    return data;
+  }
 
-    var pack = packet;
-    pack.data = _deconstructPacket(packetData);
-    pack.attachments = buffers.length; // number of binary 'attachments'
-    return {packet: pack, buffers: buffers};
-}
+  var pack = packet;
+  pack.data = _deconstructPacket(packetData);
+  pack.attachments = buffers.length; // number of binary 'attachments'
+  return {packet: pack, buffers: buffers};
+};
 
 /**
  * Reconstructs a binary packet from its placeholder packet and buffers
@@ -4665,31 +4811,31 @@ exports.deconstructPacket = function(packet) {
  * @api public
  */
 
- exports.reconstructPacket = function(packet, buffers) {
-    var curPlaceHolder = 0;
+exports.reconstructPacket = function(packet, buffers) {
+  var curPlaceHolder = 0;
 
-    function _reconstructPacket(data) {
-      if (data && data._placeholder) {
-        var buf = buffers[data.num]; // appropriate buffer (should be natural order anyway)
-        return buf;
-      } else if (isArray(data)) {
-        for (var i = 0; i < data.length; i++) {
-          data[i] = _reconstructPacket(data[i]);
-        }
-        return data;
-      } else if (data && 'object' == typeof data) {
-        for (var key in data) {
-          data[key] = _reconstructPacket(data[key]);
-        }
-        return data;
+  function _reconstructPacket(data) {
+    if (data && data._placeholder) {
+      var buf = buffers[data.num]; // appropriate buffer (should be natural order anyway)
+      return buf;
+    } else if (isArray(data)) {
+      for (var i = 0; i < data.length; i++) {
+        data[i] = _reconstructPacket(data[i]);
+      }
+      return data;
+    } else if (data && 'object' == typeof data) {
+      for (var key in data) {
+        data[key] = _reconstructPacket(data[key]);
       }
       return data;
     }
+    return data;
+  }
 
-    packet.data = _reconstructPacket(packet.data);
-    packet.attachments = undefined; // no longer useful
-    return packet;
- }
+  packet.data = _reconstructPacket(packet.data);
+  packet.attachments = undefined; // no longer useful
+  return packet;
+};
 
 /**
  * Asynchronously removes Blobs or Files from data via
@@ -4702,7 +4848,6 @@ exports.deconstructPacket = function(packet) {
  */
 
 exports.removeBlobs = function(data, callback) {
-
   function _removeBlobs(obj, curKey, containingObject) {
     if (!obj) return obj;
 
@@ -4745,21 +4890,10 @@ exports.removeBlobs = function(data, callback) {
   if (!pendingBlobs) {
     callback(bloblessData);
   }
-}
+};
 
-/**
- * Returns true if obj is a buffer or an arraybuffer.
- *
- * @api private
- */
-function isBuf(obj) {
-  return (global.Buffer && Buffer.isBuffer(obj)) ||
-         (global.ArrayBuffer && obj instanceof ArrayBuffer);
-}
-
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer)
-},{"isarray":40}],39:[function(_dereq_,module,exports){
-(function (global,Buffer){
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./is-buffer":41,"isarray":42}],40:[function(_dereq_,module,exports){
 
 /**
  * Module dependencies.
@@ -4770,6 +4904,7 @@ var json = _dereq_('json3');
 var isArray = _dereq_('isarray');
 var Emitter = _dereq_('component-emitter');
 var binary = _dereq_('./binary');
+var isBuf = _dereq_('./is-buffer');
 
 /**
  * Protocol version.
@@ -4851,14 +4986,29 @@ exports.BINARY_EVENT = 5;
 
 exports.BINARY_ACK = 6;
 
-exports.Encoder = Encoder
+/**
+ * Encoder constructor.
+ *
+ * @api public
+ */
+
+exports.Encoder = Encoder;
+
+/**
+ * Decoder constructor.
+ *
+ * @api public
+ */
+
+exports.Decoder = Decoder;
 
 /**
  * A socket.io Encoder instance
  *
  * @api public
  */
-function Encoder() {};
+
+function Encoder() {}
 
 /**
  * Encode a packet as a single string if non-binary, or as a
@@ -4953,8 +5103,6 @@ function encodeAsBinary(obj, callback) {
   binary.removeBlobs(obj, writeEncoding);
 }
 
-exports.Decoder = Decoder
-
 /**
  * A socket.io Decoder instance
  *
@@ -4995,9 +5143,7 @@ Decoder.prototype.add = function(obj) {
       this.emit('decoded', packet);
     }
   }
-  else if ((global.Buffer && Buffer.isBuffer(obj)) ||
-            (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
-            obj.base64) { // raw binary data
+  else if (isBuf(obj) || obj.base64) { // raw binary data
     if (!this.reconstructor) {
       throw new Error('got binary data when not reconstructing a packet');
     } else {
@@ -5011,7 +5157,7 @@ Decoder.prototype.add = function(obj) {
   else {
     throw new Error('Unknown type: ' + obj);
   }
-}
+};
 
 /**
  * Decode a packet String (JSON data)
@@ -5078,7 +5224,7 @@ function decodeString(str) {
 
   debug('decoded %s as %j', str, p);
   return p;
-};
+}
 
 /**
  * Deallocates a parser's resources
@@ -5090,7 +5236,7 @@ Decoder.prototype.destroy = function() {
   if (this.reconstructor) {
     this.reconstructor.finishedReconstruction();
   }
-}
+};
 
 /**
  * A manager of a binary event's 'buffer sequence'. Should
@@ -5125,7 +5271,7 @@ BinaryReconstructor.prototype.takeBinaryData = function(binData) {
     return packet;
   }
   return null;
-}
+};
 
 /**
  * Cleans up binary packet reconstruction variables.
@@ -5136,7 +5282,7 @@ BinaryReconstructor.prototype.takeBinaryData = function(binData) {
 BinaryReconstructor.prototype.finishedReconstruction = function() {
   this.reconPack = null;
   this.buffers = [];
-}
+};
 
 function error(data){
   return {
@@ -5145,10 +5291,26 @@ function error(data){
   };
 }
 
-}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("buffer").Buffer)
-},{"./binary":38,"component-emitter":8,"debug":9,"isarray":40,"json3":41}],40:[function(_dereq_,module,exports){
-module.exports=_dereq_(32)
-},{}],41:[function(_dereq_,module,exports){
+},{"./binary":39,"./is-buffer":41,"component-emitter":8,"debug":9,"isarray":42,"json3":43}],41:[function(_dereq_,module,exports){
+(function (global){
+
+module.exports = isBuf;
+
+/**
+ * Returns true if obj is a buffer or an arraybuffer.
+ *
+ * @api private
+ */
+
+function isBuf(obj) {
+  return (global.Buffer && global.Buffer.isBuffer(obj)) ||
+         (global.ArrayBuffer && obj instanceof ArrayBuffer);
+}
+
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],42:[function(_dereq_,module,exports){
+module.exports=_dereq_(33)
+},{}],43:[function(_dereq_,module,exports){
 /*! JSON v3.2.6 | http://bestiejs.github.io/json3 | Copyright 2012-2013, Kit Cambridge | http://kit.mit-license.org */
 ;(function (window) {
   // Convenience aliases.
@@ -6011,7 +6173,7 @@ module.exports=_dereq_(32)
   }
 }(this));
 
-},{}],42:[function(_dereq_,module,exports){
+},{}],44:[function(_dereq_,module,exports){
 module.exports = toArray
 
 function toArray(list, index) {

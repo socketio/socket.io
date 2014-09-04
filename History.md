@@ -1,4 +1,29 @@
 
+1.1.0 / 2014-09-04
+==================
+
+ * socket: fix in `has-binary`
+ * package: bump `socket.io-parser`
+ * package: bump `engine.io-client`
+ * further increase test timeout.
+ * double to singly quotes in tests.
+ * extend timeout and remember to close everything in each test case
+ * fix travis
+ * add travis + zuul matrix
+ * use svg instead of png to get better image quality in readme
+ * make CI build faster
+ * removed unnecessary code from try block. Only decode packet is needed.
+ * package: bump `browserify`
+ * package: bump `engine.io-client`
+ * fix autoConnect option
+ * npmignore: ignore `.gitignore`
+ * package: update `browserify`
+ * don't fire an extra reconnect when we're not reconnecting
+   after a failed initial connect attempt
+ * package: bump `socket.io-parser` for `component-emitter` dep fix
+ * updated tests to reflect `autoConnect` option
+ * add `autoConnect` option to wait with connecting
+
 1.0.6 / 2014-06-19
 ==================
 
