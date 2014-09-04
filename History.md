@@ -1,4 +1,34 @@
 
+1.1.0 / 2014-09-04
+==================
+
+ * examples: minor fix of escaping
+ * testing for equivalence of namespaces starting with / or without
+ * update index.js
+ * added relevant tests
+ * take "" and "/" as equivalent namespaces on server
+ * use svg instead of png to get better image quality in readme
+ * make CI build faster
+ * fix splice arguments and `socket.rooms` value update in `socket.leaveAll`.
+ * client cannot connect to non-existing namespaces
+ * bump engine.io version to get the cached IP address
+ * fixed handshake object address property and made the test case more strict.
+ * package: bump `engine.io`
+ * fixed the failing test where server crashes on disconnect involving connectBuffer
+ * npmignore: ignore `.gitignore` (fixes #1607)
+ * test: added failing case for `socket.disconnect` and nsps
+ * fix repo in package.json
+ * improve Close documentation
+ * use ephemeral ports
+ * fix: We should use the standard http protocol to handler the etag header.
+ * override default browser font-family for inputs
+ * update has-binary-data to 1.0.3
+ * add close specs
+ * add ability to stop the http server even if not created inside socket.io
+ * make sure server gets close
+ * Add test case for checking that reconnect_failed is fired only once upon failure
+ * package: bump `socket.io-parser` for `component-emitter` dep fix
+
 1.0.6 / 2014-06-19
 ==================
 
