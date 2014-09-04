@@ -5,6 +5,10 @@ var io = require('socket.io');
 var server = io(process.env.ZUUL_PORT);
 var expect = require('expect.js');
 
+server.of('/foo').on('connection', function(){
+  // register namespace
+});
+
 server.on('connection', function(socket){
   // simple test
   socket.on('hi', function(){
