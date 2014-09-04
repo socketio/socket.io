@@ -359,6 +359,12 @@ To see the output from all of Socket.IO's debugging scopes you can use:
 DEBUG=socket.io* node myapp
 ```
 
+To use on nodejs, you can call `debug.enable`.
+
+```
+var debug = require('debug').enable('socket.io:*'); // npm install debug
+```
+
 ## License
 
 MIT
