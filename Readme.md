@@ -190,17 +190,17 @@ server.listen(3000);
   Closes socket server
 
   ```js
-  var io     = require('socket.io');
+  var Server = require('socket.io');
   var PORT   = 3030;
   var server = require('http').Server();
 
-  io(PORT);
+  var io = Server(PORT);
 
   io.close(); // Close current server
 
   server.listen(PORT); // PORT is free to use
 
-  io(server);
+  io = Server(server);
   ```
 
 ### Server#use
