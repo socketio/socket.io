@@ -141,7 +141,7 @@ These are exposed by `require('engine.io')`:
   eioServer.attach(httpServer);
 
   // immediately attach
-  var eioServer = require('engine.io')(http_server);
+  var eioServer = require('engine.io')(httpServer);
   ```
 
 - `listen`
