@@ -259,12 +259,42 @@ describe('socket.io', function(){
           done();
         });
     });
+
+    it('should allow request when origin defined as function and same is supplied', function(done) {
+      var sockets = io({ origins: function(origin,callback){
+        if(origin == 'http://foo.example') 
+          return callback(null, true);
+        return callback(null, false);
+      } }).listen('54016');
+      request.get('http://localhost:54016/socket.io/default/')
+       .set('origin', 'http://foo.example')
+       .query({ transport: 'polling' })
+       .end(function (err, res) {
+          expect(res.status).to.be(200);
+          done();
+        });
+    });
+
+    it('should allow request when origin defined as function and different is supplied', function(done) {
+      var sockets = io({ origins: function(origin,callback){
+        if(origin == 'http://foo.example') 
+          return callback(null, true);
+        return callback(null, false);
+      } }).listen('54017');
+      request.get('http://localhost:54017/socket.io/default/')
+       .set('origin', 'http://herp.derp')
+       .query({ transport: 'polling' })
+       .end(function (err, res) {
+          expect(res.status).to.be(400);
+          done();
+        });
+    });
   });
 
   describe('close', function(){
 
     it('should be able to close sio sending a srv', function(){
-      var PORT   = 54016;
+      var PORT   = 54018;
       var srv    = http().listen(PORT);
       var sio    = io(srv);
       var net    = require('net');
@@ -292,7 +322,7 @@ describe('socket.io', function(){
     });
 
     it('should be able to close sio sending a port', function(){
-      var PORT   = 54017;
+      var PORT   = 54019;
       var sio    = io(PORT);
       var net    = require('net');
       var server = net.createServer();
