@@ -184,6 +184,18 @@ server.listen(3000);
   ```
 
   For other available methods, see `Namespace` below.
+  
+### Server#clients(name:String, fn:Function)
+
+  Get the room socket IDs list from adapter and fire *fn* callback:
+  
+  ```js
+  var io = require('socket.io')();
+  io.clients('room', function(err, clients){
+    if (!err)
+      console.log(clients); // => [PZDoMHjiu8PYfRiKAAAF, d9rZTYbZfNhVf9j9AAAE]
+  });
+  ```
 
 ### Server#use
 
