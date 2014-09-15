@@ -184,6 +184,29 @@ server.listen(3000);
   ```
 
   For other available methods, see `Namespace` below.
+  
+### Server#clients(name:String, fn:Function)
+
+  Get the room socket IDs list from adapter and fire *fn* callback:
+  
+  ```js
+  var io = require('socket.io')();
+  io.clients('room', function(err, clients){
+    if (!err)
+      console.log(clients); // => [PZDoMHjiu8PYfRiKAAAF, d9rZTYbZfNhVf9j9AAAE]
+  });
+  ```
+  
+  As *clients* is a Namespace prototype method it could be called on server instance or socket instance:
+  
+  ```js
+  var io = require('socket.io')();
+  io.on('connection', function(socket){
+    socket.clients('room', function(err, clients){
+      // ...
+    });
+  });
+  ```
 
 ### Server#use
 
