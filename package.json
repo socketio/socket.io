@@ -4,6 +4,7 @@
   "description": "",
   "dependencies": {
     "debug": "0.7.4",
-    "socket.io-parser": "2.2.0"
+    "socket.io-parser": "2.2.0",
+    "object-keys": "1.0.1"
   }
 }
