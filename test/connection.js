@@ -115,6 +115,19 @@ describe('connection', function() {
     }, 500);
   });
 
+  it('should reconnect manually', function(done) {
+    var socket = io({ forceNew: true });
+    socket.once('connect', function() {
+      socket.disconnect();
+    }).once('disconnect', function() {
+      socket.once('connect', function() {
+        socket.disconnect();
+        done();
+      });
+      socket.connect();
+    });
+  });
+
   it('reconnect event should fire in socket', function(done){
     var socket = io({ forceNew: true });
 
