@@ -1291,6 +1291,24 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('deletes empty rooms', function(done) {
+      var srv = http();
+      var sio = io(srv);
+
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.join('a', function(){
+            expect(s.nsp.adapter.rooms).to.have.key('a');
+            s.leave('a', function(){
+              expect(s.nsp.adapter.rooms).to.not.have.key('a');
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 
   describe('middleware', function(done){
