@@ -1,9 +1,13 @@
 {
   "name": "socket.io-adapter",
   "version": "0.3.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Automattic/socket.io-adapter.git"
+  },
   "description": "",
   "dependencies": {
-    "debug": "0.7.4",
+    "debug": "1.0.2",
     "socket.io-parser": "2.2.0",
     "object-keys": "1.0.1"
   }
