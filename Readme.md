@@ -368,6 +368,10 @@ To see the output from all of Socket.IO's debugging scopes you can use:
 DEBUG=socket.io* node myapp
 ```
 
+## Lifecycle of an emitted payload 
+
+Socket.IO passes messages through [`engine.io`](https://github.com/Automattic/engine.io). When emitting a payload, it is first encoded into an `engine.io` understandable format (encoding namespaces and such) as either a string or as binary using [`socket.io-parser`](https://github.com/automattic/socket.io-parser). Then `engine.io` will take care of sending the message through the best available transport, encoding it with [`engine.io-parser`](https://github.com/automattic/socket.io-parser). The parsers are implementations of `socket.io-protocol` and `engine.io-protocol` respectively. The protocol description for socket.io can be found [here](https://github.com/automattic/socket.io-protocol) and for engine.io [here](https://github.com/automattic/engine.io-protocol). The protocols determine a way to serialize a payload or message into a format that is decodeable back to its meaning and handled properly on the receiving end.
+
 ## License
 
 MIT
