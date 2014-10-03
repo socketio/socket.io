@@ -1,4 +1,12 @@
 
+1.4.1 / 2014-10-03
+==================
+
+ * Fixed "jsonp polling iframe removal error"
+ * Move ws upgrade needing connection tests to a block checking browser support.
+ * check `readyState` in `sendPacket` and close on `upgradeError` too
+ * defer close while upgrading a transport
+
 1.4.0 / 2014-09-03
 ==================
 
