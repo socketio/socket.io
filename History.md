@@ -1,4 +1,10 @@
 
+1.4.1 / 2014-10-03
+==================
+
+ * socket: allow upgrades if the socket is still in closing state
+ * README: fix typo
+
 1.4.0 / 2014-09-03
 ==================
 
