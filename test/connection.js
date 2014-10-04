@@ -143,5 +143,18 @@ describe('connection', function() {
         }, 1200);
       });
     });
+
+    it('should send all buffered packets if closing is deferred', function(done) {
+      var socket = new eio.Socket();
+      socket.on('open', function() {
+        socket.on('upgrading', function() {
+          socket.send('hi');
+          socket.close();
+        }).on('close', function() {
+          expect(socket.writeBuffer).to.have.length(0);
+          done();
+        });
+      });
+    });
   }
 });
