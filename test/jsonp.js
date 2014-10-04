@@ -61,6 +61,13 @@ describe('JSONP', function () {
           self.areaValue = data;
         });
         return textarea;
+      } else if (~name.indexOf('iframe')) {
+        var iframe = {};
+        setTimeout(function() {
+          if (iframe.onload) iframe.onload();
+        }, 0);
+
+        return iframe;
       } else {
         return {};
       }
