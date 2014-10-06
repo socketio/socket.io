@@ -7,7 +7,7 @@ var ioc = require('socket.io-client');
 var request = require('supertest');
 var expect = require('expect.js');
 
-// creates a socket.io client for the given server
+// Creates a socket.io client for the given server
 function client(srv, nsp, opts){
   if ('object' == typeof nsp) {
     opts = nsp;
