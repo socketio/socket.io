@@ -11,7 +11,7 @@ This example uses Redis for communication between sockets that may be connected 
 
 To install `redis-server` follow http://redis.io/topics/quickstart
 
-Run redis with the default configuration. It will run on localhost port 6379.  This runs redis in the foreground so do not close the window.
+Run redis with the default configuration. It will run on localhost port 6379.  This runs Redis in the foreground so keep this Terminal window open.
 
 ```
 $ redis-server
