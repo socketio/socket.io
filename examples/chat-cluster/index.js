@@ -12,7 +12,7 @@ var redis = require('redis');
 var cluster = require('cluster');
 
 // number of slaves
-var workers = 5;
+var workers = process.env.WORKERS || 5;   // use 5 slaves if no number of works is specified
 
 
 ///////////////////////////////////
