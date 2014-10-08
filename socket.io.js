@@ -868,6 +868,7 @@ Socket.prototype.ack = function(id){
  */
 
 Socket.prototype.onack = function(packet){
+  if ('undefined' == typeof this.acks[packet.id]) return;
   debug('calling ack %s with %j', packet.id, packet.data);
   var fn = this.acks[packet.id];
   fn.apply(this, packet.data);
