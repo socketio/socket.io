@@ -3,6 +3,7 @@
 
 [![Build Status](https://secure.travis-ci.org/Automattic/socket.io-client.svg)](http://travis-ci.org/Automattic/socket.io-client)
 [![NPM version](https://badge.fury.io/js/socket.io-client.svg)](http://badge.fury.io/js/socket.io-client)
+![Downloads](http://img.shields.io/npm/dm/socket.io-client.svg)
 
 ## How to use
 
