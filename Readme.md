@@ -11,7 +11,7 @@ The following example attaches socket.io to a plain Node.JS
 HTTP server listening on port `3000`.
 
 ```js
-var server = require('http').Server();
+var server = require('http').createServer();
 var io = require('socket.io')(server);
 io.on('connection', function(socket){
   socket.on('event', function(data){});
@@ -37,7 +37,7 @@ function.
 
 ```js
 var app = require('express')();
-var server = require('http').Server(app);
+var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 io.on('connection', function(){ /* … */ });
 server.listen(3000);
@@ -50,7 +50,7 @@ handler function, but only by calling the `callback` method.
 
 ```js
 var app = require('koa')();
-var server = require('http').Server(app.callback());
+var server = require('http').createServer(app.callback());
 var io = require('socket.io')(server);
 io.on('connection', function(){ /* … */ });
 server.listen(3000);
@@ -137,6 +137,15 @@ server.listen(3000);
 
   If no arguments are supplied this method returns the current value.
 
+### Server#origins(v:Function):Server
+
+  Sets the allowed origins as dynamic function. Function takes two arguments `origin:String` and `callback(error, success)`, where `success` is a boolean value indicating whether origin is allowed or not.
+
+  __Potential drawbacks__:
+  * in some situations, when it is not possible to determine `origin` it may have value of `*`
+  * As this function will be executed for every request, it is advised to make this function work as fast as possible
+  * If `socket.io` is used together with `Express`, the CORS headers will be affected only for `socket.io` requests. For Express can use [cors](https://github.com/troygoode/node-cors/)
+
 
 ### Server#sockets:Namespace
 
@@ -191,17 +200,17 @@ server.listen(3000);
   Closes socket server
 
   ```js
-  var io     = require('socket.io');
+  var Server = require('socket.io');
   var PORT   = 3030;
   var server = require('http').Server();
 
-  io(PORT);
+  var io = Server(PORT);
 
   io.close(); // Close current server
 
   server.listen(PORT); // PORT is free to use
 
-  io(server);
+  io = Server(server);
   ```
 
 ### Server#use
