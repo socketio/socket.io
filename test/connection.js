@@ -128,6 +128,22 @@ describe('connection', function() {
     });
   });
 
+  it('should reconnect automatically after reconnecting manually', function(done){
+    var socket = io({ forceNew: true });
+    socket.once('connect', function() {
+      socket.disconnect();
+    }).once('disconnect', function() {
+      socket.on('reconnect', function() {
+        socket.disconnect();
+        done();
+      });
+      socket.connect();
+      setTimeout(function() {
+        socket.io.engine.close();
+      }, 500);
+    });
+  });
+
   it('reconnect event should fire in socket', function(done){
     var socket = io({ forceNew: true });
 
