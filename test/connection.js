@@ -206,7 +206,7 @@ describe('connection', function() {
 
     setTimeout(function() {
       manager.engine.close();
-    }, 500);
+    }, 1000);
   });
 
   it('should try to reconnect twice and fail when requested two attempts with immediate timeout and reconnect enabled', function(done) {
