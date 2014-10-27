@@ -1,4 +1,12 @@
 
+1.4.2 / 2014-10-27
+==================
+
+ * remove invalid value for strict mode
+ * IE10 should prefer using XHR2 over XDR because it's safer
+ * fixed transport close deferring logic [nkzawa]
+ * wait for buffer to be drained before closing [nkzawa]
+
 1.4.1 / 2014-10-03
 ==================
 
