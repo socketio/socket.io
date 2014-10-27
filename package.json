@@ -23,7 +23,7 @@
     "to-array": "0.1.3"
   },
   "devDependencies": {
-    "socket.io": "Automattic/socket.io#9ae8ed",
+    "socket.io": "Automattic/socket.io#a1bf85",
     "mocha": "1.16.2",
     "zuul": "1.10.2",
     "istanbul": "0.2.1",
