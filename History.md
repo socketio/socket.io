@@ -1,4 +1,19 @@
 
+1.2.0 / 2014-10-27
+==================
+
+ * package: bump `engine.io`
+ * downloads badge
+ * add test to check that empty rooms are autopruned
+ * added Server#origins(v:Function) description for dynamic CORS
+ * added test coverage for Server#origins(function) for dynamic CORS
+ * added optional Server#origins(function) for dynamic CORS
+ * fix usage example for Server#close
+ * package: fix main file for example application 'chat'
+ * package: bump `socket.io-parser`
+ * update README http ctor to createServer()
+ * bump adapter with a lot of fixes for room bookkeeping
+
 1.1.0 / 2014-09-04
 ==================
 
