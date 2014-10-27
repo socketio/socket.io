@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "engine.io": "1.4.2",
-    "socket.io-parser": "2.2.1",
+    "socket.io-parser": "2.2.2",
     "socket.io-client": "Automattic/socket.io-client#e8e6da",
     "socket.io-adapter": "0.3.1",
     "has-binary-data": "0.1.3",
