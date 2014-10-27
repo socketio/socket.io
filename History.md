@@ -1,4 +1,14 @@
 
+0.3.1 / 2014-10-27
+==================
+
+ * bump parser version
+ * fix room autopruning
+ * add autoprunning of empty rooms
+ * rooms are now created as objects
+ * added the repository field.
+ * updated the debug dependency.
+
 0.3.0 / 2014-05-30
 ==================
 
