@@ -1,4 +1,9 @@
 
+1.4.2 / 2014-10-08
+==================
+
+ * add iframe onload handling to jsonp tests [rase-]
+
 1.4.1 / 2014-10-03
 ==================
 
