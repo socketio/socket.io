@@ -35,14 +35,16 @@
     "component-inherit": "0.0.3"
   },
   "devDependencies": {
-    "zuul": "1.10.2",
-    "mocha": "1.16.2",
-    "expect.js": "0.2.0",
-    "istanbul": "0.2.3",
-    "browserify": "4.2.1",
+    "blob": "0.0.2",
+    "browserify": "6.2.0",
+    "concat-stream": "1.4.6",
+    "derequire": "1.2.0",
     "engine.io": "1.4.2",
+    "expect.js": "0.2.0",
     "express": "3.4.8",
-    "blob": "0.0.2"
+    "istanbul": "0.2.3",
+    "mocha": "1.16.2",
+    "zuul": "1.10.2"
   },
   "scripts": {
     "test": "make test"
