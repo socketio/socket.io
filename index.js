@@ -33,7 +33,7 @@ function Adapter(nsp){
 Adapter.prototype.__proto__ = Emitter.prototype;
 
 /**
- * Adds a socket from a room.
+ * Adds a socket to a room.
  *
  * @param {String} socket id
  * @param {String} room name
