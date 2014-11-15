@@ -903,7 +903,7 @@ describe('server', function () {
       });
     });
 
-    it('should arrive from server to client (ws)', function (done) {
+    it('should arrive from server to client (multiple, ws)', function (done) {
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
@@ -925,6 +925,34 @@ describe('server', function () {
               done();
             }, 50);
           });
+        });
+
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+            expect(msg).to.be(expected[i++]);
+          });
+        });
+      });
+    });
+
+    it('should arrive from server to client (multiple, no delay, ws)', function (done) {
+      var opts = { allowUpgrades: false, transports: ['websocket'] };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
+          , expected = ['a', 'b', 'c']
+          , i = 0;
+
+        engine.on('connection', function (conn) {
+          conn.on('close', function () {
+            setTimeout(function () {
+              expect(i).to.be(3);
+              done();
+            }, 50);
+          });
+          conn.send('a');
+          conn.send('b');
+          conn.send('c');
+          conn.close();
         });
 
         socket.on('open', function () {
