@@ -161,4 +161,4 @@ reconnect that depend on this `Manager`.
 
 ## License
 
-MIT
+[MIT](/LICENSE)
