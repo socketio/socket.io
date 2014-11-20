@@ -7,3 +7,5 @@ if (global.ArrayBuffer) {
 if (Blob) {
   require('./blob.js');
 }
+
+require('./base64_object.js');
