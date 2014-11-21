@@ -639,6 +639,39 @@ describe('socket.io', function(){
       });
     });
 
+    it('should error with null messages', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.on('message', function(a){
+            expect(a).to.be(null);
+            done();
+          });
+          socket.send(null);
+        });
+      });
+    });
+
+    it('should handle transport null messages', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.on('error', function(err){
+            expect(err).to.be.an(Error);
+            s.on('disconnect', function(reason){
+              expect(reason).to.be('client error');
+              done();
+            });
+          });
+          s.client.ondata(null);
+        });
+      });
+    });
+
     it('should emit events', function(done){
       var srv = http();
       var sio = io(srv);
