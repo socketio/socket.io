@@ -1,4 +1,11 @@
 
+1.4.3 / 2014-11-21
+==================
+
+ * support: make the build system work with the latest browserify
+ * test: remove test with partial browser support
+ * Fixed calls to addEventListener in old browsers
+
 1.4.2 / 2014-10-27
 ==================
 
