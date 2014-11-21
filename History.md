@@ -1,4 +1,11 @@
 
+1.2.1 / 2014-11-21
+==================
+
+ * fix protocol violations and improve error handling (GH-1880)
+ * package: bump `engine.io` for websocket leak fix [3rd-Eden]
+ * style tweaks
+
 1.2.0 / 2014-10-27
 ==================
 
