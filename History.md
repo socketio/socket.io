@@ -1,4 +1,13 @@
 
+1.2.1 / 2014-11-21
+==================
+
+ * package: bump `engine.io-client`
+ * README: fixes to prevent duplicate events [nkzawa]
+ * fix reconnection after reconnecting manually [nkzawa]
+ * make ACK callbacks idempotent [thexeos]
+ * package: bump `uglify-js`
+
 1.2.0 / 2014-10-27
 ==================
 
