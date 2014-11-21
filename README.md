@@ -15,10 +15,9 @@ serve the file `socket.io.js` found at the root of this repository.
 <script src="/socket.io/socket.io.js"></script>
 <script>
   var socket = io('http://localhost');
-  socket.on('connect', function(){
-    socket.on('event', function(data){});
-    socket.on('disconnect', function(){});
-  });
+  socket.on('connect', function(){});
+  socket.on('event', function(data){});
+  socket.on('disconnect', function(){});
 </script>
 ```
 
@@ -30,10 +29,9 @@ Socket.IO is compatible with [browserify](http://browserify.org/).
 
   ```js
   var socket = require('socket.io-client')('http://localhost');
-  socket.on('connect', function(){
-    socket.on('event', function(data){});
-    socket.on('disconnect', function(){});
-  });
+  socket.on('connect', function(){});
+  socket.on('event', function(data){});
+  socket.on('disconnect', function(){});
   ```
 
 ## API
@@ -144,7 +142,7 @@ reconnect that depend on this `Manager`.
 
 #### Events
 
-  - `connect`. Fired upon connecting.
+  - `connect`. Fired upon a connection including a successful reconnection.
   - `error`. Fired upon a connection error
     Parameters:
       - `Object` error data
@@ -163,4 +161,4 @@ reconnect that depend on this `Manager`.
 
 ## License
 
-MIT
+[MIT](/LICENSE)
