@@ -20,7 +20,8 @@
     "indexof": "0.0.1",
     "object-component": "0.0.3",
     "parseuri": "0.0.2",
-    "to-array": "0.1.3"
+    "to-array": "0.1.3",
+    "backo2": "1.0.1"
   },
   "devDependencies": {
     "socket.io": "1.2.1",
