@@ -144,6 +144,53 @@ describe('connection', function() {
     });
   });
 
+  it('should attempt reconnects after a failed reconnect', function(done){
+    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
+    var socket = manager.socket('/timeout');
+    socket.once('reconnect_failed', function() {
+      var reconnects = 0;
+      var reconnectCb = function() {
+        reconnects++;
+      };
+
+      manager.on('reconnect_attempt', reconnectCb);
+      manager.on('reconnect_failed', function failed() {
+        expect(reconnects).to.be(2);
+        socket.close();
+        manager.close();
+        done();
+      });
+      socket.connect();
+    });
+  });
+
+  it('reconnect delay should increase every time', function(done){
+    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 5, reconnectionDelay: 10, randomizationFactor: 0.2 });
+    var socket = manager.socket('/timeout');
+    var reconnects = 0, increasingDelay = true, startTime, prevDelay = 0;
+    
+    socket.on('connect_error', function() {
+      startTime = new Date().getTime();
+    });
+    socket.on('reconnect_attempt', function() {
+      reconnects++;
+      var currentTime = new Date().getTime();
+      var delay = currentTime - startTime;
+      if (delay <= prevDelay) {
+        increasingDelay = false;
+      }
+      prevDelay = delay;
+    });
+
+    socket.on('reconnect_failed', function failed() {
+      expect(reconnects).to.be(5);
+      expect(increasingDelay).to.be.ok();
+      socket.close();
+      manager.close();
+      done();
+    });
+  });
+
   it('reconnect event should fire in socket', function(done){
     var socket = io({ forceNew: true });
 
