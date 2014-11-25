@@ -50,10 +50,9 @@ handler function, but only by calling the `callback` method.
 
 ```js
 var app = require('koa')();
-var server = require('http').createServer(app.callback());
+var server = app.listen(3000);
 var io = require('socket.io')(server);
 io.on('connection', function(){ /* … */ });
-server.listen(3000);
 ```
 
 ## API
