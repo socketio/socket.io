@@ -13,6 +13,7 @@
     "after": "0.8.1",
     "arraybuffer.slice": "0.0.6",
     "blob": "0.0.2",
+    "has-binary": "0.1.5",
     "utf8": "2.0.0"
   },
   "scripts": {
