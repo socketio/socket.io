@@ -24,7 +24,7 @@
   "dependencies": {
     "has-cors": "1.0.3",
     "ws": "0.4.31",
-    "xmlhttprequest": "https://github.com/LearnBoost/node-XMLHttpRequest/archive/0f36d0b5ebc03d85f860d42a64ae9791e1daa433.tar.gz",
+    "xmlhttprequest": "rase-/node-XMLHttpRequest#a6b6f2",
     "component-emitter": "1.1.2",
     "indexof": "0.0.1",
     "engine.io-parser": "1.1.0",

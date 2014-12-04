@@ -87,6 +87,21 @@ socket.on('open', function(){
 });
 ```
 
+### Node.js with certificates
+```js
+var opts = {
+  key: fs.readFileSync('test/fixtures/client.key'),
+  cert: fs.readFileSync('test/fixtures/client.crt'),
+  ca: fs.readFileSync('test/fixtures/ca.crt')
+};
+
+var socket = require('engine.io-client')('ws://localhost', opts);
+socket.on('open', function(){
+  socket.on('message', function(data){});
+  socket.on('close', function(){});
+});
+```
+
 ## Features
 
 - Lightweight
@@ -177,6 +192,13 @@ Exposed as `eio` in the browser standalone build.
         try websocket. A connection attempt following a transport error will use the 
         normal upgrade process. It is recommended you turn this on only when using
         SSL/TLS connections, or if you know that your network does not block websockets.
+      - `pfx` (`String`): Certificate, Private key and CA certificates to use for SSL. Can be used in Node.js client environment to manually specify certificate information.
+      - `key` (`String`): Private key to use for SSL. Can be used in Node.js client environment to manually specify certificate information.
+      - `passphrase` (`String`): A string of passphrase for the private key or pfx. Can be used in Node.js client environment to manually specify certificate information.
+      - `cert` (`String`): Public x509 certificate to use. Can be used in Node.js client environment to manually specify certificate information.
+      - `ca` (`String`|`Array`): An authority certificate or array of authority certificates to check the remote host against.. Can be used in Node.js client environment to manually specify certificate information.
+      - `ciphers` (`String`): A string describing the ciphers to use or exclude. Consult the [cipher format list](http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT) for details on the format.. Can be used in Node.js client environment to manually specify certificate information.
+      - `rejectUnauthorized` (`Boolean`): If true, the server certificate is verified against the list of supplied CAs. An 'error' event is emitted if verification fails. Verification happens at the connection level, before the HTTP request is sent. Can be used in Node.js client environment to manually specify certificate information.
 - `send`
     - Sends a message to the server
     - **Parameters**
