@@ -4,6 +4,8 @@
  */
 
 var http = require('http');
+var https = require('https');
+var fs = require('fs');
 var eio = require('..');
 var eioc = require('engine.io-client');
 var listen = require('./common').listen;
@@ -1253,6 +1255,201 @@ describe('server', function () {
               });
             });
           });
+        });
+      });
+    });
+
+    it('should send and receive data with key and cert (polling)', function(done){
+      var srvOpts = {
+        key: fs.readFileSync('test/fixtures/server.key'),
+        cert: fs.readFileSync('test/fixtures/server.crt'),
+        ca: fs.readFileSync('test/fixtures/ca.crt'),
+        requestCert: true,
+        rejectUnauthorized: true
+      };
+
+      var opts = {
+        key: fs.readFileSync('test/fixtures/client.key'),
+        cert: fs.readFileSync('test/fixtures/client.crt'),
+        ca: fs.readFileSync('test/fixtures/ca.crt'),
+        transports: ['polling'],
+      };
+
+      var srv = https.createServer(srvOpts, function(req, res){
+        res.writeHead(200);
+        res.end('hello world\n');
+      });
+
+      var engine = eio({ transports: ['polling'], allowUpgrades: false });
+      engine.attach(srv);
+      srv.listen(null, function() {
+        var port = srv.address().port;
+        var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
+
+        engine.on('connection', function (conn) {
+          conn.on('message', function(msg) {
+            expect(msg).to.be('hello');
+            done();
+          });
+        });
+
+        socket.on('open', function() {
+          socket.send('hello');
+        });
+      });
+    });
+
+    it('should send and receive data with ca when not requiring auth (polling)', function(done){
+      var srvOpts = {
+        key: fs.readFileSync('test/fixtures/server.key'),
+        cert: fs.readFileSync('test/fixtures/server.crt'),
+        ca: fs.readFileSync('test/fixtures/ca.crt'),
+        requestCert: true
+      };
+
+      var opts = {
+        ca: fs.readFileSync('test/fixtures/ca.crt'),
+        transports: ['polling']
+      };
+
+      var srv = https.createServer(srvOpts, function(req, res){
+        res.writeHead(200);
+        res.end('hello world\n');
+      });
+
+      var engine = eio({ transports: ['polling'], allowUpgrades: false });
+      engine.attach(srv);
+      srv.listen(null, function() {
+        var port = srv.address().port;
+        var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
+
+        engine.on('connection', function (conn) {
+          conn.on('message', function(msg) {
+            expect(msg).to.be('hello');
+            done();
+          });
+        });
+
+        socket.on('open', function() {
+          socket.send('hello');
+        });
+      });
+    });
+
+    it('should send and receive data with key and cert (ws)', function(done){
+      var srvOpts = {
+        key: fs.readFileSync('test/fixtures/server.key'),
+        cert: fs.readFileSync('test/fixtures/server.crt'),
+        ca: fs.readFileSync('test/fixtures/ca.crt'),
+        requestCert: true,
+        rejectUnauthorized: true
+      };
+
+      var opts = {
+        key: fs.readFileSync('test/fixtures/client.key'),
+        cert: fs.readFileSync('test/fixtures/client.crt'),
+        ca: fs.readFileSync('test/fixtures/ca.crt'),
+        transports: ['websocket']
+      };
+
+      var srv = https.createServer(srvOpts, function(req, res){
+        res.writeHead(200);
+        res.end('hello world\n');
+      });
+
+      var engine = eio({ transports: ['websocket'], allowUpgrades: false });
+      engine.attach(srv);
+      srv.listen(null, function() {
+        var port = srv.address().port;
+        var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
+
+        engine.on('connection', function (conn) {
+          conn.on('message', function(msg) {
+            expect(msg).to.be('hello');
+            done();
+          });
+        });
+
+        socket.on('open', function() {
+          socket.send('hello');
+        });
+      });
+    });
+
+    it('should send and receive data with pfx (polling)', function(done){
+      var srvOpts = {
+        key: fs.readFileSync('test/fixtures/server.key'),
+        cert: fs.readFileSync('test/fixtures/server.crt'),
+        ca: fs.readFileSync('test/fixtures/ca.crt'),
+        requestCert: true,
+        rejectUnauthorized: true
+      };
+
+      var opts = {
+        pfx: fs.readFileSync('test/fixtures/client.pfx'),
+        ca: fs.readFileSync('test/fixtures/ca.crt'),
+        transports: ['polling']
+      };
+
+      var srv = https.createServer(srvOpts, function(req, res){
+        res.writeHead(200);
+        res.end('hello world\n');
+      });
+
+      var engine = eio({ transports: ['polling'], allowUpgrades: false });
+      engine.attach(srv);
+      srv.listen(null, function() {
+        var port = srv.address().port;
+        var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
+
+        engine.on('connection', function (conn) {
+          conn.on('message', function(msg) {
+            expect(msg).to.be('hello');
+            done();
+          });
+        });
+
+        socket.on('open', function() {
+          socket.send('hello');
+        });
+      });
+    });
+
+    it('should send and receive data with pfx (ws)', function(done){
+      var srvOpts = {
+        key: fs.readFileSync('test/fixtures/server.key'),
+        cert: fs.readFileSync('test/fixtures/server.crt'),
+        ca: fs.readFileSync('test/fixtures/ca.crt'),
+        requestCert: true,
+        rejectUnauthorized: true
+      };
+
+      var opts = {
+        pfx: fs.readFileSync('test/fixtures/client.pfx'),
+        ca: fs.readFileSync('test/fixtures/ca.crt'),
+        transports: ['websocket']
+      };
+
+      var srv = https.createServer(srvOpts, function(req, res){
+        res.writeHead(200);
+        res.end('hello world\n');
+      });
+
+      var engine = eio({ transports: ['websocket'], allowUpgrades: false });
+      engine.attach(srv);
+      srv.listen(null, function() {
+        var port = srv.address().port;
+        var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
+
+        engine.on('connection', function (conn) {
+          conn.on('message', function(msg) {
+            expect(msg).to.be('hello');
+            done();
+          });
+        });
+
+        socket.on('open', function() {
+          socket.send('hello');
         });
       });
     });
