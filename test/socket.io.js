@@ -447,7 +447,7 @@ describe('socket.io', function(){
       var c1 = client(srv, '/');
       var c2 = client(srv, '/abc');
     });
-    
+
     it('should be equivalent for "" and "/" on client', function(done){
       var srv = http();
       var sio = io(srv);
@@ -456,7 +456,7 @@ describe('socket.io', function(){
       });
       var c1 = client(srv, '');
     });
-    
+
     it('should work with `of` and many sockets', function(done){
       var srv = http();
       var sio = io(srv);
@@ -798,6 +798,208 @@ describe('socket.io', function(){
           });
         });
       });
+    });
+
+    it('should not emit volatile event after regular event (polling)', function(done) {
+      var srv = http();
+      var sio = io(srv, { transports: ['polling'] });
+
+      var counter = 0;
+      srv.listen(function(){
+        sio.on('connection', function(s){
+          s.emit('ev', 'data');
+          s.volatile.emit('ev', 'data');
+        });
+
+        var socket = client(srv, { transports: ['polling'] });
+        socket.on('ev', function() {
+          counter++;
+        });
+      });
+
+      setTimeout(function() {
+        expect(counter).to.be(1);
+        done();
+      }, 200);
+    });
+
+    it('should not emit volatile event after regular event (ws)', function(done) {
+      var srv = http();
+      var sio = io(srv, { transports: ['websocket'] });
+
+      var counter = 0;
+      srv.listen(function(){
+        sio.on('connection', function(s){
+          s.emit('ev', 'data');
+          s.volatile.emit('ev', 'data');
+        });
+
+        var socket = client(srv, { transports: ['websocket'] });
+        socket.on('ev', function() {
+          counter++;
+        });
+      });
+
+      setTimeout(function() {
+        expect(counter).to.be(1);
+        done();
+      }, 200);
+    });
+
+    it('should emit volatile event (polling)', function(done) {
+      var srv = http();
+      var sio = io(srv, { transports: ['polling'] });
+
+      var counter = 0;
+      srv.listen(function(){
+        sio.on('connection', function(s){
+          // Wait to make sure there are no packets being sent for opening the connection
+          setTimeout(function() {
+            s.volatile.emit('ev', 'data');
+          }, 20);
+        });
+
+        var socket = client(srv, { transports: ['polling'] });
+        socket.on('ev', function() {
+          counter++;
+        });
+      });
+
+      setTimeout(function() {
+        expect(counter).to.be(1);
+        done();
+      }, 200);
+    });
+
+    it('should emit volatile event (ws)', function(done) {
+      var srv = http();
+      var sio = io(srv, { transports: ['websocket'] });
+
+      var counter = 0;
+      srv.listen(function(){
+        sio.on('connection', function(s){
+          // Wait to make sure there are no packets being sent for opening the connection
+          setTimeout(function() {
+            s.volatile.emit('ev', 'data');
+          }, 20);
+        });
+
+        var socket = client(srv, { transports: ['websocket'] });
+        socket.on('ev', function() {
+          counter++;
+        });
+      });
+
+      setTimeout(function() {
+        expect(counter).to.be(1);
+        done();
+      }, 200);
+    });
+
+    it('should emit only one consecutive volatile event (polling)', function(done) {
+      var srv = http();
+      var sio = io(srv, { transports: ['polling'] });
+
+      var counter = 0;
+      srv.listen(function(){
+        sio.on('connection', function(s){
+          // Wait to make sure there are no packets being sent for opening the connection
+          setTimeout(function() {
+            s.volatile.emit('ev', 'data');
+            s.volatile.emit('ev', 'data');
+          }, 20);
+        });
+
+        var socket = client(srv, { transports: ['polling'] });
+        socket.on('ev', function() {
+          counter++;
+        });
+      });
+
+      setTimeout(function() {
+        expect(counter).to.be(1);
+        done();
+      }, 200);
+    });
+
+    it('should emit only one consecutive volatile event (ws)', function(done) {
+      var srv = http();
+      var sio = io(srv, { transports: ['websocket'] });
+
+      var counter = 0;
+      srv.listen(function(){
+        sio.on('connection', function(s){
+          // Wait to make sure there are no packets being sent for opening the connection
+          setTimeout(function() {
+            s.volatile.emit('ev', 'data');
+            s.volatile.emit('ev', 'data');
+          }, 20);
+        });
+
+        var socket = client(srv, { transports: ['websocket'] });
+        socket.on('ev', function() {
+          counter++;
+        });
+      });
+
+      setTimeout(function() {
+        expect(counter).to.be(1);
+        done();
+      }, 200);
+    });
+
+    it('should emit regular events after trying a failed volatile event (polling)', function(done) {
+      var srv = http();
+      var sio = io(srv, { transports: ['polling'] });
+
+      var counter = 0;
+      srv.listen(function(){
+        sio.on('connection', function(s){
+          // Wait to make sure there are no packets being sent for opening the connection
+          setTimeout(function() {
+            s.emit('ev', 'data');
+            s.volatile.emit('ev', 'data');
+            s.emit('ev', 'data');
+          }, 20);
+        });
+
+        var socket = client(srv, { transports: ['polling'] });
+        socket.on('ev', function() {
+          counter++;
+        });
+      });
+
+      setTimeout(function() {
+        expect(counter).to.be(2);
+        done();
+      }, 200);
+    });
+
+    it('should emit regular events after trying a failed volatile event (ws)', function(done) {
+      var srv = http();
+      var sio = io(srv, { transports: ['websocket'] });
+
+      var counter = 0;
+      srv.listen(function(){
+        sio.on('connection', function(s){
+          // Wait to make sure there are no packets being sent for opening the connection
+          setTimeout(function() {
+            s.emit('ev', 'data');
+            s.volatile.emit('ev', 'data');
+            s.emit('ev', 'data');
+          }, 20);
+        });
+
+        var socket = client(srv, { transports: ['websocket'] });
+        socket.on('ev', function() {
+          counter++;
+        });
+      });
+
+      setTimeout(function() {
+        expect(counter).to.be(2);
+        done();
+      }, 200);
     });
 
     it('should emit message events through `send`', function(done){
