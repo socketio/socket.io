@@ -584,7 +584,15 @@ describe('socket.io', function(){
         });
         dynamic.on('error', function(err) {
           expect(err).to.be(null);
-          done();
+          var dsio = io.of('/dynamic');
+
+          dsio.on('connect', function(socket) {
+
+            expect(socket).to.be.a(Socket);
+            expect(socket.nsp.name).to.be(namespace);
+            
+            done();
+          });
         });
         dynamic.on('connect', done);
       });
