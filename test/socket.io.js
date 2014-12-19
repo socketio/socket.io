@@ -586,17 +586,7 @@ describe('socket.io', function(){
           expect(err).to.be(null);
           done();
         });
-        var total = 2;
-        dynamic.on('connect', function() {
-          --total || done();
-        });
-        sio.on('connect', function(socket){
-          if (socket.nsp.name === '/') return;
-
-          expect(socket).to.be.a(Socket);
-          expect(socket.nsp.name).to.be(namespace);
-          --total || done();
-        });
+        dynamic.on('connect', done);
       });
     });
   });
