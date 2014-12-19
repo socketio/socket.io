@@ -571,6 +571,34 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should allow connections to dynamic namespaces', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var namespace = '/dynamic';
+        var dynamic = client(srv,namespace);
+        sio.useNamespace(function(nsp, next) {
+          expect(nsp).to.be(namespace);
+          next(null, true);
+        });
+        dynamic.on('error', function(err) {
+          expect(err).to.be(null);
+          done();
+        });
+        var total = 2;
+        dynamic.on('connect', function() {
+          --total || done();
+        });
+        sio.on('connect', function(socket){
+          if (socket.nsp.name === '/') return;
+
+          expect(socket).to.be.a(Socket);
+          expect(socket.nsp.name).to.be(namespace);
+          --total || done();
+        });
+      });
+    });
   });
 
   describe('socket', function(){
