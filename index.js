@@ -58,11 +58,8 @@ Emitter.prototype.addEventListener = function(event, fn){
  */
 
 Emitter.prototype.once = function(event, fn){
-  var self = this;
-  this._callbacks = this._callbacks || {};
-
   function on() {
-    self.off(event, on);
+    this.off(event, on);
     fn.apply(this, arguments);
   }
 
