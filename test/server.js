@@ -733,6 +733,27 @@ describe('server', function () {
       });
     });
 
+    it('should abort the polling data request if it is ' +
+       'in progress', function (done) {
+      var engine = listen({ transports: [ 'polling' ] }, function (port) {
+        var socket = new eioc.Socket('http://localhost:%d'.s(port));
+
+        engine.on('connection', function (conn) {
+          var onDataRequest = conn.transport.onDataRequest;
+          conn.transport.onDataRequest = function (req, res) {
+            engine.httpServer.close(done);
+            onDataRequest.call(conn.transport, req, res);
+            req.removeAllListeners();
+            conn.close();
+          };
+        });
+
+        socket.on('open', function () {
+          socket.send('test');
+        });
+      });
+    });
+
     // tests https://github.com/LearnBoost/engine.io-client/issues/207
     // websocket test, transport error
     it('should trigger transport close before open for ws', function(done){
