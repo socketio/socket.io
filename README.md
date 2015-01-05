@@ -212,6 +212,11 @@ to a single process.
         to (`['polling', 'websocket']`)
       - `allowUpgrades` (`Boolean`): whether to allow transport upgrades
         (`true`)
+      - `perMessageDeflate` (`Object|Boolean`): parameters of the WebSocket permessage-deflate extension
+        (see [ws module](https://github.com/einaros/ws) api docs). Set to `false` to disable. (`true`)
+      - `httpCompression` (`Object|Boolean`): parameters of the http compression for the polling transports
+        (see [zlib](http://nodejs.org/api/zlib.html#zlib_options) api docs). Set to `false` to disable. (`true`)
+        - `threshold` (`Number`): data is compressed only if the byte size is above this value (`1024`)
       - `cookie` (`String|Boolean`): name of the HTTP cookie that
         contains the client sid to send as part of handshake response
         headers. Set to `false` to not send one. (`io`)
@@ -297,7 +302,10 @@ A representation of a client. _Inherits from EventEmitter_.
       sending binary data, which is sent as is.
     - **Parameters**
       - `String` | `Buffer` | `ArrayBuffer` | `ArrayBufferView`: a string or any object implementing `toString()`, with outgoing data, or a Buffer or ArrayBuffer with binary data. Also any ArrayBufferView can be sent as is.
+      - `Object`: optional, options object
       - `Function`: optional, a callback executed when the message gets flushed out by the transport
+    - **Options**
+      - `compress` (`Boolean`): whether to compress sending data. This option might be ignored and forced to be `true` when using polling. (`true`)
     - **Returns** `Socket` for chaining
 - `close`
     - Disconnects the client
