@@ -199,11 +199,16 @@ Exposed as `eio` in the browser standalone build.
       - `ca` (`String`|`Array`): An authority certificate or array of authority certificates to check the remote host against.. Can be used in Node.js client environment to manually specify certificate information.
       - `ciphers` (`String`): A string describing the ciphers to use or exclude. Consult the [cipher format list](http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT) for details on the format.. Can be used in Node.js client environment to manually specify certificate information.
       - `rejectUnauthorized` (`Boolean`): If true, the server certificate is verified against the list of supplied CAs. An 'error' event is emitted if verification fails. Verification happens at the connection level, before the HTTP request is sent. Can be used in Node.js client environment to manually specify certificate information.
+      - `perMessageDeflate` (`Object|Boolean`): parameters of the WebSocket permessage-deflate extension
+        (see [ws module](https://github.com/einaros/ws) api docs). Set to `false` to disable. (`true`)
 - `send`
     - Sends a message to the server
     - **Parameters**
       - `String` | `ArrayBuffer` | `ArrayBufferView` | `Blob`: data to send
+      - `Object`: optional, options object
       - `Function`: optional, callback upon `drain`
+    - **Options**
+      - `compress` (`Boolean`): whether to compress sending data. This option is ignored and forced to be `true` on the browser. (`true`)
 - `close`
     - Disconnects the client.
 
