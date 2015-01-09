@@ -16,7 +16,7 @@
     "url": "git://github.com/Automattic/socket.io"
   },
   "scripts": {
-    "test": "make test"
+    "test": "mocha --reporter dot --slow 200ms --bail"
   },
   "dependencies": {
     "engine.io": "1.4.3",
