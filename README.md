@@ -1,4 +1,3 @@
-
 # Engine.IO Protocol
 
 This document describes the Engine.IO protocol. For a reference JavaScript
@@ -168,8 +167,10 @@ When XHR2 is supported, a similar principle is used, but everything is encoded
 directly into binary, so that it can be sent as binary over XHR. The format is
 the following:
 
+```
 <0 for string data, 1 for binary data><Any number of numbers between 0 and 9><The number 255><packet1 (first type,
 then data)>[...]
+```
 
 If a combination of UTF-8 strings and binary data is sent, the string values
 are represented so that each character is written as a character code into a
