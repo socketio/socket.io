@@ -274,7 +274,7 @@ server.listen(3000);
 
 ### Socket#conn:Socket
 
-  A reference to the underyling `Client` transport connection (engine.io
+  A reference to the underlying `Client` transport connection (engine.io
   `Socket` object).
 
 ### Socket#request:Request
