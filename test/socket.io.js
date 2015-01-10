@@ -302,6 +302,21 @@ describe('socket.io', function(){
           done();
         });
     });
+
+    it('should allow request when origin defined as function and no origin is supplied', function(done) {
+      var sockets = io({ origins: function(origin,callback){
+        if (origin == '*') {
+          return callback(null, true);
+        }
+        return callback(null, false);
+      } }).listen('54021');
+      request.get('http://localhost:54021/socket.io/default/')
+       .query({ transport: 'polling' })
+       .end(function (err, res) {
+          expect(res.status).to.be(200);
+          done();
+        });
+    });
   });
 
   describe('close', function(){
