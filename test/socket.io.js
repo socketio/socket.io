@@ -1400,6 +1400,30 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should properly cleanup left rooms', function(done){
+      var srv = http();
+      var sio = io(srv);
+
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.join('a', function(){
+            expect(s.rooms).to.eql([s.id, 'a']);
+            s.join('b', function(){
+              expect(s.rooms).to.eql([s.id, 'a', 'b']);
+              s.leave('unknown', function(){
+                expect(s.rooms).to.eql([s.id, 'a', 'b']);
+                s.leaveAll();
+                expect(s.rooms).to.eql([]);
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+
   });
 
   describe('middleware', function(done){
