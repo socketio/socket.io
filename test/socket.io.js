@@ -15,7 +15,7 @@ function client(srv, nsp, opts){
   }
   var addr = srv.address();
   if (!addr) addr = srv.listen().address();
-  var url = 'ws://' + addr.address + ':' + addr.port + (nsp || '');
+  var url = 'ws://localhost:' + addr.port + (nsp || '');
   return ioc(url, opts);
 }
 
@@ -127,7 +127,7 @@ describe('socket.io', function(){
         expect(s.handshake.time.split(' ').length > 0); // Is "multipart" string representation
 
         // Address, xdomain, secure, issued and url set
-        expect(s.handshake.address).to.be('127.0.0.1');
+        expect(s.handshake.address).to.contain('127.0.0.1');
         expect(s.handshake.xdomain).to.be.a('boolean');
         expect(s.handshake.secure).to.be.a('boolean');
         expect(s.handshake.issued).to.be.a('number');
