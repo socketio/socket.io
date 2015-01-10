@@ -1022,7 +1022,7 @@ describe('socket.io', function(){
       var sio = io(srv);
       srv.listen(function() {
         var addr = srv.listen().address();
-        var url = 'ws://' + addr.address + ':' + addr.port + '?key1=1&key2=2';
+        var url = 'ws://localhost:' + addr.port + '?key1=1&key2=2';
         var socket = ioc(url);
         sio.on('connection', function(s) {
           var parsed = require('url').parse(s.request.url);
@@ -1035,7 +1035,7 @@ describe('socket.io', function(){
     });
 
     it('should handle very large json', function(done){
-      this.timeout();
+      this.timeout(30000);
       var srv = http();
       var sio = io(srv);
       var received = 0;
