@@ -3,10 +3,6 @@ node_js:
   - "0.10"
 notifications:
   irc: "irc.freenode.org#socket.io"
-env:
-  global:
-  - secure: v76/Y3hGIGsANoFAW0US3X8cuDFY7g8stMFrwGUxiQnm4HN3j83w+FfoZay0mESKhNIpqk4nCJQwMCd1gJnLL7ybjGOt5LeEuQVlLDXkRVrXSViy2XwAW+mLj7H/++/LTHWo/Ma6pOa1YC2o4SbSsiK1NdhdAK5ZGluonPBIG18=
-  - secure: P2zFTMeI9duoPBXhAZZLddqeJS+dUI27Q02tTdr+AjvUkr8f7Zga57SZxP6Jbn8bxUPI3ZQzAm1KMsyUo4IAegXLJ4j9VCF6ab65NkE1k8UH99kXXS30Ha27NS1aQafCbaOTxxQfqQHmnjt2HJtvk04nqCEDhoZCdDUZNVSGCOc=
 matrix:
   include:
   - node_js: '0.10'
