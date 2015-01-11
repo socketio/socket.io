@@ -36,7 +36,3 @@ matrix:
     env: BROWSER_NAME=android BROWSER_VERSION=4.3
   - node_js: '0.10'
     env: BROWSER_NAME=android BROWSER_VERSION=4.4
-env:
-  global:
-  - secure: ZLB2xNwK+Bv+aYn2Nxc8Y7RhWZbgvV7swM57c8Z4HarjZmZ2xqmJIcPEfbGL9qW9EObnxzyAF5mFSVoA2LgFyaolzPCd0/aSN8RCvyyLe3ZXOgAHtMihxX9DZyUp7CUhHUd557W37EQF2YPvAyP6sjDAZOq6BC643Qt7k/BltcA=
-  - secure: AjUYW6swrtbB+XOZo3vizxIpoyjY7k2MF6XCvZoO+cCp+kb0bvZwlJEurxvGsW29wNM2qcLTHZO+6kwHBVHSLphQYrSScEGOKqmtpB1zzrpmKA/5cugH4Tyrx4uTwh8IR5TWqEeHoWaXq1448TDXCCDjzsRWOWEltRxDeTR8h8Y=
