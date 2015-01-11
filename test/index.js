@@ -9,10 +9,7 @@ global.WEB_SOCKET_SUPPRESS_CROSS_DOMAIN_SWF_ERROR = null;
 global.WEB_SOCKET_DISABLE_AUTO_INITIALIZATION = null;
 global.WEB_SOCKET_SWF_LOCATION = null;
 
-// node only tests
-if (env.node) {
-  require('./url');
-}
+require('./url');
 
 // browser only tests
 if (env.browser) {
