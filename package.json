@@ -1,17 +1,17 @@
 {
   "name": "engine.io-parser",
   "description": "Parser for the client for the realtime Engine",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "homepage": "https://github.com/LearnBoost/engine.io-protocol",
   "devDependencies": {
-    "mocha": "*",
-    "expect.js": "*",
+    "expect.js": "0.3.1",
+    "mocha": "2.1.0",
     "zuul": "1.10.2"
   },
   "dependencies": {
-    "base64-arraybuffer": "0.1.2",
     "after": "0.8.1",
     "arraybuffer.slice": "0.0.6",
+    "base64-arraybuffer": "0.1.2",
     "blob": "0.0.2",
     "has-binary": "0.1.5",
     "utf8": "2.0.0"

@@ -1,4 +1,16 @@
 
+1.2.0 / 2015-01-11
+==================
+
+ * fix return type for decodePacket
+ * README fixes
+ * use travis matrix for better test runs
+ * encode into binary only if needed
+ * add test cases for base64 object encoding.
+ * add encodeBase64Object to encoder for browser
+ * avoid sending Blobs on PhantomJS (as on Android)
+ * test that utf8 encoding is not on by default but can be switched on manually
+
 1.1.0 / 2014-07-16
 ==================
 
