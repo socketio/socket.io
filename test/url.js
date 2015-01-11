@@ -1,5 +1,4 @@
 
-var old = global.location = { protocol: 'http:', hostname: 'localhost'};
 var loc = {};
 var url = require('../lib/url');
 var expect = require('expect.js');
@@ -43,7 +42,7 @@ describe('url', function(){
     loc.protocol = 'http:';
     loc.hostname = 'woot.com';
 
-    expect(url('/woot').path).to.be('/woot');
+    expect(url('/woot', loc).path).to.be('/woot');
     expect(url('http://google.com').path).to.be('/');
     expect(url('http://google.com/').path).to.be('/');
   });
