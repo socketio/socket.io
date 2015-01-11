@@ -27,7 +27,7 @@
     "xmlhttprequest": "rase-/node-XMLHttpRequest#a6b6f2",
     "component-emitter": "1.1.2",
     "indexof": "0.0.1",
-    "engine.io-parser": "1.1.0",
+    "engine.io-parser": "1.2.0",
     "debug": "1.0.4",
     "parseuri": "0.0.4",
     "parsejson": "0.0.1",
