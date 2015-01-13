@@ -56,14 +56,14 @@ $(function() {
     var message = $inputMessage.val();
     // Prevent markup from being injected into the message
     message = cleanInput(message);
-    // if there is a non-empty message and a socket connection
+    // If there is a non-empty message and a socket connection
     if (message && connected) {
       $inputMessage.val('');
       addChatMessage({
         username: username,
         message: message
       });
-      // tell server to execute 'new message' and send along one parameter
+      // Tell server to execute 'new message' and send along one parameter
       socket.emit('new message', message);
     }
   }
@@ -117,7 +117,7 @@ $(function() {
   // el - The element to add as a message
   // options.fade - If the element should fade-in (default = true)
   // options.prepend - If the element should prepend
-  //   all other messages (default = false)
+  //   All other messages (default = false)
   function addMessageElement (el, options) {
     var $el = $(el);
 
