@@ -7,16 +7,16 @@ dragStartLocation,
 snapshot,
 x1,y1,
 x2,y2,sides,angle;
+
 function textbox1() {
 	var canvas = document.getElementById("e");
 	var context = canvas.getContext("2d");
 	context.fillStyle = "blue";
     context.font = "bold 16px Arial";
     context.fillText("Zibri", 100, 100);		
-  // body...
 }
   
-
+//Function to get Coordinates
 function getCanvasCoordinates(event) {
 
 	var x = event.clientX - canvas.getBoundingClientRect().left,
@@ -29,6 +29,8 @@ function takeSnapshot() {
 function restoreSnapshot() {
 	context.putImageData(snapshot, 0, 0);
 } 
+
+//Draw the line
 function drawLine(x1,y1,x2,y2) {
 	context.beginPath();
 	context.moveTo(x1,y1);
@@ -37,12 +39,31 @@ function drawLine(x1,y1,x2,y2) {
 	context.stroke();
 
 }
+// Fill or not to fill
+function fill(a){
+	console.log(a,"Func call");
+	if (a) {
+		fillBox.checked=true;
+	}
+	else{
+		fillBox.checked=false;
+	}
+}
+//Function for circle
 function drawCircle(x1,y1,x2,y2) {
 
 	var radius = Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
 	context.beginPath();
 	context.arc(x1, y1, radius, 0, 2 * Math.PI, false);
+	if(fillBox.checked){
+		context.fill();
+	}
+	else{
+		context.stroke();
+	}
 }
+//Function for Polygon
+
 function drawPolygon(x1,y1,x2,y2, sides, angle) {
 	var coordinates = [],
 	radius = Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2)),
@@ -58,6 +79,12 @@ function drawPolygon(x1,y1,x2,y2, sides, angle) {
 		context.lineTo(coordinates[index].x, coordinates[index].y);
 	}
 	context.closePath();
+	if(fillBox.checked){
+		context.fill();
+	}
+	else{
+		context.stroke();
+	}
 }
 
 // Sends the function parameters to the clients
@@ -67,17 +94,16 @@ function sending(x1,x2,y1,y2,sides,angle){
 	return a;
 
 }
-
+// Main draw function that calls the other draw functions
 function draw(x2,y2){
 	fillBox=document.getElementById("fillBox");
 	radiobutton1=document.getElementById("radiobutton1");
 	radiobutton2=document.getElementById("radiobutton2");
 	radiobutton3=document.getElementById("radiobutton3");
 	
-	if(fillBox.checked){
-		context.fill();
 
-	}
+	var b =JSON.stringify(fillBox.checked)
+	socket.emit('fill',b);
 
 	if(radiobutton1.checked ==true ){
 		a=sending(x1,x2,y1,y2,sides,angle);
@@ -92,12 +118,7 @@ function draw(x2,y2){
 		a=sending(x1,x2,y1,y2,sides,angle);
 		socket.emit('polygon',a);
 	}
-	if(fillBox.checked){
-		context.fill();
-	}
-	else{
-		context.stroke();
-	}
+
 
 }
 function dragStart(event) {
@@ -144,18 +165,22 @@ var socket=io();
 socket.on('line',function(data){
 	var b=JSON.parse(data);
 	drawLine(b.x1,b.y1,b.x2,b.y2)
-
 });
+
 socket.on('circle',function(data){
 	var b=JSON.parse(data);
 	drawCircle(b.x1,b.y1,b.x2,b.y2)
-
 });
+
 socket.on('polygon',function(data){
 	var b=JSON.parse(data);
 	console.log(b)
 	drawPolygon(b.x1,b.y1,b.x2,b.y2,8,Math.PI/4);
-
 });
+
+socket.on('fill',function(data){
+	var c=JSON.parse(data)
+	fill(c);
+})
 
 });

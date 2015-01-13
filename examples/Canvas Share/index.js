@@ -11,25 +11,24 @@ console.log('Server listening at port %d', port);
 
 app.use(express.static(__dirname + '/public'));
 
-
-// Chatroom
-io.on('connection', function (socket) {
 // when the client emits instructions, this listens and executes
+io.on('connection', function (socket) {
+	//Line
 	socket.on('line', function (data) {
 		io.emit('line',data);
-
 	});
+	//Fill or empty
+	socket.on('fill',function(data){
+		io.emit('fill',data);
+	});
+	//Circle
 	socket.on('circle', function (data) {
-// we tell the client to execute 'new message'
-		var b=JSON.parse(data);
 		io.emit('circle',data);
 
 	});
+	//Polygon
 	socket.on('polygon', function (data) {
-// we tell the client to execute 'new message'
-		var b=JSON.parse(data);
 		io.emit('polygon',data);
 
 	});
 });
-
