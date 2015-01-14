@@ -143,6 +143,12 @@ reconnect that depend on this `Manager`.
 
 ### Socket
 
+#### Socket#id:String
+
+A property on the `socket` instance that is equal to the underlying engine.io socket id.
+
+The property is present once the socket has connected, is removed when the socket disconnects and is updated if the socket reconnects.
+
 #### Events
 
   - `connect`. Fired upon a connection including a successful reconnection.
