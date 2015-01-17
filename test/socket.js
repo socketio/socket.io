@@ -5,6 +5,7 @@ describe('socket', function(){
   it('should have an accessible socket id equal to the engine.io socket id', function(done) {
     var socket = io({ forceNew: true });
     socket.on('connect', function(){
+      expect(socket.id).to.be.ok();
       expect(socket.id).to.eql(socket.io.engine.id);
       socket.disconnect();
       done();
