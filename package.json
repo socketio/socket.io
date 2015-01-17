@@ -44,7 +44,7 @@
     "express": "3.4.8",
     "istanbul": "0.2.3",
     "mocha": "1.16.2",
-    "zuul": "1.10.2"
+    "zuul": "rase-/zuul#c3748f"
   },
   "scripts": {
     "test": "make test"
