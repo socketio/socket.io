@@ -462,7 +462,7 @@ describe('socket.io', function(){
       var c1 = client(srv, '/');
       var c2 = client(srv, '/abc');
     });
-    
+
     it('should be equivalent for "" and "/" on client', function(done){
       var srv = http();
       var sio = io(srv);
@@ -471,7 +471,7 @@ describe('socket.io', function(){
       });
       var c1 = client(srv, '');
     });
-    
+
     it('should work with `of` and many sockets', function(done){
       var srv = http();
       var sio = io(srv);
@@ -1097,6 +1097,32 @@ describe('socket.io', function(){
           s.on('big', function(a){
             expect(Buffer.isBuffer(a.image)).to.be(true);
             s.emit('big', a);
+          });
+        });
+      });
+    });
+
+    it('should be able to emit after server close and restart', function(done){
+      var srv = http();
+      var sio = io(srv);
+
+      sio.on('connection', function(socket){
+        socket.on('ev', function(data){
+          expect(data).to.be('payload');
+          done();
+        });
+      });
+
+      srv.listen(function(){
+        var port = srv.address().port;
+        var clientSocket = client(srv, { reconnectionAttempts: 10, reconnectionDelay: 100 });
+        clientSocket.once('connect', function(){
+          srv.close(function(){
+            srv.listen(port, function(){
+              clientSocket.on('reconnect', function(){
+                clientSocket.emit('ev', 'payload');
+              });
+            });
           });
         });
       });
