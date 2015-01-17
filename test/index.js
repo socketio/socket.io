@@ -14,5 +14,6 @@ require('./url');
 // browser only tests
 if (env.browser) {
   require('./connection');
+  require('./socket');
 }
 
