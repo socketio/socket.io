@@ -1,4 +1,10 @@
 
+1.2.1 / 2015-01-17
+==================
+
+ * pass has-binary result to encodePacket [rase-]
+ * Fix parse error [rase-]
+
 1.2.0 / 2015-01-11
 ==================
 

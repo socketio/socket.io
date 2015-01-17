@@ -1,7 +1,7 @@
 {
   "name": "engine.io-parser",
   "description": "Parser for the client for the realtime Engine",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "homepage": "https://github.com/LearnBoost/engine.io-protocol",
   "devDependencies": {
     "expect.js": "0.3.1",
