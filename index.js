@@ -74,6 +74,7 @@ Adapter.prototype.del = function(id, room, fn){
  * Removes a socket from all rooms it's joined.
  *
  * @param {String} socket id
+ * @param {Function} callback
  * @api public
  */
 
@@ -91,6 +92,8 @@ Adapter.prototype.delAll = function(id, fn){
     }
   }
   delete this.sids[id];
+  
+  if (fn) process.nextTick(fn.bind(null, null));
 };
 
 /**
