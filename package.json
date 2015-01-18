@@ -21,7 +21,7 @@
   "dependencies": {
     "engine.io": "Automattic/engine.io#b57a5a",
     "socket.io-parser": "2.2.2",
-    "socket.io-client": "1.2.1",
+    "socket.io-client": "Automattic/socket.io-client#6b97ec",
     "socket.io-adapter": "0.3.1",
     "has-binary-data": "0.1.3",
     "debug": "0.7.4"
