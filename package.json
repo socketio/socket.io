@@ -23,7 +23,7 @@
     "backo2": "1.0.2"
   },
   "devDependencies": {
-    "socket.io": "1.2.1",
+    "socket.io": "Automattic/socket.io#f8f1b1",
     "mocha": "1.16.2",
     "zuul": "rase-/zuul#9d3a02",
     "istanbul": "0.2.1",
