@@ -1,4 +1,11 @@
 
+1.5.0 / 2015-01-18
+==================
+
+ * package: bump `engine.io-parser`
+ * polling: correctly abort the ongoing data request when closing [lpinca]
+ * add cert-related client tests [rase-]
+
 1.4.3 / 2014-11-21
 ==================
 
