@@ -1,4 +1,13 @@
 
+1.3.0 / 2015-01-19
+==================
+
+ * package: bump `engine.io-client`
+ * added `socket.id` property pointing to session id [rase-]
+ * fix url parsing when uri string is undefined [defunctzombie]
+ * implemented `backo` for exponential backoff with randomization [mokesmokes]
+ * reset reconnection attempts state after a successul connection [mokesmokes]
+
 1.2.1 / 2014-11-21
 ==================
 
