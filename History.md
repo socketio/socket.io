@@ -1,4 +1,9 @@
 
+1.5.1 / 2015-01-19
+==================
+
+ * do not rely on `git(1)` for dep, point to tarball instead
+
 1.5.0 / 2015-01-18
 ==================
 
