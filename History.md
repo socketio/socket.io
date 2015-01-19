@@ -1,4 +1,10 @@
 
+1.3.1 / 2015-01-19
+==================
+
+ * no change on this release
+ * package: bump `engine.io-client` to not depend on `git(1)` for a dep
+
 1.3.0 / 2015-01-19
 ==================
 
