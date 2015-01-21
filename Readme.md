@@ -341,6 +341,18 @@ server.listen(3000);
   });
   ```
 
+### Socket#compress(v:Boolean):Socket
+
+  Sets a modifier for a subsequent event emission that the event data will
+  only be _compressed_ if the value is `true`. Defaults to `true` when you don't call the method.
+
+  ```js
+  var io = require('socket.io')();
+  io.on('connection', function(socket){
+    socket.compress(false).emit('an event', { some: 'data' });
+  });
+  ```
+
 ### Client
 
   The `Client` class represents an incoming transport (engine.io)
