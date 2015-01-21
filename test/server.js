@@ -6,6 +6,7 @@
 var http = require('http');
 var https = require('https');
 var fs = require('fs');
+var zlib = require('zlib');
 var eio = require('..');
 var eioc = require('engine.io-client');
 var listen = require('./common').listen;
@@ -2007,4 +2008,161 @@ describe('server', function () {
     });
   });
 
+  describe('http compression', function () {
+    it('should compress by default', function (done) {
+      var engine = listen({ transports: ['polling'] }, function (port) {
+        engine.on('connection', function (conn) {
+          var buf = new Buffer(1024);
+          for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
+          conn.send(buf);
+        });
+
+        http.get({
+          port: port,
+          path: '/engine.io/default/?transport=polling'
+        }, function(res) {
+          var sid = res.headers['set-cookie'][0].split('=')[1];
+          http.get({
+            port: port,
+            path: '/engine.io/default/?transport=polling&sid=' + sid,
+            headers: { 'Accept-Encoding': 'gzip, deflate' }
+          }, function(res) {
+            expect(res.headers['content-encoding']).to.equal('gzip');
+            res.pipe(zlib.createGunzip())
+              .on('error', done)
+              .on('end', done)
+              .resume();
+          });
+        });
+      });
+    });
+
+    it('should compress using deflate', function (done) {
+      var engine = listen({ transports: ['polling'] }, function (port) {
+        engine.on('connection', function (conn) {
+          var buf = new Buffer(1024);
+          for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
+          conn.send(buf);
+        });
+
+        http.get({
+          port: port,
+          path: '/engine.io/default/?transport=polling'
+        }, function(res) {
+          var sid = res.headers['set-cookie'][0].split('=')[1];
+          http.get({
+            port: port,
+            path: '/engine.io/default/?transport=polling&sid=' + sid,
+            headers: { 'Accept-Encoding': 'deflate' }
+          }, function(res) {
+            expect(res.headers['content-encoding']).to.equal('deflate');
+            res.pipe(zlib.createDeflate())
+              .on('error', done)
+              .on('end', done)
+              .resume();
+          });
+        });
+      });
+    });
+
+    it('should set threshold', function (done) {
+      var engine = listen({ transports: ['polling'], httpCompression: { threshold: 0 } }, function (port) {
+        engine.on('connection', function (conn) {
+          var buf = new Buffer(10);
+          for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
+          conn.send(buf);
+        });
+
+        http.get({
+          port: port,
+          path: '/engine.io/default/?transport=polling'
+        }, function(res) {
+          var sid = res.headers['set-cookie'][0].split('=')[1];
+          http.get({
+            port: port,
+            path: '/engine.io/default/?transport=polling&sid=' + sid,
+            headers: { 'Accept-Encoding': 'gzip, deflate' }
+          }, function(res) {
+            expect(res.headers['content-encoding']).to.equal('gzip');
+            done();
+          });
+        });
+      });
+    });
+
+    it('should disable compression', function (done) {
+      var engine = listen({ transports: ['polling'], httpCompression: false }, function (port) {
+        engine.on('connection', function (conn) {
+          var buf = new Buffer(1024);
+          for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
+          conn.send(buf);
+        });
+
+        http.get({
+          port: port,
+          path: '/engine.io/default/?transport=polling'
+        }, function(res) {
+          var sid = res.headers['set-cookie'][0].split('=')[1];
+          http.get({
+            port: port,
+            path: '/engine.io/default/?transport=polling&sid=' + sid,
+            headers: { 'Accept-Encoding': 'gzip, deflate' }
+          }, function(res) {
+            expect(res.headers['content-encoding']).to.be(undefined);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should disable compression per message', function (done) {
+      var engine = listen({ transports: ['polling'] }, function (port) {
+        engine.on('connection', function (conn) {
+          var buf = new Buffer(1024);
+          for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
+          conn.send(buf, { compress: false });
+        });
+
+        http.get({
+          port: port,
+          path: '/engine.io/default/?transport=polling'
+        }, function(res) {
+          var sid = res.headers['set-cookie'][0].split('=')[1];
+          http.get({
+            port: port,
+            path: '/engine.io/default/?transport=polling&sid=' + sid,
+            headers: { 'Accept-Encoding': 'gzip, deflate' }
+          }, function(res) {
+            expect(res.headers['content-encoding']).to.be(undefined);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should not compress when the byte size is below threshold', function (done) {
+      var engine = listen({ transports: ['polling'] }, function (port) {
+        engine.on('connection', function (conn) {
+          var buf = new Buffer(100);
+          for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
+          conn.send(buf);
+        });
+
+        http.get({
+          port: port,
+          path: '/engine.io/default/?transport=polling'
+        }, function(res) {
+          var sid = res.headers['set-cookie'][0].split('=')[1];
+          http.get({
+            port: port,
+            path: '/engine.io/default/?transport=polling&sid=' + sid,
+            headers: { 'Accept-Encoding': 'gzip, deflate' }
+          }, function(res) {
+            expect(res.headers['content-encoding']).to.be(undefined);
+            done();
+          });
+        });
+      });
+    });
+  });
 });

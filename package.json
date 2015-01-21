@@ -13,9 +13,10 @@
   ],
   "dependencies": {
     "debug": "1.0.3",
-    "ws": "0.5.0",
+    "ws": "0.6.5",
     "engine.io-parser": "1.2.1",
-    "base64id": "0.1.0"
+    "base64id": "0.1.0",
+    "accepts": "1.1.4"
   },
   "devDependencies": {
     "mocha": "1.12.0",
