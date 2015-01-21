@@ -1,7 +1,7 @@
 {
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
-  "version": "1.4.3",
+  "version": "1.5.1",
   "homepage": "http://socket.io",
   "contributors": [
     {
@@ -24,10 +24,10 @@
   "dependencies": {
     "has-cors": "1.0.3",
     "ws": "0.6.5",
-    "xmlhttprequest": "rase-/node-XMLHttpRequest#a6b6f2",
+    "xmlhttprequest": "https://github.com/rase-/node-XMLHttpRequest/archive/a6b6f2.tar.gz",
     "component-emitter": "1.1.2",
     "indexof": "0.0.1",
-    "engine.io-parser": "1.1.0",
+    "engine.io-parser": "1.2.1",
     "debug": "1.0.4",
     "parseuri": "0.0.4",
     "parsejson": "0.0.1",
@@ -39,12 +39,12 @@
     "browserify": "6.2.0",
     "concat-stream": "1.4.6",
     "derequire": "1.2.0",
-    "engine.io": "1.4.3",
+    "engine.io": "1.5.1",
     "expect.js": "0.2.0",
     "express": "3.4.8",
     "istanbul": "0.2.3",
     "mocha": "1.16.2",
-    "zuul": "1.10.2"
+    "zuul": "rase-/zuul#9d3a02"
   },
   "scripts": {
     "test": "make test"

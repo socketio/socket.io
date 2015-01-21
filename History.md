@@ -1,4 +1,18 @@
 
+1.5.1 / 2015-01-19
+==================
+
+ * do not rely on `git(1)` for dep, point to tarball instead
+
+1.5.0 / 2015-01-18
+==================
+
+ * package: bump `engine.io-parser`
+ * fix IE tests firing too many connections [rase-]
+ * fix default port detection when host is specified [defunctzombie]
+ * add support for custom SSL options in constructor [rase-]
+ * only call xhr.abort() on error cases in `polling-xhr` [samcday]
+
 1.4.3 / 2014-11-21
 ==================
 
