@@ -317,6 +317,17 @@ describe('socket.io', function(){
           done();
         });
     });
+
+    it('should default to port 443 when protocol is https', function(done) {
+      var sockets = io({ origins: 'https://foo.example:443' }).listen('54036');
+      request.get('http://localhost:54036/socket.io/default/')
+        .set('origin', 'https://foo.example')
+        .query({ transport: 'polling' })
+        .end(function (err, res) {
+          expect(res.status).to.be(200);
+          done();
+        });
+    });
   });
 
   describe('close', function(){
