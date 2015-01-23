@@ -19,7 +19,7 @@
     "test": "mocha --reporter dot --slow 200ms --bail"
   },
   "dependencies": {
-    "engine.io": "1.5.1",
+    "engine.io": "Automattic/engine.io#ddc64a2d1286295fa7beaf2b113d6cbe4fbbc66b",
     "socket.io-parser": "2.2.2",
     "socket.io-client": "1.3.2",
     "socket.io-adapter": "0.3.1",
