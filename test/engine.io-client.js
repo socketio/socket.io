@@ -9,39 +9,39 @@ describe('engine.io-client', function () {
   });
 
   it('should properly parse http uri without port', function(done) {
-    var server = eio('http://localhost');
-    server.on('close', function() {
+    var client = eio('http://localhost');
+    client.on('close', function() {
       done();
     });
-    expect(server.port).to.be('80');
-    server.close();
+    expect(client.port).to.be('80');
+    client.close();
   });
 
   it('should properly parse https uri without port', function(done) {
-    var server = eio('https://localhost');
-    server.on('close', function() {
+    var client = eio('https://localhost');
+    client.on('close', function() {
       done();
     });
-    expect(server.port).to.be('443');
-    server.close();
+    expect(client.port).to.be('443');
+    client.close();
   });
 
   it('should properly parse wss uri without port', function(done) {
-    var server = eio('wss://localhost');
-    server.on('close', function() {
+    var client = eio('wss://localhost');
+    client.on('close', function() {
       done();
     });
-    expect(server.port).to.be('443');
-    server.close();
+    expect(client.port).to.be('443');
+    client.close();
   });
 
   it('should properly parse wss uri with port', function(done) {
-    var server = eio('wss://localhost:2020');
-    server.on('close', function() {
+    var client = eio('wss://localhost:2020');
+    client.on('close', function() {
       done();
     });
-    expect(server.port).to.be('2020');
-    server.close();
+    expect(client.port).to.be('2020');
+    client.close();
   });
 
 });
