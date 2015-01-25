@@ -260,6 +260,17 @@ describe('socket.io', function(){
        });
     });
 
+    it('should allow request when origin defined with a subdomain format *.example.com', function(done) {
+      var sockets = io({ origins: 'http://foo.example:*' }).listen('54022');
+      request.get('http://localhost:54022/socket.io/default/')
+       .query({ transport: 'polling' })
+       .set('origin', 'http://herp.derp.foo.example')
+       .end(function (err, res) {
+          expect(res.status).to.be(200);
+          done();
+       });
+    });
+
     it('should allow request when origin defined an the same is specified', function(done) {
       var sockets = io({ origins: 'http://foo.example:*' }).listen('54015');
       request.get('http://localhost:54015/socket.io/default/')
