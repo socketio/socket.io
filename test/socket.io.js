@@ -614,6 +614,122 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should find all clients in a namespace', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var chatSids = [];
+      var otherSid = null;
+      srv.listen(function(){
+        var c1 = client(srv, '/chat');
+        var c2 = client(srv, '/chat', {forceNew: true});
+        var c3 = client(srv, '/other', {forceNew: true});
+        var total = 3;
+        sio.of('/chat').on('connection', function(socket){
+          chatSids.push(socket.id);
+          --total || getClients();
+        });
+        sio.of('/other').on('connection', function(socket){
+          otherSid = socket.id;
+          --total || getClients();
+        });
+      });
+      function getClients() {
+        sio.of('/chat').clients(function(error, sids) {
+          expect(error).to.be.undefined;
+          expect(sids).to.contain(chatSids[0]);
+          expect(sids).to.contain(chatSids[1]);
+          expect(sids).to.not.contain(otherSid);
+          done();
+        });
+      }
+    });
+
+    it('should find all clients in a namespace room', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var chatFooSid = null;
+      var chatBarSid = null;
+      var otherSid = null;
+      srv.listen(function(){
+        var c1 = client(srv, '/chat');
+        var c2 = client(srv, '/chat', {forceNew: true});
+        var c3 = client(srv, '/other', {forceNew: true});
+        var chatIndex = 0;
+        var total = 3;
+        sio.of('/chat').on('connection', function(socket){
+          if (chatIndex++) {
+            socket.join('foo', function() {
+              chatFooSid = socket.id;
+              --total || getClients();
+            });
+          } else {
+            socket.join('bar', function() {
+              chatBarSid = socket.id;
+              --total || getClients();
+            });
+          }
+        });
+        sio.of('/other').on('connection', function(socket){
+          socket.join('foo', function() {
+            otherSid = socket.id;
+            --total || getClients();
+          });
+        });
+      });
+      function getClients() {
+        sio.of('/chat').in('foo').clients(function(error, sids) {
+          expect(error).to.be.undefined;
+          expect(sids).to.contain(chatFooSid);
+          expect(sids).to.not.contain(chatBarSid);
+          expect(sids).to.not.contain(otherSid);
+          done();
+        });
+      }
+    });
+
+    it('should find all clients across namespace rooms', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var chatFooSid = null;
+      var chatBarSid = null;
+      var otherSid = null;
+      srv.listen(function(){
+        var c1 = client(srv, '/chat');
+        var c2 = client(srv, '/chat', {forceNew: true});
+        var c3 = client(srv, '/other', {forceNew: true});
+        var chatIndex = 0;
+        var total = 3;
+        sio.of('/chat').on('connection', function(socket){
+          if (chatIndex++) {
+            socket.join('foo', function() {
+              chatFooSid = socket.id;
+              --total || getClients();
+            });
+          } else {
+            socket.join('bar', function() {
+              chatBarSid = socket.id;
+              --total || getClients();
+            });
+          }
+        });
+        sio.of('/other').on('connection', function(socket){
+          socket.join('foo', function() {
+            otherSid = socket.id;
+            --total || getClients();
+          });
+        });
+      });
+      function getClients() {
+        sio.of('/chat').clients(function(error, sids) {
+          expect(error).to.be.undefined;
+          expect(sids).to.contain(chatFooSid);
+          expect(sids).to.contain(chatBarSid);
+          expect(sids).to.not.contain(otherSid);
+          done();
+        });
+      }
+    });
   });
 
   describe('socket', function(){
