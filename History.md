@@ -16,8 +16,8 @@
 ==================
 
  * package: bump `ws` to fix fd leaks
- * socket: flush the write buffer before closing the socket [nkzawa]
- * polling: close the pending poll request when closing transport [nkzawa]
+ * socket: flush the write buffer before closing the socket [lpinca]
+ * polling: close the pending poll request when closing transport [lpinca]
 
 1.4.2 / 2014-10-08
 ==================
