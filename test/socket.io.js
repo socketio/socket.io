@@ -597,6 +597,23 @@ describe('socket.io', function(){
         });
       });
     });
+    
+    it('should not reuse same-namespace connections', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var connections = 0;
+
+      srv.listen(function() {
+        var clientSocket1 = client(srv);
+        var clientSocket2 = client(srv);
+        sio.on('connection', function() {
+          connections++;
+          if(connections === 2) {
+            done();
+          }
+        });
+      });
+    });
   });
 
   describe('socket', function(){
