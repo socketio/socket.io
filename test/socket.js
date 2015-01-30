@@ -42,4 +42,28 @@ describe('socket', function(){
       socket.io.engine.close();
     });
   });
+
+  it('should enable compression by default', function(done){
+    var socket = io({ forceNew: true });
+    socket.on('connect', function(){
+      socket.io.engine.once('packetCreate', function(packet){
+        expect(packet.options.compress).to.be(true);
+        socket.disconnect();
+        done();
+      });
+      socket.emit('hi');
+    });
+  });
+
+  it('should disable compression', function(done){
+    var socket = io({ forceNew: true });
+    socket.on('connect', function(){
+      socket.io.engine.once('packetCreate', function(packet){
+        expect(packet.options.compress).to.be(false);
+        socket.disconnect();
+        done();
+      });
+      socket.compress(false).emit('hi');
+    });
+  });
 });

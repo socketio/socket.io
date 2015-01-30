@@ -149,6 +149,15 @@ A property on the `socket` instance that is equal to the underlying engine.io so
 
 The property is present once the socket has connected, is removed when the socket disconnects and is updated if the socket reconnects.
 
+#### Socket#compress(v:Boolean):Socket
+
+  Sets a modifier for a subsequent event emission that the event data will
+  only be _compressed_ if the value is `true`. Defaults to `true` when you don't call the method.
+
+  ```js
+  socket.compress(false).emit('an event', { some: 'data' });
+  ```
+
 #### Events
 
   - `connect`. Fired upon a connection including a successful reconnection.
