@@ -19,9 +19,12 @@ describe('url', function(){
   it('works with relative paths', function(){
     loc.hostname = 'woot.com';
     loc.protocol = 'https:';
+    loc.port = 3000;
+    loc.host = loc.hostname + ':' + loc.port;
     var parsed = url('/test', loc);
     expect(parsed.host).to.be('woot.com');
     expect(parsed.protocol).to.be('https');
+    expect(parsed.port).to.be('3000');
   });
 
   it('works with no protocol', function(){
