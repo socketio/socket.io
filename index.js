@@ -153,12 +153,18 @@ Adapter.prototype.broadcast = function(packet, opts){
  */
 
 Adapter.prototype.clients = function(rooms, fn){
+  if ('function' == typeof rooms){
+    fn = rooms;
+    rooms = null;
+  }
+
+  rooms = rooms || [];
+
   var ids = {};
   var self = this;
   var sids = [];
   var socket;
 
-  rooms = rooms || [];
   if (rooms.length) {
     for (var i = 0; i < rooms.length; i++) {
       var room = self.rooms[rooms[i]];
