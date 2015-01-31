@@ -11,7 +11,7 @@
   ],
   "dependencies": {
     "debug": "0.7.4",
-    "engine.io-client": "Automattic/engine.io-client#599021ff1e71f7242f30fa71a6a3481ec1021ba4",
+    "engine.io-client": "automattic/engine.io-client#90b72d",
     "component-bind": "1.0.0",
     "component-emitter": "1.1.2",
     "object-component": "0.0.3",
@@ -23,7 +23,7 @@
     "backo2": "1.0.2"
   },
   "devDependencies": {
-    "socket.io": "socket.io/socket.io#master",
+    "socket.io": "socket.io/socket.io#f2a732",
     "mocha": "1.16.2",
     "zuul": "rase-/zuul#9d3a02",
     "istanbul": "0.2.1",
