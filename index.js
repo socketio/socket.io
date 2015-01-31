@@ -144,3 +144,44 @@ Adapter.prototype.broadcast = function(packet, opts){
     }
   });
 };
+
+/**
+ * Gets a list of clients by sid.
+ *
+ * @param {Array} explicit set of rooms to check.
+ * @api public
+ */
+
+Adapter.prototype.clients = function(rooms, fn){
+  var ids = {};
+  var self = this;
+  var sids = [];
+  var socket;
+
+  rooms = rooms || [];
+  if (rooms.length) {
+    for (var i = 0; i < rooms.length; i++) {
+      var room = self.rooms[rooms[i]];
+      if (!room) continue;
+      for (var id in room) {
+        if (room.hasOwnProperty(id)) {
+          if (ids[id]) continue;
+          socket = self.nsp.connected[id];
+          if (socket) {
+            sids.push(id);
+            ids[id] = true;
+          }
+        }
+      }
+    }
+  } else {
+    for (var id in self.sids) {
+      if (self.sids.hasOwnProperty(id)) {
+        socket = self.nsp.connected[id];
+        if (socket) sids.push(id);
+      }
+    }
+  }
+
+  if (fn) process.nextTick(fn.bind(null, null, sids));
+};
