@@ -240,6 +240,40 @@ server.listen(3000);
   Hash of `Socket` objects that are connected to this namespace indexed
   by `id`.
 
+### Namespace#clients(fn:Function)
+
+  Gets a list of client IDs connected to this namespace (across all nodes if applicable).
+
+  An example to get all clients in a namespace:
+
+  ```js
+  var io = require('socket.io')();
+  io.of('/chat').clients(function(error, clients){
+    if (error) throw error;
+    console.log(clients); // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
+  });
+  ```
+
+  An example to get all clients in namespace's room:
+
+  ```js
+  var io = require('socket.io')();
+  io.of('/chat').in('general').clients(function(error, clients){
+    if (error) throw error;
+    console.log(clients); // => [Anw2LatarvGVVXEIAAAD]
+  });
+  ```
+
+  As with broadcasting, the default is all clients from the default namespace ('/'):
+
+  ```js
+  var io = require('socket.io')();
+  io.clients(function(error, clients){
+    if (error) throw error;
+    console.log(clients); // => [6em3d4TJP8Et9EMNAAAA, G5p55dHhGgUnLUctAAAB]
+  });
+  ```
+
 ### Namespace#use(fn:Function):Namespace
 
   Registers a middleware, which is a function that gets executed for
