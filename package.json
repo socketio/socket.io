@@ -19,10 +19,10 @@
     "test": "mocha --reporter dot --slow 200ms --bail"
   },
   "dependencies": {
-    "engine.io": "automattic/engine.io#master",
+    "engine.io": "automattic/engine.io#ddc64a",
     "socket.io-parser": "2.2.2",
-    "socket.io-client": "automattic/socket.io-client#master",
-    "socket.io-adapter": "0.3.1",
+    "socket.io-client": "automattic/socket.io-client#210d65",
+    "socket.io-adapter": "automattic/socket.io-adapter#ae79d8",
     "has-binary": "0.1.6",
     "debug": "2.1.0"
   },
