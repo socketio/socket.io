@@ -1505,6 +1505,19 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should not crash with raw binary', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.conn.on('upgrade', function(){
+            s.conn.write('5woooot');
+          });
+        });
+      });
+    });
   });
 
   describe('messaging many', function(){
@@ -1827,7 +1840,6 @@ describe('socket.io', function(){
         });
       });
     });
-
   });
 
   describe('middleware', function(done){
