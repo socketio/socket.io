@@ -1329,6 +1329,70 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should enable compression by default', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.conn.once('packetCreate', function(packet) {
+            expect(packet.options.compress).to.be(true);
+            done();
+          });
+          s.emit('woot', 'hi');
+        });
+      });
+    });
+
+    it('should disable compression', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.conn.once('packetCreate', function(packet) {
+            expect(packet.options.compress).to.be(false);
+            done();
+          });
+          s.compress(false).emit('woot', 'hi');
+        });
+      });
+    });
+
+    it('should error with raw binary and warn', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.conn.on('upgrade', function(){
+            console.log('\033[96mNote: warning expected and normal in test.\033[39m');
+            socket.io.engine.write('5woooot');
+            setTimeout(function(){
+              done();
+            }, 100);
+          });
+        });
+      });
+    });
+
+    it('should not crash with raw binary', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.once('error', function(err){
+            expect(err.message).to.match(/Illegal attachments/);
+            done();
+          });
+          s.conn.on('upgrade', function(){
+            socket.io.engine.write('5woooot');
+          });
+        });
+      });
+    });
   });
 
   describe('messaging many', function(){
