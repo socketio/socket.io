@@ -1,4 +1,10 @@
 
+1.3.3 / 2015-02-03
+==================
+
+ * socket: warn node_redis-style about missing `error`
+ * package: bump parser to better handle bad binary packets
+
 1.3.2 / 2015-01-19
 ==================
 
