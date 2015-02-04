@@ -1,4 +1,9 @@
 
+2.2.3 / 2015-02-03
+==================
+
+ * index: fix potential infinite loop with malicious binary packet
+
 2.2.2 / 2014-09-04
 ==================
 
