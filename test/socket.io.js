@@ -1330,36 +1330,6 @@ describe('socket.io', function(){
       });
     });
 
-    it('should enable compression by default', function(done){
-      var srv = http();
-      var sio = io(srv);
-      srv.listen(function(){
-        var socket = client(srv);
-        sio.on('connection', function(s){
-          s.conn.once('packetCreate', function(packet) {
-            expect(packet.options.compress).to.be(true);
-            done();
-          });
-          s.emit('woot', 'hi');
-        });
-      });
-    });
-
-    it('should disable compression', function(done){
-      var srv = http();
-      var sio = io(srv);
-      srv.listen(function(){
-        var socket = client(srv);
-        sio.on('connection', function(s){
-          s.conn.once('packetCreate', function(packet) {
-            expect(packet.options.compress).to.be(false);
-            done();
-          });
-          s.compress(false).emit('woot', 'hi');
-        });
-      });
-    });
-
     it('should error with raw binary and warn', function(done){
       var srv = http();
       var sio = io(srv);
