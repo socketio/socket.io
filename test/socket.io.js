@@ -578,7 +578,7 @@ describe('socket.io', function(){
       srv.listen(function(){
         var namespace = '/dynamic';
         var dynamic = client(srv,namespace);
-        sio.useNamespace(function(nsp, next) {
+        sio.useNamespaceValidator(function(nsp, next) {
           expect(nsp).to.be(namespace);
           next(null, true);
         });
@@ -598,7 +598,7 @@ describe('socket.io', function(){
       var sio = io(srv);
       srv.listen(function(){
         var namespace = '/dynamic';
-        sio.useNamespace(function(nsp, next) {
+        sio.useNamespaceValidator(function(nsp, next) {
           expect(nsp).to.be(namespace);
           next(null, false);
         });
@@ -623,7 +623,7 @@ describe('socket.io', function(){
       var sio = io(srv);
       srv.listen(function(){
         var namespace = '/dynamic';
-        sio.useNamespace(function(nsp, next) {
+        sio.useNamespaceValidator(function(nsp, next) {
           expect(nsp).to.be(namespace);
           next(new Error(), true);
         });
