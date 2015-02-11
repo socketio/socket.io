@@ -30,7 +30,7 @@ describe('parser', function() {
       data: {a: 'b', c: 4, e: {g: null}, h: new ArrayBuffer(9)},
       nsp: '/',
       id: 600
-    }
+    };
     helpers.test_bin(packet);
   });
 
