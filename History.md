@@ -1,4 +1,9 @@
 
+1.2.0 / 2014-02-12
+==================
+
+ * prefix events with `$` to support object prototype method names
+ 
 1.1.3 / 2014-06-20
 ==================
 
