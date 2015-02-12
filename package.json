@@ -13,7 +13,7 @@
     "debug": "0.7.4",
     "engine.io-client": "automattic/engine.io-client#90b72d",
     "component-bind": "1.0.0",
-    "component-emitter": "1.1.2",
+    "component-emitter": "1.2.0",
     "object-component": "0.0.3",
     "socket.io-parser": "2.2.3",
     "has-binary": "0.1.6",
