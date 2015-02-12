@@ -37,6 +37,24 @@ describe('Emitter', function(){
 
       calls.should.eql([ 'one', 1, 'two', 1, 'one', 2, 'two', 2 ]);
     })
+
+    it('should add listeners for events which are same names with methods of Object.prototype', function(){
+      var emitter = new Emitter;
+      var calls = [];
+
+      emitter.on('constructor', function(val){
+        calls.push('one', val);
+      });
+
+      emitter.on('__proto__', function(val){
+        calls.push('two', val);
+      });
+
+      emitter.emit('constructor', 1);
+      emitter.emit('__proto__', 2);
+
+      calls.should.eql([ 'one', 1, 'two', 2 ]);
+    })
   })
 
   describe('.once(event, fn)', function(){
