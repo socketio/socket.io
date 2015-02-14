@@ -1612,7 +1612,6 @@ function Socket(uri, opts){
   this.rememberUpgrade = opts.rememberUpgrade || false;
   this.binaryType = null;
   this.onlyBinaryUpgrades = opts.onlyBinaryUpgrades;
-  this.perMessageDeflate = false !== opts.perMessageDeflate ? (opts.perMessageDeflate || true) : false;
 
   // SSL options for Node.js client
   this.pfx = opts.pfx || null;
@@ -1694,8 +1693,7 @@ Socket.prototype.createTransport = function (name) {
     cert: this.cert,
     ca: this.ca,
     ciphers: this.ciphers,
-    rejectUnauthorized: this.rejectUnauthorized,
-    perMessageDeflate: this.perMessageDeflate
+    rejectUnauthorized: this.rejectUnauthorized
   });
 
   return transport;
@@ -1803,7 +1801,7 @@ Socket.prototype.probe = function (name) {
     if (failed) return;
 
     debug('probe transport "%s" opened', name);
-    transport.send([{ type: 'ping', data: 'probe', options: { compress: true } }]);
+    transport.send([{ type: 'ping', data: 'probe' }]);
     transport.once('packet', function (msg) {
       if (failed) return;
       if ('pong' == msg.type && 'probe' == msg.data) {
@@ -1822,7 +1820,7 @@ Socket.prototype.probe = function (name) {
           cleanup();
 
           self.setTransport(transport);
-          transport.send([{ type: 'upgrade', options: { compress: true } }]);
+          transport.send([{ type: 'upgrade' }]);
           self.emit('upgrade', transport);
           transport = null;
           self.upgrading = false;
@@ -2078,14 +2076,13 @@ Socket.prototype.flush = function () {
  *
  * @param {String} message.
  * @param {Function} callback function.
- * @param {Object} options.
  * @return {Socket} for chaining.
  * @api public
  */
 
 Socket.prototype.write =
-Socket.prototype.send = function (msg, options, fn) {
-  this.sendPacket('message', msg, options, fn);
+Socket.prototype.send = function (msg, fn) {
+  this.sendPacket('message', msg, fn);
   return this;
 };
 
@@ -2094,29 +2091,16 @@ Socket.prototype.send = function (msg, options, fn) {
  *
  * @param {String} packet type.
  * @param {String} data.
- * @param {Object} options.
  * @param {Function} callback function.
  * @api private
  */
 
-Socket.prototype.sendPacket = function (type, data, options, fn) {
-  if ('function' == typeof options) {
-    fn = options;
-    options = null;
-  }
-
+Socket.prototype.sendPacket = function (type, data, fn) {
   if ('closing' == this.readyState || 'closed' == this.readyState) {
     return;
   }
 
-  options = options || {};
-  options.compress = false !== options.compress;
-
-  var packet = {
-    type: type,
-    data: data,
-    options: options
-  };
+  var packet = { type: type, data: data };
   this.emit('packetCreate', packet);
   this.writeBuffer.push(packet);
   this.callbackBuffer.push(fn);
@@ -3371,7 +3355,6 @@ function WS(opts){
   if (forceBase64) {
     this.supportsBinary = false;
   }
-  this.perMessageDeflate = opts.perMessageDeflate;
   Transport.call(this, opts);
 }
 
@@ -3410,10 +3393,7 @@ WS.prototype.doOpen = function(){
   var self = this;
   var uri = this.uri();
   var protocols = void(0);
-  var opts = {
-    agent: this.agent,
-    perMessageDeflate: this.perMessageDeflate
-  };
+  var opts = { agent: this.agent };
 
   // SSL options for Node.js client
   opts.pfx = this.pfx;
@@ -3487,13 +3467,12 @@ WS.prototype.write = function(packets){
   // encodePacket efficient as it uses WS framing
   // no need for encodePayload
   for (var i = 0, l = packets.length; i < l; i++) {
-    var packet = packets[i];
-    parser.encodePacket(packet, this.supportsBinary, function(data) {
+    parser.encodePacket(packets[i], this.supportsBinary, function(data) {
       //Sometimes the websocket has already been closed but the browser didn't
       //have a chance of informing us about it yet, in that case send will
       //throw an error
       try {
-        self.ws.send(data, packet.options);
+        self.ws.send(data);
       } catch (e){
         debug('websocket closed before onclose event');
       }
