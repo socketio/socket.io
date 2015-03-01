@@ -192,7 +192,7 @@ server.listen(3000);
   ```js
   var io = require('socket.io')();
   var namespaceId = '/mynamespace123';
-  if io.has(namespaceId) {
+  if (io.has(namespaceId)) {
     debug('namespace ' + namespaceId + ' exists!';
   } else {
     debug('namespace ' + namespaceId + ' does not exist!';
