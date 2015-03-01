@@ -182,6 +182,23 @@ server.listen(3000);
 
   If the namespace was already initialized it returns it right away.
 
+### Server#has(nsp:String):Namespace
+
+  Checks for the existance of the given `Namespace` by its pathname
+  identifier `nsp`.
+
+  If the namespace exists, it is returned.
+
+  ```js
+  var io = require('socket.io')();
+  var namespaceId = '/mynamespace123';
+  if io.has(namespaceId) {
+    debug('namespace ' + namespaceId + ' exists!';
+  } else {
+    debug('namespace ' + namespaceId + ' does not exist!';
+  }
+  ```
+
 ### Server#emit
 
   Emits an event to all connected clients. The following two are
