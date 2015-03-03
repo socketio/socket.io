@@ -50,4 +50,13 @@ describe('parser', function(){
       nsp: '/'
     });
   });
+
+  it('decodes a bad binary packet', function(){
+    try {
+      var decoder = new parser.Decoder();
+      decoder.add('5');
+    } catch(e){
+      expect(e.message).to.match(/Illegal/);
+    }
+  });
 });
