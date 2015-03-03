@@ -1375,7 +1375,7 @@ describe('socket.io', function(){
             done();
           });
           s.conn.on('upgrade', function(){
-            socket.io.engine.transport.ws.send('45');
+            socket.io.engine.write('5');
           });
         });
       });
