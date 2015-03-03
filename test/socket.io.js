@@ -1363,6 +1363,23 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should handle empty binary packet', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.once('error', function(err){
+            expect(err.message).to.match(/Illegal attachments/);
+            done();
+          });
+          s.conn.on('upgrade', function(){
+            socket.io.engine.transport.ws.send('45');
+          });
+        });
+      });
+    });
   });
 
   describe('messaging many', function(){
