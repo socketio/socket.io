@@ -284,7 +284,7 @@ function decodeString(str) {
     var buf = '';
     while (str.charAt(++i) != '-') {
       buf += str.charAt(i);
-      if (i + 1 == str.length) break;
+      if (i == str.length) break;
     }
     if (buf != Number(buf) || str.charAt(i) != '-') {
       throw new Error('Illegal attachments');
@@ -299,7 +299,7 @@ function decodeString(str) {
       var c = str.charAt(i);
       if (',' == c) break;
       p.nsp += c;
-      if (i + 1 == str.length) break;
+      if (i == str.length) break;
     }
   } else {
     p.nsp = '/';
@@ -316,7 +316,7 @@ function decodeString(str) {
         break;
       }
       p.id += str.charAt(i);
-      if (i + 1 == str.length) break;
+      if (i == str.length) break;
     }
     p.id = Number(p.id);
   }
