@@ -6,6 +6,8 @@ var join = require('path').join;
 var ioc = require('socket.io-client');
 var request = require('supertest');
 var expect = require('expect.js');
+var co = require('co');
+var Promise = require("bluebird");
 
 // Creates a socket.io client for the given server
 function client(srv, nsp, opts){
@@ -1794,7 +1796,6 @@ describe('socket.io', function(){
       });
     });
 
-
     it('keeps track of rooms', function(done){
       var srv = http();
       var sio = io(srv);
@@ -1802,20 +1803,20 @@ describe('socket.io', function(){
       srv.listen(function(){
         var socket = client(srv);
         sio.on('connection', function(s){
-          s.join('a', function(){
+          var joinP = Promise.promisify(s.join.bind(s));
+          var leaveP = Promise.promisify(s.leave.bind(s));
+          co(function *() {
+            yield (joinP('a'));
             expect(s.rooms).to.eql([s.id, 'a']);
-            s.join('b', function(){
-              expect(s.rooms).to.eql([s.id, 'a', 'b']);
-              s.join( 'c', function(){
-                expect(s.rooms).to.eql([s.id, 'a', 'b', 'c']);
-                s.leave('b', function(){
-                  expect(s.rooms).to.eql([s.id, 'a', 'c']);
-                  s.leaveAll();
-                  expect(s.rooms).to.eql([]);
-                  done();
-                });
-              });
-            });
+            yield (joinP('b'));
+            expect(s.rooms).to.eql([s.id, 'a', 'b']);
+            yield (joinP('c'));
+            expect(s.rooms).to.eql([s.id, 'a', 'b', 'c']);
+            yield (leaveP('b'));
+            expect(s.rooms).to.eql([s.id, 'a', 'c']);
+            s.leaveAll();
+            expect(s.rooms).to.eql([]);
+            done();
           });
         });
       });
@@ -1828,12 +1829,14 @@ describe('socket.io', function(){
       srv.listen(function(){
         var socket = client(srv);
         sio.on('connection', function(s){
-          s.join('a', function(){
+          var joinP = Promise.promisify(s.join.bind(s));
+          var leaveP = Promise.promisify(s.leave.bind(s));
+          co(function *() {
+            yield (joinP('a'));
             expect(s.nsp.adapter.rooms).to.have.key('a');
-            s.leave('a', function(){
-              expect(s.nsp.adapter.rooms).to.not.have.key('a');
-              done();
-            });
+            yield (leaveP('a'));
+            expect(s.nsp.adapter.rooms).to.not.have.key('a');
+            done();
           });
         });
       });
@@ -1846,17 +1849,18 @@ describe('socket.io', function(){
       srv.listen(function(){
         var socket = client(srv);
         sio.on('connection', function(s){
-          s.join('a', function(){
+          var joinP = Promise.promisify(s.join.bind(s));
+          var leaveP = Promise.promisify(s.leave.bind(s));
+          co(function *() {
+            yield (joinP('a'));
             expect(s.rooms).to.eql([s.id, 'a']);
-            s.join('b', function(){
-              expect(s.rooms).to.eql([s.id, 'a', 'b']);
-              s.leave('unknown', function(){
-                expect(s.rooms).to.eql([s.id, 'a', 'b']);
-                s.leaveAll();
-                expect(s.rooms).to.eql([]);
-                done();
-              });
-            });
+            yield (joinP('b'));
+            expect(s.rooms).to.eql([s.id, 'a', 'b']);
+            yield (leaveP('unknown'));
+            expect(s.rooms).to.eql([s.id, 'a', 'b']);
+            s.leaveAll();
+            expect(s.rooms).to.eql([]);
+            done();
           });
         });
       });
