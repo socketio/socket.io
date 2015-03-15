@@ -96,7 +96,6 @@ Socket.IO is compatible with [browserify](http://browserify.org/).
 
 #### Events
 
-  - `connect`. Fired upon a successful connection.
   - `connect_error`. Fired upon a connection error.
     Parameters:
       - `Object` error object
