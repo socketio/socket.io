@@ -730,6 +730,55 @@ describe('socket.io', function(){
         });
       }
     });
+
+    it('should find the correct clients on subsequent runs', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var chatFooSid = null;
+      var chatBarSid = null;
+      var otherSid = null;
+      srv.listen(function(){
+        var c1 = client(srv, '/chat');
+        var c2 = client(srv, '/chat', {forceNew: true});
+        var c3 = client(srv, '/other', {forceNew: true});
+        var chatIndex = 0;
+        var total = 3;
+        sio.of('/chat').on('connection', function(socket){
+          if (chatIndex++) {
+            socket.join('foo', function() {
+              chatFooSid = socket.id;
+              --total || getClients();
+            });
+          } else {
+            socket.join('bar', function() {
+              chatBarSid = socket.id;
+              --total || getClients();
+            });
+          }
+        });
+        sio.of('/other').on('connection', function(socket){
+          socket.join('foo', function() {
+            otherSid = socket.id;
+            --total || getClients();
+          });
+        });
+      });
+      function getClients() {
+        sio.of('/chat').in('foo').clients(function(error, sids) {
+          expect(error).to.not.be.ok();
+          expect(sids).to.contain(chatFooSid);
+          expect(sids).to.not.contain(chatBarSid);
+          expect(sids).to.not.contain(otherSid);
+          sio.of('/chat').in('bar').clients(function(error, sids) {
+            expect(error).to.not.be.ok();
+            expect(sids).to.contain(chatBarSid);
+            expect(sids).to.not.contain(chatFooSid);
+            expect(sids).to.not.contain(otherSid);
+            done();
+          });
+        });
+      }
+    });
   });
 
   describe('socket', function(){
