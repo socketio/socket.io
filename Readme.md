@@ -292,6 +292,26 @@ server.listen(3000);
   Errors passed to middleware callbacks are sent as special `error`
   packets to clients.
 
+### Namespace#intercom(name:String[, …]):Namespace
+
+  Emits an event to server sockets socket identified by the string `name`. Any
+  other parameters can be included.
+
+  All datastructures are supported, including `Buffer`. JavaScript
+  functions can't be serialized/deserialized.
+
+  ```js
+  var io = require('socket.io')();
+  io.intercom('an event', { some: 'data' });
+  ```
+
+  Intercom also supports `of` and `in`, just like `broadcast`.
+
+  ```js
+  var io = require('socket.io')();
+  io.of('/namespace').in('room').intercom('an event', { some: 'data' });
+  ```
+
 ### Socket
 
   A `Socket` is the fundamental class for interacting with browser
@@ -372,6 +392,15 @@ server.listen(3000);
   var io = require('socket.io')();
   io.on('connection', function(socket){
     socket.to('others').emit('an event', { some: 'data' });
+  });
+  ```
+
+  Intercom (server to server broadcasting) works the same.
+
+  ```js
+  var io = require('socket.io')();
+  io.on('connection', function(socket){
+    socket.to('others').intercom.emit('an event', { some: 'data' });
   });
   ```
 

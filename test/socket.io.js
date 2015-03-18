@@ -597,7 +597,7 @@ describe('socket.io', function(){
         });
       });
     });
-    
+
     it('should not reuse same-namespace connections', function(done){
       var srv = http();
       var sio = io(srv);
@@ -1608,6 +1608,34 @@ describe('socket.io', function(){
       });
     });
 
+    it('intercoms to a namespace', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var total = 2;
+
+      srv.listen(function(){
+        var socket1 = client(srv, { multiplex: false });
+        var socket2 = client(srv, { multiplex: false });
+        var socket3 = client(srv, '/test');
+
+        var sockets = 3;
+        sio.on('connection', function(socket){
+          socket.on('a', function(a){
+            expect(a).to.be('b');
+            --total || done();
+          });
+          --sockets || intercom();
+        });
+        sio.of('/test', function(socket){
+          socket.on('a', function(){ done(new Error('not')); });
+          --sockets || intercom();
+        });
+        function intercom(){
+          sio.intercom('a', 'b');
+        }
+      });
+    });
+
     it('emits to the rest', function(done){
       var srv = http();
       var sio = io(srv);
@@ -1634,6 +1662,47 @@ describe('socket.io', function(){
             done();
           });
         });
+      });
+    });
+
+    it('intercoms to the rest', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var total = 2;
+
+      srv.listen(function(){
+        var socket1 = client(srv, { multiplex: false });
+        var socket2 = client(srv, { multiplex: false });
+        var socket3 = client(srv, '/test');
+        socket1.emit('other');
+        socket2.emit('self');
+        socket3.emit('namespace');
+
+        var sockets = 3;
+        var intercomSocket = null;
+        sio.on('connection', function(socket){
+          socket.on('other', function(){
+            socket.on('a', function(a){
+              expect(a).to.be('b');
+              setTimeout(done, 10);
+            });
+            --sockets || intercom()
+          });
+          socket.on('self', function(){
+            socket.on('a', function(){ done(new Error('wrong socket')); });
+            intercomSocket = socket;
+            --sockets || intercom()
+          });
+        });
+        sio.of('/test', function(socket){
+          socket.on('namespace', function(){
+            socket.on('a', function(){ done(new Error('wrong namespace')); });
+            --sockets || intercom()
+          });
+        });
+        function intercom(){
+          intercomSocket.intercom.emit('a', 'b');
+        }
       });
     });
 
@@ -1706,6 +1775,49 @@ describe('socket.io', function(){
       });
     });
 
+    it('intercoms to rooms avoiding dupes', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var total = 2;
+      var sockets = total;
+
+      srv.listen(function(){
+        var socket1 = client(srv, { multiplex: false });
+        var socket2 = client(srv, { multiplex: false });
+
+        socket1.emit('first');
+        socket2.emit('second');
+
+        sio.on('connection', function(socket){
+          socket.on('first', function(){
+            socket.join('woot', function(){
+              socket.join('test', function(){
+                socket.on('a', function(){
+                  --total || done();
+                });
+                --sockets || intercom();
+              });
+            });
+          });
+          socket.on('second', function(){
+            socket.join('third', function(){
+              socket.on('a', function(){
+                done(new Error('not'));
+              });
+              socket.on('b', function(){
+                --total || done();
+              });
+              --sockets || intercom();
+            });
+          });
+          function intercom(){
+            sio.in('woot').in('test').intercom('a');
+            sio.in('third').intercom('b');
+          }
+        });
+      });
+    });
+
     it('broadcasts to rooms', function(done){
       var srv = http();
       var sio = io(srv);
@@ -1745,6 +1857,55 @@ describe('socket.io', function(){
             socket.emit('b');
           });
         });
+      });
+    });
+
+    it('intercoms to rooms', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var total = 1;
+      var sockets = 3;
+
+      srv.listen(function(){
+        var socket1 = client(srv, { multiplex: false });
+        var socket2 = client(srv, { multiplex: false });
+        var socket3 = client(srv, { multiplex: false });
+
+        socket1.emit('first');
+        socket2.emit('second');
+        socket3.emit('third');
+
+        var intercomSocket = null;
+        sio.on('connection', function(socket){
+          socket.on('first', function(){
+            socket.join('woot', function(){
+              socket.on('a', function(){
+                done(new Error('wrong room'));
+              });
+              --sockets || intercom();
+            });
+          });
+          socket.on('second', function(){
+            socket.join('test', function(){
+              socket.on('a', function(){
+                --total || done();
+              });
+              --sockets || intercom();
+            });
+          });
+          socket.on('third', function(){
+            socket.join('test', function(){
+              socket.on('a', function(){
+                done(new Error('wrong socket'));
+              });
+              intercomSocket = socket;
+              --sockets || intercom();
+            });
+          });
+        });
+        function intercom(){
+          intercomSocket.intercom.to('test').emit('a');
+        };
       });
     });
 
