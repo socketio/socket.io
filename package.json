@@ -2,6 +2,7 @@
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
   "version": "1.5.1",
+  "license": "MIT",
   "homepage": "http://socket.io",
   "contributors": [
     {
