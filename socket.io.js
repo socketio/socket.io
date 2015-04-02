@@ -927,14 +927,14 @@ Socket.prototype.ack = function(id){
  */
 
 Socket.prototype.onack = function(packet){
-  debug('calling ack %s with %j', packet.id, packet.data);
-  if (this.acks[packet.id]) {
-    var fn = this.acks[packet.id];
-    fn.apply(this, packet.data);
-    delete this.acks[packet.id];
-  } else {
-    // FIXME: is this an issue if the packet id does not exist in the acks?
-  }
+    var ack = this.acks[packet.id];
+    if ('function' == typeof ack) {
+        debug('calling ack %s with %j', packet.id, packet.data);
+        ack.apply(this, packet.data);
+        delete this.acks[packet.id];
+    } else {
+        debug('bad ack %s', packet.id);
+    }
 };
 
 /**
