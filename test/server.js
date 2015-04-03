@@ -95,6 +95,18 @@ describe('server', function () {
       });
     });
 
+    it('should send the cookie with custom path', function (done) {
+      var engine = listen({ cookiePath: '/' }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'polling', b64: 1 })
+          .end(function (res) {
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; path=/');
+            done();
+          });
+      });
+    });
+
     it('should not send the io cookie', function (done) {
       var engine = listen({ cookie: false }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
