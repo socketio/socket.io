@@ -11,6 +11,7 @@
     "socket",
     "io"
   ],
+  "main": "./lib/index",
   "repository": {
     "type": "git",
     "url": "git://github.com/Automattic/socket.io"
