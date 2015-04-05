@@ -405,6 +405,12 @@ describe('socket.io', function(){
       expect(sio.emit).to.be.a('function');
       expect(sio.send).to.be.a('function');
       expect(sio.write).to.be.a('function');
+      expect(sio.clients).to.be.a('function');
+      expect(sio.compress).to.be.a('function');
+      expect(sio.json).to.be(sio);
+      expect(sio.volatile).to.be(sio);
+      expect(sio.sockets.flags).to.eql({ json: true, volatile: true });
+      delete sio.sockets.flags;
     });
 
     it('should automatically connect', function(done){
@@ -729,6 +735,87 @@ describe('socket.io', function(){
           done();
         });
       }
+    });
+
+    it('should not emit volatile event after regular event', function(done) {
+      var srv = http();
+      var sio = io(srv);
+
+      var counter = 0;
+      srv.listen(function(){
+        sio.of('/chat').on('connection', function(s){
+          // Wait to make sure there are no packets being sent for opening the connection
+          setTimeout(function() {
+            sio.of('/chat').emit('ev', 'data');
+            sio.of('/chat').volatile.emit('ev', 'data');
+          }, 20);
+        });
+
+        var socket = client(srv, '/chat');
+        socket.on('ev', function() {
+          counter++;
+        });
+      });
+
+      setTimeout(function() {
+        expect(counter).to.be(1);
+        done();
+      }, 200);
+    });
+
+    it('should emit volatile event', function(done) {
+      var srv = http();
+      var sio = io(srv);
+
+      var counter = 0;
+      srv.listen(function(){
+        sio.of('/chat').on('connection', function(s){
+          // Wait to make sure there are no packets being sent for opening the connection
+          setTimeout(function() {
+            sio.of('/chat').volatile.emit('ev', 'data');
+          }, 20);
+        });
+
+        var socket = client(srv, '/chat');
+        socket.on('ev', function() {
+          counter++;
+        });
+      });
+
+      setTimeout(function() {
+        expect(counter).to.be(1);
+        done();
+      }, 200);
+    });
+
+    it('should enable compression by default', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv, '/chat');
+        sio.of('/chat').on('connection', function(s){
+          s.conn.once('packetCreate', function(packet) {
+            expect(packet.options.compress).to.be(true);
+            done();
+          });
+          sio.of('/chat').emit('woot', 'hi');
+        });
+      });
+    });
+
+    it('should disable compression', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv, '/chat');
+        sio.of('/chat').on('connection', function(s){
+          s.conn.once('packetCreate', function(packet) {
+            expect(packet.options.compress).to.be(false);
+            done();
+          });
+          sio.of('/chat').compress(false).emit('woot', 'hi');
+        });
+      });
     });
   });
 
