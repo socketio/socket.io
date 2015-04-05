@@ -21,6 +21,24 @@ describe('connection', function() {
     socket.disconnect();
   });
 
+  it('should start two connections with same path', function(){
+    var s1 = io('/');
+    var s2 = io('/');
+
+    expect(s1.io).to.not.be(s2.io);
+    s1.disconnect();
+    s2.disconnect();
+  });
+
+  it('should start two connections with same path and different querystrings', function(){
+    var s1 = io('/?woot');
+    var s2 = io('/');
+
+    expect(s1.io).to.not.be(s2.io);
+    s1.disconnect();
+    s2.disconnect();
+  });
+
   it('should work with acks', function(done){
     var socket = io({ forceNew: true });
     socket.emit('ack');
