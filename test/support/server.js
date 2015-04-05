@@ -2,7 +2,7 @@
 // this is a test server to support tests which make requests
 
 var io = require('socket.io');
-var server = io(process.env.ZUUL_PORT);
+var server = io(process.env.ZUUL_PORT, { pingInterval: 2000 });
 var expect = require('expect.js');
 
 server.of('/foo').on('connection', function(){
@@ -63,7 +63,7 @@ server.on('connection', function(socket){
 
   // binary test
   socket.on('doge', function(){
-    buf = new Buffer('asdfasdf', 'utf8');
+    var buf = new Buffer('asdfasdf', 'utf8');
     socket.emit('doge', buf);
   });
 
@@ -125,7 +125,7 @@ server.on('connection', function(socket){
 
   // emit buffer to base64 receiving browsers
   socket.on('getbin', function() {
-    buf = new Buffer('asdfasdf', 'utf8');
+    var buf = new Buffer('asdfasdf', 'utf8');
     socket.emit('takebin', buf);
   });
 });
