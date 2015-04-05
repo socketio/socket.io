@@ -112,6 +112,11 @@ Adapter.prototype.broadcast = function(packet, opts){
   var rooms = opts.rooms || [];
   var except = opts.except || [];
   var flags = opts.flags || {};
+  var packetOpts = {
+    preEncoded: true,
+    volatile: flags.volatile,
+    compress: flags.compress
+  };
   var ids = {};
   var self = this;
   var socket;
@@ -127,7 +132,7 @@ Adapter.prototype.broadcast = function(packet, opts){
             if (ids[id] || ~except.indexOf(id)) continue;
             socket = self.nsp.connected[id];
             if (socket) {
-              socket.packet(encodedPackets, true, flags.volatile);
+              socket.packet(encodedPackets, packetOpts);
               ids[id] = true;
             }
           }
@@ -138,7 +143,7 @@ Adapter.prototype.broadcast = function(packet, opts){
         if (self.sids.hasOwnProperty(id)) {
           if (~except.indexOf(id)) continue;
           socket = self.nsp.connected[id];
-          if (socket) socket.packet(encodedPackets, true, flags.volatile);
+          if (socket) socket.packet(encodedPackets, packetOpts);
         }
       }
     }
