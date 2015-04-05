@@ -24,6 +24,17 @@ describe('socket', function(){
     });
   });
 
+  it('doesn\'t fire a connect_error if we force disconnect in opening state', function(done){
+    var socket = io({ forceNew: true, timeout: 100 });
+    socket.disconnect();
+    socket.on('connect_error', function(){
+      throw new Error('Unexpected');
+    });
+    setTimeout(function(){
+      done();
+    }, 300);
+  });
+
   it('should change socket.id upon reconnection', function(done){
     var socket = io({ forceNew: true });
     socket.on('connect', function(){
