@@ -177,6 +177,33 @@ if (!env.browser) {
       });
       polling.doOpen();
     });
+
+    describe('for extraHeaders', function () {
+      it('should correctly set them for WebSockets', function () {
+        var headers = {
+          'X-Custom-Header-For-My-Project': 'my-secret-access-token',
+          'Cookie': 'user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly'
+        };
+        var polling = new eio.transports.websocket({
+            path: '/engine.io'
+          , hostname: 'localhost'
+          , extraHeaders: headers
+        });
+        expect(polling.extraHeaders).to.equal(headers);
+      });
+      it('should correctly set them for XMLHttpRequest', function () {
+        var headers = {
+          'X-Custom-Header-For-My-Project': 'my-secret-access-token',
+          'Cookie': 'user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly'
+        };
+        var polling = new eio.transports.polling({
+            path: '/engine.io'
+          , hostname: 'localhost'
+          , extraHeaders: headers
+        });
+        expect(polling.extraHeaders).to.equal(headers);
+      });
+    });
   });
 }
 

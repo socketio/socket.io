@@ -102,6 +102,22 @@ socket.on('open', function(){
 });
 ```
 
+### Node.js with extraHeaders
+```js
+var opts = {
+  extraHeaders: {
+    'X-Custom-Header-For-My-Project': 'my-secret-access-token',
+    'Cookie': 'user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly'
+  }
+};
+
+var socket = require('engine.io-client')('ws://localhost', opts);
+socket.on('open', function(){
+  socket.on('message', function(data){});
+  socket.on('close', function(){});
+});
+```
+
 ## Features
 
 - Lightweight
@@ -205,6 +221,7 @@ Exposed as `eio` in the browser standalone build.
       - `rejectUnauthorized` (`Boolean`): If true, the server certificate is verified against the list of supplied CAs. An 'error' event is emitted if verification fails. Verification happens at the connection level, before the HTTP request is sent. Can be used in Node.js client environment to manually specify certificate information.
       - `perMessageDeflate` (`Object|Boolean`): parameters of the WebSocket permessage-deflate extension
         (see [ws module](https://github.com/einaros/ws) api docs). Set to `false` to disable. (`true`)
+      - `extraHeaders` (`Object`): Headers that will be passed for each request to the server (via xhr-polling and via websockets). These values then can be used during handshake or for special proxies. Can only be used in Node.js client environment.
 - `send`
     - Sends a message to the server
     - **Parameters**
