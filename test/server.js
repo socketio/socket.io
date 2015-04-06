@@ -2171,7 +2171,7 @@ describe('server', function () {
 
     var headers = {
       'x-custom-header-for-my-project': 'my-secret-access-token',
-      'Cookie': 'user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly'
+      'cookie': 'user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly'
     };
 
     function testForTransport(transport, done) {
@@ -2181,17 +2181,12 @@ describe('server', function () {
           transports: [transport]
         });
         engine.on('connection', function (conn) {
-          conn.send(JSON.stringify({ headers: headers }));
+          for (var h in headers) {
+            expect(conn.request.headers[h]).to.equal(headers[h]);
+          }
+          done();
         });
-        socket.on('open', function () {
-          socket.on('message', function (msg) {
-            var result = JSON.parse(msg);
-            for (var h in headers) {
-              expect(result.headers[h]).to.equal(headers[h]);
-            }
-            done();
-          });
-        });
+        socket.on('open', function () {});
       });
     }
 
