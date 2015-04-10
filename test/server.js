@@ -2165,4 +2165,37 @@ describe('server', function () {
       });
     });
   });
+
+  describe('extraHeaders', function () {
+    this.timeout(5000);
+
+    var headers = {
+      'x-custom-header-for-my-project': 'my-secret-access-token',
+      'cookie': 'user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly'
+    };
+
+    function testForTransport(transport, done) {
+      var engine = listen(function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), {
+          extraHeaders: headers,
+          transports: [transport]
+        });
+        engine.on('connection', function (conn) {
+          for (var h in headers) {
+            expect(conn.request.headers[h]).to.equal(headers[h]);
+          }
+          done();
+        });
+        socket.on('open', function () {});
+      });
+    }
+
+    it('should arrive from client to server via WebSockets', function (done) {
+      testForTransport('websocket', done);
+    });
+
+    it('should arrive from client to server via XMLHttpRequest', function (done) {
+      testForTransport('polling', done);
+    });
+  });
 });
