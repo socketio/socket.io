@@ -120,6 +120,28 @@ describe('server', function () {
       });
     });
 
+    it('should register a new client with custom id', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        expect(Object.keys(engine.clients)).to.have.length(0);
+        expect(engine.clientsCount).to.be(0);
+
+        var customId = 'CustomId' + Date.now();
+
+        engine.generateId = function(req) {
+          return customId;
+        };
+
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.once('open', function () {
+          expect(Object.keys(engine.clients)).to.have.length(1);
+          expect(engine.clientsCount).to.be(1);
+          expect(socket.id).to.be(customId);
+          expect(engine.clients[customId].id).to.be(customId);
+          done();
+        });
+      });
+    });
+
     it('should exchange handshake data', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
