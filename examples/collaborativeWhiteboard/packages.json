@@ -1,0 +1,24 @@
+{
+  "name": "socket-collaborative-example",
+  "version": "0.0.1",
+  "description": "a simple collaborative whiteboard using socket.io",
+  "main": "index.js",
+  "author": "Ruben Abergel",
+  "license": "BSD",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "~4.9.x",
+    "socket.io": "*",
+  },
+  "engines": {
+    "node": "0.12.2"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "express"
+  ],
+  "license": "MIT"
+}
