@@ -44,4 +44,34 @@ describe('engine.io-client', function () {
     client.close();
   });
 
+  it('should properly parse an IPv6 host without port (1/2)', function(done) {
+    var client = eio({ host: '[::1]' });
+    client.on('close', function() {
+      done();
+    });
+    expect(client.hostname).to.be('[::1]');
+    expect(client.port).to.be('80');
+    client.close();
+  });
+
+  it('should properly parse an IPv6 host without port (2/2)', function(done) {
+    var client = eio({ secure: true, host: '[::1]:' });
+    client.on('close', function() {
+      done();
+    });
+    expect(client.hostname).to.be('[::1]');
+    expect(client.port).to.be('443');
+    client.close();
+  });
+
+  it('should properly parse an IPv6 host with port', function(done) {
+    var client = eio({ host: '[::1]:8080' });
+    client.on('close', function() {
+      done();
+    });
+    expect(client.hostname).to.be('[::1]');
+    expect(client.port).to.be('8080');
+    client.close();
+  });
+
 });
