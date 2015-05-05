@@ -12,6 +12,7 @@
     "io"
   ],
   "main": "./lib/index",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git://github.com/Automattic/socket.io"
