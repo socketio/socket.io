@@ -24,7 +24,7 @@
   ],
   "dependencies": {
     "has-cors": "1.0.3",
-    "ws": "0.7.1",
+    "ws": "0.7.2",
     "xmlhttprequest": "https://github.com/rase-/node-XMLHttpRequest/archive/a6b6f2.tar.gz",
     "component-emitter": "1.1.2",
     "indexof": "0.0.1",
