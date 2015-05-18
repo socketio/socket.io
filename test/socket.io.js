@@ -331,12 +331,12 @@ describe('socket.io', function(){
       var clientSocket = client(srv, { reconnection: false });
 
       clientSocket.on('disconnect', function init() {
-        expect(sio.nsps['/'].sockets.length).to.equal(0);
+        expect(Object.keys(sio.nsps['/'].sockets).length).to.equal(0);
         server.listen(PORT);
       });
 
       clientSocket.on('connect', function init() {
-        expect(sio.nsps['/'].sockets.length).to.equal(1);
+        expect(Object.keys(sio.nsps['/'].sockets).length).to.equal(1);
         sio.close();
       });
 
@@ -358,12 +358,12 @@ describe('socket.io', function(){
       var clientSocket = ioc('ws://0.0.0.0:' + PORT);
 
       clientSocket.on('disconnect', function init() {
-        expect(sio.nsps['/'].sockets.length).to.equal(0);
+        expect(Object.keys(sio.nsps['/'].sockets).length).to.equal(0);
         server.listen(PORT);
       });
 
       clientSocket.on('connect', function init() {
-        expect(sio.nsps['/'].sockets.length).to.equal(1);
+        expect(Object.keys(sio.nsps['/'].sockets).length).to.equal(1);
         sio.close();
       });
 
