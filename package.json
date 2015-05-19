@@ -34,6 +34,7 @@
     "superagent": "0.17.0",
     "istanbul": "0.2.3"
   },
+  "license": "MIT",
   "contributors": [
     {
       "name": "Guillermo Rauch",
