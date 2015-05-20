@@ -10,6 +10,9 @@
     "client"
   ],
   "main": "./lib/index",
+  "jspm": {
+    "main": "socket.io.js"
+  },
   "dependencies": {
     "debug": "2.1.3",
     "engine.io-client": "automattic/engine.io-client#fb7c198",
