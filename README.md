@@ -247,6 +247,12 @@ to a single process.
       - `path` (`String`): name of the path to capture (`/engine.io`).
       - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
       - `destroyUpgradeTimeout` (`Number`): milliseconds after which unhandled requests are ended (`1000`)
+- `generateId`
+    - Generate a socket id.
+    - Overwrite this method to generate your custom socket id.
+    - **Parameters**
+      - `http.ServerRequest`: a node request object
+  - **Returns** A socket id for connected client.
 
 <hr><br>
 
