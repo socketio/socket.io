@@ -10,6 +10,7 @@ describe('arraybuffer', function() {
       binaryData[i] = i;
     }
     var socket = new eio.Socket({ transports: ['polling'] });
+    socket.binaryType = 'arraybuffer';
     socket.on('open', function() {
       socket.send(binaryData);
       socket.on('message', function (data) {
@@ -31,6 +32,7 @@ describe('arraybuffer', function() {
 
     var msg = 0;
     var socket = new eio.Socket({ transports: ['polling'] });
+    socket.binaryType = 'arraybuffer';
     socket.on('open', function() {
       socket.send(binaryData);
       socket.send('cash money €€€');
@@ -56,6 +58,7 @@ describe('arraybuffer', function() {
       binaryData[i] = i;
     }
     var socket = new eio.Socket({ forceBase64: true });
+    socket.binaryType = 'arraybuffer';
     socket.on('open', function() {
       socket.send(binaryData);
       socket.on('message', function (data) {

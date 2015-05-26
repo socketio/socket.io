@@ -10,6 +10,7 @@ describe('arraybuffer', function() {
       binaryData[i] = i;
     }
     var socket = new eio.Socket();
+    socket.binaryType = 'arraybuffer';
     socket.on('open', function() {
       socket.on('upgrade', function() {
         socket.send(binaryData);
@@ -34,6 +35,7 @@ describe('arraybuffer', function() {
 
     var msg = 0;
     var socket = new eio.Socket();
+    socket.binaryType = 'arraybuffer';
     socket.on('open', function() {
       socket.on('upgrade', function() {
         socket.send(binaryData);
@@ -61,6 +63,7 @@ describe('arraybuffer', function() {
       binaryData[i] = i;
     }
     var socket = new eio.Socket({ forceBase64: true });
+    socket.binaryType = 'arraybuffer';
     socket.on('open', function() {
       socket.on('upgrade', function() {
         socket.send(binaryData);
