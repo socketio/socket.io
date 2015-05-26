@@ -2,33 +2,27 @@
   "name": "engine.io-parser",
   "description": "Parser for the client for the realtime Engine",
   "version": "1.2.1",
-  "homepage": "https://github.com/LearnBoost/engine.io-protocol",
+  "homepage": "https://github.com/Automattic/engine.io-parser",
   "devDependencies": {
     "expect.js": "0.3.1",
-    "mocha": "2.1.0",
-    "zuul": "1.17.1",
-    "zuul-ngrok": "2.0.0"
+    "mocha": "2.2.5",
+    "zuul": "3.0.0",
+    "zuul-ngrok": "3.0.0"
   },
   "dependencies": {
     "after": "0.8.1",
     "arraybuffer.slice": "0.0.6",
     "base64-arraybuffer": "0.1.2",
-    "blob": "0.0.2",
-    "has-binary": "0.1.5",
-    "utf8": "2.0.0"
+    "blob": "0.0.4",
+    "has-binary": "0.1.6",
+    "utf8": "2.1.0"
   },
   "scripts": {
     "test": "make test"
   },
-  "component": {
-    "scripts": {
-      "engine.io-parser/index.js": "lib/index.js",
-      "engine.io-parser/keys.js": "lib/keys.js"
-    }
-  },
   "repository": {
     "type": "git",
-    "url": "git@github.com:LearnBoost/engine.io-parser.git"
+    "url": "git@github.com:Automattic/engine.io-parser.git"
   },
   "browser": "./lib/browser.js"
 }
