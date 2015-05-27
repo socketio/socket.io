@@ -40,7 +40,7 @@
     "browserify": "6.2.0",
     "concat-stream": "1.4.6",
     "derequire": "1.2.0",
-    "engine.io": "automattic/engine.io#299ec66",
+    "engine.io": "automattic/engine.io#1ecf02",
     "expect.js": "0.2.0",
     "express": "3.4.8",
     "istanbul": "0.2.3",
