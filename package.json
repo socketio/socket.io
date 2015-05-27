@@ -24,17 +24,17 @@
     "backo2": "1.0.2"
   },
   "devDependencies": {
-    "socket.io": "automattic/socket.io#874a4a8",
-    "mocha": "1.16.2",
-    "zuul": "1.17.1",
-    "zuul-ngrok": "2.0.0",
-    "istanbul": "0.2.1",
-    "expect.js": "0.2.0",
-    "uglify-js": "2.4.15",
-    "browserify": "4.2.1",
     "base64-arraybuffer": "0.1.0",
+    "browserify": "4.2.1",
+    "expect.js": "0.2.0",
+    "has-cors": "1.0.3",
+    "istanbul": "0.2.1",
+    "mocha": "1.16.2",
+    "socket.io": "automattic/socket.io#874a4a8",
     "text-blob-builder": "0.0.1",
-    "has-cors": "1.0.3"
+    "uglify-js": "2.4.15",
+    "zuul": "3.0.0",
+    "zuul-ngrok": "2.0.0"
   },
   "scripts": {
     "test": "make test"
