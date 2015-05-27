@@ -331,15 +331,12 @@ describe('server', function () {
         socket.on('open', function() {
           socket.on('close', function (reason) {
             expect(socket.writeBuffer.length).to.be(1);
-            expect(socket.callbackBuffer.length).to.be(1);
             setTimeout(function() {
               expect(socket.writeBuffer.length).to.be(0);
-              expect(socket.callbackBuffer.length).to.be(0);
             }, 10);
             done();
           });
           socket.writeBuffer.push({ type: 'message', data: 'foo'});
-          socket.callbackBuffer.push(function() {});
           socket.onError('');
         });
       });
