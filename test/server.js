@@ -2018,7 +2018,6 @@ describe('server', function () {
           socket.on('close', function (reason) {
             expect(reason).to.be('forced close');
             expect(lastSent).to.be(50);
-            expect(lastReceived).to.be(50);
             expect(upgrades).to.be(2);
             --closed || done();
           });
