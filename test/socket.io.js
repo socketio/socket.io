@@ -1567,13 +1567,13 @@ describe('socket.io', function(){
       var srv = http();
       var sio = io(srv);
       srv.listen(function(){
-        var socket = client(srv);
-        sio.on('connection', function(s){
+        var socket = client(srv, '/chat');
+        sio.of('/chat').on('connection', function(s){
           s.conn.once('packetCreate', function(packet) {
             expect(packet.options.compress).to.be(true);
             done();
           });
-          s.emit('woot', 'hi');
+          sio.of('/chat').emit('woot', 'hi');
         });
       });
     });
@@ -1582,13 +1582,13 @@ describe('socket.io', function(){
       var srv = http();
       var sio = io(srv);
       srv.listen(function(){
-        var socket = client(srv);
-        sio.on('connection', function(s){
+        var socket = client(srv, '/chat');
+        sio.of('/chat').on('connection', function(s){
           s.conn.once('packetCreate', function(packet) {
             expect(packet.options.compress).to.be(false);
             done();
           });
-          s.compress(false).emit('woot', 'hi');
+          sio.of('/chat').compress(false).emit('woot', 'hi');
         });
       });
     });
@@ -1622,6 +1622,23 @@ describe('socket.io', function(){
           });
           s.conn.on('upgrade', function(){
             socket.io.engine.write('5woooot');
+          });
+        });
+      });
+    });
+
+    it('should handle empty binary packet', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.once('error', function(err){
+            expect(err.message).to.match(/Illegal attachments/);
+            done();
+          });
+          s.conn.on('upgrade', function(){
+            socket.io.engine.write('5');
           });
         });
       });

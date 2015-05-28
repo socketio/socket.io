@@ -1,4 +1,20 @@
 
+1.3.5 / 2015-03-03
+==================
+
+ * package: bump `socket.io-parser`
+
+1.3.4 / 2015-02-14
+==================
+
+ * package: bump `socket.io-client`
+
+1.3.3 / 2015-02-03
+==================
+
+ * socket: warn node_redis-style about missing `error`
+ * package: bump parser to better handle bad binary packets
+
 1.3.2 / 2015-01-19
 ==================
 
