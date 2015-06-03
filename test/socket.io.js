@@ -603,7 +603,7 @@ describe('socket.io', function(){
         });
       });
     });
-    
+
     it('should not reuse same-namespace connections', function(done){
       var srv = http();
       var sio = io(srv);
