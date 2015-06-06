@@ -52,7 +52,7 @@
     "test": "make test"
   },
   "browser": {
-    "xmlhttprequest": "./lib/xmlhttprequest.js"
+    "xmlhttprequest-ssl": "./lib/xmlhttprequest.js"
   },
   "repository": {
     "type": "git",
