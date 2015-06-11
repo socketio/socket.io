@@ -60,11 +60,10 @@ Adapter.prototype.add = function(id, room, fn){
 
 Adapter.prototype.del = function(id, room, fn){
   this.sids[id] = this.sids[id] || {};
-  this.rooms[room] = this.rooms[room] || Room();
   delete this.sids[id][room];
-  this.rooms[room].del(id);
-  if (this.rooms[room].length === 0) {
-    delete this.rooms[room];
+  if (this.rooms.hasOwnProperty(room)) {
+    this.rooms[room].del(id);
+    if (this.rooms[room].length === 0) delete this.rooms[room];
   }
 
   if (fn) process.nextTick(fn.bind(null, null));
@@ -84,9 +83,7 @@ Adapter.prototype.delAll = function(id, fn){
     for (var room in rooms) {
       if (this.rooms.hasOwnProperty(room)) {
         this.rooms[room].del(id);
-      }
-      if (this.rooms[room].length === 0) {
-        delete this.rooms[room];
+        if (this.rooms[room].length === 0) delete this.rooms[room];
       }
     }
   }
