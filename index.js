@@ -204,20 +204,20 @@ Adapter.prototype.clients = function(rooms, fn){
 * @api private
 */
 
-function Room() {
+function Room(){
   if (!(this instanceof Room)) return new Room();
   this.sockets = {};
   this.length = 0;
 }
 
-Room.prototype.add = function(id) {
+Room.prototype.add = function(id){
   if (!this.sockets.hasOwnProperty(id)) {
     this.sockets[id] = true;
     this.length++;
   }
 };
 
-Room.prototype.del = function(id) {
+Room.prototype.del = function(id){
   if (this.sockets.hasOwnProperty(id)) {
     delete this.sockets[id];
     this.length--;
