@@ -210,12 +210,26 @@ function Room(){
   this.length = 0;
 }
 
+/**
+ * Adds a socket to a room.
+ *
+ * @param {String} socket id
+ * @api private
+ */
+
 Room.prototype.add = function(id){
   if (!this.sockets.hasOwnProperty(id)) {
     this.sockets[id] = true;
     this.length++;
   }
 };
+
+/**
+ * Removes a socket from a room.
+ *
+ * @param {String} socket id
+ * @api private
+ */
 
 Room.prototype.del = function(id){
   if (this.sockets.hasOwnProperty(id)) {
