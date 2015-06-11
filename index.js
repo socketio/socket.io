@@ -82,7 +82,7 @@ Adapter.prototype.delAll = function(id, fn){
   var rooms = this.sids[id];
   if (rooms) {
     for (var room in rooms) {
-      if (rooms.hasOwnProperty(room)) {
+      if (this.rooms.hasOwnProperty(room)) {
         this.rooms[room].del(id);
       }
       if (this.rooms[room].length === 0) {
