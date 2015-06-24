@@ -147,7 +147,7 @@ server.listen(3000);
   __Potential drawbacks__:
   * in some situations, when it is not possible to determine `origin` it may have value of `*`
   * As this function will be executed for every request, it is advised to make this function work as fast as possible
-  * If `socket.io` is used together with `Express`, the CORS headers will be affected only for `socket.io` requests. For Express can use [cors](https://github.com/expressjs/cors)
+  * If `socket.io` is used together with `Express`, the CORS headers will be affected only for `socket.io` requests. For Express can use [cors](https://github.com/expressjs/cors).
 
 
 ### Server#sockets:Namespace
@@ -183,7 +183,7 @@ server.listen(3000);
   Initializes and retrieves the given `Namespace` by its pathname
   identifier `nsp`.
 
-  If the namespace was already initialized it returns it right away.
+  If the namespace was already initialized it returns it immediately.
 
 ### Server#emit
 
@@ -285,7 +285,7 @@ server.listen(3000);
 ### Namespace#use(fn:Function):Namespace
 
   Registers a middleware, which is a function that gets executed for
-  every incoming `Socket` and receives as parameter the socket and a
+  every incoming `Socket`, and receives as parameters the socket and a
   function to optionally defer execution to the next registered
   middleware.
 
@@ -448,7 +448,7 @@ These are reserved events (along with `connect`, `newListener` and `removeListen
 ### Client
 
   The `Client` class represents an incoming transport (engine.io)
-  connection. A `Client` can be associated with many multiplexed `Socket`
+  connection. A `Client` can be associated with many multiplexed `Socket`s
   that belong to different `Namespace`s.
 
 ### Client#conn
