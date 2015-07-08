@@ -22,17 +22,17 @@
     }
   ],
   "dependencies": {
-    "has-cors": "1.0.3",
-    "ws": "0.4.31",
-    "xmlhttprequest": "https://github.com/rase-/node-XMLHttpRequest/archive/a6b6f2.tar.gz",
     "component-emitter": "1.1.2",
-    "indexof": "0.0.1",
-    "engine.io-parser": "1.2.1",
+    "component-inherit": "0.0.3",
     "debug": "1.0.4",
-    "parseuri": "0.0.4",
+    "engine.io-parser": "1.2.1",
+    "has-cors": "1.0.3",
+    "indexof": "0.0.1",
     "parsejson": "0.0.1",
     "parseqs": "0.0.2",
-    "component-inherit": "0.0.3"
+    "parseuri": "0.0.4",
+    "ws": "0.7.2",
+    "xmlhttprequest": "https://github.com/rase-/node-XMLHttpRequest/archive/a6b6f2.tar.gz"
   },
   "devDependencies": {
     "blob": "0.0.2",
