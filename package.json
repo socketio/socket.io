@@ -1,7 +1,7 @@
 {
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "license": "MIT",
   "homepage": "http://socket.io",
   "contributors": [
@@ -42,7 +42,7 @@
     "browserify": "6.2.0",
     "concat-stream": "1.4.6",
     "derequire": "1.2.0",
-    "engine.io": "automattic/engine.io#1ecf02",
+    "engine.io": "1.5.2",
     "expect.js": "0.2.0",
     "express": "3.4.8",
     "istanbul": "0.2.3",
