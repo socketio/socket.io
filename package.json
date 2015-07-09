@@ -6,10 +6,22 @@
   "author": "Guillermo Rauch <guillermo@learnboost.com>",
   "homepage": "https://github.com/LearnBoost/engine.io",
   "contributors": [
-    { "name": "Eugen Dueck", "web": "https://github.com/EugenDueck" },
-    { "name": "Afshin Mehrabani", "web": "https://github.com/afshinm" },
-    { "name": "Christoph Dorn", "web": "https://github.com/cadorn" },
-    { "name": "Mark Mokryn", "email": "mokesmokes@gmail.com"}
+    {
+      "name": "Eugen Dueck",
+      "web": "https://github.com/EugenDueck"
+    },
+    {
+      "name": "Afshin Mehrabani",
+      "web": "https://github.com/afshinm"
+    },
+    {
+      "name": "Christoph Dorn",
+      "web": "https://github.com/cadorn"
+    },
+    {
+      "name": "Mark Mokryn",
+      "email": "mokesmokes@gmail.com"
+    }
   ],
   "license": "MIT",
   "dependencies": {
@@ -26,7 +38,9 @@
     "engine.io-client": "automattic/engine.io-client#e595a72",
     "s": "0.1.1"
   },
-  "scripts": { "test" : "make test" },
+  "scripts": {
+    "test": "make test"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com:Automattic/engine.io.git"

@@ -779,7 +779,8 @@ describe('server', function () {
     it('should trigger transport close before open for ws', function(done){
       var opts = { transports: ['websocket'] };
       var engine = listen(opts, function (port) {
-        var socket = new eioc.Socket('ws://invalidserver:%d'.s(port));
+        var url = 'ws://%s:%d'.s('0.0.0.50', port);
+        var socket = new eioc.Socket(url);
         socket.on('open', function(){
           done(new Error('Test invalidation'));
         });
@@ -2216,4 +2217,5 @@ describe('server', function () {
       testForTransport('polling', done);
     });
   });
+
 });
