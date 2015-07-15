@@ -1,4 +1,9 @@
 
+1.3.6 / 2015-07-14
+==================
+
+  * package: bump `engine.io-client` to fix build on windows
+
 1.3.5 / 2015-03-03
 ==================
 
