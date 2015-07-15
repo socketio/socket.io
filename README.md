@@ -1,8 +1,8 @@
 
 # Engine.IO: the realtime engine
 
-[![Build Status](https://travis-ci.org/Automattic/engine.io.svg?branch=master)](https://travis-ci.org/Automattic/engine.io)
-[![NPM version](https://badge.fury.io/js/engine.io.svg)](https://www.npmjs.com/package/engine.io)
+[![Build Status](https://secure.travis-ci.org/socketio/engine.io.png)](http://travis-ci.org/socketio/engine.io)
+[![NPM version](https://badge.fury.io/js/engine.io.png)](http://badge.fury.io/js/engine.io)
 
 `Engine.IO` is the implementation of transport-based
 cross-browser/cross-device bi-directional communication layer for
