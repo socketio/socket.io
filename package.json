@@ -23,7 +23,7 @@
     }
   ],
   "dependencies": {
-    "has-cors": "1.0.3",
+    "has-cors": "1.1.0",
     "ws": "0.7.2",
     "xmlhttprequest-ssl": "1.5.1",
     "component-emitter": "1.1.2",
