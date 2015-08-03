@@ -325,7 +325,7 @@ server.listen(3000);
 
 ### Socket#emit(name:String[, …]):Socket
 
-  Emits an event to the socket identified by the string `name`. Any
+  Emits an event, identified by the string `name`, on the socket. Any
   other parameters can be included.
 
   All datastructures are supported, including `Buffer`. JavaScript
