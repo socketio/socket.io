@@ -1049,7 +1049,7 @@ describe('server', function () {
 
         socket.on('open', function () {
           socket.on('message', function(msg) {
-            for (var i = 0, ii = 0; i < binaryData.length; i += 4, ii++) {
+            for (var i = 0, ii = 0; ii < binaryData.length; i += 4, ii++) {
               var num = msg.readInt32LE(i);
               expect(num).to.be((ii + 100) * 9823);
             }
@@ -1075,7 +1075,7 @@ describe('server', function () {
 
         socket.on('open', function () {
           socket.on('message', function(msg) {
-            for (var i = 0, ii = 0; i < binaryData.length; i += 4, ii++) {
+            for (var i = 0, ii = 0; ii < binaryData.length; i += 4, ii++) {
               var num = msg.readInt32LE(i);
               expect(num).to.be((ii + 100) * 9823);
             }
