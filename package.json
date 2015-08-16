@@ -23,8 +23,8 @@
   "dependencies": {
     "engine.io": "automattic/engine.io#ab2bd0",
     "socket.io-parser": "2.2.4",
-    "socket.io-client": "automattic/socket.io-client#ba31817",
-    "socket.io-adapter": "automattic/socket.io-adapter#de5cba",
+    "socket.io-client": "automattic/socket.io-client#1c96b3a",
+    "socket.io-adapter": "automattic/socket.io-adapter#de5cba4",
     "has-binary": "0.1.6",
     "debug": "2.1.3"
   },
