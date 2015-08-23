@@ -362,7 +362,6 @@ server.listen(3000);
   [socket.io-adapter](https://github.com/Automattic/socket.io-adapter).
 
 ### Socket#to(room:String):Socket
-### Socket#in(room:String):Socket
 
   Sets a modifier for a subsequent event emission that the event will
   only be _broadcasted_ to sockets that have joined the given `room`.
@@ -375,6 +374,10 @@ server.listen(3000);
     socket.to('others').emit('an event', { some: 'data' });
   });
   ```
+
+### Socket#in(room:String):Socket
+
+  Same as `Socket#to`
 
 ### Socket#compress(v:Boolean):Socket
 
