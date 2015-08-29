@@ -379,8 +379,9 @@ describe('server', function () {
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('open', function () {
-          // override onPacket to simulate an inactive server after handshake
+          // override onPacket and Transport#onClose to simulate an inactive server after handshake
           socket.onPacket = function(){};
+          socket.transport.onClose = function(){};
           socket.on('close', function (reason, err) {
             expect(reason).to.be('ping timeout');
             done();
@@ -405,8 +406,9 @@ describe('server', function () {
         });
 
         socket.on('open', function () {
-          // override onPacket to simulate an inactive server after handshake
+          // override onPacket and Transport#onClose to simulate an inactive server after handshake
           socket.onPacket = socket.sendPacket = function(){};
+          socket.transport.onClose = function(){};
           socket.on('close', onClose);
         });
       });
@@ -1697,7 +1699,7 @@ describe('server', function () {
           setTimeout(function() {
             expect(i).to.be(j);
             done();
-          }, 10);
+          }, 100);
         });
       });
 
@@ -1722,7 +1724,7 @@ describe('server', function () {
           setTimeout(function () {
             expect(i).to.be(j);
             done();
-          }, 10);
+          }, 100);
         });
       });
 
