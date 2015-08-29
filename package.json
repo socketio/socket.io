@@ -23,7 +23,7 @@
     }
   ],
   "dependencies": {
-    "has-cors": "1.0.3",
+    "has-cors": "1.1.0",
     "ws": "0.7.2",
     "xmlhttprequest-ssl": "1.5.1",
     "component-emitter": "1.1.2",
@@ -33,9 +33,7 @@
     "parseuri": "0.0.4",
     "parsejson": "0.0.1",
     "parseqs": "0.0.2",
-    "parseuri": "0.0.4",
-    "ws": "0.7.2",
-    "xmlhttprequest": "https://github.com/rase-/node-XMLHttpRequest/archive/a6b6f2.tar.gz"
+    "component-inherit": "0.0.3"
   },
   "devDependencies": {
     "blob": "0.0.2",
