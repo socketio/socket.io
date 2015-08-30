@@ -21,9 +21,9 @@
     "test": "mocha --reporter dot --slow 200ms --bail"
   },
   "dependencies": {
-    "engine.io": "automattic/engine.io#ab2bd0",
+    "engine.io": "automattic/engine.io#f3fd4bb",
     "socket.io-parser": "2.2.4",
-    "socket.io-client": "automattic/socket.io-client#ba31817",
+    "socket.io-client": "automattic/socket.io-client#bf98153",
     "socket.io-adapter": "automattic/socket.io-adapter#de5cba",
     "has-binary": "0.1.6",
     "debug": "2.1.3"
