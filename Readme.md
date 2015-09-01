@@ -418,4 +418,4 @@ DEBUG=socket.io* node myapp
 
 ## License
 
-MIT
+[MIT](LICENSE)
