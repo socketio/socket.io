@@ -250,6 +250,18 @@ describe('connection', function() {
     });
   });
 
+  it('should reconnect after stopping reconnection', function(done){
+    var socket = io('/invalid', { forceNew: true, timeout: 0, reconnectionDelay: 10 });
+    socket.once('reconnect_attempt', function() {
+      socket.on('reconnect_attempt', function() {
+        socket.disconnect();
+        done();
+      });
+      socket.disconnect();
+      socket.connect();
+    });
+  });
+
   it('should stop reconnecting on a socket and keep to reconnect on another', function(done){
     var manager = io.Manager();
     var socket1 = manager.socket('/');
