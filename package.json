@@ -4,7 +4,7 @@
   "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server",
   "main": "./lib/engine.io",
   "author": "Guillermo Rauch <guillermo@learnboost.com>",
-  "homepage": "https://github.com/LearnBoost/engine.io",
+  "homepage": "https://github.com/socketio/engine.io",
   "contributors": [
     {
       "name": "Eugen Dueck",
@@ -43,6 +43,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:Automattic/engine.io.git"
+    "url": "git@github.com:socketio/engine.io.git"
   }
 }
