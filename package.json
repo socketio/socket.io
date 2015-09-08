@@ -3,7 +3,7 @@
   "description": "Client for the realtime Engine",
   "license": "MIT",
   "version": "1.5.4",
-  "homepage": "http://socket.io",
+  "homepage": "https://github.com/socketio/engine.io-client",
   "contributors": [
     {
       "name": "Guillermo Rauch",
@@ -56,6 +56,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Automattic/engine.io-client.git"
+    "url": "https://github.com/socketio/engine.io-client.git"
   }
 }
