@@ -26,7 +26,7 @@
   "dependencies": {
     "base64id": "0.1.0",
     "debug": "1.0.3",
-    "engine.io-parser": "1.2.1",
+    "engine.io-parser": "1.2.2",
     "ws": "0.8.0"
   },
   "devDependencies": {
