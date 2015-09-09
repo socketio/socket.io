@@ -31,7 +31,7 @@
     "parsejson": "0.0.1",
     "parseqs": "0.0.2",
     "parseuri": "0.0.4",
-    "ws": "0.7.2",
+    "ws": "0.8.0",
     "xmlhttprequest": "https://github.com/rase-/node-XMLHttpRequest/archive/a6b6f2.tar.gz"
   },
   "devDependencies": {
