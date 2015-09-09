@@ -2401,7 +2401,7 @@ function formatArgs() {
   var index = 0;
   var lastC = 0;
   args[0].replace(/%[a-z%]/g, function(match) {
-    if ('%' === match) return;
+    if ('%%' === match) return;
     index++;
     if ('%c' === match) {
       // we only are interested in the *last* %c
@@ -2566,7 +2566,7 @@ function debug(namespace) {
     var index = 0;
     args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
       // if we encounter an escaped % then don't increase the array index
-      if (match === '%') return match;
+      if (match === '%%') return match;
       index++;
       var formatter = exports.formatters[format];
       if ('function' === typeof formatter) {
