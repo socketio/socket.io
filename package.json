@@ -25,7 +25,7 @@
     "component-emitter": "1.1.2",
     "component-inherit": "0.0.3",
     "debug": "1.0.4",
-    "engine.io-parser": "1.2.1",
+    "engine.io-parser": "1.2.2",
     "has-cors": "1.0.3",
     "indexof": "0.0.1",
     "parsejson": "0.0.1",
