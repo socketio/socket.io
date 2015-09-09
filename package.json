@@ -18,10 +18,10 @@
     "url": "git://github.com/Automattic/socket.io"
   },
   "scripts": {
-    "test": "mocha --reporter dot --slow 200ms --bail"
+    "test": "mocha --reporter dot --slow 200ms"
   },
   "dependencies": {
-    "engine.io": "automattic/engine.io#f3fd4bb",
+    "engine.io": "1.5.3",
     "socket.io-parser": "2.2.4",
     "socket.io-client": "automattic/socket.io-client#bf98153",
     "socket.io-adapter": "automattic/socket.io-adapter#de5cba",
