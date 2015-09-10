@@ -34,7 +34,8 @@
     "mocha": "1.12.0",
     "expect.js": "0.2.0",
     "superagent": "0.15.4",
-    "engine.io-client": "socketio/engine.io-client#79c97b9",
+    "engine.io-client": "socketio/engine.io-client#da24c1f",
+    "base64id": "0.1.0",
     "s": "0.1.1"
   },
   "scripts": {
