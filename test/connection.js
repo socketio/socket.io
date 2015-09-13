@@ -37,10 +37,10 @@ describe('connection', function() {
   it('should receive emoji', function(done) {
     var socket = new eio.Socket();
     socket.on('open', function () {
-      socket.send('\uD800-\uDB7F\uDB80-\uDBFF\uDC00-\uDFFF\uE000-\uF8FF');
+      socket.send('\uD800\uDC00-\uDB7F\uDFFF\uDB80\uDC00-\uDBFF\uDFFF\uE000-\uF8FF');
       socket.on('message', function (data) {
         if ('hi' == data) return;
-        expect(data).to.be('\uD800-\uDB7F\uDB80-\uDBFF\uDC00-\uDFFF\uE000-\uF8FF');
+        expect(data).to.be('\uD800\uDC00-\uDB7F\uDFFF\uDB80\uDC00-\uDBFF\uDFFF\uE000-\uF8FF');
         socket.close();
         done();
       });
