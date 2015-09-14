@@ -196,9 +196,9 @@ Exposed as `eio` in the browser standalone build.
         will be used instead.
       - `forceBase64` (`Boolean`): forces base 64 encoding for polling transport even when XHR2 responseType is available and WebSocket even if the used standard supports binary.
       - `enablesXDR` (`Boolean`): enables XDomainRequest for IE8 to avoid loading bar flashing with click sound. default to `false` because XDomainRequest has a flaw of not sending cookie.
-      - `timestampRequests` (`Boolean`): whether to add the timestamp with
-        each transport request. Note: this is ignored if the browser is
-        IE or Android, in which case requests are always stamped (`false`)
+      - `timestampRequests` (`Boolean`): whether to add the timestamp with each
+        transport request. Note: polling requests are always stamped unless this
+        option is explicitly set to `false` (`false`)
       - `timestampParam` (`String`): timestamp parameter (`t`)
       - `policyPort` (`Number`): port the policy server listens on (`843`)
       - `path` (`String`): path to connect to, default is `/engine.io`
@@ -209,7 +209,7 @@ Exposed as `eio` in the browser standalone build.
       - `rememberUpgrade` (`Boolean`): defaults to false.
         If true and if the previous websocket connection to the server succeeded,
         the connection attempt will bypass the normal upgrade process and will initially
-        try websocket. A connection attempt following a transport error will use the 
+        try websocket. A connection attempt following a transport error will use the
         normal upgrade process. It is recommended you turn this on only when using
         SSL/TLS connections, or if you know that your network does not block websockets.
       - `pfx` (`String`): Certificate, Private key and CA certificates to use for SSL. Can be used in Node.js client environment to manually specify certificate information.
@@ -217,7 +217,7 @@ Exposed as `eio` in the browser standalone build.
       - `passphrase` (`String`): A string of passphrase for the private key or pfx. Can be used in Node.js client environment to manually specify certificate information.
       - `cert` (`String`): Public x509 certificate to use. Can be used in Node.js client environment to manually specify certificate information.
       - `ca` (`String`|`Array`): An authority certificate or array of authority certificates to check the remote host against.. Can be used in Node.js client environment to manually specify certificate information.
-      - `ciphers` (`String`): A string describing the ciphers to use or exclude. Consult the [cipher format list](http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT) for details on the format.. Can be used in Node.js client environment to manually specify certificate information.
+      - `ciphers` (`String`): A string describing the ciphers to use or exclude. Consult the [cipher format list](http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT) for details on the format. Can be used in Node.js client environment to manually specify certificate information.
       - `rejectUnauthorized` (`Boolean`): If true, the server certificate is verified against the list of supplied CAs. An 'error' event is emitted if verification fails. Verification happens at the connection level, before the HTTP request is sent. Can be used in Node.js client environment to manually specify certificate information.
       - `perMessageDeflate` (`Object|Boolean`): parameters of the WebSocket permessage-deflate extension
         (see [ws module](https://github.com/einaros/ws) api docs). Set to `false` to disable. (`true`)
