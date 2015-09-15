@@ -299,6 +299,25 @@ server.listen(3000);
   clients. A `Socket` belongs to a certain `Namespace` (by default `/`)
   and uses an underlying `Client` to communicate.
 
+### Socket#use(fn:Function):Socket
+
+  Registers a middleware, which is a function that gets executed for
+  every incoming `Packet` and receives as parameter the packet and a
+  function to optionally defer execution to the next registered
+  middleware.
+
+  ```js
+  var io = require('socket.io')();
+  io.on('connection', function(socket){
+    socket.use(function(packet, next){
+      if (packet.doge === true) return next();
+      next(new Error('Not a doge error'));
+  });
+  ```
+
+  Errors passed to middleware callbacks are sent as special `error`
+  packets to clients.
+  
 ### Socket#rooms:Array
 
   A list of strings identifying the rooms this socket is in.
