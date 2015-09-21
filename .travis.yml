@@ -3,6 +3,10 @@ node_js:
   - "0.8"
   - "0.10"
   - "0.12"
+  - iojs-1
+  - iojs-2
+  - iojs-3
+  - node
 
 git:
   depth: 1
