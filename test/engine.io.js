@@ -84,6 +84,7 @@ describe('engine', function () {
         client.setEncoding('ascii');
         client.write([
             'GET / HTTP/1.1'
+          , 'Connection: Upgrade'
           , 'Upgrade: IRC/6.9'
           , '', ''
         ].join('\r\n'));
@@ -109,6 +110,7 @@ describe('engine', function () {
           client.setEncoding('ascii');
           client.write([
               'GET / HTTP/1.1'
+            , 'Connection: Upgrade'
             , 'Upgrade: IRC/6.9'
             , '', ''
           ].join('\r\n'));
@@ -137,6 +139,7 @@ describe('engine', function () {
           client.setEncoding('ascii');
           client.write([
               'GET / HTTP/1.1'
+            , 'Connection: Upgrade'
             , 'Upgrade: IRC/6.9'
             , '', ''
           ].join('\r\n'));
@@ -177,6 +180,7 @@ describe('engine', function () {
           client.setEncoding('ascii');
           client.write([
               'GET / HTTP/1.1'
+            , 'Connection: Upgrade'
             , 'Upgrade: IRC/6.9'
             , '', ''
           ].join('\r\n'));
