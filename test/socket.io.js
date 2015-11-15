@@ -2232,4 +2232,95 @@ describe('socket.io', function(){
       });
     });
   });
+
+  describe('socket middleware', function(done){
+    var Socket = require('../lib/socket');
+
+    it('should call functions', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var run = 0;
+
+      srv.listen(function(){
+        var socket = client(srv, { multiplex: false });
+
+        socket.emit('join', 'woot');
+
+        sio.on('connection', function(socket){
+          socket.use(function(event, next){
+            expect(event).to.eql(['join', 'woot']);
+            event.unshift('wrap');
+            run++;
+            next();
+          });
+          socket.use(function(event, next){
+            expect(event).to.eql(['wrap', 'join', 'woot']);
+            run++;
+            next();
+          });
+          socket.on('wrap', function(data1, data2){
+            expect(data1).to.be('join');
+            expect(data2).to.be('woot');
+            expect(run).to.be(2);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should pass errors', function(done){
+      var srv = http();
+      var sio = io(srv);
+
+      srv.listen(function(){
+        var socket = client(srv, { multiplex: false });
+
+        socket.emit('join', 'woot');
+
+        sio.on('connection', function(socket){
+          socket.use(function(event, next){
+            next(new Error('Authentication error'));
+          });
+          socket.use(function(event, next){
+            done(new Error('nope'));
+          });
+
+          socket.on('join', function(){
+            done(new Error('nope'));
+          });
+          socket.on('error', function(err){
+            expect(err).to.be('Authentication error');
+            done();
+          });
+        });
+      });
+    });
+
+    it('should pass `data` of error object', function(done){
+      var srv = http();
+      var sio = io(srv);
+
+      srv.listen(function(){
+        var socket = client(srv, { multiplex: false });
+
+        socket.emit('join', 'woot');
+
+        sio.on('connection', function(socket){
+          socket.use(function(event, next){
+            var err = new Error('Authentication error');
+            err.data = { a: 'b', c: 3 };
+            next(err);
+          });
+
+          socket.on('join', function(){
+            done(new Error('nope'));
+          });
+          socket.on('error', function(err){
+            expect(err).to.eql({ a: 'b', c: 3 });
+            done();
+          });
+        });
+      });
+    });
+  });
 });
