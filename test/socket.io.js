@@ -328,6 +328,32 @@ describe('socket.io', function(){
           done();
         });
     });
+
+    it('should allow request if custom function in opts.allowRequest returns true', function(done){
+      var sockets = io(http().listen(54022), { allowRequest: function (req, callback) {
+        return callback(null, true);
+      }, origins: 'http://foo.example:*' });
+
+      request.get('http://localhost:54022/socket.io/default/')
+       .query({ transport: 'polling' })
+       .end(function (err, res) {
+          expect(res.status).to.be(200);
+          done();
+        });
+    });
+
+    it('should disallow request if custom function in opts.allowRequest returns false', function(done){
+      var sockets = io(http().listen(54023), { allowRequest: function (req, callback) {
+        return callback(null, false);
+      } });
+      request.get('http://localhost:54023/socket.io/default/')
+       .set('origin', 'http://foo.example')
+       .query({ transport: 'polling' })
+       .end(function (err, res) {
+          expect(res.status).to.be(400);
+          done();
+        });
+    });
   });
 
   describe('close', function(){
