@@ -1,4 +1,3 @@
-
 # socket.io
 
 [![Build Status](https://secure.travis-ci.org/socketio/socket.io.svg)](http://travis-ci.org/socketio/socket.io)
