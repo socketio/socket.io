@@ -1,8 +1,8 @@
 
 # Engine.IO client
 
-[![Build Status](https://secure.travis-ci.org/socketio/engine.io-client.png)](http://travis-ci.org/socketio/engine.io-client)
-[![NPM version](https://badge.fury.io/js/engine.io-client.png)](http://badge.fury.io/js/engine.io-client)
+[![Build Status](https://secure.travis-ci.org/socketio/engine.io-client.svg)](http://travis-ci.org/socketio/engine.io-client)
+[![NPM version](https://badge.fury.io/js/engine.io-client.svg)](http://badge.fury.io/js/engine.io-client)
 
 This is the client for [Engine.IO](http://github.com/socketio/engine.io),
 the implementation of transport-based cross-browser/cross-device
