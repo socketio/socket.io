@@ -843,6 +843,84 @@ describe('server', function () {
       });
     });
 
+    it('should close transport upon ping timeout (ws)', function (done) {
+      var opts = { allowUpgrades: false, transports: ['websocket'], pingInterval: 50, pingTimeout: 30 };
+      var engine = listen(opts, function (port) {
+        engine.on('connection', function (conn) {
+          conn.transport.on('close', done);
+        });
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        // override to simulate an inactive client
+        socket.sendPacket = socket.onHeartbeat = function (){};
+      });
+    });
+
+    it('should close transport upon ping timeout (polling)', function (done) {
+      var opts = { allowUpgrades: false, transports: ['polling'], pingInterval: 50, pingTimeout: 30 };
+      var engine = listen(opts, function (port) {
+        engine.on('connection', function (conn) {
+          conn.transport.on('close', done);
+        });
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+        // override to simulate an inactive client
+        socket.sendPacket = socket.onHeartbeat = function (){};
+      });
+    });
+
+    it('should close transport upon parse error (ws)', function (done) {
+      var opts = { allowUpgrades: false, transports: ['websocket'] };
+      var engine = listen(opts, function (port) {
+        engine.on('connection', function (conn) {
+          conn.transport.on('close', done);
+        });
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        socket.on('open', function () {
+          socket.transport.ws.send('invalid');
+        });
+      });
+    });
+
+    it('should close transport upon parse error (polling)', function (done) {
+      var opts = { allowUpgrades: false, transports: ['polling'] };
+      var engine = listen(opts, function (port) {
+        engine.on('connection', function (conn) {
+          conn.transport.closeTimeout = 100;
+          conn.transport.on('close', done);
+        });
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+        socket.on('open', function () {
+          socket.transport.doWrite('invalid', function (){});
+        });
+      });
+    });
+
+    it('should close upgrading transport upon socket close', function (done) {
+      var engine = listen(function (port) {
+        engine.on('connection', function (conn) {
+          conn.on('upgrading', function (transport) {
+            transport.on('close', done);
+            conn.close();
+          });
+        });
+        new eioc.Socket('ws://localhost:%d'.s(port));
+      });
+    });
+
+    it('should close upgrading transport upon upgrade timeout', function (done) {
+      var opts = { upgradeTimeout: 100 };
+      var engine = listen(opts, function (port) {
+        engine.on('connection', function (conn) {
+          conn.on('upgrading', function (transport) {
+            transport.on('close', done);
+          });
+        });
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.on('upgrading', function (transport) {
+          // override not to complete upgrading
+          transport.send = function (){};
+        });
+      });
+    });
   });
 
   describe('messages', function () {
