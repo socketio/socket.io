@@ -6,7 +6,7 @@
 
 This is the client for [Engine.IO](http://github.com/socketio/engine.io),
 the implementation of transport-based cross-browser/cross-device
-bi-directional communication layer for [Socket.IO](http://github.com/automattic/socket.io).
+bi-directional communication layer for [Socket.IO](http://github.com/socketio/socket.io).
 
 ## How to use
 
