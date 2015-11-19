@@ -6,7 +6,7 @@
 
 `Engine.IO` is the implementation of transport-based
 cross-browser/cross-device bi-directional communication layer for
-[Socket.IO](http://github.com/learnboost/socket.io).
+[Socket.IO](http://github.com/socketio/socket.io).
 
 ## How to use
 
