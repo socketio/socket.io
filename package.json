@@ -32,11 +32,11 @@
     "accepts": "1.1.4"
   },
   "devDependencies": {
-    "mocha": "1.12.0",
-    "expect.js": "0.2.0",
-    "superagent": "0.15.4",
     "engine.io-client": "socketio/engine.io-client#da24c1f",
-    "s": "0.1.1"
+    "expect.js": "0.2.0",
+    "mocha": "2.3.4",
+    "s": "0.1.1",
+    "superagent": "0.15.4"
   },
   "scripts": {
     "test": "make test"
