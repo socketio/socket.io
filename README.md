@@ -1,10 +1,10 @@
 
 # socket.io-client
 
-[![Build Status](https://secure.travis-ci.org/Automattic/socket.io-client.svg)](http://travis-ci.org/Automattic/socket.io-client)
+[![Build Status](https://secure.travis-ci.org/socketio/socket.io-client.svg)](http://travis-ci.org/socketio/socket.io-client)
 ![NPM version](https://badge.fury.io/js/socket.io-client.svg)
 ![Downloads](http://img.shields.io/npm/dm/socket.io-client.svg?style=flat)
-[![](http://slack.socket.io/badge.svg)](http://slack.socket.io)
+[![](http://slack.socket.io/badge.svg?)](http://slack.socket.io)
 
 ## How to use
 
