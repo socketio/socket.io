@@ -35,9 +35,9 @@ matrix:
   - node_js: '0.10'
     env: BROWSER_NAME=iphone BROWSER_VERSION=9.1
   - node_js: '0.10'
-    env: BROWSER_NAME=android BROWSER_VERSION=latest
+    env: BROWSER_NAME=iphone BROWSER_VERSION=latest
   - node_js: '0.10'
-    env: BROWSER_NAME=android BROWSER_VERSION=4.0 
+    env: BROWSER_NAME=android BROWSER_VERSION=4.0
   - node_js: '0.10'
     env: BROWSER_NAME=android BROWSER_VERSION=4.1
   - node_js: '0.10'
