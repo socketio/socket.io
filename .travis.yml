@@ -25,11 +25,19 @@ matrix:
   - node_js: '0.10'
     env: BROWSER_NAME=ie BROWSER_VERSION=latest BROWSER_PLATFORM="Windows 2012"
   - node_js: '0.10'
+    env: BROWSER_NAME=edge BROWSER_VERSION=latest BROWSER_PLATFORM="Windows 10"
+  - node_js: '0.10'
     env: BROWSER_NAME=iphone BROWSER_VERSION=6.1
   - node_js: '0.10'
     env: BROWSER_NAME=iphone BROWSER_VERSION=7.1
   - node_js: '0.10'
-    env: BROWSER_NAME=android BROWSER_VERSION=4.0
+    env: BROWSER_NAME=iphone BROWSER_VERSION=8.4.1
+  - node_js: '0.10'
+    env: BROWSER_NAME=iphone BROWSER_VERSION=9.1
+  - node_js: '0.10'
+    env: BROWSER_NAME=android BROWSER_VERSION=latest
+  - node_js: '0.10'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.0 
   - node_js: '0.10'
     env: BROWSER_NAME=android BROWSER_VERSION=4.1
   - node_js: '0.10'
