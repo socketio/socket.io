@@ -31,7 +31,7 @@
   "devDependencies": {
     "expect.js": "0.3.1",
     "istanbul": "0.2.3",
-    "mocha": "1.16.2",
+    "mocha": "2.3.4",
     "superagent": "0.17.0",
     "supertest": "0.8.2",
     "zuul-ngrok": "3.1.0"
