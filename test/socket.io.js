@@ -1511,7 +1511,7 @@ describe('socket.io', function(){
     it('should handle very large json', function(done){
       this.timeout(30000);
       var srv = http();
-      var sio = io(srv);
+      var sio = io(srv, { perMessageDeflate: false });
       var received = 0;
       srv.listen(function(){
         var socket = client(srv);
@@ -1538,7 +1538,7 @@ describe('socket.io', function(){
     it('should handle very large binary data', function(done){
       this.timeout(10000);
       var srv = http();
-      var sio = io(srv);
+      var sio = io(srv, { perMessageDeflate: false });
       var received = 0;
       srv.listen(function(){
         var socket = client(srv);
