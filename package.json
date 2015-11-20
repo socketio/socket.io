@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "debug": "0.7.4",
-    "json3": "3.2.6",
+    "json3": "3.3.2",
     "component-emitter": "1.1.2",
     "isarray": "0.0.1",
     "benchmark": "1.0.0"
@@ -16,7 +16,7 @@
   "devDependencies": {
     "mocha": "1.16.2",
     "expect.js": "0.2.0",
-    "zuul": "1.6.3"
+    "zuul": "3.7.3"
   },
   "scripts": {
     "test": "make test"
