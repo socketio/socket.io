@@ -220,6 +220,9 @@ to a single process.
       - `cookie` (`String|Boolean`): name of the HTTP cookie that
         contains the client sid to send as part of handshake response
         headers. Set to `false` to not send one. (`io`)
+      - `cookiePath` (`String|Boolean`): path of the above `cookie`
+        option. If false, no path will be sent, which means browsers will only send the cookie on the engine.io attached path (`/engine.io`).
+        Set this to `/` to send the io cookie on all requests. (`false`)
 - `close`
     - Closes all clients
     - **Returns** `Server` for chaining
@@ -324,7 +327,7 @@ A representation of a client. _Inherits from EventEmitter_.
 Exposed in the `eio` global namespace (in the browser), or by
 `require('engine.io-client')` (in Node.JS).
 
-For the client API refer to the 
+For the client API refer to the
 [engine-client](http://github.com/learnboost/engine.io-client) repository.
 
 ## Debug / logging
@@ -403,7 +406,7 @@ WebSocket based connections have two fundamental benefits:
       they all need to be routed to the process and computer that owns the `Engine`
       connection. This negatively impacts RAM and CPU usage.
   - _B: Network traffic_<br>
-      WebSocket is designed around the premise that each message frame has to be 
+      WebSocket is designed around the premise that each message frame has to be
       surrounded by the least amount of data. In HTTP 1.1 transports, each message
       frame is surrounded by HTTP headers and chunked encoding frames. If you try to
       send the message _"Hello world"_ with xhr-polling, the message ultimately
@@ -437,7 +440,7 @@ proven problematic:
 3. **Cloud application platforms**<br>
     Platforms like Heroku or No.de have had trouble keeping up with the fast-paced
     nature of the evolution of the WebSocket protocol. Applications therefore end up
-    inevitably using long polling, but the seamless installation experience of 
+    inevitably using long polling, but the seamless installation experience of
     Socket.IO we strive for (_"require() it and it just works"_) disappears.
 
 Some of these problems have solutions. In the case of proxies and personal programs,
@@ -479,7 +482,7 @@ safely lazy load it without hurting user experience), etc.
 ### Can I use engine without Socket.IO ?
 
 Absolutely. Although the recommended framework for building realtime applications
-is Socket.IO, since it provides fundamental features for real-world applications 
+is Socket.IO, since it provides fundamental features for real-world applications
 such as multiplexing, reconnection support, etc.
 
 `Engine` is to Socket.IO what Connect is to Express. An essential piece for building
@@ -504,7 +507,7 @@ Absolutely. The [engine.io-protocol](https://github.com/LearnBoost/engine.io-pro
 repository contains the most up to date description of the specification
 at all times, and the parser implementation in JavaScript.
 
-## License 
+## License
 
 (The MIT License)
 
@@ -528,4 +531,3 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
