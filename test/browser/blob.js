@@ -5,6 +5,7 @@
 
 var parser = require('../../lib/browser.js');
 var expect = require('expect.js');
+var Blob = require('blob');
 
 /**
  * Shortcuts
@@ -69,6 +70,23 @@ describe('parser', function() {
           });
       };
       fr.readAsArrayBuffer(data);
+    });
+  });
+
+  it('should encode blob as base64', function(done) {
+    var buf = new Uint8Array(5);
+    for (var i = 0; i < buf.length; i++) buf[i] = i;
+
+    encode({ type: 'message', data: new Blob([buf.buffer]) }, false, function(data) {
+      var packet = decode(data, 'blob');
+      expect(packet.type).to.eql('message');
+      expect(packet.data).to.be.a(global.Blob);
+      var fr = new FileReader();
+      fr.onload = function() {
+        expect(new Uint8Array(fr.result)).to.eql(buf);
+        done();
+      };
+      fr.readAsArrayBuffer(packet.data);
     });
   });
 });
