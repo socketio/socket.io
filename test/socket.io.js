@@ -368,12 +368,12 @@ describe('socket.io', function(){
       var clientSocket = client(srv, { reconnection: false });
 
       clientSocket.on('disconnect', function init() {
-        expect(sio.nsps['/'].sockets.length).to.equal(0);
+        expect(Object.keys(sio.nsps['/'].sockets).length).to.equal(0);
         server.listen(PORT);
       });
 
       clientSocket.on('connect', function init() {
-        expect(sio.nsps['/'].sockets.length).to.equal(1);
+        expect(Object.keys(sio.nsps['/'].sockets).length).to.equal(1);
         sio.close();
       });
 
@@ -395,12 +395,12 @@ describe('socket.io', function(){
       var clientSocket = ioc('ws://0.0.0.0:' + PORT);
 
       clientSocket.on('disconnect', function init() {
-        expect(sio.nsps['/'].sockets.length).to.equal(0);
+        expect(Object.keys(sio.nsps['/'].sockets).length).to.equal(0);
         server.listen(PORT);
       });
 
       clientSocket.on('connect', function init() {
-        expect(sio.nsps['/'].sockets.length).to.equal(1);
+        expect(Object.keys(sio.nsps['/'].sockets).length).to.equal(1);
         sio.close();
       });
 
@@ -1932,15 +1932,15 @@ describe('socket.io', function(){
         var socket = client(srv);
         sio.on('connection', function(s){
           s.join('a', function(){
-            expect(s.rooms).to.eql([s.id, 'a']);
+            expect(Object.keys(s.rooms)).to.eql([s.id, 'a']);
             s.join('b', function(){
-              expect(s.rooms).to.eql([s.id, 'a', 'b']);
+              expect(Object.keys(s.rooms)).to.eql([s.id, 'a', 'b']);
               s.join( 'c', function(){
-                expect(s.rooms).to.eql([s.id, 'a', 'b', 'c']);
+                expect(Object.keys(s.rooms)).to.eql([s.id, 'a', 'b', 'c']);
                 s.leave('b', function(){
-                  expect(s.rooms).to.eql([s.id, 'a', 'c']);
+                  expect(Object.keys(s.rooms)).to.eql([s.id, 'a', 'c']);
                   s.leaveAll();
-                  expect(s.rooms).to.eql([]);
+                  expect(Object.keys(s.rooms)).to.eql([]);
                   done();
                 });
               });
@@ -1976,13 +1976,13 @@ describe('socket.io', function(){
         var socket = client(srv);
         sio.on('connection', function(s){
           s.join('a', function(){
-            expect(s.rooms).to.eql([s.id, 'a']);
+            expect(Object.keys(s.rooms)).to.eql([s.id, 'a']);
             s.join('b', function(){
-              expect(s.rooms).to.eql([s.id, 'a', 'b']);
+              expect(Object.keys(s.rooms)).to.eql([s.id, 'a', 'b']);
               s.leave('unknown', function(){
-                expect(s.rooms).to.eql([s.id, 'a', 'b']);
+                expect(Object.keys(s.rooms)).to.eql([s.id, 'a', 'b']);
                 s.leaveAll();
-                expect(s.rooms).to.eql([]);
+                expect(Object.keys(s.rooms)).to.eql([]);
                 done();
               });
             });
