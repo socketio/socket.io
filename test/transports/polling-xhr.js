@@ -1,11 +1,11 @@
 var expect = require('expect.js');
 var XHR = require('../../lib/transports/polling-xhr');
-var isIE8 = /MSIE 8/.test(navigator.userAgent);
+var env = require('../support/env');
 
 describe('XHR', function() {
   describe('Request', function() {
     describe('hasXDR', function() {
-      if (isIE8) {
+      if (env.isIE8) {
         it('should return true when xscheme is false and enablesXDR is true', function() {
           var request = new XHR.Request({
             uri: "http://localhost/engine.io?sid=test"

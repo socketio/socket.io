@@ -1,11 +1,6 @@
 var expect = require('expect.js');
 var eio = require('../');
-
-var wsSupport = require('has-cors');
-var uagent = navigator.userAgent;
-var isOldSimulator = ~uagent.indexOf('iPhone OS 4') || ~uagent.indexOf('iPhone OS 5');
-var isIE11 = !!navigator.userAgent.match(/Trident.*rv[ :]*11\./); // ws doesn't work at all in sauce labs
-var isAndroid = navigator.userAgent.match(/Android/i);
+var env = require('./support/env');
 
 describe('connection', function() {
   this.timeout(20000);
@@ -82,7 +77,7 @@ describe('connection', function() {
     });
   });
 
-  if (wsSupport && !isOldSimulator && !isAndroid && !isIE11) {
+  if (env.wsSupport && !env.isOldSimulator && !env.isAndroid && !env.isIE11) {
     it('should connect with ws when JSONP forced and disabled', function(done) {
       var socket = eio.Socket({ transports: ['polling', 'websocket'], forceJSONP: true, jsonp: false });
 

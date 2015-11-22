@@ -7,7 +7,7 @@ var http = require('http').Server(app);
 var server = require('engine.io').attach(http, {'pingInterval': 500});
 var browserify = require('../../support/browserify');
 
-http.listen(process.env.ZUUL_PORT);
+http.listen(process.env.ZUUL_PORT || 3000);
 
 // server worker.js as raw file
 app.use('/test/support', express.static(join(__dirname, 'public')));
