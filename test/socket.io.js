@@ -668,7 +668,7 @@ describe('socket.io', function(){
       });
       function getClients() {
         sio.of('/chat').clients(function(error, sids) {
-          expect(error).to.be.undefined;
+          expect(error).to.not.be.ok();
           expect(sids).to.contain(chatSids[0]);
           expect(sids).to.contain(chatSids[1]);
           expect(sids).to.not.contain(otherSid);
@@ -711,7 +711,7 @@ describe('socket.io', function(){
       });
       function getClients() {
         sio.of('/chat').in('foo').clients(function(error, sids) {
-          expect(error).to.be.undefined;
+          expect(error).to.not.be.ok();
           expect(sids).to.contain(chatFooSid);
           expect(sids).to.not.contain(chatBarSid);
           expect(sids).to.not.contain(otherSid);
@@ -754,7 +754,7 @@ describe('socket.io', function(){
       });
       function getClients() {
         sio.of('/chat').clients(function(error, sids) {
-          expect(error).to.be.undefined;
+          expect(error).to.not.be.ok();
           expect(sids).to.contain(chatFooSid);
           expect(sids).to.contain(chatBarSid);
           expect(sids).to.not.contain(otherSid);
