@@ -1,9 +1,9 @@
 {
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
-  "version": "1.5.1",
   "license": "MIT",
-  "homepage": "http://socket.io",
+  "version": "1.5.4",
+  "homepage": "https://github.com/socketio/engine.io-client",
   "contributors": [
     {
       "name": "Guillermo Rauch",
@@ -23,13 +23,13 @@
     }
   ],
   "dependencies": {
-    "has-cors": "1.0.3",
-    "ws": "0.7.1",
-    "xmlhttprequest": "https://github.com/rase-/node-XMLHttpRequest/archive/a6b6f2.tar.gz",
+    "has-cors": "1.1.0",
+    "ws": "0.8.0",
+    "xmlhttprequest-ssl": "1.5.1",
     "component-emitter": "1.1.2",
     "indexof": "0.0.1",
-    "engine.io-parser": "nkzawa/engine.io-parser#patch-3",
-    "debug": "2.1.3",
+    "engine.io-parser": "1.2.2",
+    "debug": "2.2.0",
     "parseuri": "0.0.4",
     "parsejson": "0.0.1",
     "parseqs": "0.0.2",
@@ -40,22 +40,22 @@
     "browserify": "6.2.0",
     "concat-stream": "1.4.6",
     "derequire": "1.2.0",
-    "engine.io": "automattic/engine.io#299ec66",
+    "engine.io": "socketio/engine.io#3df49bb",
     "expect.js": "0.2.0",
     "express": "3.4.8",
     "istanbul": "0.2.3",
     "mocha": "1.16.2",
-    "zuul": "1.17.1",
-    "zuul-ngrok": "2.0.0"
+    "zuul": "3.7.2",
+    "zuul-ngrok": "3.2.0"
   },
   "scripts": {
     "test": "make test"
   },
   "browser": {
-    "xmlhttprequest": "./lib/xmlhttprequest.js"
+    "xmlhttprequest-ssl": "./lib/xmlhttprequest.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Automattic/engine.io-client.git"
+    "url": "https://github.com/socketio/engine.io-client.git"
   }
 }

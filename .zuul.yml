@@ -2,7 +2,6 @@ ui: mocha-bdd
 server: ./test/support/server.js
 tunnel:
   type: ngrok
-  authtoken: JnawIksKFkXQzrxSjIjQ
   proto: tcp
 browsers:
   - name: chrome

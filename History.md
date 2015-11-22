@@ -1,4 +1,19 @@
 
+1.5.4 / 2015-09-09
+==================
+
+  * package: bump `engine.io-parser`
+
+1.5.3 / 2015-09-09
+==================
+
+  * package: bump `ws` to fix node 0.4.0
+
+1.5.2 / 2015-07-09
+==================
+
+  * package: bump `ws` to fix windows build issues
+
 1.5.1 / 2015-01-19
 ==================
 
