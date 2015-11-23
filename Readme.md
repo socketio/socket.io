@@ -1,9 +1,9 @@
 
 # socket.io
 
-[![Build Status](https://secure.travis-ci.org/socketio/socket.io.svg)](http://travis-ci.org/socketio/socket.io)
+[![Build Status](https://secure.travis-ci.org/socketio/socket.io.svg)](https://travis-ci.org/socketio/socket.io)
 ![NPM version](https://badge.fury.io/js/socket.io.svg)
-![Downloads](http://img.shields.io/npm/dm/socket.io.svg?style=flat)
+![Downloads](https://img.shields.io/npm/dm/socket.io.svg?style=flat)
 [![](http://slack.socket.io/badge.svg?)](http://slack.socket.io)
 
 ## How to use
@@ -86,7 +86,7 @@ server.listen(3000);
 
   The same options passed to socket.io are always passed to
   the `engine.io` `Server` that gets created. See engine.io
-  [options](https://github.com/learnboost/engine.io#methods-1)
+  [options](https://github.com/socketio/engine.io#methods-1)
   as reference.
 
 ### Server(srv:http#Server, opts:Object)
@@ -145,7 +145,7 @@ server.listen(3000);
   __Potential drawbacks__:
   * in some situations, when it is not possible to determine `origin` it may have value of `*`
   * As this function will be executed for every request, it is advised to make this function work as fast as possible
-  * If `socket.io` is used together with `Express`, the CORS headers will be affected only for `socket.io` requests. For Express can use [cors](https://github.com/troygoode/node-cors/)
+  * If `socket.io` is used together with `Express`, the CORS headers will be affected only for `socket.io` requests. For Express can use [cors](https://github.com/expressjs/cors)
 
 
 ### Server#sockets:Namespace
@@ -406,7 +406,7 @@ server.listen(3000);
 
 ## Debug / logging
 
-Socket.IO is powered by [debug](http://github.com/visionmedia/debug).
+Socket.IO is powered by [debug](https://github.com/visionmedia/debug).
 In order to see all the debug output, run your app with the environment variable
 `DEBUG` including the desired scope.
 
