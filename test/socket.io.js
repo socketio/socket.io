@@ -1668,6 +1668,23 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should not crash when messing with Object prototype', function(done){
+      Object.prototype.foo = 'bar';
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+
+        sio.on('connection', function(s){
+          s.disconnect(true);
+          sio.close();
+          setTimeout(function(){
+            done();
+          }, 100);
+        });
+      });
+    });
   });
 
   describe('messaging many', function(){
