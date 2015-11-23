@@ -933,6 +933,19 @@ describe('server', function () {
         });
       });
     });
+
+    it('should not crash when messing with Object prototype', function(done){
+      Object.prototype.foo = 'bar';
+      var engine = listen({ allowUpgrades: true }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.on('open', function () {
+          engine.close();
+          setTimeout(function(){
+            done();
+          }, 100);
+        });
+      });
+    });
   });
 
   describe('messages', function () {
