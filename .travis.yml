@@ -9,3 +9,37 @@ env:
   global:
   - secure: 28HHk1J0H64KNjzmmlxG/Ro0EPuLnhO0rU+kZjjthDHj/FaugIsqjAVQ1Dl6heWV2/MlVzw6nDCyMNiGwiVk0ruZPQ0SYdAKLplrdMtzAihbU3xx+ULFQPLM3SoW0ZFCEpe8dWPGy4WdgW7aLByeel9TJb3vlhAu7p7AvrcO7Fs=
   - secure: rKEG0Cfw0vkw8thk63RHYG7h8XWYcBlvZ0w1IWpr2dAfnnLMi1palSTrBrFQc77flk7rN00zGIe76FhKydV9r4WWYAUYKPqo4k+9/FkpzjZlNtL49QRoNwC9jmJ8OeUwGowA13gZPyl/5P13wVaKCB0YrKnzz5LHo3Sp7So6J8U=
+matrix:
+  include:
+  - node_js: '0.12'
+    env: BROWSER_NAME=chrome BROWSER_VERSION=latest
+  - node_js: '0.12'
+    env: BROWSER_NAME=safari BROWSER_VERSION=latest
+  - node_js: '0.12'
+    env: BROWSER_NAME=ie BROWSER_VERSION=6
+  - node_js: '0.12'
+    env: BROWSER_NAME=ie BROWSER_VERSION=7
+  - node_js: '0.12'
+    env: BROWSER_NAME=ie BROWSER_VERSION=8
+  - node_js: '0.12'
+    env: BROWSER_NAME=ie BROWSER_VERSION=9
+  - node_js: '0.12'
+    env: BROWSER_NAME=ie BROWSER_VERSION=10 BROWSER_PLATFORM="Windows 2012"
+  - node_js: '0.12'
+    env: BROWSER_NAME=ie BROWSER_VERSION=latest BROWSER_PLATFORM="Windows 2012"
+  - node_js: '0.12'
+    env: BROWSER_NAME=iphone BROWSER_VERSION=5.1
+  - node_js: '0.12'
+    env: BROWSER_NAME=iphone BROWSER_VERSION=6.1
+  - node_js: '0.12'
+    env: BROWSER_NAME=iphone BROWSER_VERSION=7.1
+  - node_js: '0.12'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.0
+  - node_js: '0.12'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.1
+  - node_js: '0.12'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.2
+  - node_js: '0.12'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.3
+  - node_js: '0.12'
+    env: BROWSER_NAME=android BROWSER_VERSION=4.4

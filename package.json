@@ -16,7 +16,8 @@
   "devDependencies": {
     "mocha": "1.16.2",
     "expect.js": "0.2.0",
-    "zuul": "3.7.3"
+    "zuul": "3.7.3",
+    "zuul-ngrok": "3.2.0"
   },
   "scripts": {
     "test": "make test"
