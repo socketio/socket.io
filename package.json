@@ -6,8 +6,8 @@
   "devDependencies": {
     "expect.js": "0.3.1",
     "mocha": "2.2.5",
-    "zuul": "3.0.0",
-    "zuul-ngrok": "3.0.0"
+    "zuul": "3.7.3",
+    "zuul-ngrok": "3.2.0"
   },
   "dependencies": {
     "after": "0.8.1",
