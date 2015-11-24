@@ -33,8 +33,8 @@
     "socket.io": "automattic/socket.io#master",
     "text-blob-builder": "0.0.1",
     "uglify-js": "2.4.15",
-    "zuul": "3.0.0",
-    "zuul-ngrok": "2.0.0"
+    "zuul": "3.7.3",
+    "zuul-ngrok": "3.2.0"
   },
   "scripts": {
     "test": "make test"
