@@ -1,4 +1,8 @@
 ui: mocha-bdd
+tunnel:
+  type: ngrok
+  authtoken: 6Aw8vTgcG5EvXdQywVvbh_3fMxvd4Q7dcL2caAHAFjV
+  proto: tcp
 browsers: 
   - name: chrome
     version: 29..latest
