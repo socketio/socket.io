@@ -10,12 +10,15 @@ describe('Transport', function () {
       var socket = new eio.Socket();
       expect(socket.transport.name).to.be('polling');
 
+      var timedout = false;
       var timeout = setTimeout(function(){
+        timedout = true;
         socket.close();
         done();
       }, 300);
 
       socket.on('upgrade', function (transport) {
+        if (timedout) return;
         clearTimeout(timeout);
         socket.close();
         if(transport.name == 'websocket') {
@@ -30,12 +33,15 @@ describe('Transport', function () {
       var socket = new eio.Socket();
       expect(socket.transport.name).to.be('polling');
 
+      var timedout = false;
       var timeout = setTimeout(function(){
+        timedout = true;
         socket.close();
         done();
       }, 300);
 
       socket.on('upgrade', function (transport) {
+        if (timedout) return;
         clearTimeout(timeout);
         socket.close();
         if(transport.name == 'websocket') {
