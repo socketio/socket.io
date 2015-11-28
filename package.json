@@ -28,7 +28,7 @@
     "xmlhttprequest-ssl": "1.5.1",
     "component-emitter": "1.1.2",
     "indexof": "0.0.1",
-    "engine.io-parser": "1.2.2",
+    "engine.io-parser": "nkzawa/engine.io-parser#patch-5",
     "debug": "2.2.0",
     "parseuri": "0.0.4",
     "parsejson": "0.0.1",
@@ -36,7 +36,7 @@
     "component-inherit": "0.0.3"
   },
   "devDependencies": {
-    "blob": "0.0.2",
+    "blob": "0.0.4",
     "browserify": "6.2.0",
     "concat-stream": "1.4.6",
     "derequire": "1.2.0",

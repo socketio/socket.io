@@ -1,11 +1,10 @@
 var expect = require('expect.js');
 var XMLHttpRequest = require('../lib/xmlhttprequest');
-var isIE8_9 = /MSIE (8|9)/.test(navigator.userAgent);
-var isIE10_11 = /MSIE 10|Trident.*rv[ :]*11\./.test(navigator.userAgent);
+var env = require('./support/env');
 
 describe('XMLHttpRequest', function () {
 
-  if (isIE8_9) {
+  if (env.isIE8 || env.isIE9) {
     describe('IE8_9', function() {
       context('when xdomain is false', function() {
         it('should have same properties as XMLHttpRequest does', function() {
@@ -64,7 +63,7 @@ describe('XMLHttpRequest', function () {
     });
   }
 
-  if (isIE10_11) {
+  if (env.isIE10 || env.isIE11) {
     describe('IE10_11', function() {
       context('when enablesXDR is true and xscheme is false', function() {
         it('should have same properties as XMLHttpRequest does', function() {

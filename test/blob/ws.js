@@ -17,7 +17,7 @@ describe('blob', function() {
       socket.on('upgrade', function() {
         socket.send(binaryData);
         socket.on('message', function (data) {
-          expect(data).to.be.a(Blob);
+          expect(data).to.be.a(global.Blob);
           var fr = new FileReader();
           fr.onload = function() {
             var ab = this.result;
