@@ -1,4 +1,26 @@
 
+1.6.0 / 2015-11-28
+==================
+
+  * test with travis containers
+  * socket: remove duplicate declaration (fixes #434)
+  * package: bump `debug` (fixes #433)
+  * bump zuul and zuul-ngrok
+  * package: fix repository url
+  * bump `ws` for several improvements
+  * fix rejectUnauthorized bug
+  * websocket: improve firing of `drain` in websocket transport
+  * socket: clean up buffers right after `close` event
+  * change semantics of the write callback for polling
+    (fire upon flush instead drain)
+  * socket: fix host parsing for IPv6 URLs
+  * socket: handle parser errors appropriately
+  * expose `ping` and `pong` events
+  * enable `supportsBinary` when running as a node client
+  * introduce `extraHeaders` support
+  * fix error when passing `WebSocket#send` second argument on Safari
+  * support compression
+
 1.5.4 / 2015-09-09
 ==================
 
