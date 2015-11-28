@@ -1,4 +1,21 @@
 
+1.6.0 / 2015-11-28
+==================
+
+  * add support for environments that extend `Object.prototype`
+  * remove listeners upon `clearTransport`
+  * support for all versions of node
+  * fix linering sockets that can stay open when upgrade failed
+  * ensure sockets are closed on error
+  * bump `ws` for several improvements
+  * fix for a rare race condition on some error scenarios
+  * support custom socket id
+  * use container-based infrastructure for faster build
+  * fix package.json wrongly referrering to self
+  * allow overriding the `cookiePath`
+  * fix potential encoding errors under certain conditions
+  * support compression
+
 1.5.4 / 2015-09-09
 ==================
 
