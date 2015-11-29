@@ -1,11 +1,17 @@
 
+1.6.1 / 2015-11-28
+==================
+
+  * package: bump `engine.io-client` for `ws` options fix
+  * fix `latency` example
+
 1.6.0 / 2015-11-28
 ==================
 
   * add support for environments that extend `Object.prototype`
   * remove listeners upon `clearTransport`
   * support for all versions of node
-  * fix linering sockets that can stay open when upgrade failed
+  * fix lingering sockets that can stay open when upgrade failed
   * ensure sockets are closed on error
   * bump `ws` for several improvements
   * fix for a rare race condition on some error scenarios
