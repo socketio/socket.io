@@ -28,7 +28,7 @@
     "xmlhttprequest-ssl": "1.5.1",
     "component-emitter": "1.1.2",
     "indexof": "0.0.1",
-    "engine.io-parser": "nkzawa/engine.io-parser#patch-5",
+    "engine.io-parser": "1.2.3",
     "debug": "2.2.0",
     "parseuri": "0.0.4",
     "parsejson": "0.0.1",
