@@ -1,4 +1,10 @@
 
+1.6.1 / 2015-11-28
+==================
+
+  * fix packet options that `ws` changes [Nibbler999]
+  * package: use published `engine.io-parser`
+
 1.6.0 / 2015-11-28
 ==================
 
