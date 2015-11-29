@@ -32,7 +32,7 @@
     "accepts": "1.1.4"
   },
   "devDependencies": {
-    "engine.io-client": "1.6.0",
+    "engine.io-client": "1.6.1",
     "expect.js": "0.2.0",
     "mocha": "2.3.4",
     "s": "0.1.1",
