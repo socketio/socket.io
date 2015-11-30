@@ -1,6 +1,6 @@
 {
   "name": "socket.io",
-  "version": "1.3.7",
+  "version": "1.4.0",
   "description": "node.js realtime framework server",
   "keywords": [
     "realtime",
@@ -21,7 +21,7 @@
     "test": "mocha --reporter dot --slow 200ms --bail"
   },
   "dependencies": {
-    "engine.io": "1.6.1",
+    "engine.io": "1.6.2",
     "socket.io-parser": "2.2.6",
     "socket.io-client": "automattic/socket.io-client#master",
     "socket.io-adapter": "automattic/socket.io-adapter#master",
