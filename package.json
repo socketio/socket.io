@@ -2,7 +2,7 @@
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
   "license": "MIT",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "homepage": "https://github.com/socketio/engine.io-client",
   "contributors": [
     {

@@ -1565,7 +1565,7 @@ Request.prototype.onLoad = function(){
         } catch (e) {
           var ui8Arr = new Uint8Array(this.xhr.response);
           var dataArray = [];
-          for (var idx = 0, length = ui8Arr.legnth; idx < length; idx++) {
+          for (var idx = 0, length = ui8Arr.length; idx < length; idx++) {
             dataArray.push(ui8Arr[idx]);
           }
 

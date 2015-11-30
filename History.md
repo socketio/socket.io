@@ -1,4 +1,10 @@
 
+1.6.2 / 2015-11-30
+==================
+
+  * package: bump `ws` for memory fix with compression
+  * fix response parsing error for polling (unused)
+
 1.6.1 / 2015-11-28
 ==================
 
