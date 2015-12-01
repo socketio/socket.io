@@ -14,6 +14,9 @@ var expect = require('expect.js');
 var request = require('superagent');
 var WebSocket = require('ws');
 
+// are we running on node 0.8?
+var NODE_0_8 = /^v0\.8\./.test(process.version);
+
 /**
  * Tests.
  */
@@ -2291,6 +2294,8 @@ describe('server', function () {
   });
 
   describe('permessage-deflate', function () {
+    if (NODE_0_8) return;
+
     it('should set threshold', function (done) {
       var engine = listen({ transports: ['websocket'], perMessageDeflate: { threshold: 0 } }, function (port) {
         engine.on('connection', function (conn) {
