@@ -1,4 +1,11 @@
 
+1.6.3 / 2015-12-01
+==================
+
+  * restore testing on 0.8
+  * improve X-XSS-Protection header definition [nkzawa]
+  * add threshold for permessage-deflate [nkzawa]
+
 1.6.2 / 2015-11-30
 ==================
 
