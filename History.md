@@ -1,4 +1,10 @@
 
+1.6.3 / 2015-12-01
+==================
+
+  * remove compress option from control packets
+  * threshold for permessage-deflate
+
 1.6.2 / 2015-11-30
 ==================
 

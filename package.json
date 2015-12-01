@@ -2,7 +2,7 @@
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
   "license": "MIT",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "homepage": "https://github.com/socketio/engine.io-client",
   "contributors": [
     {
@@ -40,7 +40,7 @@
     "browserify": "6.2.0",
     "concat-stream": "1.4.6",
     "derequire": "1.2.0",
-    "engine.io": "1.6.2",
+    "engine.io": "1.6.3",
     "expect.js": "0.2.0",
     "express": "3.4.8",
     "istanbul": "0.2.3",
