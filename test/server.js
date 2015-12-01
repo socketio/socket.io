@@ -2369,4 +2369,32 @@ describe('server', function () {
     });
   });
 
+  describe('response headers', function () {
+    function testForHeaders(headers, done) {
+      var engine = listen(function (port) {
+        engine.on('connection', function (conn) {
+          conn.transport.once('headers', function(headers) {
+            expect(headers['X-XSS-Protection']).to.be('0');
+            conn.close();
+            done();
+          });
+          conn.send('hi');
+        });
+        new eioc.Socket('ws://localhost:%d'.s(port), {
+          extraHeaders: headers,
+          transports: ['polling']
+        });
+      });
+    }
+
+    it('should contain X-XSS-Protection: 0 for IE8', function (done) {
+      var headers = { 'user-agent': 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; Tablet PC 2.0)' };
+      testForHeaders(headers, done);
+    });
+
+    it('should contain X-XSS-Protection: 0 for IE11', function (done) {
+      var headers = { 'user-agent': 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko' };
+      testForHeaders(headers, done);
+    });
+  });
 });
