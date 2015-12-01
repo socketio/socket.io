@@ -214,6 +214,7 @@ to a single process.
         (`true`)
       - `perMessageDeflate` (`Object|Boolean`): parameters of the WebSocket permessage-deflate extension
         (see [ws module](https://github.com/einaros/ws) api docs). Set to `false` to disable. (`true`)
+        - `threshold` (`Number`): data is compressed only if the byte size is above this value (`1024`)
       - `httpCompression` (`Object|Boolean`): parameters of the http compression for the polling transports
         (see [zlib](http://nodejs.org/api/zlib.html#zlib_options) api docs). Set to `false` to disable. (`true`)
         - `threshold` (`Number`): data is compressed only if the byte size is above this value (`1024`)
