@@ -221,6 +221,7 @@ Exposed as `eio` in the browser standalone build.
       - `rejectUnauthorized` (`Boolean`): If true, the server certificate is verified against the list of supplied CAs. An 'error' event is emitted if verification fails. Verification happens at the connection level, before the HTTP request is sent. Can be used in Node.js client environment to manually specify certificate information.
       - `perMessageDeflate` (`Object|Boolean`): parameters of the WebSocket permessage-deflate extension
         (see [ws module](https://github.com/einaros/ws) api docs). Set to `false` to disable. (`true`)
+        - `threshold` (`Number`): data is compressed only if the byte size is above this value. This option is ignored on the browser. (`1024`)
       - `extraHeaders` (`Object`): Headers that will be passed for each request to the server (via xhr-polling and via websockets). These values then can be used during handshake or for special proxies. Can only be used in Node.js client environment.
 - `send`
     - Sends a message to the server
