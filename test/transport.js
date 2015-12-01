@@ -210,6 +210,42 @@ if (!env.browser) {
         expect(polling.extraHeaders).to.equal(headers);
       });
     });
+
+    describe('perMessageDeflate', function () {
+      it('should set threshold', function (done) {
+        var socket = new eio.Socket({ transports: ['websocket'], perMessageDeflate: { threshold: 0 } });
+        socket.on('open', function() {
+          var ws = socket.transport.ws;
+          var send = ws.send;
+          ws.send = function(data, opts, callback) {
+            ws.send = send;
+            ws.send(data, opts, callback);
+
+            expect(opts.compress).to.be(true);
+            socket.close();
+            done();
+          };
+          socket.send('hi', { compress: true });
+        });
+      });
+
+      it('should not compress when the byte size is below threshold', function (done) {
+        var socket = new eio.Socket({ transports: ['websocket'] });
+        socket.on('open', function() {
+          var ws = socket.transport.ws;
+          var send = ws.send;
+          ws.send = function(data, opts, callback) {
+            ws.send = send;
+            ws.send(data, opts, callback);
+
+            expect(opts.compress).to.be(false);
+            socket.close();
+            done();
+          };
+          socket.send('hi', { compress: true });
+        });
+      });
+    });
   });
 }
 
