@@ -2290,6 +2290,52 @@ describe('server', function () {
     });
   });
 
+  describe('permessage-deflate', function () {
+    it('should set threshold', function (done) {
+      var engine = listen({ transports: ['websocket'], perMessageDeflate: { threshold: 0 } }, function (port) {
+        engine.on('connection', function (conn) {
+          var socket = conn.transport.socket;
+          var send = socket.send;
+          socket.send = function(data, opts, callback) {
+            socket.send = send;
+            socket.send(data, opts, callback);
+
+            expect(opts.compress).to.be(true);
+            conn.close();
+            done();
+          };
+
+          var buf = new Buffer(100);
+          for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
+          conn.send(buf, { compress: true });
+        });
+        new eioc.Socket('http://localhost:%d'.s(port), { transports: ['websocket'] });
+      });
+    });
+
+    it('should not compress when the byte size is below threshold', function (done) {
+      var engine = listen({ transports: ['websocket'] }, function (port) {
+        engine.on('connection', function (conn) {
+          var socket = conn.transport.socket;
+          var send = socket.send;
+          socket.send = function(data, opts, callback) {
+            socket.send = send;
+            socket.send(data, opts, callback);
+
+            expect(opts.compress).to.be(false);
+            conn.close();
+            done();
+          };
+
+          var buf = new Buffer(100);
+          for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
+          conn.send(buf, { compress: true });
+        });
+        new eioc.Socket('http://localhost:%d'.s(port), { transports: ['websocket'] });
+      });
+    });
+  });
+
   describe('extraHeaders', function () {
     this.timeout(5000);
 
