@@ -24,8 +24,9 @@ matrix:
     env: BROWSER_NAME=ie BROWSER_VERSION=10 BROWSER_PLATFORM="Windows 2012"
   - node_js: '0.10'
     env: BROWSER_NAME=ie BROWSER_VERSION=latest BROWSER_PLATFORM="Windows 2012"
-  - node_js: '0.10'
-    env: BROWSER_NAME=microsoftedge BROWSER_VERSION=latest BROWSER_PLATFORM="Windows 10"
+# zuul doesn't work on Microsoft Edge: issues/232
+# - node_js: '0.10'
+#   env: BROWSER_NAME=microsoftedge BROWSER_VERSION=latest BROWSER_PLATFORM="Windows 10"
   - node_js: '0.10'
     env: BROWSER_NAME=iphone BROWSER_VERSION=6.1
   - node_js: '0.10'
