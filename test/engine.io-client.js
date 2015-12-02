@@ -84,4 +84,9 @@ describe('engine.io-client', function () {
     expect(client.port).to.be('8080');
   });
 
+  it('should properly parse an IPv6 host without brace', function() {
+    var client = eio({ host: '::1' });
+    expect(client.hostname).to.be('::1');
+    expect(client.port).to.be('80');
+  });
 });
