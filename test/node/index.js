@@ -89,4 +89,53 @@ describe('parser', function() {
         });
     });
   });
+
+  it('should encode/decode an ArrayBuffer as b64', function(done) {
+    var buffer = new ArrayBuffer(4);
+    var dataview = new DataView(buffer);
+    for (var i = 0; i < buffer.byteLength ; i++) dataview.setInt8(i, i);
+
+    encode({ type: 'message', data: buffer }, function(encoded) {
+      var decoded = decode(encoded, 'arraybuffer');
+      expect(decoded).to.eql({ type: 'message', data: buffer });
+      expect(new Uint8Array(decoded.data)).to.eql(new Uint8Array(buffer));
+      done();
+    });
+  });
+
+  it('should encode/decode an ArrayBuffer as binary', function(done) {
+    var buffer = new ArrayBuffer(4);
+    var dataview = new DataView(buffer);
+    for (var i = 0; i < buffer.byteLength ; i++) dataview.setInt8(i, i);
+
+    encode({ type: 'message', data: buffer }, true, function(encoded) {
+      var decoded = decode(encoded, 'arraybuffer');
+      expect(decoded).to.eql({ type: 'message', data: buffer });
+      expect(new Uint8Array(decoded.data)).to.eql(new Uint8Array(buffer));
+      done();
+    });
+  });
+
+  it('should encode/decode a typed array as binary', function(done) {
+    var buffer = new ArrayBuffer(32);
+    var typedArray = new Int32Array(buffer, 4, 2);
+    typedArray[0] = 1;
+    typedArray[1] = 2;
+
+    encode({ type: 'message', data: typedArray }, true, function(encoded) {
+      var decoded = decode(encoded, 'arraybuffer');
+      expect(decoded.type).to.eql('message');
+      expect(areArraysEqual(new Int32Array(decoded.data), typedArray)).to.eql(true);
+      done();
+    });
+  });
+
 });
+
+function areArraysEqual(x, y) {
+  if (x.length != y.length) return false;
+  for (var i = 0, l = x.length; i < l; i++) {
+    if (x[i] !== y[i]) return false;
+  }
+  return true;
+}
