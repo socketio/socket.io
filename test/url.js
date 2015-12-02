@@ -61,4 +61,24 @@ describe('url', function(){
     expect(url('http://google.com/').path).to.be('/');
   });
 
+  it('works with ipv6', function(){
+    var parsed = url('http://[::1]');
+    expect(parsed.protocol).to.be('http');
+    expect(parsed.host).to.be('::1');
+    expect(parsed.port).to.be('80');
+    expect(parsed.id).to.be('http://[::1]:80');
+  });
+
+  it('works with ipv6 location', function(){
+    loc.protocol = 'http:';
+    loc.hostname = '[::1]';
+    loc.port = '';
+    loc.host = loc.hostname + ':' + loc.port;
+
+    var parsed = url(undefined, loc);
+    expect(parsed.protocol).to.be('http');
+    expect(parsed.host).to.be('::1');
+    expect(parsed.port).to.be('80');
+    expect(parsed.id).to.be('http://[::1]:80');
+  });
 });

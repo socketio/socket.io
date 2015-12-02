@@ -19,7 +19,7 @@
     "socket.io-parser": "2.2.5",
     "has-binary": "0.1.7",
     "indexof": "0.0.1",
-    "parseuri": "0.0.2",
+    "parseuri": "0.0.4",
     "to-array": "0.1.3",
     "backo2": "1.0.2"
   },
