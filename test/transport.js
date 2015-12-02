@@ -123,6 +123,28 @@ describe('Transport', function () {
       expect(polling.uri()).to.match(/http:\/\/localhost\/engine\.io\?(j=[0-9]+&)?(t=[0-9]+)/);
     });
 
+    it('should generate an ipv6 uri', function () {
+      var polling = new eio.transports.polling({
+          path: '/engine.io'
+        , hostname: '::1'
+        , secure: false
+        , port: 80
+        , timestampRequests: false
+      });
+      expect(polling.uri()).to.contain('http://[::1]/engine.io');
+    });
+
+    it('should generate an ipv6 uri with port', function () {
+      var polling = new eio.transports.polling({
+          path: '/engine.io'
+        , hostname: '::1'
+        , secure: false
+        , port: 8080
+        , timestampRequests: false
+      });
+      expect(polling.uri()).to.contain('http://[::1]:8080/engine.io');
+    });
+
     it('should generate a ws uri', function () {
       var ws = new eio.transports.websocket({
           path: '/engine.io'
@@ -153,6 +175,28 @@ describe('Transport', function () {
         , timestampRequests: true
       });
       expect(ws.uri()).to.match(/ws:\/\/localhost\/engine\.io\?woot=[0-9]+/);
+    });
+
+    it('should generate a ws ipv6 uri', function () {
+      var ws = new eio.transports.websocket({
+          path: '/engine.io'
+        , hostname: '::1'
+        , secure: false
+        , port: 80
+        , timestampRequests: false
+      });
+      expect(ws.uri()).to.be('ws://[::1]/engine.io');
+    });
+
+    it('should generate a ws ipv6 uri with port', function () {
+      var ws = new eio.transports.websocket({
+          path: '/engine.io'
+        , hostname: '::1'
+        , secure: false
+        , port: 8080
+        , timestampRequests: false
+      });
+      expect(ws.uri()).to.be('ws://[::1]:8080/engine.io');
     });
   });
 
