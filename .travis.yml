@@ -1,8 +1,9 @@
 language: node_js
 sudo: false
 node_js:
-  - "0.10"
-  - "4.0.0"
+  - '0.10'
+  - '0.12'
+  - '4'
 notifications:
   irc: "irc.freenode.org#socket.io"
 matrix:
@@ -31,6 +32,8 @@ matrix:
     env: BROWSER_NAME=iphone BROWSER_VERSION=7.1
   - node_js: '0.10'
     env: BROWSER_NAME=iphone BROWSER_VERSION=8.4
+  - node_js: '0.10'
+    env: BROWSER_NAME=iphone BROWSER_VERSION=latest
   - node_js: '0.10'
     env: BROWSER_NAME=android BROWSER_VERSION=4.0
   - node_js: '0.10'
