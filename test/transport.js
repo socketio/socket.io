@@ -120,7 +120,7 @@ describe('Transport', function () {
         , timestampParam: 't'
         , timestampRequests: true
       });
-      expect(polling.uri()).to.match(/http:\/\/localhost\/engine\.io\?(j=[0-9]+&)?(t=[0-9]+)/);
+      expect(polling.uri()).to.match(/http:\/\/localhost\/engine\.io\?(j=[0-9]+&)?(t=[0-9A-Za-z-_]+)/);
     });
 
     it('should generate an ipv6 uri', function () {
@@ -174,7 +174,7 @@ describe('Transport', function () {
         , timestampParam: 'woot'
         , timestampRequests: true
       });
-      expect(ws.uri()).to.match(/ws:\/\/localhost\/engine\.io\?woot=[0-9]+/);
+      expect(ws.uri()).to.match(/ws:\/\/localhost\/engine\.io\?woot=[0-9A-Za-z-_]+/);
     });
 
     it('should generate a ws ipv6 uri', function () {

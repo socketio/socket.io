@@ -33,7 +33,8 @@
     "parseuri": "0.0.4",
     "parsejson": "0.0.1",
     "parseqs": "0.0.2",
-    "component-inherit": "0.0.3"
+    "component-inherit": "0.0.3",
+    "yeast": "0.1.2"
   },
   "devDependencies": {
     "blob": "0.0.4",
