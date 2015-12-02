@@ -183,7 +183,7 @@ describe('connection', function() {
   });
 
   it('reconnect delay should increase every time', function(done){
-    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 5, reconnectionDelay: 10, randomizationFactor: 0.2 });
+    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 3, reconnectionDelay: 100, randomizationFactor: 0.2 });
     var socket = manager.socket('/timeout');
     var reconnects = 0, increasingDelay = true, startTime, prevDelay = 0;
     
@@ -201,7 +201,7 @@ describe('connection', function() {
     });
 
     socket.on('reconnect_failed', function failed() {
-      expect(reconnects).to.be(5);
+      expect(reconnects).to.be(3);
       expect(increasingDelay).to.be.ok();
       socket.close();
       manager.close();
