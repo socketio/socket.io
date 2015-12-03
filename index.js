@@ -44,8 +44,8 @@ Adapter.prototype.__proto__ = Emitter.prototype;
 Adapter.prototype.add = function(id, room, fn){
   this.sids[id] = this.sids[id] || {};
   this.sids[id][room] = true;
-  this.rooms[room] = this.rooms[room] || {};
-  this.rooms[room][id] = true;
+  this.rooms[room] = this.rooms[room] || Room();
+  this.rooms[room].add(id);
   if (fn) process.nextTick(fn.bind(null, null));
 };
 
@@ -60,11 +60,10 @@ Adapter.prototype.add = function(id, room, fn){
 
 Adapter.prototype.del = function(id, room, fn){
   this.sids[id] = this.sids[id] || {};
-  this.rooms[room] = this.rooms[room] || {};
   delete this.sids[id][room];
-  delete this.rooms[room][id];
-  if (this.rooms.hasOwnProperty(room) && !Object.keys(this.rooms[room]).length) {
-    delete this.rooms[room];
+  if (this.rooms.hasOwnProperty(room)) {
+    this.rooms[room].del(id);
+    if (this.rooms[room].length === 0) delete this.rooms[room];
   }
 
   if (fn) process.nextTick(fn.bind(null, null));
@@ -82,17 +81,14 @@ Adapter.prototype.delAll = function(id, fn){
   var rooms = this.sids[id];
   if (rooms) {
     for (var room in rooms) {
-      if (rooms.hasOwnProperty(room)) {
-        delete this.rooms[room][id];
-      }
-
-      if (this.rooms.hasOwnProperty(room) && !Object.keys(this.rooms[room]).length) {
-        delete this.rooms[room];
+      if (this.rooms.hasOwnProperty(room)) {
+        this.rooms[room].del(id);
+        if (this.rooms[room].length === 0) delete this.rooms[room];
       }
     }
   }
   delete this.sids[id];
-  
+
   if (fn) process.nextTick(fn.bind(null, null));
 };
 
@@ -127,8 +123,9 @@ Adapter.prototype.broadcast = function(packet, opts){
       for (var i = 0; i < rooms.length; i++) {
         var room = self.rooms[rooms[i]];
         if (!room) continue;
-        for (var id in room) {
-          if (room.hasOwnProperty(id)) {
+        var sockets = room.sockets;
+        for (var id in sockets) {
+          if (sockets.hasOwnProperty(id)) {
             if (ids[id] || ~except.indexOf(id)) continue;
             socket = self.nsp.connected[id];
             if (socket) {
@@ -174,8 +171,9 @@ Adapter.prototype.clients = function(rooms, fn){
     for (var i = 0; i < rooms.length; i++) {
       var room = self.rooms[rooms[i]];
       if (!room) continue;
-      for (var id in room) {
-        if (room.hasOwnProperty(id)) {
+      var sockets = room.sockets;
+      for (var id in sockets) {
+        if (sockets.hasOwnProperty(id)) {
           if (ids[id]) continue;
           socket = self.nsp.connected[id];
           if (socket) {
@@ -195,4 +193,44 @@ Adapter.prototype.clients = function(rooms, fn){
   }
 
   if (fn) process.nextTick(fn.bind(null, null, sids));
+};
+
+/**
+* Room constructor.
+*
+* @api private
+*/
+
+function Room(){
+  if (!(this instanceof Room)) return new Room();
+  this.sockets = {};
+  this.length = 0;
+}
+
+/**
+ * Adds a socket to a room.
+ *
+ * @param {String} socket id
+ * @api private
+ */
+
+Room.prototype.add = function(id){
+  if (!this.sockets.hasOwnProperty(id)) {
+    this.sockets[id] = true;
+    this.length++;
+  }
+};
+
+/**
+ * Removes a socket from a room.
+ *
+ * @param {String} socket id
+ * @api private
+ */
+
+Room.prototype.del = function(id){
+  if (this.sockets.hasOwnProperty(id)) {
+    delete this.sockets[id];
+    this.length--;
+  }
 };
