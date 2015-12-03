@@ -25,11 +25,11 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "base64id": "0.1.0",
+    "accepts": "1.1.4",
     "debug": "2.2.0",
-    "ws": "0.8.1",
     "engine.io-parser": "1.2.2",
-    "accepts": "1.1.4"
+    "ws": "0.8.1",
+    "yeast": "0.1.2"
   },
   "devDependencies": {
     "engine.io-client": "1.6.3",
