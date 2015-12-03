@@ -2,6 +2,7 @@ var expect = require('expect.js');
 var io = require('../');
 var hasCORS = require('has-cors');
 var textBlobBuilder = require('text-blob-builder');
+var env = require('./support/env');
 
 describe('connection', function() {
   this.timeout(70000);
@@ -470,6 +471,9 @@ describe('connection', function() {
 
     it('should get binary data (as an ArrayBuffer)', function(done){
       var socket = io({ forceNew: true });
+      if (env.node) {
+        socket.io.engine.binaryType = 'arraybuffer';
+      }
       socket.emit('doge');
       socket.on('doge', function(buffer){
         expect(buffer instanceof ArrayBuffer).to.be(true);
