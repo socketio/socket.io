@@ -2,7 +2,7 @@
 // this is a test server to support tests which make requests
 
 var io = require('socket.io');
-var server = io(process.env.ZUUL_PORT, { pingInterval: 2000 });
+var server = io(process.env.ZUUL_PORT || 3210, { pingInterval: 2000 });
 var expect = require('expect.js');
 
 server.of('/foo').on('connection', function(){

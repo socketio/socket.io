@@ -12,6 +12,7 @@ test:
 test-node:
 	@./node_modules/.bin/mocha \
 		--reporter $(REPORTER) \
+		--require test/support/server.js \
 		test/index.js
 
 test-zuul:
