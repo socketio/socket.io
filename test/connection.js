@@ -379,6 +379,16 @@ describe('connection', function() {
     });
   });
 
+  it('should connect while disconnecting another socket', function(done) {
+    var manager = io.Manager();
+    var socket1 = manager.socket('/foo');
+    socket1.on('connect', function() {
+      var socket2 = manager.socket('/asd');
+      socket2.on('connect', done);
+      socket1.disconnect();
+    });
+  });
+
   // Ignore incorrect connection test for old IE due to no support for
   // `script.onerror` (see: http://requirejs.org/docs/api.html#ieloadfail)
   if (!global.document || hasCORS) {
