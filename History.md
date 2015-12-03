@@ -1,4 +1,12 @@
 
+0.4.0 / 2015-12-03
+==================
+
+  * package: bump `debug`
+  * use a `Room` class to efficiently track room size
+  * allow `clients(fn)`
+  * call the callback on `delAll`
+
 0.3.1 / 2014-10-27
 ==================
 
