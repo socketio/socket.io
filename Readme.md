@@ -402,7 +402,24 @@ server.listen(3000);
     
   Disconnects this client. If value of close is `true`, closes the underlying connection. 
   Otherwise, it just disconnects the namespace.
-    
+
+#### Events
+
+- `disconnect`
+    - Fired upon disconnection.
+    - **Arguments**
+      - `String`: the reason of the disconnection (either client or server-side)
+- `error`
+    - Fired when an error occurs.
+    - **Arguments**
+      - `Object`: error data
+- `disconnecting`
+    - Fired when the client is going to be disconnected (but hasn't left its `rooms` yet).
+    - **Arguments**
+      - `String`: the reason of the disconnection (either client or server-side)
+
+These are reserved events (along with `connect`, `newListener` and `removeListener`) which cannot be used as event names.
+
 
 ### Client
 

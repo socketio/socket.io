@@ -644,6 +644,31 @@ describe('socket.io', function(){
       });
     });
 
+    it('should fire a `disconnecting` event just before leaving all rooms', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv);
+
+        sio.on('connection', function(s){
+          s.join('a', function(){
+            s.disconnect();
+          });
+
+          var total = 2;
+          s.on('disconnecting', function(reason){
+            expect(Object.keys(s.rooms)).to.eql([s.id, 'a']);
+            total--;
+          });
+
+          s.on('disconnect', function(reason){
+            expect(Object.keys(s.rooms)).to.eql([]);
+            --total || done();
+          });
+        });
+      });
+    });
+
     it('should return error connecting to non-existent namespace', function(done){
       var srv = http();
       var sio = io(srv);
