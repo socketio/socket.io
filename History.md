@@ -1,4 +1,12 @@
 
+1.6.4 / 2015-12-04
+==================
+
+  * ipv6 url support
+  * README: fix the description of the `timestampRequests` option
+  * transports: use `yeast` to generate the cache busting id
+  * fix arraybuffer > base64 for binary sends
+
 1.6.3 / 2015-12-01
 ==================
 
