@@ -1,7 +1,7 @@
 {
   "name": "engine.io-parser",
   "description": "Parser for the client for the realtime Engine",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "homepage": "https://github.com/Automattic/engine.io-parser",
   "devDependencies": {
     "expect.js": "0.3.1",
