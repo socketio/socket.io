@@ -6,6 +6,7 @@ var join = require('path').join;
 var ioc = require('socket.io-client');
 var request = require('supertest');
 var expect = require('expect.js');
+var Promise = require('bluebird');
 
 // Creates a socket.io client for the given server
 function client(srv, nsp, opts){
