@@ -2162,5 +2162,49 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should handle Promises', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var run = 0;
+      sio.use(function(socket){
+        expect(socket).to.be.a(Socket);
+        run++;
+        return Promise.resolve();
+      });
+      sio.use(function(socket){
+        expect(socket).to.be.a(Socket);
+        run++;
+        return Promise.resolve();
+      });
+      srv.listen(function(){
+        var socket = client(srv);
+        socket.on('connect', function(){
+          expect(run).to.be(2);
+          done();
+        });
+      });
+    });
+
+    it('should handle errors in Promises', function(done){
+      var srv = http();
+      var sio = io(srv);
+      sio.use(function(socket){
+        return Promise.reject(new Error('Authentication error'));
+      });
+      sio.use(function(socket){
+        return Promise.reject(new Error('nope'));
+      });
+      srv.listen(function(){
+        var socket = client(srv);
+        socket.on('connect', function(){
+          done(new Error('nope'));
+        });
+        socket.on('error', function(err){
+          expect(err).to.be('Authentication error');
+          done();
+        });
+      });
+    });
   });
 });
