@@ -2125,7 +2125,7 @@ describe('socket.io', function(){
         });
       });
       srv.listen(function(){
-        socket = client(srv);
+        socket = client(srv, { reconnection: false });
         sio.on('connection', function(socket){
           done(new Error('should not fire'));
         });
