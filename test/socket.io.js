@@ -873,10 +873,8 @@ describe('socket.io', function(){
           srv.close();
         });
 
-        // TODO
-        done();
         clientSocket.on('reconnect_failed', function() {
-          //done();
+          done();
         });
       });
     });
