@@ -28,8 +28,7 @@ function build(fn){
     insertGlobalVars: { global: glob },
     standalone: 'eio'
   })
-  .exclude('bufferutil')
-  .exclude('utf-8-validate')
+  .ignore('ws')
   .bundle();
 
   bundle.on('error', function (err) {

@@ -3,7 +3,7 @@
 // support in browsers and in node.js
 // some tests do not yet work in both
 exports.browser = !!global.window;
-exports.wsSupport = !!require('ws');
+exports.wsSupport = !!(!global.window || window.WebSocket || window.MozWebSocket);
 
 var userAgent = global.navigator ? navigator.userAgent : '';
 exports.isOldSimulator = ~userAgent.indexOf('iPhone OS 4') || ~userAgent.indexOf('iPhone OS 5');
