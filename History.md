@@ -1,4 +1,26 @@
 
+1.4.0 / 2015-11-28
+==================
+
+  * package: bump `engine.io-client`
+  * manager: fix `Object.prototype` extensions
+  * package: bump `zuul` and `zuul-ngrok`
+  * package: bump `debug`
+  * package: bump `socket.io-parser`
+  * package: bump `has-binary`
+  * remove unnecessary `index.js`
+  * added support for `ping` and `pong` events
+  * proper handling of disconnection while in `opening` state
+  * instrumentation / style tweaks
+  * added tests for same-namespace new connection handling
+  * do not call apply if packet id is not in acks
+  * build sio client with make to autogenerate new socket.io.js
+  * bugfix/1956 don't reuse same-namespace connections #2
+  * fix has-binary to work with all objects [gunta]
+  * bugfix/1956 don't reuse same-namespace connections
+  * add support for compression [nkzawa]
+  * fix: location.port was ignored
+
 1.3.7 / 2015-09-21
 ==================
 
