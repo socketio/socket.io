@@ -1,4 +1,32 @@
 
+1.4.0 / 2015-11-28
+==================
+
+  * socket.io: increase large binary data test timeout
+  * package: bump `engine.io` for release
+  * trigger callback even when joining an already joined room
+  * package: bump parser
+  * namespace: clear rooms flag after a clients call (fixes #1978)
+  * package: bump `socket.io-parser`
+  * fixed tests with large data
+  * fixed a typo in the example code
+  * package: bump mocha
+  * package: bump `has-binary` and `zuul-ngrok`
+  * package: bump `engine.io` and `socket.io-client`
+  * README: clarified documentation of Socket.in
+  * README: fixed up legacy repo links
+  * test: better timeout for stress test
+  * socket: don't set request property which has a getter
+  * removed proxy index file
+  * support flags on namespace
+  * improve Socket#packet and Client#packet
+  * socket: warn node_redis-style about missing `error`
+  * test: added failing test
+  * test: increase timeout for large binary data test
+  * package: bump `has-binary` to work with all objects (fixes #1955)
+  * fix origin verification default https port [evanlucas]
+  * support compression [nkzawa]
+
 1.3.7 / 2015-09-21
 ==================
 
