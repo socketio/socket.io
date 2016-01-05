@@ -1,4 +1,10 @@
 
+1.6.5 / 2016-01-05
+==================
+
+  * package: upgrade ws for sec advisory
+  * server: catch websocket errors before upgrade
+
 1.6.4 / 2015-12-04
 ==================
 
