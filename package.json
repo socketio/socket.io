@@ -28,7 +28,9 @@
   },
   "devDependencies": {
     "base64-arraybuffer": "0.1.0",
-    "browserify": "4.2.1",
+    "browserify": "12.0.1",
+    "concat-stream": "1.5.1",
+    "derequire": "2.0.3",
     "expect.js": "0.2.0",
     "has-cors": "1.0.3",
     "istanbul": "0.2.1",
