@@ -1,4 +1,10 @@
 
+1.6.6 / 2016-01-07
+==================
+
+  * support: add fallback to `global` for nativescript [@ligaz]
+  * exclude `ws` instead of ignoring it from build [@lpinca]
+
 1.6.5 / 2016-01-05
 ==================
 
