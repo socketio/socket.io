@@ -48,5 +48,6 @@ function build(fn){
 
 function glob(){
   return 'typeof self !== "undefined" ? self : '
-    + 'typeof window !== "undefined" ? window : {}';
+    + 'typeof window !== "undefined" ? window : '
+    + 'typeof global !== "undefined" ? global : {}';
 }
