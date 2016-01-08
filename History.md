@@ -1,4 +1,11 @@
 
+1.4.2 / 2016-01-07
+==================
+
+  * exclude `ws` instead of `ignore`ing it from build [@lpinca]
+  * add global object as another fallback [@ligaz]
+  * bump `engine.io-client`
+
 1.4.1 / 2016-01-07
 ==================
 
