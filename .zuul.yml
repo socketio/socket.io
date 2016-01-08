@@ -5,4 +5,4 @@ tunnel:
   authtoken: 6Aw8vTgcG5EvXdQywVvbh_3fMxvd4Q7dcL2caAHAFjV
   proto: tcp
 browserify:
-  - ignore: ws
+  - exclude: ws
