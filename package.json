@@ -53,6 +53,7 @@
     "test": "make test"
   },
   "browser": {
+    "ws": false,
     "xmlhttprequest-ssl": "./lib/xmlhttprequest.js"
   },
   "repository": {
