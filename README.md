@@ -51,7 +51,7 @@ Engine.IO is a commonjs module, which means you can include it by using
 1. build your app bundle
 
     ```bash
-    $ browserify app.js -i ws > bundle.js
+    $ browserify app.js > bundle.js
     ```
 
 1. include on your page

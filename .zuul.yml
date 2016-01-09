@@ -4,5 +4,3 @@ tunnel:
   type: ngrok
   authtoken: 6Aw8vTgcG5EvXdQywVvbh_3fMxvd4Q7dcL2caAHAFjV
   proto: tcp
-browserify:
-  - exclude: ws

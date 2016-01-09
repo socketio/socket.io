@@ -28,7 +28,6 @@ function build(fn){
     insertGlobalVars: { global: glob },
     standalone: 'eio'
   })
-  .exclude('ws')
   .bundle();
 
   bundle.on('error', function (err) {
