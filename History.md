@@ -1,4 +1,10 @@
 
+1.6.7 / 2016-01-10
+==================
+
+  * prevent `ws` from being added to the bundle
+  * added jsonp fix for when no `<script>` is found
+
 1.6.6 / 2016-01-07
 ==================
 
