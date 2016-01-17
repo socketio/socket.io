@@ -30,11 +30,11 @@
   },
   "devDependencies": {
     "expect.js": "0.3.1",
-    "istanbul": "0.2.3",
+    "istanbul": "0.4.1",
     "mocha": "2.3.4",
-    "superagent": "0.17.0",
-    "supertest": "0.8.2",
-    "zuul-ngrok": "3.1.0"
+    "superagent": "1.6.1",
+    "supertest": "1.1.0",
+    "zuul-ngrok": "3.2.0"
   },
   "contributors": [
     {
