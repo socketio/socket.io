@@ -299,9 +299,10 @@ server.listen(3000);
   clients. A `Socket` belongs to a certain `Namespace` (by default `/`)
   and uses an underlying `Client` to communicate.
 
-### Socket#rooms:Array
+### Socket#rooms:Object
 
-  A list of strings identifying the rooms this socket is in.
+  A hash of strings identifying the rooms this socket is in, indexed by
+  room name.
 
 ### Socket#client:Client
 
