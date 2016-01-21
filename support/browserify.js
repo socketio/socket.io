@@ -7,6 +7,7 @@ var browserify = require('browserify');
 var concat = require('concat-stream');
 var derequire = require('derequire');
 var path = require.resolve('../');
+var babelify = require("babelify");
 
 /**
  * Module exports.
@@ -29,6 +30,7 @@ function build(fn){
     standalone: 'io'
   })
   .exclude('ws')
+  .transform(babelify)
   .bundle();
 
   bundle.on('error', function (err) {
