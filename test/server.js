@@ -6,6 +6,8 @@
 var http = require('http');
 var https = require('https');
 var fs = require('fs');
+var path = require('path');
+var exec = require('child_process').exec;
 var zlib = require('zlib');
 var eio = require('..');
 var eioc = require('engine.io-client');
@@ -947,6 +949,25 @@ describe('server', function () {
             done();
           }, 100);
         });
+      });
+    });
+
+    describe('graceful close', function () {
+      function fixture(filename) {
+        return process.execPath + ' ' +
+          path.join(__dirname, 'fixtures', filename);
+      }
+
+      it('should stop socket and timers', function(done){
+        exec(fixture('server-close.js'), done);
+      });
+
+      it('should stop upgraded socket and timers', function(done){
+        exec(fixture('server-close-upgraded.js'), done);
+      });
+
+      it('should stop upgrading socket and timers', function(done){
+        exec(fixture('server-close-upgrading.js'), done);
       });
     });
   });
