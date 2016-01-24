@@ -4,7 +4,7 @@ REPORTER = dot
 build: engine.io.js
 
 engine.io.js: lib/*.js lib/transports/*.js package.json
-	@./support/browserify.sh > engine.io.js
+	@./node_modules/webpack/bin/webpack.js --config ./support/webpack.config.js
 
 test:
 	@if [ "x$(BROWSER_NAME)" = "x" ]; then make test-node; else make test-zuul; fi
