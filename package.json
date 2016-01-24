@@ -34,6 +34,7 @@
     "expect.js": "0.3.1",
     "gulp": "^3.9.0",
     "gulp-file": "^0.2.0",
+    "gulp-istanbul": "^0.10.3",
     "gulp-mocha": "^2.2.0",
     "has-cors": "1.1.0",
     "istanbul": "0.4.2",
