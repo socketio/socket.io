@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 var babel = require("gulp-babel");
 
+// By default, individual js files are transformed by babel and exported to /dist
 gulp.task("default", function () {
   return gulp.src("lib/*.js")
     .pipe(babel())
