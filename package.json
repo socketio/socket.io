@@ -31,7 +31,9 @@
   "devDependencies": {
     "expect.js": "0.3.1",
     "gulp": "^3.9.0",
+    "gulp-babel": "^6.1.1",
     "gulp-mocha": "^2.2.0",
+    "istanbul": "0.4.1",
     "mocha": "2.3.4",
     "superagent": "1.6.1",
     "supertest": "1.1.0",
