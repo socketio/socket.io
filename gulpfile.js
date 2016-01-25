@@ -2,9 +2,20 @@ var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 var file = require('gulp-file');
 var istanbul = require('gulp-istanbul');
+var webpack = require('webpack-stream');
 
-var browserify = require('./support/browserify.js');
+// var browserify = require('./support/browserify.js');
 
+gulp.task('webpack', function() {
+  return gulp.src('lib/*.js')
+    .pipe(webpack({
+      entry: './lib/index.js',
+      output: {
+        filename: 'socket.io.js',
+      },
+    }))
+    .pipe(gulp.dest('./'));
+});
 
 gulp.task('build', function(){
   browserify(function(err, out){
