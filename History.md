@@ -1,4 +1,10 @@
 
+1.6.8 / 2016-01-25
+==================
+
+  * fix graceful close [nkzawa]
+  * polling: don't set the `closeTimeoutTimer` if the transport is upgraded
+
 1.6.7 / 2016-01-10
 ==================
 
