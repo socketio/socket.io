@@ -34,6 +34,8 @@
   "devDependencies": {
     "engine.io-client": "1.6.8",
     "expect.js": "0.2.0",
+    "gulp": "^3.9.0",
+    "gulp-mocha": "^2.2.0",
     "mocha": "2.3.4",
     "s": "0.1.1",
     "superagent": "0.15.4"
