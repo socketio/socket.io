@@ -7,6 +7,7 @@ var exec = require('child_process').exec;
 var ioc = require('socket.io-client');
 var request = require('supertest');
 var expect = require('expect.js');
+var Promise = require('bluebird');
 
 // Creates a socket.io client for the given server
 function client(srv, nsp, opts){
@@ -2169,6 +2170,50 @@ describe('socket.io', function(){
         var chat = client(srv, '/chat');
         chat.on('connect', function() {
           expect(result).to.eql([1, 2, 3, 4]);
+          done();
+        });
+      });
+    });
+
+    it('should handle Promises', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var run = 0;
+      sio.use(function(socket){
+        expect(socket).to.be.a(Socket);
+        run++;
+        return Promise.resolve();
+      });
+      sio.use(function(socket){
+        expect(socket).to.be.a(Socket);
+        run++;
+        return Promise.resolve();
+      });
+      srv.listen(function(){
+        var socket = client(srv);
+        socket.on('connect', function(){
+          expect(run).to.be(2);
+          done();
+        });
+      });
+    });
+
+    it('should handle errors in Promises', function(done){
+      var srv = http();
+      var sio = io(srv);
+      sio.use(function(socket){
+        return Promise.reject(new Error('Authentication error'));
+      });
+      sio.use(function(socket){
+        return Promise.reject(new Error('nope'));
+      });
+      srv.listen(function(){
+        var socket = client(srv);
+        socket.on('connect', function(){
+          done(new Error('nope'));
+        });
+        socket.on('error', function(err){
+          expect(err).to.be('Authentication error');
           done();
         });
       });

@@ -29,6 +29,7 @@
     "debug": "2.2.0"
   },
   "devDependencies": {
+    "bluebird": "^3.0.6",
     "expect.js": "0.3.1",
     "istanbul": "0.4.1",
     "mocha": "2.3.4",
