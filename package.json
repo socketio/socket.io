@@ -53,7 +53,7 @@
     "zuul-ngrok": "3.2.0"
   },
   "scripts": {
-    "test": "gulp test"
+    "test": "make test"
   },
   "browser": {
     "ws": false,

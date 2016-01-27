@@ -6,9 +6,9 @@
     var file = require("gulp-file");
 
     // Task names
-    var TASK_WATCHER = "watch";
-    var TASK_BUILD = "build";
-    var TASK_TEST = "test";
+    var TASK_BUILD = "build"; // rebuild
+    var TASK_WATCHER = "watch"; // auto rebuild on changes
+    var TASK_TEST = "test"; // multiplexes to test-node / test-zuul
     var TASK_TEST_NODE = "test-node";
     var TASK_TEST_ZUUL = "test-zuul";
     var TASK_TEST_COV = "test-cov";
@@ -28,8 +28,8 @@
 
     gulp.task("default", [TASK_BUILD]);
 
-    // "gulp watch" from terminal to automatically rebuild when file
-    // deps have changed.
+    // "gulp watch" from terminal to automatically rebuild when
+    // files denoted in WATCH_GLOBS have changed.
     gulp.task(TASK_WATCHER, function(){
         gulp.watch(WATCH_GLOBS, [TASK_BUILD]);
     });
@@ -48,8 +48,29 @@
     ////////////////////////////////////////
 
     var REPORTER = "dot";
+    var TEST_FILE_GLOB = "test/index.js";
 
     gulp.task(TASK_TEST, function(){
+
+    });
+
+    gulp.task(TASK_TEST_NODE, function(){
+        var MOCHA_OPTS = {
+            reporter: REPORTER,
+            require: ["./test/support/server.js"]
+        }
+        gulp.src(TEST_FILE_GLOB, { read: false })
+            .pipe(mocha(MOCHA_OPTS))
+            // following lines to fix gulp-mocha not terminating (see gulp-mocha webpage)
+            .once("error", function(){ process.exit(1); })
+            .once("end", function(){ process.exit(); });
+    });
+
+    gulp.task(TASK_TEST_ZUUL, function(){
+
+    });
+
+    gulp.task(TASK_TEST_COV, function(){
 
     });
 
