@@ -4,6 +4,7 @@
     var mocha = require("gulp-mocha");
     var browserify = require("./support/browserify.js");
     var file = require("gulp-file");
+    var spawn = require("child-process").spawn;
 
     // Task names
     var TASK_BUILD = "build"; // rebuild
@@ -65,7 +66,7 @@
     gulp.task(TASK_TEST_ZUUL, testZuul);
 
     gulp.task(TASK_TEST_COV, function(){
-
+        //TODO
     });
 
     function testNode() {
@@ -82,6 +83,26 @@
 
     function testZuul() {
 
+        if (!(process.env.hasOwnProperty("BROWSER_NAME")
+            && process.env.hasOwnProperty("BROWSER_VERSION"))) {
+            throw "travis env vars for zuul/saucelabs not accessible from " +
+            "process.env  (BROWSER_NAME or BROWSER_VERSION)";
+        }
+
+        var ZUUL_CMD = "./node_modules/zuul/bin/zuul";
+        var args = [
+            "--browser-name",
+            process.env.BROWSER_NAME,
+            "--browser-version",
+            process.env.BROWSER_VERSION
+        ];
+        // add browser platform argument if valid
+        if (process.env.hasOwnProperty("BROWSER_PLATFORM")) {
+            args.push("--browser-platform");
+            args.push(process.env.BROWSER_PLATFORM);
+        }
+
+        spawn(ZUUL_CMD, args, { stdio: "inherit" });
     }
 
 })();
