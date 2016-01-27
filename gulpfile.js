@@ -49,7 +49,8 @@
     ////////////////////////////////////////
 
     var REPORTER = "dot";
-    var TEST_FILE_GLOB = "test/index.js";
+    var TEST_FILE = "./test/index.js";
+    var TEST_SUPPORT_SERVER_FILE = "./test/support/server.js";
 
     gulp.task(TASK_TEST, function(){
         if (process.env.hasOwnProperty("BROWSER_NAME")) {
@@ -70,9 +71,9 @@
     function testNode() {
         var MOCHA_OPTS = {
             reporter: REPORTER,
-            require: ["./test/support/server.js"]
+            require: [TEST_SUPPORT_SERVER_FILE]
         };
-        gulp.src(TEST_FILE_GLOB, { read: false })
+        gulp.src(TEST_FILE, { read: false })
             .pipe(mocha(MOCHA_OPTS))
             // following lines to fix gulp-mocha not terminating (see gulp-mocha webpage)
             .once("error", function(){ process.exit(1); })
