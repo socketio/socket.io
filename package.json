@@ -44,13 +44,16 @@
     "engine.io": "1.6.7",
     "expect.js": "0.2.0",
     "express": "3.4.8",
+    "gulp": "^3.9.0",
+    "gulp-file": "^0.2.0",
+    "gulp-mocha": "^2.2.0",
     "istanbul": "0.2.3",
     "mocha": "1.16.2",
     "zuul": "3.7.2",
     "zuul-ngrok": "3.2.0"
   },
   "scripts": {
-    "test": "make test"
+    "test": "gulp test"
   },
   "browser": {
     "ws": false,
