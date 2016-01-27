@@ -18,7 +18,7 @@
     // BUILDING
     ////////////////////////////////////////
 
-    var BUILD_TARGET_FILENAME = "engine.io.js";
+    var BUILD_TARGET_FILENAME = "engine.io.js2";
     var BUILD_TARGET_DIR = "./";
     var WATCH_GLOBS = [
         "lib/*.js",
@@ -28,6 +28,11 @@
 
     gulp.task("default", [TASK_BUILD]);
 
+    // "gulp watch" from terminal to automatically rebuild when file
+    // deps have changed.
+    gulp.task(TASK_WATCHER, function(){
+        gulp.watch(WATCH_GLOBS, [TASK_BUILD]);
+    });
 
     gulp.task(TASK_BUILD, function(){
         browserify(function(err, output){
