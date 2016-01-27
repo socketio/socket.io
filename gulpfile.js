@@ -2,9 +2,10 @@
 
     var gulp = require("gulp");
     var mocha = require("gulp-mocha");
+    var istanbul = require("gulp-istanbul");
     var browserify = require("./support/browserify.js");
     var file = require("gulp-file");
-    var spawn = require("child-process").spawn;
+    var spawn = require("child_process").spawn;
 
     // Task names
     var TASK_BUILD = "build"; // rebuild
@@ -81,14 +82,15 @@
             .once("end", function(){ process.exit(); });
     }
 
+    // runs zuul through shell process
     function testZuul() {
-
+        /*
         if (!(process.env.hasOwnProperty("BROWSER_NAME")
             && process.env.hasOwnProperty("BROWSER_VERSION"))) {
             throw "travis env vars for zuul/saucelabs not accessible from " +
             "process.env  (BROWSER_NAME or BROWSER_VERSION)";
         }
-
+*/
         var ZUUL_CMD = "./node_modules/zuul/bin/zuul";
         var args = [
             "--browser-name",
