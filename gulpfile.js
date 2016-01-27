@@ -18,7 +18,7 @@
     // BUILDING
     ////////////////////////////////////////
 
-    var BUILD_TARGET_FILENAME = "engine.io.js2";
+    var BUILD_TARGET_FILENAME = "engine.io.js";
     var BUILD_TARGET_DIR = "./";
     var WATCH_GLOBS = [
         "lib/*.js",
@@ -34,6 +34,7 @@
         gulp.watch(WATCH_GLOBS, [TASK_BUILD]);
     });
 
+    // generate engine.io.js using browserify
     gulp.task(TASK_BUILD, function(){
         browserify(function(err, output){
             if (err) throw err;
@@ -51,27 +52,35 @@
     var TEST_FILE_GLOB = "test/index.js";
 
     gulp.task(TASK_TEST, function(){
+        if (process.env.hasOwnProperty("BROWSER_NAME")) {
+            testZuul();
+        } else {
+            testNode();
+        }
+    });
+
+    gulp.task(TASK_TEST_NODE, testNode);
+
+    gulp.task(TASK_TEST_ZUUL, testZuul);
+
+    gulp.task(TASK_TEST_COV, function(){
 
     });
 
-    gulp.task(TASK_TEST_NODE, function(){
+    function testNode() {
         var MOCHA_OPTS = {
             reporter: REPORTER,
             require: ["./test/support/server.js"]
-        }
+        };
         gulp.src(TEST_FILE_GLOB, { read: false })
             .pipe(mocha(MOCHA_OPTS))
             // following lines to fix gulp-mocha not terminating (see gulp-mocha webpage)
             .once("error", function(){ process.exit(1); })
             .once("end", function(){ process.exit(); });
-    });
+    }
 
-    gulp.task(TASK_TEST_ZUUL, function(){
+    function testZuul() {
 
-    });
-
-    gulp.task(TASK_TEST_COV, function(){
-
-    });
+    }
 
 })();
