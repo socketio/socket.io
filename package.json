@@ -47,6 +47,7 @@
     "expect.js": "0.2.0",
     "express": "3.4.8",
     "gulp": "^3.9.0",
+    "gulp-babel": "^6.1.1",
     "gulp-file": "^0.2.0",
     "gulp-istanbul": "^0.10.3",
     "gulp-mocha": "^2.2.0",
