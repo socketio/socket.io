@@ -7,6 +7,7 @@ var browserify = require('browserify');
 var derequire = require('derequire');
 var concat = require('concat-stream');
 var path = require.resolve('../');
+var babelify = require("babelify");
 
 /**
  * Module exports.
@@ -28,6 +29,7 @@ function build(fn){
     insertGlobalVars: { global: glob },
     standalone: 'eio'
   })
+  .transform(babelify)
   .bundle();
 
   bundle.on('error', function (err) {
