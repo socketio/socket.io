@@ -7,8 +7,9 @@ var webpack = require('webpack-stream');
 
 // var browserify = require('./support/browserify.js');
 
-gulp.task('webpack', function() {
+gulp.task('build-webpack', function() {
   return gulp.src('lib/*.js')
+    .pipe(babel())
     .pipe(webpack({
       entry: './lib/index.js',
       output: {
