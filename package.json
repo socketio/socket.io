@@ -2,7 +2,7 @@
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
   "license": "MIT",
-  "version": "1.6.7",
+  "version": "1.6.8",
   "homepage": "https://github.com/socketio/engine.io-client",
   "contributors": [
     {
@@ -46,13 +46,17 @@
     "engine.io": "1.6.7",
     "expect.js": "0.2.0",
     "express": "3.4.8",
+    "gulp": "^3.9.0",
+    "gulp-file": "^0.2.0",
+    "gulp-istanbul": "^0.10.3",
+    "gulp-mocha": "^2.2.0",
     "istanbul": "0.2.3",
     "mocha": "1.16.2",
     "zuul": "3.7.2",
     "zuul-ngrok": "3.2.0"
   },
   "scripts": {
-    "test": "make test"
+    "test": "make test"//"./node_modules/.bin/gulp test"
   },
   "browser": {
     "ws": false,
