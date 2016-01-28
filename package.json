@@ -34,8 +34,7 @@
     "parsejson": "0.0.1",
     "parseqs": "0.0.2",
     "component-inherit": "0.0.3",
-    "yeast": "0.1.2",
-    "webpack": "^1.12.11"
+    "yeast": "0.1.2"
   },
   "devDependencies": {
     "blob": "0.0.4",
@@ -47,6 +46,7 @@
     "express": "3.4.8",
     "istanbul": "0.2.3",
     "mocha": "1.16.2",
+    "webpack": "^1.12.12",
     "zuul": "3.7.2",
     "zuul-ngrok": "3.2.0"
   },
