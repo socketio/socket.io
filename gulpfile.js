@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 var file = require('gulp-file');
 var istanbul = require('gulp-istanbul');
+var babel = require("gulp-babel");
 var webpack = require('webpack-stream');
 
 // var browserify = require('./support/browserify.js');
@@ -15,6 +16,13 @@ gulp.task('webpack', function() {
       },
     }))
     .pipe(gulp.dest('./'));
+});
+
+// By default, individual js files are transformed by babel and exported to /dist
+gulp.task("babel", function () {
+  return gulp.src("lib/*.js")
+    .pipe(babel())
+    .pipe(gulp.dest("dist"));
 });
 
 gulp.task('build', function(){
