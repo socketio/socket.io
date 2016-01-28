@@ -31,8 +31,8 @@ test-zuul:
 
 test-cov:
 	@./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- \
-		--require ./test/common \
 		--reporter $(REPORTER) \
+		--require ./test/common \
 		$(TESTS)
 
 .PHONY: test build
