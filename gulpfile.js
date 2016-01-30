@@ -3,7 +3,7 @@ var mocha = require("gulp-mocha");
 var istanbul = require("gulp-istanbul");
 var browserify = require("./support/browserify.js");
 var file = require("gulp-file");
-var spawn = require("child_process").spawn;
+var exec = require("child_process").exec;
 
 
 ////////////////////////////////////////
@@ -92,19 +92,13 @@ function testNode() {
 
 // runs zuul through shell process
 function testZuul() {
-    /*
-    if (!(process.env.hasOwnProperty("BROWSER_NAME")
-        && process.env.hasOwnProperty("BROWSER_VERSION"))) {
-        throw "travis env vars for zuul/saucelabs not accessible from " +
-        "process.env  (BROWSER_NAME or BROWSER_VERSION)";
-    }
-*/
     var ZUUL_CMD = "./node_modules/zuul/bin/zuul";
     var args = [
         "--browser-name",
         process.env.BROWSER_NAME,
         "--browser-version",
-        process.env.BROWSER_VERSION
+        process.env.BROWSER_VERSION,
+        "test/index.js;"
     ];
     // add browser platform argument if valid
     if (process.env.hasOwnProperty("BROWSER_PLATFORM")) {
@@ -112,5 +106,7 @@ function testZuul() {
         args.push(process.env.BROWSER_PLATFORM);
     }
 
-    spawn(ZUUL_CMD, args, { stdio: "inherit" });
+    var x = exec(ZUUL_CMD, args, { stdio: "inherit" });
+    x.stdout.on("data", function(d){console.log(d);});
+    x.stderr.on("data", function(d){console.log(d);});
 }
