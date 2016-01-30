@@ -54,6 +54,7 @@
     "istanbul": "0.2.3",
     "mocha": "1.16.2",
     "webpack": "^1.12.12",
+    "webpack-stream": "^3.1.0",
     "zuul": "3.7.2",
     "zuul-ngrok": "3.2.0"
   },

@@ -3,7 +3,9 @@ var mocha = require("gulp-mocha");
 var istanbul = require("gulp-istanbul");
 var browserify = require("./support/browserify.js");
 var file = require("gulp-file");
+var babel = require("gulp-babel");
 var spawn = require("child_process").spawn;
+var webpack = require('webpack-stream');
 
 
 ////////////////////////////////////////
@@ -24,6 +26,20 @@ gulp.task("default", ["build"]);
 // files denoted in WATCH_GLOBS have changed.
 gulp.task("watch", function(){
     gulp.watch(WATCH_GLOBS, ["build"]);
+});
+
+// By default, individual js files are transformed by babel and exported to/dist
+gulp.task("babel", function () {
+    return gulp.src(["lib/*.js","lib/transports/*.js"], { base: 'lib' })
+        .pipe(babel())
+        .pipe(gulp.dest("dist"));
+});
+
+gulp.task("build-webpack", function() {
+    return gulp.src(["lib/*.js","lib/transports/*.js"], { base: 'lib' })
+        .pipe(webpack())
+        .pipe(babel())
+        .pipe(gulp.dest("./"));
 });
 
 // generate engine.io.js using browserify
