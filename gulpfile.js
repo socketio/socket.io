@@ -4,8 +4,8 @@ var istanbul = require("gulp-istanbul");
 var browserify = require("./support/browserify.js");
 var file = require("gulp-file");
 var babel = require("gulp-babel");
-var spawn = require("child_process").spawn;
 var webpack = require('webpack-stream');
+var exec = require("child_process").exec;
 
 
 ////////////////////////////////////////
@@ -114,19 +114,13 @@ function testNode() {
 
 // runs zuul through shell process
 function testZuul() {
-    /*
-    if (!(process.env.hasOwnProperty("BROWSER_NAME")
-        && process.env.hasOwnProperty("BROWSER_VERSION"))) {
-        throw "travis env vars for zuul/saucelabs not accessible from " +
-        "process.env  (BROWSER_NAME or BROWSER_VERSION)";
-    }
-*/
     var ZUUL_CMD = "./node_modules/zuul/bin/zuul";
     var args = [
         "--browser-name",
         process.env.BROWSER_NAME,
         "--browser-version",
-        process.env.BROWSER_VERSION
+        process.env.BROWSER_VERSION,
+        "test/index.js;"
     ];
     // add browser platform argument if valid
     if (process.env.hasOwnProperty("BROWSER_PLATFORM")) {
@@ -134,7 +128,7 @@ function testZuul() {
         args.push(process.env.BROWSER_PLATFORM);
     }
 
-    var zuulChild = spawn(ZUUL_CMD, args, { stdio: "inherit" });
-    zuulChild.stdout.on("data", function(data){ console.log(data); });
-    zuulChild.stderr.on("data", function(data){ console.log(data); });
+    var zuul = exec(ZUUL_CMD, args, { stdio: "inherit" });
+    zuul.stdout.on("data", function(d){console.log(d);});
+    zuul.stderr.on("data", function(d){console.log(d);});
 }
