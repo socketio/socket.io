@@ -37,7 +37,11 @@ gulp.task("babel", function () {
 
 gulp.task("build-webpack", function() {
     return gulp.src(["lib/*.js","lib/transports/*.js"], { base: 'lib' })
-        .pipe(webpack())
+        .pipe(webpack({
+            output: {
+                filename: "engine.io.js"
+            }
+        }))
         .pipe(babel({
             compact: false
         }))
