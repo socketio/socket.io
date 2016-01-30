@@ -18,7 +18,7 @@
     "url": "git://github.com/Automattic/socket.io"
   },
   "scripts": {
-    "test": "mocha --reporter dot --slow 200ms --bail"
+    "test": "gulp test"
   },
   "dependencies": {
     "engine.io": "1.6.8",
