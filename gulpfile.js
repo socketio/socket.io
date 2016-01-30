@@ -4,6 +4,7 @@ var file = require('gulp-file');
 var istanbul = require('gulp-istanbul');
 var babel = require("gulp-babel");
 var webpack = require('webpack-stream');
+var exec = require('child_process').exec;
 
 var browserify = require('./support/browserify.js');
 
@@ -38,6 +39,32 @@ gulp.task('build', function(){
         .pipe(gulp.dest('./'));
     }
   });
+});
+
+gulp.task('test', [process.env.BROWSER_NAME ? 'test-zuul' : 'test-node'], function(){
+});
+
+gulp.task('test-zuul', function(){
+  if(process.env.BROWSER_PLATFORM){
+    exec('./node_modules/zuul/bin/zuul ' +
+        '--browser-name ' + process.env.BROWSER_NAME + ' ' +
+        '--browser-version ' + process.env.BROWSER_VERSION + ' ' +
+        '--browser-platform ' +process.env.BROWSER_PLATFORM + ' ' +
+        'test/index.js',
+      function(err, stdout, stderr){
+        console.log(stdout);
+        console.error(stderr);
+    });
+  }else{
+    exec('./node_modules/zuul/bin/zuul ' +
+      '--browser-name ' + process.env.BROWSER_NAME + ' ' +
+      '--browser-version ' + process.env.BROWSER_VERSION + ' ' +
+      'test/index.js',
+      function(err, stdout, stderr){
+        console.log(stdout);
+        console.error(stderr);
+      });
+  }
 });
 
 gulp.task('test-node', function(){
