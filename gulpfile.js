@@ -1,11 +1,14 @@
 var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 
-gulp.task('test', function(){
-  return gulp.src('test/*.js', {read: false})
+var TESTS = 'test/*.js';
+var REPORTER = 'dot';
+
+gulp.task('test', function(
+    return gulp.src(TESTS, {read: false})
     .pipe(mocha({
       timeout: 2000,
-      reporter: 'dot',
+      reporter: REPORTER,
       bail: true,
       globals: ['___eio', 'document']
     }))
