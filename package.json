@@ -43,7 +43,7 @@
     "superagent": "0.15.4"
   },
   "scripts": {
-    "test": "make test"
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",
