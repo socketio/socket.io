@@ -8,14 +8,14 @@ var webpack = require('webpack-stream');
 // var browserify = require('./support/browserify.js');
 
 gulp.task('build-webpack', function() {
-  return gulp.src('lib/*.js')
-    .pipe(babel())
+  return gulp.src('lib/*.js') 
     .pipe(webpack({
       entry: './lib/index.js',
       output: {
         filename: 'socket.io.js',
       },
     }))
+    .pipe(babel())
     .pipe(gulp.dest('./'));
 });
 
