@@ -38,7 +38,9 @@ gulp.task("babel", function () {
 gulp.task("build-webpack", function() {
     return gulp.src(["lib/*.js","lib/transports/*.js"], { base: 'lib' })
         .pipe(webpack())
-        .pipe(babel())
+        .pipe(babel({
+            compact: false
+        }))
         .pipe(gulp.dest("./"));
 });
 
