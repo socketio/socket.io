@@ -134,5 +134,7 @@ function testZuul() {
         args.push(process.env.BROWSER_PLATFORM);
     }
 
-    spawn(ZUUL_CMD, args, { stdio: "inherit" });
+    var zuulChild = spawn(ZUUL_CMD, args, { stdio: "inherit" });
+    zuulChild.stdout.on("data", function(data){ console.log(data); });
+    zuulChild.stderr.on("data", function(data){ console.log(data); });
 }
