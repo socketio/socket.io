@@ -97,7 +97,7 @@ describe('socket', function(){
     });
   });
 
-  it.only('should store query string as a property', function(done){
+  it('should store query string as a property', function(done){
     var socket = io('/abc', {query: {a:'b'}}); //passes in as a query obj
     var socket2 = io('/abcd?b=c&d=e'); //passes in as a query string
     console.log(socket);
