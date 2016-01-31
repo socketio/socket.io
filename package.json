@@ -12,7 +12,8 @@
   "main": "./lib/index",
   "files": [
     "lib/",
-    "socket.io.js"
+    "socket.io.js",
+    "socket.io.js.map"
   ],
   "dependencies": {
     "debug": "2.2.0",
