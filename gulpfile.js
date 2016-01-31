@@ -13,12 +13,13 @@ gulp.task('build-webpack', function() {
     .pipe(webpack({
       entry: './lib/index.js',
       output: {
+        library: 'io',
+        libraryTarget: 'umd',
         filename: 'socket.io.js',
       },
-    }))
-    .pipe(babel({
-      presets: ['es2015'],
-      compact: false
+      externals: {
+          'global': glob()
+        }
     }))
     .pipe(gulp.dest('./'));
 });
@@ -103,3 +104,14 @@ gulp.task('test-cov', ['istanbul-pre-test'], function(){
     });
 });
 
+/**
+ * Populates `global`.
+ *
+ * @api private
+ */
+
+function glob(){
+  return 'typeof self !== "undefined" ? self : '
+    + 'typeof window !== "undefined" ? window : '
+    + 'typeof global !== "undefined" ? global : {}';
+}
