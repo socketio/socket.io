@@ -3,7 +3,6 @@ const mocha = require("gulp-mocha");
 const istanbul = require("gulp-istanbul");
 const browserify = require("./support/browserify.js");
 const file = require("gulp-file");
-const eslint = require("gulp-eslint");
 const babel = require("gulp-babel");
 const webpack = require('webpack-stream');
 const exec = require("child_process").exec;
@@ -24,16 +23,10 @@ const WATCH_GLOBS = [
     "package.json"
 ];
 
-gulp.task("default", ["lint", "build"]);
+gulp.task("default", ["build"]);
 
 gulp.task("build", ["webpack"]);
 
-gulp.task("lint", function () {
-    return gulp.src(["**/*.js", "!node_modules/**"])
-        .pipe(eslint())
-        .pipe(eslint.format())
-        .pipe(eslint.failAfterError());
-});
 
 gulp.task("webpack", function () {
     return gulp.src(["lib/*.js","lib/transports/*.js"], { base: 'lib' })
