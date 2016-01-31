@@ -96,4 +96,15 @@ describe('socket', function(){
       socket.compress(false).emit('hi');
     });
   });
+
+  it('should store query string as a property', function(done){
+    var socket = io('/abc', {query: {a:'b'}}); //passes in as a query obj
+    var socket2 = io('/abcd?b=c&d=e'); //passes in as a query string
+    console.log(socket);
+    expect(socket.query).to.be('a=b');
+    expect(socket2.query).to.be('b=c&d=e');
+    socket.disconnect();
+    socket2.disconnect();
+    done();
+  });
 });
