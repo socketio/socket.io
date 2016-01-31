@@ -37,12 +37,8 @@ gulp.task("webpack", function () {
                 libraryTarget: "umd"
             },
             externals: {
-                'global': glob
+                'global': glob()
             }
-        }))
-        .pipe(babel({
-            presets: ['es2015'],
-            compact: false
         }))
         .pipe(gulp.dest(BUILD_TARGET_DIR));
 });
