@@ -3,6 +3,7 @@ var http = require('http').Server;
 var io = require('..');
 var fs = require('fs');
 var join = require('path').join;
+var exec = require('child_process').exec;
 var ioc = require('socket.io-client');
 var request = require('supertest');
 var expect = require('expect.js');
@@ -412,6 +413,16 @@ describe('socket.io', function(){
       });
     });
 
+    describe('graceful close', function(){
+      function fixture(filename) {
+        return process.execPath + ' ' +
+          join(__dirname, 'fixtures', filename);
+      }
+
+      it('should stop socket and timers', function(done){
+        exec(fixture('server-close.js'), done);
+      });
+    });
   });
 
   describe('namespaces', function(){
