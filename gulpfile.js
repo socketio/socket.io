@@ -32,7 +32,12 @@ gulp.task("webpack", function() {
     return gulp.src(["lib/*.js","lib/transports/*.js"], { base: 'lib' })
         .pipe(webpack({
             output: {
-                filename: BUILD_TARGET_FILENAME
+                filename: BUILD_TARGET_FILENAME,
+                library: "eio",
+                libraryTarget: "umd"
+            },
+            externals: {
+                'global': glob
             }
         }))
         .pipe(babel({
@@ -125,4 +130,16 @@ function testZuul() {
     var zuul = exec(ZUUL_CMD, args, { stdio: "inherit" });
     zuul.stdout.on("data", function(d){console.log(d);});
     zuul.stderr.on("data", function(d){console.log(d);});
+}
+
+/**
+ * Populates `global`.
+ *
+ * @api private
+ */
+
+function glob(){
+  return 'typeof self !== "undefined" ? self : '
+    + 'typeof window !== "undefined" ? window : '
+    + 'typeof global !== "undefined" ? global : {}';
 }
