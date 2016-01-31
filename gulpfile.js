@@ -6,7 +6,7 @@ var istanbul = require('gulp-istanbul');
 // By default, individual js files are transformed by babel and exported to /dist
 gulp.task("default", function () {
   return gulp.src("lib/*.js")
-    .pipe(babel())
+    .pipe(babel({ "presets": ["es2015"] }))
     .pipe(gulp.dest("dist"));
 });
 
