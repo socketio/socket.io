@@ -1883,11 +1883,16 @@ var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 
 /**
  * Get either the `WebSocket` or `MozWebSocket` globals
- * in the browser or the WebSocket-compatible interface
- * exposed by `ws` for Node environment.
+ * in the browser or try to resolve WebSocket-compatible
+ * interface exposed by `ws` for Node-like environment.
  */
 
-var WebSocket = BrowserWebSocket || (typeof window !== 'undefined' ? null : _dereq_('ws'));
+var WebSocket = BrowserWebSocket;
+if (!WebSocket && typeof window === 'undefined') {
+  try {
+    WebSocket = _dereq_('ws');
+  } catch (e) { }
+}
 
 /**
  * Module exports.
