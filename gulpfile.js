@@ -5,10 +5,11 @@ const istanbul = require('gulp-istanbul');
 const webpack = require('webpack-stream');
 const child = require('child_process');
 const help = require("gulp-task-listing");
+var eslint = require('gulp-eslint');
 
 gulp.task('help', help);
 
-gulp.task('default', ['build']);
+gulp.task('default', ['lint', 'build']);
 
 ////////////////////////////////////////
 // BUILDING
@@ -22,6 +23,11 @@ gulp.task('build', function() {
     .pipe(gulp.dest(BUILD_TARGET_DIR));
 });
 
+gulp.task('lint', function() {
+  return gulp.src(['**/*.js', '!node_modules/**'])
+    .pipe(eslint())
+    .pipe(eslint.format());
+});
 
 ////////////////////////////////////////
 // TESTING
