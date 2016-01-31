@@ -23,13 +23,6 @@ gulp.task('build-webpack', function() {
     .pipe(gulp.dest('./'));
 });
 
-// By default, individual js files are transformed by babel and exported to /dist
-gulp.task("babel", function () {
-  return gulp.src("lib/*.js")
-    .pipe(babel())
-    .pipe(gulp.dest("dist"));
-});
-
 gulp.task('build', function(){
   browserify(function(err, out){
     if(err){
