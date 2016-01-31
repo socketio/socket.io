@@ -20,7 +20,7 @@ var WATCH_GLOBS = [
     "package.json"
 ];
 
-gulp.task("default", ["build"]);
+gulp.task("default", ["webpack"]);
 
 // "gulp watch" from terminal to automatically rebuild when
 // files denoted in WATCH_GLOBS have changed.
@@ -28,30 +28,22 @@ gulp.task("watch", function(){
     gulp.watch(WATCH_GLOBS, ["build"]);
 });
 
-// By default, individual js files are transformed by babel and exported to/dist
-gulp.task("babel", function () {
-    return gulp.src(["lib/*.js","lib/transports/*.js"], { base: 'lib' })
-        .pipe(babel({
-            presets: ['es2015']
-        }))
-        .pipe(gulp.dest("dist"));
-});
-
-gulp.task("build-webpack", function() {
+gulp.task("webpack", function() {
     return gulp.src(["lib/*.js","lib/transports/*.js"], { base: 'lib' })
         .pipe(webpack({
             output: {
-                filename: "engine.io.js"
+                filename: BUILD_TARGET_FILENAME
             }
         }))
         .pipe(babel({
+            presets: ['es2015'],
             compact: false
         }))
-        .pipe(gulp.dest("./"));
+        .pipe(gulp.dest(BUILD_TARGET_DIR));
 });
 
 // generate engine.io.js using browserify
-gulp.task("build", function(){
+gulp.task("browserify", function(){
     browserify(function(err, output){
         if (err) throw err;
         // TODO: use stream instead of buffering
