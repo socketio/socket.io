@@ -3,7 +3,6 @@ const mocha = require("gulp-mocha");
 const istanbul = require("gulp-istanbul");
 const browserify = require("./support/browserify.js");
 const file = require("gulp-file");
-const babel = require("gulp-babel");
 const webpack = require('webpack-stream');
 const exec = require("child_process").exec;
 const help = require("gulp-task-listing");
@@ -38,6 +37,16 @@ gulp.task("webpack", function () {
             },
             externals: {
                 'global': glob()
+            },
+            module: {
+                loaders: [{
+                    test: /\.(js|jsx)?$/,
+                    exclude: /(node_modules|bower_components)/,
+                    loader: 'babel', // 'babel-loader' is also a legal name to reference 
+                    query: {
+                        presets: ['react', 'es2015']
+                  }
+                }]
             }
         }))
         .pipe(gulp.dest(BUILD_TARGET_DIR));

@@ -38,7 +38,10 @@
     "yeast": "0.1.2"
   },
   "devDependencies": {
-    "babel-preset-es2015": "6.3.13",
+    "babel-core": "^6.4.5",
+    "babel-loader": "^6.2.1",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
     "babelify": "7.2.0",
     "blob": "0.0.4",
     "browserify": "6.2.0",
@@ -48,7 +51,6 @@
     "expect.js": "0.2.0",
     "express": "3.4.8",
     "gulp": "3.9.0",
-    "gulp-babel": "6.1.1",
     "gulp-file": "0.2.0",
     "gulp-istanbul": "0.10.3",
     "gulp-mocha": "2.2.0",
