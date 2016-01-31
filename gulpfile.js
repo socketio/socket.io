@@ -1,34 +1,34 @@
-var gulp = require("gulp");
-var mocha = require("gulp-mocha");
-var istanbul = require("gulp-istanbul");
-var browserify = require("./support/browserify.js");
-var file = require("gulp-file");
-var babel = require("gulp-babel");
-var webpack = require('webpack-stream');
-var exec = require("child_process").exec;
+const gulp = require("gulp");
+const mocha = require("gulp-mocha");
+const istanbul = require("gulp-istanbul");
+const browserify = require("./support/browserify.js");
+const file = require("gulp-file");
+const babel = require("gulp-babel");
+const webpack = require('webpack-stream');
+const exec = require("child_process").exec;
+const help = require("gulp-task-listing");
 
+
+gulp.task("help", help);
 
 ////////////////////////////////////////
 // BUILDING
 ////////////////////////////////////////
 
-var BUILD_TARGET_FILENAME = "engine.io.js";
-var BUILD_TARGET_DIR = "./";
-var WATCH_GLOBS = [
+const BUILD_TARGET_FILENAME = "engine.io.js";
+const BUILD_TARGET_DIR = "./";
+const WATCH_GLOBS = [
     "lib/*.js",
     "lib/transports/*.js",
     "package.json"
 ];
 
-gulp.task("default", ["webpack"]);
+gulp.task("default", ["build"]);
 
-// "gulp watch" from terminal to automatically rebuild when
-// files denoted in WATCH_GLOBS have changed.
-gulp.task("watch", function(){
-    gulp.watch(WATCH_GLOBS, ["build"]);
-});
+gulp.task("build", ["webpack"]);
 
-gulp.task("webpack", function() {
+
+gulp.task("webpack", function () {
     return gulp.src(["lib/*.js","lib/transports/*.js"], { base: 'lib' })
         .pipe(webpack({
             output: {
@@ -49,7 +49,7 @@ gulp.task("webpack", function() {
 
 // generate engine.io.js using browserify
 gulp.task("browserify", function(){
-    browserify(function(err, output){
+    return browserify(function(err, output){
         if (err) throw err;
         // TODO: use stream instead of buffering
         file(BUILD_TARGET_FILENAME, output, { src: true })
@@ -57,19 +57,25 @@ gulp.task("browserify", function(){
     });
 });
 
+// "gulp watch" from terminal to automatically rebuild when
+// files denoted in WATCH_GLOBS have changed.
+gulp.task("watch", function(){
+    return gulp.watch(WATCH_GLOBS, ["build"]);
+});
+
 ////////////////////////////////////////
 // TESTING
 ////////////////////////////////////////
 
-var REPORTER = "dot";
-var TEST_FILE = "./test/index.js";
-var TEST_SUPPORT_SERVER_FILE = "./test/support/server.js";
+const REPORTER = "dot";
+const TEST_FILE = "./test/index.js";
+const TEST_SUPPORT_SERVER_FILE = "./test/support/server.js";
 
 gulp.task("test", function(){
     if (process.env.hasOwnProperty("BROWSER_NAME")) {
-        testZuul();
+        return testZuul();
     } else {
-        testNode();
+        return testNode();
     }
 });
 
@@ -86,7 +92,7 @@ gulp.task('istanbul-pre-test', function () {
 });
 
 gulp.task('test-cov', ['istanbul-pre-test'], function(){
-    gulp.src(['test/*.js', 'test/support/*.js'])
+    return gulp.src(['test/*.js', 'test/support/*.js'])
         .pipe(mocha({
             reporter: 'dot'
         }))
@@ -99,12 +105,12 @@ gulp.task('test-cov', ['istanbul-pre-test'], function(){
         });
 });
 
-function testNode() {
-    var MOCHA_OPTS = {
+function testNode () {
+    const MOCHA_OPTS = {
         reporter: REPORTER,
         require: [TEST_SUPPORT_SERVER_FILE]
     };
-    gulp.src(TEST_FILE, { read: false })
+    return gulp.src(TEST_FILE, { read: false })
         .pipe(mocha(MOCHA_OPTS))
         // following lines to fix gulp-mocha not terminating (see gulp-mocha webpage)
         .once("error", function(){ process.exit(1); })
@@ -112,9 +118,9 @@ function testNode() {
 }
 
 // runs zuul through shell process
-function testZuul() {
-    var ZUUL_CMD = "./node_modules/zuul/bin/zuul";
-    var args = [
+function testZuul () {
+    const ZUUL_CMD = "./node_modules/zuul/bin/zuul";
+    const args = [
         "--browser-name",
         process.env.BROWSER_NAME,
         "--browser-version",
@@ -127,7 +133,7 @@ function testZuul() {
         args.push(process.env.BROWSER_PLATFORM);
     }
 
-    var zuul = exec(ZUUL_CMD, args, { stdio: "inherit" });
+    const zuul = exec(ZUUL_CMD, args, { stdio: "inherit" });
     zuul.stdout.on("data", function(d){console.log(d);});
     zuul.stderr.on("data", function(d){console.log(d);});
 }

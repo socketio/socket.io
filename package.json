@@ -52,6 +52,7 @@
     "gulp-file": "0.2.0",
     "gulp-istanbul": "0.10.3",
     "gulp-mocha": "2.2.0",
+    "gulp-task-listing": "1.0.1",
     "istanbul": "0.2.3",
     "mocha": "1.16.2",
     "webpack": "1.12.12",
