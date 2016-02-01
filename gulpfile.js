@@ -74,9 +74,11 @@ gulp.task('test-zuul', function(){
 gulp.task('test-node', function(){
   gulp.src(['test/*.js', 'test/support/*.js'])
     .pipe(mocha({
-      reporter: 'dot'
+      reporter: 'dot',
+      bail: true
     }))
-    .once('error', function () {
+    .once('error', function (err) {
+      console.error(err.stack);
       process.exit(1);
     })
     .once('end', function () {
