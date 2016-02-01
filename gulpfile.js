@@ -103,10 +103,12 @@ gulp.task('istanbul-pre-test', function() {
 gulp.task('test-cov', ['istanbul-pre-test'], function() {
   return gulp.src(['test/*.js', 'test/support/*.js'])
     .pipe(mocha({
-      reporter: 'dot'
+      reporter: 'dot',
+      bail: true
     }))
     .pipe(istanbul.writeReports())
-    .once('error', function() {
+    .once('error', function(err) {
+      console.log(err.stack);
       process.exit(1);
     })
     .once('end', function() {
@@ -117,14 +119,16 @@ gulp.task('test-cov', ['istanbul-pre-test'], function() {
 function testNode() {
   const MOCHA_OPTS = {
     reporter: REPORTER,
-    require: [TEST_SUPPORT_SERVER_FILE]
+    require: [TEST_SUPPORT_SERVER_FILE],
+    bail: true
   };
   return gulp.src(TEST_FILE, {
       read: false
     })
     .pipe(mocha(MOCHA_OPTS))
     // following lines to fix gulp-mocha not terminating (see gulp-mocha webpage)
-    .once("error", function() {
+    .once("error", function(err) {
+      console.log(err.stack);
       process.exit(1);
     })
     .once("end", function() {
