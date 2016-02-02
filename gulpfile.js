@@ -144,7 +144,7 @@ function testZuul() {
     process.env.BROWSER_NAME,
     "--browser-version",
     process.env.BROWSER_VERSION,
-    "test/index.js;"
+    "test/index.js"
   ];
   // add browser platform argument if valid
   if (process.env.hasOwnProperty("BROWSER_PLATFORM")) {
