@@ -143,14 +143,15 @@ function testZuul() {
     "--browser-name",
     process.env.BROWSER_NAME,
     "--browser-version",
-    process.env.BROWSER_VERSION,
-    "test/index.js"
+    process.env.BROWSER_VERSION
   ];
   // add browser platform argument if valid
   if (process.env.hasOwnProperty("BROWSER_PLATFORM")) {
     args.push("--browser-platform");
     args.push(process.env.BROWSER_PLATFORM);
   }
+
+  args.push("test/index.js");
 
   const zuul = exec(ZUUL_CMD, args, {
     stdio: "inherit"
