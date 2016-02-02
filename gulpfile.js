@@ -156,12 +156,6 @@ function testZuul() {
   const zuul = spawn(ZUUL_CMD, args, {
     stdio: "inherit"
   });
-  zuul.stdout.on("data", function(d) {
-    console.log(d);
-  });
-  zuul.stderr.on("data", function(d) {
-    console.log(d);
-  });
 }
 
 /**
