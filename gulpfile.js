@@ -4,7 +4,7 @@ const istanbul = require("gulp-istanbul");
 const browserify = require("./support/browserify.js");
 const file = require("gulp-file");
 const webpack = require('webpack-stream');
-const exec = require("child_process").exec;
+const spawn = require("child_process").spawn;
 const help = require("gulp-task-listing");
 
 
@@ -141,9 +141,9 @@ function testZuul() {
   const ZUUL_CMD = "./node_modules/zuul/bin/zuul";
   const args = [
     "--browser-name",
-    process.env.BROWSER_NAME,
+    process.env.BROWSER_NAME || "missing",
     "--browser-version",
-    process.env.BROWSER_VERSION
+    process.env.BROWSER_VERSION || "missing"
   ];
   // add browser platform argument if valid
   if (process.env.hasOwnProperty("BROWSER_PLATFORM")) {
@@ -152,8 +152,8 @@ function testZuul() {
   }
 
   args.push("test/index.js");
-
-  const zuul = exec(ZUUL_CMD, args, {
+  console.log(args);
+  const zuul = spawn(ZUUL_CMD, args, {
     stdio: "inherit"
   });
   zuul.stdout.on("data", function(d) {
