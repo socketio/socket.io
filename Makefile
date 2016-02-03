@@ -3,8 +3,8 @@ REPORTER = dot
 
 build: engine.io.js
 
-engine.io.js: lib/*.js lib/transports/*.js package.json
-	@./node_modules/webpack/bin/webpack.js --config ./support/webpack.config.js
+engine.io.js:
+	@./node_modules/.bin/gulp build
 
 test:
 	@if [ "x$(BROWSER_NAME)" = "x" ]; then make test-node; else make test-zuul; fi
