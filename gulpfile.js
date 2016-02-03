@@ -4,7 +4,7 @@ const istanbul = require("gulp-istanbul");
 const browserify = require("./support/browserify.js");
 const file = require("gulp-file");
 const webpack = require('webpack-stream');
-const spawn = require("child_process").spawn;
+const child = require("child_process");
 const help = require("gulp-task-listing");
 
 
@@ -81,6 +81,7 @@ const TEST_FILE = "./test/index.js";
 const TEST_SUPPORT_SERVER_FILE = "./test/support/server.js";
 
 gulp.task("test", function() {
+  child.spawnSync("npm", ["install"], { stdio: "inherit" }); // deals with npm 3 flat dependencies bug
   if (process.env.hasOwnProperty("BROWSER_NAME")) {
     return testZuul();
   } else {
@@ -152,8 +153,8 @@ function testZuul() {
   }
 
   args.push("test/index.js");
-  console.log(args);
-  const zuul = spawn(ZUUL_CMD, args, {
+  
+  return child.spawn(ZUUL_CMD, args, {
     stdio: "inherit"
   });
 }
