@@ -1,7 +1,6 @@
 const gulp = require("gulp");
 const mocha = require("gulp-mocha");
 const istanbul = require("gulp-istanbul");
-const browserify = require("./support/browserify.js");
 const file = require("gulp-file");
 const webpack = require('webpack-stream');
 const spawn = require("child_process").spawn;
@@ -44,7 +43,7 @@ gulp.task("webpack", function() {
         loaders: [{
           test: /\.(js|jsx)?$/,
           exclude: /(node_modules|bower_components)/,
-          loader: 'babel', // 'babel-loader' is also a legal name to reference 
+          loader: 'babel', // 'babel-loader' is also a legal name to reference
           query: {
             presets: ['react', 'es2015']
           }
@@ -52,18 +51,6 @@ gulp.task("webpack", function() {
       }
     }))
     .pipe(gulp.dest(BUILD_TARGET_DIR));
-});
-
-// generate engine.io.js using browserify
-gulp.task("browserify", function() {
-  return browserify(function(err, output) {
-    if (err) throw err;
-    // TODO: use stream instead of buffering
-    file(BUILD_TARGET_FILENAME, output, {
-        src: true
-      })
-      .pipe(gulp.dest(BUILD_TARGET_DIR));
-  });
 });
 
 // "gulp watch" from terminal to automatically rebuild when
