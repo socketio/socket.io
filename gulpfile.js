@@ -68,7 +68,7 @@ const TEST_FILE = "./test/index.js";
 const TEST_SUPPORT_SERVER_FILE = "./test/support/server.js";
 
 gulp.task("test", function() {
-  child.spawnSync("npm", ["install"], { stdio: "inherit" }); // deals with npm 3 flat dependencies bug
+
   if (process.env.hasOwnProperty("BROWSER_NAME")) {
     return testZuul();
   } else {
