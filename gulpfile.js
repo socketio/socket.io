@@ -25,7 +25,6 @@ gulp.task("default", ["build"]);
 
 gulp.task("build", ["webpack"]);
 
-
 gulp.task("webpack", function() {
   return gulp.src(["lib/*.js", "lib/transports/*.js"], {
       base: 'lib'
@@ -53,12 +52,6 @@ gulp.task("webpack", function() {
     .pipe(gulp.dest(BUILD_TARGET_DIR));
 });
 
-// "gulp watch" from terminal to automatically rebuild when
-// files denoted in WATCH_GLOBS have changed.
-gulp.task("watch", function() {
-  return gulp.watch(WATCH_GLOBS, ["build"]);
-});
-
 ////////////////////////////////////////
 // TESTING
 ////////////////////////////////////////
@@ -68,7 +61,6 @@ const TEST_FILE = "./test/index.js";
 const TEST_SUPPORT_SERVER_FILE = "./test/support/server.js";
 
 gulp.task("test", function() {
-
   if (process.env.hasOwnProperty("BROWSER_NAME")) {
     return testZuul();
   } else {
@@ -77,32 +69,7 @@ gulp.task("test", function() {
 });
 
 gulp.task("test-node", testNode);
-
 gulp.task("test-zuul", testZuul);
-
-gulp.task('istanbul-pre-test', function() {
-  return gulp.src(['lib/**/*.js'])
-    // Covering files
-    .pipe(istanbul())
-    // Force `require` to return covered files
-    .pipe(istanbul.hookRequire());
-});
-
-gulp.task('test-cov', ['istanbul-pre-test'], function() {
-  return gulp.src(['test/*.js', 'test/support/*.js'])
-    .pipe(mocha({
-      reporter: 'dot',
-      bail: true
-    }))
-    .pipe(istanbul.writeReports())
-    .once('error', function(err) {
-      console.log(err.stack);
-      process.exit(1);
-    })
-    .once('end', function() {
-      process.exit();
-    });
-});
 
 function testNode() {
   const MOCHA_OPTS = {
@@ -110,13 +77,11 @@ function testNode() {
     require: [TEST_SUPPORT_SERVER_FILE],
     bail: true
   };
-  return gulp.src(TEST_FILE, {
-      read: false
-    })
+  return gulp.src(TEST_FILE, { read: false })
     .pipe(mocha(MOCHA_OPTS))
     // following lines to fix gulp-mocha not terminating (see gulp-mocha webpage)
     .once("error", function(err) {
-      console.log(err.stack);
+      console.error(err.stack);
       process.exit(1);
     })
     .once("end", function() {
@@ -129,22 +94,40 @@ function testZuul() {
   const ZUUL_CMD = "./node_modules/zuul/bin/zuul";
   const args = [
     "--browser-name",
-    process.env.BROWSER_NAME || "missing",
+    process.env.BROWSER_NAME,
     "--browser-version",
-    process.env.BROWSER_VERSION || "missing"
+    process.env.BROWSER_VERSION
   ];
-  // add browser platform argument if valid
   if (process.env.hasOwnProperty("BROWSER_PLATFORM")) {
     args.push("--browser-platform");
     args.push(process.env.BROWSER_PLATFORM);
   }
-
-  args.push("test/index.js");
-  
-  return child.spawn(ZUUL_CMD, args, {
-    stdio: "inherit"
-  });
+  args.push(TEST_FILE);
+  return child.spawn(ZUUL_CMD, args, { stdio: "inherit" });
 }
+
+gulp.task('istanbul-pre-test', function() {
+  return gulp.src(['lib/**/*.js'])
+    // Covering files
+    .pipe(istanbul())
+    // Force `require` to return covered files
+    .pipe(istanbul.hookRequire());
+});
+
+gulp.task('test-cov', ['istanbul-pre-test'], function() {
+  return gulp.src(['test/*.js', 'test/support/*.js'])
+    .pipe(mocha({
+      reporter: REPORTER
+    }))
+    .pipe(istanbul.writeReports())
+    .once('error', function(err) {
+      console.error(err.stack);
+      process.exit(1);
+    })
+    .once('end', function() {
+      process.exit();
+    });
+});
 
 /**
  * Populates `global`.
