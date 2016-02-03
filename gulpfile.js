@@ -1,20 +1,32 @@
-var gulp = require('gulp');
-var mocha = require('gulp-mocha');
-var file = require('gulp-file');
-var istanbul = require('gulp-istanbul');
-var webpack = require('webpack-stream');
-var exec = require('child_process').exec;
+const gulp = require('gulp');
+const mocha = require('gulp-mocha');
+const file = require('gulp-file');
+const istanbul = require('gulp-istanbul');
+const webpack = require('webpack-stream');
+const child = require('child_process');
+const help = require("gulp-task-listing");
 
-var browserify = require('./support/browserify.js');
+gulp.task('help', help);
 
-gulp.task('build-webpack', function() {
-  return gulp.src('lib/*.js') 
+gulp.task('default', ['build']);
+
+////////////////////////////////////////
+// BUILDING
+////////////////////////////////////////
+
+const BUILD_TARGET_FILENAME = 'socket.io.js';
+const BUILD_TARGET_DIR = './';
+
+gulp.task('build', ['webpack']);
+
+gulp.task('webpack', function() {
+  return gulp.src('lib/*.js')
     .pipe(webpack({
       entry: './lib/index.js',
       output: {
         library: 'io',
         libraryTarget: 'umd',
-        filename: 'socket.io.js',
+        filename: BUILD_TARGET_FILENAME
       },
       externals: {
           'global': glob()
@@ -23,68 +35,70 @@ gulp.task('build-webpack', function() {
         loaders: [{
           test: /\.(js|jsx)?$/,
           exclude: /(node_modules|bower_components)/,
-          loader: 'babel', // 'babel-loader' is also a legal name to reference 
+          loader: 'babel', // 'babel-loader' is also a legal name to reference
           query: {
               presets: ['react', 'es2015']
           }
         }]
       }
     }))
-    .pipe(gulp.dest('./'));
+    .pipe(gulp.dest(BUILD_TARGET_DIR));
 });
 
-gulp.task('build', function(){
-  browserify(function(err, out){
-    if(err){
-      throw err;
-    }else{
-      gulp.src('')
-        .pipe(file('socket.io.js', out))
-        .pipe(gulp.dest('./'));
-    }
-  });
-});
 
-gulp.task('test', [process.env.BROWSER_NAME ? 'test-zuul' : 'test-node'], function(){
-});
+////////////////////////////////////////
+// TESTING
+////////////////////////////////////////
 
-gulp.task('test-zuul', function(){
-  if(process.env.BROWSER_PLATFORM){
-    exec('./node_modules/zuul/bin/zuul ' +
-        '--browser-name ' + process.env.BROWSER_NAME + ' ' +
-        '--browser-version ' + process.env.BROWSER_VERSION + ' ' +
-        '--browser-platform ' +process.env.BROWSER_PLATFORM + ' ' +
-        'test/index.js',
-      function(err, stdout, stderr){
-        console.log(stdout);
-        console.error(stderr);
-    });
-  }else{
-    exec('./node_modules/zuul/bin/zuul ' +
-      '--browser-name ' + process.env.BROWSER_NAME + ' ' +
-      '--browser-version ' + process.env.BROWSER_VERSION + ' ' +
-      'test/index.js',
-      function(err, stdout, stderr){
-        console.log(stdout);
-        console.error(stderr);
-      });
+const REPORTER = 'dot';
+const TEST_FILE = "./test/index.js";
+const TEST_SUPPORT_SERVER_FILE = "./test/support/server.js";
+
+gulp.task('test', function() {
+  if (process.env.hasOwnProperty("BROWSER_NAME")) {
+    return testZuul();
+  } else {
+    return testNode();
   }
 });
 
-gulp.task('test-node', function(){
-  gulp.src(['test/*.js', 'test/support/*.js'])
-    .pipe(mocha({
-      reporter: 'dot',
-      bail: true
-    }))
-    .once('error', function (err) {
+gulp.task('test-node', testNode);
+gulp.task('test-zuul', testZuul);
+
+// runs zuul through shell process
+function testZuul() {
+  const ZUUL_CMD = "./node_modules/zuul/bin/zuul";
+  const args = [
+    "--browser-name",
+    process.env.BROWSER_NAME,
+    "--browser-version",
+    process.env.BROWSER_VERSION
+  ];
+  if (process.env.hasOwnProperty("BROWSER_PLATFORM")) {
+    args.push("--browser-platform");
+    args.push(process.env.BROWSER_PLATFORM);
+  }
+  args.push(TEST_FILE);
+  return child.spawn(ZUUL_CMD, args, { stdio: "inherit" });
+}
+
+function testNode() {
+  const MOCHA_OPTS = {
+    reporter: REPORTER,
+    require: [TEST_SUPPORT_SERVER_FILE],
+    bail: true
+  };
+  return gulp.src(TEST_FILE, { read: false })
+    .pipe(mocha(MOCHA_OPTS))
+    // following lines to fix gulp-mocha not terminating (see gulp-mocha webpage)
+    .once("error", function(err) {
       console.error(err.stack);
       process.exit(1);
     })
-    .once('end', function () {
+    .once("end", function() {
       process.exit();
     });
-});
+}
 
 gulp.task('istanbul-pre-test', function () {
   return gulp.src(['lib/**/*.js'])
@@ -97,10 +111,11 @@ gulp.task('istanbul-pre-test', function () {
 gulp.task('test-cov', ['istanbul-pre-test'], function(){
   gulp.src(['test/*.js', 'test/support/*.js'])
     .pipe(mocha({
-      reporter: 'dot'
+      reporter: REPORTER
     }))
     .pipe(istanbul.writeReports())
-    .once('error', function (){
+    .once('error', function (err){
+      console.error(err);
       process.exit(1);
     })
     .once('end', function (){
