@@ -5,7 +5,7 @@ const istanbul = require('gulp-istanbul');
 const webpack = require('webpack-stream');
 const child = require('child_process');
 const help = require("gulp-task-listing");
-var eslint = require('gulp-eslint');
+const eslint = require('gulp-eslint');
 
 gulp.task('help', help);
 
@@ -26,7 +26,8 @@ gulp.task('build', function() {
 gulp.task('lint', function() {
   return gulp.src(['**/*.js', '!node_modules/**'])
     .pipe(eslint())
-    .pipe(eslint.format());
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
 });
 
 ////////////////////////////////////////
