@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "babel-core": "6.4.5",
-    "babel-eslint": "4.1.6",
+    "babel-eslint": "4.1.7",
     "babel-loader": "6.2.1",
     "babel-preset-es2015": "6.3.13",
     "base64-arraybuffer": "0.1.5",
