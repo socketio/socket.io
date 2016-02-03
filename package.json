@@ -27,10 +27,10 @@
     "backo2": "1.0.2"
   },
   "devDependencies": {
-    "babel-core": "^6.4.5",
-    "babel-loader": "^6.2.1",
-    "babel-preset-es2015": "^6.3.13",
-    "babel-preset-react": "^6.3.13",
+    "babel-core": "6.4.5",
+    "babel-loader": "6.2.1",
+    "babel-preset-es2015": "6.3.13",
+    "babel-preset-react": "6.3.13",
     "babelify": "7.2.0",
     "base64-arraybuffer": "0.1.5",
     "browserify": "13.0.0",
@@ -41,6 +41,7 @@
     "gulp-file": "0.2.0",
     "gulp-istanbul": "0.10.3",
     "gulp-mocha": "2.2.0",
+    "gulp-task-listing": "1.0.1",
     "has-cors": "1.1.0",
     "istanbul": "0.4.2",
     "mocha": "2.3.4",
