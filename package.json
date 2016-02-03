@@ -31,7 +31,6 @@
     "babel-loader": "6.2.1",
     "babel-preset-es2015": "6.3.13",
     "babel-preset-react": "6.3.13",
-    "babelify": "7.2.0",
     "base64-arraybuffer": "0.1.5",
     "browserify": "13.0.0",
     "concat-stream": "1.5.1",
