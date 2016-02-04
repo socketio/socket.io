@@ -79,7 +79,7 @@ function testZuul() {
     args.push(process.env.BROWSER_PLATFORM);
   }
   args.push(TEST_FILE);
-  const zuulChield = child.spawn(ZUUL_CMD, args, { stdio: "inherit" });
+  const zuulChild = child.spawn(ZUUL_CMD, args, { stdio: "inherit" });
   zuulChild.on("exit", function (code) { process.exit(code); });
   return zuulChild;
 }
