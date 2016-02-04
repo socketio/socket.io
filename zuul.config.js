@@ -8,26 +8,7 @@ module.exports = {
     proto: 'tcp'
   },
   builder: 'zuul-builder-webpack',
-  webpack: {
-    output: {
-      filename: "engine.io.js",
-      library: "eio",
-      libraryTarget: "umd"
-    },
-    externals: {
-      global: glob()
-    },
-    module: {
-      loaders: [{
-        test: /\.(js|jsx)?$/,
-        exclude: /(node_modules|bower_components)/,
-        loader: 'babel', // 'babel-loader' is also a legal name to reference
-        query: {
-          presets: ['react', 'es2015']
-        }
-      }]
-    }
-  }
+  webpack: require('./support/webpack.config.js')
 };
 
 /**

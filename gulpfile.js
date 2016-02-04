@@ -29,26 +29,7 @@ gulp.task("webpack", function() {
   return gulp.src(["lib/*.js", "lib/transports/*.js"], {
       base: 'lib'
     })
-    .pipe(webpack({
-      output: {
-        filename: BUILD_TARGET_FILENAME,
-        library: "eio",
-        libraryTarget: "umd"
-      },
-      externals: {
-        'global': glob()
-      },
-      module: {
-        loaders: [{
-          test: /\.(js|jsx)?$/,
-          exclude: /(node_modules|bower_components)/,
-          loader: 'babel', // 'babel-loader' is also a legal name to reference
-          query: {
-            presets: ['react', 'es2015']
-          }
-        }]
-      }
-    }))
+    .pipe(webpack(require("./support/webpack.config.js")))
     .pipe(gulp.dest(BUILD_TARGET_DIR));
 });
 
@@ -128,13 +109,3 @@ gulp.task('test-cov', ['istanbul-pre-test'], function() {
       process.exit();
     });
 });
-
-/**
- * Populates `global`.
- *
- * @api private
- */
-
-function glob() {
-  return 'typeof self !== "undefined" ? self : ' + 'typeof window !== "undefined" ? window : ' + 'typeof global !== "undefined" ? global : {}';
-}
