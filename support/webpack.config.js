@@ -7,7 +7,7 @@ module.exports = {
     libraryTarget: "umd"
   },
   externals: {
-    'global': glob()
+    global: glob()
   },
   module: {
     loaders: [{

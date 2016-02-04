@@ -10,15 +10,3 @@ module.exports = {
   builder: 'zuul-builder-webpack',
   webpack: require('./support/webpack.config.js')
 };
-
-/**
- * Populates `global`.
- *
- * @api private
- */
-
-function glob(){
-  return 'typeof self !== "undefined" ? self : '
-    + 'typeof window !== "undefined" ? window : '
-    + 'typeof global !== "undefined" ? global : {}';
-}
