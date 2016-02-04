@@ -5,7 +5,8 @@ var app = express();
 var join = require('path').join;
 var http = require('http').Server(app);
 var server = require('engine.io').attach(http, {'pingInterval': 500});
-var webpack = require('../../support/webpack');
+var webpack = require('webpack');
+var webpackMiddleWare = require('webpack-dev-middleware');
 
 http.listen(process.env.ZUUL_PORT || 3000);
 
@@ -13,13 +14,13 @@ http.listen(process.env.ZUUL_PORT || 3000);
 app.use('/test/support', express.static(join(__dirname, 'public')));
 
 // server engine.io.js via webpack
-app.get('/test/support/engine.io.js', function(err, res, next) {
-  webpack(function(err, src) {
-    if (err) return next(err);
-    res.set('Content-Type', 'application/javascript');
-    res.send(src);
-  });
-});
+app.get('/test/support/engine.io.js',
+        webpackMiddleWare(
+          webpack(require('../../support/webpack.config.js')),
+          {
+            filename: 'engine.io.js',
+            publicPath: './'
+          }));
 
 server.on('connection', function(socket){
   socket.send('hi');
