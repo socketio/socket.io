@@ -37,12 +37,11 @@
     "yeast": "0.1.2"
   },
   "devDependencies": {
-    "babel-core": "^6.4.5",
-    "babel-loader": "^6.2.1",
-    "babel-preset-es2015": "^6.3.13",
-    "babel-preset-react": "^6.3.13",
+    "babel-core": "6.4.5",
+    "babel-loader": "6.2.1",
+    "babel-preset-es2015": "6.3.13",
+    "babel-preset-react": "6.3.13",
     "blob": "0.0.4",
-    "browserify": "6.2.0",
     "concat-stream": "1.4.6",
     "derequire": "1.2.0",
     "engine.io": "1.6.7",
