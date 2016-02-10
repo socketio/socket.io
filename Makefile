@@ -4,22 +4,22 @@ REPORTER = dot
 build: socket.io.js
 
 socket.io.js: lib/*.js package.json
-	gulp
+	@./node_modules/.bin/gulp
 	# @./support/browserify.sh > socket.io.js
 
 test:
-	gulp test
+	@./node_modules/.bin/gulp test
 	# @if [ "x$(BROWSER_NAME)" = "x" ]; then make test-node; else make test-zuul; fi
 
 test-node:
-	gulp test-node
+	@./node_modules/.bin/gulp test-node
 	# @./node_modules/.bin/mocha \
 	# 	--reporter $(REPORTER) \
 	# 	--require test/support/server.js \
 	# 	test/index.js
 
 test-zuul:
-	gulp test-zuul
+	@./node_modules/.bin/gulp test-zuul
 	# @if [ "x$(BROWSER_PLATFORM)" = "x" ]; then \
 	# 	./node_modules/zuul/bin/zuul \
 	# 	--browser-name $(BROWSER_NAME) \
@@ -34,7 +34,7 @@ test-zuul:
 	# fi
 
 test-cov:
-	gulp test-cov
+	@./node_modules/.bin/gulp test-cov
 	# @./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- \
 	# 	--reporter $(REPORTER) \
 	# 	test/
