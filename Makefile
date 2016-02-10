@@ -7,7 +7,7 @@ engine.io.js:
 	@./node_modules/.bin/gulp build
 
 test:
-	@if [ "x$(BROWSER_NAME)" = "x" ]; then make test-node; else make test-zuul; fi
+	@./node_modules/.bin/gulp test
 
 test-node:
 	@./node_modules/.bin/mocha \
