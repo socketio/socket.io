@@ -5,7 +5,7 @@ const file = require("gulp-file");
 const webpack = require('webpack-stream');
 const child = require("child_process");
 const help = require("gulp-task-listing");
-
+const del = require('del');
 
 gulp.task("help", help);
 
@@ -40,6 +40,9 @@ gulp.task("webpack", function() {
 const REPORTER = "dot";
 const TEST_FILE = "./test/index.js";
 const TEST_SUPPORT_SERVER_FILE = "./test/support/server.js";
+const FILES_TO_CLEAN = [
+    'test/support/public/engine.io.js'
+];
 
 gulp.task("test", function() {
   if (process.env.hasOwnProperty("BROWSER_NAME")) {
@@ -63,9 +66,11 @@ function testNode() {
     // following lines to fix gulp-mocha not terminating (see gulp-mocha webpage)
     .once("error", function(err) {
       console.error(err.stack);
+      cleanFiles(FILES_TO_CLEAN);
       process.exit(1);
     })
     .once("end", function() {
+      cleanFiles(FILES_TO_CLEAN);
       process.exit();
     });
 }
@@ -85,7 +90,14 @@ function testZuul() {
   }
   args.push(TEST_FILE);
   const zuulChild = child.spawn(ZUUL_CMD, args, { stdio: "inherit" });
-  zuulChild.on("exit", function (code) { process.exit(code); });
+  zuulChild.on("exit", function (code) {
+    cleanFiles(FILES_TO_CLEAN);
+    process.exit(code);
+  });
+}
+
+function cleanFiles(globArray) {
+  console.log('cleaned generated files: ' + del.sync(globArray));
 }
 
 gulp.task('istanbul-pre-test', function() {

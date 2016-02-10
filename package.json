@@ -43,6 +43,7 @@
     "babel-preset-react": "6.3.13",
     "blob": "0.0.4",
     "concat-stream": "1.4.6",
+    "del": "2.2.0",
     "derequire": "1.2.0",
     "engine.io": "1.6.7",
     "expect.js": "0.2.0",
