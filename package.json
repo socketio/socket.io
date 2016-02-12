@@ -30,7 +30,6 @@
     "babel-core": "6.4.5",
     "babel-loader": "6.2.1",
     "babel-preset-es2015": "6.3.13",
-    "babel-preset-react": "6.3.13",
     "base64-arraybuffer": "0.1.5",
     "concat-stream": "1.5.1",
     "derequire": "2.0.3",
