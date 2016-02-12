@@ -40,7 +40,6 @@
     "babel-core": "6.4.5",
     "babel-loader": "6.2.1",
     "babel-preset-es2015": "6.3.13",
-    "babel-preset-react": "6.3.13",
     "blob": "0.0.4",
     "concat-stream": "1.4.6",
     "del": "2.2.0",
