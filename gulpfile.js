@@ -23,9 +23,7 @@ const WATCH_GLOBS = [
 
 gulp.task("default", ["build"]);
 
-gulp.task("build", ["webpack"]);
-
-gulp.task("webpack", function() {
+gulp.task("build", function() {
   return gulp.src(["lib/*.js", "lib/transports/*.js"], {
       base: 'lib'
     })
