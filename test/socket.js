@@ -47,7 +47,6 @@ describe('socket', function(){
       socket.once('pong', function(ms){
         expect(pinged).to.be(true);
         expect(ms).to.be.a('number');
-        expect(ms).to.be.greaterThan(0);
         socket.disconnect();
         done();
       });
