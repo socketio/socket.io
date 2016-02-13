@@ -100,10 +100,13 @@ describe('socket', function(){
   it('should store query string as a property', function(done){
     var socket = io('/abc', {query: {a:'b'}}); //passes in as a query obj
     var socket2 = io('/abcd?b=c&d=e'); //passes in as a query string
+    var socket3 = io('/abc', {query: {'&a':'&=?a'}}); //checks that it encodes a string.
     expect(socket.query).to.be('a=b');
     expect(socket2.query).to.be('b=c&d=e');
+    expect(socket3.query).to.be('%26a=%26%3D%3Fa');
     socket.disconnect();
     socket2.disconnect();
+    socket3.disconnect();
     done();
   });
 });
