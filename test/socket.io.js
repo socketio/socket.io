@@ -1519,7 +1519,7 @@ describe('socket.io', function(){
       });
     });
     
-    it.only('should see query parameters sent from secondary namespace connections in handshake object', function(done){
+    it('should see query parameters sent from secondary namespace connections in handshake object', function(done){
       var srv = http();
       var sio = io(srv);
       var addr = srv.listen().address();
