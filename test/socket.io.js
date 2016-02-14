@@ -1525,12 +1525,12 @@ describe('socket.io', function(){
       var addr = srv.listen().address();
       var url = 'ws://localhost:' + addr.port;
       var client1 = ioc(url);
-      var client2 = ioc(url + '/connection2', {query: {key1: 'aa', key2: 'bb'}});
+      var client2 = ioc(url + '/connection2', {query: {key1: 'aa', key2: '&=bb'}});
       sio.on('connection', function(s){
       });
       sio.of('/connection2').on('connection', function(s){
         expect(s.handshake.query.key1).to.be('aa');
-        expect(s.handshake.query.key2).to.be('bb');
+        expect(s.handshake.query.key2).to.be('&=bb');
         done();
       });
 
