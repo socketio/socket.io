@@ -12,11 +12,7 @@ var webpackConfig = require('../../support/webpack.config.js');
 webpackConfig.output.path = 'test/support/public';
 
 webpack(webpackConfig, function(err, stats){
-  if (err) {
-    console.log(err);
-  } else {
-    console.log(stats.toString());
-  }
+  if (err) console.log(err);
 });
 
 http.listen(process.env.ZUUL_PORT || 3000);
