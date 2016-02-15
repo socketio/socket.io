@@ -15,11 +15,6 @@ gulp.task("help", help);
 
 const BUILD_TARGET_FILENAME = "engine.io.js";
 const BUILD_TARGET_DIR = "./";
-const WATCH_GLOBS = [
-  "lib/*.js",
-  "lib/transports/*.js",
-  "package.json"
-];
 
 gulp.task("default", ["build"]);
 
@@ -97,7 +92,7 @@ function testZuul() {
 }
 
 function cleanFiles(globArray) {
-  console.log('cleaned generated files: ' + del.sync(globArray));
+  return del.sync(globArray);
 }
 
 gulp.task('istanbul-pre-test', function() {
