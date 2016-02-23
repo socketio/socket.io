@@ -1,9 +1,12 @@
 
 # socket.io
 
-[![Build Status](https://secure.travis-ci.org/Automattic/socket.io.svg)](http://travis-ci.org/Automattic/socket.io)
+[![Build Status](https://secure.travis-ci.org/socketio/socket.io.svg)](https://travis-ci.org/socketio/socket.io)
+[![Dependency Status](https://david-dm.org/socketio/socket.io.svg)](https://david-dm.org/socketio/socket.io)
+[![devDependency Status](https://david-dm.org/socketio/socket.io/dev-status.svg)](https://david-dm.org/socketio/socket.io#info=devDependencies)
 ![NPM version](https://badge.fury.io/js/socket.io.svg)
-![Downloads](http://img.shields.io/npm/dm/socket.io.svg?style=flat)
+![Downloads](https://img.shields.io/npm/dm/socket.io.svg?style=flat)
+[![](http://slack.socket.io/badge.svg?)](http://slack.socket.io)
 
 ## How to use
 
@@ -85,7 +88,7 @@ server.listen(3000);
 
   The same options passed to socket.io are always passed to
   the `engine.io` `Server` that gets created. See engine.io
-  [options](https://github.com/learnboost/engine.io#methods-1)
+  [options](https://github.com/socketio/engine.io#methods-1)
   as reference.
 
 ### Server(srv:http#Server, opts:Object)
@@ -127,7 +130,7 @@ server.listen(3000);
 
   Sets the adapter `v`. Defaults to an instance of the `Adapter` that
   ships with socket.io which is memory based. See
-  [socket.io-adapter](https://github.com/Automattic/socket.io-adapter).
+  [socket.io-adapter](https://github.com/socketio/socket.io-adapter).
 
   If no arguments are supplied this method returns the current value.
 
@@ -144,7 +147,7 @@ server.listen(3000);
   __Potential drawbacks__:
   * in some situations, when it is not possible to determine `origin` it may have value of `*`
   * As this function will be executed for every request, it is advised to make this function work as fast as possible
-  * If `socket.io` is used together with `Express`, the CORS headers will be affected only for `socket.io` requests. For Express can use [cors](https://github.com/troygoode/node-cors/)
+  * If `socket.io` is used together with `Express`, the CORS headers will be affected only for `socket.io` requests. For Express can use [cors](https://github.com/expressjs/cors)
 
 
 ### Server#sockets:Namespace
@@ -240,6 +243,40 @@ server.listen(3000);
   Hash of `Socket` objects that are connected to this namespace indexed
   by `id`.
 
+### Namespace#clients(fn:Function)
+
+  Gets a list of client IDs connected to this namespace (across all nodes if applicable).
+
+  An example to get all clients in a namespace:
+
+  ```js
+  var io = require('socket.io')();
+  io.of('/chat').clients(function(error, clients){
+    if (error) throw error;
+    console.log(clients); // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
+  });
+  ```
+
+  An example to get all clients in namespace's room:
+
+  ```js
+  var io = require('socket.io')();
+  io.of('/chat').in('general').clients(function(error, clients){
+    if (error) throw error;
+    console.log(clients); // => [Anw2LatarvGVVXEIAAAD]
+  });
+  ```
+
+  As with broadcasting, the default is all clients from the default namespace ('/'):
+
+  ```js
+  var io = require('socket.io')();
+  io.clients(function(error, clients){
+    if (error) throw error;
+    console.log(clients); // => [6em3d4TJP8Et9EMNAAAA, G5p55dHhGgUnLUctAAAB]
+  });
+  ```
+
 ### Namespace#use(fn:Function):Namespace
 
   Registers a middleware, which is a function that gets executed for
@@ -264,9 +301,10 @@ server.listen(3000);
   clients. A `Socket` belongs to a certain `Namespace` (by default `/`)
   and uses an underlying `Client` to communicate.
 
-### Socket#rooms:Array
+### Socket#rooms:Object
 
-  A list of strings identifying the rooms this socket is in.
+  A hash of strings identifying the rooms this socket is in, indexed by
+  room name.
 
 ### Socket#client:Client
 
@@ -313,7 +351,7 @@ server.listen(3000);
 
   The mechanics of joining  rooms are handled by the `Adapter`
   that has been configured (see `Server#adapter` above), defaulting to
-  [socket.io-adapter](https://github.com/Automattic/socket.io-adapter).
+  [socket.io-adapter](https://github.com/socketio/socket.io-adapter).
 
 ### Socket#leave(name:String[, fn:Function]):Socket
 
@@ -324,10 +362,9 @@ server.listen(3000);
 
   The mechanics of leaving rooms are handled by the `Adapter`
   that has been configured (see `Server#adapter` above), defaulting to
-  [socket.io-adapter](https://github.com/Automattic/socket.io-adapter).
+  [socket.io-adapter](https://github.com/socketio/socket.io-adapter).
 
 ### Socket#to(room:String):Socket
-### Socket#in(room:String):Socket
 
   Sets a modifier for a subsequent event emission that the event will
   only be _broadcasted_ to sockets that have joined the given `room`.
@@ -338,6 +375,22 @@ server.listen(3000);
   var io = require('socket.io')();
   io.on('connection', function(socket){
     socket.to('others').emit('an event', { some: 'data' });
+  });
+  ```
+
+### Socket#in(room:String):Socket
+
+  Same as `Socket#to`
+
+### Socket#compress(v:Boolean):Socket
+
+  Sets a modifier for a subsequent event emission that the event data will
+  only be _compressed_ if the value is `true`. Defaults to `true` when you don't call the method.
+
+  ```js
+  var io = require('socket.io')();
+  io.on('connection', function(socket){
+    socket.compress(false).emit('an event', { some: 'data' });
   });
   ```
 
@@ -359,7 +412,7 @@ server.listen(3000);
 
 ## Debug / logging
 
-Socket.IO is powered by [debug](http://github.com/visionmedia/debug).
+Socket.IO is powered by [debug](https://github.com/visionmedia/debug).
 In order to see all the debug output, run your app with the environment variable
 `DEBUG` including the desired scope.
 

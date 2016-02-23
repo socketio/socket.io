@@ -1,6 +1,6 @@
 {
   "name": "socket.io",
-  "version": "1.3.7",
+  "version": "1.4.5",
   "description": "node.js realtime framework server",
   "keywords": [
     "realtime",
@@ -11,6 +11,8 @@
     "socket",
     "io"
   ],
+  "main": "./lib/index",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git://github.com/Automattic/socket.io"
@@ -19,19 +21,20 @@
     "test": "mocha --reporter dot --slow 200ms --bail"
   },
   "dependencies": {
-    "engine.io": "1.5.4",
-    "socket.io-parser": "2.2.4",
-    "socket.io-client": "1.3.7",
-    "socket.io-adapter": "0.3.1",
-    "has-binary-data": "0.1.3",
-    "debug": "2.1.0"
+    "engine.io": "1.6.8",
+    "socket.io-parser": "2.2.6",
+    "socket.io-client": "1.4.5",
+    "socket.io-adapter": "0.4.0",
+    "has-binary": "0.1.7",
+    "debug": "2.2.0"
   },
   "devDependencies": {
-    "mocha": "1.16.2",
     "expect.js": "0.3.1",
-    "supertest": "0.8.2",
-    "superagent": "0.17.0",
-    "istanbul": "0.2.3"
+    "istanbul": "0.4.1",
+    "mocha": "2.3.4",
+    "superagent": "1.6.1",
+    "supertest": "1.1.0",
+    "zuul-ngrok": "3.2.0"
   },
   "contributors": [
     {

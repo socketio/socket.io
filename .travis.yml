@@ -1,16 +1,20 @@
+sudo: false
+before_install:
+  - npm install -g npm@'>=1.4.3'
 language: node_js
 node_js:
   - "0.8"
   - "0.10"
-  - "0.11"
+  - "0.12"
+  - "4"
 
 git:
   depth: 1
 
-matrix:
-  fast_finish: true
-  allow_failures:
-    - node_js: "0.11"
+#matrix:
+  #fast_finish: true
+  #allow_failures:
+    #- node_js: "0.11"
 
 notifications:
   irc: "irc.freenode.org#socket.io"
