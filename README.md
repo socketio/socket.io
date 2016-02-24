@@ -159,7 +159,7 @@ Exposed as `eio` in the browser standalone build.
     - `String` | `ArrayBuffer`: utf-8 encoded data or ArrayBuffer containing
       binary data
 - `close`
-  - Fired upon disconnection. In compliance with the WebSocket API spec, this event may be 
+  - Fired upon disconnection. In compliance with the WebSocket API spec, this event may be
     fired even if the `open` event does not occur (i.e. due to connection error or `close()`).
 - `error`
   - Fired when an error occurs.
@@ -224,6 +224,7 @@ Exposed as `eio` in the browser standalone build.
         - `threshold` (`Number`): data is compressed only if the byte size is above this value. This option is ignored on the browser. (`1024`)
       - `extraHeaders` (`Object`): Headers that will be passed for each request to the server (via xhr-polling and via websockets). These values then can be used during handshake or for special proxies. Can only be used in Node.js client environment.
       - `onlyBinaryUpgrades` (`Boolean`): whether transport upgrades should be restricted to transports supporting binary data (`false`)
+      - `requestTimeout` (`Number`): Timeout for xhr-polling requests in milliseconds (`0`)
 - `send`
     - Sends a message to the server
     - **Parameters**
@@ -290,4 +291,3 @@ See the `Tests` section above for how to run tests before submitting any patches
 ## License
 
 MIT - Copyright (c) 2014 Automattic, Inc.
-
