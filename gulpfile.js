@@ -24,7 +24,12 @@ gulp.task('build', function() {
 });
 
 gulp.task('lint', function() {
-  return gulp.src(['**/*.js', '!node_modules/**'])
+  return gulp.src([
+      '**/*.js',
+      '!node_modules/**',
+      '!coverage/**',
+      '!socket.io.js'
+    ])
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError());
