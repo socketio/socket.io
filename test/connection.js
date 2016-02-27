@@ -186,7 +186,10 @@ describe('connection', function () {
   it('reconnect delay should increase every time', function (done) {
     var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 3, reconnectionDelay: 100, randomizationFactor: 0.2 });
     var socket = manager.socket('/timeout');
-    var reconnects = 0, increasingDelay = true, startTime, prevDelay = 0;
+    var reconnects = 0;
+    var increasingDelay = true;
+    var startTime;
+    var prevDelay = 0;
 
     socket.on('connect_error', function () {
       startTime = new Date().getTime();

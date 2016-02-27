@@ -1,6 +1,5 @@
 const gulp = require('gulp');
 const mocha = require('gulp-mocha');
-const file = require('gulp-file');
 const istanbul = require('gulp-istanbul');
 const webpack = require('webpack-stream');
 const child = require('child_process');
@@ -11,9 +10,9 @@ gulp.task('help', help);
 
 gulp.task('default', ['lint', 'build']);
 
-////////////////////////////////////////
+// //////////////////////////////////////
 // BUILDING
-////////////////////////////////////////
+// //////////////////////////////////////
 
 const BUILD_TARGET_DIR = './';
 
@@ -35,9 +34,9 @@ gulp.task('lint', function () {
     .pipe(eslint.failAfterError());
 });
 
-////////////////////////////////////////
+// //////////////////////////////////////
 // TESTING
-////////////////////////////////////////
+// //////////////////////////////////////
 
 const REPORTER = 'dot';
 const TEST_FILE = './test/index.js';

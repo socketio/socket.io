@@ -4,7 +4,6 @@ var url = require('../lib/url');
 var expect = require('expect.js');
 
 describe('url', function () {
-
   it('works with undefined', function () {
     loc.hostname = 'woot.com';
     loc.protocol = 'https:';
