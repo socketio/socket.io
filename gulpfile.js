@@ -8,7 +8,7 @@ const eslint = require('gulp-eslint');
 
 gulp.task('help', help);
 
-gulp.task('default', ['lint', 'build']);
+gulp.task('default', ['build']);
 
 // //////////////////////////////////////
 // BUILDING
@@ -22,18 +22,6 @@ gulp.task('build', function () {
     .pipe(gulp.dest(BUILD_TARGET_DIR));
 });
 
-gulp.task('lint', function () {
-  return gulp.src([
-      '**/*.js',
-      '!node_modules/**',
-      '!coverage/**',
-      '!socket.io.js'
-    ])
-    .pipe(eslint())
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError());
-});
-
 // //////////////////////////////////////
 // TESTING
 // //////////////////////////////////////
@@ -42,7 +30,7 @@ const REPORTER = 'dot';
 const TEST_FILE = './test/index.js';
 const TEST_SUPPORT_SERVER_FILE = './test/support/server.js';
 
-gulp.task('test', function () {
+gulp.task('test', ['lint'], function () {
   if (process.env.hasOwnProperty('BROWSER_NAME')) {
     return testZuul();
   } else {
@@ -52,6 +40,18 @@ gulp.task('test', function () {
 
 gulp.task('test-node', testNode);
 gulp.task('test-zuul', testZuul);
+
+gulp.task('lint', function () {
+  return gulp.src([
+    '**/*.js',
+    '!node_modules/**',
+    '!coverage/**',
+    '!socket.io.js'
+  ])
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
+});
 
 // runs zuul through shell process
 function testZuul () {
