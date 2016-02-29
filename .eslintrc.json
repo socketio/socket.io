@@ -1,6 +1,10 @@
 {
   "extends": "standard",
   "parser": "babel-eslint",
+  "env": {
+    "node": true,
+    "browser": true
+  },
   "rules": {
     "yoda": 0,
     "semi": [2, "always"],
