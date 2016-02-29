@@ -20,7 +20,12 @@ const BUILD_TARGET_DIR = "./";
 gulp.task("default", ["lint", "build"]);
 
 gulp.task("lint", function () {
-  return gulp.src(["**/*.js", "!node_modules/**"])
+  return gulp.src([
+    '**/*.js',
+    '!node_modules/**',
+    '!coverage/',
+    '!engine.io.js'
+  ])
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError());
