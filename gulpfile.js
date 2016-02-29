@@ -1,7 +1,6 @@
 const gulp = require('gulp');
 const mocha = require('gulp-mocha');
 const istanbul = require('gulp-istanbul');
-const file = require('gulp-file');
 const webpack = require('webpack-stream');
 const child = require('child_process');
 const help = require('gulp-task-listing');
@@ -10,11 +9,10 @@ const eslint = require('gulp-eslint');
 
 gulp.task('help', help);
 
-////////////////////////////////////////
+// //////////////////////////////////////
 // BUILDING
-////////////////////////////////////////
+// //////////////////////////////////////
 
-const BUILD_TARGET_FILENAME = 'engine.io.js';
 const BUILD_TARGET_DIR = './';
 
 gulp.task('default', ['lint', 'build']);
@@ -23,7 +21,7 @@ gulp.task('lint', function () {
   return gulp.src([
     '**/*.js',
     '!node_modules/**',
-    '!coverage/',
+    '!coverage/**',
     '!engine.io.js'
   ])
     .pipe(eslint())
@@ -39,9 +37,9 @@ gulp.task('build', function () {
     .pipe(gulp.dest(BUILD_TARGET_DIR));
 });
 
-////////////////////////////////////////
+// //////////////////////////////////////
 // TESTING
-////////////////////////////////////////
+// //////////////////////////////////////
 
 const REPORTER = 'dot';
 const TEST_FILE = './test/index.js';

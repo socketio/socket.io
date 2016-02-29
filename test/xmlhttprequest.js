@@ -3,7 +3,6 @@ var XMLHttpRequest = require('../lib/xmlhttprequest');
 var env = require('./support/env');
 
 describe('XMLHttpRequest', function () {
-
   if (env.isIE8 || env.isIE9) {
     describe('IE8_9', function () {
       context('when xdomain is false', function () {
@@ -79,5 +78,4 @@ describe('XMLHttpRequest', function () {
       });
     });
   }
-
 });

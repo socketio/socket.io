@@ -1,9 +1,7 @@
 var expect = require('expect.js');
 var eio = require('../');
-var hasCORS = require('has-cors');
 
 describe('Socket', function () {
-
   this.timeout(10000);
 
   describe('filterUpgrades', function () {
@@ -12,5 +10,4 @@ describe('Socket', function () {
       expect(socket.filterUpgrades(['polling', 'websocket'])).to.eql(['polling']);
     });
   });
-
 });

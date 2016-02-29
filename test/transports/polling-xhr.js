@@ -8,10 +8,10 @@ describe('XHR', function () {
       if (env.isIE8) {
         it('should return true when xscheme is false and enablesXDR is true', function () {
           var request = new XHR.Request({
-            uri: 'http://localhost/engine.io?sid=test'
-          , xd: true
-          , xs: false
-          , enablesXDR: true
+            uri: 'http://localhost/engine.io?sid=test',
+            xd: true,
+            xs: false,
+            enablesXDR: true
           });
           expect(request.hasXDR()).to.be(true);
         });
@@ -19,18 +19,18 @@ describe('XHR', function () {
         it('should return false when xscheme is true', function () {
           var request;
           request = new XHR.Request({
-            uri: 'http://localhost/engine.io?sid=test'
-          , xd: true
-          , xs: true
-          , enablesXDR: true
+            uri: 'http://localhost/engine.io?sid=test',
+            xd: true,
+            xs: true,
+            enablesXDR: true
           });
           expect(request.hasXDR()).to.be(false);
 
           request = new XHR.Request({
-            uri: 'http://localhost/engine.io?sid=test'
-          , xd: true
-          , xs: true
-          , enablesXDR: true
+            uri: 'http://localhost/engine.io?sid=test',
+            xd: true,
+            xs: true,
+            enablesXDR: true
           });
           expect(request.hasXDR()).to.be(false);
         });
@@ -38,18 +38,18 @@ describe('XHR', function () {
         it('should return false when enablesXDR is false', function () {
           var request;
           request = new XHR.Request({
-            uri: 'http://localhost/engine.io?sid=test'
-          , xd: true
-          , xs: true
-          , enablesXDR: false
+            uri: 'http://localhost/engine.io?sid=test',
+            xd: true,
+            xs: true,
+            enablesXDR: false
           });
           expect(request.hasXDR()).to.be(false);
 
           request = new XHR.Request({
-            uri: 'http://localhost/engine.io?sid=test'
-          , xd: true
-          , xs: false
-          , enablesXDR: false
+            uri: 'http://localhost/engine.io?sid=test',
+            xd: true,
+            xs: false,
+            enablesXDR: false
           });
           expect(request.hasXDR()).to.be(false);
         });
