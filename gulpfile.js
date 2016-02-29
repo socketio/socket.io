@@ -15,19 +15,7 @@ gulp.task('help', help);
 
 const BUILD_TARGET_DIR = './';
 
-gulp.task('default', ['lint', 'build']);
-
-gulp.task('lint', function () {
-  return gulp.src([
-    '**/*.js',
-    '!node_modules/**',
-    '!coverage/**',
-    '!engine.io.js'
-  ])
-    .pipe(eslint())
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError());
-});
+gulp.task('default', ['build']);
 
 gulp.task('build', function () {
   return gulp.src(['lib/*.js', 'lib/transports/*.js'], {
@@ -48,12 +36,24 @@ const FILES_TO_CLEAN = [
   'test/support/public/engine.io.js'
 ];
 
-gulp.task('test', function () {
+gulp.task('test', ['lint'], function () {
   if (process.env.hasOwnProperty('BROWSER_NAME')) {
     return testZuul();
   } else {
     return testNode();
   }
+});
+
+gulp.task('lint', function () {
+  return gulp.src([
+    '**/*.js',
+    '!node_modules/**',
+    '!coverage/**',
+    '!engine.io.js'
+  ])
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
 });
 
 gulp.task('test-node', testNode);
