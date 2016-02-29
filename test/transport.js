@@ -11,7 +11,7 @@ describe('Transport', function () {
       expect(socket.transport.name).to.be('polling');
 
       var timedout = false;
-      var timeout = setTimeout(function(){
+      var timeout = setTimeout(function () {
         timedout = true;
         socket.close();
         done();
@@ -21,7 +21,7 @@ describe('Transport', function () {
         if (timedout) return;
         clearTimeout(timeout);
         socket.close();
-        if(transport.name == 'websocket') {
+        if (transport.name === 'websocket') {
           var socket2 = new eio.Socket({ 'rememberUpgrade': true });
           expect(socket2.transport.name).to.be('websocket');
         }
@@ -34,7 +34,7 @@ describe('Transport', function () {
       expect(socket.transport.name).to.be('polling');
 
       var timedout = false;
-      var timeout = setTimeout(function(){
+      var timeout = setTimeout(function () {
         timedout = true;
         socket.close();
         done();
@@ -44,7 +44,7 @@ describe('Transport', function () {
         if (timedout) return;
         clearTimeout(timeout);
         socket.close();
-        if(transport.name == 'websocket') {
+        if (transport.name === 'websocket') {
           var socket2 = new eio.Socket({ 'rememberUpgrade': false });
           expect(socket2.transport.name).to.not.be('websocket');
         }
@@ -68,7 +68,7 @@ describe('Transport', function () {
   describe('transport uris', function () {
     it('should generate an http uri', function () {
       var polling = new eio.transports.polling({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: 'localhost'
         , secure: false
         , query: { sid: 'test' }
@@ -79,7 +79,7 @@ describe('Transport', function () {
 
     it('should generate an http uri w/o a port', function () {
       var polling = new eio.transports.polling({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: 'localhost'
         , secure: false
         , query: { sid: 'test' }
@@ -91,7 +91,7 @@ describe('Transport', function () {
 
     it('should generate an http uri with a port', function () {
       var polling = new eio.transports.polling({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: 'localhost'
         , secure: false
         , query: { sid: 'test' }
@@ -103,7 +103,7 @@ describe('Transport', function () {
 
     it('should generate an https uri w/o a port', function () {
       var polling = new eio.transports.polling({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: 'localhost'
         , secure: true
         , query: { sid: 'test' }
@@ -115,7 +115,7 @@ describe('Transport', function () {
 
     it('should generate a timestamped uri', function () {
       var polling = new eio.transports.polling({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: 'localhost'
         , timestampParam: 't'
         , timestampRequests: true
@@ -125,7 +125,7 @@ describe('Transport', function () {
 
     it('should generate an ipv6 uri', function () {
       var polling = new eio.transports.polling({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: '::1'
         , secure: false
         , port: 80
@@ -136,7 +136,7 @@ describe('Transport', function () {
 
     it('should generate an ipv6 uri with port', function () {
       var polling = new eio.transports.polling({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: '::1'
         , secure: false
         , port: 8080
@@ -147,7 +147,7 @@ describe('Transport', function () {
 
     it('should generate a ws uri', function () {
       var ws = new eio.transports.websocket({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: 'test'
         , secure: false
         , query: { transport: 'websocket' }
@@ -158,7 +158,7 @@ describe('Transport', function () {
 
     it('should generate a wss uri', function () {
       var ws = new eio.transports.websocket({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: 'test'
         , secure: true
         , query: {}
@@ -169,7 +169,7 @@ describe('Transport', function () {
 
     it('should timestamp ws uris', function () {
       var ws = new eio.transports.websocket({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: 'localhost'
         , timestampParam: 'woot'
         , timestampRequests: true
@@ -179,7 +179,7 @@ describe('Transport', function () {
 
     it('should generate a ws ipv6 uri', function () {
       var ws = new eio.transports.websocket({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: '::1'
         , secure: false
         , port: 80
@@ -190,7 +190,7 @@ describe('Transport', function () {
 
     it('should generate a ws ipv6 uri with port', function () {
       var ws = new eio.transports.websocket({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: '::1'
         , secure: false
         , port: 8080
@@ -201,29 +201,29 @@ describe('Transport', function () {
   });
 
 // these are server only
-if (!env.browser) {
+  if (!env.browser) {
   describe('options', function () {
     it('should accept an `agent` option for WebSockets', function (done) {
       var polling = new eio.transports.websocket({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: 'localhost'
         , agent: {
-            addRequest: function () {
+          addRequest: function () {
               done();
             }
-          }
+        }
       });
       polling.doOpen();
     });
     it('should accept an `agent` option for XMLHttpRequest', function (done) {
       var polling = new eio.transports.polling({
-          path: '/engine.io'
+        path: '/engine.io'
         , hostname: 'localhost'
         , agent: {
-            addRequest: function () {
+          addRequest: function () {
               done();
             }
-          }
+        }
       });
       polling.doOpen();
     });
@@ -235,7 +235,7 @@ if (!env.browser) {
           'Cookie': 'user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly'
         };
         var polling = new eio.transports.websocket({
-            path: '/engine.io'
+          path: '/engine.io'
           , hostname: 'localhost'
           , extraHeaders: headers
         });
@@ -247,7 +247,7 @@ if (!env.browser) {
           'Cookie': 'user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly'
         };
         var polling = new eio.transports.polling({
-            path: '/engine.io'
+          path: '/engine.io'
           , hostname: 'localhost'
           , extraHeaders: headers
         });
@@ -258,10 +258,10 @@ if (!env.browser) {
     describe('perMessageDeflate', function () {
       it('should set threshold', function (done) {
         var socket = new eio.Socket({ transports: ['websocket'], perMessageDeflate: { threshold: 0 } });
-        socket.on('open', function() {
+        socket.on('open', function () {
           var ws = socket.transport.ws;
           var send = ws.send;
-          ws.send = function(data, opts, callback) {
+          ws.send = function (data, opts, callback) {
             ws.send = send;
             ws.send(data, opts, callback);
 
@@ -275,10 +275,10 @@ if (!env.browser) {
 
       it('should not compress when the byte size is below threshold', function (done) {
         var socket = new eio.Socket({ transports: ['websocket'] });
-        socket.on('open', function() {
+        socket.on('open', function () {
           var ws = socket.transport.ws;
           var send = ws.send;
-          ws.send = function(data, opts, callback) {
+          ws.send = function (data, opts, callback) {
             ws.send = send;
             ws.send(data, opts, callback);
 
