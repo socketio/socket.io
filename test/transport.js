@@ -3,6 +3,9 @@ var expect = require('expect.js');
 var eio = require('../');
 var env = require('./support/env');
 
+// Disables eslint to capitalise constructor names
+/* eslint-disable new-cap */
+
 describe('Transport', function () {
   describe('rememberUpgrade', function () {
     it('should remember websocket connection', function (done) {
