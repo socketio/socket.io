@@ -27,8 +27,8 @@ module.exports = {
  * @api private
  */
 
-function glob(){
-  return 'typeof self !== "undefined" ? self : '
-    + 'typeof window !== "undefined" ? window : '
-    + 'typeof global !== "undefined" ? global : {}';
+function glob () {
+  return 'typeof self !== "undefined" ? self : ' +
+    'typeof window !== "undefined" ? window : ' +
+    'typeof global !== "undefined" ? global : {}';
 }
