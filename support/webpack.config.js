@@ -1,10 +1,10 @@
 
 module.exports = {
-  entry: "./index.js",
+  entry: './index.js',
   output: {
-    filename: "engine.io.js",
-    library: "eio",
-    libraryTarget: "umd"
+    filename: 'engine.io.js',
+    library: 'eio',
+    libraryTarget: 'umd'
   },
   externals: {
     global: glob()
@@ -27,7 +27,7 @@ module.exports = {
  * @api private
  */
 
-function glob() {
+function glob () {
   return 'typeof self !== "undefined" ? self : ' +
       'typeof window !== "undefined" ? window : ' +
       'typeof global !== "undefined" ? global : {}';
