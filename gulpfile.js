@@ -2,6 +2,9 @@ var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 var babel = require("gulp-babel");
 var istanbul = require('gulp-istanbul');
+var help = require('gulp-task-listing');
+
+gulp.task('help', help);
 
 // By default, individual js files are transformed by babel and exported to /dist
 gulp.task("default", function () {
