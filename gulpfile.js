@@ -3,6 +3,7 @@ var mocha = require('gulp-mocha');
 var babel = require("gulp-babel");
 var istanbul = require('gulp-istanbul');
 var help = require('gulp-task-listing');
+var del = require('del');
 
 gulp.task('help', help);
 
@@ -16,6 +17,10 @@ gulp.task('transpile', function () {
     .pipe(babel({ "presets": ["es2015"] }))
     .pipe(gulp.dest(TRANSPILE_DEST_DIR));
 });
+
+gulp.task('clean', function () {
+  return del([TRANSPILE_DEST_DIR]);
+})
 
 gulp.task('test', function(){
   return gulp.src('test/*.js', {read: false})
