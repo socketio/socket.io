@@ -6,11 +6,15 @@ var help = require('gulp-task-listing');
 
 gulp.task('help', help);
 
+gulp.task('default', ['transpile']);
+
+const TRANSPILE_DEST_DIR = './dist';
+
 // By default, individual js files are transformed by babel and exported to /dist
-gulp.task("default", function () {
+gulp.task('transpile', function () {
   return gulp.src("lib/*.js")
     .pipe(babel({ "presets": ["es2015"] }))
-    .pipe(gulp.dest("dist"));
+    .pipe(gulp.dest(TRANSPILE_DEST_DIR));
 });
 
 gulp.task('test', function(){
