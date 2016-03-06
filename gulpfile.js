@@ -10,10 +10,9 @@ gulp.task("default", ["babel"]);
 gulp.task('test', function(){
     return gulp.src(TESTS, {read: false})
     .pipe(mocha({
-      timeout: 2000,
+      slow: 500,
       reporter: REPORTER,
-      bail: true,
-      globals: ['___eio', 'document']
+      bail: true
     }))
     .once('error', function(){
       process.exit(1);
