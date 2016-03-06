@@ -5,7 +5,7 @@ var babel = require("gulp-babel");
 var TESTS = 'test/*.js';
 var REPORTER = 'dot';
 
-gulp.task("default", ["babel"]);
+gulp.task("default", ["transpile"]);
 
 gulp.task('test', function(){
     return gulp.src(TESTS, {read: false})
@@ -23,7 +23,7 @@ gulp.task('test', function(){
 });
 
 // By default, individual js files are transformed by babel and exported to /dist
-gulp.task("babel", function(){
+gulp.task("transpile", function(){
     return gulp.src(["lib/*.js","lib/transports/*.js"], { base: 'lib' })
         .pipe(babel({ "presets": ["es2015"] }))
         .pipe(gulp.dest("dist"));
