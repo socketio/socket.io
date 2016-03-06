@@ -113,10 +113,12 @@ gulp.task('test-cov', ['istanbul-pre-test'], function () {
     .pipe(mocha(MOCHA_OPTS))
     .pipe(istanbul.writeReports())
     .once('error', function (err) {
+      cleanFiles(FILES_TO_CLEAN);
       console.error(err.stack);
       process.exit(1);
     })
     .once('end', function () {
+      cleanFiles(FILES_TO_CLEAN);
       process.exit();
     });
 });
