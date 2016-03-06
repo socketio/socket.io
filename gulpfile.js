@@ -1,9 +1,9 @@
-var gulp = require('gulp');
-var mocha = require('gulp-mocha');
-var babel = require("gulp-babel");
-var istanbul = require('gulp-istanbul');
-var help = require('gulp-task-listing');
-var del = require('del');
+const gulp = require('gulp');
+const mocha = require('gulp-mocha');
+const babel = require("gulp-babel");
+const istanbul = require('gulp-istanbul');
+const help = require('gulp-task-listing');
+const del = require('del');
 
 gulp.task('help', help);
 
@@ -23,9 +23,9 @@ gulp.task('clean', function () {
 })
 
 gulp.task('test', function(){
-  return gulp.src('test/*.js', {read: false})
+  return gulp.src('test/socket.io.js', {read: false})
     .pipe(mocha({
-      timeout: 2000,
+      slow: 200,
       reporter: 'dot',
       bail: true
     }))
@@ -46,7 +46,7 @@ gulp.task('istanbul-pre-test', function () {
 });
 
 gulp.task('test-cov', ['istanbul-pre-test'], function(){
-  return gulp.src(['test/socket.io.js'])
+  return gulp.src('test/socket.io.js', {read: false})
     .pipe(mocha({
       reporter: 'dot'
     }))
