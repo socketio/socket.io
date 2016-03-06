@@ -109,7 +109,7 @@ gulp.task('istanbul-pre-test', function () {
 });
 
 gulp.task('test-cov', ['istanbul-pre-test'], function () {
-  return gulp.src(['test/*.js', 'test/support/*.js'])
+  return gulp.src(TEST_FILE)
     .pipe(mocha(MOCHA_OPTS))
     .pipe(istanbul.writeReports())
     .once('error', function (err) {
