@@ -18,9 +18,7 @@ const BUILD_TARGET_DIR = './';
 gulp.task('default', ['build']);
 
 gulp.task('build', function () {
-  return gulp.src(['lib/*.js', 'lib/transports/*.js'], {
-    base: 'lib'
-  })
+  return gulp.src('lib/**/*.js')
     .pipe(webpack(require('./support/webpack.config.js')))
     .pipe(gulp.dest(BUILD_TARGET_DIR));
 });
