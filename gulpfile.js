@@ -27,9 +27,12 @@ gulp.task('build', function () {
 // TESTING
 // //////////////////////////////////////
 
-const REPORTER = 'dot';
 const TEST_FILE = './test/index.js';
-const TEST_SUPPORT_SERVER_FILE = './test/support/server.js';
+const MOCHA_OPTS = {
+  reporter: 'dot',
+  require: ['./test/support/server.js'],
+  bail: true
+};
 const FILES_TO_CLEAN = [
   'test/support/public/engine.io.js'
 ];
@@ -58,11 +61,6 @@ gulp.task('test-node', testNode);
 gulp.task('test-zuul', testZuul);
 
 function testNode () {
-  const MOCHA_OPTS = {
-    reporter: REPORTER,
-    require: [TEST_SUPPORT_SERVER_FILE],
-    bail: true
-  };
   return gulp.src(TEST_FILE, { read: false })
     .pipe(mocha(MOCHA_OPTS))
     // following lines to fix gulp-mocha not terminating (see gulp-mocha webpage)
@@ -112,9 +110,7 @@ gulp.task('istanbul-pre-test', function () {
 
 gulp.task('test-cov', ['istanbul-pre-test'], function () {
   return gulp.src(['test/*.js', 'test/support/*.js'])
-    .pipe(mocha({
-      reporter: REPORTER
-    }))
+    .pipe(mocha(MOCHA_OPTS))
     .pipe(istanbul.writeReports())
     .once('error', function (err) {
       console.error(err.stack);
