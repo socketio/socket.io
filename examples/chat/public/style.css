@@ -128,7 +128,6 @@ ul {
 }
 
 .username {
-  float: left;
   font-weight: 700;
   overflow: hidden;
   padding-right: 15px;
