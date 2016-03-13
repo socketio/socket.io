@@ -23,7 +23,7 @@ gulp.task('clean', function () {
   return del([TRANSPILE_DEST_DIR]);
 });
 
-gulp.task('test', ['transpile'], function () {
+gulp.task('test', ['lint', 'transpile'], function () {
   return gulp.src('test/socket.io.js', {read: false})
     .pipe(mocha({
       slow: 200,
