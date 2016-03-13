@@ -18,7 +18,7 @@
     "url": "git://github.com/Automattic/socket.io"
   },
   "scripts": {
-    "test": "mocha --reporter dot --slow 200ms --bail"
+    "test": "./node_modules/.bin/gulp test"
   },
   "dependencies": {
     "engine.io": "1.6.8",
@@ -29,7 +29,14 @@
     "debug": "2.2.0"
   },
   "devDependencies": {
+    "babel-preset-es2015": "6.3.13",
+    "del": "2.2.0",
     "expect.js": "0.3.1",
+    "gulp": "3.9.0",
+    "gulp-babel": "6.1.1",
+    "gulp-istanbul": "0.10.3",
+    "gulp-mocha": "2.2.0",
+    "gulp-task-listing": "1.0.1",
     "istanbul": "0.4.1",
     "mocha": "2.3.4",
     "superagent": "1.6.1",
