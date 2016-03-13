@@ -27,7 +27,6 @@ function client (srv, nsp, opts) {
 }
 
 describe('socket.io', function () {
-
   it('should be the same version as client', function () {
     var version = require('../package').version;
     expect(version).to.be(require('socket.io-client/package').version);
@@ -113,7 +112,7 @@ describe('socket.io', function () {
         socket.emit('yoyo', 'data');
       });
 
-      socket.on('error', function (err) {
+      socket.on('error', function (err) { // eslint-disable-line handle-callback-err
         expect().fail();
       });
     });
@@ -149,7 +148,7 @@ describe('socket.io', function () {
         done();
       });
 
-      var socket = client(httpSrv);
+      client(httpSrv);
     });
   });
 
@@ -214,28 +213,28 @@ describe('socket.io', function () {
 
     describe('port', function (done) {
       it('should be bound', function (done) {
-        var sockets = io(54010);
+        io(54010);
         request('http://localhost:54010')
         .get('/socket.io/socket.io.js')
         .expect(200, done);
       });
 
       it('should be bound as a string', function (done) {
-        var sockets = io('54020');
+        io('54020');
         request('http://localhost:54020')
         .get('/socket.io/socket.io.js')
         .expect(200, done);
       });
 
       it('with listen', function (done) {
-        var sockets = io().listen(54011);
+        io().listen(54011);
         request('http://localhost:54011')
         .get('/socket.io/socket.io.js')
         .expect(200, done);
       });
 
       it('as a string', function (done) {
-        var sockets = io().listen('54012');
+        io().listen('54012');
         request('http://localhost:54012')
         .get('/socket.io/socket.io.js')
         .expect(200, done);
@@ -247,39 +246,39 @@ describe('socket.io', function () {
     var request = require('superagent');
 
     it('should disallow request when origin defined and none specified', function (done) {
-      var sockets = io({ origins: 'http://foo.example:*' }).listen('54013');
+      io({ origins: 'http://foo.example:*' }).listen('54013');
       request.get('http://localhost:54013/socket.io/default/')
        .query({ transport: 'polling' })
-       .end(function (err, res) {
+       .end(function (err, res) { // eslint-disable-line handle-callback-err
          expect(res.status).to.be(400);
          done();
        });
     });
 
     it('should disallow request when origin defined and a different one specified', function (done) {
-      var sockets = io({ origins: 'http://foo.example:*' }).listen('54014');
+      io({ origins: 'http://foo.example:*' }).listen('54014');
       request.get('http://localhost:54014/socket.io/default/')
        .query({ transport: 'polling' })
        .set('origin', 'http://herp.derp')
-       .end(function (err, res) {
+       .end(function (err, res) { // eslint-disable-line handle-callback-err
          expect(res.status).to.be(400);
          done();
        });
     });
 
     it('should allow request when origin defined an the same is specified', function (done) {
-      var sockets = io({ origins: 'http://foo.example:*' }).listen('54015');
+      io({ origins: 'http://foo.example:*' }).listen('54015');
       request.get('http://localhost:54015/socket.io/default/')
        .set('origin', 'http://foo.example')
        .query({ transport: 'polling' })
-       .end(function (err, res) {
+       .end(function (err, res) { // eslint-disable-line handle-callback-err
          expect(res.status).to.be(200);
          done();
        });
     });
 
     it('should allow request when origin defined as function and same is supplied', function (done) {
-      var sockets = io({ origins: function (origin, callback) {
+      io({ origins: function (origin, callback) {
         if (origin === 'http://foo.example') {
           return callback(null, true);
         }
@@ -288,14 +287,14 @@ describe('socket.io', function () {
       request.get('http://localhost:54016/socket.io/default/')
        .set('origin', 'http://foo.example')
        .query({ transport: 'polling' })
-       .end(function (err, res) {
+       .end(function (err, res) { // eslint-disable-line handle-callback-err
          expect(res.status).to.be(200);
          done();
        });
     });
 
     it('should allow request when origin defined as function and different is supplied', function (done) {
-      var sockets = io({ origins: function (origin, callback) {
+      io({ origins: function (origin, callback) {
         if (origin === 'http://foo.example') {
           return callback(null, true);
         }
@@ -304,14 +303,14 @@ describe('socket.io', function () {
       request.get('http://localhost:54017/socket.io/default/')
        .set('origin', 'http://herp.derp')
        .query({ transport: 'polling' })
-       .end(function (err, res) {
+       .end(function (err, res) { // eslint-disable-line handle-callback-err
          expect(res.status).to.be(400);
          done();
        });
     });
 
     it('should allow request when origin defined as function and no origin is supplied', function (done) {
-      var sockets = io({ origins: function (origin, callback) {
+      io({ origins: function (origin, callback) {
         if (origin === '*') {
           return callback(null, true);
         }
@@ -319,44 +318,44 @@ describe('socket.io', function () {
       } }).listen('54021');
       request.get('http://localhost:54021/socket.io/default/')
        .query({ transport: 'polling' })
-       .end(function (err, res) {
+       .end(function (err, res) { // eslint-disable-line handle-callback-err
          expect(res.status).to.be(200);
          done();
        });
     });
 
     it('should default to port 443 when protocol is https', function (done) {
-      var sockets = io({ origins: 'https://foo.example:443' }).listen('54036');
+      io({ origins: 'https://foo.example:443' }).listen('54036');
       request.get('http://localhost:54036/socket.io/default/')
         .set('origin', 'https://foo.example')
         .query({ transport: 'polling' })
-        .end(function (err, res) {
+        .end(function (err, res) { // eslint-disable-line handle-callback-err
           expect(res.status).to.be(200);
           done();
         });
     });
 
     it('should allow request if custom function in opts.allowRequest returns true', function (done) {
-      var sockets = io(http().listen(54022), { allowRequest: function (req, callback) {
+      io(http().listen(54022), { allowRequest: function (req, callback) {
         return callback(null, true);
       }, origins: 'http://foo.example:*' });
 
       request.get('http://localhost:54022/socket.io/default/')
        .query({ transport: 'polling' })
-       .end(function (err, res) {
+       .end(function (err, res) { // eslint-disable-line handle-callback-err
          expect(res.status).to.be(200);
          done();
        });
     });
 
     it('should disallow request if custom function in opts.allowRequest returns false', function (done) {
-      var sockets = io(http().listen(54023), { allowRequest: function (req, callback) {
+      io(http().listen(54023), { allowRequest: function (req, callback) {
         return callback(null, false);
       } });
       request.get('http://localhost:54023/socket.io/default/')
        .set('origin', 'http://foo.example')
        .query({ transport: 'polling' })
-       .end(function (err, res) {
+       .end(function (err, res) { // eslint-disable-line handle-callback-err
          expect(res.status).to.be(400);
          done();
        });
@@ -364,7 +363,6 @@ describe('socket.io', function () {
   });
 
   describe('close', function () {
-
     it('should be able to close sio sending a srv', function () {
       var PORT = 54018;
       var srv = http().listen(PORT);
@@ -390,7 +388,6 @@ describe('socket.io', function () {
           expect(error).to.be(undefined);
         });
       });
-
     });
 
     it('should be able to close sio sending a port', function () {
@@ -467,7 +464,7 @@ describe('socket.io', function () {
 
     it('should automatically connect', function (done) {
       var srv = http();
-      var sio = io(srv);
+      io(srv);
       srv.listen(function () {
         var socket = client(srv);
         socket.on('connect', function () {
@@ -480,7 +477,7 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var socket = client(srv);
+        client(srv);
         sio.on('connection', function (socket) {
           expect(socket).to.be.a(Socket);
           done();
@@ -492,7 +489,7 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var socket = client(srv);
+        client(srv);
         sio.on('connect', function (socket) {
           expect(socket).to.be.a(Socket);
           done();
@@ -528,8 +525,8 @@ describe('socket.io', function () {
       sio.of('abc').on('connection', function () {
         --total || done();
       });
-      var c1 = client(srv, '/');
-      var c2 = client(srv, '/abc');
+      client(srv, '/');
+      client(srv, '/abc');
     });
 
     it('should be equivalent for "" and "/" on client', function (done) {
@@ -538,15 +535,15 @@ describe('socket.io', function () {
       sio.of('/').on('connection', function () {
         done();
       });
-      var c1 = client(srv, '');
+      client(srv, '');
     });
 
     it('should work with `of` and many sockets', function (done) {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var chat = client(srv, '/chat');
-        var news = client(srv, '/news');
+        client(srv, '/chat');
+        client(srv, '/news');
         var total = 2;
         sio.of('/news').on('connection', function (socket) {
           expect(socket).to.be.a(Socket);
@@ -563,8 +560,8 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var chat = client(srv, '/chat');
-        var news = client(srv, '/news');
+        client(srv, '/chat');
+        client(srv, '/news');
         var total = 2;
         sio.of('/news', function (socket) {
           expect(socket).to.be.a(Socket);
@@ -581,8 +578,8 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var chat = client(srv, '/chat');
-        var news = client(srv, '/news');
+        client(srv, '/chat');
+        client(srv, '/news');
         var total = 2;
         var totald = 2;
         var s;
@@ -609,7 +606,7 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var lolcats = client(srv, '/lolcats');
+        client(srv, '/lolcats');
         var total = 2;
         var totald = 2;
         var s;
@@ -636,7 +633,7 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var socket = client(srv, '/ns');
+        client(srv, '/ns');
         sio.on('connection', function (socket) {
           socket.disconnect();
           done();
@@ -646,7 +643,7 @@ describe('socket.io', function () {
 
     it('should return error connecting to non-existent namespace', function (done) {
       var srv = http();
-      var sio = io(srv);
+      io(srv);
       srv.listen(function () {
         var socket = client(srv, '/doesnotexist');
         socket.on('error', function (err) {
@@ -662,8 +659,8 @@ describe('socket.io', function () {
       var connections = 0;
 
       srv.listen(function () {
-        var clientSocket1 = client(srv);
-        var clientSocket2 = client(srv);
+        client(srv);
+        client(srv);
         sio.on('connection', function () {
           connections++;
           if (connections === 2) {
@@ -679,9 +676,9 @@ describe('socket.io', function () {
       var chatSids = [];
       var otherSid = null;
       srv.listen(function () {
-        var c1 = client(srv, '/chat');
-        var c2 = client(srv, '/chat', {forceNew: true});
-        var c3 = client(srv, '/other', {forceNew: true});
+        client(srv, '/chat');
+        client(srv, '/chat', {forceNew: true});
+        client(srv, '/other', {forceNew: true});
         var total = 3;
         sio.of('/chat').on('connection', function (socket) {
           chatSids.push(socket.id);
@@ -710,9 +707,9 @@ describe('socket.io', function () {
       var chatBarSid = null;
       var otherSid = null;
       srv.listen(function () {
-        var c1 = client(srv, '/chat');
-        var c2 = client(srv, '/chat', {forceNew: true});
-        var c3 = client(srv, '/other', {forceNew: true});
+        client(srv, '/chat');
+        client(srv, '/chat', {forceNew: true});
+        client(srv, '/other', {forceNew: true});
         var chatIndex = 0;
         var total = 3;
         sio.of('/chat').on('connection', function (socket) {
@@ -753,9 +750,9 @@ describe('socket.io', function () {
       var chatBarSid = null;
       var otherSid = null;
       srv.listen(function () {
-        var c1 = client(srv, '/chat');
-        var c2 = client(srv, '/chat', {forceNew: true});
-        var c3 = client(srv, '/other', {forceNew: true});
+        client(srv, '/chat');
+        client(srv, '/chat', {forceNew: true});
+        client(srv, '/other', {forceNew: true});
         var chatIndex = 0;
         var total = 3;
         sio.of('/chat').on('connection', function (socket) {
@@ -844,7 +841,7 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var socket = client(srv, '/chat');
+        client(srv, '/chat');
         sio.of('/chat').on('connection', function (s) {
           s.conn.once('packetCreate', function (packet) {
             expect(packet.options.compress).to.be(true);
@@ -859,7 +856,7 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var socket = client(srv, '/chat');
+        client(srv, '/chat');
         sio.of('/chat').on('connection', function (s) {
           s.conn.once('packetCreate', function (packet) {
             expect(packet.options.compress).to.be(false);
@@ -872,10 +869,9 @@ describe('socket.io', function () {
   });
 
   describe('socket', function () {
-
     it('should not fire events more than once after manually reconnecting', function (done) {
       var srv = http();
-      var sio = io(srv);
+      io(srv);
       srv.listen(function () {
         var clientSocket = client(srv, { reconnection: false });
         clientSocket.on('connect', function init () {
@@ -892,7 +888,7 @@ describe('socket.io', function () {
 
     it('should not fire reconnect_failed event more than once when server closed', function (done) {
       var srv = http();
-      var sio = io(srv);
+      io(srv);
       srv.listen(function () {
         var clientSocket = client(srv, { reconnectionAttempts: 3, reconnectionDelay: 10 });
         clientSocket.on('connect', function () {
@@ -956,7 +952,7 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var socket = client(srv);
+        client(srv);
         sio.on('connection', function (s) {
           s.on('error', function (err) {
             expect(err).to.be.an(Error);
@@ -1483,7 +1479,7 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var socket = client(srv);
+        client(srv);
         sio.on('connection', function (s) {
           expect(s.client).to.be.an('object');
           done();
@@ -1495,7 +1491,7 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var socket = client(srv);
+        client(srv);
         sio.on('connection', function (s) {
           expect(s.client.conn).to.be.an('object');
           expect(s.conn).to.be.an('object');
@@ -1508,7 +1504,7 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var socket = client(srv);
+        client(srv);
         sio.on('connection', function (s) {
           expect(s.client.request.headers).to.be.an('object');
           expect(s.request.headers).to.be.an('object');
@@ -1523,7 +1519,7 @@ describe('socket.io', function () {
       srv.listen(function () {
         var addr = srv.listen().address();
         var url = 'ws://localhost:' + addr.port + '?key1=1&key2=2';
-        var socket = ioc(url);
+        ioc(url);
         sio.on('connection', function (s) {
           var parsed = require('url').parse(s.request.url);
           var query = require('querystring').parse(parsed.query);
@@ -1539,8 +1535,8 @@ describe('socket.io', function () {
       var sio = io(srv);
       var addr = srv.listen().address();
       var url = 'ws://localhost:' + addr.port;
-      var client1 = ioc(url);
-      var client2 = ioc(url + '/connection2', {query: {key1: 'aa', key2: '&=bb'}});
+      ioc(url);
+      ioc(url + '/connection2', {query: {key1: 'aa', key2: '&=bb'}});
       sio.on('connection', function (s) {
       });
       sio.of('/connection2').on('connection', function (s) {
@@ -1548,8 +1544,6 @@ describe('socket.io', function () {
         expect(s.handshake.query.key2).to.be('&=bb');
         done();
       });
-
-
     });
 
     it('should handle very large json', function (done) {
@@ -1561,10 +1555,11 @@ describe('socket.io', function () {
         var socket = client(srv);
         socket.on('big', function (a) {
           expect(Buffer.isBuffer(a.json)).to.be(false);
-          if (++received === 3)
+          if (++received === 3) {
             done();
-          else
+          } else {
             socket.emit('big', a);
+          }
         });
         sio.on('connection', function (s) {
           fs.readFile(join(__dirname, 'fixtures', 'big.json'), function (err, data) {
@@ -1588,10 +1583,11 @@ describe('socket.io', function () {
         var socket = client(srv);
         socket.on('big', function (a) {
           expect(Buffer.isBuffer(a.image)).to.be(true);
-          if (++received === 3)
+          if (++received === 3) {
             done();
-          else
+          } else {
             socket.emit('big', a);
+          }
         });
         sio.on('connection', function (s) {
           fs.readFile(join(__dirname, 'fixtures', 'big.jpg'), function (err, data) {
@@ -1636,7 +1632,7 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var socket = client(srv, '/chat');
+        client(srv, '/chat');
         sio.of('/chat').on('connection', function (s) {
           s.conn.once('packetCreate', function (packet) {
             expect(packet.options.compress).to.be(true);
@@ -1651,7 +1647,7 @@ describe('socket.io', function () {
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var socket = client(srv, '/chat');
+        client(srv, '/chat');
         sio.of('/chat').on('connection', function (s) {
           s.conn.once('packetCreate', function (packet) {
             expect(packet.options.compress).to.be(false);
@@ -1714,11 +1710,11 @@ describe('socket.io', function () {
     });
 
     it('should not crash when messing with Object prototype', function (done) {
-      Object.prototype.foo = 'bar';
+      Object.prototype.foo = 'bar'; // eslint-disable-line no-extend-native
       var srv = http();
       var sio = io(srv);
       srv.listen(function () {
-        var socket = client(srv);
+        client(srv);
 
         sio.on('connection', function (s) {
           s.disconnect(true);
@@ -1735,7 +1731,7 @@ describe('socket.io', function () {
       var sio = io(srv);
 
       srv.listen(function () {
-        var socket = client(srv);
+        client(srv);
         sio.on('connection', function (s) {
           s.join('a', function () {
             s.join('a', done);
@@ -1743,7 +1739,6 @@ describe('socket.io', function () {
         });
       });
     });
-
   });
 
   describe('messaging many', function () {
@@ -1816,7 +1811,6 @@ describe('socket.io', function () {
     it('emits to the rest', function (done) {
       var srv = http();
       var sio = io(srv);
-      var total = 2;
 
       srv.listen(function () {
         var socket1 = client(srv, { multiplex: false });
@@ -1830,7 +1824,6 @@ describe('socket.io', function () {
         socket2.on('a', function () { done(new Error('done')); });
         socket3.on('a', function () { done(new Error('not')); });
 
-        var sockets = 2;
         sio.on('connection', function (socket) {
           socket.on('broadcast', function () {
             socket.broadcast.emit('a', 'b');
@@ -1845,7 +1838,6 @@ describe('socket.io', function () {
     it('emits to rooms', function (done) {
       var srv = http();
       var sio = io(srv);
-      var total = 2;
 
       srv.listen(function () {
         var socket1 = client(srv, { multiplex: false });
@@ -1999,19 +1991,18 @@ describe('socket.io', function () {
       });
     });
 
-
     it('keeps track of rooms', function (done) {
       var srv = http();
       var sio = io(srv);
 
       srv.listen(function () {
-        var socket = client(srv);
+        client(srv);
         sio.on('connection', function (s) {
           s.join('a', function () {
             expect(Object.keys(s.rooms)).to.eql([s.id, 'a']);
             s.join('b', function () {
               expect(Object.keys(s.rooms)).to.eql([s.id, 'a', 'b']);
-              s.join( 'c', function () {
+              s.join('c', function () {
                 expect(Object.keys(s.rooms)).to.eql([s.id, 'a', 'b', 'c']);
                 s.leave('b', function () {
                   expect(Object.keys(s.rooms)).to.eql([s.id, 'a', 'c']);
@@ -2031,7 +2022,7 @@ describe('socket.io', function () {
       var sio = io(srv);
 
       srv.listen(function () {
-        var socket = client(srv);
+        client(srv);
         sio.on('connection', function (s) {
           s.join('a', function () {
             expect(s.nsp.adapter.rooms).to.have.key('a');
@@ -2049,7 +2040,7 @@ describe('socket.io', function () {
       var sio = io(srv);
 
       srv.listen(function () {
-        var socket = client(srv);
+        client(srv);
         sio.on('connection', function (s) {
           s.join('a', function () {
             expect(Object.keys(s.rooms)).to.eql([s.id, 'a']);
@@ -2102,7 +2093,6 @@ describe('socket.io', function () {
     it('should pass errors', function (done) {
       var srv = http();
       var sio = io(srv);
-      var run = 0;
       sio.use(function (socket, next) {
         next(new Error('Authentication error'));
       });
@@ -2124,7 +2114,6 @@ describe('socket.io', function () {
     it('should pass `data` of error object', function (done) {
       var srv = http();
       var sio = io(srv);
-      var run = 0;
       sio.use(function (socket, next) {
         var err = new Error('Authentication error');
         err.data = { a: 'b', c: 3 };
@@ -2150,7 +2139,7 @@ describe('socket.io', function () {
         next();
       });
       srv.listen(function () {
-        var socket = client(srv);
+        client(srv);
         sio.on('connection', function (socket) {
           expect(socket.name).to.be('guillermo');
           done();
