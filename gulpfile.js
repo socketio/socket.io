@@ -1,6 +1,7 @@
 const gulp = require('gulp');
 const mocha = require('gulp-mocha');
 const babel = require("gulp-babel");
+const eslint = require('gulp-eslint');
 const istanbul = require('gulp-istanbul');
 const help = require('gulp-task-listing');
 const del = require('del');
@@ -37,6 +38,17 @@ gulp.task('test', ['transpile'], function(){
     .once('end', function () {
       process.exit();
     });
+});
+
+gulp.task('lint', function () {
+  return gulp.src([
+    '**/*.js',
+    '!node_modules/*',
+    '!coverage/*'
+  ])
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
 });
 
 gulp.task('set-compat-node-env', function() {
