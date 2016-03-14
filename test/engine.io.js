@@ -15,12 +15,11 @@ var http = require('http');
  */
 
 describe('engine', function () {
-
   it('should expose protocol number', function () {
     expect(eio.protocol).to.be.a('number');
   });
 
-  it('should be the same version as client', function(){
+  it('should be the same version as client', function () {
     expect(eio.protocol).to.be.a('number');
     var version = require('../package').version;
     expect(version).to.be(require('engine.io-client/package').version);
@@ -35,7 +34,7 @@ describe('engine', function () {
 
   describe('listen', function () {
     it('should open a http server that returns 501', function (done) {
-      var server = listen(function (port) {
+      listen(function (port) {
         request.get('http://localhost:%d/'.s(port), function (res) {
           expect(res.status).to.be(501);
           done();
@@ -53,15 +52,15 @@ describe('engine', function () {
     });
 
     it('should return an engine.Server', function () {
-      var server = http.createServer()
-        , engine = eio.attach(server);
+      var server = http.createServer();
+      var engine = eio.attach(server);
 
       expect(engine).to.be.an(eio.Server);
     });
 
     it('should attach engine to an http server', function (done) {
-      var server = http.createServer()
-        , engine = eio.attach(server);
+      var server = http.createServer();
+      eio.attach(server);
 
       server.listen(function () {
         var uri = 'http://localhost:%d/engine.io/default/'.s(server.address().port);
@@ -76,22 +75,22 @@ describe('engine', function () {
     });
 
     it('should destroy upgrades not handled by engine', function (done) {
-      var server = http.createServer()
-        , engine = eio.attach(server);
+      var server = http.createServer();
+      eio.attach(server, { destroyUpgradeTimeout: 50 });
 
       server.listen(function () {
         var client = net.createConnection(server.address().port);
         client.setEncoding('ascii');
         client.write([
-            'GET / HTTP/1.1'
-          , 'Connection: Upgrade'
-          , 'Upgrade: IRC/6.9'
-          , '', ''
+          'GET / HTTP/1.1',
+          'Connection: Upgrade',
+          'Upgrade: IRC/6.9',
+          '', ''
         ].join('\r\n'));
 
         var check = setTimeout(function () {
           done(new Error('Client should have ended'));
-        }, 20);
+        }, 100);
 
         client.on('end', function () {
           clearTimeout(check);
@@ -101,21 +100,21 @@ describe('engine', function () {
     });
 
     it('should not destroy unhandled upgrades with destroyUpgrade:false', function (done) {
-      var server = http.createServer()
-        , engine = eio.attach(server, { destroyUpgrade: false, destroyUpgradeTimeout: 50 });
+      var server = http.createServer();
+      eio.attach(server, { destroyUpgrade: false, destroyUpgradeTimeout: 50 });
 
       server.listen(function () {
         var client = net.createConnection(server.address().port);
         client.on('connect', function () {
           client.setEncoding('ascii');
           client.write([
-              'GET / HTTP/1.1'
-            , 'Connection: Upgrade'
-            , 'Upgrade: IRC/6.9'
-            , '', ''
+            'GET / HTTP/1.1',
+            'Connection: Upgrade',
+            'Upgrade: IRC/6.9',
+            '', ''
           ].join('\r\n'));
 
-          var check = setTimeout(function () {
+          setTimeout(function () {
             client.removeListener('end', onEnd);
             done();
           }, 100);
@@ -130,24 +129,24 @@ describe('engine', function () {
     });
 
     it('should destroy unhandled upgrades with after a timeout', function (done) {
-      var server = http.createServer()
-        , engine = eio.attach(server, { destroyUpgradeTimeout: 200 });
+      var server = http.createServer();
+      eio.attach(server, { destroyUpgradeTimeout: 200 });
 
       server.listen(function () {
         var client = net.createConnection(server.address().port);
         client.on('connect', function () {
           client.setEncoding('ascii');
           client.write([
-              'GET / HTTP/1.1'
-            , 'Connection: Upgrade'
-            , 'Upgrade: IRC/6.9'
-            , '', ''
+            'GET / HTTP/1.1',
+            'Connection: Upgrade',
+            'Upgrade: IRC/6.9',
+            '', ''
           ].join('\r\n'));
 
           // send from client to server
           // tests that socket is still alive
           // this will not keep the socket open as the server does not handle it
-          setTimeout(function() {
+          setTimeout(function () {
             client.write('foo');
           }, 100);
 
@@ -161,13 +160,13 @@ describe('engine', function () {
     });
 
     it('should not destroy handled upgrades with after a timeout', function (done) {
-      var server = http.createServer()
-        , engine = eio.attach(server, { destroyUpgradeTimeout: 100 });
+      var server = http.createServer();
+      eio.attach(server, { destroyUpgradeTimeout: 100 });
 
       // write to the socket to keep engine.io from closing it by writing before the timeout
-      server.on('upgrade', function(req, socket) {
+      server.on('upgrade', function (req, socket) {
         socket.write('foo');
-        socket.on('data', function(chunk) {
+        socket.on('data', function (chunk) {
           expect(chunk.toString()).to.be('foo');
           socket.end();
         });
@@ -179,14 +178,14 @@ describe('engine', function () {
         client.on('connect', function () {
           client.setEncoding('ascii');
           client.write([
-              'GET / HTTP/1.1'
-            , 'Connection: Upgrade'
-            , 'Upgrade: IRC/6.9'
-            , '', ''
+            'GET / HTTP/1.1',
+            'Connection: Upgrade',
+            'Upgrade: IRC/6.9',
+            '', ''
           ].join('\r\n'));
 
           // test that socket is still open by writing after the timeout period
-          setTimeout(function() {
+          setTimeout(function () {
             client.write('foo');
           }, 200);
 
@@ -199,11 +198,11 @@ describe('engine', function () {
     });
 
     it('should preserve original request listeners', function (done) {
-      var listeners = 0
-        , server = http.createServer(function (req, res) {
-            expect(req && res).to.be.ok();
-            listeners++;
-          });
+      var listeners = 0;
+      var server = http.createServer(function (req, res) {
+        expect(req && res).to.be.ok();
+        listeners++;
+      });
 
       server.on('request', function (req, res) {
         expect(req && res).to.be.ok();
@@ -230,5 +229,4 @@ describe('engine', function () {
       });
     });
   });
-
 });

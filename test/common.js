@@ -10,7 +10,7 @@ var eio = require('..');
  */
 
 exports.listen = function (opts, fn) {
-  if ('function' == typeof opts) {
+  if ('function' === typeof opts) {
     fn = opts;
     opts = {};
   }
