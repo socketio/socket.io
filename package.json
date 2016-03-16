@@ -15,7 +15,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/Automattic/socket.io"
+    "url": "git://github.com/socketio/socket.io"
   },
   "scripts": {
     "test": "./node_modules/.bin/gulp test"
