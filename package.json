@@ -18,7 +18,7 @@
     "url": "git://github.com/socketio/socket.io"
   },
   "scripts": {
-    "test": "./node_modules/.bin/gulp test"
+    "test": "gulp test"
   },
   "dependencies": {
     "engine.io": "1.6.8",
