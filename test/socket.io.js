@@ -1,6 +1,9 @@
-
+var mode = process.env.MODE;
 var http = require('http').Server;
 var io = require('..');
+if(mode === 'compat') {
+  io = require('../dist');
+}
 var fs = require('fs');
 var join = require('path').join;
 var exec = require('child_process').exec;
@@ -427,8 +430,13 @@ describe('socket.io', function(){
 
   describe('namespaces', function(){
     var Socket = require('../lib/socket');
+    if(mode === 'compat') {
+      Socket = require('../dist/socket');
+    }
     var Namespace = require('../lib/namespace');
-
+    if(mode === 'compat') {
+      Namespace = require('../dist/namespace');
+    }
     it('should be accessible through .sockets', function(){
       var sio = io();
       expect(sio.sockets).to.be.a(Namespace);
@@ -2037,6 +2045,9 @@ describe('socket.io', function(){
 
   describe('middleware', function(done){
     var Socket = require('../lib/socket');
+    if(mode === 'compat') {
+      Socket = require('../dist/socket');
+    }
 
     it('should call functions', function(done){
       var srv = http();

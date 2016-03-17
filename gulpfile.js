@@ -37,6 +37,13 @@ gulp.task('test', function(){
     });
 });
 
+gulp.task('set-compat-node-env', function() {
+  console.log('testing compat package');
+  process.env.MODE = 'compat';
+});
+
+gulp.task('test-compat', ['set-compat-node-env', 'test']);
+
 gulp.task('istanbul-pre-test', function () {
   return gulp.src(['lib/**/*.js'])
     // Covering files
