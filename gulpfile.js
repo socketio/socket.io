@@ -22,16 +22,15 @@ gulp.task('clean', function () {
   return del([TRANSPILE_DEST_DIR]);
 })
 
-gulp.task('test', function(){
-  console.log(process.env.MODE);
-  console.log(process.env.MODE === 'compat');
+gulp.task('test', ['transpile'], function(){
   return gulp.src('test/socket.io.js', {read: false})
     .pipe(mocha({
       slow: 200,
       reporter: 'spec',
       bail: true
     }))
-    .once('error', function () {
+    .once('error', function (err) {
+      console.error(err.stack);
       process.exit(1);
     })
     .once('end', function () {
@@ -59,7 +58,8 @@ gulp.task('test-cov', ['istanbul-pre-test'], function(){
       reporter: 'dot'
     }))
     .pipe(istanbul.writeReports())
-    .once('error', function (){
+    .once('error', function (err){
+      console.error(err.stack);
       process.exit(1);
     })
     .once('end', function (){
