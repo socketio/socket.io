@@ -18,7 +18,7 @@
     "url": "git://github.com/Automattic/socket.io"
   },
   "scripts": {
-    "test": "./node_modules/.bin/gulp test"
+    "test": "./node_modules/.bin/gulp test && ./node_modules/.bin/gulp test-compat"
   },
   "dependencies": {
     "engine.io": "1.6.8",
