@@ -2,6 +2,7 @@ var mode = process.env.MODE;
 var http = require('http').Server;
 var io = require('..');
 if(mode === 'compat') {
+  console.log('testing compat version');
   io = require('../dist');
 }
 var fs = require('fs');
