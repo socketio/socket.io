@@ -1,6 +1,6 @@
 var mode = process.env.MODE;
 var http = require('http').Server;
-var io = require('..');
+var io = require('../lib');
 if(mode === 'compat') {
   console.log('testing compat version');
   io = require('../dist');

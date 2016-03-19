@@ -23,10 +23,12 @@ gulp.task('clean', function () {
 })
 
 gulp.task('test', function(){
+  console.log(process.env.MODE);
+  console.log(process.env.MODE === 'compat');
   return gulp.src('test/socket.io.js', {read: false})
     .pipe(mocha({
       slow: 200,
-      reporter: 'dot',
+      reporter: 'spec',
       bail: true
     }))
     .once('error', function () {
@@ -38,7 +40,6 @@ gulp.task('test', function(){
 });
 
 gulp.task('set-compat-node-env', function() {
-  console.log('testing compat package');
   process.env.MODE = 'compat';
 });
 
