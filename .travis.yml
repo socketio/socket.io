@@ -13,11 +13,11 @@ git:
 matrix:
   include:
   - node_js: '0.10'
-    env: MODE=compat
+    env: TEST_VERSION=compat
   - node_js: '0.12'
-    env: MODE=compat
+    env: TEST_VERSION=compat
   - node_js: '4'
-    env: MODE=compat
+    env: TEST_VERSION=compat
 #matrix:
   #fast_finish: true
   #allow_failures:

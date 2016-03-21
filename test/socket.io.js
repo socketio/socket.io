@@ -1,7 +1,7 @@
-var mode = process.env.MODE;
+var testVersion = process.env.TEST_VERSION;
 var http = require('http').Server;
 var io = require('../lib');
-if(mode === 'compat') {
+if(testVersion === 'compat') {
   console.log('testing compat version');
   io = require('../dist');
 }
@@ -431,11 +431,11 @@ describe('socket.io', function(){
 
   describe('namespaces', function(){
     var Socket = require('../lib/socket');
-    if(mode === 'compat') {
+    if(testVersion === 'compat') {
       Socket = require('../dist/socket');
     }
     var Namespace = require('../lib/namespace');
-    if(mode === 'compat') {
+    if(testVersion === 'compat') {
       Namespace = require('../dist/namespace');
     }
     it('should be accessible through .sockets', function(){
@@ -2046,7 +2046,7 @@ describe('socket.io', function(){
 
   describe('middleware', function(done){
     var Socket = require('../lib/socket');
-    if(mode === 'compat') {
+    if(testVersion === 'compat') {
       Socket = require('../dist/socket');
     }
 

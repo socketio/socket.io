@@ -39,7 +39,7 @@ gulp.task('test', ['transpile'], function(){
 });
 
 gulp.task('set-compat-node-env', function() {
-  process.env.MODE = 'compat';
+  process.env.TEST_VERSION = 'compat';
 });
 
 gulp.task('test-compat', ['set-compat-node-env', 'test']);
