@@ -11,7 +11,7 @@
     "socket",
     "io"
   ],
-  "main": "./lib/index",
+  "main": "./dist/index",
   "license": "MIT",
   "repository": {
     "type": "git",
