@@ -1,7 +1,7 @@
 var testVersion = process.env.TEST_VERSION;
 var http = require('http').Server;
 var io;
-if(testVersion === 'compat') {
+if (testVersion === 'compat') {
   console.log('testing compat version');
   io = require('../dist');
 } else {
@@ -433,13 +433,13 @@ describe('socket.io', function(){
 
   describe('namespaces', function(){
     var Socket;
-    if(testVersion === 'compat') {
+    if (testVersion === 'compat') {
       Socket = require('../dist/socket');
     } else {
       Socket = require('../lib/socket');
     }
     var Namespace;
-    if(testVersion === 'compat') {
+    if (testVersion === 'compat') {
       Namespace = require('../dist/namespace');
     } else {
       Namespace = require('../lib/namespace');
@@ -666,7 +666,7 @@ describe('socket.io', function(){
         var clientSocket2 = client(srv);
         sio.on('connection', function() {
           connections++;
-          if(connections === 2) {
+          if (connections === 2) {
             done();
           }
         });
@@ -2052,7 +2052,7 @@ describe('socket.io', function(){
 
   describe('middleware', function(done){
     var Socket;
-    if(testVersion === 'compat') {
+    if (testVersion === 'compat') {
       Socket = require('../dist/socket');
     } else {
       Socket = require('../lib/socket');
