@@ -800,7 +800,7 @@ describe('socket.io', function(){
           setTimeout(function() {
             sio.of('/chat').emit('ev', 'data');
             sio.of('/chat').volatile.emit('ev', 'data');
-          }, 20);
+          }, 50);
         });
 
         var socket = client(srv, '/chat');
@@ -812,7 +812,7 @@ describe('socket.io', function(){
       setTimeout(function() {
         expect(counter).to.be(1);
         done();
-      }, 200);
+      }, 500);
     });
 
     it('should emit volatile event', function(done) {
@@ -825,7 +825,7 @@ describe('socket.io', function(){
           // Wait to make sure there are no packets being sent for opening the connection
           setTimeout(function() {
             sio.of('/chat').volatile.emit('ev', 'data');
-          }, 20);
+          }, 100);
         });
 
         var socket = client(srv, '/chat');
@@ -837,7 +837,7 @@ describe('socket.io', function(){
       setTimeout(function() {
         expect(counter).to.be(1);
         done();
-      }, 200);
+      }, 500);
     });
 
     it('should enable compression by default', function(done){
@@ -1154,7 +1154,7 @@ describe('socket.io', function(){
           // Wait to make sure there are no packets being sent for opening the connection
           setTimeout(function() {
             s.volatile.emit('ev', 'data');
-          }, 20);
+          }, 100);
         });
 
         var socket = client(srv, { transports: ['polling'] });
@@ -1166,7 +1166,7 @@ describe('socket.io', function(){
       setTimeout(function() {
         expect(counter).to.be(1);
         done();
-      }, 200);
+      }, 500);
     });
 
     it('should emit volatile event (ws)', function(done) {
@@ -1205,7 +1205,7 @@ describe('socket.io', function(){
           setTimeout(function() {
             s.volatile.emit('ev', 'data');
             s.volatile.emit('ev', 'data');
-          }, 20);
+          }, 100);
         });
 
         var socket = client(srv, { transports: ['polling'] });
@@ -1217,7 +1217,7 @@ describe('socket.io', function(){
       setTimeout(function() {
         expect(counter).to.be(1);
         done();
-      }, 200);
+      }, 500);
     });
 
     it('should emit only one consecutive volatile event (ws)', function(done) {
