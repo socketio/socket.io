@@ -421,8 +421,8 @@ describe('socket.io', function(){
 
     describe('graceful close', function(){
       function fixture(filename) {
-        return process.execPath + ' ' +
-          join(__dirname, 'fixtures', filename);
+        return '"' + process.execPath + '" "' +
+          join(__dirname, 'fixtures', filename) + '"';
       }
 
       it('should stop socket and timers', function(done){
