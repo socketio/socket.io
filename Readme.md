@@ -422,6 +422,17 @@ To see the output from all of Socket.IO's debugging scopes you can use:
 DEBUG=socket.io* node myapp
 ```
 
+## Testing
+
+```
+npm test
+```
+This runs the `gulp` task `test`. By default the test will be run with the source code in `lib` directory.
+
+Set the environmental variable `TEST_VERSION` to `compat` to test the transpiled es5-compat version of the code.
+
+The `gulp` task `test` will always transpile the source code into es5 and export to `dist` first before running the test.
+
 ## License
 
 MIT

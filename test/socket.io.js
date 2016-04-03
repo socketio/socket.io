@@ -1,6 +1,12 @@
-
+var testVersion = process.env.TEST_VERSION;
 var http = require('http').Server;
-var io = require('..');
+var io;
+if (testVersion === 'compat') {
+  console.log('testing compat version');
+  io = require('../dist');
+} else {
+  io = require('../lib');
+}
 var fs = require('fs');
 var join = require('path').join;
 var exec = require('child_process').exec;
@@ -426,9 +432,18 @@ describe('socket.io', function(){
   });
 
   describe('namespaces', function(){
-    var Socket = require('../lib/socket');
-    var Namespace = require('../lib/namespace');
-
+    var Socket;
+    if (testVersion === 'compat') {
+      Socket = require('../dist/socket');
+    } else {
+      Socket = require('../lib/socket');
+    }
+    var Namespace;
+    if (testVersion === 'compat') {
+      Namespace = require('../dist/namespace');
+    } else {
+      Namespace = require('../lib/namespace');
+    }
     it('should be accessible through .sockets', function(){
       var sio = io();
       expect(sio.sockets).to.be.a(Namespace);
@@ -651,7 +666,7 @@ describe('socket.io', function(){
         var clientSocket2 = client(srv);
         sio.on('connection', function() {
           connections++;
-          if(connections === 2) {
+          if (connections === 2) {
             done();
           }
         });
@@ -2036,7 +2051,12 @@ describe('socket.io', function(){
   });
 
   describe('middleware', function(done){
-    var Socket = require('../lib/socket');
+    var Socket;
+    if (testVersion === 'compat') {
+      Socket = require('../dist/socket');
+    } else {
+      Socket = require('../lib/socket');
+    }
 
     it('should call functions', function(done){
       var srv = http();
