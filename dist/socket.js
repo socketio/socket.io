@@ -334,7 +334,8 @@ Socket.prototype.onevent = function (packet) {
  */
 
 Socket.prototype.ack = function (id) {
-  var self = this;
+  var _this3 = this;
+
   var sent = false;
   return function () {
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -346,7 +347,7 @@ Socket.prototype.ack = function (id) {
     // var args = Array.prototype.slice.call(arguments);
     debug('sending ack %j', args);
     var type = hasBin(args) ? parser.BINARY_ACK : parser.ACK;
-    self.packet({
+    _this3.packet({
       id: id,
       type: type,
       data: args
