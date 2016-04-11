@@ -1,6 +1,4 @@
 
-REPORTER = dot
-
 build: engine.io.js
 
 engine.io.js:
