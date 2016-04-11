@@ -27,7 +27,7 @@ gulp.task('test', ['lint', 'transpile'], function () {
   return gulp.src('test/socket.io.js', {read: false})
     .pipe(mocha({
       slow: 200,
-      reporter: 'spec',
+      reporter: 'dot',
       bail: true,
       timeout: 10000
     }))
