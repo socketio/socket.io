@@ -393,6 +393,12 @@ server.listen(3000);
     socket.compress(false).emit('an event', { some: 'data' });
   });
   ```
+  
+### Socket#disconnect(close:Boolean):Socket
+    
+  Disconnects this client. If value of close is `true`, closes the underlying connection. 
+  Otherwise, it just disconnects the namespace.
+    
 
 ### Client
 
