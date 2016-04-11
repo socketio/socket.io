@@ -1533,6 +1533,24 @@ describe('socket.io', function(){
         });
       });
     });
+    
+    it('should see query parameters sent from secondary namespace connections in handshake object', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var addr = srv.listen().address();
+      var url = 'ws://localhost:' + addr.port;
+      var client1 = ioc(url);
+      var client2 = ioc(url + '/connection2', {query: {key1: 'aa', key2: '&=bb'}});
+      sio.on('connection', function(s){
+      });
+      sio.of('/connection2').on('connection', function(s){
+        expect(s.handshake.query.key1).to.be('aa');
+        expect(s.handshake.query.key2).to.be('&=bb');
+        done();
+      });
+
+
+    });
 
     it('should handle very large json', function(done){
       this.timeout(30000);
