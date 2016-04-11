@@ -577,6 +577,22 @@ describe('socket.io', function(){
       });
     });
 
+    it('should check server with `has` for a namespace and return proper result', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var nsid = '/chat';
+        var chat = client(srv, nsid);
+        sio.of(nsid).on('connection', function(socket){
+          var shouldExist = sio.has(nsid);
+          var shouldNotExist = sio.has('/news');
+          expect(shouldExist).to.be.a(Namespace);
+          expect(shouldNotExist).to.not.be.ok();
+          done();
+        });
+      });
+    });
+
     it('should disconnect upon transport disconnection', function(done){
       var srv = http();
       var sio = io(srv);
