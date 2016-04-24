@@ -225,6 +225,7 @@ Exposed as `eio` in the browser standalone build.
       - `extraHeaders` (`Object`): Headers that will be passed for each request to the server (via xhr-polling and via websockets). These values then can be used during handshake or for special proxies. Can only be used in Node.js client environment.
       - `onlyBinaryUpgrades` (`Boolean`): whether transport upgrades should be restricted to transports supporting binary data (`false`)
       - `requestTimeout` (`Number`): Timeout for xhr-polling requests in milliseconds (`0`)
+      - `forceNode` (`Boolean`): Uses NodeJS implementation for websockets - even if there is a native Browser-Websocket available, which is preferred by default over the NodeJS implementation. (This is useful when using hybrid platforms like nw.js or electron) (`false`, NodeJS only)
 - `send`
     - Sends a message to the server
     - **Parameters**
