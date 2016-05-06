@@ -8,6 +8,10 @@ var REPORTER = 'dot';
 gulp.task("default", ["transpile"]);
 
 gulp.task('test', function(){
+    if (parseInt(process.versions.node) < 4 && process.env.EIO_WS_ENGINE == 'uws') {
+      console.info("Node version < 4, skipping tests with uws engine");
+      process.exit();
+    }
     return gulp.src(TESTS, {read: false})
     .pipe(mocha({
       slow: 500,

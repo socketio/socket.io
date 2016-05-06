@@ -2424,7 +2424,7 @@ describe('server', function () {
     });
   });
 
-  describe('wsEngine option', function() {
+  if (parseInt(process.versions.node) >= 4) describe('wsEngine option', function() {
     it('should allow loading of other websocket server implementation like uws', function(done) {
       var engine = listen({ allowUpgrades: false, wsEngine: 'uws' }, function (port) {
         expect(engine.ws instanceof require('uws').Server).to.be.ok();
