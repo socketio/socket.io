@@ -2423,4 +2423,22 @@ describe('server', function () {
       testForHeaders(headers, done);
     });
   });
+
+  describe('wsEngine option', function() {
+    it('should allow loading of other websocket server implementation like uws', function(done) {
+      var engine = listen({ allowUpgrades: false, wsEngine: 'uws' }, function (port) {
+        expect(engine.ws instanceof require('uws').Server).to.be.ok();
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.send('a');
+        });
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+            expect(msg).to.be('a');
+            done();
+          });
+        });
+      });
+    });
+  });
 });
