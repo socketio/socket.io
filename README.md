@@ -224,7 +224,7 @@ to a single process.
       - `cookiePath` (`String|Boolean`): path of the above `cookie`
         option. If false, no path will be sent, which means browsers will only send the cookie on the engine.io attached path (`/engine.io`).
         Set this to `/` to send the io cookie on all requests. (`false`)
-      - `wsEngine` (`String`): what WebSocket server implementation to use. Specified module must conform to the `ws` interface (see [ws module api docs](https://github.com/websockets/ws/blob/master/doc/ws.md)). Default value is `'ws'`.
+      - `wsEngine` (`String`): what WebSocket server implementation to use. Specified module must conform to the `ws` interface (see [ws module api docs](https://github.com/websockets/ws/blob/master/doc/ws.md)). Default value is `ws`. An alternative c++ addon is also available by installing `uws` module.
 - `close`
     - Closes all clients
     - **Returns** `Server` for chaining
