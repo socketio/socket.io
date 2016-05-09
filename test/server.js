@@ -18,6 +18,13 @@ var WebSocket = require('ws');
 
 // are we running on node 0.8?
 var NODE_0_8 = /^v0\.8\./.test(process.version);
+// are we running on node < 4.4.3 ?
+var NODE_LT_443 = (function(){
+  var parts = process.versions.node.split('.');
+  return (parts[0] < 4 || parts[1] < 4 || parts[2] < 3);
+})();
+// are we running uws wsEngine ?
+var UWS_ENGINE = process.env.EIO_WS_ENGINE == "uws";
 
 /**
  * Tests.
@@ -1431,6 +1438,7 @@ describe('server', function () {
     });
 
     it('should send and receive data with key and cert (polling)', function(done){
+      if (UWS_ENGINE && NODE_LT_443) return done();
       var srvOpts = {
         key: fs.readFileSync('test/fixtures/server.key'),
         cert: fs.readFileSync('test/fixtures/server.crt'),
@@ -1471,6 +1479,7 @@ describe('server', function () {
     });
 
     it('should send and receive data with ca when not requiring auth (polling)', function(done){
+      if (UWS_ENGINE && NODE_LT_443) return done();
       var srvOpts = {
         key: fs.readFileSync('test/fixtures/server.key'),
         cert: fs.readFileSync('test/fixtures/server.crt'),
@@ -1548,6 +1557,7 @@ describe('server', function () {
     });
 
     it('should send and receive data with pfx (polling)', function(done){
+      if (UWS_ENGINE && NODE_LT_443) return done();
       var srvOpts = {
         key: fs.readFileSync('test/fixtures/server.key'),
         cert: fs.readFileSync('test/fixtures/server.crt'),
@@ -1587,6 +1597,7 @@ describe('server', function () {
     });
 
     it('should send and receive data with pfx (ws)', function(done){
+      if (UWS_ENGINE && NODE_LT_443) return done();
       var srvOpts = {
         key: fs.readFileSync('test/fixtures/server.key'),
         cert: fs.readFileSync('test/fixtures/server.crt'),
@@ -2421,6 +2432,24 @@ describe('server', function () {
     it('should contain X-XSS-Protection: 0 for IE11', function (done) {
       var headers = { 'user-agent': 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko' };
       testForHeaders(headers, done);
+    });
+  });
+
+  if (!UWS_ENGINE && parseInt(process.versions.node) >= 4) describe('wsEngine option', function() {
+    it('should allow loading of other websocket server implementation like uws', function(done) {
+      var engine = listen({ allowUpgrades: false, wsEngine: 'uws' }, function (port) {
+        expect(engine.ws instanceof require('uws').Server).to.be.ok();
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.send('a');
+        });
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+            expect(msg).to.be('a');
+            done();
+          });
+        });
+      });
     });
   });
 });
