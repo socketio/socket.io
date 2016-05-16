@@ -59,6 +59,12 @@ io.on('connection', function(){ /* … */ });
 server.listen(3000);
 ```
 
+### Client File
+
+A standalone build of `socket.io-client` is exposed automatically by the
+socket.io server as `/socket.io/socket.io.js`. Alternatively you can
+serve the file `socket.io.js` found at the root of the [socket.io-client](https://github.com/LearnBoost/socket.io-client) repository.
+
 ## API
 
 ### Server
