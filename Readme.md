@@ -139,6 +139,7 @@ server.listen(3000);
   Sets the allowed origins `v`. Defaults to any origins being allowed.
 
   If no arguments are supplied this method returns the current value.
+  If origins 'v' is set to 'none', CORS requests are not served.
 
 ### Server#origins(v:Function):Server
 

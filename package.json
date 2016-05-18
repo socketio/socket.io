@@ -21,7 +21,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "engine.io": "1.6.8",
+    "engine.io": "https://github.com/koszny/engine.io.git",
     "socket.io-parser": "2.2.6",
     "socket.io-client": "git://github.com/nus-fboa2016-si/socket.io-client#e0580ef4",
     "socket.io-adapter": "0.4.0",

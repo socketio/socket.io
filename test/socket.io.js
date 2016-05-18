@@ -246,6 +246,20 @@ describe('socket.io', function(){
   describe('handshake', function(){
     var request = require('superagent');
 
+    it('should disallow cross origin requests when origin set to none', function(done) {
+      var sockets = io({ origins: 'none' }).listen('54013');
+      request.get('http://localhost:54013/socket.io/default/')
+          .query({ transport: 'polling'})
+          .set('origin', 'http://foo.bar')
+          .end(function (err, res) {
+            expect(res.status).to.be(200);
+            expect(res.header['access-control-allow-credentials']).to.be('false');
+            expect(res.header['access-control-allow-origin']).to.be('none');
+            sockets.close();
+            done();
+          });
+    });
+
     it('should disallow request when origin defined and none specified', function(done) {
       var sockets = io({ origins: 'http://foo.example:*' }).listen('54013');
       request.get('http://localhost:54013/socket.io/default/')
