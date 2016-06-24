@@ -1,6 +1,6 @@
 {
   "name": "socket.io-client",
-  "version": "1.4.5",
+  "version": "1.4.7",
   "keywords": [
     "realtime",
     "framework",
@@ -12,7 +12,7 @@
   "main": "./lib/index",
   "dependencies": {
     "debug": "2.2.0",
-    "engine.io-client": "1.6.8",
+    "engine.io-client": "1.6.10",
     "component-bind": "1.0.0",
     "component-emitter": "1.2.0",
     "object-component": "0.0.3",
@@ -43,7 +43,7 @@
     "has-cors": "1.1.0",
     "istanbul": "0.4.2",
     "mocha": "2.3.4",
-    "socket.io": "1.4.5",
+    "socket.io": "1.4.6",
     "text-blob-builder": "0.0.1",
     "uglify-js": "2.6.1",
     "webpack-stream": "3.1.0",
