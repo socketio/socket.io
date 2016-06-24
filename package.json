@@ -1,6 +1,6 @@
 {
   "name": "socket.io",
-  "version": "1.4.5",
+  "version": "1.4.7",
   "description": "node.js realtime framework server",
   "keywords": [
     "realtime",
@@ -21,9 +21,9 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "engine.io": "1.6.8",
+    "engine.io": "1.6.10",
     "socket.io-parser": "2.2.6",
-    "socket.io-client": "git://github.com/nus-fboa2016-si/socket.io-client#e0580ef4",
+    "socket.io-client": "1.4.7",
     "socket.io-adapter": "0.4.0",
     "has-binary": "0.1.7",
     "debug": "2.2.0"
