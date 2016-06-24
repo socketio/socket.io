@@ -1,4 +1,15 @@
 
+1.6.10 / 2016-06-23
+===================
+
+  * set a default ws `maxPayload` [security fix]
+  * bump `accepts` [security fix]
+
+1.6.9 / 2016-05-03
+==================
+
+  * bump client
+
 1.6.8 / 2016-01-25
 ==================
 
