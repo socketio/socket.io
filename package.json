@@ -12,7 +12,7 @@
   "dependencies": {
     "after": "0.8.1",
     "arraybuffer.slice": "0.0.6",
-    "base64-arraybuffer": "0.1.2",
+    "base64-arraybuffer": "0.1.5",
     "blob": "0.0.4",
     "has-binary": "0.1.6",
     "utf8": "2.1.0"
