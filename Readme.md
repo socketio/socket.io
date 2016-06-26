@@ -16,9 +16,9 @@ HTTP server listening on port `3000`.
 ```js
 var server = require('http').createServer();
 var io = require('socket.io')(server);
-io.on('connection', function(socket){
-  socket.on('event', function(data){});
-  socket.on('disconnect', function(){});
+io.on('connection', function(client){
+  client.on('event', function(data){});
+  client.on('disconnect', function(){});
 });
 server.listen(3000);
 ```
@@ -27,7 +27,7 @@ server.listen(3000);
 
 ```js
 var io = require('socket.io')();
-io.on('connection', function(socket){});
+io.on('connection', function(client){});
 io.listen(3000);
 ```
 
@@ -200,7 +200,7 @@ server.listen(3000);
 
 ### Server#close
 
-  Closes socket server
+  Closes socket.io server
 
   ```js
   var Server = require('socket.io');
@@ -300,10 +300,13 @@ server.listen(3000);
   A `Socket` is the fundamental class for interacting with browser
   clients. A `Socket` belongs to a certain `Namespace` (by default `/`)
   and uses an underlying `Client` to communicate.
+  
+  It should be noted the `Socket` doesn't relate directly to the actual
+  underlying TCP/IP `socket` and it is only the name of the class.
 
 ### Socket#rooms:Object
 
-  A hash of strings identifying the rooms this socket is in, indexed by
+  A hash of strings identifying the rooms this client is in, indexed by
   room name.
 
 ### Socket#client:Client
@@ -313,7 +316,8 @@ server.listen(3000);
 ### Socket#conn:Socket
 
   A reference to the underlying `Client` transport connection (engine.io
-  `Socket` object).
+  `Socket` object). This allows access to the IO transport layer, which
+  still (mostly) asbtracts the actual TCP/IP socket.
 
 ### Socket#request:Request
 
@@ -323,30 +327,30 @@ server.listen(3000);
 
 ### Socket#id:String
 
-  A unique identifier for the socket session, that comes from the
+  A unique identifier for the session, that comes from the
   underlying `Client`.
 
 ### Socket#emit(name:String[, …]):Socket
 
-  Emits an event to the socket identified by the string `name`. Any
-  other parameters can be included.
+  Emits an event identified by the string `name` to the client.
+  Any other parameters can be included.
 
   All datastructures are supported, including `Buffer`. JavaScript
   functions can't be serialized/deserialized.
 
   ```js
   var io = require('socket.io')();
-  io.on('connection', function(socket){
-    socket.emit('an event', { some: 'data' });
+  io.on('connection', function(client){
+    client.emit('an event', { some: 'data' });
   });
   ```
 
 ### Socket#join(name:String[, fn:Function]):Socket
 
-  Adds the socket to the `room`, and fires optionally a callback `fn`
+  Adds the client to the `room`, and fires optionally a callback `fn`
   with `err` signature (if any).
 
-  The socket is automatically a member of a room identified with its
+  The client is automatically a member of a room identified with its
   session id (see `Socket#id`).
 
   The mechanics of joining  rooms are handled by the `Adapter`
@@ -355,7 +359,7 @@ server.listen(3000);
 
 ### Socket#leave(name:String[, fn:Function]):Socket
 
-  Removes the socket from `room`, and fires optionally a callback `fn`
+  Removes the client from `room`, and fires optionally a callback `fn`
   with `err` signature (if any).
 
   **Rooms are left automatically upon disconnection**.
@@ -367,14 +371,14 @@ server.listen(3000);
 ### Socket#to(room:String):Socket
 
   Sets a modifier for a subsequent event emission that the event will
-  only be _broadcasted_ to sockets that have joined the given `room`.
+  only be _broadcasted_ to clients that have joined the given `room`.
 
   To emit to multiple rooms, you can call `to` several times.
 
   ```js
   var io = require('socket.io')();
-  io.on('connection', function(socket){
-    socket.to('others').emit('an event', { some: 'data' });
+  io.on('connection', function(client){
+    client.to('others').emit('an event', { some: 'data' });
   });
   ```
 
@@ -389,8 +393,8 @@ server.listen(3000);
 
   ```js
   var io = require('socket.io')();
-  io.on('connection', function(socket){
-    socket.compress(false).emit('an event', { some: 'data' });
+  io.on('connection', function(client){
+    client.compress(false).emit('an event', { some: 'data' });
   });
   ```
   
