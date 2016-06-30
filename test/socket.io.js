@@ -167,7 +167,7 @@ describe('socket.io', function(){
           if (err) return done(err);
           var ctype = res.headers['content-type'];
           expect(ctype).to.be('application/javascript');
-          expect(res.headers.etag).to.be(clientVersion);
+          expect(res.headers.etag).to.be('"' + clientVersion + '"');
           expect(res.text).to.match(/engine\.io/);
           expect(res.status).to.be(200);
           done();
@@ -179,7 +179,7 @@ describe('socket.io', function(){
         io(srv);
         request(srv)
         .get('/socket.io/socket.io.js')
-        .set('If-None-Match', clientVersion)
+        .set('If-None-Match', '"' + clientVersion + '"')
         .end(function(err, res){
           if (err) return done(err);
           expect(res.statusCode).to.be(304);
