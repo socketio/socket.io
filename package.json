@@ -38,6 +38,7 @@
     "gulp": "3.9.0",
     "gulp-babel": "6.1.1",
     "gulp-mocha": "2.2.0",
+    "gulp-nsp": "^2.4.1",
     "mocha": "2.3.4",
     "s": "0.1.1",
     "superagent": "0.15.4",
