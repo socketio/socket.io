@@ -1,13 +1,14 @@
 var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 var babel = require("gulp-babel");
+var nsp = require('gulp-nsp');
 
 var TESTS = 'test/*.js';
 var REPORTER = 'dot';
 
 gulp.task("default", ["transpile"]);
 
-gulp.task('test', function(){
+gulp.task('test', ['nsp'], function(){
     if (parseInt(process.versions.node) < 4 && process.env.EIO_WS_ENGINE == 'uws') {
       console.info("Node version < 4, skipping tests with uws engine");
       process.exit();
@@ -32,3 +33,7 @@ gulp.task("transpile", function(){
         .pipe(babel({ "presets": ["es2015"] }))
         .pipe(gulp.dest("dist"));
 });
+
+gulp.task('nsp', function (cb) {
+  nsp({package: __dirname + '/package.json'}, cb)
+})
