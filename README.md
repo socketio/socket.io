@@ -226,6 +226,7 @@ Exposed as `eio` in the browser standalone build.
       - `onlyBinaryUpgrades` (`Boolean`): whether transport upgrades should be restricted to transports supporting binary data (`false`)
       - `requestTimeout` (`Number`): Timeout for xhr-polling requests in milliseconds (`0`)
       - `forceNode` (`Boolean`): Uses NodeJS implementation for websockets - even if there is a native Browser-Websocket available, which is preferred by default over the NodeJS implementation. (This is useful when using hybrid platforms like nw.js or electron) (`false`, NodeJS only)
+      - `localAddress` (`String`): the local IP address to connect to
 - `send`
     - Sends a message to the server
     - **Parameters**
