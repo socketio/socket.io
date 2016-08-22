@@ -130,6 +130,28 @@ describe('parser', function() {
     });
   });
 
+  it('should decode an ArrayBuffer as binary', function() {
+    var arrayBuffer = new ArrayBuffer(4);
+    var dataview = new DataView(arrayBuffer);
+    for (var i = 0; i < arrayBuffer.byteLength ; i++) dataview.setInt8(i, 4 - i);
+
+    var decoded = decode(arrayBuffer, 'arraybuffer');
+    var expectedOutput = arrayBuffer.slice(1);
+    expect(decoded).to.eql({ type: 'message', data: expectedOutput });
+    expect(new Uint8Array(decoded.data)).to.eql(new Uint8Array(expectedOutput));
+  });
+
+  it('should decode an ArrayBuffer without specifying binaryType', function() {
+    var buffer = new ArrayBuffer(4);
+    var dataview = new DataView(buffer);
+    for (var i = 0; i < buffer.byteLength ; i++) dataview.setInt8(i, 4 - i);
+
+    var decoded = decode(buffer);
+    var expectedOutput = new Buffer([3,2,1]);
+    expect(decoded).to.eql({ type: 'message', data: expectedOutput });
+    expect(new Uint8Array(decoded.data)).to.eql(new Uint8Array(expectedOutput));
+  });
+
 });
 
 function areArraysEqual(x, y) {
