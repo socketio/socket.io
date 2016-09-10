@@ -7,6 +7,10 @@
   "private": true,
   "license": "BSD",
   "dependencies": {
-    "express": "4.13.4"
+    "express": "4.13.4",
+    "socket.io": "latest"
+  },
+  "scripts": {
+    "start": "node index"
   }
 }
