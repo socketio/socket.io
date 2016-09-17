@@ -956,12 +956,12 @@ describe('socket.io', function(){
       var srv = http();
       var sio = io(srv);
       srv.listen(function(){
-        var socket = client(srv);
+        var socket = client(srv, { reconnection: false });
         sio.on('connection', function(s){
           s.on('error', function(err){
             expect(err).to.be.an(Error);
             s.on('disconnect', function(reason){
-              expect(reason).to.be('client error');
+              expect(reason).to.be('forced close');
               done();
             });
           });
