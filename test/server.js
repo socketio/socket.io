@@ -14,6 +14,7 @@ var eioc = require('engine.io-client');
 var listen = require('./common').listen;
 var expect = require('expect.js');
 var request = require('superagent');
+var cookieMod = require('cookie');
 
 // are we running on node 0.8?
 var NODE_0_8 = /^v0\.8\./.test(process.version);
@@ -87,7 +88,7 @@ describe('server', function () {
           .end(function (res) {
             // hack-obtain sid
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
             done();
           });
       });
@@ -99,19 +100,79 @@ describe('server', function () {
           .query({ transport: 'polling', b64: 1 })
           .end(function (res) {
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('woot=' + sid);
+            expect(res.headers['set-cookie'][0]).to.be('woot=' + sid + '; Path=/; HttpOnly');
             done();
           });
       });
     });
 
     it('should send the cookie with custom path', function (done) {
-      listen({ cookiePath: '/' }, function (port) {
+      listen({ cookiePath: '/custom' }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', b64: 1 })
           .end(function (res) {
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; path=/');
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/custom; HttpOnly');
+            done();
+          });
+      });
+    });
+
+    it('should send the cookie with path=false', function (done) {
+      listen({ cookiePath: false }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'polling', b64: 1 })
+          .end(function (res) {
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
+            done();
+          });
+      });
+    });
+
+    it('should send the io cookie with httpOnly=true', function (done) {
+      listen({ cookieHttpOnly: true }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'polling', b64: 1 })
+          .end(function (res) {
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
+            done();
+          });
+      });
+    });
+
+    it('should send the io cookie with httpOnly=true and path=false', function (done) {
+      listen({ cookieHttpOnly: true, cookiePath: false }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'polling', b64: 1 })
+          .end(function (res) {
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
+            done();
+          });
+      });
+    });
+
+    it('should send the io cookie with httpOnly=false', function (done) {
+      listen({ cookieHttpOnly: false }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'polling', b64: 1 })
+          .end(function (res) {
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/');
+            done();
+          });
+      });
+    });
+
+    it('should send the io cookie with httpOnly not boolean', function (done) {
+      listen({ cookieHttpOnly: 'no' }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'polling', b64: 1 })
+          .end(function (res) {
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
             done();
           });
       });
@@ -2164,6 +2225,11 @@ describe('server', function () {
   });
 
   describe('http compression', function () {
+    function getSidFromResponse (res) {
+      var c = cookieMod.parse(res.headers['set-cookie'][0]);
+      return c[Object.keys(c)[0]];
+    }
+
     it('should compress by default', function (done) {
       var engine = listen({ transports: ['polling'] }, function (port) {
         engine.on('connection', function (conn) {
@@ -2176,7 +2242,7 @@ describe('server', function () {
           port: port,
           path: '/engine.io/default/?transport=polling'
         }, function (res) {
-          var sid = res.headers['set-cookie'][0].split('=')[1];
+          var sid = getSidFromResponse(res);
           http.get({
             port: port,
             path: '/engine.io/default/?transport=polling&sid=' + sid,
@@ -2204,7 +2270,7 @@ describe('server', function () {
           port: port,
           path: '/engine.io/default/?transport=polling'
         }, function (res) {
-          var sid = res.headers['set-cookie'][0].split('=')[1];
+          var sid = getSidFromResponse(res);
           http.get({
             port: port,
             path: '/engine.io/default/?transport=polling&sid=' + sid,
@@ -2232,7 +2298,7 @@ describe('server', function () {
           port: port,
           path: '/engine.io/default/?transport=polling'
         }, function (res) {
-          var sid = res.headers['set-cookie'][0].split('=')[1];
+          var sid = getSidFromResponse(res);
           http.get({
             port: port,
             path: '/engine.io/default/?transport=polling&sid=' + sid,
@@ -2257,7 +2323,7 @@ describe('server', function () {
           port: port,
           path: '/engine.io/default/?transport=polling'
         }, function (res) {
-          var sid = res.headers['set-cookie'][0].split('=')[1];
+          var sid = getSidFromResponse(res);
           http.get({
             port: port,
             path: '/engine.io/default/?transport=polling&sid=' + sid,
@@ -2282,7 +2348,7 @@ describe('server', function () {
           port: port,
           path: '/engine.io/default/?transport=polling'
         }, function (res) {
-          var sid = res.headers['set-cookie'][0].split('=')[1];
+          var sid = getSidFromResponse(res);
           http.get({
             port: port,
             path: '/engine.io/default/?transport=polling&sid=' + sid,
@@ -2307,7 +2373,7 @@ describe('server', function () {
           port: port,
           path: '/engine.io/default/?transport=polling'
         }, function (res) {
-          var sid = res.headers['set-cookie'][0].split('=')[1];
+          var sid = getSidFromResponse(res);
           http.get({
             port: port,
             path: '/engine.io/default/?transport=polling&sid=' + sid,
