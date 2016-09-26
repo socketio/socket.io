@@ -25,5 +25,9 @@
     "type": "git",
     "url": "git@github.com:socketio/engine.io-parser.git"
   },
+  "files": [
+    "index.js",
+    "lib/"
+  ],
   "browser": "./lib/browser.js"
 }
