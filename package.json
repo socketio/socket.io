@@ -16,7 +16,7 @@
     "base64-arraybuffer": "0.1.5",
     "blob": "0.0.4",
     "has-binary": "0.1.6",
-    "utf8": "2.1.0"
+    "wtf-8": "1.0.0"
   },
   "scripts": {
     "test": "make test"
