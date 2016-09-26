@@ -1,8 +1,9 @@
 {
   "name": "engine.io-parser",
   "description": "Parser for the client for the realtime Engine",
+  "license": "MIT",
   "version": "1.2.4",
-  "homepage": "https://github.com/Automattic/engine.io-parser",
+  "homepage": "https://github.com/socketio/engine.io-parser",
   "devDependencies": {
     "expect.js": "0.3.1",
     "mocha": "2.2.5",
@@ -22,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:Automattic/engine.io-parser.git"
+    "url": "git@github.com:socketio/engine.io-parser.git"
   },
   "browser": "./lib/browser.js"
 }
