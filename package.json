@@ -50,5 +50,9 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:socketio/engine.io.git"
-  }
+  },
+  "files": [
+    "index.js",
+    "lib/"
+  ]
 }
