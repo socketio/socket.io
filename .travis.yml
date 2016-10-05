@@ -28,25 +28,16 @@ matrix:
 # - node_js: '0.10'
 #   env: BROWSER_NAME=microsoftedge BROWSER_VERSION=latest BROWSER_PLATFORM="Windows 10"
   - node_js: '0.10'
-    env: BROWSER_NAME=iphone BROWSER_VERSION=6.1
-  - node_js: '0.10'
     env: BROWSER_NAME=iphone BROWSER_VERSION=7.1
   - node_js: '0.10'
     env: BROWSER_NAME=iphone BROWSER_VERSION=8.4
   - node_js: '0.10'
-    env: BROWSER_NAME=iphone BROWSER_VERSION=latest
-  - node_js: '0.10'
-    env: BROWSER_NAME=android BROWSER_VERSION=4.0
-  - node_js: '0.10'
-    env: BROWSER_NAME=android BROWSER_VERSION=4.1
-  - node_js: '0.10'
-    env: BROWSER_NAME=android BROWSER_VERSION=4.2
+    env: BROWSER_NAME=iphone BROWSER_VERSION=9.2
   - node_js: '0.10'
     env: BROWSER_NAME=android BROWSER_VERSION=4.3
-# It seems Date doesn't work properly on Android 4.4
-# - node_js: '0.10'
-#   env: BROWSER_NAME=android BROWSER_VERSION=4.4
   - node_js: '0.10'
-    env: BROWSER_NAME=android BROWSER_VERSION=5.0
+    env: BROWSER_NAME=android BROWSER_VERSION=4.4
+  - node_js: '0.10'
+    env: BROWSER_NAME=android BROWSER_VERSION=5.1
   - node_js: '0.10'
     env: BROWSER_NAME=android BROWSER_VERSION=latest
