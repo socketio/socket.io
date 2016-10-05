@@ -1,4 +1,17 @@
 
+1.7.0 / 2016-10-05
+===================
+
+  * [feature] Give the ability to dynamically choose ws implementation (#390)
+  * [chore] Add gulp & babel in the build process (#384)
+  * [chore] Ignore dist not to release for now (#387)
+  * [chore] Upgrade accepts to 1.3.3
+  * [chore] Bumping ws to 1.1.1 to address https://nodesecurity.io/advisories/120 (#411)
+  * [chore] Restoring require('ws') as separate expression for browserify. (#418)
+  * [chore] Bump engine.io-parser to 1.3.0 (#425)
+  * [chore] Make the build status badge point towards master (#426)
+  * [chore] Restrict files included in npm package (#427)
+
 1.6.11 / 2016-06-23
 ===================
 
