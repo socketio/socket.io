@@ -74,5 +74,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/socketio/engine.io-client.git"
-  }
+  },
+  "files": [
+    "index.js",
+    "lib/",
+    "engine.io.js"
+  ]
 }
