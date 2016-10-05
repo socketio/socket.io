@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "babel-preset-es2015": "6.3.13",
-    "engine.io-client": "1.6.11",
+    "engine.io-client": "1.7.0",
     "expect.js": "0.2.0",
     "gulp": "3.9.0",
     "gulp-babel": "6.1.1",
