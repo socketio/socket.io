@@ -47,9 +47,9 @@
     "text-blob-builder": "0.0.1",
     "uglify-js": "2.6.1",
     "webpack-stream": "3.1.0",
-    "zuul": "3.10.1",
+    "zuul": "3.11.0",
     "zuul-builder-webpack": "1.1.0",
-    "zuul-ngrok": "3.2.0"
+    "zuul-ngrok": "4.0.0"
   },
   "scripts": {
     "test": "gulp test"
