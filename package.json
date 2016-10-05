@@ -21,7 +21,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "engine.io": "1.6.11",
+    "engine.io": "1.7.0",
     "socket.io-parser": "2.2.6",
     "socket.io-client": "1.4.8",
     "socket.io-adapter": "0.4.0",
