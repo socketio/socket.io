@@ -1,4 +1,22 @@
 
+1.7.0 / 2016-10-05
+===================
+
+  * [fix] Revert "default `rejectUnauthorized` to `true`" (#496)
+  * [fix] Use xhr.responseText if xhr.response is not provided (#483)
+  * [fix] Fix issue with errors during WebSocket creation not being caught (#475)
+  * [style] Add missing semi-colon (#501)
+  * [chore] Add gulp & babel in the build process (#455)
+  * [chore] Add eslint (#458)
+  * [chore] Bump zuul (#464)
+  * [chore] Remove unused submodule (#466)
+  * [chore] Bumping ws to 1.1.1 (#478)
+  * [chore] Update zuul browser settings following EOL notices (#486)
+  * [chore] Bump engine.io-parser (#492)
+  * [chore] Make the build status badge point towards master (#497)
+  * [chore] Bump zuul to 3.11.0 & zuul-ngrok to 4.0.0 (#498)
+  * [chore] Restrict files included in npm package (#499)
+
 1.6.11 / 2016-06-23
 ===================
 
