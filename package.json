@@ -12,7 +12,7 @@
   "main": "./lib/index",
   "dependencies": {
     "debug": "2.2.0",
-    "engine.io-client": "1.6.11",
+    "engine.io-client": "1.7.0",
     "component-bind": "1.0.0",
     "component-emitter": "1.2.0",
     "object-component": "0.0.3",
