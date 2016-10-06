@@ -1,4 +1,20 @@
 
+1.5.0 / 2016-10-06
+==================
+
+  * [feature] stop append /# before id when no namespace (#2508)
+  * [feature] Add a 'disconnecting' event to access to socket.rooms upon disconnection (#2332)
+  * [fix] Fix query string management (#2422)
+  * [fix] add quote to exec paths, prevent error when spaces in path (#2508)
+  * [docs] Prevent mixup for new programmers (#2599)
+  * [example] Fix chat display in Firefox (#2477)
+  * [chore] Add gulp & babel in the build process (#2471)
+  * [chore] Bump engine.io to 1.7.0 (#2707)
+  * [chore] Remove unused zuul-ngrok dependency (#2708)
+  * [chore] Point towards current master of socket.io-client (#2710)
+  * [chore] Restrict files included in npm package (#2709)
+  * [chore] Link build badge to master branch (#2549)
+
 1.4.8 / 2016-06-23
 ==================
 
