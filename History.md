@@ -1,4 +1,18 @@
 
+1.5.0 / 2016-10-06
+==================
+
+  * [fix] Fix query string management (#943)
+  * [chore] Add gulp & babel in the build process (#940)
+  * [chore] Add eslint (#951)
+  * [chore] bump zuul (#958)
+  * [chore] Remove jspm browser config (#957)
+  * [chore] Update zuul browser settings following EOL notices (#985)
+  * [chore] Bump zuul to 3.11.0 & zuul-ngrok to 4.0.0 (#997)
+  * [chore] reference build badge to master branch (#967)
+  * [chore] Bump engine.io-client to 1.7.0 (#996)
+  * [chore] Restrict files included in npm package (#998)
+
 1.4.8 / 2016-06-23
 ==================
 
