@@ -1,7 +1,0 @@
-test
-support
-.gitignore
-.npmignore
-.travis.yml
-.zuul.yml
-Makefile
