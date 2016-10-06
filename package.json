@@ -40,8 +40,7 @@
     "istanbul": "0.4.1",
     "mocha": "2.3.4",
     "superagent": "1.6.1",
-    "supertest": "1.1.0",
-    "zuul-ngrok": "3.2.0"
+    "supertest": "1.1.0"
   },
   "contributors": [
     {
