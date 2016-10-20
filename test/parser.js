@@ -129,6 +129,10 @@ module.exports = function(parser) {
       describe('decoding error handing', function () {
         var err = { type: 'error', data: 'parser error' };
 
+        it('should disallow empty payload', function () {
+          expect(decode(undefined)).to.eql(err);
+        });
+
         it('should disallow bad format', function () {
           expect(decode(':::')).to.eql(err);
         });
