@@ -4,6 +4,9 @@ node_js:
   - "0.10"
   - "0.12"
   - "4"
+  - "node"
+git:
+  depth: 1
 env:
   - CXX=g++-4.8
 addons:
