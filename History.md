@@ -1,4 +1,18 @@
 
+2.3.0 / 2016-10-21
+==================
+
+  * [perf] Split try catch into separate function (#40)
+  * [chore] remove browsers setting from .zuul.yml (#34)
+  * [chore] bump zuul (#37)
+  * [chore] Bump zuul to 3.11.0 & zuul-ngrok to 4.0.0 (#41)
+  * [chore] Update zuul browser settings following EOL notices (#42)
+  * [chore] Restrict files included in npm package (#45)
+  * [chore] Update zuul browser settings (#44)
+  * [chore] Remove deprecated isarray dependency (#46)
+  * [chore] Make the build status badge point towards master (#47)
+  * [chore] Move benchmark to dev dependencies (#48)
+
 2.2.6 / 2015-11-25
 ==================
 
