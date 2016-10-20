@@ -1,4 +1,12 @@
 
+1.7.1 / 2016-10-20
+===================
+
+  * [fix] Close and free webSocketServer (#393)
+  * [chore] Bump engine.io-client to 1.7.0 (#429)
+  * [chore] Bump engine.io-parser to 1.3.1 (#433)
+  * [chore] Add latest nodejs release in travis settings (#434)
+
 1.7.0 / 2016-10-05
 ===================
 
