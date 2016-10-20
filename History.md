@@ -1,4 +1,13 @@
 
+1.7.1 / 2016-10-20
+===================
+
+  * [fix] Define "requestsCount" var and "requests" hash unconditionally (#490)
+  * [perf] Add all properties to the socket in the constructor (#488)
+  * [chore] Update zuul browser settings (#504)
+  * [chore] Bump engine.io-parser to 1.3.1 (#505)
+  * [chore] Use more-specific imports for StealJS compatibility (#467)
+
 1.7.0 / 2016-10-05
 ===================
 
