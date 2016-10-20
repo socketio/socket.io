@@ -1,4 +1,13 @@
 
+1.3.1 / 2016-10-20
+==================
+
+  * [fix] Add safety check for global object (#71)
+  * [fix] decodePacket now accepts both Buffer and ArrayBuffer as data (#64)
+  * [fix] Handle undefined case properly when decoding packet (#74)
+  * [chore] Bump zuul to 3.11.0 & zuul-ngrok to 4.0.0 (#70)
+  * [chore] Update zuul browser settings (#73)
+
 1.3.0 / 2016-09-26
 ==================
 
