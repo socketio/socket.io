@@ -14,12 +14,12 @@
   "dependencies": {
     "debug": "2.2.0",
     "json3": "3.3.2",
-    "component-emitter": "1.1.2",
-    "benchmark": "1.0.0"
+    "component-emitter": "1.1.2"
   },
   "devDependencies": {
-    "mocha": "1.16.2",
+    "benchmark": "1.0.0",
     "expect.js": "0.2.0",
+    "mocha": "1.16.2",
     "zuul": "3.11.0",
     "zuul-ngrok": "4.0.0"
   },
