@@ -6,6 +6,11 @@
     "type": "git",
     "url": "https://github.com/Automattic/socket.io-parser.git"
   },
+  "files": [
+    "binary.js",
+    "index.js",
+    "is-buffer.js"
+  ],
   "dependencies": {
     "debug": "2.2.0",
     "json3": "3.3.2",
