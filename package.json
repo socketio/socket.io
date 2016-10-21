@@ -45,6 +45,7 @@
     "gulp-mocha": "2.2.0",
     "gulp-task-listing": "1.0.1",
     "has-cors": "1.1.0",
+    "imports-loader": "^0.6.5",
     "istanbul": "0.4.2",
     "mocha": "2.3.4",
     "socket.io": "1.5.0",
