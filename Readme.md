@@ -462,4 +462,4 @@ The `gulp` task `test` will always transpile the source code into es5 and export
 
 ## License
 
-MIT
+[MIT](LICENSE)
