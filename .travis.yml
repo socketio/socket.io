@@ -3,7 +3,10 @@ node_js:
 - '0.10'
 - '0.12'
 - '4'
+- 'node'
 sudo: false
+git:
+  depth: 1
 notifications:
   irc: irc.freenode.org#socket.io
 matrix:
@@ -12,6 +15,8 @@ matrix:
     env: BROWSER_NAME=chrome BROWSER_VERSION=latest
   - node_js: '0.10'
     env: BROWSER_NAME=safari BROWSER_VERSION=latest
+  - node_js: '0.12'
+    env: BROWSER_NAME=firefox BROWSER_VERSION=latest BROWSER_PLATFORM="Windows 10"
   - node_js: '0.10'
     env: BROWSER_NAME=ie BROWSER_VERSION=6
   - node_js: '0.10'
@@ -24,11 +29,8 @@ matrix:
     env: BROWSER_NAME=ie BROWSER_VERSION=10 BROWSER_PLATFORM="Windows 2012"
   - node_js: '0.10'
     env: BROWSER_NAME=ie BROWSER_VERSION=latest BROWSER_PLATFORM="Windows 2012"
-# zuul doesn't work on Microsoft Edge: issues/232
-# - node_js: '0.10'
-#   env: BROWSER_NAME=microsoftedge BROWSER_VERSION=latest BROWSER_PLATFORM="Windows 10"
-  - node_js: '0.10'
-    env: BROWSER_NAME=iphone BROWSER_VERSION=7.1
+  # - node_js: '0.12'
+  #   env: BROWSER_NAME=microsoftedge BROWSER_VERSION=13 BROWSER_PLATFORM="Windows 10"
   - node_js: '0.10'
     env: BROWSER_NAME=iphone BROWSER_VERSION=8.4
   - node_js: '0.10'
