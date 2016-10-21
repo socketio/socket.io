@@ -317,7 +317,7 @@ server.listen(3000);
 
   A reference to the underlying `Client` transport connection (engine.io
   `Socket` object). This allows access to the IO transport layer, which
-  still (mostly) asbtracts the actual TCP/IP socket.
+  still (mostly) abstracts the actual TCP/IP socket.
 
 ### Socket#request:Request
 
