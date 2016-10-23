@@ -1,4 +1,10 @@
 
+1.7.2 / 2016-10-24
+===================
+
+  * [docs] Add missing `upgradeTimeout` option in the docs (#437)
+  * [chore] Add Github issue and PR templates (#436)
+
 1.7.1 / 2016-10-20
 ===================
 
