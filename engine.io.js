@@ -491,7 +491,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	Socket.prototype.onPacket = function (packet) {
-	  if ('opening' === this.readyState || 'open' === this.readyState) {
+	  if ('opening' === this.readyState || 'open' === this.readyState || 'closing' === this.readyState) {
 	    debug('socket receive: type "%s", data "%s"', packet.type, packet.data);
 
 	    this.emit('packet', packet);
@@ -869,12 +869,9 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
 
 	// browser shim for xmlhttprequest module
-
-	// Indicate to eslint that ActiveXObject is global
-	/* global ActiveXObject */
 
 	var hasCORS = __webpack_require__(5);
 
@@ -907,10 +904,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  if (!xdomain) {
 	    try {
-	      return new ActiveXObject('Microsoft.XMLHTTP');
+	      return new global[['Active'].concat('Object').join('X')]('Microsoft.XMLHTTP');
 	    } catch (e) {}
 	  }
 	};
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 5 */
@@ -1160,6 +1158,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	      } catch (e) {}
 	    }
+
+	    try {
+	      xhr.setRequestHeader('Accept', '*/*');
+	    } catch (e) {}
 
 	    // ie6 check
 	    if ('withCredentials' in xhr) {
@@ -4171,22 +4173,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    self.onError('websocket error', e);
 	  };
 	};
-
-	/**
-	 * Override `onData` to use a timer on iOS.
-	 * See: https://gist.github.com/mloughran/2052006
-	 *
-	 * @api private
-	 */
-
-	if ('undefined' !== typeof navigator && /iPad|iPhone|iPod/i.test(navigator.userAgent)) {
-	  WS.prototype.onData = function (data) {
-	    var self = this;
-	    setTimeout(function () {
-	      Transport.prototype.onData.call(self, data);
-	    }, 0);
-	  };
-	}
 
 	/**
 	 * Writes data to socket.
