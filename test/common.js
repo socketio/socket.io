@@ -6,7 +6,7 @@
 var eio = require('..');
 
 /**
- * Listen shortcut that fires a callback on an epheemal port.
+ * Listen shortcut that fires a callback on an ephemeral port.
  */
 
 exports.listen = function (opts, fn) {

@@ -610,7 +610,7 @@ describe('server', function () {
             // at this time server's `connection` should have been fired
             expect(serverSocket).to.be.an('object');
 
-            // OPENED readyState is expected - we qre actually polling
+            // OPENED readyState is expected - we are actually polling
             expect(socket.transport.pollXhr.xhr.readyState).to.be(1);
 
             // 2 requests sent to the server over an unique port means
