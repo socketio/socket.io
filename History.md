@@ -1,4 +1,9 @@
 
+2.3.1 / 2016-10-24
+==================
+
+* [chore] Revert "Remove deprecated isarray dependency" (#50)
+
 2.3.0 / 2016-10-21
 ==================
 
