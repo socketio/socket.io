@@ -1,4 +1,14 @@
 
+1.5.1 / 2016-10-24
+==================
+
+  * [chore] Disable AMD for json3 (#1005)
+  * [chore] Bump socket.io-parser to 2.3.0 (#1009)
+  * [chore] Bump engine.io-client to 1.7.1 (#1010)
+  * [chore] Update zuul browser settings (#1011)
+  * [chore] Add Github issue and PR templates (#1013)
+  * [chore] Bump engine.io-client to 1.7.2 and socket.io-parser to 2.3.1 (#1015)
+
 1.5.0 / 2016-10-06
 ==================
 

@@ -64,7 +64,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var url = __webpack_require__(1);
 	var parser = __webpack_require__(6);
-	var Manager = __webpack_require__(14);
+	var Manager = __webpack_require__(13);
 	var debug = __webpack_require__(3)('socket.io-client');
 
 	/**
@@ -163,8 +163,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api public
 	 */
 
-	exports.Manager = __webpack_require__(14);
-	exports.Socket = __webpack_require__(42);
+	exports.Manager = __webpack_require__(13);
+	exports.Socket = __webpack_require__(40);
 
 /***/ },
 /* 1 */
@@ -812,10 +812,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var debug = __webpack_require__(3)('socket.io-parser');
 	var json = __webpack_require__(7);
-	var isArray = __webpack_require__(10);
-	var Emitter = __webpack_require__(11);
-	var binary = __webpack_require__(12);
-	var isBuf = __webpack_require__(13);
+	var isArray = __webpack_require__(9);
+	var Emitter = __webpack_require__(10);
+	var binary = __webpack_require__(11);
+	var isBuf = __webpack_require__(12);
 
 	/**
 	 * Protocol version.
@@ -1211,11 +1211,14 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! JSON v3.3.2 | http://bestiejs.github.io/json3 | Copyright 2012-2014, Kit Cambridge | http://kit.mit-license.org */
+	/* WEBPACK VAR INJECTION */(function(module, global) {/*** IMPORTS FROM imports-loader ***/
+	var define = false;
+
+	/*! JSON v3.3.2 | http://bestiejs.github.io/json3 | Copyright 2012-2014, Kit Cambridge | http://kit.mit-license.org */
 	;(function () {
 	  // Detect the `define` function exposed by asynchronous module loaders. The
 	  // strict `define` check is necessary for compatibility with `r.js`.
-	  var isLoader = "function" === "function" && __webpack_require__(9);
+	  var isLoader = typeof define === "function" && define.amd;
 
 	  // A set of types used to distinguish objects from primitives.
 	  var objectTypes = {
@@ -2108,11 +2111,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  // Export for asynchronous module loaders.
 	  if (isLoader) {
-	    !(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+	    define(function () {
 	      return JSON3;
-	    }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    });
 	  }
 	}).call(this);
+
 
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)(module), (function() { return this; }())))
 
@@ -2136,21 +2140,13 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 9 */
 /***/ function(module, exports) {
 
-	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
-
-	/* WEBPACK VAR INJECTION */}.call(exports, {}))
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
 	module.exports = Array.isArray || function (arr) {
 	  return Object.prototype.toString.call(arr) == '[object Array]';
 	};
 
 
 /***/ },
-/* 11 */
+/* 10 */
 /***/ function(module, exports) {
 
 	
@@ -2320,7 +2316,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 12 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/*global Blob,File*/
@@ -2329,8 +2325,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Module requirements
 	 */
 
-	var isArray = __webpack_require__(10);
-	var isBuf = __webpack_require__(13);
+	var isArray = __webpack_require__(9);
+	var isBuf = __webpack_require__(12);
 
 	/**
 	 * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
@@ -2468,7 +2464,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 13 */
+/* 12 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -2488,7 +2484,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 14 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2499,15 +2495,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Module dependencies.
 	 */
 
-	var eio = __webpack_require__(15);
-	var Socket = __webpack_require__(42);
-	var Emitter = __webpack_require__(43);
+	var eio = __webpack_require__(14);
+	var Socket = __webpack_require__(40);
+	var Emitter = __webpack_require__(41);
 	var parser = __webpack_require__(6);
-	var on = __webpack_require__(45);
-	var bind = __webpack_require__(46);
+	var on = __webpack_require__(43);
+	var bind = __webpack_require__(44);
 	var debug = __webpack_require__(3)('socket.io-client:manager');
-	var indexOf = __webpack_require__(40);
-	var Backoff = __webpack_require__(49);
+	var indexOf = __webpack_require__(38);
+	var Backoff = __webpack_require__(46);
 
 	/**
 	 * IE6+ hasOwnProperty
@@ -3055,19 +3051,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	module.exports = __webpack_require__(15);
+
+
+/***/ },
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	module.exports =  __webpack_require__(16);
-
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	
-	module.exports = __webpack_require__(17);
+	module.exports = __webpack_require__(16);
 
 	/**
 	 * Exports parser
@@ -3075,39 +3071,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api public
 	 *
 	 */
-	module.exports.parser = __webpack_require__(24);
+	module.exports.parser = __webpack_require__(23);
 
 
 /***/ },
-/* 17 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module dependencies.
 	 */
 
-	var transports = __webpack_require__(18);
-	var Emitter = __webpack_require__(33);
+	var transports = __webpack_require__(17);
+	var Emitter = __webpack_require__(31);
 	var debug = __webpack_require__(3)('engine.io-client:socket');
-	var index = __webpack_require__(40);
-	var parser = __webpack_require__(24);
+	var index = __webpack_require__(38);
+	var parser = __webpack_require__(23);
 	var parseuri = __webpack_require__(2);
-	var parsejson = __webpack_require__(41);
-	var parseqs = __webpack_require__(34);
+	var parsejson = __webpack_require__(39);
+	var parseqs = __webpack_require__(32);
 
 	/**
 	 * Module exports.
 	 */
 
 	module.exports = Socket;
-
-	/**
-	 * Noop function.
-	 *
-	 * @api private
-	 */
-
-	function noop(){}
 
 	/**
 	 * Socket constructor.
@@ -3117,12 +3105,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api public
 	 */
 
-	function Socket(uri, opts){
+	function Socket (uri, opts) {
 	  if (!(this instanceof Socket)) return new Socket(uri, opts);
 
 	  opts = opts || {};
 
-	  if (uri && 'object' == typeof uri) {
+	  if (uri && 'object' === typeof uri) {
 	    opts = uri;
 	    uri = null;
 	  }
@@ -3130,15 +3118,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (uri) {
 	    uri = parseuri(uri);
 	    opts.hostname = uri.host;
-	    opts.secure = uri.protocol == 'https' || uri.protocol == 'wss';
+	    opts.secure = uri.protocol === 'https' || uri.protocol === 'wss';
 	    opts.port = uri.port;
 	    if (uri.query) opts.query = uri.query;
 	  } else if (opts.host) {
 	    opts.hostname = parseuri(opts.host).host;
 	  }
 
-	  this.secure = null != opts.secure ? opts.secure :
-	    (global.location && 'https:' == location.protocol);
+	  this.secure = null != opts.secure ? opts.secure
+	    : (global.location && 'https:' === location.protocol);
 
 	  if (opts.hostname && !opts.port) {
 	    // if no port is specified manually, use the protocol default
@@ -3148,11 +3136,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.agent = opts.agent || false;
 	  this.hostname = opts.hostname ||
 	    (global.location ? location.hostname : 'localhost');
-	  this.port = opts.port || (global.location && location.port ?
-	       location.port :
-	       (this.secure ? 443 : 80));
+	  this.port = opts.port || (global.location && location.port
+	      ? location.port
+	      : (this.secure ? 443 : 80));
 	  this.query = opts.query || {};
-	  if ('string' == typeof this.query) this.query = parseqs.decode(this.query);
+	  if ('string' === typeof this.query) this.query = parseqs.decode(this.query);
 	  this.upgrade = false !== opts.upgrade;
 	  this.path = (opts.path || '/engine.io').replace(/\/$/, '') + '/';
 	  this.forceJSONP = !!opts.forceJSONP;
@@ -3164,6 +3152,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.transports = opts.transports || ['polling', 'websocket'];
 	  this.readyState = '';
 	  this.writeBuffer = [];
+	  this.prevBufferLen = 0;
 	  this.policyPort = opts.policyPort || 843;
 	  this.rememberUpgrade = opts.rememberUpgrade || false;
 	  this.binaryType = null;
@@ -3182,15 +3171,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.cert = opts.cert || null;
 	  this.ca = opts.ca || null;
 	  this.ciphers = opts.ciphers || null;
-	  this.rejectUnauthorized = opts.rejectUnauthorized === undefined ? true : opts.rejectUnauthorized;
+	  this.rejectUnauthorized = opts.rejectUnauthorized === undefined ? null : opts.rejectUnauthorized;
 
 	  // other options for Node.js client
-	  var freeGlobal = typeof global == 'object' && global;
+	  var freeGlobal = typeof global === 'object' && global;
 	  if (freeGlobal.global === freeGlobal) {
 	    if (opts.extraHeaders && Object.keys(opts.extraHeaders).length > 0) {
 	      this.extraHeaders = opts.extraHeaders;
 	    }
 	  }
+
+	  // set on handshake
+	  this.id = null;
+	  this.upgrades = null;
+	  this.pingInterval = null;
+	  this.pingTimeout = null;
+
+	  // set on heartbeat
+	  this.pingIntervalTimer = null;
+	  this.pingTimeoutTimer = null;
 
 	  this.open();
 	}
@@ -3217,9 +3216,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	Socket.Socket = Socket;
-	Socket.Transport = __webpack_require__(23);
-	Socket.transports = __webpack_require__(18);
-	Socket.parser = __webpack_require__(24);
+	Socket.Transport = __webpack_require__(22);
+	Socket.transports = __webpack_require__(17);
+	Socket.parser = __webpack_require__(23);
 
 	/**
 	 * Creates transport of the given type.
@@ -3288,12 +3287,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	Socket.prototype.open = function () {
 	  var transport;
-	  if (this.rememberUpgrade && Socket.priorWebsocketSuccess && this.transports.indexOf('websocket') != -1) {
+	  if (this.rememberUpgrade && Socket.priorWebsocketSuccess && this.transports.indexOf('websocket') !== -1) {
 	    transport = 'websocket';
 	  } else if (0 === this.transports.length) {
 	    // Emit error on next tick so it can be listened to
 	    var self = this;
-	    setTimeout(function() {
+	    setTimeout(function () {
 	      self.emit('error', 'No transports available');
 	    }, 0);
 	    return;
@@ -3321,7 +3320,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Socket.prototype.setTransport = function(transport){
+	Socket.prototype.setTransport = function (transport) {
 	  debug('setting transport %s', transport.name);
 	  var self = this;
 
@@ -3335,16 +3334,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  // set up transport listeners
 	  transport
-	  .on('drain', function(){
+	  .on('drain', function () {
 	    self.onDrain();
 	  })
-	  .on('packet', function(packet){
+	  .on('packet', function (packet) {
 	    self.onPacket(packet);
 	  })
-	  .on('error', function(e){
+	  .on('error', function (e) {
 	    self.onError(e);
 	  })
-	  .on('close', function(){
+	  .on('close', function () {
 	    self.onClose('transport close');
 	  });
 	};
@@ -3358,13 +3357,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	Socket.prototype.probe = function (name) {
 	  debug('probing transport "%s"', name);
-	  var transport = this.createTransport(name, { probe: 1 })
-	    , failed = false
-	    , self = this;
+	  var transport = this.createTransport(name, { probe: 1 });
+	  var failed = false;
+	  var self = this;
 
 	  Socket.priorWebsocketSuccess = false;
 
-	  function onTransportOpen(){
+	  function onTransportOpen () {
 	    if (self.onlyBinaryUpgrades) {
 	      var upgradeLosesBinary = !this.supportsBinary && self.transport.supportsBinary;
 	      failed = failed || upgradeLosesBinary;
@@ -3375,17 +3374,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    transport.send([{ type: 'ping', data: 'probe' }]);
 	    transport.once('packet', function (msg) {
 	      if (failed) return;
-	      if ('pong' == msg.type && 'probe' == msg.data) {
+	      if ('pong' === msg.type && 'probe' === msg.data) {
 	        debug('probe transport "%s" pong', name);
 	        self.upgrading = true;
 	        self.emit('upgrading', transport);
 	        if (!transport) return;
-	        Socket.priorWebsocketSuccess = 'websocket' == transport.name;
+	        Socket.priorWebsocketSuccess = 'websocket' === transport.name;
 
 	        debug('pausing current transport "%s"', self.transport.name);
 	        self.transport.pause(function () {
 	          if (failed) return;
-	          if ('closed' == self.readyState) return;
+	          if ('closed' === self.readyState) return;
 	          debug('changing transport and sending upgrade packet');
 
 	          cleanup();
@@ -3406,7 +3405,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	  }
 
-	  function freezeTransport() {
+	  function freezeTransport () {
 	    if (failed) return;
 
 	    // Any callback called by transport should be ignored since now
@@ -3418,8 +3417,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    transport = null;
 	  }
 
-	  //Handle any error that happens while probing
-	  function onerror(err) {
+	  // Handle any error that happens while probing
+	  function onerror (err) {
 	    var error = new Error('probe error: ' + err);
 	    error.transport = transport.name;
 
@@ -3430,25 +3429,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	    self.emit('upgradeError', error);
 	  }
 
-	  function onTransportClose(){
-	    onerror("transport closed");
+	  function onTransportClose () {
+	    onerror('transport closed');
 	  }
 
-	  //When the socket is closed while we're probing
-	  function onclose(){
-	    onerror("socket closed");
+	  // When the socket is closed while we're probing
+	  function onclose () {
+	    onerror('socket closed');
 	  }
 
-	  //When the socket is upgraded while we're probing
-	  function onupgrade(to){
-	    if (transport && to.name != transport.name) {
+	  // When the socket is upgraded while we're probing
+	  function onupgrade (to) {
+	    if (transport && to.name !== transport.name) {
 	      debug('"%s" works - aborting "%s"', to.name, transport.name);
 	      freezeTransport();
 	    }
 	  }
 
-	  //Remove all listeners on the transport and on self
-	  function cleanup(){
+	  // Remove all listeners on the transport and on self
+	  function cleanup () {
 	    transport.removeListener('open', onTransportOpen);
 	    transport.removeListener('error', onerror);
 	    transport.removeListener('close', onTransportClose);
@@ -3464,7 +3463,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.once('upgrading', onupgrade);
 
 	  transport.open();
-
 	};
 
 	/**
@@ -3476,13 +3474,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	Socket.prototype.onOpen = function () {
 	  debug('socket open');
 	  this.readyState = 'open';
-	  Socket.priorWebsocketSuccess = 'websocket' == this.transport.name;
+	  Socket.priorWebsocketSuccess = 'websocket' === this.transport.name;
 	  this.emit('open');
 	  this.flush();
 
 	  // we check for `readyState` in case an `open`
 	  // listener already closed the socket
-	  if ('open' == this.readyState && this.upgrade && this.transport.pause) {
+	  if ('open' === this.readyState && this.upgrade && this.transport.pause) {
 	    debug('starting upgrade probes');
 	    for (var i = 0, l = this.upgrades.length; i < l; i++) {
 	      this.probe(this.upgrades[i]);
@@ -3497,7 +3495,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	Socket.prototype.onPacket = function (packet) {
-	  if ('opening' == this.readyState || 'open' == this.readyState) {
+	  if ('opening' === this.readyState || 'open' === this.readyState) {
 	    debug('socket receive: type "%s", data "%s"', packet.type, packet.data);
 
 	    this.emit('packet', packet);
@@ -3547,7 +3545,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.pingTimeout = data.pingTimeout;
 	  this.onOpen();
 	  // In case open handler closes socket
-	  if  ('closed' == this.readyState) return;
+	  if ('closed' === this.readyState) return;
 	  this.setPing();
 
 	  // Prolong liveness of socket on heartbeat
@@ -3565,7 +3563,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  clearTimeout(this.pingTimeoutTimer);
 	  var self = this;
 	  self.pingTimeoutTimer = setTimeout(function () {
-	    if ('closed' == self.readyState) return;
+	    if ('closed' === self.readyState) return;
 	    self.onClose('ping timeout');
 	  }, timeout || (self.pingInterval + self.pingTimeout));
 	};
@@ -3595,7 +3593,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	Socket.prototype.ping = function () {
 	  var self = this;
-	  this.sendPacket('ping', function(){
+	  this.sendPacket('ping', function () {
 	    self.emit('ping');
 	  });
 	};
@@ -3606,7 +3604,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Socket.prototype.onDrain = function() {
+	Socket.prototype.onDrain = function () {
 	  this.writeBuffer.splice(0, this.prevBufferLen);
 
 	  // setting prevBufferLen = 0 is very important
@@ -3628,7 +3626,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	Socket.prototype.flush = function () {
-	  if ('closed' != this.readyState && this.transport.writable &&
+	  if ('closed' !== this.readyState && this.transport.writable &&
 	    !this.upgrading && this.writeBuffer.length) {
 	    debug('flushing %d packets in socket', this.writeBuffer.length);
 	    this.transport.send(this.writeBuffer);
@@ -3666,17 +3664,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	Socket.prototype.sendPacket = function (type, data, options, fn) {
-	  if('function' == typeof data) {
+	  if ('function' === typeof data) {
 	    fn = data;
 	    data = undefined;
 	  }
 
-	  if ('function' == typeof options) {
+	  if ('function' === typeof options) {
 	    fn = options;
 	    options = null;
 	  }
 
-	  if ('closing' == this.readyState || 'closed' == this.readyState) {
+	  if ('closing' === this.readyState || 'closed' === this.readyState) {
 	    return;
 	  }
 
@@ -3701,13 +3699,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	Socket.prototype.close = function () {
-	  if ('opening' == this.readyState || 'open' == this.readyState) {
+	  if ('opening' === this.readyState || 'open' === this.readyState) {
 	    this.readyState = 'closing';
 
 	    var self = this;
 
 	    if (this.writeBuffer.length) {
-	      this.once('drain', function() {
+	      this.once('drain', function () {
 	        if (this.upgrading) {
 	          waitForUpgrade();
 	        } else {
@@ -3721,19 +3719,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }
 
-	  function close() {
+	  function close () {
 	    self.onClose('forced close');
 	    debug('socket closing - telling transport to close');
 	    self.transport.close();
 	  }
 
-	  function cleanupAndClose() {
+	  function cleanupAndClose () {
 	    self.removeListener('upgrade', cleanupAndClose);
 	    self.removeListener('upgradeError', cleanupAndClose);
 	    close();
 	  }
 
-	  function waitForUpgrade() {
+	  function waitForUpgrade () {
 	    // wait for upgrade to finish since we can't send packets while pausing a transport
 	    self.once('upgrade', cleanupAndClose);
 	    self.once('upgradeError', cleanupAndClose);
@@ -3762,7 +3760,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	Socket.prototype.onClose = function (reason, desc) {
-	  if ('opening' == this.readyState || 'open' == this.readyState || 'closing' == this.readyState) {
+	  if ('opening' === this.readyState || 'open' === this.readyState || 'closing' === this.readyState) {
 	    debug('socket close with reason: "%s"', reason);
 	    var self = this;
 
@@ -3805,7 +3803,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	Socket.prototype.filterUpgrades = function (upgrades) {
 	  var filteredUpgrades = [];
-	  for (var i = 0, j = upgrades.length; i<j; i++) {
+	  for (var i = 0, j = upgrades.length; i < j; i++) {
 	    if (~index(this.transports, upgrades[i])) filteredUpgrades.push(upgrades[i]);
 	  }
 	  return filteredUpgrades;
@@ -3814,17 +3812,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module dependencies
 	 */
 
-	var XMLHttpRequest = __webpack_require__(19);
-	var XHR = __webpack_require__(21);
-	var JSONP = __webpack_require__(37);
-	var websocket = __webpack_require__(38);
+	var XMLHttpRequest = __webpack_require__(18);
+	var XHR = __webpack_require__(20);
+	var JSONP = __webpack_require__(35);
+	var websocket = __webpack_require__(36);
 
 	/**
 	 * Export transports.
@@ -3840,14 +3838,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	function polling(opts){
+	function polling (opts) {
 	  var xhr;
 	  var xd = false;
 	  var xs = false;
 	  var jsonp = false !== opts.jsonp;
 
 	  if (global.location) {
-	    var isSSL = 'https:' == location.protocol;
+	    var isSSL = 'https:' === location.protocol;
 	    var port = location.port;
 
 	    // some user agents have empty `location.port`
@@ -3855,8 +3853,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      port = isSSL ? 443 : 80;
 	    }
 
-	    xd = opts.hostname != location.hostname || port != opts.port;
-	    xs = opts.secure != isSSL;
+	    xd = opts.hostname !== location.hostname || port !== opts.port;
+	    xs = opts.secure !== isSSL;
 	  }
 
 	  opts.xdomain = xd;
@@ -3874,13 +3872,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 19 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// browser shim for xmlhttprequest module
-	var hasCORS = __webpack_require__(20);
 
-	module.exports = function(opts) {
+	// Indicate to eslint that ActiveXObject is global
+	/* global ActiveXObject */
+
+	var hasCORS = __webpack_require__(19);
+
+	module.exports = function (opts) {
 	  var xdomain = opts.xdomain;
 
 	  // scheme must be same when usign XDomainRequest
@@ -3893,7 +3895,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  // XMLHttpRequest can be disabled on IE
 	  try {
-	    if ('undefined' != typeof XMLHttpRequest && (!xdomain || hasCORS)) {
+	    if ('undefined' !== typeof XMLHttpRequest && (!xdomain || hasCORS)) {
 	      return new XMLHttpRequest();
 	    }
 	  } catch (e) { }
@@ -3902,7 +3904,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // because loading bar keeps flashing when using jsonp-polling
 	  // https://github.com/yujiosaka/socke.io-ie8-loading-example
 	  try {
-	    if ('undefined' != typeof XDomainRequest && !xscheme && enablesXDR) {
+	    if ('undefined' !== typeof XDomainRequest && !xscheme && enablesXDR) {
 	      return new XDomainRequest();
 	    }
 	  } catch (e) { }
@@ -3910,13 +3912,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (!xdomain) {
 	    try {
 	      return new ActiveXObject('Microsoft.XMLHTTP');
-	    } catch(e) { }
+	    } catch (e) { }
 	  }
-	}
+	};
 
 
 /***/ },
-/* 20 */
+/* 19 */
 /***/ function(module, exports) {
 
 	
@@ -3939,17 +3941,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 21 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module requirements.
 	 */
 
-	var XMLHttpRequest = __webpack_require__(19);
-	var Polling = __webpack_require__(22);
-	var Emitter = __webpack_require__(33);
-	var inherit = __webpack_require__(35);
+	var XMLHttpRequest = __webpack_require__(18);
+	var Polling = __webpack_require__(21);
+	var Emitter = __webpack_require__(31);
+	var inherit = __webpack_require__(33);
 	var debug = __webpack_require__(3)('engine.io-client:polling-xhr');
 
 	/**
@@ -3963,7 +3965,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Empty function
 	 */
 
-	function empty(){}
+	function empty () {}
 
 	/**
 	 * XHR Polling constructor.
@@ -3972,11 +3974,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api public
 	 */
 
-	function XHR(opts){
+	function XHR (opts) {
 	  Polling.call(this, opts);
 
 	  if (global.location) {
-	    var isSSL = 'https:' == location.protocol;
+	    var isSSL = 'https:' === location.protocol;
 	    var port = location.port;
 
 	    // some user agents have empty `location.port`
@@ -3984,9 +3986,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      port = isSSL ? 443 : 80;
 	    }
 
-	    this.xd = opts.hostname != global.location.hostname ||
-	      port != opts.port;
-	    this.xs = opts.secure != isSSL;
+	    this.xd = opts.hostname !== global.location.hostname ||
+	      port !== opts.port;
+	    this.xs = opts.secure !== isSSL;
 	  } else {
 	    this.extraHeaders = opts.extraHeaders;
 	  }
@@ -4011,7 +4013,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	XHR.prototype.request = function(opts){
+	XHR.prototype.request = function (opts) {
 	  opts = opts || {};
 	  opts.uri = this.uri();
 	  opts.xd = this.xd;
@@ -4043,12 +4045,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	XHR.prototype.doWrite = function(data, fn){
+	XHR.prototype.doWrite = function (data, fn) {
 	  var isBinary = typeof data !== 'string' && data !== undefined;
 	  var req = this.request({ method: 'POST', data: data, isBinary: isBinary });
 	  var self = this;
 	  req.on('success', fn);
-	  req.on('error', function(err){
+	  req.on('error', function (err) {
 	    self.onError('xhr post error', err);
 	  });
 	  this.sendXhr = req;
@@ -4060,14 +4062,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	XHR.prototype.doPoll = function(){
+	XHR.prototype.doPoll = function () {
 	  debug('xhr poll');
 	  var req = this.request();
 	  var self = this;
-	  req.on('data', function(data){
+	  req.on('data', function (data) {
 	    self.onData(data);
 	  });
-	  req.on('error', function(err){
+	  req.on('error', function (err) {
 	    self.onError('xhr poll error', err);
 	  });
 	  this.pollXhr = req;
@@ -4080,13 +4082,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api public
 	 */
 
-	function Request(opts){
+	function Request (opts) {
 	  this.method = opts.method || 'GET';
 	  this.uri = opts.uri;
 	  this.xd = !!opts.xd;
 	  this.xs = !!opts.xs;
 	  this.async = false !== opts.async;
-	  this.data = undefined != opts.data ? opts.data : null;
+	  this.data = undefined !== opts.data ? opts.data : null;
 	  this.agent = opts.agent;
 	  this.isBinary = opts.isBinary;
 	  this.supportsBinary = opts.supportsBinary;
@@ -4119,7 +4121,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Request.prototype.create = function(){
+	Request.prototype.create = function () {
 	  var opts = { agent: this.agent, xdomain: this.xd, xscheme: this.xs, enablesXDR: this.enablesXDR };
 
 	  // SSL options for Node.js client
@@ -4153,7 +4155,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      xhr.responseType = 'arraybuffer';
 	    }
 
-	    if ('POST' == this.method) {
+	    if ('POST' === this.method) {
 	      try {
 	        if (this.isBinary) {
 	          xhr.setRequestHeader('Content-type', 'application/octet-stream');
@@ -4169,21 +4171,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    if (this.hasXDR()) {
-	      xhr.onload = function(){
+	      xhr.onload = function () {
 	        self.onLoad();
 	      };
-	      xhr.onerror = function(){
+	      xhr.onerror = function () {
 	        self.onError(xhr.responseText);
 	      };
 	    } else {
-	      xhr.onreadystatechange = function(){
-	        if (4 != xhr.readyState) return;
-	        if (200 == xhr.status || 1223 == xhr.status) {
+	      xhr.onreadystatechange = function () {
+	        if (4 !== xhr.readyState) return;
+	        if (200 === xhr.status || 1223 === xhr.status) {
 	          self.onLoad();
 	        } else {
 	          // make sure the `error` event handler that's user-set
 	          // does not throw in the same tick and gets caught here
-	          setTimeout(function(){
+	          setTimeout(function () {
 	            self.onError(xhr.status);
 	          }, 0);
 	        }
@@ -4196,7 +4198,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // Need to defer since .create() is called directly fhrom the constructor
 	    // and thus the 'error' event can only be only bound *after* this exception
 	    // occurs.  Therefore, also, we cannot throw here at all.
-	    setTimeout(function() {
+	    setTimeout(function () {
 	      self.onError(e);
 	    }, 0);
 	    return;
@@ -4214,7 +4216,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Request.prototype.onSuccess = function(){
+	Request.prototype.onSuccess = function () {
 	  this.emit('success');
 	  this.cleanup();
 	};
@@ -4225,7 +4227,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Request.prototype.onData = function(data){
+	Request.prototype.onData = function (data) {
 	  this.emit('data', data);
 	  this.onSuccess();
 	};
@@ -4236,7 +4238,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Request.prototype.onError = function(err){
+	Request.prototype.onError = function (err) {
 	  this.emit('error', err);
 	  this.cleanup(true);
 	};
@@ -4247,8 +4249,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Request.prototype.cleanup = function(fromError){
-	  if ('undefined' == typeof this.xhr || null === this.xhr) {
+	Request.prototype.cleanup = function (fromError) {
+	  if ('undefined' === typeof this.xhr || null === this.xhr) {
 	    return;
 	  }
 	  // xmlhttprequest
@@ -4261,7 +4263,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (fromError) {
 	    try {
 	      this.xhr.abort();
-	    } catch(e) {}
+	    } catch (e) {}
 	  }
 
 	  if (global.document) {
@@ -4277,7 +4279,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Request.prototype.onLoad = function(){
+	Request.prototype.onLoad = function () {
 	  var data;
 	  try {
 	    var contentType;
@@ -4285,7 +4287,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      contentType = this.xhr.getResponseHeader('Content-Type').split(';')[0];
 	    } catch (e) {}
 	    if (contentType === 'application/octet-stream') {
-	      data = this.xhr.response;
+	      data = this.xhr.response || this.xhr.responseText;
 	    } else {
 	      if (!this.supportsBinary) {
 	        data = this.xhr.responseText;
@@ -4317,7 +4319,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Request.prototype.hasXDR = function(){
+	Request.prototype.hasXDR = function () {
 	  return 'undefined' !== typeof global.XDomainRequest && !this.xs && this.enablesXDR;
 	};
 
@@ -4327,7 +4329,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api public
 	 */
 
-	Request.prototype.abort = function(){
+	Request.prototype.abort = function () {
 	  this.cleanup();
 	};
 
@@ -4337,9 +4339,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * emitted.
 	 */
 
+	Request.requestsCount = 0;
+	Request.requests = {};
+
 	if (global.document) {
-	  Request.requestsCount = 0;
-	  Request.requests = {};
 	  if (global.attachEvent) {
 	    global.attachEvent('onunload', unloadHandler);
 	  } else if (global.addEventListener) {
@@ -4347,7 +4350,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	}
 
-	function unloadHandler() {
+	function unloadHandler () {
 	  for (var i in Request.requests) {
 	    if (Request.requests.hasOwnProperty(i)) {
 	      Request.requests[i].abort();
@@ -4358,18 +4361,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 22 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Module dependencies.
 	 */
 
-	var Transport = __webpack_require__(23);
-	var parseqs = __webpack_require__(34);
-	var parser = __webpack_require__(24);
-	var inherit = __webpack_require__(35);
-	var yeast = __webpack_require__(36);
+	var Transport = __webpack_require__(22);
+	var parseqs = __webpack_require__(32);
+	var parser = __webpack_require__(23);
+	var inherit = __webpack_require__(33);
+	var yeast = __webpack_require__(34);
 	var debug = __webpack_require__(3)('engine.io-client:polling');
 
 	/**
@@ -4382,8 +4385,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Is XHR2 supported?
 	 */
 
-	var hasXHR2 = (function() {
-	  var XMLHttpRequest = __webpack_require__(19);
+	var hasXHR2 = (function () {
+	  var XMLHttpRequest = __webpack_require__(18);
 	  var xhr = new XMLHttpRequest({ xdomain: false });
 	  return null != xhr.responseType;
 	})();
@@ -4395,7 +4398,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	function Polling(opts){
+	function Polling (opts) {
 	  var forceBase64 = (opts && opts.forceBase64);
 	  if (!hasXHR2 || forceBase64) {
 	    this.supportsBinary = false;
@@ -4422,7 +4425,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Polling.prototype.doOpen = function(){
+	Polling.prototype.doOpen = function () {
 	  this.poll();
 	};
 
@@ -4433,13 +4436,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Polling.prototype.pause = function(onPause){
-	  var pending = 0;
+	Polling.prototype.pause = function (onPause) {
 	  var self = this;
 
 	  this.readyState = 'pausing';
 
-	  function pause(){
+	  function pause () {
 	    debug('paused');
 	    self.readyState = 'paused';
 	    onPause();
@@ -4451,7 +4453,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (this.polling) {
 	      debug('we are currently polling - waiting to pause');
 	      total++;
-	      this.once('pollComplete', function(){
+	      this.once('pollComplete', function () {
 	        debug('pre-pause polling complete');
 	        --total || pause();
 	      });
@@ -4460,7 +4462,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (!this.writable) {
 	      debug('we are currently writing - waiting to pause');
 	      total++;
-	      this.once('drain', function(){
+	      this.once('drain', function () {
 	        debug('pre-pause writing complete');
 	        --total || pause();
 	      });
@@ -4476,7 +4478,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api public
 	 */
 
-	Polling.prototype.poll = function(){
+	Polling.prototype.poll = function () {
 	  debug('polling');
 	  this.polling = true;
 	  this.doPoll();
@@ -4489,17 +4491,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Polling.prototype.onData = function(data){
+	Polling.prototype.onData = function (data) {
 	  var self = this;
 	  debug('polling got data %s', data);
-	  var callback = function(packet, index, total) {
+	  var callback = function (packet, index, total) {
 	    // if its the first message we consider the transport open
-	    if ('opening' == self.readyState) {
+	    if ('opening' === self.readyState) {
 	      self.onOpen();
 	    }
 
 	    // if its a close packet, we close the ongoing requests
-	    if ('close' == packet.type) {
+	    if ('close' === packet.type) {
 	      self.onClose();
 	      return false;
 	    }
@@ -4512,12 +4514,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  parser.decodePayload(data, this.socket.binaryType, callback);
 
 	  // if an event did not trigger closing
-	  if ('closed' != this.readyState) {
+	  if ('closed' !== this.readyState) {
 	    // if we got data we're not polling
 	    this.polling = false;
 	    this.emit('pollComplete');
 
-	    if ('open' == this.readyState) {
+	    if ('open' === this.readyState) {
 	      this.poll();
 	    } else {
 	      debug('ignoring poll - transport state "%s"', this.readyState);
@@ -4531,15 +4533,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Polling.prototype.doClose = function(){
+	Polling.prototype.doClose = function () {
 	  var self = this;
 
-	  function close(){
+	  function close () {
 	    debug('writing close packet');
 	    self.write([{ type: 'close' }]);
 	  }
 
-	  if ('open' == this.readyState) {
+	  if ('open' === this.readyState) {
 	    debug('transport open - closing');
 	    close();
 	  } else {
@@ -4558,16 +4560,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Polling.prototype.write = function(packets){
+	Polling.prototype.write = function (packets) {
 	  var self = this;
 	  this.writable = false;
-	  var callbackfn = function() {
+	  var callbackfn = function () {
 	    self.writable = true;
 	    self.emit('drain');
 	  };
 
-	  var self = this;
-	  parser.encodePayload(packets, this.supportsBinary, function(data) {
+	  parser.encodePayload(packets, this.supportsBinary, function (data) {
 	    self.doWrite(data, callbackfn);
 	  });
 	};
@@ -4578,7 +4579,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Polling.prototype.uri = function(){
+	Polling.prototype.uri = function () {
 	  var query = this.query || {};
 	  var schema = this.secure ? 'https' : 'http';
 	  var port = '';
@@ -4595,8 +4596,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  query = parseqs.encode(query);
 
 	  // avoid port if default for schema
-	  if (this.port && (('https' == schema && this.port != 443) ||
-	     ('http' == schema && this.port != 80))) {
+	  if (this.port && (('https' === schema && this.port !== 443) ||
+	     ('http' === schema && this.port !== 80))) {
 	    port = ':' + this.port;
 	  }
 
@@ -4611,15 +4612,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 23 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Module dependencies.
 	 */
 
-	var parser = __webpack_require__(24);
-	var Emitter = __webpack_require__(33);
+	var parser = __webpack_require__(23);
+	var Emitter = __webpack_require__(31);
 
 	/**
 	 * Module exports.
@@ -4689,7 +4690,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	Transport.prototype.open = function () {
-	  if ('closed' == this.readyState || '' == this.readyState) {
+	  if ('closed' === this.readyState || '' === this.readyState) {
 	    this.readyState = 'opening';
 	    this.doOpen();
 	  }
@@ -4704,7 +4705,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	Transport.prototype.close = function () {
-	  if ('opening' == this.readyState || 'open' == this.readyState) {
+	  if ('opening' === this.readyState || 'open' === this.readyState) {
 	    this.doClose();
 	    this.onClose();
 	  }
@@ -4719,8 +4720,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Transport.prototype.send = function(packets){
-	  if ('open' == this.readyState) {
+	Transport.prototype.send = function (packets) {
+	  if ('open' === this.readyState) {
 	    this.write(packets);
 	  } else {
 	    throw new Error('Transport not open');
@@ -4746,7 +4747,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	Transport.prototype.onData = function(data){
+	Transport.prototype.onData = function (data) {
 	  var packet = parser.decodePacket(data, this.socket.binaryType);
 	  this.onPacket(packet);
 	};
@@ -4772,19 +4773,23 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 24 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module dependencies.
 	 */
 
-	var keys = __webpack_require__(25);
-	var hasBinary = __webpack_require__(26);
-	var sliceBuffer = __webpack_require__(28);
-	var base64encoder = __webpack_require__(29);
-	var after = __webpack_require__(30);
-	var utf8 = __webpack_require__(31);
+	var keys = __webpack_require__(24);
+	var hasBinary = __webpack_require__(25);
+	var sliceBuffer = __webpack_require__(26);
+	var after = __webpack_require__(27);
+	var utf8 = __webpack_require__(28);
+
+	var base64encoder;
+	if (global && global.ArrayBuffer) {
+	  base64encoder = __webpack_require__(29);
+	}
 
 	/**
 	 * Check if we are running an android browser. That requires us to use
@@ -4793,7 +4798,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * http://ghinda.net/jpeg-blob-ajax-android/
 	 */
 
-	var isAndroid = navigator.userAgent.match(/Android/i);
+	var isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
 
 	/**
 	 * Check if we are running in PhantomJS.
@@ -4801,7 +4806,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * https://github.com/ariya/phantomjs/issues/11395
 	 * @type boolean
 	 */
-	var isPhantomJS = /PhantomJS/i.test(navigator.userAgent);
+	var isPhantomJS = typeof navigator !== 'undefined' && /PhantomJS/i.test(navigator.userAgent);
 
 	/**
 	 * When true, avoids using Blobs to encode payloads.
@@ -4841,7 +4846,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Create a blob api even for blob builder when vendor prefixes exist
 	 */
 
-	var Blob = __webpack_require__(32);
+	var Blob = __webpack_require__(30);
 
 	/**
 	 * Encodes a packet.
@@ -4995,16 +5000,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	exports.decodePacket = function (data, binaryType, utf8decode) {
+	  if (data === undefined) {
+	    return err;
+	  }
 	  // String data
-	  if (typeof data == 'string' || data === undefined) {
+	  if (typeof data == 'string') {
 	    if (data.charAt(0) == 'b') {
 	      return exports.decodeBase64Packet(data.substr(1), binaryType);
 	    }
 
 	    if (utf8decode) {
-	      try {
-	        data = utf8.decode(data);
-	      } catch (e) {
+	      data = tryDecode(data);
+	      if (data === false) {
 	        return err;
 	      }
 	    }
@@ -5030,6 +5037,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return { type: packetslist[type], data: rest };
 	};
 
+	function tryDecode(data) {
+	  try {
+	    data = utf8.decode(data);
+	  } catch (e) {
+	    return false;
+	  }
+	  return data;
+	}
+
 	/**
 	 * Decodes a packet encoded in a base64 string
 	 *
@@ -5039,7 +5055,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.decodeBase64Packet = function(msg, binaryType) {
 	  var type = packetslist[msg.charAt(0)];
-	  if (!global.ArrayBuffer) {
+	  if (!base64encoder) {
 	    return { type: type, data: { base64: true, data: msg.substr(1) } };
 	  }
 
@@ -5373,7 +5389,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 25 */
+/* 24 */
 /***/ function(module, exports) {
 
 	
@@ -5398,7 +5414,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 26 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -5406,7 +5422,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Module requirements.
 	 */
 
-	var isArray = __webpack_require__(27);
+	var isArray = __webpack_require__(9);
 
 	/**
 	 * Module exports.
@@ -5463,16 +5479,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 27 */
-/***/ function(module, exports) {
-
-	module.exports = Array.isArray || function (arr) {
-	  return Object.prototype.toString.call(arr) == '[object Array]';
-	};
-
-
-/***/ },
-/* 28 */
+/* 26 */
 /***/ function(module, exports) {
 
 	/**
@@ -5507,72 +5514,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 29 */
-/***/ function(module, exports) {
-
-	/*
-	 * base64-arraybuffer
-	 * https://github.com/niklasvh/base64-arraybuffer
-	 *
-	 * Copyright (c) 2012 Niklas von Hertzen
-	 * Licensed under the MIT license.
-	 */
-	(function(chars){
-	  "use strict";
-
-	  exports.encode = function(arraybuffer) {
-	    var bytes = new Uint8Array(arraybuffer),
-	    i, len = bytes.length, base64 = "";
-
-	    for (i = 0; i < len; i+=3) {
-	      base64 += chars[bytes[i] >> 2];
-	      base64 += chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
-	      base64 += chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
-	      base64 += chars[bytes[i + 2] & 63];
-	    }
-
-	    if ((len % 3) === 2) {
-	      base64 = base64.substring(0, base64.length - 1) + "=";
-	    } else if (len % 3 === 1) {
-	      base64 = base64.substring(0, base64.length - 2) + "==";
-	    }
-
-	    return base64;
-	  };
-
-	  exports.decode =  function(base64) {
-	    var bufferLength = base64.length * 0.75,
-	    len = base64.length, i, p = 0,
-	    encoded1, encoded2, encoded3, encoded4;
-
-	    if (base64[base64.length - 1] === "=") {
-	      bufferLength--;
-	      if (base64[base64.length - 2] === "=") {
-	        bufferLength--;
-	      }
-	    }
-
-	    var arraybuffer = new ArrayBuffer(bufferLength),
-	    bytes = new Uint8Array(arraybuffer);
-
-	    for (i = 0; i < len; i+=4) {
-	      encoded1 = chars.indexOf(base64[i]);
-	      encoded2 = chars.indexOf(base64[i+1]);
-	      encoded3 = chars.indexOf(base64[i+2]);
-	      encoded4 = chars.indexOf(base64[i+3]);
-
-	      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
-	      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
-	      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
-	    }
-
-	    return arraybuffer;
-	  };
-	})("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-
-
-/***/ },
-/* 30 */
+/* 27 */
 /***/ function(module, exports) {
 
 	module.exports = after
@@ -5606,10 +5548,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 31 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/utf8js v2.0.0 by @mathias */
+	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/wtf8 v1.0.0 by @mathias */
 	;(function(root) {
 
 		// Detect free variables `exports`
@@ -5675,14 +5617,6 @@ return /******/ (function(modules) { // webpackBootstrap
 			return output;
 		}
 
-		function checkScalarValue(codePoint) {
-			if (codePoint >= 0xD800 && codePoint <= 0xDFFF) {
-				throw Error(
-					'Lone surrogate U+' + codePoint.toString(16).toUpperCase() +
-					' is not a scalar value'
-				);
-			}
-		}
 		/*--------------------------------------------------------------------------*/
 
 		function createByte(codePoint, shift) {
@@ -5698,7 +5632,6 @@ return /******/ (function(modules) { // webpackBootstrap
 				symbol = stringFromCharCode(((codePoint >> 6) & 0x1F) | 0xC0);
 			}
 			else if ((codePoint & 0xFFFF0000) == 0) { // 3-byte sequence
-				checkScalarValue(codePoint);
 				symbol = stringFromCharCode(((codePoint >> 12) & 0x0F) | 0xE0);
 				symbol += createByte(codePoint, 6);
 			}
@@ -5711,7 +5644,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			return symbol;
 		}
 
-		function utf8encode(string) {
+		function wtf8encode(string) {
 			var codePoints = ucs2decode(string);
 			var length = codePoints.length;
 			var index = -1;
@@ -5738,7 +5671,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				return continuationByte & 0x3F;
 			}
 
-			// If we end up here, it’s not a continuation byte
+			// If we end up here, it’s not a continuation byte.
 			throw Error('Invalid continuation byte');
 		}
 
@@ -5757,7 +5690,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				return false;
 			}
 
-			// Read first byte
+			// Read the first byte.
 			byte1 = byteArray[byteIndex] & 0xFF;
 			byteIndex++;
 
@@ -5783,7 +5716,6 @@ return /******/ (function(modules) { // webpackBootstrap
 				byte3 = readContinuationByte();
 				codePoint = ((byte1 & 0x0F) << 12) | (byte2 << 6) | byte3;
 				if (codePoint >= 0x0800) {
-					checkScalarValue(codePoint);
 					return codePoint;
 				} else {
 					throw Error('Invalid continuation byte');
@@ -5802,13 +5734,13 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 			}
 
-			throw Error('Invalid UTF-8 detected');
+			throw Error('Invalid WTF-8 detected');
 		}
 
 		var byteArray;
 		var byteCount;
 		var byteIndex;
-		function utf8decode(byteString) {
+		function wtf8decode(byteString) {
 			byteArray = ucs2decode(byteString);
 			byteCount = byteArray.length;
 			byteIndex = 0;
@@ -5822,10 +5754,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/*--------------------------------------------------------------------------*/
 
-		var utf8 = {
-			'version': '2.0.0',
-			'encode': utf8encode,
-			'decode': utf8decode
+		var wtf8 = {
+			'version': '1.0.0',
+			'encode': wtf8encode,
+			'decode': wtf8decode
 		};
 
 		// Some AMD build optimizers, like r.js, check for specific condition patterns
@@ -5834,20 +5766,20 @@ return /******/ (function(modules) { // webpackBootstrap
 			true
 		) {
 			!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
-				return utf8;
+				return wtf8;
 			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 		}	else if (freeExports && !freeExports.nodeType) {
 			if (freeModule) { // in Node.js or RingoJS v0.8.0+
-				freeModule.exports = utf8;
+				freeModule.exports = wtf8;
 			} else { // in Narwhal or RingoJS v0.7.0-
 				var object = {};
 				var hasOwnProperty = object.hasOwnProperty;
-				for (var key in utf8) {
-					hasOwnProperty.call(utf8, key) && (freeExports[key] = utf8[key]);
+				for (var key in wtf8) {
+					hasOwnProperty.call(wtf8, key) && (freeExports[key] = wtf8[key]);
 				}
 			}
 		} else { // in Rhino or a web browser
-			root.utf8 = utf8;
+			root.wtf8 = wtf8;
 		}
 
 	}(this));
@@ -5855,7 +5787,80 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)(module), (function() { return this; }())))
 
 /***/ },
-/* 32 */
+/* 29 */
+/***/ function(module, exports) {
+
+	/*
+	 * base64-arraybuffer
+	 * https://github.com/niklasvh/base64-arraybuffer
+	 *
+	 * Copyright (c) 2012 Niklas von Hertzen
+	 * Licensed under the MIT license.
+	 */
+	(function(){
+	  "use strict";
+
+	  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+	  // Use a lookup table to find the index.
+	  var lookup = new Uint8Array(256);
+	  for (var i = 0; i < chars.length; i++) {
+	    lookup[chars.charCodeAt(i)] = i;
+	  }
+
+	  exports.encode = function(arraybuffer) {
+	    var bytes = new Uint8Array(arraybuffer),
+	    i, len = bytes.length, base64 = "";
+
+	    for (i = 0; i < len; i+=3) {
+	      base64 += chars[bytes[i] >> 2];
+	      base64 += chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
+	      base64 += chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
+	      base64 += chars[bytes[i + 2] & 63];
+	    }
+
+	    if ((len % 3) === 2) {
+	      base64 = base64.substring(0, base64.length - 1) + "=";
+	    } else if (len % 3 === 1) {
+	      base64 = base64.substring(0, base64.length - 2) + "==";
+	    }
+
+	    return base64;
+	  };
+
+	  exports.decode =  function(base64) {
+	    var bufferLength = base64.length * 0.75,
+	    len = base64.length, i, p = 0,
+	    encoded1, encoded2, encoded3, encoded4;
+
+	    if (base64[base64.length - 1] === "=") {
+	      bufferLength--;
+	      if (base64[base64.length - 2] === "=") {
+	        bufferLength--;
+	      }
+	    }
+
+	    var arraybuffer = new ArrayBuffer(bufferLength),
+	    bytes = new Uint8Array(arraybuffer);
+
+	    for (i = 0; i < len; i+=4) {
+	      encoded1 = lookup[base64.charCodeAt(i)];
+	      encoded2 = lookup[base64.charCodeAt(i+1)];
+	      encoded3 = lookup[base64.charCodeAt(i+2)];
+	      encoded4 = lookup[base64.charCodeAt(i+3)];
+
+	      bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+	      bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+	      bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+	    }
+
+	    return arraybuffer;
+	  };
+	})();
+
+
+/***/ },
+/* 30 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -5958,7 +5963,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 33 */
+/* 31 */
 /***/ function(module, exports) {
 
 	
@@ -6128,7 +6133,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 34 */
+/* 32 */
 /***/ function(module, exports) {
 
 	/**
@@ -6171,7 +6176,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 35 */
+/* 33 */
 /***/ function(module, exports) {
 
 	
@@ -6183,7 +6188,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 36 */
+/* 34 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -6257,7 +6262,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 37 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -6265,8 +6270,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Module requirements.
 	 */
 
-	var Polling = __webpack_require__(22);
-	var inherit = __webpack_require__(35);
+	var Polling = __webpack_require__(21);
+	var inherit = __webpack_require__(33);
 
 	/**
 	 * Module exports.
@@ -6286,12 +6291,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	var callbacks;
-
-	/**
-	 * Callbacks count.
-	 */
-
-	var index = 0;
 
 	/**
 	 * Noop.
@@ -6389,21 +6388,20 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  script.async = true;
 	  script.src = this.uri();
-	  script.onerror = function(e){
-	    self.onError('jsonp poll error',e);
+	  script.onerror = function (e) {
+	    self.onError('jsonp poll error', e);
 	  };
 
 	  var insertAt = document.getElementsByTagName('script')[0];
 	  if (insertAt) {
 	    insertAt.parentNode.insertBefore(script, insertAt);
-	  }
-	  else {
+	  } else {
 	    (document.head || document.body).appendChild(script);
 	  }
 	  this.script = script;
 
-	  var isUAgecko = 'undefined' != typeof navigator && /gecko/i.test(navigator.userAgent);
-	  
+	  var isUAgecko = 'undefined' !== typeof navigator && /gecko/i.test(navigator.userAgent);
+
 	  if (isUAgecko) {
 	    setTimeout(function () {
 	      var iframe = document.createElement('iframe');
@@ -6463,7 +6461,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    try {
 	      // ie6 dynamic iframes with target="" support (thanks Chris Lambacher)
-	      var html = '<iframe src="javascript:0" name="'+ self.iframeId +'">';
+	      var html = '<iframe src="javascript:0" name="' + self.iframeId + '">';
 	      iframe = document.createElement(html);
 	    } catch (e) {
 	      iframe = document.createElement('iframe');
@@ -6486,11 +6484,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  try {
 	    this.form.submit();
-	  } catch(e) {}
+	  } catch (e) {}
 
 	  if (this.iframe.attachEvent) {
-	    this.iframe.onreadystatechange = function(){
-	      if (self.iframe.readyState == 'complete') {
+	    this.iframe.onreadystatechange = function () {
+	      if (self.iframe.readyState === 'complete') {
 	        complete();
 	      }
 	    };
@@ -6502,18 +6500,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 38 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module dependencies.
 	 */
 
-	var Transport = __webpack_require__(23);
-	var parser = __webpack_require__(24);
-	var parseqs = __webpack_require__(34);
-	var inherit = __webpack_require__(35);
-	var yeast = __webpack_require__(36);
+	var Transport = __webpack_require__(22);
+	var parser = __webpack_require__(23);
+	var parseqs = __webpack_require__(32);
+	var inherit = __webpack_require__(33);
+	var yeast = __webpack_require__(34);
 	var debug = __webpack_require__(3)('engine.io-client:websocket');
 	var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 
@@ -6526,7 +6524,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var WebSocket = BrowserWebSocket;
 	if (!WebSocket && typeof window === 'undefined') {
 	  try {
-	    WebSocket = __webpack_require__(39);
+	    WebSocket = __webpack_require__(37);
 	  } catch (e) { }
 	}
 
@@ -6543,7 +6541,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api public
 	 */
 
-	function WS(opts){
+	function WS (opts) {
 	  var forceBase64 = (opts && opts.forceBase64);
 	  if (forceBase64) {
 	    this.supportsBinary = false;
@@ -6578,15 +6576,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	WS.prototype.doOpen = function(){
+	WS.prototype.doOpen = function () {
 	  if (!this.check()) {
 	    // let probe timeout
 	    return;
 	  }
 
-	  var self = this;
 	  var uri = this.uri();
-	  var protocols = void(0);
+	  var protocols = void (0);
 	  var opts = {
 	    agent: this.agent,
 	    perMessageDeflate: this.perMessageDeflate
@@ -6604,7 +6601,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    opts.headers = this.extraHeaders;
 	  }
 
-	  this.ws = BrowserWebSocket ? new WebSocket(uri) : new WebSocket(uri, protocols, opts);
+	  try {
+	    this.ws = BrowserWebSocket ? new WebSocket(uri) : new WebSocket(uri, protocols, opts);
+	  } catch (err) {
+	    return this.emit('error', err);
+	  }
 
 	  if (this.ws.binaryType === undefined) {
 	    this.supportsBinary = false;
@@ -6612,7 +6613,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  if (this.ws.supports && this.ws.supports.binary) {
 	    this.supportsBinary = true;
-	    this.ws.binaryType = 'buffer';
+	    this.ws.binaryType = 'nodebuffer';
 	  } else {
 	    this.ws.binaryType = 'arraybuffer';
 	  }
@@ -6626,19 +6627,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	WS.prototype.addEventListeners = function(){
+	WS.prototype.addEventListeners = function () {
 	  var self = this;
 
-	  this.ws.onopen = function(){
+	  this.ws.onopen = function () {
 	    self.onOpen();
 	  };
-	  this.ws.onclose = function(){
+	  this.ws.onclose = function () {
 	    self.onClose();
 	  };
-	  this.ws.onmessage = function(ev){
+	  this.ws.onmessage = function (ev) {
 	    self.onData(ev.data);
 	  };
-	  this.ws.onerror = function(e){
+	  this.ws.onerror = function (e) {
 	    self.onError('websocket error', e);
 	  };
 	};
@@ -6650,11 +6651,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	if ('undefined' != typeof navigator
-	  && /iPad|iPhone|iPod/i.test(navigator.userAgent)) {
-	  WS.prototype.onData = function(data){
+	if ('undefined' !== typeof navigator &&
+	  /iPad|iPhone|iPod/i.test(navigator.userAgent)) {
+	  WS.prototype.onData = function (data) {
 	    var self = this;
-	    setTimeout(function(){
+	    setTimeout(function () {
 	      Transport.prototype.onData.call(self, data);
 	    }, 0);
 	  };
@@ -6667,7 +6668,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	WS.prototype.write = function(packets){
+	WS.prototype.write = function (packets) {
 	  var self = this;
 	  this.writable = false;
 
@@ -6675,8 +6676,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // no need for encodePayload
 	  var total = packets.length;
 	  for (var i = 0, l = total; i < l; i++) {
-	    (function(packet) {
-	      parser.encodePacket(packet, self.supportsBinary, function(data) {
+	    (function (packet) {
+	      parser.encodePacket(packet, self.supportsBinary, function (data) {
 	        if (!BrowserWebSocket) {
 	          // always create a new object (GH-437)
 	          var opts = {};
@@ -6685,16 +6686,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	          }
 
 	          if (self.perMessageDeflate) {
-	            var len = 'string' == typeof data ? global.Buffer.byteLength(data) : data.length;
+	            var len = 'string' === typeof data ? global.Buffer.byteLength(data) : data.length;
 	            if (len < self.perMessageDeflate.threshold) {
 	              opts.compress = false;
 	            }
 	          }
 	        }
 
-	        //Sometimes the websocket has already been closed but the browser didn't
-	        //have a chance of informing us about it yet, in that case send will
-	        //throw an error
+	        // Sometimes the websocket has already been closed but the browser didn't
+	        // have a chance of informing us about it yet, in that case send will
+	        // throw an error
 	        try {
 	          if (BrowserWebSocket) {
 	            // TypeError is thrown when passing the second argument on Safari
@@ -6702,7 +6703,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          } else {
 	            self.ws.send(data, opts);
 	          }
-	        } catch (e){
+	        } catch (e) {
 	          debug('websocket closed before onclose event');
 	        }
 
@@ -6711,12 +6712,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    })(packets[i]);
 	  }
 
-	  function done(){
+	  function done () {
 	    self.emit('flush');
 
 	    // fake drain
 	    // defer to next tick to allow Socket to clear writeBuffer
-	    setTimeout(function(){
+	    setTimeout(function () {
 	      self.writable = true;
 	      self.emit('drain');
 	    }, 0);
@@ -6729,7 +6730,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	WS.prototype.onClose = function(){
+	WS.prototype.onClose = function () {
 	  Transport.prototype.onClose.call(this);
 	};
 
@@ -6739,7 +6740,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	WS.prototype.doClose = function(){
+	WS.prototype.doClose = function () {
 	  if (typeof this.ws !== 'undefined') {
 	    this.ws.close();
 	  }
@@ -6751,14 +6752,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api private
 	 */
 
-	WS.prototype.uri = function(){
+	WS.prototype.uri = function () {
 	  var query = this.query || {};
 	  var schema = this.secure ? 'wss' : 'ws';
 	  var port = '';
 
 	  // avoid port if default for schema
-	  if (this.port && (('wss' == schema && this.port != 443)
-	    || ('ws' == schema && this.port != 80))) {
+	  if (this.port && (('wss' === schema && this.port !== 443) ||
+	    ('ws' === schema && this.port !== 80))) {
 	    port = ':' + this.port;
 	  }
 
@@ -6790,20 +6791,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api public
 	 */
 
-	WS.prototype.check = function(){
+	WS.prototype.check = function () {
 	  return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 	};
 
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 39 */
+/* 37 */
 /***/ function(module, exports) {
 
 	/* (ignored) */
 
 /***/ },
-/* 40 */
+/* 38 */
 /***/ function(module, exports) {
 
 	
@@ -6818,7 +6819,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 41 */
+/* 39 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -6856,7 +6857,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 42 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6866,12 +6867,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	var parser = __webpack_require__(6);
-	var Emitter = __webpack_require__(43);
-	var toArray = __webpack_require__(44);
-	var on = __webpack_require__(45);
-	var bind = __webpack_require__(46);
+	var Emitter = __webpack_require__(41);
+	var toArray = __webpack_require__(42);
+	var on = __webpack_require__(43);
+	var bind = __webpack_require__(44);
 	var debug = __webpack_require__(3)('socket.io-client:socket');
-	var hasBin = __webpack_require__(47);
+	var hasBin = __webpack_require__(45);
 
 	/**
 	 * Module exports.
@@ -7277,7 +7278,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 43 */
+/* 41 */
 /***/ function(module, exports) {
 
 	
@@ -7444,7 +7445,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 44 */
+/* 42 */
 /***/ function(module, exports) {
 
 	module.exports = toArray
@@ -7463,7 +7464,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 45 */
+/* 43 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7493,7 +7494,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 46 */
+/* 44 */
 /***/ function(module, exports) {
 
 	/**
@@ -7522,7 +7523,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 47 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -7530,7 +7531,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Module requirements.
 	 */
 
-	var isArray = __webpack_require__(48);
+	var isArray = __webpack_require__(9);
 
 	/**
 	 * Module exports.
@@ -7588,16 +7589,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 48 */
-/***/ function(module, exports) {
-
-	module.exports = Array.isArray || function (arr) {
-	  return Object.prototype.toString.call(arr) == '[object Array]';
-	};
-
-
-/***/ },
-/* 49 */
+/* 46 */
 /***/ function(module, exports) {
 
 	
