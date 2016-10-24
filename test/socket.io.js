@@ -1546,9 +1546,7 @@ describe('socket.io', function(){
       var srv = http();
       var sio = io(srv);
       srv.listen(function() {
-        var addr = srv.listen().address();
-        var url = 'ws://localhost:' + addr.port + '?key1=1&key2=2';
-        var socket = ioc(url);
+        var socket = client(srv, {query: {key1: 1, key2: 2}});
         sio.on('connection', function(s) {
           var parsed = require('url').parse(s.request.url);
           var query = require('querystring').parse(parsed.query);
@@ -1562,10 +1560,8 @@ describe('socket.io', function(){
     it('should see query parameters sent from secondary namespace connections in handshake object', function(done){
       var srv = http();
       var sio = io(srv);
-      var addr = srv.listen().address();
-      var url = 'ws://localhost:' + addr.port;
-      var client1 = ioc(url);
-      var client2 = ioc(url + '/connection2', {query: {key1: 'aa', key2: '&=bb'}});
+      var client1 = client(srv);
+      var client2 = client(srv, '/connection2', {query: {key1: 'aa', key2: '&=bb'}});
       sio.on('connection', function(s){
       });
       sio.of('/connection2').on('connection', function(s){
