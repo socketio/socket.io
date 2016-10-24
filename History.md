@@ -1,4 +1,19 @@
 
+1.5.1 / 2016-10-24
+==================
+
+  * [fix] Avoid swallowing exceptions thrown by user event handlers (#2682)
+  * [test] Use client function to unify `client` in test script (#2731)
+  * [docs] Add link to LICENSE (#2221)
+  * [docs] Fix JSDoc of optional parameters (#2465)
+  * [docs] Fix typo (#2724)
+  * [docs] Link readme npm package badge to npm registry page (#2612)
+  * [docs] Minor fixes (#2526)
+  * [chore] Bump socket.io-parser to 2.3.0 (#2730)
+  * [chore] Add Github issue and PR templates (#2733)
+  * [chore] Bump engine.io to 1.7.2 (#2729)
+  * [chore] Bump socket.io-parser to 2.3.1 (#2734)
+
 1.5.0 / 2016-10-06
 ==================
 
