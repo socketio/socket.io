@@ -16,11 +16,11 @@
   ],
   "dependencies": {
     "debug": "2.2.0",
-    "engine.io-client": "1.7.1",
+    "engine.io-client": "1.7.2",
     "component-bind": "1.0.0",
     "component-emitter": "1.2.0",
     "object-component": "0.0.3",
-    "socket.io-parser": "2.3.0",
+    "socket.io-parser": "2.3.1",
     "has-binary": "0.1.7",
     "indexof": "0.0.1",
     "parseuri": "0.0.4",
