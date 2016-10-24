@@ -4,6 +4,7 @@
  * Module requirements
  */
 
+var isArray = require('isarray');
 var isBuf = require('./is-buffer');
 
 /**
@@ -27,7 +28,7 @@ exports.deconstructPacket = function(packet){
       var placeholder = { _placeholder: true, num: buffers.length };
       buffers.push(data);
       return placeholder;
-    } else if (Array.isArray(data)) {
+    } else if (isArray(data)) {
       var newData = new Array(data.length);
       for (var i = 0; i < data.length; i++) {
         newData[i] = _deconstructPacket(data[i]);
@@ -65,7 +66,7 @@ exports.reconstructPacket = function(packet, buffers) {
     if (data && data._placeholder) {
       var buf = buffers[data.num]; // appropriate buffer (should be natural order anyway)
       return buf;
-    } else if (Array.isArray(data)) {
+    } else if (isArray(data)) {
       for (var i = 0; i < data.length; i++) {
         data[i] = _reconstructPacket(data[i]);
       }
@@ -120,7 +121,7 @@ exports.removeBlobs = function(data, callback) {
       };
 
       fileReader.readAsArrayBuffer(obj); // blob -> arraybuffer
-    } else if (Array.isArray(obj)) { // handle array
+    } else if (isArray(obj)) { // handle array
       for (var i = 0; i < obj.length; i++) {
         _removeBlobs(obj[i], i, obj);
       }
