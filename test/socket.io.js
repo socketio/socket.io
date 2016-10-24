@@ -1643,11 +1643,10 @@ describe('socket.io', function(){
         var clientSocket = client(srv, { reconnectionAttempts: 10, reconnectionDelay: 100 });
         clientSocket.once('connect', function(){
           srv.close(function(){
-            srv.listen(port, function(){
-              clientSocket.on('reconnect', function(){
-                clientSocket.emit('ev', 'payload');
-              });
+            clientSocket.on('reconnect', function(){
+              clientSocket.emit('ev', 'payload');
             });
+            sio.listen(port);
           });
         });
       });
