@@ -47,9 +47,9 @@ gulp.task('test', ['lint'], function () {
 
 gulp.task('lint', function () {
   return gulp.src([
-    '**/*.js',
-    '!node_modules/**',
-    '!coverage/**',
+    '*.js',
+    'lib/**/*.js',
+    'test/**/*.js',
     '!engine.io.js'
   ])
     .pipe(eslint())
