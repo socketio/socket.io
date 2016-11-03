@@ -1216,7 +1216,7 @@ describe('server', function () {
     });
 
     it('should arrive when binary data is sent as Buffer (ws)', function (done) {
-      var binaryData = Buffer(5);
+      var binaryData = new Buffer(5);
       for (var i = 0; i < binaryData.length; i++) {
         binaryData.writeInt8(i, i);
       }
@@ -1242,7 +1242,7 @@ describe('server', function () {
     });
 
     it('should arrive when binary data sent as Buffer (polling)', function (done) {
-      var binaryData = Buffer(5);
+      var binaryData = new Buffer(5);
       for (var i = 0; i < binaryData.length; i++) {
         binaryData.writeInt8(i, i);
       }
@@ -1269,7 +1269,7 @@ describe('server', function () {
     });
 
     it('should arrive as ArrayBuffer if requested when binary data sent as Buffer (ws)', function (done) {
-      var binaryData = Buffer(5);
+      var binaryData = new Buffer(5);
       for (var i = 0; i < binaryData.length; i++) {
         binaryData.writeInt8(i, i);
       }
@@ -1298,7 +1298,7 @@ describe('server', function () {
     });
 
     it('should arrive as ArrayBuffer if requested when binary data sent as Buffer (polling)', function (done) {
-      var binaryData = Buffer(5);
+      var binaryData = new Buffer(5);
       for (var i = 0; i < binaryData.length; i++) {
         binaryData.writeInt8(i, i);
       }
@@ -1454,7 +1454,7 @@ describe('server', function () {
 
       var engine = eio({ transports: ['polling'], allowUpgrades: false });
       engine.attach(srv);
-      srv.listen(null, function () {
+      srv.listen(function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
@@ -1492,7 +1492,7 @@ describe('server', function () {
 
       var engine = eio({ transports: ['polling'], allowUpgrades: false });
       engine.attach(srv);
-      srv.listen(null, function () {
+      srv.listen(function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
@@ -1532,7 +1532,7 @@ describe('server', function () {
 
       var engine = eio({ transports: ['websocket'], allowUpgrades: false });
       engine.attach(srv);
-      srv.listen(null, function () {
+      srv.listen(function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
@@ -1572,7 +1572,7 @@ describe('server', function () {
 
       var engine = eio({ transports: ['polling'], allowUpgrades: false });
       engine.attach(srv);
-      srv.listen(null, function () {
+      srv.listen(function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
@@ -1612,7 +1612,7 @@ describe('server', function () {
 
       var engine = eio({ transports: ['websocket'], allowUpgrades: false });
       engine.attach(srv);
-      srv.listen(null, function () {
+      srv.listen(function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
