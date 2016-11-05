@@ -399,7 +399,7 @@ describe('socket.io', function(){
       var net    = require('net');
       var server = net.createServer();
 
-      var clientSocket = ioc('ws://0.0.0.0:' + PORT);
+      var clientSocket = ioc('ws://0.0.0.0:' + PORT, { reconnection: false });
 
       clientSocket.on('disconnect', function init() {
         expect(Object.keys(sio.nsps['/'].sockets).length).to.equal(0);
