@@ -43,6 +43,7 @@
     "gulp-eslint": "1.1.1",
     "gulp-file": "0.2.0",
     "gulp-istanbul": "0.10.3",
+    "gulp-minify": "0.0.14",
     "gulp-mocha": "2.2.0",
     "gulp-task-listing": "1.0.1",
     "has-cors": "1.1.0",

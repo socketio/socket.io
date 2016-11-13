@@ -5,6 +5,7 @@ const webpack = require('webpack-stream');
 const child = require('child_process');
 const help = require('gulp-task-listing');
 const eslint = require('gulp-eslint');
+const minify = require('gulp-minify');
 
 gulp.task('help', help);
 
@@ -19,6 +20,12 @@ const BUILD_TARGET_DIR = './';
 gulp.task('build', function () {
   return gulp.src('lib/*.js')
     .pipe(webpack(require('./support/webpack.config.js')))
+    .pipe(minify({
+      ext: {
+        src: '.js',
+        min: '.min.js'
+      }
+    }))
     .pipe(gulp.dest(BUILD_TARGET_DIR));
 });
 
@@ -46,7 +53,8 @@ gulp.task('lint', function () {
     '**/*.js',
     '!node_modules/**',
     '!coverage/**',
-    '!socket.io.js'
+    '!socket.io.js',
+    '!socket.io.min.js'
   ])
     .pipe(eslint())
     .pipe(eslint.format())
