@@ -198,9 +198,14 @@ server.listen(3000);
 
   For other available methods, see `Namespace` below.
 
-### Server#close
+### Server#close([fn:Function])
 
-  Closes socket.io server
+  Closes socket.io server.
+  
+  The optional `fn` is passed to the `server.close([callback])` method of the 
+  core `net` module and is called on error or when all connections are closed. 
+  The callback is expected to implement the common single argument `err` 
+  signature (if any).
 
   ```js
   var Server = require('socket.io');
