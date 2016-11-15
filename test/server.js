@@ -543,6 +543,27 @@ describe('server', function () {
       });
     });
 
+    it('should allow client reconnect after restarting (ws)', function (done) {
+      var opts = { transports: ['websocket'] };
+      var engine = listen(opts, function (port) {
+        engine.httpServer.close();
+        engine.httpServer.listen(port);
+
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+
+        engine.once('connection', function (conn) {
+          setTimeout(function () {
+            conn.close();
+          }, 10);
+        });
+
+        socket.once('close', function (reason) {
+          expect(reason).to.be('transport close');
+          done();
+        });
+      });
+    });
+
     it('should trigger when client closes', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
