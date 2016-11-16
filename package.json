@@ -24,12 +24,13 @@
     "test": "gulp test"
   },
   "dependencies": {
+    "debug": "2.2.0",
     "engine.io": "1.7.2",
-    "socket.io-parser": "2.3.1",
-    "socket.io-client": "1.5.1",
-    "socket.io-adapter": "0.4.0",
     "has-binary": "0.1.7",
-    "debug": "2.2.0"
+    "object-assign": "4.1.0",
+    "socket.io-adapter": "0.4.0",
+    "socket.io-client": "1.5.1",
+    "socket.io-parser": "2.3.1"
   },
   "devDependencies": {
     "babel-preset-es2015": "6.3.13",
