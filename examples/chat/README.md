@@ -10,7 +10,7 @@ $ cd socket.io
 $ npm install
 $ cd examples/chat
 $ npm install
-$ node .
+$ npm start
 ```
 
 And point your browser to `http://localhost:3000`. Optionally, specify
