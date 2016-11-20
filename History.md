@@ -1,4 +1,21 @@
 
+1.6.0 / 2016-11-20
+==================
+
+  * [fix] Make ETag header comply with standard. (#2603)
+  * [feature] Loading client script on demand. (#2567)
+  * [test] Fix leaking clientSocket (#2721)
+  * [feature] Add support for all event emitter methods (#2601)
+  * [chore] Update year to 2016 (#2456)
+  * [feature] Add support for socket middleware (#2306)
+  * [feature] add support for Server#close(callback) (#2748)
+  * [fix] Don't drop query variables on handshake (#2745)
+  * [example] Add disconnection/reconnection logs to the chat example (#2675)
+  * [perf] Minor code optimizations (#2219)
+  * [chore] Bump debug to version 2.3.3 (#2754)
+  * [chore] Bump engine.io to version 1.8.0 (#2755)
+  * [chore] Bump socket.io-adapter to version 0.5.0 (#2756)
+
 1.5.1 / 2016-10-24
 ==================
 
