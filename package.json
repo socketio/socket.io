@@ -8,7 +8,7 @@
   },
   "description": "",
   "dependencies": {
-    "debug": "2.2.0",
+    "debug": "2.3.3",
     "socket.io-parser": "2.3.1"
   }
 }
