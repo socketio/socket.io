@@ -24,7 +24,7 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "debug": "2.2.0",
+    "debug": "2.3.3",
     "engine.io": "1.7.2",
     "has-binary": "0.1.7",
     "object-assign": "4.1.0",
