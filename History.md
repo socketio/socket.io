@@ -1,4 +1,16 @@
 
+1.8.0 / 2016-11-20
+===================
+
+  * [fix] Fixed regression creating connection over https from node (#513)
+  * [fix] Fixed regression creating connection over wss from node (#514)
+  * [feature] Enable definition of timeouts for xhr-polling (#456)
+  * [feature] Added flag forceNode to override the normal behavior of prefering Browser based implementations. (#469)
+  * [feature] add localAddress option (#487)
+  * [chore] update dependencies (#516)
+  * [chore] Speed up lint by avoiding '**/*.js' matching pattern (#517)
+  * [chore] Bump debug to version 2.3.3 (#520)
+
 1.7.2 / 2016-10-24
 ===================
 
