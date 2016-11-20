@@ -1,4 +1,11 @@
 
+1.6.0 / 2016-11-20
+==================
+
+  * [feature] emit sourcemap for socket.io.js (#953)
+  * [feature] Support minified `socket.io.min.js` (#1021)
+  * [chore] Bump dependencies (#1026)
+
 1.5.1 / 2016-10-24
 ==================
 
