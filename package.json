@@ -16,17 +16,17 @@
     "socket.io.js.map"
   ],
   "dependencies": {
-    "debug": "2.2.0",
-    "engine.io-client": "1.7.2",
+    "backo2": "1.0.2",
     "component-bind": "1.0.0",
-    "component-emitter": "1.2.0",
-    "object-component": "0.0.3",
-    "socket.io-parser": "2.3.1",
+    "component-emitter": "1.2.1",
+    "debug": "2.3.3",
+    "engine.io-client": "1.8.0",
     "has-binary": "0.1.7",
     "indexof": "0.0.1",
-    "parseuri": "0.0.4",
-    "to-array": "0.1.4",
-    "backo2": "1.0.2"
+    "object-component": "0.0.3",
+    "parseuri": "0.0.5",
+    "socket.io-parser": "2.3.1",
+    "to-array": "0.1.4"
   },
   "devDependencies": {
     "babel-core": "6.4.5",
