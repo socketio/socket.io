@@ -151,6 +151,7 @@ Adapter.prototype.broadcast = function(packet, opts){
  * Gets a list of clients by sid.
  *
  * @param {Array} explicit set of rooms to check.
+ * @param {Function} callback
  * @api public
  */
 
@@ -193,6 +194,18 @@ Adapter.prototype.clients = function(rooms, fn){
   }
 
   if (fn) process.nextTick(fn.bind(null, null, sids));
+};
+
+/**
+ * Gets the list of rooms a given client has joined.
+ *
+ * @param {String} socket id
+ * @param {Function} callback
+ * @api public
+ */
+Adapter.prototype.clientRooms = function(id, fn){
+  var rooms = this.sids[id];
+  if (fn) process.nextTick(fn.bind(null, null, rooms ? Object.keys(rooms) : null));
 };
 
 /**
