@@ -1,4 +1,14 @@
 
+1.8.0 / 2016-11-20
+===================
+
+  * [style] Fix some typos (#439)
+  * [style] Add ESlint (#385)
+  * [test] fix tests for NodeJS v7 (#441)
+  * [feature] Fix cookiePath empty bug and add cookieHttpOnly option (#423)
+  * [fix] Don't delete ws when closing the server (#444)
+  * [chore] Bump debug to version 2.3.3 (#445)
+
 1.7.2 / 2016-10-24
 ===================
 
