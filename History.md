@@ -1,4 +1,12 @@
 
+0.5.0 / 2016-11-20
+==================
+
+  * [docs] Fix typo in Readme.md (#37)
+  * [chore] Bump socket.io-parser to version 2.3.1 (#43)
+  * [chore] Bump debug to version 2.3.3 (#42)
+  * [feature] Add clientRooms method (#41)
+
 0.4.0 / 2015-12-03
 ==================
 
