@@ -8,5 +8,8 @@
   "license": "BSD",
   "dependencies": {
     "express": "4.13.4"
+  },
+  "scripts": {
+    "start": "node index.js"
   }
 }

@@ -263,4 +263,20 @@ $(function() {
   socket.on('stop typing', function (data) {
     removeChatTyping(data);
   });
+
+  socket.on('disconnect', function () {
+    log('you have been disconnected');
+  });
+
+  socket.on('reconnect', function () {
+    log('you have been reconnected');
+    if (username) {
+      socket.emit('add user', username);
+    }
+  });
+
+  socket.on('reconnect_error', function () {
+    log('attempt to reconnect has failed');
+  });
+
 });
