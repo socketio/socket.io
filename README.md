@@ -233,13 +233,13 @@ to a single process.
 - `handleRequest`
     - Called internally when a `Engine` request is intercepted.
     - **Parameters**
-      - `http.ServerRequest`: a node request object
+      - `http.IncomingMessage`: a node request object
       - `http.ServerResponse`: a node response object
     - **Returns** `Server` for chaining
 - `handleUpgrade`
     - Called internally when a `Engine` ws upgrade is intercepted.
     - **Parameters** (same as `upgrade` event)
-      - `http.ServerRequest`: a node request object
+      - `http.IncomingMessage`: a node request object
       - `net.Stream`: TCP socket for the request
       - `Buffer`: legacy tail bytes
     - **Returns** `Server` for chaining
@@ -258,7 +258,7 @@ to a single process.
     - Generate a socket id.
     - Overwrite this method to generate your custom socket id.
     - **Parameters**
-      - `http.ServerRequest`: a node request object
+      - `http.IncomingMessage`: a node request object
   - **Returns** A socket id for connected client.
 
 <hr><br>
@@ -303,7 +303,7 @@ A representation of a client. _Inherits from EventEmitter_.
 
 - `id` _(String)_: unique identifier
 - `server` _(Server)_: engine parent reference
-- `request` _(http.ServerRequest)_: request that originated the Socket
+- `request` _(http.IncomingMessage)_: request that originated the Socket
 - `upgraded` _(Boolean)_: whether the transport has been upgraded
 - `readyState` _(String)_: opening|open|closing|closed
 - `transport` _(Transport)_: transport reference
