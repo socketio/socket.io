@@ -15,21 +15,28 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/Automattic/socket.io"
+    "url": "git://github.com/socketio/socket.io"
   },
   "scripts": {
-    "test": "mocha --reporter dot --slow 200ms --bail"
+    "test": "gulp test"
   },
   "dependencies": {
     "engine.io": "1.6.8",
     "socket.io-parser": "2.2.6",
-    "socket.io-client": "1.4.5",
+    "socket.io-client": "git://github.com/nus-fboa2016-si/socket.io-client#e0580ef4",
     "socket.io-adapter": "0.4.0",
     "has-binary": "0.1.7",
     "debug": "2.2.0"
   },
   "devDependencies": {
+    "babel-preset-es2015": "6.3.13",
+    "del": "2.2.0",
     "expect.js": "0.3.1",
+    "gulp": "3.9.0",
+    "gulp-babel": "6.1.1",
+    "gulp-istanbul": "0.10.3",
+    "gulp-mocha": "2.2.0",
+    "gulp-task-listing": "1.0.1",
     "istanbul": "0.4.1",
     "mocha": "2.3.4",
     "superagent": "1.6.1",

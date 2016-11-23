@@ -3,14 +3,22 @@ before_install:
   - npm install -g npm@'>=1.4.3'
 language: node_js
 node_js:
-  - "0.8"
   - "0.10"
   - "0.12"
   - "4"
+  - "node"
 
 git:
   depth: 1
 
+matrix:
+  include:
+  - node_js: '0.10'
+    env: TEST_VERSION=compat
+  - node_js: '0.12'
+    env: TEST_VERSION=compat
+  - node_js: '4'
+    env: TEST_VERSION=compat
 #matrix:
   #fast_finish: true
   #allow_failures:

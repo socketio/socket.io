@@ -1,6 +1,12 @@
-
+var testVersion = process.env.TEST_VERSION;
 var http = require('http').Server;
-var io = require('..');
+var io;
+if (testVersion === 'compat') {
+  console.log('testing compat version');
+  io = require('../dist');
+} else {
+  io = require('../lib');
+}
 var fs = require('fs');
 var join = require('path').join;
 var exec = require('child_process').exec;
@@ -415,8 +421,8 @@ describe('socket.io', function(){
 
     describe('graceful close', function(){
       function fixture(filename) {
-        return process.execPath + ' ' +
-          join(__dirname, 'fixtures', filename);
+        return '"' + process.execPath + '" "' +
+          join(__dirname, 'fixtures', filename) + '"';
       }
 
       it('should stop socket and timers', function(done){
@@ -426,9 +432,18 @@ describe('socket.io', function(){
   });
 
   describe('namespaces', function(){
-    var Socket = require('../lib/socket');
-    var Namespace = require('../lib/namespace');
-
+    var Socket;
+    if (testVersion === 'compat') {
+      Socket = require('../dist/socket');
+    } else {
+      Socket = require('../lib/socket');
+    }
+    var Namespace;
+    if (testVersion === 'compat') {
+      Namespace = require('../dist/namespace');
+    } else {
+      Namespace = require('../lib/namespace');
+    }
     it('should be accessible through .sockets', function(){
       var sio = io();
       expect(sio.sockets).to.be.a(Namespace);
@@ -651,7 +666,7 @@ describe('socket.io', function(){
         var clientSocket2 = client(srv);
         sio.on('connection', function() {
           connections++;
-          if(connections === 2) {
+          if (connections === 2) {
             done();
           }
         });
@@ -785,7 +800,7 @@ describe('socket.io', function(){
           setTimeout(function() {
             sio.of('/chat').emit('ev', 'data');
             sio.of('/chat').volatile.emit('ev', 'data');
-          }, 20);
+          }, 50);
         });
 
         var socket = client(srv, '/chat');
@@ -797,7 +812,7 @@ describe('socket.io', function(){
       setTimeout(function() {
         expect(counter).to.be(1);
         done();
-      }, 200);
+      }, 500);
     });
 
     it('should emit volatile event', function(done) {
@@ -810,7 +825,7 @@ describe('socket.io', function(){
           // Wait to make sure there are no packets being sent for opening the connection
           setTimeout(function() {
             sio.of('/chat').volatile.emit('ev', 'data');
-          }, 20);
+          }, 100);
         });
 
         var socket = client(srv, '/chat');
@@ -822,7 +837,7 @@ describe('socket.io', function(){
       setTimeout(function() {
         expect(counter).to.be(1);
         done();
-      }, 200);
+      }, 500);
     });
 
     it('should enable compression by default', function(done){
@@ -1139,7 +1154,7 @@ describe('socket.io', function(){
           // Wait to make sure there are no packets being sent for opening the connection
           setTimeout(function() {
             s.volatile.emit('ev', 'data');
-          }, 20);
+          }, 100);
         });
 
         var socket = client(srv, { transports: ['polling'] });
@@ -1151,7 +1166,7 @@ describe('socket.io', function(){
       setTimeout(function() {
         expect(counter).to.be(1);
         done();
-      }, 200);
+      }, 500);
     });
 
     it('should emit volatile event (ws)', function(done) {
@@ -1190,7 +1205,7 @@ describe('socket.io', function(){
           setTimeout(function() {
             s.volatile.emit('ev', 'data');
             s.volatile.emit('ev', 'data');
-          }, 20);
+          }, 100);
         });
 
         var socket = client(srv, { transports: ['polling'] });
@@ -1202,7 +1217,7 @@ describe('socket.io', function(){
       setTimeout(function() {
         expect(counter).to.be(1);
         done();
-      }, 200);
+      }, 500);
     });
 
     it('should emit only one consecutive volatile event (ws)', function(done) {
@@ -1517,6 +1532,24 @@ describe('socket.io', function(){
           done();
         });
       });
+    });
+    
+    it('should see query parameters sent from secondary namespace connections in handshake object', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var addr = srv.listen().address();
+      var url = 'ws://localhost:' + addr.port;
+      var client1 = ioc(url);
+      var client2 = ioc(url + '/connection2', {query: {key1: 'aa', key2: '&=bb'}});
+      sio.on('connection', function(s){
+      });
+      sio.of('/connection2').on('connection', function(s){
+        expect(s.handshake.query.key1).to.be('aa');
+        expect(s.handshake.query.key2).to.be('&=bb');
+        done();
+      });
+
+
     });
 
     it('should handle very large json', function(done){
@@ -2036,7 +2069,12 @@ describe('socket.io', function(){
   });
 
   describe('middleware', function(done){
-    var Socket = require('../lib/socket');
+    var Socket;
+    if (testVersion === 'compat') {
+      Socket = require('../dist/socket');
+    } else {
+      Socket = require('../lib/socket');
+    }
 
     it('should call functions', function(done){
       var srv = http();

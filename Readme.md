@@ -393,6 +393,12 @@ server.listen(3000);
     socket.compress(false).emit('an event', { some: 'data' });
   });
   ```
+  
+### Socket#disconnect(close:Boolean):Socket
+    
+  Disconnects this client. If value of close is `true`, closes the underlying connection. 
+  Otherwise, it just disconnects the namespace.
+    
 
 ### Client
 
@@ -421,6 +427,17 @@ To see the output from all of Socket.IO's debugging scopes you can use:
 ```
 DEBUG=socket.io* node myapp
 ```
+
+## Testing
+
+```
+npm test
+```
+This runs the `gulp` task `test`. By default the test will be run with the source code in `lib` directory.
+
+Set the environmental variable `TEST_VERSION` to `compat` to test the transpiled es5-compat version of the code.
+
+The `gulp` task `test` will always transpile the source code into es5 and export to `dist` first before running the test.
 
 ## License
 

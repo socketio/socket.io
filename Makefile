@@ -1,15 +1,8 @@
 
-REPORTER = dot
-
 test:
-	@./node_modules/.bin/mocha \
-		--reporter $(REPORTER) \
-		--slow 200ms \
-		--bail
+	@./node_modules/.bin/gulp test
 
 test-cov:
-	@./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- \
-		--reporter $(REPORTER) \
-		test/
+	@./node_modules/.bin/gulp test-cov
 
 .PHONY: test
