@@ -15,7 +15,7 @@ gulp.task('default', ['build']);
 // BUILDING
 // //////////////////////////////////////
 
-const BUILD_TARGET_DIR = './';
+const BUILD_TARGET_DIR = './dist/';
 
 gulp.task('build', function () {
   return gulp.src('lib/*.js')
@@ -53,8 +53,7 @@ gulp.task('lint', function () {
     '**/*.js',
     '!node_modules/**',
     '!coverage/**',
-    '!socket.io.js',
-    '!socket.io.min.js'
+    '!dist/**'
   ])
     .pipe(eslint())
     .pipe(eslint.format())

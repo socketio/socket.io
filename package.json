@@ -12,9 +12,7 @@
   "main": "./lib/index",
   "files": [
     "lib/",
-    "socket.io.js",
-    "socket.io.min.js",
-    "socket.io.js.map"
+    "dist/"
   ],
   "dependencies": {
     "backo2": "1.0.2",
