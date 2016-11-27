@@ -1,4 +1,10 @@
 
+1.7.1 / 2016-11-28
+==================
+
+  * [docs] Add saucelabs browser matrix in README (#1035)
+  * [fix] Fix json import in slim build (#1036)
+
 1.7.0 / 2016-11-27
 ==================
 
