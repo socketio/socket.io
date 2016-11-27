@@ -19,7 +19,12 @@ const BUILD_TARGET_DIR = './dist/';
 
 gulp.task('build', function () {
   return gulp.src('lib/*.js')
-    .pipe(webpack(require('./support/webpack.config.js')))
+    .pipe(webpack({
+      config: [
+        require('./support/webpack.config.js'),
+        require('./support/webpack.config.slim.js')
+      ]
+    }))
     .pipe(minify({
       ext: {
         src: '.js',

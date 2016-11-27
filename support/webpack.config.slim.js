@@ -1,16 +1,21 @@
 
+var webpack = require('webpack');
+
 module.exports = {
-  name: 'default',
+  name: 'slim',
   entry: './lib/index.js',
   output: {
     library: 'io',
     libraryTarget: 'umd',
-    filename: 'socket.io.js'
+    filename: 'socket.io.slim.js'
   },
   externals: {
     global: glob()
   },
   devtool: 'cheap-module-source-map',
+  plugins: [
+    new webpack.NormalModuleReplacementPlugin(/(debug|json3)/, process.cwd() + '/support/noop.js')
+  ],
   module: {
     loaders: [{
       test: /\.js$/,
@@ -20,6 +25,9 @@ module.exports = {
     }, {
       test: /\json3.js/,
       loader: 'imports?define=>false'
+    }, {
+      test: /\.js$/,
+      loader: 'strip-loader?strip[]=debug'
     }]
   }
 };
