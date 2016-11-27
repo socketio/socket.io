@@ -10,11 +10,12 @@ module.exports = {
     filename: 'socket.io.slim.js'
   },
   externals: {
-    global: glob()
+    global: glob(),
+    json3: 'JSON'
   },
   devtool: 'cheap-module-source-map',
   plugins: [
-    new webpack.NormalModuleReplacementPlugin(/(debug|json3)/, process.cwd() + '/support/noop.js')
+    new webpack.NormalModuleReplacementPlugin(/debug/, process.cwd() + '/support/noop.js')
   ],
   module: {
     loaders: [{
