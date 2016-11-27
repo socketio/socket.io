@@ -1,4 +1,14 @@
 
+1.7.0 / 2016-11-27
+===================
+
+  * [docs] Comment connected socket availability for adapters (#2081)
+  * [docs] Fixed grammar issues in the README.md (#2159)
+  * [feature] serve sourcemap for socket.io-client (#2482)
+  * [feature] Add a `local` flag (#2628)
+  * [chore] Bump engine.io to version 1.8.1 (#2765)
+  * [chore] Update client location and serve minified file (#2766)
+
 1.6.0 / 2016-11-20
 ==================
 
