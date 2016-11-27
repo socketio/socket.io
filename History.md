@@ -1,4 +1,11 @@
 
+1.7.0 / 2016-11-27
+==================
+
+  * [chore] Move generated files to `dist` folder (#1025)
+  * [chore] Provide a slim build without JSON3 and debug (#1030)
+  * [chore] Bump engine.io-client to 1.8.1 (#1032)
+
 1.6.0 / 2016-11-20
 ==================
 
