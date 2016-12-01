@@ -2277,6 +2277,11 @@ describe('socket.io', function(){
 
         clientSocket.emit('join', 'woot');
 
+        clientSocket.on('error', function(err){
+          expect(err).to.be('Authentication error');
+          done();
+        });
+
         sio.on('connection', function(socket){
           socket.use(function(event, next){
             next(new Error('Authentication error'));
@@ -2287,10 +2292,6 @@ describe('socket.io', function(){
 
           socket.on('join', function(){
             done(new Error('nope'));
-          });
-          clientSocket.on('error', function(err){
-            expect(err).to.be('Authentication error');
-            done();
           });
         });
       });
@@ -2305,6 +2306,11 @@ describe('socket.io', function(){
 
         clientSocket.emit('join', 'woot');
 
+        clientSocket.on('error', function(err){
+          expect(err).to.eql({ a: 'b', c: 3 });
+          done();
+        });
+
         sio.on('connection', function(socket){
           socket.use(function(event, next){
             var err = new Error('Authentication error');
@@ -2314,10 +2320,6 @@ describe('socket.io', function(){
 
           socket.on('join', function(){
             done(new Error('nope'));
-          });
-          clientSocket.on('error', function(err){
-            expect(err).to.eql({ a: 'b', c: 3 });
-            done();
           });
         });
       });
