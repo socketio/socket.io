@@ -157,22 +157,28 @@ describe('socket.io', function(){
     describe('http.Server', function(){
       var clientVersion = require('socket.io-client/package').version;
 
-      it('should serve static files', function(done){
-        var srv = http();
-        io(srv);
-        request(srv)
-        .get('/socket.io/socket.io.js')
-        .buffer(true)
-        .end(function(err, res){
-          if (err) return done(err);
-          var ctype = res.headers['content-type'];
-          expect(ctype).to.be('application/javascript');
-          expect(res.headers.etag).to.be('"' + clientVersion + '"');
-          expect(res.text).to.match(/engine\.io/);
-          expect(res.status).to.be(200);
-          done();
-        });
-      });
+      function clientSourceTest(file) {
+        return function(done){
+          var srv = http();
+          io(srv);
+          request(srv)
+          .get('/socket.io/' + file)
+          .buffer(true)
+          .end(function(err, res){
+            if (err) return done(err);
+            var ctype = res.headers['content-type'];
+            expect(ctype).to.be('application/javascript');
+            expect(res.headers.etag).to.be('"' + clientVersion + '"');
+            expect(res.headers['x-sourcemap']).to.be(file + '.map');
+            expect(res.text).to.match(/engine\.io/);
+            expect(res.status).to.be(200);
+            done();
+          });
+        };
+      }
+
+      it('should serve client', clientSourceTest('socket.io.js'));
+      it('should serve slim client', clientSourceTest('socket.io.slim.js'));
 
       it('should handle 304', function(done){
         var srv = http();
@@ -680,7 +686,7 @@ describe('socket.io', function(){
         });
       });
     });
-    
+
     it('should not reuse same-namespace connections', function(done){
       var srv = http();
       var sio = io(srv);
@@ -1556,7 +1562,7 @@ describe('socket.io', function(){
         });
       });
     });
-    
+
     it('should see query parameters sent from secondary namespace connections in handshake object', function(done){
       var srv = http();
       var sio = io(srv);
