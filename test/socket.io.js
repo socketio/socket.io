@@ -177,8 +177,29 @@ describe('socket.io', function(){
         };
       }
 
+      function clientMapTest(file) {
+        return function(done){
+          var srv = http();
+          io(srv);
+          request(srv)
+          .get('/socket.io/' + file)
+          .buffer(true)
+          .end(function(err, res){
+            if (err) return done(err);
+            var ctype = res.headers['content-type'];
+            expect(ctype).to.be('application/json');
+            expect(res.headers.etag).to.be('"' + clientVersion + '"');
+            expect(res.text).to.match(/engine\.io/);
+            expect(res.status).to.be(200);
+            done();
+          });
+        };
+      }
+
       it('should serve client', clientSourceTest('socket.io.js'));
+      it('should serve client', clientMapTest('socket.io.js.map'));
       it('should serve slim client', clientSourceTest('socket.io.slim.js'));
+      it('should serve slim client', clientMapTest('socket.io.slim.js.map'));
 
       it('should handle 304', function(done){
         var srv = http();
