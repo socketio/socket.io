@@ -59,6 +59,12 @@ io.on('connection', function(){ /* … */ });
 server.listen(3000);
 ```
 
+## Migration guide
+
+[Here](https://github.com/LearnBoost/socket.io/wiki/Migrating-to-1.0)
+is a work in progress guide on the main backwards-incompatible
+changes between 0.9.x and 1.0.
+
 ## API
 
 ### Server
