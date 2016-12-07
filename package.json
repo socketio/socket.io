@@ -6,16 +6,16 @@
   "homepage": "https://github.com/socketio/engine.io-parser",
   "devDependencies": {
     "expect.js": "0.3.1",
-    "mocha": "2.2.5",
-    "zuul": "3.11.0",
+    "mocha": "3.2.0",
+    "zuul": "3.11.1",
     "zuul-ngrok": "4.0.0"
   },
   "dependencies": {
-    "after": "0.8.1",
+    "after": "0.8.2",
     "arraybuffer.slice": "0.0.6",
     "base64-arraybuffer": "0.1.5",
     "blob": "0.0.4",
-    "has-binary": "0.1.6",
+    "has-binary": "0.1.7",
     "wtf-8": "1.0.0"
   },
   "scripts": {
