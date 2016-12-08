@@ -15,7 +15,7 @@ exports.listen = function (opts, fn) {
     opts = {};
   }
 
-  var e = eio.listen(undefined, opts, function () {
+  var e = eio.listen(0, opts, function () {
     fn(e.httpServer.address().port);
   });
 
