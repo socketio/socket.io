@@ -1,4 +1,15 @@
 
+1.8.2  / 2016-12-11
+===================
+
+  * [fix] Add proper response when handleUpgrade fails (#458)
+  * [test] Use explicit versions for travis tests (#457)
+  * [refactor] Remove deprecated code used for nodejs v0.8 (#456)
+  * [chore] Bump engine.io-parser to version 1.3.2 (#455)
+  * [perf] websocket optimisation (#453)
+  * [docs] Rename ServerRequest to IncomingMessage (#448)
+  * [chore] Bump base64id to version 1.0.0 (#451)
+
 1.8.1 / 2016-11-27
 ===================
 
