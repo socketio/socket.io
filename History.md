@@ -1,4 +1,10 @@
 
+1.7.2 / 2016-12-11
+===================
+
+  * [chore] Bump engine.io-client to version 1.8.2 (#1044)
+  * [chore] Speed up lint by avoiding '**/*.js' matching pattern (#1043)
+
 1.7.1 / 2016-11-28
 ==================
 
