@@ -19,7 +19,7 @@
     "component-bind": "1.0.0",
     "component-emitter": "1.2.1",
     "debug": "2.3.3",
-    "engine.io-client": "1.8.1",
+    "engine.io-client": "1.8.2",
     "has-binary": "0.1.7",
     "indexof": "0.0.1",
     "object-component": "0.0.3",
