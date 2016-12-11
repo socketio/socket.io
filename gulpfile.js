@@ -55,10 +55,10 @@ gulp.task('test-zuul', testZuul);
 
 gulp.task('lint', function () {
   return gulp.src([
-    '**/*.js',
-    '!node_modules/**',
-    '!coverage/**',
-    '!dist/**'
+    '*.js',
+    'lib/**/*.js',
+    'test/**/*.js',
+    'support/**/*.js'
   ])
     .pipe(eslint())
     .pipe(eslint.format())
