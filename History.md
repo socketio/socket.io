@@ -1,4 +1,10 @@
 
+1.7.2 / 2016-12-11
+===================
+
+  * [chore] Bump engine.io to version 1.8.2 (#2782)
+  * [fix] Fixes socket.use error packet (#2772)
+
 1.7.1 / 2016-11-28
 ===================
 
