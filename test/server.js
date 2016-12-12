@@ -469,7 +469,7 @@ describe('server', function () {
     });
 
     it('should trigger on both ends upon ping timeout', function (done) {
-      var opts = { allowUpgrades: false, pingTimeout: 10, pingInterval: 10 };
+      var opts = { allowUpgrades: false, pingTimeout: 500, pingInterval: 10 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         var total = 2;
