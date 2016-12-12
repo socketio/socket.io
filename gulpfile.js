@@ -10,7 +10,7 @@ const REPORTER = 'dot';
 gulp.task('default', ['transpile']);
 
 gulp.task('test', ['nsp', 'lint'], function () {
-  if (parseInt(process.versions.node, 10) < 4 && process.env.EIO_WS_ENGINE === 'uws') {
+  if (parseInt(process.versions.node, 10) < 4 && process.env.EIO_WS_ENGINE !== 'ws') {
     console.info('Node version < 4, skipping tests with uws engine');
     process.exit();
   }
