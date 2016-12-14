@@ -204,14 +204,25 @@ ul {
   display: table;
 }
 
+.tickIcon:after{
+  content:"Match";
+  position: absolute;;
+  bottom: 0;
+  left:50%;
+  margin-left: -32px;
+  font-size: 150%;
+  margin-bottom: -30px;
+}
+
 .matchSection:before,
 .matchSection:after{
   content:"";
   position: absolute;
-  top: 61px;
-  width: 30%;
+  top: 34px;
+  width: 36%;
   height: 1px;
-  background-color: #000;
+  background-color: #D0011B;
+  opacity: .2;
 }
 
 .matchSection:before{
@@ -231,5 +242,5 @@ ul {
 }
 
 .tickIcon span > img{
-  width: 50%;
+  width: 25%;
 }
