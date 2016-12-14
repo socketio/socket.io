@@ -68,7 +68,7 @@ ul {
   border: none;
   border-bottom: 2px solid #fff;
   outline: none;
-  padding-bottom: 15px;
+  padding-top: 15px;
   text-align: center;
   width: 400px;
 }
@@ -100,15 +100,12 @@ ul {
   font-size: 16px;
 }
 
-.navbar {
+.navbar img{
   box-sizing: border-box;
   width: 100%;
-  background-color: black;
-  color: white;
-  text-align: center;
-  padding-top: 15px;
-  padding-bottom: 15px;
+  display: block;
 }
+
 
 .log {
   color: gray;
@@ -152,6 +149,11 @@ ul {
   margin-bottom: 10px;
 }
 
+.right span {
+  background-color: #702222;
+  color: white;
+}
+
 .right span, .right .photo{
   float: right;
 }
@@ -167,7 +169,7 @@ ul {
   background-color: #F0F0F0;
   color: #000;
   padding: 16px;
-  border-radius: 10px;
+  border-radius: 10px 10px 10px 0;
   display: inline-block;
 }
 
@@ -192,10 +194,54 @@ ul {
 
 .photo{
     float: left;
-    width: 45px;
-    height: 45px;
+    width: 32px;
+    height: 32px;
     position: relative;
     border-radius: 50%;
     margin-left: 5px;
     margin-right: 5px;
+}
+
+
+.matchSection{
+  text-align: center;
+  position: relative;
+  margin: 40px 0;
+}
+
+.tickIcon{
+  position: absolute;
+  left: 50%;
+  margin-left: -127px;
+  display: table;
+}
+
+.matchSection:before,
+.matchSection:after{
+  content:"";
+  position: absolute;
+  top: 57px;
+  width: 30%;
+  height: 1px;
+  background-color: #000;
+}
+
+.matchSection:before{
+  left:20px;
+}
+
+.matchSection:after{
+  right:20px;
+}
+
+.tickIcon span{
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 200%;
+  color: #fff;
+}
+
+.tickIcon span > img{
+  width: 50%;
 }
