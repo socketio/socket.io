@@ -105,8 +105,9 @@ ul {
 .log {
   color: gray;
   font-size: 70%;
-  margin: 5px;
+  margin: 15px 15px 0 15px;
   text-align: center;
+  font-size: 200%;
 }
 
 /* Messages */
@@ -136,12 +137,19 @@ ul {
 
 }
 
+.message{
+  float: left;
+  width: 100%;
+  margin: 40px 0;
+}
+
 .messageBody{
   font-size: 150%;
   background-color: #F0F0F0;
   color: #000;
-  padding: 7px 25px;
-  border-radius: 100%;
+  padding: 25px;
+  border-radius: 30%;
+  display: inline-block;
 }
 
 /* Input */
