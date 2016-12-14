@@ -136,6 +136,13 @@ $(function() {
     addMessageElement($messageDiv, options);
   }
 
+  function addConnecting() {
+    var $messageDiv = $('<li />')
+      .append('Connecting');
+
+    addMessageElement($messageDiv, {fade: true});
+  }
+
   // Adds the visual chat typing message
   function addChatTyping (data) {
     data.typing = true;
@@ -298,6 +305,9 @@ $(function() {
 
   socket.on('connectRM', function(){
     connectRM = true;
+    setTimeout(function(){
+      addConnecting();
+    }, 1000);
   });
 
   // Whenever the server emits 'new message', update the chat body
