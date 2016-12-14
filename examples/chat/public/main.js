@@ -85,6 +85,8 @@ $(function() {
     }
 
     var $usernameDiv = $('<img class="photo" src="images.jpg">')
+    var $user2Div = $('<img class="photo robo" src="robo.jpg">')
+    var $user3Div = $('<img class="photo robo" src="girl.jpg">')
       .text(data.username)
       .css('color', getUsernameColor(data.username));
     var $messageBodyDiv = $('<span class="messageBody">')
