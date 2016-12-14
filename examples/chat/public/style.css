@@ -264,3 +264,9 @@ ul {
 .tickIcon span > img{
   width: 25%;
 }
+
+.connectItem{
+  display: inline-block;
+    float: left;
+    width: 100%;
+}
