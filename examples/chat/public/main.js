@@ -297,14 +297,6 @@ $(function() {
   // Whenever the server emits 'login', log the login message
   socket.on('login', function (data) {
     connected = true;
-    // Display the welcome message
-    var message = "Welcome to HSBC advisor";
-    log(message, {
-      prepend: true
-    });
-    if(!connectRM) {
-      askRobotQuestion();
-    }
     // addParticipantsMessage(data);
   });
 
