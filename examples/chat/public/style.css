@@ -69,7 +69,7 @@ ul {
   outline: none;
   padding-top: 15px;
   text-align: center;
-  width: 400px;
+  width: 100%;
 }
 
 .login.page .title {
