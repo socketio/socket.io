@@ -1,4 +1,18 @@
 $(function() {
+  var questions = [
+    'Q1',
+    'Q2',
+    'Q3',
+    'Q4',
+    'Q5',
+    'Q6',
+    'Q7'
+  ];
+  var answerConnectQuestion = false;
+  var connectRM = false;
+  var connectQuestion = 'Would you like to connect to our Relationship Manager?';
+
+  var questionIndex = 0;
   var FADE_TIME = 150; // ms
   var TYPING_TIMER_LENGTH = 400; // ms
   var COLORS = [
@@ -17,6 +31,7 @@ $(function() {
   var $chatPage = $('.chat.page'); // The chatroom page
 
   // Prompt for setting a username
+  var robotName = 'robot';
   var username;
   var connected = false;
   var typing = false;
@@ -48,6 +63,10 @@ $(function() {
 
       // Tell the server your username
       socket.emit('add user', username);
+
+      if(username == 'Chris') {
+        connectRM = true;
+      }
     }
   }
 
@@ -63,8 +82,16 @@ $(function() {
         username: username,
         message: message
       });
-      // tell server to execute 'new message' and send along one parameter
-      socket.emit('new message', message);
+      if(connectRM) {
+        // tell server to execute 'new message' and send along one parameter
+        socket.emit('new message', message);
+      }
+      else if(answerConnectQuestion) {
+        socket.emit('answerConnect', message);
+      }
+      else if(questionIndex < questions.length) {
+        socket.emit('robotAnswer', message);
+      }
     }
   }
 
@@ -76,7 +103,7 @@ $(function() {
 
   // Adds the visual chat message to the message list
   function addChatMessage (data, options) {
-    // Don't fade the message in if there is an 'X was typing'
+    // Don't fade the message in if there is an 'X was typing'    
     var $typingMessages = getTypingMessages(data);
     options = options || {};
     if ($typingMessages.length !== 0) {
@@ -84,16 +111,24 @@ $(function() {
       $typingMessages.remove();
     }
 
-    var $usernameDiv = $('<img class="photo" src="images.jpg">')
-    var $user2Div = $('<img class="photo robo" src="robo.jpg">')
-    var $user3Div = $('<img class="photo robo" src="girl.jpg">')
+    var $usernameDiv;
+    var floatRight = data.username == username ? ' right' : '';
+    var usernameLowercase = data.username.toLowerCase();
+    if(usernameLowercase == robotName)
+      $usernameDiv = $('<img class="photo" src="robo.jpg">');
+    else if(usernameLowercase == 'chris')
+      $usernameDiv = $('<img class="photo" src="images.jpg">');
+    else 
+      $usernameDiv = $('<img class="photo" src="girl.jpg">');
+
+    var $usernameDiv = $usernameDiv
       .text(data.username)
       .css('color', getUsernameColor(data.username));
     var $messageBodyDiv = $('<span class="messageBody">')
       .text(data.message);
 
     var typingClass = data.typing ? 'typing' : '';
-    var $messageDiv = $('<li class="message"/>')
+    var $messageDiv = $('<li class="message' + floatRight + '"/>')
       .data('username', data.username)
       .addClass(typingClass)
       .append($usernameDiv, $messageBodyDiv);
@@ -190,6 +225,13 @@ $(function() {
     return COLORS[index];
   }
 
+  function askRobotQuestion() {    
+    addChatMessage({
+        username: robotName,
+        message: questions[questionIndex++]
+    });
+  }
+
   // Keyboard events
 
   $window.keydown(function (event) {
@@ -231,11 +273,31 @@ $(function() {
   socket.on('login', function (data) {
     connected = true;
     // Display the welcome message
-    var message = "Welcome to Coupling";
+    var message = "Welcome to HSBC advisor";
     log(message, {
       prepend: true
     });
-    addParticipantsMessage(data);
+    if(!connectRM) {
+      askRobotQuestion();
+    }
+    // addParticipantsMessage(data);
+  });
+
+  socket.on('robotQuestion', function() {
+    askRobotQuestion();
+  })
+
+  socket.on('connectRMQuestion', function(){
+    questionIndex = questions.length - 1;   
+    answerConnectQuestion = true; 
+    addChatMessage({
+        username: robotName,
+        message: connectQuestion
+    });
+  });
+
+  socket.on('connectRM', function(){
+    connectRM = true;
   });
 
   // Whenever the server emits 'new message', update the chat body
