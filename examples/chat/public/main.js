@@ -1,4 +1,5 @@
 $(function() {
+  var questionIndex = 1;
   var FADE_TIME = 150; // ms
   var TYPING_TIMER_LENGTH = 400; // ms
   var COLORS = [
@@ -17,6 +18,7 @@ $(function() {
   var $chatPage = $('.chat.page'); // The chatroom page
 
   // Prompt for setting a username
+  var robotName = 'robot';
   var username;
   var connected = false;
   var typing = false;
@@ -63,8 +65,15 @@ $(function() {
         username: username,
         message: message
       });
-      // tell server to execute 'new message' and send along one parameter
-      socket.emit('new message', message);
+      if(questionIndex <= 3) {
+        socket.emit('q' + questionIndex);
+      }
+      else {
+        // tell server to execute 'new message' and send along one parameter
+        socket.emit('new message', message);
+      }
+
+      questionIndex++
     }
   }
 
@@ -76,7 +85,7 @@ $(function() {
 
   // Adds the visual chat message to the message list
   function addChatMessage (data, options) {
-    // Don't fade the message in if there is an 'X was typing'
+    // Don't fade the message in if there is an 'X was typing'    
     var $typingMessages = getTypingMessages(data);
     options = options || {};
     if ($typingMessages.length !== 0) {
@@ -229,15 +238,36 @@ $(function() {
   socket.on('login', function (data) {
     connected = true;
     // Display the welcome message
-    var message = "Welcome to Socket.IO Chat – ";
-    log(message, {
-      prepend: true
+    // var message = "Welcome to Socket.IO Chat – ";
+    // log(message, {
+    //   prepend: true
+    // });
+    // addParticipantsMessage(data);
+    addChatMessage({
+        username: robotName,
+        message: 'Hi, do you like Star War?'
     });
-    addParticipantsMessage(data);
   });
+
+  socket.on('q2', function() {
+    addChatMessage({
+        username: robotName,
+        message: 'Q2'
+    });
+  })
+
+  socket.on('q3', function() {
+    addChatMessage({
+        username: robotName,
+        message: 'Q3'
+    });
+  })
 
   // Whenever the server emits 'new message', update the chat body
   socket.on('new message', function (data) {
+    if(questionIndex < 8) {
+      data.username = robotName;
+    }
     addChatMessage(data);
   });
 
