@@ -73,9 +73,16 @@ $(function() {
 
   // Sends a chat message
   function sendMessage () {
+    var uploadThisTime = false;
     var message = $inputMessage.val();
     // Prevent markup from being injected into the message
     message = cleanInput(message);
+
+    if(message.toLowerCase().indexOf('upload') !== -1) {
+      uploadedProfile = true; 
+      uploadThisTime = true;
+    }
+
     // if there is a non-empty message and a socket connection
     if (message && connected) {
       $inputMessage.val('');
@@ -83,6 +90,10 @@ $(function() {
         username: username,
         message: message
       });
+
+      if(uploadThisTime)
+        return;
+      
       if(connectRM) {
         // tell server to execute 'new message' and send along one parameter
         socket.emit('new message', message);
@@ -255,14 +266,9 @@ $(function() {
     // When the client hits ENTER on their keyboard
     if (event.which === 13) {
       if (username) {
-        var message = $inputMessage.val();
-        if(message.toLowerCase().indexOf('upload') !== -1) {
-          uploadedProfile = true;
-        } else {
-          sendMessage();
-          socket.emit('stop typing');
-          typing = false;
-        }
+        sendMessage();
+        socket.emit('stop typing');
+        typing = false;
       } else {
         setUsername();
       }
