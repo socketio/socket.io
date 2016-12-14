@@ -2,8 +2,15 @@ $(function() {
   var questions = [
     'Q1',
     'Q2',
-    'Q3'
+    'Q3',
+    'Q4',
+    'Q5',
+    'Q6',
+    'Q7'
   ];
+  var answerConnectQuestion = false;
+  var connectRM = false;
+  var connectQuestion = 'Would you like to connect to our Relationship Manager?';
 
   var questionIndex = 0;
   var FADE_TIME = 150; // ms
@@ -56,6 +63,10 @@ $(function() {
 
       // Tell the server your username
       socket.emit('add user', username);
+
+      if(username == 'Chris') {
+        connectRM = true;
+      }
     }
   }
 
@@ -71,12 +82,15 @@ $(function() {
         username: username,
         message: message
       });
-      if(questionIndex < questions.length) {
-        socket.emit('robotAnswer');
-      }
-      else {
+      if(connectRM) {
         // tell server to execute 'new message' and send along one parameter
         socket.emit('new message', message);
+      }
+      else if(answerConnectQuestion) {
+        socket.emit('answerConnect', message);
+      }
+      else if(questionIndex < questions.length) {
+        socket.emit('robotAnswer', message);
       }
     }
   }
@@ -99,9 +113,10 @@ $(function() {
 
     var $usernameDiv;
     var floatRight = data.username == username ? ' right' : '';
-    if(data.username == robotName)
+    var usernameLowercase = data.username.toLowerCase();
+    if(usernameLowercase == robotName)
       $usernameDiv = $('<img class="photo" src="robo.jpg">');
-    else if(data.username == 'John')
+    else if(usernameLowercase == 'chris')
       $usernameDiv = $('<img class="photo" src="images.jpg">');
     else 
       $usernameDiv = $('<img class="photo" src="girl.jpg">');
@@ -258,17 +273,32 @@ $(function() {
   socket.on('login', function (data) {
     connected = true;
     // Display the welcome message
-    var message = "Welcome to Coupling";
+    var message = "Welcome to HSBC advisor";
     log(message, {
       prepend: true
     });
-    askRobotQuestion();
+    if(!connectRM) {
+      askRobotQuestion();
+    }
     // addParticipantsMessage(data);
   });
 
   socket.on('robotQuestion', function() {
     askRobotQuestion();
   })
+
+  socket.on('connectRMQuestion', function(){
+    questionIndex = questions.length - 1;   
+    answerConnectQuestion = true; 
+    addChatMessage({
+        username: robotName,
+        message: connectQuestion
+    });
+  });
+
+  socket.on('connectRM', function(){
+    connectRM = true;
+  });
 
   // Whenever the server emits 'new message', update the chat body
   socket.on('new message', function (data) {
