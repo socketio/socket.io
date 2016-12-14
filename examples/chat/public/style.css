@@ -147,3 +147,14 @@ ul {
   right: 0;
   width: 100%;
 }
+
+
+.photo{
+    width: 45px;
+    height: 45px;
+    position: relative;
+    border-radius: 50%;
+    top: 5px;
+    margin-right: 10px;
+}
+}
