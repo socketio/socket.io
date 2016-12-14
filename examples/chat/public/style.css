@@ -69,7 +69,7 @@ ul {
   outline: none;
   padding-top: 15px;
   text-align: center;
-  width: 400px;
+  width: 100%;
 }
 
 .login.page .title {
@@ -182,6 +182,16 @@ ul {
     margin-right: 10px;
 }
 
+.header{
+    color: white;
+    height: 100px;
+    margin-top: -100px;
+    position: absolute;
+    text-align: center;
+    top: 30%;
+    width: 100%;
+    font-size: 3rem;
+}
 .matchSection{
   text-align: center;
   position: relative;
