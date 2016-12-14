@@ -1,5 +1,11 @@
 $(function() {
-  var questionIndex = 1;
+  var questions = [
+    'Q1',
+    'Q2',
+    'Q3'
+  ];
+
+  var questionIndex = 0;
   var FADE_TIME = 150; // ms
   var TYPING_TIMER_LENGTH = 400; // ms
   var COLORS = [
@@ -65,15 +71,13 @@ $(function() {
         username: username,
         message: message
       });
-      if(questionIndex <= 3) {
-        socket.emit('q' + questionIndex);
+      if(questionIndex < questions.length) {
+        socket.emit('robotAnswer');
       }
       else {
         // tell server to execute 'new message' and send along one parameter
         socket.emit('new message', message);
       }
-
-      questionIndex++
     }
   }
 
@@ -93,13 +97,14 @@ $(function() {
       $typingMessages.remove();
     }
 
-    var $usernameDiv = $('<img class="photo" src="robo.jpg">');
+    var $usernameDiv;
+    var floatRight = data.username == username ? ' right' : '';
     if(data.username == robotName)
-      $('<img class="photo" src="robo.jpg">');
+      $usernameDiv = $('<img class="photo" src="robo.jpg">');
     else if(data.username == 'John')
-      $('<img class="photo" src="images.jpg">');
+      $usernameDiv = $('<img class="photo" src="images.jpg">');
     else 
-      $('<img class="photo" src="girl.jpg">');
+      $usernameDiv = $('<img class="photo" src="girl.jpg">');
 
     var $usernameDiv = $usernameDiv
       .text(data.username)
@@ -108,7 +113,7 @@ $(function() {
       .text(data.message);
 
     var typingClass = data.typing ? 'typing' : '';
-    var $messageDiv = $('<li class="message"/>')
+    var $messageDiv = $('<li class="message' + floatRight + '"/>')
       .data('username', data.username)
       .addClass(typingClass)
       .append($usernameDiv, $messageBodyDiv);
@@ -205,6 +210,13 @@ $(function() {
     return COLORS[index];
   }
 
+  function askRobotQuestion() {    
+    addChatMessage({
+        username: robotName,
+        message: questions[questionIndex++]
+    });
+  }
+
   // Keyboard events
 
   $window.keydown(function (event) {
@@ -250,32 +262,16 @@ $(function() {
     log(message, {
       prepend: true
     });
+    askRobotQuestion();
     // addParticipantsMessage(data);
-    addChatMessage({
-        username: robotName,
-        message: 'Hi, do you like Star War?'
-    });
   });
 
-  socket.on('q2', function() {
-    addChatMessage({
-        username: robotName,
-        message: 'Q2'
-    });
-  })
-
-  socket.on('q3', function() {
-    addChatMessage({
-        username: robotName,
-        message: 'Q3'
-    });
+  socket.on('robotQuestion', function() {
+    askRobotQuestion();
   })
 
   // Whenever the server emits 'new message', update the chat body
   socket.on('new message', function (data) {
-    if(questionIndex < 8) {
-      data.username = robotName;
-    }
     addChatMessage(data);
   });
 

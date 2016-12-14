@@ -46,20 +46,10 @@ io.on('connection', function (socket) {
     // });
   });
 
-  socket.on('q1', function(){
+  socket.on('robotAnswer', function(){
     setTimeout(function(){
-      socket.emit('q2');
+      socket.emit('robotQuestion');
     }, 1000);
-  })
-
-  socket.on('q2', function(){
-    setTimeout(function(){
-      socket.emit('q3');
-    }, 1000);
-  })
-
-  socket.on('q3', function(){
-
   })
 
   // when the client emits 'typing', we broadcast it to others
