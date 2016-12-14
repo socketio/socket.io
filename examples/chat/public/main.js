@@ -66,7 +66,7 @@ $(function() {
       // Tell the server your username
       socket.emit('add user', username);
 
-      if(username == 'Chris') {
+      if(username.toLowerCase() == 'chris') {
         connectRM = true;
       }
     }
