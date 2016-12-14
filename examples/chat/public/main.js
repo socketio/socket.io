@@ -1,12 +1,13 @@
 $(function() {
   var questions = [
-    'Q1',
-    'Q2',
-    'Q3',
-    'Q4',
-    'Q5',
-    'Q6',
-    'Q7'
+    'Hi, I can see you purchase a MacBook Pro today? Is that right?',
+    'Awesome! Was it for yourself or was it a gift?',
+    'Congratulations! However, I see that you didn\'t purchase AppleCare. Can I recommend an Insurer to protect it?',
+    'Can you please send me a photo so I can confirm the spec and I can store',
+    'It looks great! That\'s now been saved, so let\'s look for the best insurer',
+    'From my search I can see there are 3 options: 1. AppleCare, 2.AVIA, 3.AIA. I can see that 60% of customers who bought this product insured it with AppleCare',
+    'Sure, is there anything I can help you with?',
+    'Well, I think I can help, there are 2 options for you: 1. visit our personalized retirement simulator. 2. speak to our expert wealth relationship manager. What option do you want to go? 1 or 2?'
   ];
   var answerConnectQuestion = false;
   var connectRM = false;
@@ -78,7 +79,7 @@ $(function() {
     // Prevent markup from being injected into the message
     message = cleanInput(message);
 
-    if(message.toLowerCase().indexOf('upload') !== -1) {
+    if(message.toLowerCase().indexOf('photo') !== -1) {
       uploadedProfile = true; 
       uploadThisTime = true;
     }
@@ -91,8 +92,8 @@ $(function() {
         message: message
       });
 
-      if(uploadThisTime)
-        return;
+      // if(uploadThisTime)
+      //   return;
       
       if(connectRM) {
         // tell server to execute 'new message' and send along one parameter
@@ -155,7 +156,7 @@ $(function() {
   }
 
   function addConnecting() {
-    var $messageDiv = $('<li><div class="matchSection"><div class="tickIcon"><span><img src="success.png" alt=""><span></div></div></li>');
+    var $messageDiv = $('<li class="message"><div class="matchSection"><div class="tickIcon"><span><img src="success.png" alt=""><span></div></div></li>');
     console.log('addConnecting');
     addMessageElement($messageDiv, {fade: true});
   }
