@@ -99,7 +99,7 @@ ul {
 }
 
 .inputMessage {
-  font-size: 100%;
+  font-size: 200%;
 }
 
 .log {
@@ -128,10 +128,20 @@ ul {
 }
 
 .username {
-  font-weight: 700;
+  font-weight: bold;
   overflow: hidden;
   padding-right: 15px;
   text-align: right;
+  font-size: 150%;
+
+}
+
+.messageBody{
+  font-size: 150%;
+  background-color: #F0F0F0;
+  color: #000;
+  padding: 7px 25px;
+  border-radius: 100%;
 }
 
 /* Input */
@@ -146,4 +156,5 @@ ul {
   position: absolute;
   right: 0;
   width: 100%;
+  padding: 55px;
 }
