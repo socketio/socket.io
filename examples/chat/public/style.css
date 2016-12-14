@@ -144,6 +144,10 @@ ul {
   margin: 40px 0;
 }
 
+.right{
+  text-align: right;
+}
+
 .messageBody{
   font-size: 150%;
   background-color: #F0F0F0;
