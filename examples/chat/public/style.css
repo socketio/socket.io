@@ -90,6 +90,7 @@ ul {
 
 .chat.page {
   display: none;
+  font-size: 10px;
 }
 
 /* Font */
@@ -121,7 +122,7 @@ ul {
   height: 100%;
   margin: 0;
   overflow-y: scroll;
-  padding: 10px 20px 10px 20px;
+  /*padding: 10px 20px 10px 20px;*/
 }
 
 .message.typing .messageBody {
