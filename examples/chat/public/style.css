@@ -67,7 +67,7 @@ ul {
   border: none;
   border-bottom: 2px solid #fff;
   outline: none;
-  padding-bottom: 15px;
+  padding-top: 15px;
   text-align: center;
   width: 400px;
 }
@@ -181,4 +181,46 @@ ul {
     top: 5px;
     margin-right: 10px;
 }
+
+.matchSection{
+  text-align: center;
+  position: relative;
+  margin: 40px 0;
+}
+
+.tickIcon{
+  position: absolute;
+  left: 50%;
+  margin-left: -127px;
+  display: table;
+}
+
+.matchSection:before,
+.matchSection:after{
+  content:"";
+  position: absolute;
+  top: 57px;
+  width: 30%;
+  height: 1px;
+  background-color: #000;
+}
+
+.matchSection:before{
+  left:20px;
+}
+
+.matchSection:after{
+  right:20px;
+}
+
+.tickIcon span{
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 200%;
+  color: #fff;
+}
+
+.tickIcon span > img{
+  width: 50%;
 }
