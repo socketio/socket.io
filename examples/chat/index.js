@@ -49,7 +49,7 @@ io.on('connection', function (socket) {
   socket.on('robotAnswer', function(answer){
     setTimeout(function(){
       answer = answer.toLowerCase();
-      if(answer.indexOf('connect') !== -1) {
+      if(answer.indexOf('２') !== -1) {
         socket.emit('connectRMQuestion');
       }
       else {

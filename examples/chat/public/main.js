@@ -1,16 +1,18 @@
 $(function() {
   var questions = [
-    'Q1',
-    'Q2',
-    'Q3',
-    'Q4',
-    'Q5',
-    'Q6',
-    'Q7'
+    'Hi, I can see you purchase a MacBook Pro today? Is that right?',
+    'Awesome! Was it for yourself or was it a gift?',
+    'Congratulations! However, I see that you didn\'t purchase AppleCare. Can I recommend an Insurer to protect it?',
+    'Can you please send me a photo so I can confirm the spec and I can store',
+    'It looks great! That\'s now been saved, so let\'s look for the best insurer',
+    'From my search I can see there are 3 options: 1. AppleCare, 2.AVIA, 3.AIA. I can see that 60% of customers who bought this product insured it with AppleCare',
+    'Sure, is there anything I can help you with?',
+    'Well, I think I can help, there are 2 options for you: 1. visit our personalized retirement simulator. 2. speak to our expert wealth relationship manager. What option do you want to go? 1 or 2?'
   ];
   var answerConnectQuestion = false;
   var connectRM = false;
   var connectQuestion = 'Would you like to connect to our Relationship Manager?';
+  var uploadedProfile = false;
 
   var questionIndex = 0;
   var FADE_TIME = 150; // ms
@@ -64,7 +66,7 @@ $(function() {
       // Tell the server your username
       socket.emit('add user', username);
 
-      if(username == 'Chris') {
+      if(username.toLowerCase() == 'chris') {
         connectRM = true;
       }
     }
@@ -72,9 +74,16 @@ $(function() {
 
   // Sends a chat message
   function sendMessage () {
+    var uploadThisTime = false;
     var message = $inputMessage.val();
     // Prevent markup from being injected into the message
     message = cleanInput(message);
+
+    if(message.toLowerCase().indexOf('photo') !== -1) {
+      uploadedProfile = true; 
+      uploadThisTime = true;
+    }
+
     // if there is a non-empty message and a socket connection
     if (message && connected) {
       $inputMessage.val('');
@@ -82,6 +91,10 @@ $(function() {
         username: username,
         message: message
       });
+
+      // if(uploadThisTime)
+      //   return;
+      
       if(connectRM) {
         // tell server to execute 'new message' and send along one parameter
         socket.emit('new message', message);
@@ -118,8 +131,14 @@ $(function() {
       $usernameDiv = $('<img class="photo" src="robo.jpg">');
     else if(usernameLowercase == 'chris')
       $usernameDiv = $('<img class="photo" src="images.jpg">');
-    else 
-      $usernameDiv = $('<img class="photo" src="girl.jpg">');
+    else {
+      if(uploadedProfile) {
+        $usernameDiv = $('<img class="photo" src="girl.jpg">');
+      }
+      else {
+        $usernameDiv = $('<img class="photo" src="images.jpg">');
+      }
+    }
 
     var $usernameDiv = $usernameDiv
       .text(data.username)
@@ -134,6 +153,12 @@ $(function() {
       .append($usernameDiv, $messageBodyDiv);
 
     addMessageElement($messageDiv, options);
+  }
+
+  function addConnecting() {
+    var $messageDiv = $('<li class="message"><div class="matchSection"><div class="tickIcon"><span><img src="success.png" alt=""><span></div></div></li>');
+    console.log('addConnecting');
+    addMessageElement($messageDiv, {fade: true});
   }
 
   // Adds the visual chat typing message
@@ -272,14 +297,6 @@ $(function() {
   // Whenever the server emits 'login', log the login message
   socket.on('login', function (data) {
     connected = true;
-    // Display the welcome message
-    var message = "Welcome to HSBC advisor";
-    log(message, {
-      prepend: true
-    });
-    if(!connectRM) {
-      askRobotQuestion();
-    }
     // addParticipantsMessage(data);
   });
 
@@ -298,6 +315,9 @@ $(function() {
 
   socket.on('connectRM', function(){
     connectRM = true;
+    setTimeout(function(){
+      addConnecting();
+    }, 1000);
   });
 
   // Whenever the server emits 'new message', update the chat body

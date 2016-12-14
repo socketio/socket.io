@@ -24,6 +24,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+      font-family: Helvetica;
 }
 
 ul {
@@ -96,12 +97,15 @@ ul {
 /* Font */
 
 .messages {
-  font-size: 150%;
+  font-size: 16px;
 }
 
-.inputMessage {
-  font-size: 200%;
+.navbar img{
+  box-sizing: border-box;
+  width: 100%;
+  display: block;
 }
+
 
 .log {
   color: gray;
@@ -122,7 +126,7 @@ ul {
   height: 100%;
   margin: 0;
   overflow-y: scroll;
-  /*padding: 10px 20px 10px 20px;*/
+  padding: 10px 20px 10px 20px;
 }
 
 .message.typing .messageBody {
@@ -141,47 +145,62 @@ ul {
 .message{
   float: left;
   width: 100%;
-  margin: 40px 0;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
-.right{
-  text-align: right;
+.right span {
+  background-color: #702222;
+  color: white;
 }
+
+.right span, .right .photo{
+  float: right;
+}
+
+.right .messageBody {
+  border-radius: 10px 10px 0px 10px;
+}
+
 
 .messageBody{
-  font-size: 150%;
+  max-width: calc(100% - 55px);
+  font-size: 14px;
   background-color: #F0F0F0;
   color: #000;
-  padding: 25px;
-  border-radius: 30%;
+  padding: 16px;
+  border-radius: 10px 10px 10px 0;
   display: inline-block;
 }
 
 /* Input */
 
 .inputMessage {
-  border: 10px solid #000;
-  bottom: 0;
-  height: 60px;
-  left: 0;
-  outline: none;
-  padding-left: 10px;
-  position: absolute;
-  right: 0;
+      position: fixed !important;
+  box-sizing: border-box;
   width: 100%;
-  padding: 55px;
+  border: 0;
+  border-top: 1px solid grey;
+  bottom: 0;
+  outline: none;
+  padding: 15px 10px;
+  position: absolute;
+  width: 100%;
+  font-size: 12px;
+  background-color: black;
+  color: #cccccc;
 }
 
 
 .photo{
-    width: 45px;
-    height: 45px;
+    float: left;
+    width: 32px;
+    height: 32px;
     position: relative;
     border-radius: 50%;
-    top: 5px;
-    margin-right: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
 }
-
 .header{
     color: white;
     height: 100px;
@@ -192,6 +211,7 @@ ul {
     width: 100%;
     font-size: 3rem;
 }
+
 .matchSection{
   text-align: center;
   position: relative;
@@ -242,5 +262,10 @@ ul {
 }
 
 .tickIcon span > img{
+<<<<<<< HEAD
   width: 25%;
 }
+=======
+  width: 50%;
+}
+>>>>>>> 4e1f07e3a880399069365f52ad867ecb61271722
