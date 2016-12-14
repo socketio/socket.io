@@ -11,7 +11,7 @@ $(function() {
   // Initialize variables
   var $window = $(window);
   var $usernameInput = $('.usernameInput'); // Input for username
-  var $messages = $('.messages'); // Messages area
+  var $messages = $('.messages'); // Messages areafuser
   var $inputMessage = $('.inputMessage'); // Input message input box
 
   var $loginPage = $('.login.page'); // The login page
@@ -93,7 +93,15 @@ $(function() {
       $typingMessages.remove();
     }
 
-    var $usernameDiv = $('<span class="username"/>')
+    var $usernameDiv = $('<img class="photo" src="robo.jpg">');
+    if(data.username == robotName)
+      $('<img class="photo" src="robo.jpg">');
+    else if(data.username == 'John')
+      $('<img class="photo" src="images.jpg">');
+    else 
+      $('<img class="photo" src="girl.jpg">');
+
+    var $usernameDiv = $usernameDiv
       .text(data.username)
       .css('color', getUsernameColor(data.username));
     var $messageBodyDiv = $('<span class="messageBody">')
@@ -238,10 +246,10 @@ $(function() {
   socket.on('login', function (data) {
     connected = true;
     // Display the welcome message
-    // var message = "Welcome to Socket.IO Chat – ";
-    // log(message, {
-    //   prepend: true
-    // });
+    var message = "Welcome to Coupling";
+    log(message, {
+      prepend: true
+    });
     // addParticipantsMessage(data);
     addChatMessage({
         username: robotName,

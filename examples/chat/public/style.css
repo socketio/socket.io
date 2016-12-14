@@ -99,14 +99,15 @@ ul {
 }
 
 .inputMessage {
-  font-size: 100%;
+  font-size: 200%;
 }
 
 .log {
   color: gray;
   font-size: 70%;
-  margin: 5px;
+  margin: 15px 15px 0 15px;
   text-align: center;
+  font-size: 200%;
 }
 
 /* Messages */
@@ -128,10 +129,27 @@ ul {
 }
 
 .username {
-  font-weight: 700;
+  font-weight: bold;
   overflow: hidden;
   padding-right: 15px;
   text-align: right;
+  font-size: 150%;
+
+}
+
+.message{
+  float: left;
+  width: 100%;
+  margin: 40px 0;
+}
+
+.messageBody{
+  font-size: 150%;
+  background-color: #F0F0F0;
+  color: #000;
+  padding: 25px;
+  border-radius: 30%;
+  display: inline-block;
 }
 
 /* Input */
@@ -146,4 +164,5 @@ ul {
   position: absolute;
   right: 0;
   width: 100%;
+  padding: 55px;
 }
