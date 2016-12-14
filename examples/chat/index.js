@@ -46,10 +46,26 @@ io.on('connection', function (socket) {
     // });
   });
 
-  socket.on('robotAnswer', function(){
+  socket.on('robotAnswer', function(answer){
     setTimeout(function(){
-      socket.emit('robotQuestion');
+      answer = answer.toLowerCase();
+      if(answer.indexOf('connect') !== -1) {
+        socket.emit('connectRMQuestion');
+      }
+      else {
+        socket.emit('robotQuestion');
+      }
     }, 1000);
+  })
+
+  socket.on('answerConnect', function(answer) {
+    answer = answer.toLowerCase();
+    if(answer.indexOf('yes') !== -1) {
+      socket.emit('connectRM');
+    }
+    else {
+
+    }
   })
 
   // when the client emits 'typing', we broadcast it to others
