@@ -11,6 +11,7 @@ $(function() {
   var answerConnectQuestion = false;
   var connectRM = false;
   var connectQuestion = 'Would you like to connect to our Relationship Manager?';
+  var uploadedProfile = false;
 
   var questionIndex = 0;
   var FADE_TIME = 150; // ms
@@ -118,8 +119,14 @@ $(function() {
       $usernameDiv = $('<img class="photo" src="robo.jpg">');
     else if(usernameLowercase == 'chris')
       $usernameDiv = $('<img class="photo" src="images.jpg">');
-    else 
-      $usernameDiv = $('<img class="photo" src="girl.jpg">');
+    else {
+      if(uploadedProfile) {
+        $usernameDiv = $('<img class="photo" src="girl.jpg">');
+      }
+      else {
+        $usernameDiv = $('<img class="photo" src="images.jpg">');
+      }
+    }
 
     var $usernameDiv = $usernameDiv
       .text(data.username)
@@ -137,9 +144,8 @@ $(function() {
   }
 
   function addConnecting() {
-    var $messageDiv = $('<li />')
-      .append('Connecting');
-
+    var $messageDiv = $('<li><div class="matchSection"><div class="tickIcon"><span><img src="success.png" alt=""><span></div></div></li>');
+    console.log('addConnecting');
     addMessageElement($messageDiv, {fade: true});
   }
 
@@ -249,9 +255,14 @@ $(function() {
     // When the client hits ENTER on their keyboard
     if (event.which === 13) {
       if (username) {
-        sendMessage();
-        socket.emit('stop typing');
-        typing = false;
+        var message = $inputMessage.val();
+        if(message.toLowerCase().indexOf('upload') !== -1) {
+          uploadedProfile = true;
+        } else {
+          sendMessage();
+          socket.emit('stop typing');
+          typing = false;
+        }
       } else {
         setUsername();
       }
