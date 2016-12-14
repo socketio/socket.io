@@ -181,4 +181,14 @@ ul {
     top: 5px;
     margin-right: 10px;
 }
+
+.header{
+    color: white;
+    height: 100px;
+    margin-top: -100px;
+    position: absolute;
+    text-align: center;
+    top: 30%;
+    width: 100%;
+    font-size: 3rem;
 }
