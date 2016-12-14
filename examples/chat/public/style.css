@@ -185,7 +185,6 @@ ul {
 .matchSection{
   text-align: center;
   position: relative;
-  margin: 40px 0;
 }
 
 .tickIcon{
@@ -199,7 +198,7 @@ ul {
 .matchSection:after{
   content:"";
   position: absolute;
-  top: 57px;
+  top: 61px;
   width: 30%;
   height: 1px;
   background-color: #000;
