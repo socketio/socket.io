@@ -145,7 +145,6 @@ Encoder.prototype.encode = function(obj, callback){
 
 function encodeAsString(obj) {
   var str = '';
-  var nsp = false;
 
   // first is type
   str += obj.type;
@@ -159,22 +158,17 @@ function encodeAsString(obj) {
   // if we have a namespace other than `/`
   // we append it followed by a comma `,`
   if (obj.nsp && '/' !== obj.nsp) {
-    nsp = true;
     str += obj.nsp;
+    str += ',';
   }
 
   // immediately followed by the id
   if (null != obj.id) {
-    if (nsp) {
-      str += ',';
-      nsp = false;
-    }
     str += obj.id;
   }
 
   // json data
   if (null != obj.data) {
-    if (nsp) str += ',';
     str += json.stringify(obj.data);
   }
 
