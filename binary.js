@@ -34,7 +34,7 @@ exports.deconstructPacket = function(packet){
         newData[i] = _deconstructPacket(data[i]);
       }
       return newData;
-    } else if ('object' == typeof data && !(data instanceof Date)) {
+    } else if (typeof data === 'object' && !(data instanceof Date)) {
       var newData = {};
       for (var key in data) {
         newData[key] = _deconstructPacket(data[key]);
@@ -71,7 +71,7 @@ exports.reconstructPacket = function(packet, buffers) {
         data[i] = _reconstructPacket(data[i]);
       }
       return data;
-    } else if (data && 'object' == typeof data) {
+    } else if (data && 'object' === typeof data) {
       for (var key in data) {
         data[key] = _reconstructPacket(data[key]);
       }
@@ -125,7 +125,7 @@ exports.removeBlobs = function(data, callback) {
       for (var i = 0; i < obj.length; i++) {
         _removeBlobs(obj[i], i, obj);
       }
-    } else if (obj && 'object' == typeof obj && !isBuf(obj)) { // and object
+    } else if (obj && 'object' === typeof obj && !isBuf(obj)) { // and object
       for (var key in obj) {
         _removeBlobs(obj[key], key, obj);
       }
