@@ -60,7 +60,6 @@ exports.deconstructPacket = function(packet){
  */
 
 exports.reconstructPacket = function(packet, buffers) {
-  var curPlaceHolder = 0;
 
   function _reconstructPacket(data) {
     if (data && data._placeholder) {
