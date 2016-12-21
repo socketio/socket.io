@@ -193,6 +193,12 @@ module.exports = function(parser) {
               });
           });
         });
+
+        it('should not utf8 encode when dealing with strings only', function() {
+          encPayload([{ type: 'message', data: '€€€' }, { type: 'message', data: 'α' }], function(data) {
+            expect(data).to.eql('4:4€€€2:4α');
+          });
+        });
       });
 
       describe('decoding error handling', function () {
@@ -255,13 +261,6 @@ module.exports = function(parser) {
           });
         });
 
-        it('should err on invalid utf8', function () {
-          decPayload('2:4\uffff', function (packet, index, total) {
-            var isLast = index + 1 == total;
-            expect(packet).to.eql(err);
-            expect(isLast).to.eql(true);
-          });
-        });
       });
     });
   });
