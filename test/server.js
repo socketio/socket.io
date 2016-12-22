@@ -76,6 +76,22 @@ describe('server', function () {
           });
       });
     });
+
+    it('should disallow requests that are rejected by `allowRequest`', function (done) {
+      listen({ allowRequest: function (req, fn) { fn('Thou shall not pass', false); } }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .set('Origin', 'http://engine.io')
+          .query({ transport: 'polling' })
+          .end(function (res) {
+            expect(res.status).to.be(403);
+            expect(res.body.code).to.be(4);
+            expect(res.body.message).to.be('Thou shall not pass');
+            expect(res.header['access-control-allow-credentials']).to.be(undefined);
+            expect(res.header['access-control-allow-origin']).to.be(undefined);
+            done();
+          });
+      });
+    });
   });
 
   describe('handshake', function () {
