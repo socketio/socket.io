@@ -1,4 +1,14 @@
 
+2.0.0 / 2016-12-23
+==================
+
+  * [perf] Micro optimisations (#84)
+  * [fix] Sanitize strings by removing lone surrogates (#82)
+  * [perf] Use strict equality where possible (#77)
+  * [style] Minor style changes (#83)
+  * [fix] Fix double utf8 encoding for payloads (#81)
+  * [chore] Update zuul config to speed up tests (#76)
+
 1.3.2 / 2016-12-07
 ==================
 
