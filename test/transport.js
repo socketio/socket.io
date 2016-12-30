@@ -294,4 +294,22 @@ describe('Transport', function () {
       });
     });
   }
+
+  describe('options', function () {
+    it('should accept an `extraHeaders` option for XMLHttpRequest in browser', function () {
+      var headers = {
+        'X-Custom-Header-For-My-Project': 'my-secret-access-token',
+        'Cookie': 'user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly'
+      };
+      var socket = new eio.Socket({
+        transportOptions: {
+          polling: {
+            extraHeaders: headers
+          }
+        }
+      });
+      expect(socket.transport.name).to.be('polling');
+      expect(socket.transport.extraHeaders).to.equal(headers);
+    });
+  });
 });
