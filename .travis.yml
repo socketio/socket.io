@@ -1,6 +1,10 @@
 language: node_js
 node_js:
-  - 0.6
+  - 0.12
+
+install:
+  - npm install -g npm
+  - npm install
 
 notifications:
   irc: "irc.freenode.org#socket.io"
