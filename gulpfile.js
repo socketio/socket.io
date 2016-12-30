@@ -38,7 +38,7 @@ const FILES_TO_CLEAN = [
 ];
 
 gulp.task('test', ['lint'], function () {
-  if (process.env.hasOwnProperty('BROWSER_NAME')) {
+  if (process.env.hasOwnProperty('BROWSERS')) {
     return testZuul();
   } else {
     return testNode();
@@ -78,18 +78,7 @@ function testNode () {
 // runs zuul through shell process
 function testZuul () {
   const ZUUL_CMD = './node_modules/zuul/bin/zuul';
-  const args = [
-    '--browser-name',
-    process.env.BROWSER_NAME,
-    '--browser-version',
-    process.env.BROWSER_VERSION
-  ];
-  if (process.env.hasOwnProperty('BROWSER_PLATFORM')) {
-    args.push('--browser-platform');
-    args.push(process.env.BROWSER_PLATFORM);
-  }
-  args.push(TEST_FILE);
-  const zuulChild = child.spawn(ZUUL_CMD, args, { stdio: 'inherit' });
+  const zuulChild = child.spawn(ZUUL_CMD, [ TEST_FILE ], { stdio: 'inherit' });
   zuulChild.on('exit', function (code) {
     cleanFiles(FILES_TO_CLEAN);
     process.exit(code);
