@@ -61,7 +61,7 @@ server.listen(3000);
 
 ## API
 
-See [API](/docs/API.md)
+See [API](/docs/API.md).
 
 ## Debug / logging
 

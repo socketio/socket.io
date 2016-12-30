@@ -182,7 +182,7 @@ Advanced use only. Binds the server to a specific engine.io `Server` (or compati
   - `socket` _(engine.Socket)_
   - **Returns** `Server`
 
-Advanced use only. Creates a new `socket.io` client from the incoming engine.io (or compatible API) `socket`.
+Advanced use only. Creates a new `socket.io` client from the incoming engine.io (or compatible API) `Socket`.
 
 #### server.of(nsp)
 
