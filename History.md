@@ -1,4 +1,14 @@
 
+2.3.2 / 2016-12-30
+==================
+
+  * [perf] Small optimisations (#57)
+  * [chore] Update zuul config to speed up tests in browser (#58)
+  * [refactor] Remove useless variable (#55)
+  * [chore] Bump dependencies (#56)
+  * [refactor] Remove unused var (#53)
+  * [refactor] Use strict equality when possible (#52)
+
 2.3.1 / 2016-10-24
 ==================
 
