@@ -144,22 +144,19 @@ Encoder.prototype.encode = function(obj, callback){
  */
 
 function encodeAsString(obj) {
-  var str = '';
 
   // first is type
-  str += obj.type;
+  var str = '' + obj.type;
 
   // attachments if we have them
   if (exports.BINARY_EVENT === obj.type || exports.BINARY_ACK === obj.type) {
-    str += obj.attachments;
-    str += '-';
+    str += obj.attachments + '-';
   }
 
   // if we have a namespace other than `/`
   // we append it followed by a comma `,`
   if (obj.nsp && '/' !== obj.nsp) {
-    str += obj.nsp;
-    str += ',';
+    str += obj.nsp + ',';
   }
 
   // immediately followed by the id
@@ -265,15 +262,16 @@ Decoder.prototype.add = function(obj) {
  */
 
 function decodeString(str) {
-  var p = {};
   var i = 0;
-
   // look up type
-  p.type = Number(str.charAt(0));
+  var p = {
+    type: Number(str.charAt(0))
+  };
+
   if (null == exports.types[p.type]) return error();
 
   // look up attachments if type binary
-  if (exports.BINARY_EVENT == p.type || exports.BINARY_ACK == p.type) {
+  if (exports.BINARY_EVENT === p.type || exports.BINARY_ACK === p.type) {
     var buf = '';
     while (str.charAt(++i) !== '-') {
       buf += str.charAt(i);
@@ -390,7 +388,7 @@ BinaryReconstructor.prototype.finishedReconstruction = function() {
   this.buffers = [];
 };
 
-function error(data){
+function error() {
   return {
     type: exports.ERROR,
     data: 'parser error'
