@@ -8,6 +8,12 @@
 ![Downloads](https://img.shields.io/npm/dm/socket.io.svg?style=flat)
 [![](http://slack.socket.io/badge.svg?)](http://slack.socket.io)
 
+## Installation
+
+```bash
+npm install socket.io --save
+```
+
 ## How to use
 
 The following example attaches socket.io to a plain Node.JS
