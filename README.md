@@ -206,6 +206,7 @@ Exposed as `eio` in the browser standalone build.
       Defaults to `['polling', 'websocket']`. `Engine`
       always attempts to connect directly with the first one, provided the
       feature detection test for it passes.
+      - `transportOptions` (`Object`): hash of options, indexed by transport name, overriding the common options for the given transport
       - `rememberUpgrade` (`Boolean`): defaults to false.
         If true and if the previous websocket connection to the server succeeded,
         the connection attempt will bypass the normal upgrade process and will initially
