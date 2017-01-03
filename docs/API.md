@@ -157,7 +157,7 @@ Attaches the `Server` to an engine.io instance on `httpServer` with the supplied
 
 ### server.attach(port[, options])
 
-  - `httpServer` _(Number)_ the port to listen on
+  - `port` _(Number)_ the port to listen on
   - `options` _(Object)_
 
 Attaches the `Server` to an engine.io instance on a new http.Server with the supplied `options` (optionally).
