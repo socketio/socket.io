@@ -34,6 +34,8 @@
     - [socket.close()](#socketclose)
     - [socket.disconnect()](#socketdisconnect)
     - [Event: 'connect'](#event-connect)
+    - [Event: 'connect_error'](#event-connect_error-1)
+    - [Event: 'connect_timeout'](#event-connect_timeout-1)
     - [Event: 'error'](#event-error)
     - [Event: 'disconnect'](#event-disconnect)
     - [Event: 'reconnect'](#event-reconnect-1)
@@ -294,11 +296,21 @@ Synonym of [socket.close()](#socketclose).
 
 Fired upon a connection including a successful reconnection.
 
-#### Event: 'error'
+#### Event: 'connect_error'
 
   - `error` _(Object)_ error object
 
 Fired upon a connection error.
+
+#### Event: 'connect_timeout'
+
+Fired upon a connection timeout.
+
+#### Event: 'error'
+
+  - `error` _(Object)_ error object
+
+Fired when an error occurs.
 
 #### Event: 'disconnect'
 
