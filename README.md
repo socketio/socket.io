@@ -18,7 +18,7 @@ This is revision **3** of the Engine.IO protocol.
   - `upgrades` possible transport upgrades (`Array` of `String`)
   - `pingTimeout` server configured ping timeout, used for the client
     to detect that the server is unresponsive (`Number`)
-3. Client must respond to periodic `ping` packets sent by the server
+3. Server must respond to periodic `ping` packets sent by the client
 with `pong` packets.
 4. Client and server can exchange `message` packets at will.
 5. Polling transports can send a `close` packet to close the socket, since
