@@ -79,6 +79,17 @@ var io = new Server();
 
 The same options passed to socket.io are always passed to the `engine.io` `Server` that gets created. See engine.io [options](https://github.com/socketio/engine.io#methods-1) as reference.
 
+Among those options:
+
+  - `pingTimeout` _(Number)_: how many ms without a pong packet to consider the connection closed (`60000`)
+  - `pingInterval` _(Number)_: how many ms before sending a new ping packet (`25000`).
+
+Those two parameters will impact the delay before a client knows the server is not available anymore. For example, if the underlying TCP connection is not closed properly due to a network issue, a client may have to wait up to `pingTimeout + pingInterval` ms before getting a `disconnect` event.
+
+  - `transports` _(Array<String>)_: transports to allow connections to (`['polling', 'websocket']`).
+
+**Note:** The order is important. By default, a long-polling connection is established first, and then upgraded to WebSocket if possible. Using `['websocket']` means there will be no fallback if a WebSocket connection cannot be opened.
+
 #### new Server(port[, options])
 
   - `port` _(Number)_ a port to listen to (a new `http.Server` will be created)
