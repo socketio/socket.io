@@ -11,6 +11,7 @@
 
 ### Steps to reproduce (if the current behaviour is a bug)
 
+**Note**: the best way to get a quick answer is to provide a failing test case, by forking the following [fiddle](https://github.com/darrachequesne/socket.io-fiddle) for example.
 
 ### Expected behaviour
 
