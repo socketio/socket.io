@@ -422,6 +422,15 @@ socket.on('news', function (data) {
 
 Adds the client to the `room`, and fires optionally a callback with `err` signature (if any).
 
+```js
+io.on('connection', function(socket){
+  socket.join('room 237', function(){
+    console.log(socket.rooms); // [ <socket.id>, 'room 237' ]
+    io.to('room 237', 'a new user has joined the room'); // broadcast to everyone in the room
+  });
+});
+```
+
 The mechanics of joining rooms are handled by the `Adapter` that has been configured (see `Server#adapter` above), defaulting to [socket.io-adapter](https://github.com/socketio/socket.io-adapter).
 
 For your convenience, each socket automatically joins a room identified by this id (see `Socket#id`). This makes it easy to broadcast messages to other sockets:
