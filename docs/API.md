@@ -23,7 +23,7 @@
   - [Class: Namespace](#namespace)
     - [namespace.name](#namespacename)
     - [namespace.connected](#namespaceconnected)
-    - [namespace.client(callback)](#namespaceclientcallback)
+    - [namespace.clients(callback)](#namespaceclientscallback)
     - [namespace.use(fn)](#namespaceusefn)
     - [Event: 'connect'](#event-connect)
     - [Event: 'connection'](#event-connect)
@@ -243,7 +243,7 @@ The namespace identifier property.
 
 The hash of `Socket` objects that are connected to this namespace, indexed by `id`.
 
-#### namespace.client(callback)
+#### namespace.clients(callback)
 
   - `callback` _(Function)_
 
