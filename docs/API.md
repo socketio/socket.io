@@ -18,15 +18,17 @@
     - [server.bind(engine)](#serverbindengine)
     - [server.onconnection(socket)](#serveronconnectionsocket)
     - [server.of(nsp)](#serverofnsp)
-    - [server.emit(eventName[, ...args])](#serveremiteventname-args)
     - [server.close([callback])](#serverclosecallback)
   - [Class: Namespace](#namespace)
     - [namespace.name](#namespacename)
     - [namespace.connected](#namespaceconnected)
+    - [namespace.emit(eventName[, ...args])](#namespaceemiteventname-args)
     - [namespace.clients(callback)](#namespaceclientscallback)
     - [namespace.use(fn)](#namespaceusefn)
     - [Event: 'connect'](#event-connect)
     - [Event: 'connection'](#event-connect)
+    - [Flag: 'volatile'](#flag-volatile)
+    - [Flag: 'local'](#flag-local)
   - [Class: Socket](#socket)
     - [socket.id](#socketid)
     - [socket.rooms](#socketrooms)
@@ -44,8 +46,7 @@
     - [socket.compress(value)](#socketcompressvalue)
     - [socket.disconnect(close)](#socketdisconnectclose)
     - [Flag: 'broadcast'](#flag-broadcast)
-    - [Flag: 'volatile'](#flag-volatile)
-    - [Flag: 'local'](#flag-local)
+    - [Flag: 'volatile'](#flag-volatile-1)
     - [Event: 'disconnect'](#event-disconnect)
     - [Event: 'error'](#event-error)
     - [Event: 'disconnecting'](#event-disconnecting)
@@ -202,19 +203,6 @@ Advanced use only. Creates a new `socket.io` client from the incoming engine.io 
 
 Initializes and retrieves the given `Namespace` by its pathname identifier `nsp`. If the namespace was already initialized it returns it immediately.
 
-#### server.emit(eventName[, ...args])
-
-  - `eventName` _(String)_
-  - `args`
-
-Emits an event to all connected clients. The following two are equivalent:
-
-```js
-var io = require('socket.io')();
-io.sockets.emit('an event sent to all connected clients');
-io.emit('an event sent to all connected clients');
-```
-
 #### server.close([callback])
 
   - `callback` _(Function)_
@@ -253,6 +241,22 @@ The namespace identifier property.
   * _(Object<Socket>)_
 
 The hash of `Socket` objects that are connected to this namespace, indexed by `id`.
+
+#### namespace.emit(eventName[, ...args])
+
+  - `eventName` _(String)_
+  - `args`
+
+Emits an event to all connected clients. The following two are equivalent:
+
+```js
+var io = require('socket.io')();
+
+io.emit('an event sent to all connected clients'); // main namespace
+
+var chat = io.of('/chat');
+chat.emit('an event sent to all connected clients in chat namespace');
+```
 
 #### namespace.clients(callback)
 
@@ -313,6 +317,22 @@ Fired upon a reconnection attempt error.
 #### Event: 'connection'
 
 Synonym of [Event: 'connect'](#event-connect).
+
+#### Flag: 'volatile'
+
+Sets a modifier for a subsequent event emission that the event data may be lost if the clients are not ready to receive messages (because of network slowness or other issues, or because they’re connected through long polling and is in the middle of a request-response cycle).
+
+```js
+io.volatile.emit('an event', { some: 'data' }); // the clients may or may not receive it
+```
+
+#### Flag: 'local'
+
+Sets a modifier for a subsequent event emission that the event data will only be _broadcast_ to the current node (when the [Redis adapter](https://github.com/socketio/socket.io-redis) is used).
+
+```js
+io.local.emit('an event', { some: 'data' });
+```
 
 ### Socket
 
@@ -521,17 +541,6 @@ Sets a modifier for a subsequent event emission that the event data may be lost 
 var io = require('socket.io')();
 io.on('connection', function(socket){
   socket.volatile.emit('an event', { some: 'data' }); // the client may or may not receive it
-});
-```
-
-#### Flag: 'local'
-
-Sets a modifier for a subsequent event emission that the event data will only be _broadcast_ to the current node (when the [Redis adapter](https://github.com/socketio/socket.io-redis) is used).
-
-```js
-var io = require('socket.io')();
-io.on('connection', function(socket){
-  socket.to('hello').local.emit('an event', { some: 'data' });
 });
 ```
 
