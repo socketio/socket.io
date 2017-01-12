@@ -38,7 +38,7 @@ An Engine.IO url is composed as follows:
 - The query string is optional and has four reserved keys:
 
   - `transport`: indicates the transport name. Supported ones by default are
-    `polling`, `flashsocket`, `websocket`.
+    `polling`, `websocket`.
   - `j`: if the transport is `polling` but a JSONP response is required, `j`
     must be set with the JSONP response index.
   - `sid`: if the client has been given a session id, it must be included
@@ -185,7 +185,6 @@ The payload is used for transports which do not support framing, as the polling 
 An engine.io server must support three transports:
 
 - websocket
-- flashsocket
 - polling
   - jsonp
   - xhr
