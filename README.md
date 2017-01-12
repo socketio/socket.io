@@ -18,6 +18,8 @@ This is revision **3** of the Engine.IO protocol.
   - `upgrades` possible transport upgrades (`Array` of `String`)
   - `pingTimeout` server configured ping timeout, used for the client
     to detect that the server is unresponsive (`Number`)
+  - `pingInterval` server configured ping interval, used for the client
+    to detect that the server is unresponsive (`Number`)
 3. Server must respond to periodic `ping` packets sent by the client
 with `pong` packets.
 4. Client and server can exchange `message` packets at will.
@@ -261,8 +263,15 @@ Moving forward, upgrades other than just `polling -> x` are being considered.
 
 ## Timeouts
 
-The client must use the `pingTimeout` sent as part of the handshake (with
-the `open` packet) to determine whether the server is unresponsive.
+The client must use the `pingTimeout` and the `pingInterval` sent as part
+of the handshake (with the `open` packet) to determine whether the server
+is unresponsive.
 
-If no packet type is received withing `pingTimeout`, the client considers
-the socket disconnected.
+The client sends a `ping` packet. If no packet type is received within
+`pingTimeout`, the client considers the socket disconnected. If a `pong`
+packet is actually received, the client will wait `pingInterval` before
+sending a `ping` packet again.
+
+Since the two values are shared between the server and the client, the server
+will also be able to detect whether the client becomes unresponsive when it
+does not receive any data within `pingTimeout + pingInterval`.
