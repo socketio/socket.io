@@ -4,11 +4,21 @@ var io = require('../');
 describe('socket', function () {
   this.timeout(70000);
 
-  it('should have an accessible socket id equal to the engine.io socket id', function (done) {
+  it('should have an accessible socket id equal to the server-side socket id (default namespace)', function (done) {
     var socket = io({ forceNew: true });
     socket.on('connect', function () {
       expect(socket.id).to.be.ok();
       expect(socket.id).to.eql(socket.io.engine.id);
+      socket.disconnect();
+      done();
+    });
+  });
+
+  it('should have an accessible socket id equal to the server-side socket id (custom namespace)', function (done) {
+    var socket = io('/foo', { forceNew: true });
+    socket.on('connect', function () {
+      expect(socket.id).to.be.ok();
+      expect(socket.id).to.eql('/foo#' + socket.io.engine.id);
       socket.disconnect();
       done();
     });
