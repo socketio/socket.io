@@ -981,12 +981,12 @@ describe('socket.io', function(){
       var srv = http();
       var sio = io(srv);
       srv.listen(function(){
-        var socket = client(srv);
+        var socket = client(srv, { reconnection: false });
         sio.on('connection', function(s){
           s.on('error', function(err){
             expect(err).to.be.an(Error);
             s.on('disconnect', function(reason){
-              expect(reason).to.be('client error');
+              expect(reason).to.be('forced close');
               done();
             });
           });
@@ -1686,7 +1686,7 @@ describe('socket.io', function(){
       var srv = http();
       var sio = io(srv);
       srv.listen(function(){
-        var socket = client(srv);
+        var socket = client(srv, { reconnection: false });
         sio.on('connection', function(s){
           s.conn.on('upgrade', function(){
             console.log('\033[96mNote: warning expected and normal in test.\033[39m');
@@ -1703,7 +1703,7 @@ describe('socket.io', function(){
       var srv = http();
       var sio = io(srv);
       srv.listen(function(){
-        var socket = client(srv);
+        var socket = client(srv, { reconnection: false });
         sio.on('connection', function(s){
           s.once('error', function(err){
             expect(err.message).to.match(/Illegal attachments/);
@@ -1720,7 +1720,7 @@ describe('socket.io', function(){
       var srv = http();
       var sio = io(srv);
       srv.listen(function(){
-        var socket = client(srv);
+        var socket = client(srv, { reconnection: false });
         sio.on('connection', function(s){
           s.once('error', function(err){
             expect(err.message).to.match(/Illegal attachments/);
