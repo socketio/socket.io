@@ -77,7 +77,7 @@ Within each `Namespace`, you can define arbitrary channels, called `Rooms`, that
 This is a useful feature to send notifications to a group of users, or to a given user connected on several devices for example.
 
 
-**Note:** Socket.IO is not a WebSocket implementation, it uses WebSocket as a transport when possible but has its own [protocol](https://github.com/socketio/socket.io-protocol). That's why a Socket.IO client will not be able to connect to `ws://echo.websocket.org`.
+**Note:** Socket.IO is not a WebSocket implementation. Although Socket.IO indeed uses WebSocket as a transport when possible, it adds some metadata to each packet: the packet type, the namespace and the ack id when a message acknowledgement is needed. That is why a WebSocket client will not be able to successfully connect to a Socket.IO server, and a Socket.IO client will not be able to connect to a WebSocket server (like `ws://echo.websocket.org`) either. Please see the protocol specification [here](https://github.com/socketio/socket.io-protocol).
 
 ## Installation
 
