@@ -1,0 +1,19 @@
+{
+  "name": "webpack-build",
+  "version": "1.0.0",
+  "description": "A sample Webpack build",
+  "scripts": {
+    "build": "webpack --config ./support/webpack.config.js",
+    "build-slim": "webpack --config ./support/webpack.config.slim.js",
+    "build-all": "npm run build && npm run build-slim"
+  },
+  "author": "Damien Arrachequesne",
+  "license": "MIT",
+  "dependencies": {
+    "socket.io-client": "^1.7.2"
+  },
+  "devDependencies": {
+    "strip-loader": "^0.1.2",
+    "webpack": "^1.14.0"
+  }
+}
