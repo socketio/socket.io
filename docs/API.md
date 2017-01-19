@@ -68,6 +68,7 @@ Exposed by `require('socket.io')`.
     - `adapter` _(Adapter)_: the adapter to use. Defaults to an instance of the `Adapter` that ships with socket.io which is memory based. See [socket.io-adapter](https://github.com/socketio/socket.io-adapter)
     - `origins` _(String)_: the allowed origins (`*`)
     - `allowRequest` _(Function)_: A function that receives a given handshake or upgrade request as its first parameter, and can decide whether to continue or not. The second argument is a function that needs to be called with the decided information: `fn(err, success)`, where `success` is a boolean value where false means that the request is rejected, and err is an error code.
+    - `parser` _(Parser)_: the parser to use. Defaults to an instance of the `Parser` that ships with socket.io. See [socket.io-parser](https://github.com/socketio/socket.io-parser).
 
 Works with and without `new`:
 
