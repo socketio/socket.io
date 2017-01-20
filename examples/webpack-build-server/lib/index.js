@@ -1,7 +1,7 @@
 
 const server = require('http').createServer();
 const io = require('socket.io')(server, {
-  serveClient: false // do not serve the client file
+  // serveClient: false // do not serve the client file, in that case the brfs loader is not needed
 });
 const port = process.env.PORT || 3000;
 

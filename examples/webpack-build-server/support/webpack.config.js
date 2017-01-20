@@ -15,6 +15,10 @@ module.exports = {
       {
         test: /\.json$/,
         loader: 'json'
+      },
+      {
+        test: /\.js$/,
+        loader: "transform-loader?brfs"
       }
     ]
   }
