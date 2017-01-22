@@ -227,6 +227,7 @@ to a single process.
         Set false to not save io cookie on all requests. (`/`)
       - `cookieHttpOnly` (`Boolean`): If `true` HttpOnly io cookie cannot be accessed by client-side APIs, such as JavaScript. (`true`) _This option has no effect if `cookie` or `cookiePath` is set to `false`._
       - `wsEngine` (`String`): what WebSocket server implementation to use. Specified module must conform to the `ws` interface (see [ws module api docs](https://github.com/websockets/ws/blob/master/doc/ws.md)). Default value is `ws`. An alternative c++ addon is also available by installing `uws` module.
+      - `initialPacket` (`Object`): an optional packet which will be concatenated to the handshake packet emitted by Engine.IO.
 - `close`
     - Closes all clients
     - **Returns** `Server` for chaining

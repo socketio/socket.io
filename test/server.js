@@ -397,6 +397,18 @@ describe('server', function () {
           });
       });
     });
+
+    it('should send a packet along with the handshake', function (done) {
+      listen({ initialPacket: 'faster!' }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+            expect(msg).to.be('faster!');
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe('close', function () {
@@ -485,7 +497,7 @@ describe('server', function () {
     });
 
     it('should trigger on both ends upon ping timeout', function (done) {
-      var opts = { allowUpgrades: false, pingTimeout: 500, pingInterval: 10 };
+      var opts = { allowUpgrades: false, pingTimeout: 50, pingInterval: 50 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         var total = 2;
