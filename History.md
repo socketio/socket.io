@@ -1,4 +1,20 @@
 
+2.0.0  / 2017-01-22
+===================
+
+  * [feature] Add an `initialPacket` option (#471)
+  * [fix] Discard packets when socket is closed (#469)
+  * [docs] Fix spelling mistake (#466)
+  * [chore] Bump engine.io-parser to version 2.0.0 (#463)
+  * [fix] `allowRequest` failures now return 403 Forbidden (#452)
+  * [test] Fix test failure by increasing pingTimeout (#461)
+  * [chore] Use uws as default wsEngine, and ws as fallback (#459)
+
+Breaking changes:
+
+- #459: switching to uws as default WebSocket engine should bring significant improvement in performance (particularly in terms of memory consumption)
+- #463: the new version brings the following fix https://github.com/socketio/engine.io-parser/pull/81, which fixes a double utf8 encoding when polling
+
 1.8.2  / 2016-12-11
 ===================
 
