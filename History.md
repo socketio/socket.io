@@ -1,4 +1,14 @@
 
+2.0.0  / 2017-01-22
+===================
+
+  * [chore] Fix Saucelabs tests (#532)
+  * [chore] Actually run tests in Saucelabs (#527)
+  * [feature] Allow extraHeaders to be set for browser clients in XHR requests (#519)
+  * [feature] Add support for per transport options (#518)
+  * [chore] Bump engine.io-parser to version 2.0.0 (#525)
+  * [chore] Update zuul config to speed up tests (#526)
+
 1.8.2  / 2016-12-11
 ===================
 
