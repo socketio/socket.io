@@ -331,7 +331,7 @@ io.volatile.emit('an event', { some: 'data' }); // the clients may or may not re
 
 #### Flag: 'hasBinary'
 
-Specifies whether there is binary data in the data to send. Increases preformance when specified. Can be `true` or `false`.
+Specifies whether there is binary data in the emitted data. Increases performance when specified. Can be `true` or `false`.
 
 ```js
 io.hasBinary(false).emit('an event', { some: 'data' });
@@ -557,7 +557,7 @@ io.on('connection', function(socket){
 
 #### Flag: 'hasBinary'
 
-Specifies whether there is binary data in the data to send. Increases preformance when specified. Can be `true` or `false`.
+Specifies whether there is binary data in the emmited data. Increases performance when specified. Can be `true` or `false`.
 
 ```js
 var io = require('socket.io')();
