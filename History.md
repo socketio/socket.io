@@ -1,4 +1,9 @@
 
+2.0.1  / 2017-01-30
+===================
+
+  * [fix] Initialize the WebSocket server in the `Server` constructor (#476)
+
 2.0.0  / 2017-01-22
 ===================
 
