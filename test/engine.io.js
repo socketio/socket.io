@@ -29,6 +29,7 @@ describe('engine', function () {
     it('should create a Server when require called with no arguments', function () {
       var engine = eio();
       expect(engine).to.be.an(eio.Server);
+      expect(engine.ws).to.be.ok();
     });
   });
 
