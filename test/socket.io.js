@@ -87,9 +87,6 @@ describe('socket.io', function(){
       srv.set('authorization', function(o, f) { f(null, false); });
 
       var socket = client(httpSrv);
-      socket.on('connect', function(){
-        expect().fail();
-      });
       socket.on('error', function(err) {
         expect(err).to.be('Not authorized');
         done();
@@ -2131,9 +2128,6 @@ describe('socket.io', function(){
       });
       srv.listen(function(){
         var socket = client(srv);
-        socket.on('connect', function(){
-          done(new Error('nope'));
-        });
         socket.on('error', function(err){
           expect(err).to.be('Authentication error');
           done();
@@ -2152,9 +2146,6 @@ describe('socket.io', function(){
       });
       srv.listen(function(){
         var socket = client(srv);
-        socket.on('connect', function(){
-          done(new Error('nope'));
-        });
         socket.on('error', function(err){
           expect(err).to.eql({ a: 'b', c: 3 });
           done();
