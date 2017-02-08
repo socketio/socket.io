@@ -413,7 +413,7 @@ socket.emit('hello', 'world');
 socket.emit('with-binary', 1, '2', { 3: '4', 5: new Buffer(6) });
 ```
 
-The `ack` argument is optional and will be called with the server answer.
+The `ack` argument is optional and will be called with the client's answer.
 
 ```js
 var io = require('socket.io')();
