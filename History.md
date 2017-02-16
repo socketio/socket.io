@@ -1,4 +1,12 @@
 
+1.0.0  / 2017-02-16
+===================
+
+  * [feat] Remove the socket.io-parser dependency (#47)
+  * [refactor] Remove useless self var (#45)
+
+The major bump is due to #45, which is only compatible with socket.io > 2.0.
+
 0.5.0 / 2016-11-20
 ==================
 
