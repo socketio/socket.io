@@ -4,7 +4,6 @@
  */
 
 var Emitter = require('events').EventEmitter;
-var parser = require('socket.io-parser');
 
 /**
  * Module exports.
@@ -23,7 +22,7 @@ function Adapter(nsp){
   this.nsp = nsp;
   this.rooms = {};
   this.sids = {};
-  this.encoder = new parser.Encoder();
+  this.encoder = nsp.server.encoder;
 }
 
 /**
