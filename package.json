@@ -24,7 +24,7 @@
     "indexof": "0.0.1",
     "object-component": "0.0.3",
     "parseuri": "0.0.5",
-    "socket.io-parser": "2.3.1",
+    "socket.io-parser": "2.3.2",
     "to-array": "0.1.4"
   },
   "devDependencies": {
