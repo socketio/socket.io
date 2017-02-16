@@ -1,4 +1,10 @@
 
+2.0.2  / 2017-02-16
+===================
+
+  * [chore] Bump ws to version 1.1.2 (vulnerability fix) (#539)
+  * [fix] Fix extraHeaders option in browser (#536)
+
 2.0.1  / 2017-01-30
 ===================
 

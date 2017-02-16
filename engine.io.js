@@ -150,6 +150,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.timestampParam = opts.timestampParam || 't';
 	  this.timestampRequests = opts.timestampRequests;
 	  this.transports = opts.transports || ['polling', 'websocket'];
+	  this.transportOptions = opts.transportOptions || {};
 	  this.readyState = '';
 	  this.writeBuffer = [];
 	  this.prevBufferLen = 0;
@@ -243,35 +244,39 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // transport name
 	  query.transport = name;
 
+	  // per-transport options
+	  var options = this.transportOptions[name] || {};
+
 	  // session id if we already have one
 	  if (this.id) query.sid = this.id;
 
 	  var transport = new transports[name]({
-	    agent: this.agent,
-	    hostname: this.hostname,
-	    port: this.port,
-	    secure: this.secure,
-	    path: this.path,
 	    query: query,
-	    forceJSONP: this.forceJSONP,
-	    jsonp: this.jsonp,
-	    forceBase64: this.forceBase64,
-	    enablesXDR: this.enablesXDR,
-	    timestampRequests: this.timestampRequests,
-	    timestampParam: this.timestampParam,
-	    policyPort: this.policyPort,
 	    socket: this,
-	    pfx: this.pfx,
-	    key: this.key,
-	    passphrase: this.passphrase,
-	    cert: this.cert,
-	    ca: this.ca,
-	    ciphers: this.ciphers,
-	    rejectUnauthorized: this.rejectUnauthorized,
-	    perMessageDeflate: this.perMessageDeflate,
-	    extraHeaders: this.extraHeaders,
-	    forceNode: this.forceNode,
-	    localAddress: this.localAddress
+	    agent: options.agent || this.agent,
+	    hostname: options.hostname || this.hostname,
+	    port: options.port || this.port,
+	    secure: options.secure || this.secure,
+	    path: options.path || this.path,
+	    forceJSONP: options.forceJSONP || this.forceJSONP,
+	    jsonp: options.jsonp || this.jsonp,
+	    forceBase64: options.forceBase64 || this.forceBase64,
+	    enablesXDR: options.enablesXDR || this.enablesXDR,
+	    timestampRequests: options.timestampRequests || this.timestampRequests,
+	    timestampParam: options.timestampParam || this.timestampParam,
+	    policyPort: options.policyPort || this.policyPort,
+	    pfx: options.pfx || this.pfx,
+	    key: options.key || this.key,
+	    passphrase: options.passphrase || this.passphrase,
+	    cert: options.cert || this.cert,
+	    ca: options.ca || this.ca,
+	    ciphers: options.ciphers || this.ciphers,
+	    rejectUnauthorized: options.rejectUnauthorized || this.rejectUnauthorized,
+	    perMessageDeflate: options.perMessageDeflate || this.perMessageDeflate,
+	    extraHeaders: options.extraHeaders || this.extraHeaders,
+	    forceNode: options.forceNode || this.forceNode,
+	    localAddress: options.localAddress || this.localAddress,
+	    requestTimeout: options.requestTimeout || this.requestTimeout
 	  });
 
 	  return transport;
@@ -979,6 +984,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function XHR(opts) {
 	  Polling.call(this, opts);
 	  this.requestTimeout = opts.requestTimeout;
+	  this.extraHeaders = opts.extraHeaders;
 
 	  if (global.location) {
 	    var isSSL = 'https:' === location.protocol;
@@ -991,8 +997,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    this.xd = opts.hostname !== global.location.hostname || port !== opts.port;
 	    this.xs = opts.secure !== isSSL;
-	  } else {
-	    this.extraHeaders = opts.extraHeaders;
 	  }
 	}
 
@@ -1145,7 +1149,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    xhr.open(this.method, this.uri, this.async);
 	    try {
 	      if (this.extraHeaders) {
-	        xhr.setDisableHeaderCheck(true);
+	        xhr.setDisableHeaderCheck && xhr.setDisableHeaderCheck(true);
 	        for (var i in this.extraHeaders) {
 	          if (this.extraHeaders.hasOwnProperty(i)) {
 	            xhr.setRequestHeader(i, this.extraHeaders[i]);
@@ -1879,12 +1883,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	exports.encodePacket = function (packet, supportsBinary, utf8encode, callback) {
-	  if ('function' == typeof supportsBinary) {
+	  if (typeof supportsBinary === 'function') {
 	    callback = supportsBinary;
 	    supportsBinary = false;
 	  }
 
-	  if ('function' == typeof utf8encode) {
+	  if (typeof utf8encode === 'function') {
 	    callback = utf8encode;
 	    utf8encode = null;
 	  }
@@ -1909,7 +1913,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  // data fragment is optional
 	  if (undefined !== packet.data) {
-	    encoded += utf8encode ? utf8.encode(String(packet.data)) : String(packet.data);
+	    encoded += utf8encode ? utf8.encode(String(packet.data), { strict: false }) : String(packet.data);
 	  }
 
 	  return callback('' + encoded);
@@ -2018,8 +2022,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return err;
 	  }
 	  // String data
-	  if (typeof data == 'string') {
-	    if (data.charAt(0) == 'b') {
+	  if (typeof data === 'string') {
+	    if (data.charAt(0) === 'b') {
 	      return exports.decodeBase64Packet(data.substr(1), binaryType);
 	    }
 
@@ -2053,7 +2057,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function tryDecode(data) {
 	  try {
-	    data = utf8.decode(data);
+	    data = utf8.decode(data, { strict: false });
 	  } catch (e) {
 	    return false;
 	  }
@@ -2099,7 +2103,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	exports.encodePayload = function (packets, supportsBinary, callback) {
-	  if (typeof supportsBinary == 'function') {
+	  if (typeof supportsBinary === 'function') {
 	    callback = supportsBinary;
 	    supportsBinary = null;
 	  }
@@ -2123,7 +2127,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  function encodeOne(packet, doneCallback) {
-	    exports.encodePacket(packet, !isBinary ? false : supportsBinary, true, function(message) {
+	    exports.encodePacket(packet, !isBinary ? false : supportsBinary, false, function(message) {
 	      doneCallback(null, setLengthHeader(message));
 	    });
 	  }
@@ -2162,7 +2166,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	exports.decodePayload = function (data, binaryType, callback) {
-	  if (typeof data != 'string') {
+	  if (typeof data !== 'string') {
 	    return exports.decodePayloadAsBinary(data, binaryType, callback);
 	  }
 
@@ -2172,51 +2176,51 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  var packet;
-	  if (data == '') {
+	  if (data === '') {
 	    // parser error - ignoring payload
 	    return callback(err, 0, 1);
 	  }
 
-	  var length = ''
-	    , n, msg;
+	  var length = '', n, msg;
 
 	  for (var i = 0, l = data.length; i < l; i++) {
 	    var chr = data.charAt(i);
 
-	    if (':' != chr) {
+	    if (chr !== ':') {
 	      length += chr;
-	    } else {
-	      if ('' == length || (length != (n = Number(length)))) {
-	        // parser error - ignoring payload
-	        return callback(err, 0, 1);
-	      }
-
-	      msg = data.substr(i + 1, n);
-
-	      if (length != msg.length) {
-	        // parser error - ignoring payload
-	        return callback(err, 0, 1);
-	      }
-
-	      if (msg.length) {
-	        packet = exports.decodePacket(msg, binaryType, true);
-
-	        if (err.type == packet.type && err.data == packet.data) {
-	          // parser error in individual packet - ignoring payload
-	          return callback(err, 0, 1);
-	        }
-
-	        var ret = callback(packet, i + n, l);
-	        if (false === ret) return;
-	      }
-
-	      // advance cursor
-	      i += n;
-	      length = '';
+	      continue;
 	    }
+
+	    if (length === '' || (length != (n = Number(length)))) {
+	      // parser error - ignoring payload
+	      return callback(err, 0, 1);
+	    }
+
+	    msg = data.substr(i + 1, n);
+
+	    if (length != msg.length) {
+	      // parser error - ignoring payload
+	      return callback(err, 0, 1);
+	    }
+
+	    if (msg.length) {
+	      packet = exports.decodePacket(msg, binaryType, false);
+
+	      if (err.type === packet.type && err.data === packet.data) {
+	        // parser error in individual packet - ignoring payload
+	        return callback(err, 0, 1);
+	      }
+
+	      var ret = callback(packet, i + n, l);
+	      if (false === ret) return;
+	    }
+
+	    // advance cursor
+	    i += n;
+	    length = '';
 	  }
 
-	  if (length != '') {
+	  if (length !== '') {
 	    // parser error - ignoring payload
 	    return callback(err, 0, 1);
 	  }
@@ -2354,24 +2358,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var bufferTail = data;
 	  var buffers = [];
 
-	  var numberTooLong = false;
 	  while (bufferTail.byteLength > 0) {
 	    var tailArray = new Uint8Array(bufferTail);
 	    var isString = tailArray[0] === 0;
 	    var msgLength = '';
 
 	    for (var i = 1; ; i++) {
-	      if (tailArray[i] == 255) break;
+	      if (tailArray[i] === 255) break;
 
+	      // 310 = char length of Number.MAX_VALUE
 	      if (msgLength.length > 310) {
-	        numberTooLong = true;
-	        break;
+	        return callback(err, 0, 1);
 	      }
 
 	      msgLength += tailArray[i];
 	    }
-
-	    if(numberTooLong) return callback(err, 0, 1);
 
 	    bufferTail = sliceBuffer(bufferTail, 2 + msgLength.length);
 	    msgLength = parseInt(msgLength);
@@ -2458,7 +2459,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  function _hasBinary(obj) {
 	    if (!obj) return false;
 
-	    if ( (global.Buffer && global.Buffer.isBuffer(obj)) ||
+	    if ( (global.Buffer && global.Buffer.isBuffer && global.Buffer.isBuffer(obj)) ||
 	         (global.ArrayBuffer && obj instanceof ArrayBuffer) ||
 	         (global.Blob && obj instanceof Blob) ||
 	         (global.File && obj instanceof File)
@@ -2473,7 +2474,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          }
 	      }
 	    } else if (obj && 'object' == typeof obj) {
-	      if (obj.toJSON) {
+	      // see: https://github.com/Automattic/has-binary/pull/4
+	      if (obj.toJSON && 'function' == typeof obj.toJSON) {
 	        obj = obj.toJSON();
 	      }
 
@@ -2574,7 +2576,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/wtf8 v1.0.0 by @mathias */
+	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/utf8js v2.1.2 by @mathias */
 	;(function(root) {
 
 		// Detect free variables `exports`
@@ -2640,13 +2642,25 @@ return /******/ (function(modules) { // webpackBootstrap
 			return output;
 		}
 
+		function checkScalarValue(codePoint, strict) {
+			if (codePoint >= 0xD800 && codePoint <= 0xDFFF) {
+				if (strict) {
+					throw Error(
+						'Lone surrogate U+' + codePoint.toString(16).toUpperCase() +
+						' is not a scalar value'
+					);
+				}
+				return false;
+			}
+			return true;
+		}
 		/*--------------------------------------------------------------------------*/
 
 		function createByte(codePoint, shift) {
 			return stringFromCharCode(((codePoint >> shift) & 0x3F) | 0x80);
 		}
 
-		function encodeCodePoint(codePoint) {
+		function encodeCodePoint(codePoint, strict) {
 			if ((codePoint & 0xFFFFFF80) == 0) { // 1-byte sequence
 				return stringFromCharCode(codePoint);
 			}
@@ -2655,6 +2669,9 @@ return /******/ (function(modules) { // webpackBootstrap
 				symbol = stringFromCharCode(((codePoint >> 6) & 0x1F) | 0xC0);
 			}
 			else if ((codePoint & 0xFFFF0000) == 0) { // 3-byte sequence
+				if (!checkScalarValue(codePoint, strict)) {
+					codePoint = 0xFFFD;
+				}
 				symbol = stringFromCharCode(((codePoint >> 12) & 0x0F) | 0xE0);
 				symbol += createByte(codePoint, 6);
 			}
@@ -2667,7 +2684,10 @@ return /******/ (function(modules) { // webpackBootstrap
 			return symbol;
 		}
 
-		function wtf8encode(string) {
+		function utf8encode(string, opts) {
+			opts = opts || {};
+			var strict = false !== opts.strict;
+
 			var codePoints = ucs2decode(string);
 			var length = codePoints.length;
 			var index = -1;
@@ -2675,7 +2695,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			var byteString = '';
 			while (++index < length) {
 				codePoint = codePoints[index];
-				byteString += encodeCodePoint(codePoint);
+				byteString += encodeCodePoint(codePoint, strict);
 			}
 			return byteString;
 		}
@@ -2694,11 +2714,11 @@ return /******/ (function(modules) { // webpackBootstrap
 				return continuationByte & 0x3F;
 			}
 
-			// If we end up here, it’s not a continuation byte.
+			// If we end up here, it’s not a continuation byte
 			throw Error('Invalid continuation byte');
 		}
 
-		function decodeSymbol() {
+		function decodeSymbol(strict) {
 			var byte1;
 			var byte2;
 			var byte3;
@@ -2713,7 +2733,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				return false;
 			}
 
-			// Read the first byte.
+			// Read first byte
 			byte1 = byteArray[byteIndex] & 0xFF;
 			byteIndex++;
 
@@ -2724,7 +2744,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 			// 2-byte sequence
 			if ((byte1 & 0xE0) == 0xC0) {
-				var byte2 = readContinuationByte();
+				byte2 = readContinuationByte();
 				codePoint = ((byte1 & 0x1F) << 6) | byte2;
 				if (codePoint >= 0x80) {
 					return codePoint;
@@ -2739,7 +2759,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				byte3 = readContinuationByte();
 				codePoint = ((byte1 & 0x0F) << 12) | (byte2 << 6) | byte3;
 				if (codePoint >= 0x0800) {
-					return codePoint;
+					return checkScalarValue(codePoint, strict) ? codePoint : 0xFFFD;
 				} else {
 					throw Error('Invalid continuation byte');
 				}
@@ -2750,26 +2770,29 @@ return /******/ (function(modules) { // webpackBootstrap
 				byte2 = readContinuationByte();
 				byte3 = readContinuationByte();
 				byte4 = readContinuationByte();
-				codePoint = ((byte1 & 0x0F) << 0x12) | (byte2 << 0x0C) |
+				codePoint = ((byte1 & 0x07) << 0x12) | (byte2 << 0x0C) |
 					(byte3 << 0x06) | byte4;
 				if (codePoint >= 0x010000 && codePoint <= 0x10FFFF) {
 					return codePoint;
 				}
 			}
 
-			throw Error('Invalid WTF-8 detected');
+			throw Error('Invalid UTF-8 detected');
 		}
 
 		var byteArray;
 		var byteCount;
 		var byteIndex;
-		function wtf8decode(byteString) {
+		function utf8decode(byteString, opts) {
+			opts = opts || {};
+			var strict = false !== opts.strict;
+
 			byteArray = ucs2decode(byteString);
 			byteCount = byteArray.length;
 			byteIndex = 0;
 			var codePoints = [];
 			var tmp;
-			while ((tmp = decodeSymbol()) !== false) {
+			while ((tmp = decodeSymbol(strict)) !== false) {
 				codePoints.push(tmp);
 			}
 			return ucs2encode(codePoints);
@@ -2777,10 +2800,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 		/*--------------------------------------------------------------------------*/
 
-		var wtf8 = {
-			'version': '1.0.0',
-			'encode': wtf8encode,
-			'decode': wtf8decode
+		var utf8 = {
+			'version': '2.1.2',
+			'encode': utf8encode,
+			'decode': utf8decode
 		};
 
 		// Some AMD build optimizers, like r.js, check for specific condition patterns
@@ -2789,20 +2812,20 @@ return /******/ (function(modules) { // webpackBootstrap
 			true
 		) {
 			!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
-				return wtf8;
+				return utf8;
 			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 		}	else if (freeExports && !freeExports.nodeType) {
 			if (freeModule) { // in Node.js or RingoJS v0.8.0+
-				freeModule.exports = wtf8;
+				freeModule.exports = utf8;
 			} else { // in Narwhal or RingoJS v0.7.0-
 				var object = {};
 				var hasOwnProperty = object.hasOwnProperty;
-				for (var key in wtf8) {
-					hasOwnProperty.call(wtf8, key) && (freeExports[key] = wtf8[key]);
+				for (var key in utf8) {
+					hasOwnProperty.call(utf8, key) && (freeExports[key] = utf8[key]);
 				}
 			}
 		} else { // in Rhino or a web browser
-			root.wtf8 = wtf8;
+			root.utf8 = utf8;
 		}
 
 	}(this));
