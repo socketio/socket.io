@@ -1,4 +1,6 @@
 
+var webpack = require('webpack');
+
 module.exports = {
   name: 'default',
   entry: './lib/index.js',
@@ -10,7 +12,21 @@ module.exports = {
   externals: {
     global: glob()
   },
-  devtool: 'cheap-module-source-map',
+  devtool: 'source-map',
+  plugins: [
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        screw_ie8: false
+      },
+      mangle: {
+        screw_ie8: false
+      },
+      output: {
+        screw_ie8: false,
+        beautify: false
+      }
+    })
+  ],
   module: {
     loaders: [{
       test: /\.js$/,

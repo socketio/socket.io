@@ -14,7 +14,7 @@
 
 A standalone build of `socket.io-client` is exposed automatically by the
 socket.io server as `/socket.io/socket.io.js`. Alternatively you can
-serve the file `socket.io.js` or `socket.io.min.js` found in the `dist` folder.
+serve the file `socket.io.js` found in the `dist` folder.
 
 ```html
 <script src="/socket.io/socket.io.js"></script>
@@ -25,6 +25,8 @@ serve the file `socket.io.js` or `socket.io.min.js` found in the `dist` folder.
   socket.on('disconnect', function(){});
 </script>
 ```
+
+A slim build (without `JSON3`, a JSON polyfill for IE6/IE7, and `debug`) is also available: `socket.io.slim.js`.
 
 Socket.IO is compatible with [browserify](http://browserify.org/).
 

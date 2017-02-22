@@ -5,7 +5,6 @@ const webpack = require('webpack-stream');
 const child = require('child_process');
 const help = require('gulp-task-listing');
 const eslint = require('gulp-eslint');
-const minify = require('gulp-minify');
 
 gulp.task('help', help);
 
@@ -24,12 +23,6 @@ gulp.task('build', function () {
         require('./support/webpack.config.js'),
         require('./support/webpack.config.slim.js')
       ]
-    }))
-    .pipe(minify({
-      ext: {
-        src: '.js',
-        min: '.min.js'
-      }
     }))
     .pipe(gulp.dest(BUILD_TARGET_DIR));
 });
