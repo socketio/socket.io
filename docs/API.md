@@ -272,6 +272,8 @@ socket.on('news', function (data) {
 });
 ```
 
+The socket actually inherits every method of the [Emitter](https://github.com/component/emitter) class, like `hasListeners`, `once` or `off` (to remove an event listener).
+
 #### socket.compress(value)
 
   - `value` _(Boolean)_
