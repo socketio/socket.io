@@ -1,0 +1,23 @@
+{
+  "name": "webpack-build-server",
+  "version": "1.0.0",
+  "description": "A sample Webpack build (for the server)",
+  "scripts": {
+    "start": "node dist/server.js",
+    "build": "webpack --config ./support/webpack.config.js"
+  },
+  "author": "Damien Arrachequesne",
+  "license": "MIT",
+  "dependencies": {
+    "brfs": "^1.4.3",
+    "bufferutil": "^1.3.0",
+    "socket.io": "^1.7.2",
+    "transform-loader": "^0.2.3",
+    "utf-8-validate": "^2.0.0"
+  },
+  "devDependencies": {
+    "json-loader": "^0.5.4",
+    "null-loader": "^0.1.1",
+    "webpack": "^1.14.0"
+  }
+}
