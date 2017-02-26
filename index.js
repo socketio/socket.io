@@ -41,10 +41,26 @@ Adapter.prototype.__proto__ = Emitter.prototype;
  */
 
 Adapter.prototype.add = function(id, room, fn){
-  this.sids[id] = this.sids[id] || {};
-  this.sids[id][room] = true;
-  this.rooms[room] = this.rooms[room] || Room();
-  this.rooms[room].add(id);
+  return this.addAll(id, [ room ], fn);
+};
+
+/**
+ * Adds a socket to a list of room.
+ *
+ * @param {String} socket id
+ * @param {String} rooms
+ * @param {Function} callback
+ * @api public
+ */
+
+Adapter.prototype.addAll = function(id, rooms, fn){
+  for (var i = 0; i < rooms.length; i++) {
+    var room = rooms[i];
+    this.sids[id] = this.sids[id] || {};
+    this.sids[id][room] = true;
+    this.rooms[room] = this.rooms[room] || Room();
+    this.rooms[room].add(id);
+  }
   if (fn) process.nextTick(fn.bind(null, null));
 };
 
