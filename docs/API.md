@@ -40,6 +40,7 @@
     - [socket.emit(eventName[, ...args][, ack])](#socketemiteventname-args-ack)
     - [socket.on(eventName, callback)](#socketoneventname-callback)
     - [socket.join(room[, callback])](#socketjoinroom-callback)
+    - [socket.join(rooms[, callback])](#socketjoinrooms-callback)
     - [socket.leave(room[, callback])](#socketleaveroom-callback)
     - [socket.to(room)](#sockettoroom)
     - [socket.in(room)](#socketinroom)
@@ -475,6 +476,14 @@ io.on('connection', function(client){
   });
 });
 ```
+
+#### socket.join(rooms[, callback])
+
+  - `rooms` _(Array)_
+  - `callback` _(Function)_
+  - **Returns** `Socket` for chaining
+
+Adds the client to the list of room, and fires optionally a callback with `err` signature (if any).
 
 #### socket.leave(room[, callback])
 

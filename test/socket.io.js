@@ -2083,6 +2083,21 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('allows to join several rooms at once', function(done) {
+      var srv = http();
+      var sio = io(srv);
+
+      srv.listen(function(){
+        var socket = client(srv);
+        sio.on('connection', function(s){
+          s.join(['a', 'b', 'c'], function(){
+            expect(Object.keys(s.rooms)).to.eql([s.id, 'a', 'b', 'c']);
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe('middleware', function(done){
