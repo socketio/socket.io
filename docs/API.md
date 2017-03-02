@@ -5,7 +5,7 @@
     - [new Server(httpServer[, options])](#new-serverhttpserver-options)
     - [new Server(port[, options])](#new-serverport-options)
     - [new Server(options)](#new-serveroptions)
-    - [server.sockets](#serversockets)
+    - [server.sockets](#serversockets) 
     - [server.serveClient([value])](#serverserveclientvalue)
     - [server.path([value])](#serverpathvalue)
     - [server.adapter([value])](#serveradaptervalue)
@@ -19,13 +19,13 @@
     - [server.onconnection(socket)](#serveronconnectionsocket)
     - [server.of(nsp)](#serverofnsp)
     - [server.close([callback])](#serverclosecallback)
+    - [server.engine.generateId(fn)](#serverenginegenerateidfn)
   - [Class: Namespace](#namespace)
     - [namespace.name](#namespacename)
     - [namespace.connected](#namespaceconnected)
     - [namespace.emit(eventName[, ...args])](#namespaceemiteventname-args)
     - [namespace.clients(callback)](#namespaceclientscallback)
     - [namespace.use(fn)](#namespaceusefn)
-    - [namespace.engine.generateId(fn)](#namespaceenginegenerateidfn)
     - [Event: 'connect'](#event-connect)
     - [Event: 'connection'](#event-connect)
     - [Flag: 'volatile'](#flag-volatile)
@@ -226,6 +226,22 @@ server.listen(PORT); // PORT is free to use
 io = Server(server);
 ```
 
+#### server.engine.generateId(fn)
+
+  - `fn` _(Function)_
+
+Generates a custom socket id by using `generateId` option of `Engine.io` library. 
+
+The function takes a `req` parameter which is a node request object.
+
+```js
+var custom_id = 0;
+io.engine.generateId = function (req) { 
+    custom_id++; 
+    return "custom:id:" + custom_id; // custom id must be unpredictable and unique
+} 
+```
+
 ### Namespace
 
 Represents a pool of sockets connected under a given scope identified
@@ -309,22 +325,6 @@ io.use(function(socket, next){
   if (socket.request.headers.cookie) return next();
   next(new Error('Authentication error'));
 });
-```
-
-#### namespace.engine.generateId(fn)
-
-  - `fn` _(Function)_
-
-Generates a custom socket id by using `generateId` option of `Engine.io` library. 
-
-The function takes a `req` parameter whis is a node request object.
-
-```js
-var custom_id = 0;
-io.engine.generateId = function (req) { 
-    custom_id++; 
-    return "custom:id:" + custom_id; // custom id must be unpredictable and unique
-} 
 ```
 
 #### Event: 'connect'
