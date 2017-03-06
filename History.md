@@ -1,4 +1,9 @@
 
+2.0.1 / 2017-03-06
+==================
+
+  * [fix] Encode string payloads as strings even if binary supported (#85)
+
 2.0.0 / 2016-12-23
 ==================
 
