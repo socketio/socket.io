@@ -165,6 +165,15 @@ module.exports = function(parser) {
         });
       });
 
+      describe('basic functionality', function () {
+        it('should encode string payloads as strings even if binary supported', function (done) {
+          encPayload([{ type: 'ping' }, { type: 'post' }], true, function(data) {
+            expect(data).to.be.a('string');
+            done();
+          });
+        });
+      });
+
       describe('encoding and decoding', function () {
         var seen = 0;
         it('should encode/decode packets', function (done) {
