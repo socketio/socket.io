@@ -225,9 +225,12 @@ Exposed as `eio` in the browser standalone build.
         - `threshold` (`Number`): data is compressed only if the byte size is above this value. This option is ignored on the browser. (`1024`)
       - `extraHeaders` (`Object`): Headers that will be passed for each request to the server (via xhr-polling and via websockets). These values then can be used during handshake or for special proxies. Can only be used in Node.js client environment.
       - `onlyBinaryUpgrades` (`Boolean`): whether transport upgrades should be restricted to transports supporting binary data (`false`)
-      - `requestTimeout` (`Number`): Timeout for xhr-polling requests in milliseconds (`0`)
       - `forceNode` (`Boolean`): Uses NodeJS implementation for websockets - even if there is a native Browser-Websocket available, which is preferred by default over the NodeJS implementation. (This is useful when using hybrid platforms like nw.js or electron) (`false`, NodeJS only)
       - `localAddress` (`String`): the local IP address to connect to
+    - **Polling-only options**
+      - `requestTimeout` (`Number`): Timeout for xhr-polling requests in milliseconds (`0`)
+    - **Websocket-only options**
+      - `protocols` (`Array`): a list of subprotocols (see [MDN reference](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers#Subprotocols))
 - `send`
     - Sends a message to the server
     - **Parameters**
