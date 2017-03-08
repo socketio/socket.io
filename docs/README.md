@@ -1,5 +1,6 @@
+## Socket.io Documentation and Reference
 
-## Table of Contents
+### Table of Contents
 
 #### Getting started
 
