@@ -73,7 +73,7 @@ See [new Manager(url[, options])](#managerurl-options) for available `options`.
 
   - `url` _(String)_
   - `options` _(Object)_
-    - `path` _(String)_ name of the path that is captured on the server side (`/socket.io`)
+    - `path` _(String)_ name of the path that is captured on the server side (`/socket.io`)
     - `reconnection` _(Boolean)_ whether to reconnect automatically (`true`)
     - `reconnectionAttempts` _(Number)_ number of reconnection attempts before giving up (`Infinity`)
     - `reconnectionDelay` _(Number)_ how long to initially wait before attempting a new
