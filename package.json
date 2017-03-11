@@ -42,7 +42,7 @@
     "babel-loader": "6.2.1",
     "babel-preset-es2015": "6.3.13",
     "blob": "0.0.4",
-    "concat-stream": "1.4.6",
+    "concat-stream": "1.5.2",
     "del": "2.2.0",
     "derequire": "1.2.0",
     "engine.io": "2.0.2",
