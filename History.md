@@ -1,4 +1,11 @@
 
+2.1.0  / 2017-03-11
+===================
+
+  * [chore] Bump engine.io-parser to version 2.0.1 (#549)
+  * [chore] Bump concat-stream to version 1.5.2 (#548)
+  * [feat] Allow to set the protocols for the websocket transport (#546)
+
 2.0.2  / 2017-02-16
 ===================
 
