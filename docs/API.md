@@ -327,13 +327,15 @@ Fired upon a successful reconnection.
 
 #### Event: 'reconnect_attempt'
 
+  - `attempt` _(Number)_ reconnection attempt number
+
 Fired upon an attempt to reconnect.
 
 #### Event: 'reconnecting'
 
   - `attempt` _(Number)_ reconnection attempt number
 
-Fired upon a successful reconnection.
+Fired upon an attempt to reconnect.
 
 #### Event: 'reconnect_error'
 
