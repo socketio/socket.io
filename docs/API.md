@@ -87,7 +87,7 @@ See [new Manager(url[, options])](#managerurl-options) for available `options`.
       and `connect_timeout` events are emitted (`20000`)
     - `autoConnect` _(Boolean)_ by setting this false, you have to call `manager.open`
       whenever you decide it's appropriate
-  - **Returns** `Socket`
+  - **Returns** `Manager`
 
 The `options` are also passed to `engine.io-client` upon initialization of the underlying `Socket`. See the available `options` [here](https://github.com/socketio/engine.io-client#methods).
 
