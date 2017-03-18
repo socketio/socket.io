@@ -312,9 +312,9 @@ io.use(function(socket, next){
 
 #### Event: 'connect'
 
-  - `error` _(Object)_ error object
+  - `socket` _(Socket)_ socket connection with client
 
-Fired upon a reconnection attempt error.
+Fired upon a connection from client.
 
 #### Event: 'connection'
 
