@@ -66,7 +66,7 @@ Browser support is tested in Saucelabs:
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/socket.svg)](https://saucelabs.com/u/socket)
 
-#### Multiplexing support
+#### Multiplexing support
 
 In order to create separation of concerns within your application (for example per module, or based on permissions), Socket.IO allows you to create several `Namespaces`, which will act as separate communication channels but will share the same underlying connection.
 
