@@ -1529,7 +1529,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  // decode payload
-	  parser.decodePayload(data, this.socket.binaryType, callback);
+	  parser.decodePayload(data, this.socket.binaryType, this.supportsBinary, callback);
 
 	  // if an event did not trigger closing
 	  if ('closed' !== this.readyState) {
@@ -2166,7 +2166,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @api public
 	 */
 
-	exports.decodePayload = function (data, binaryType, callback) {
+	exports.decodePayload = function (data, binaryType, utf8decode, callback) {
 	  if (typeof data !== 'string') {
 	    return exports.decodePayloadAsBinary(data, binaryType, callback);
 	  }
@@ -2176,10 +2176,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    binaryType = null;
 	  }
 
+	  if (typeof utf8decode === 'function') {
+	    callback = utf8decode;
+	    utf8decode = null;
+	  }
+
 	  var packet;
 	  if (data === '') {
 	    // parser error - ignoring payload
 	    return callback(err, 0, 1);
+	  }
+
+	  if (utf8decode) {
+	    data = tryDecode(data);
+	    if (data === false) {
+	      return callback(err, 0, 1);
+	    }
 	  }
 
 	  var length = '', n, msg;
