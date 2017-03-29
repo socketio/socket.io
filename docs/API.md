@@ -6,7 +6,7 @@
     - [new Server(port[, options])](#new-serverport-options)
     - [new Server(options)](#new-serveroptions)
     - [server.sockets](#serversockets)
-    - [server.engine.generateId](#serverenginegenerateidfn)
+    - [server.engine.generateId](#serverenginegenerateid)
     - [server.serveClient([value])](#serverserveclientvalue)
     - [server.path([value])](#serverpathvalue)
     - [server.adapter([value])](#serveradaptervalue)
