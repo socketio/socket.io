@@ -6,6 +6,7 @@
     - [new Server(port[, options])](#new-serverport-options)
     - [new Server(options)](#new-serveroptions)
     - [server.sockets](#serversockets)
+    - [server.engine.generateId](#serverenginegenerateid)
     - [server.serveClient([value])](#serverserveclientvalue)
     - [server.path([value])](#serverpathvalue)
     - [server.adapter([value])](#serveradaptervalue)
@@ -223,6 +224,18 @@ io.close(); // Close current server
 server.listen(PORT); // PORT is free to use
 
 io = Server(server);
+```
+
+#### server.engine.generateId
+
+Overwrites the default method to generate your custom socket id.
+
+The function is called with a node request object (`http.IncomingMessage`) as first parameter.
+
+```js
+io.engine.generateId = function (req) {
+  return "custom:id:" + custom_id++; // custom id must be unique
+}
 ```
 
 ### Namespace
