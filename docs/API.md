@@ -5,7 +5,8 @@
     - [new Server(httpServer[, options])](#new-serverhttpserver-options)
     - [new Server(port[, options])](#new-serverport-options)
     - [new Server(options)](#new-serveroptions)
-    - [server.sockets](#serversockets) 
+    - [server.sockets](#serversockets)
+    - [server.engine.generateId](#serverenginegenerateidfn)
     - [server.serveClient([value])](#serverserveclientvalue)
     - [server.path([value])](#serverpathvalue)
     - [server.adapter([value])](#serveradaptervalue)
@@ -19,7 +20,6 @@
     - [server.onconnection(socket)](#serveronconnectionsocket)
     - [server.of(nsp)](#serverofnsp)
     - [server.close([callback])](#serverclosecallback)
-    - [server.engine.generateId(fn)](#serverenginegenerateidfn)
   - [Class: Namespace](#namespace)
     - [namespace.name](#namespacename)
     - [namespace.connected](#namespaceconnected)
@@ -226,20 +226,16 @@ server.listen(PORT); // PORT is free to use
 io = Server(server);
 ```
 
-#### server.engine.generateId(fn)
+#### server.engine.generateId
 
-  - `fn` _(Function)_
+Overwrites the default method to generate your custom socket id.
 
-Generates a custom socket id by using `generateId` option of `Engine.io` library. 
-
-The function takes a `req` parameter which is a node request object.
+The function is called with a node request object (`http.IncomingMessage`) as first parameter.
 
 ```js
-var custom_id = 0;
-io.engine.generateId = function (req) { 
-    custom_id++; 
-    return "custom:id:" + custom_id; // custom id must be unpredictable and unique
-} 
+io.engine.generateId = function (req) {
+  return "custom:id:" + custom_id++; // custom id must be unique
+}
 ```
 
 ### Namespace
