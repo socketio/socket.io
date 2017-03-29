@@ -40,6 +40,10 @@
     - [socket.send([...args][, ack])](#socketsendargs-ack)
     - [socket.emit(eventName[, ...args][, ack])](#socketemiteventname-args-ack)
     - [socket.on(eventName, callback)](#socketoneventname-callback)
+    - [socket.once(eventName, listener)](#socketonceeventname-listener)
+    - [socket.removeListener(eventName, listener)](#socketremovelistenereventname-listener)
+    - [socket.removeAllListeners([eventName])](#socketremovealllistenerseventname)
+    - [socket.eventNames()](#socketeventnames)
     - [socket.join(room[, callback])](#socketjoinroom-callback)
     - [socket.join(rooms[, callback])](#socketjoinrooms-callback)
     - [socket.leave(room[, callback])](#socketleaveroom-callback)
@@ -357,6 +361,8 @@ It should be noted the `Socket` doesn't relate directly to the actual underlying
 
 Within each `Namespace`, you can also define arbitrary channels (called `room`) that the `Socket` can join and leave. That provides a convenient way to broadcast to a group of `Socket`s (see `Socket#to` below).
 
+The `Socket` class inherits from [EventEmitter](https://nodejs.org/api/events.html#events_class_eventemitter). The `Socket` class overrides the `emit` method, and does not modify any other `EventEmitter` method. All methods documented here which also appear as `EventEmitter` methods (apart from `emit`) are implemented by `EventEmitter`, and documentation for `EventEmitter` applies.
+
 #### socket.id
 
   * _(String)_
@@ -415,6 +421,7 @@ Sends a `message` event. See [socket.emit(eventName[, ...args][, ack])](#sockete
 
 #### socket.emit(eventName[, ...args][, ack])
 
+*(overrides `EventEmitter.emit`)*
   - `eventName` _(String)_
   - `args`
   - `ack` _(Function)_
@@ -448,6 +455,7 @@ io.on('connection', function(client){
 
 #### socket.on(eventName, callback)
 
+*(inherited from `EventEmitter`)*
   - `eventName` _(String)_
   - `callback` _(Function)_
   - **Returns** `Socket`
@@ -459,6 +467,13 @@ socket.on('news', function (data) {
   console.log(data);
 });
 ```
+
+#### socket.once(eventName, listener)
+#### socket.removeListener(eventName, listener)
+#### socket.removeAllListeners([eventName])
+#### socket.eventNames()
+
+Inherited from `EventEmitter` (along with other methods not mentioned here). See Node.js documentation for the `events` module.
 
 #### socket.join(room[, callback])
 
