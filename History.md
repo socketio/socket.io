@@ -1,4 +1,10 @@
 
+3.0.0 / 2017-04-04
+==================
+
+  * [chore] Bump isarray to version 2.0.1 (#65)
+  * [chore] Use native JSON and drop support for older nodejs versions (#64)
+
 2.3.2 / 2016-12-30
 ==================
 
