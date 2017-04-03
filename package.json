@@ -14,7 +14,7 @@
   "dependencies": {
     "debug": "2.3.3",
     "component-emitter": "1.2.1",
-    "isarray": "0.0.1"
+    "isarray": "2.0.1"
   },
   "devDependencies": {
     "benchmark": "2.1.2",
