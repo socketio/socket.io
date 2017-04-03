@@ -25,6 +25,9 @@ function onConnect(socket){
   // sending to all clients in namespace 'myNamespace', including sender
   io.of('myNamespace').emit('bigger-announcement', 'the tournament will start soon');
 
+  // sending to a specific room in a specific namespace, including sender
+  io.of('myNamespace').to('room').emit('event', 'message');
+
   // sending to individual socketid (private message)
   socket.to(<socketid>).emit('hey', 'I just met you');
 
