@@ -30,7 +30,9 @@ they're expected to be "opening" and "closing" all the time.
 
 An Engine.IO url is composed as follows:
 
-`/engine.io/` [ ? <query string> ]
+```
+/engine.io/[?<query string>]
+```
 
 - The `engine.io` pathname should only be changed by higher-level
   frameworks whose protocol sits on top of engine's.
