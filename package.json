@@ -13,7 +13,6 @@
   ],
   "dependencies": {
     "debug": "2.3.3",
-    "json3": "3.3.2",
     "component-emitter": "1.2.1",
     "isarray": "0.0.1"
   },
