@@ -1,4 +1,13 @@
 
+3.0.0 / 2017-04-06
+===================
+
+  * [chore] Bump dependencies (#498)
+  * [chore] Bump uws to version 0.14.1 (#497)
+  * [chore] Merge 2.1.x branch (#494)
+  * [chore] Bump ws to version 2.2.0 (#487)
+  * [chore] Drop support for old nodejs versions (0.10 & 0.12) (#493)
+
 2.1.1  / 2017-03-22
 ===================
 
