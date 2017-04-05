@@ -1,4 +1,11 @@
 
+3.0.0 / 2017-04-06
+===================
+
+  * [chore] Bump dependencies (#560)
+  * [fix] Default `rejectUnauthorized` to `true` (#558)
+  * [chore] Drop support for old nodejs versions (0.10 & 0.12) (#557)
+
 2.1.1  / 2017-03-22
 ===================
 
