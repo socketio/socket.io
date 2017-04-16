@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Canvas Sharing</title>
+		<link href="index.css" rel="stylesheet">
+		<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+		<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+		<script src="main.js"></script>
+	</head>
+	<body>
+		<canvas id="canvas" width="1100" height="550"></canvas>
+		<div id="controls">
+			<p><label>Fill: <input id="fillBox" type="checkbox" checked="checked"></label></p>
+			<label>Select your option</label>
+			<form >
+				<input id="radiobutton1" type="radio"  name="buttonT" value="line" checked="checked">Line<br>
+				<input id="radiobutton2" type="radio"  name="buttonT" value="circle">Circle<br>
+				<input id="radiobutton3" type="radio" name="buttonT" value="polygon">Polygon<br>
+			</form>
+		</div>
+	</body>
+</html>

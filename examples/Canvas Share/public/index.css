@@ -1,0 +1,21 @@
+*{
+border:0;
+padding:0;
+margin:0;
+}
+canvas{
+position: absolute;
+top: 10px;
+left:200px;
+border: 1px solid gray;
+}
+#controls{
+position: absolute;
+top: 10px;
+left:5px;
+padding:20px;
+border: 1px solid gray;
+background-color: lightskyblue;
+border-radius: 10px;
+box-shadow: 2px 2px 12px lightskyblue;
+}
