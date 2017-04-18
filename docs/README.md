@@ -1,7 +1,7 @@
 
 ## Table of Contents
 
-#### Getting started
+#### Getting started
 
   - [Write a chat application](http://socket.io/get-started/chat/)
 
