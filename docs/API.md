@@ -117,7 +117,7 @@ See [above](#new-serverhttpserver-options) for available options.
 
 The default (`/`) namespace.
 
-#### server.serveClient([value])
+#### server.serveClient([value])
 
   - `value` _(Boolean)_
   - **Returns** `Server|Boolean`
@@ -134,14 +134,14 @@ io.serveClient(false);
 io.attach(http);
 ```
 
-#### server.path([value])
+#### server.path([value])
 
   - `value` _(String)_
   - **Returns** `Server|String`
 
 Sets the path `value` under which `engine.io` and the static files will be served. Defaults to `/socket.io`. If no arguments are supplied this method returns the current value.
 
-#### server.adapter([value])
+#### server.adapter([value])
 
   - `value` _(Adapter)_
   - **Returns** `Server|Adapter`
@@ -181,7 +181,7 @@ Attaches the `Server` to an engine.io instance on `httpServer` with the supplied
 
 Attaches the `Server` to an engine.io instance on a new http.Server with the supplied `options` (optionally).
 
-#### server.listen(httpServer[, options])
+#### server.listen(httpServer[, options])
 
 Synonym of [server.attach(httpServer[, options])](#serverattachhttpserver-options).
 
@@ -189,7 +189,7 @@ Synonym of [server.attach(httpServer[, options])](#serverattachhttpserver-option
 
 Synonym of [server.attach(port[, options])](#serverattachport-options).
 
-#### server.bind(engine)
+#### server.bind(engine)
 
   - `engine` _(engine.Server)_
   - **Returns** `Server`
