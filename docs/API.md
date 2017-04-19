@@ -30,6 +30,7 @@
     - [Event: 'connection'](#event-connect)
     - [Flag: 'volatile'](#flag-volatile)
     - [Flag: 'local'](#flag-local)
+    - [Flag: 'hasBinary'](#flag-hasbinary)
   - [Class: Socket](#socket)
     - [socket.id](#socketid)
     - [socket.rooms](#socketrooms)
@@ -53,6 +54,7 @@
     - [socket.disconnect(close)](#socketdisconnectclose)
     - [Flag: 'broadcast'](#flag-broadcast)
     - [Flag: 'volatile'](#flag-volatile-1)
+    - [Flag: 'hasBinary'](#flag-hasbinary-1)
     - [Event: 'disconnect'](#event-disconnect)
     - [Event: 'error'](#event-error)
     - [Event: 'disconnecting'](#event-disconnecting)
@@ -345,6 +347,14 @@ Sets a modifier for a subsequent event emission that the event data may be lost 
 io.volatile.emit('an event', { some: 'data' }); // the clients may or may not receive it
 ```
 
+#### Flag: 'hasBinary'
+
+Specifies whether there is binary data in the emitted data. Increases performance when specified. Can be `true` or `false`.
+
+```js
+io.hasBinary(false).emit('an event', { some: 'data' });
+```
+
 #### Flag: 'local'
 
 Sets a modifier for a subsequent event emission that the event data will only be _broadcast_ to the current node (when the [Redis adapter](https://github.com/socketio/socket.io-redis) is used).
@@ -579,6 +589,17 @@ Sets a modifier for a subsequent event emission that the event data may be lost 
 var io = require('socket.io')();
 io.on('connection', function(socket){
   socket.volatile.emit('an event', { some: 'data' }); // the client may or may not receive it
+});
+```
+
+#### Flag: 'hasBinary'
+
+Specifies whether there is binary data in the emmited data. Increases performance when specified. Can be `true` or `false`.
+
+```js
+var io = require('socket.io')();
+io.on('connection', function(socket){
+  socket.hasBinary(false).emit('an event', { some: 'data' }); // The data to send has no binary data
 });
 ```
 
