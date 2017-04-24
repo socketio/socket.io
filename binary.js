@@ -97,8 +97,8 @@ exports.removeBlobs = function(data, callback) {
     if (!obj) return obj;
 
     // convert any blob
-    if ((global.Blob && obj instanceof Blob) ||
-        (global.File && obj instanceof File)) {
+    if ((typeof global.Blob === 'function' && obj instanceof Blob) ||
+        (typeof global.File === 'function' && obj instanceof File)) {
       pendingBlobs++;
 
       // async filereader
