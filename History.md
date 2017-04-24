@@ -1,4 +1,10 @@
 
+2.1.0 / 2017-04-24
+==================
+
+  * [chore] Drop support for old nodejs versions (0.10 & 0.12) (#92)
+  * [revert] "[fix] Enable to utf8-decode string payloads (#88)" (#91)
+
 2.0.3 / 2017-04-05
 ==================
 
