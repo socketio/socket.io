@@ -1,4 +1,10 @@
 
+3.1.0 / 2017-04-24
+==================
+
+  * [chore] Bump debug to version 2.6.4 (#67)
+  * [feat] Move binary detection to the parser (#66)
+
 3.0.0 / 2017-04-04
 ==================
 
