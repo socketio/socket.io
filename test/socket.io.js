@@ -1730,8 +1730,10 @@ describe('socket.io', function(){
       });
     });
 
-    it('should not crash when messing with Object prototype', function(done){
+    it('should not crash when messing with Object prototype (and other globals)', function(done){
       Object.prototype.foo = 'bar';
+      global.File = '';
+      global.Blob = [];
       var srv = http();
       var sio = io(srv);
       srv.listen(function(){
