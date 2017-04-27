@@ -1,4 +1,10 @@
 
+3.1.2 / 2017-04-27
+==================
+
+  * [chore] Bump has-binary2 to version 1.0.2 (#70)
+  * [fix] Fix Blob detection for iOS 8/9 (#69)
+
 3.1.1 / 2017-04-25
 ==================
 
