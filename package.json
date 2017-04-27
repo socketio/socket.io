@@ -49,7 +49,7 @@
     "superagent": "0.15.4"
   },
   "optionalDependencies": {
-    "uws": "0.14.1"
+    "uws": "~0.14.4"
   },
   "scripts": {
     "test": "gulp test; EIO_WS_ENGINE=ws gulp test;"
