@@ -16,7 +16,7 @@
     "arraybuffer.slice": "0.0.6",
     "base64-arraybuffer": "0.1.5",
     "blob": "0.0.4",
-    "has-binary2": "1.0.1"
+    "has-binary2": "~1.0.2"
   },
   "scripts": {
     "test": "make test"
