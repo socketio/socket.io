@@ -1,4 +1,14 @@
 
+3.1.0 / 2017-04-28
+===================
+
+  * [chore] Bump engine.io-parser to version 2.1.1 (#566)
+  * [chore] Pin debug to version 2.6.4 (#567)
+  * [chore] Bump engine.io-parser to version 2.1.0 (#565)
+  * [chore] Bump ws to version 2.3.1 (#564)
+  * [chore] Bump debug to version 2.6.4 (#563)
+  * [refactor] Set responseType based on 'Content-Type' header (#562)
+
 3.0.0 / 2017-04-06
 ===================
 
