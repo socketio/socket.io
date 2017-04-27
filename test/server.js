@@ -1143,14 +1143,34 @@ describe('server', function () {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         engine.on('connection', function (conn) {
           conn.on('message', function (msg) {
-            console.log(msg);
+            done(new Error('Test invalidation (message is longer than allowed)'));
           });
         });
         socket.on('open', function () {
           socket.send('aasdasdakjhasdkjhasdkjhasdkjhasdkjhasdkjhasdkjha');
         });
+        socket.on('close', function () {
+          done();
+        });
       });
-      setTimeout(done, 1000);
+    });
+
+    it('should not be receiving data when getting a message longer than maxHttpBufferSize (websocket)', function (done) {
+      var opts = { maxHttpBufferSize: 5 };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        engine.on('connection', function (conn) {
+          conn.on('message', function (msg) {
+            done(new Error('Test invalidation (message is longer than allowed)'));
+          });
+        });
+        socket.on('open', function () {
+          socket.send('aasdasdakjhasdkjhasdkjhasdkjhasdkjhasdkjhasdkjha');
+        });
+        socket.on('close', function () {
+          done();
+        });
+      });
     });
 
     it('should receive data when getting a message shorter than maxHttpBufferSize when polling', function (done) {

@@ -201,7 +201,7 @@ to a single process.
         packet (`25000`)
       - `upgradeTimeout` (`Number`): how many ms before an uncompleted transport upgrade is cancelled (`10000`)
       - `maxHttpBufferSize` (`Number`): how many bytes or characters a message
-        can be when polling, before closing the session (to avoid DoS). Default
+        can be, before closing the session (to avoid DoS). Default
         value is `10E7`.
       - `allowRequest` (`Function`): A function that receives a given handshake
         or upgrade request as its first parameter, and can decide whether to
