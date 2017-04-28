@@ -92,6 +92,15 @@ describe('server', function () {
           });
       });
     });
+
+    it('should disallow connection that are rejected by `allowRequest`', function (done) {
+      listen({ allowRequest: function (req, fn) { fn(null, false); } }, function (port) {
+        var client = eioc('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        client.on('error', function () {
+          done();
+        });
+      });
+    });
   });
 
   describe('handshake', function () {
