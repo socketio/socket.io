@@ -1,7 +1,5 @@
 language: node_js
 node_js:
-- '0.10'
-- '0.12'
 - '4'
 - '6'
 - '7'
@@ -30,7 +28,7 @@ matrix:
     env: BROWSER_NAME=ie BROWSER_VERSION=10
   - node_js: 'node'
     env: BROWSER_NAME=ie BROWSER_VERSION=11
-  - node_js: '0.12'
+  - node_js: 'node'
     env: BROWSER_NAME=microsoftedge BROWSER_VERSION=latest
   - node_js: 'node'
     env: BROWSER_NAME=iphone BROWSER_VERSION=8.4
