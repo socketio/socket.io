@@ -1,4 +1,19 @@
 
+1.7.4 / 2017-05-07
+===================
+
+  * [chore] Bump engine.io to version 1.8.4
+
+0.9.18 / 2017-05-07
+===================
+
+  * Remove process.EventEmitter usage for Node 7.x
+
+1.7.3 / 2017-02-17
+===================
+
+  * [chore] Bump engine.io to version 1.8.3
+
 1.7.2 / 2016-12-11
 ===================
 
