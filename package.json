@@ -21,12 +21,14 @@
     "url": "git://github.com/socketio/socket.io"
   },
   "scripts": {
-    "test": "gulp test"
+    "test": "gulp test",
+    "postinstall": "opencollective postinstall"
   },
   "dependencies": {
     "debug": "~2.6.6",
     "engine.io": "~3.1.0",
     "object-assign": "~4.1.1",
+    "opencollective": "^1.0.3",
     "socket.io-adapter": "~1.1.0",
     "socket.io-client": "socketio/socket.io-client",
     "socket.io-parser": "~3.1.1"
@@ -62,5 +64,10 @@
       "name": "Einar Otto Stangvik",
       "email": "einaros@gmail.com"
     }
-  ]
+  ],
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/socketio",
+    "logo": "https://opencollective.com/socketio/logo.txt?variant=binary&reverse=true"
+  }
 }
