@@ -1,4 +1,36 @@
 
+2.0.0 / 2017-05-09
+===================
+
+`dist/socket.io.js`: 61.1 kB ; `dist/socket.io.slim.js`: 52.8 kB
+
+  * [feat] Move binary detection to the parser (#1103)
+  * [feat] Allow the use of a custom parser (#1075)
+
+  * [fix] Run tests on the minified files (#1042)
+  * [fix] Add nsp prefix to socket.id (#1058)
+
+  * [test] Update browsers matrix (#1059)
+
+  * [chore] Bump engine.io to version 3.1.0 (#1109)
+  * [chore] Bump dev dependencies (#1108)
+  * [chore] Bump debug to version 2.6.4 (#1101)
+  * [chore] Fix dependencies (#1096)
+  * [chore] Bump engine.io-client to version 2.0.2 (#1074)
+  * [chore] Bump socket.io-parser to version 2.3.2 (#1071)
+  * [chore] Bump engine.io-client to version 2.0.0 (#1062)
+  * [chore] Update issue template with fiddle (#1057)
+
+  * [docs] Fix messed events documentation (#1089)
+  * [docs] Fix Manager constructor documentation (#1093)
+  * [docs] Fix format in API.md (#1090)
+  * [docs] Add note regarding the Emitter class (#1079)
+  * [docs] Add missing path option in the documentation (#1078)
+  * [docs] Fix typo (#1076)
+  * [docs] Fix typo (#1066)
+  * [docs] Add `connect_error` and `connect_timeout` events (#1051)
+  * [docs] API documentation (#1049)
+
 1.7.2 / 2016-12-11
 ===================
 
