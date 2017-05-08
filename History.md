@@ -1,4 +1,53 @@
 
+2.0.0 / 2017-05-09
+===================
+
+  * [feat] Move binary detection to the parser (#2923)
+  * [feat] Allow to join several rooms at once (#2879)
+  * [feat] Merge Engine.IO and Socket.IO handshake packets (#2833)
+  * [feat] Allow the use of custom parsers (#2829)
+
+  * [fix] Use path.resolve by default and require.resolve as a fallback (#2797)
+  * [fix] Properly close the connection on error (#2681)
+  * [fix] Prevent null from being accepted as argument (#2606)
+
+  * [perf] Use shared instance of the encoder (#2825)
+  * [perf] Reset properties instead of deleting them (#2826)
+  * [perf] micro-optimisations (#2793)
+
+  * [chore] Merge history of 1.7.x and 0.9.x branches (#2930)
+  * [chore] Added backers and sponsors on the README (#2933)
+  * [chore] Bump dependencies (#2926)
+  * [chore] Bump socket.io-adapter to version 1.0.0 (#2867)
+  * [chore] Bump engine.io to version 2.0.2 (#2864)
+  * [chore] Bump engine.io to version 2.0.0 (#2832)
+  * [chore] Update issue template with fiddle (#2811)
+  * [chore] Update copyright year LICENSE to 2017 (#2803)
+
+  * [docs] Add an example of custom parser (#2929)
+  * [docs] Replace non-breaking space with proper whitespace (#2913)
+  * [docs] Update emit cheatsheet (#2906)
+  * [docs] Explicitly document that Server extends EventEmitter (#2874)
+  * [docs] Add server.engine.generateId attribute (#2880)
+  * [docs] Fix wrong space character in README (#2900)
+  * [docs] Fix documentation for 'connect' event (#2898)
+  * [docs] Add webpack build example (#2828)
+  * [docs] Update the wording to match the code example (#2853)
+  * [docs] Small addition to the Express Readme Part (#2846)
+  * [docs] Add a 'Features' section in the README (#2824)
+  * [docs] Add httpd cluster example (#2819)
+  * [docs] Add haproxy cluster example (#2818)
+  * [docs] Add nginx cluster example (#2817)
+  * [docs] Implement whiteboard example (#2810)
+  * [docs] Fix documentation for `local` flag (#2816)
+  * [docs] Add emit cheatsheet (#2815)
+  * [docs] Add pingInterval/pingTimeout/transports options in the API documentation (#2814)
+  * [docs] Add an example for socket.join() method (#2813)
+  * [docs] Fix a typo on `clients` method in the API documentation (#2812)
+  * [docs] Fix wrong argument name in API.md (#2802)
+  * [docs] Add install script on Readme.md (#2780)
+  * [docs] API documentation (#2784)
+
 1.7.4 / 2017-05-07
 ===================
 
