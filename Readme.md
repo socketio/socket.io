@@ -21,6 +21,7 @@ Some implementations in other languages are also available:
 - [Java](https://github.com/socketio/socket.io-client-java)
 - [C++](https://github.com/socketio/socket.io-client-cpp)
 - [Swift](https://github.com/socketio/socket.io-client-swift)
+- [Dart](https://github.com/rikulo/socket.io-client-dart)
 
 Its main features are:
 
