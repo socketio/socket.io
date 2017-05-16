@@ -39,7 +39,7 @@ var Client = irc.Client = function(host, port) {
   this.user = null;
   this.real = null;
 }
-sys.inherits(Client, require('events'));
+sys.inherits(Client, require('events').EventEmitter);
 
 Client.prototype.connect = function(nick, user, real) {
   var connection = tcp.createConnection(this.port, this.host);
