@@ -522,20 +522,21 @@ describe('socket.io', function(){
       sio.of('').on('connection', function(){
         --total || done();
       });
-      sio.of('abc').on('connection', function(){
+      sio.of('/').on('connection', function(){
         --total || done();
       });
       var c1 = client(srv, '/');
-      var c2 = client(srv, '/abc');
     });
 
     it('should be equivalent for "" and "/" on client', function(done){
       var srv = http();
       var sio = io(srv);
+      var total = 2;
       sio.of('/').on('connection', function(){
           done();
       });
       var c1 = client(srv, '');
+      var c2 = client(srv, '/');
     });
 
     it('should work with `of` and many sockets', function(done){
