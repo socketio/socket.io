@@ -1,4 +1,10 @@
 
+3.1.1 / 2017-05-19
+===================
+
+  * [test] Launch browser tests on localhost by default (#571)
+  * [chore] Unpin debug version (#568)
+
 3.1.0 / 2017-04-28
 ===================
 
