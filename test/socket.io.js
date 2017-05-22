@@ -87,6 +87,9 @@ describe('socket.io', function(){
       srv.set('authorization', function(o, f) { f(null, false); });
 
       var socket = client(httpSrv);
+      socket.on('connect', function(){
+        expect().fail();
+      });
       socket.on('error', function(err) {
         expect(err).to.be('Not authorized');
         done();
@@ -2145,6 +2148,9 @@ describe('socket.io', function(){
       });
       srv.listen(function(){
         var socket = client(srv);
+        socket.on('connect', function(){
+          done(new Error('nope'));
+        });
         socket.on('error', function(err){
           expect(err).to.be('Authentication error');
           done();
@@ -2163,6 +2169,9 @@ describe('socket.io', function(){
       });
       srv.listen(function(){
         var socket = client(srv);
+        socket.on('connect', function(){
+          done(new Error('nope'));
+        });
         socket.on('error', function(err){
           expect(err).to.eql({ a: 'b', c: 3 });
           done();
@@ -2181,6 +2190,26 @@ describe('socket.io', function(){
         var socket = client(srv);
         sio.on('connection', function(socket){
           expect(socket.name).to.be('guillermo');
+          done();
+        });
+      });
+    });
+
+    it('should only call connection after (lengthy) fns', function(done){
+      var srv = http();
+      var sio = io(srv);
+      var authenticated = false;
+
+      sio.use(function(socket, next){
+        setTimeout(function () {
+          authenticated = true;
+          next();
+        }, 300);
+      });
+      srv.listen(function(){
+        var socket = client(srv);
+        socket.on('connect', function(){
+          expect(authenticated).to.be(true);
           done();
         });
       });
