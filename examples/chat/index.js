@@ -40,24 +40,46 @@ io.on('connection', function (socket) {
       numUsers: numUsers
     });
     // echo globally (all clients) that a person has connected
-    socket.broadcast.emit('user joined', {
-      username: socket.username,
-      numUsers: numUsers
-    });
+    // socket.broadcast.emit('user joined', {
+    //   username: socket.username,
+    //   numUsers: numUsers
+    // });
   });
+
+  socket.on('robotAnswer', function(answer){
+    setTimeout(function(){
+      answer = answer.toLowerCase();
+      if(answer.indexOf('２') !== -1) {
+        socket.emit('connectRMQuestion');
+      }
+      else {
+        socket.emit('robotQuestion');
+      }
+    }, 1000);
+  })
+
+  socket.on('answerConnect', function(answer) {
+    answer = answer.toLowerCase();
+    if(answer.indexOf('yes') !== -1) {
+      socket.emit('connectRM');
+    }
+    else {
+
+    }
+  })
 
   // when the client emits 'typing', we broadcast it to others
   socket.on('typing', function () {
-    socket.broadcast.emit('typing', {
-      username: socket.username
-    });
+    // socket.broadcast.emit('typing', {
+    //   username: socket.username
+    // });
   });
 
   // when the client emits 'stop typing', we broadcast it to others
   socket.on('stop typing', function () {
-    socket.broadcast.emit('stop typing', {
-      username: socket.username
-    });
+    // socket.broadcast.emit('stop typing', {
+    //   username: socket.username
+    // });
   });
 
   // when the user disconnects.. perform this
@@ -66,10 +88,10 @@ io.on('connection', function (socket) {
       --numUsers;
 
       // echo globally that this client has left
-      socket.broadcast.emit('user left', {
-        username: socket.username,
-        numUsers: numUsers
-      });
+      // socket.broadcast.emit('user left', {
+      //   username: socket.username,
+      //   numUsers: numUsers
+      // });
     }
   });
 });

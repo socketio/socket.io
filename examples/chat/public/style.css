@@ -24,6 +24,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+      font-family: Helvetica;
 }
 
 ul {
@@ -67,9 +68,9 @@ ul {
   border: none;
   border-bottom: 2px solid #fff;
   outline: none;
-  padding-bottom: 15px;
+  padding-top: 15px;
   text-align: center;
-  width: 400px;
+  width: 100%;
 }
 
 .login.page .title {
@@ -90,23 +91,28 @@ ul {
 
 .chat.page {
   display: none;
+  font-size: 10px;
 }
 
 /* Font */
 
 .messages {
-  font-size: 150%;
+  font-size: 16px;
 }
 
-.inputMessage {
-  font-size: 100%;
+.navbar img{
+  box-sizing: border-box;
+  width: 100%;
+  display: block;
 }
+
 
 .log {
   color: gray;
   font-size: 70%;
-  margin: 5px;
+  margin: 15px 15px 0 15px;
   text-align: center;
+  font-size: 200%;
 }
 
 /* Messages */
@@ -128,22 +134,139 @@ ul {
 }
 
 .username {
-  font-weight: 700;
+  font-weight: bold;
   overflow: hidden;
   padding-right: 15px;
   text-align: right;
+  font-size: 150%;
+
+}
+
+.message{
+  float: left;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.right span {
+  background-color: #702222;
+  color: white;
+}
+
+.right span, .right .photo{
+  float: right;
+}
+
+.right .messageBody {
+  border-radius: 10px 10px 0px 10px;
+}
+
+
+.messageBody{
+  max-width: calc(100% - 55px);
+  font-size: 14px;
+  background-color: #F0F0F0;
+  color: #000;
+  padding: 16px;
+  border-radius: 10px 10px 10px 0;
+  display: inline-block;
 }
 
 /* Input */
 
 .inputMessage {
-  border: 10px solid #000;
-  bottom: 0;
-  height: 60px;
-  left: 0;
-  outline: none;
-  padding-left: 10px;
-  position: absolute;
-  right: 0;
+      position: fixed !important;
+  box-sizing: border-box;
   width: 100%;
+  border: 0;
+  border-top: 1px solid grey;
+  bottom: 0;
+  outline: none;
+  padding: 15px 10px;
+  position: absolute;
+  width: 100%;
+  font-size: 12px;
+  background-color: black;
+  color: #cccccc;
+}
+
+
+.photo{
+    float: left;
+    width: 32px;
+    height: 32px;
+    position: relative;
+    border-radius: 50%;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.header{
+    color: white;
+    height: 100px;
+    margin-top: -100px;
+    position: absolute;
+    text-align: center;
+    top: 30%;
+    width: 100%;
+    font-size: 3rem;
+}
+
+.matchSection{
+  text-align: center;
+  position: relative;
+}
+
+.tickIcon{
+  position: absolute;
+  left: 50%;
+  margin-left: -127px;
+  display: table;
+}
+
+.tickIcon:after{
+  content:"Match";
+  position: absolute;;
+  bottom: 0;
+  left:50%;
+  margin-left: -32px;
+  font-size: 150%;
+  margin-bottom: -30px;
+}
+
+.matchSection:before,
+.matchSection:after{
+  content:"";
+  position: absolute;
+  top: 34px;
+  width: 36%;
+  height: 1px;
+  background-color: #D0011B;
+  opacity: .2;
+}
+
+.matchSection:before{
+  left:20px;
+}
+
+.matchSection:after{
+  right:20px;
+}
+
+.tickIcon span{
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 200%;
+  color: #fff;
+}
+
+.tickIcon span > img{
+  width: 25%;
+}
+
+.connectItem{
+  display: inline-block;
+    float: left;
+    width: 100%;
 }
