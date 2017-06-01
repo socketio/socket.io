@@ -21,6 +21,10 @@ server.of('/asd').on('connection', function () {
   // register namespace
 });
 
+server.of('/abc').on('connection', function (socket) {
+  socket.emit('handshake', socket.handshake);
+});
+
 server.on('connection', function (socket) {
   // simple test
   socket.on('hi', function () {
@@ -127,5 +131,9 @@ server.on('connection', function (socket) {
   socket.on('getbin', function () {
     var buf = new Buffer('asdfasdf', 'utf8');
     socket.emit('takebin', buf);
+  });
+
+  socket.on('getHandshake', function (cb) {
+    cb(socket.handshake);
   });
 });

@@ -65,7 +65,9 @@ Creates a new `Manager` for the given URL, and attempts to reuse an existing `Ma
 
 A new `Socket` instance is returned for the namespace specified by the pathname in the URL, defaulting to `/`. For example, if the `url` is `http://localhost/users`, a transport connection will be established to `http://localhost` and a Socket.IO connection will be established to `/users`.
 
-See [new Manager(url[, options])](#managerurl-options) for available `options`.
+Query parameters can also be provided, either with the `query` option or directly in the url (example: `http://localhost/users?token=abc`).
+
+See [new Manager(url[, options])](#new-managerurl-options) for available `options`.
 
 ### Manager
 
@@ -87,6 +89,7 @@ See [new Manager(url[, options])](#managerurl-options) for available `options`.
       and `connect_timeout` events are emitted (`20000`)
     - `autoConnect` _(Boolean)_ by setting this false, you have to call `manager.open`
       whenever you decide it's appropriate
+    - `query` _(Object)_: additional query parameters that are sent when connecting a namespace (then found in `socket.handshake.query` object on the server-side)
   - **Returns** `Manager`
 
 The `options` are also passed to `engine.io-client` upon initialization of the underlying `Socket`. See the available `options` [here](https://github.com/socketio/engine.io-client#methods).
