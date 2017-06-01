@@ -1,4 +1,11 @@
 
+2.0.2 / 2017-06-01
+===================
+
+  * [chore] Bump debug to version 2.6.8 (#1123)
+  * [test] Launch browser tests on localhost by default (#1122)
+  * [fix] Do not update the opts.query reference (#1121)
+
 2.0.1 / 2017-05-09
 ===================
 
