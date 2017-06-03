@@ -2,7 +2,7 @@
 module.exports = {
   entry: './lib/index.js',
   output: {
-    path: './dist',
+    path: require('path').join(__dirname, '../dist'),
     filename: 'app.js'
-  },
+  }
 };
