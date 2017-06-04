@@ -118,10 +118,9 @@ function. Also make sure to call `.listen` on the `server`, not the `app`.
 
 ```js
 var app = require('express')();
-var server = require('http').createServer(app);
+var server = app.listen(3000);
 var io = require('socket.io')(server);
 io.on('connection', function(){ /* … */ });
-server.listen(3000);
 ```
 
 ### In conjunction with Koa
