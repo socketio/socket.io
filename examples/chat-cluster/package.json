@@ -1,0 +1,16 @@
+{
+  "name": "socket.io-chat",
+  "version": "0.0.0",
+  "description": "A simple chat client using socket.io",
+  "main": "index.js",
+  "author": "Grant Timmerman",
+  "private": true,
+  "license": "BSD",
+  "dependencies": {
+    "express": "3.4.8",
+    "parse-redis-url": "0.0.1",
+    "redis": "^0.12.1",
+    "socket.io-redis": "^0.1.3",
+    "sticky-session": "^0.1.0"
+  }
+}
