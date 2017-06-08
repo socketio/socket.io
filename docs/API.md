@@ -177,7 +177,7 @@ socket.on('reconnect_attempt', () => {
 
 ##### With `extraHeaders`
 
-Note: will only work if `polling` transport is enabled (which is the default)
+This only works if `polling` transport is enabled (which is the default). Custom headers will not be appended when using `websocket` as the transport. This happens because the WebSocket handshake does not honor custom headers. (For background see the [WebSocket protocol RFC](https://tools.ietf.org/html/rfc6455#section-4))
 
 ```js
 const socket = io({
