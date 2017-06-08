@@ -42,7 +42,7 @@ describe('socket.io', function(){
 
     it('should be able to set ping interval to engine.io', function() {
       var srv = io(http());
-      srv.set('heartbeat interval', 10);
+      srv.set('heartbeat interval', 50);
       expect(srv.eio.pingInterval).to.be(10);
     });
 

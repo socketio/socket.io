@@ -78,6 +78,7 @@
 
   * [chore] Bump engine.io to version 1.8.2 (#2782)
   * [fix] Fixes socket.use error packet (#2772)
+  * [feature] Added jenkins support
 
 1.7.1 / 2016-11-28
 ===================
