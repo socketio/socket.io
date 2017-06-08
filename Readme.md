@@ -7,7 +7,7 @@
 [![devDependency Status](https://david-dm.org/socketio/socket.io/dev-status.svg)](https://david-dm.org/socketio/socket.io#info=devDependencies)
 [![NPM version](https://badge.fury.io/js/socket.io.svg)](https://www.npmjs.com/package/socket.io)
 ![Downloads](https://img.shields.io/npm/dm/socket.io.svg?style=flat)
-[![](http://slack.socket.io/badge.svg?)](http://slack.socket.io)
+[![](https://slackin-socketio.now.sh/badge.svg)](https://slackin-socketio.now.sh)
 
 ## Features
 
