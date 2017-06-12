@@ -1,4 +1,10 @@
 
+2.0.3 / 2017-06-12
+===================
+
+  * [docs] Add explicit documentation for websocket transport (#1128)
+  * [docs] Update documentation (#1124)
+
 2.0.2 / 2017-06-01
 ===================
 
