@@ -2268,6 +2268,19 @@ describe('socket.io', function(){
         });
       });
     });
+
+    it('should disable the merge of handshake packets', function(done){
+      var srv = http();
+      var sio = io();
+      sio.use(function(socket, next){
+        next();
+      });
+      sio.listen(srv);
+      var socket = client(srv);
+      socket.on('connect', function(){
+        done();
+      });
+    });
   });
 
   describe('socket middleware', function(done){
