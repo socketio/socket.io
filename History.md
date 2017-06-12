@@ -1,4 +1,12 @@
 
+2.0.3 / 2017-06-12
+===================
+
+  * [fix] Reset rooms object before broadcasting (#2970)
+  * [fix] Fix middleware initialization (#2969)
+  * [docs] Update slack badge (#2961)
+  * [docs] Update webpack example (#2960)
+
 2.0.2 / 2017-06-01
 ===================
 
