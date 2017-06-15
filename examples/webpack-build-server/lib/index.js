@@ -1,7 +1,8 @@
 
 const server = require('http').createServer();
 const io = require('socket.io')(server, {
-  // serveClient: false // do not serve the client file, in that case the brfs loader is not needed
+  serveClient: false,
+  wsEngine: 'ws' // uws is not supported since it is a native module
 });
 const port = process.env.PORT || 3000;
 
