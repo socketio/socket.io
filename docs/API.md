@@ -503,7 +503,7 @@ A hash of strings identifying the rooms this client is in, indexed by room name.
 ```js
 io.on('connection', (socket) => {
   socket.join('room 237', () => {
-    let rooms = Objects.keys(socket.rooms);
+    let rooms = Object.keys(socket.rooms);
     console.log(rooms); // [ <socket.id>, 'room 237' ]
   });
 });
@@ -659,7 +659,7 @@ Adds the client to the `room`, and fires optionally a callback with `err` signat
 ```js
 io.on('connection', (socket) => {
   socket.join('room 237', () => {
-    let rooms = Objects.keys(socket.rooms);
+    let rooms = Object.keys(socket.rooms);
     console.log(rooms); // [ <socket.id>, 'room 237' ]
     io.to('room 237', 'a new user has joined the room'); // broadcast to everyone in the room
   });
