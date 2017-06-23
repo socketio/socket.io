@@ -26,9 +26,16 @@ serve the file `socket.io.js` found in the `dist` folder.
 </script>
 ```
 
+```js
+// with ES6 import
+import io from 'socket.io-client';
+
+const socket = io('http://localhost');
+```
+
 A slim build (without `JSON3`, a JSON polyfill for IE6/IE7, and `debug`) is also available: `socket.io.slim.js`.
 
-Socket.IO is compatible with [browserify](http://browserify.org/).
+Socket.IO is compatible with [browserify](http://browserify.org/) and [webpack](https://webpack.js.org/) (see example [there](https://github.com/socketio/socket.io/tree/2.0.3/examples/webpack-build)).
 
 ### Node.JS (server-side usage)
 
