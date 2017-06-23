@@ -146,7 +146,7 @@ $(function() {
 
   // Prevents input from having injected markup
   function cleanInput (input) {
-    return $('<div/>').text(input).text();
+    return $('<div/>').html(input).text();
   }
 
   // Updates the typing event
