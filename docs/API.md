@@ -51,11 +51,26 @@
     - [Event: 'reconnecting'](#event-reconnecting-1)
     - [Event: 'reconnect_error'](#event-reconnect_error-1)
     - [Event: 'reconnect_failed'](#event-reconnect_failed-1)
+    - [Event: 'ping'](#event-ping-1)
+    - [Event: 'pong'](#event-pong-1)
 
 
 ### IO
 
 Exposed as the `io` namespace in the standalone build, or the result of calling `require('socket.io-client')`.
+
+```html
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io('http://localhost');
+</script>
+```
+
+```js
+const io = require('socket.io-client');
+// or with import syntax
+import io from 'socket.io-client';
+```
 
 #### io.protocol
 
@@ -372,11 +387,11 @@ Fired when a pong is received from the server.
 An unique identifier for the socket session. Set after the `connect` event is triggered, and updated after the `reconnect` event.
 
 ```js
-var socket = io('http://localhost');
+const socket = io('http://localhost');
 
 console.log(socket.id); // undefined
 
-socket.on('connect', function(){
+socket.on('connect', () => {
   console.log(socket.id); // 'G5p5...'
 });
 ```
@@ -433,13 +448,13 @@ socket.emit('with-binary', 1, '2', { 3: '4', 5: new Buffer(6) });
 The `ack` argument is optional and will be called with the server answer.
 
 ```js
-socket.emit('ferret', 'tobi', function (data) {
+socket.emit('ferret', 'tobi', (data) => {
   console.log(data); // data will be 'woot'
 });
 
 // server:
-//  io.on('connection', function (socket) {
-//    socket.on('ferret', function (name, fn) {
+//  io.on('connection', (socket) => {
+//    socket.on('ferret', (name, fn) => {
 //      fn('woot');
 //    });
 //  });
@@ -454,8 +469,17 @@ socket.emit('ferret', 'tobi', function (data) {
 Register a new handler for the given event.
 
 ```js
-socket.on('news', function (data) {
+socket.on('news', (data) => {
   console.log(data);
+});
+
+// with multiple arguments
+socket.on('news', (arg1, arg2, arg3, arg4) => {
+  // ...
+});
+// with callback
+socket.on('news', (cb) => {
+  cb(0);
 });
 ```
 
@@ -486,15 +510,39 @@ Synonym of [socket.close()](#socketclose).
 
 Fired upon a connection including a successful reconnection.
 
+```js
+socket.on('connect', () => {
+  // ...
+});
+
+// note: you should register event handlers outside of connect,
+// so they are not registered again on reconnection
+socket.on('myevent', () => {
+  // ...
+});
+```
+
 #### Event: 'connect_error'
 
   - `error` _(Object)_ error object
 
 Fired upon a connection error.
 
+```js
+socket.on('connect_error', (error) => {
+  // ...
+});
+```
+
 #### Event: 'connect_timeout'
 
 Fired upon a connection timeout.
+
+```js
+socket.on('connect_timeout', (timeout) => {
+  // ...
+});
+```
 
 #### Event: 'error'
 
@@ -502,9 +550,23 @@ Fired upon a connection timeout.
 
 Fired when an error occurs.
 
+```js
+socket.on('error', (error) => {
+  // ...
+});
+```
+
 #### Event: 'disconnect'
 
+  - `reason` _(String)_ either 'io server disconnect' or 'io client disconnect'
+
 Fired upon a disconnection.
+
+```js
+socket.on('disconnect', (reason) => {
+  // ...
+});
+```
 
 #### Event: 'reconnect'
 
@@ -512,11 +574,23 @@ Fired upon a disconnection.
 
 Fired upon a successful reconnection.
 
+```js
+socket.on('reconnect', (attemptNumber) => {
+  // ...
+});
+```
+
 #### Event: 'reconnect_attempt'
 
   - `attempt` _(Number)_ reconnection attempt number
 
 Fired upon an attempt to reconnect.
+
+```js
+socket.on('reconnect_attempt', (attemptNumber) => {
+  // ...
+});
+```
 
 #### Event: 'reconnecting'
 
@@ -524,12 +598,52 @@ Fired upon an attempt to reconnect.
 
 Fired upon an attempt to reconnect.
 
+```js
+socket.on('reconnecting', (attemptNumber) => {
+  // ...
+});
+```
+
 #### Event: 'reconnect_error'
 
   - `error` _(Object)_ error object
 
 Fired upon a reconnection attempt error.
 
+```js
+socket.on('reconnect_error', (error) => {
+  // ...
+});
+```
+
 #### Event: 'reconnect_failed'
 
 Fired when couldn't reconnect within `reconnectionAttempts`.
+
+```js
+socket.on('reconnect_failed', () => {
+  // ...
+});
+```
+
+#### Event: 'ping'
+
+Fired when a ping packet is written out to the server.
+
+```js
+socket.on('ping', () => {
+  // ...
+});
+```
+
+#### Event: 'pong'
+
+  - `ms` _(Number)_ number of ms elapsed since `ping` packet (i.e.: latency).
+
+Fired when a pong is received from the server.
+
+```js
+socket.on('pong', (latency) => {
+  // ...
+});
+```
