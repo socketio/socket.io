@@ -42,6 +42,9 @@ function onConnect(socket){
 
   // sending to all clients on this node (when using multiple nodes)
   io.local.emit('hi', 'my lovely babies');
+  
+  // sending to all connected clients
+  io.emit('an event sent to all connected clients');
 
 };
 
