@@ -1,10 +1,10 @@
 {
   "name": "socket.io-adapter",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/Automattic/socket.io-adapter.git"
+    "url": "git://github.com/socketio/socket.io-adapter.git"
   },
-  "description": ""
+  "description": "default socket.io in-memory adapter"
 }
