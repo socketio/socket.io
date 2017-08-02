@@ -6,8 +6,5 @@
     "type": "git",
     "url": "git://github.com/Automattic/socket.io-adapter.git"
   },
-  "description": "",
-  "dependencies": {
-    "debug": "2.3.3"
-  }
+  "description": ""
 }
