@@ -96,7 +96,9 @@ var server = require('http').createServer();
 var io = require('socket.io')(server);
 io.on('connection', function(client){
   client.on('event', function(data){});
-  client.on('disconnect', function(){});
+  client.on('disconnect', function(id){
+    console.log("Socket with ID ",id," Disconnected");
+  });
 });
 server.listen(3000);
 ```
