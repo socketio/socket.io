@@ -1699,6 +1699,23 @@ describe('socket.io', function(){
       });
     });
 
+    it('should not crash when receiving an error packet without handler', function(done){
+      var srv = http();
+      var sio = io(srv);
+      srv.listen(function(){
+        var socket = client(srv, { reconnection: false });
+        sio.on('connection', function(s){
+          s.conn.on('upgrade', function(){
+            console.log('\033[96mNote: warning expected and normal in test.\033[39m');
+            socket.io.engine.write('44["handle me please"]');
+            setTimeout(function(){
+              done();
+            }, 100);
+          });
+        });
+      });
+    });
+
     it('should not crash with raw binary', function(done){
       var srv = http();
       var sio = io(srv);
