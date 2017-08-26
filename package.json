@@ -26,7 +26,6 @@
   "dependencies": {
     "debug": "~2.6.6",
     "engine.io": "~3.1.0",
-    "object-assign": "~4.1.1",
     "socket.io-adapter": "~1.1.0",
     "socket.io-client": "~2.0.2",
     "socket.io-parser": "~3.1.1"
