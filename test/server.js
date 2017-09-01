@@ -1,3 +1,4 @@
+/* eslint-disable standard/no-callback-literal */
 
 /**
  * Tests dependencies.
@@ -352,18 +353,18 @@ describe('server', function () {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('open', function () {
           request.get('http://localhost:%d/engine.io/'.s(port))
-          .set({ connection: 'close' })
-          .query({ transport: 'websocket', sid: socket.id })
-          .end(function (err, res) {
-            expect(err).to.be(null);
-            expect(res.status).to.be(400);
-            expect(res.body.code).to.be(3);
-            socket.send('echo');
-            socket.on('message', function (msg) {
-              expect(msg).to.be('echo');
-              done();
+            .set({ connection: 'close' })
+            .query({ transport: 'websocket', sid: socket.id })
+            .end(function (err, res) {
+              expect(err).to.be(null);
+              expect(res.status).to.be(400);
+              expect(res.body.code).to.be(3);
+              socket.send('echo');
+              socket.on('message', function (msg) {
+                expect(msg).to.be('echo');
+                done();
+              });
             });
-          });
         });
       });
     });
@@ -1353,7 +1354,7 @@ describe('server', function () {
     });
 
     it('should arrive when binary data is sent as Buffer (ws)', function (done) {
-      var binaryData = new Buffer(5);
+      var binaryData = Buffer.allocUnsafe(5);
       for (var i = 0; i < binaryData.length; i++) {
         binaryData.writeInt8(i, i);
       }
@@ -1379,7 +1380,7 @@ describe('server', function () {
     });
 
     it('should arrive when binary data sent as Buffer (polling)', function (done) {
-      var binaryData = new Buffer(5);
+      var binaryData = Buffer.allocUnsafe(5);
       for (var i = 0; i < binaryData.length; i++) {
         binaryData.writeInt8(i, i);
       }
@@ -1406,7 +1407,7 @@ describe('server', function () {
     });
 
     it('should arrive as ArrayBuffer if requested when binary data sent as Buffer (ws)', function (done) {
-      var binaryData = new Buffer(5);
+      var binaryData = Buffer.allocUnsafe(5);
       for (var i = 0; i < binaryData.length; i++) {
         binaryData.writeInt8(i, i);
       }
@@ -1435,7 +1436,7 @@ describe('server', function () {
     });
 
     it('should arrive as ArrayBuffer if requested when binary data sent as Buffer (polling)', function (done) {
-      var binaryData = new Buffer(5);
+      var binaryData = Buffer.allocUnsafe(5);
       for (var i = 0; i < binaryData.length; i++) {
         binaryData.writeInt8(i, i);
       }
@@ -1516,8 +1517,8 @@ describe('server', function () {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
         socket.on('open', function () {
           for (var i = 0; i < messageCount; i++) {
-//            connection.send('message: ' + i);   // works
-            connection.send(messagePayload + '|message: ' + i);   // does not work
+            //            connection.send('message: ' + i);   // works
+            connection.send(messagePayload + '|message: ' + i); // does not work
           }
           var receivedCount = 0;
           socket.on('message', function (msg) {
@@ -1614,7 +1615,8 @@ describe('server', function () {
         key: fs.readFileSync('test/fixtures/server.key'),
         cert: fs.readFileSync('test/fixtures/server.crt'),
         ca: fs.readFileSync('test/fixtures/ca.crt'),
-        requestCert: true
+        requestCert: true,
+        rejectUnauthorized: false
       };
 
       var opts = {
@@ -2309,7 +2311,7 @@ describe('server', function () {
     it('should compress by default', function (done) {
       var engine = listen({ transports: ['polling'] }, function (port) {
         engine.on('connection', function (conn) {
-          var buf = new Buffer(1024);
+          var buf = Buffer.allocUnsafe(1024);
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
           conn.send(buf);
         });
@@ -2337,7 +2339,7 @@ describe('server', function () {
     it('should compress using deflate', function (done) {
       var engine = listen({ transports: ['polling'] }, function (port) {
         engine.on('connection', function (conn) {
-          var buf = new Buffer(1024);
+          var buf = Buffer.allocUnsafe(1024);
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
           conn.send(buf);
         });
@@ -2365,7 +2367,7 @@ describe('server', function () {
     it('should set threshold', function (done) {
       var engine = listen({ transports: ['polling'], httpCompression: { threshold: 0 } }, function (port) {
         engine.on('connection', function (conn) {
-          var buf = new Buffer(10);
+          var buf = Buffer.allocUnsafe(10);
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
           conn.send(buf);
         });
@@ -2390,7 +2392,7 @@ describe('server', function () {
     it('should disable compression', function (done) {
       var engine = listen({ transports: ['polling'], httpCompression: false }, function (port) {
         engine.on('connection', function (conn) {
-          var buf = new Buffer(1024);
+          var buf = Buffer.allocUnsafe(1024);
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
           conn.send(buf);
         });
@@ -2415,7 +2417,7 @@ describe('server', function () {
     it('should disable compression per message', function (done) {
       var engine = listen({ transports: ['polling'] }, function (port) {
         engine.on('connection', function (conn) {
-          var buf = new Buffer(1024);
+          var buf = Buffer.allocUnsafe(1024);
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
           conn.send(buf, { compress: false });
         });
@@ -2440,7 +2442,7 @@ describe('server', function () {
     it('should not compress when the byte size is below threshold', function (done) {
       var engine = listen({ transports: ['polling'] }, function (port) {
         engine.on('connection', function (conn) {
-          var buf = new Buffer(100);
+          var buf = Buffer.allocUnsafe(100);
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
           conn.send(buf);
         });
@@ -2478,7 +2480,7 @@ describe('server', function () {
             done();
           };
 
-          var buf = new Buffer(100);
+          var buf = Buffer.allocUnsafe(100);
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
           conn.send(buf, { compress: true });
         });
@@ -2500,7 +2502,7 @@ describe('server', function () {
             done();
           };
 
-          var buf = new Buffer(100);
+          var buf = Buffer.allocUnsafe(100);
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
           conn.send(buf, { compress: true });
         });

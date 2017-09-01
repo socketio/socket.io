@@ -11,7 +11,7 @@ var request = require('superagent');
 describe('JSONP', function () {
   before(function () {
     // we have to override the browser's functionality for JSONP
-    document = { // eslint-disable-line no-native-reassign, no-undef
+    document = { // eslint-disable-line no-global-assign
       body: {
         appendChild: function () {},
         removeChild: function () {}
@@ -44,10 +44,10 @@ describe('JSONP', function () {
           appendChild: function () {},
           submit: function () {
             request
-            .post(this.action)
-            .type('form')
-            .send({ d: self.areaValue })
-            .end(function () {});
+              .post(this.action)
+              .type('form')
+              .send({ d: self.areaValue })
+              .end(function () {});
           }
         };
         return form;
@@ -156,7 +156,7 @@ describe('JSONP', function () {
     });
 
     it('should arrive from server to client and back with binary data (pollingJSONP)', function (done) {
-      var binaryData = new Buffer(5);
+      var binaryData = Buffer.allocUnsafe(5);
       for (var i = 0; i < 5; i++) binaryData[i] = i;
       engine.on('connection', function (conn) {
         conn.on('message', function (msg) {
@@ -178,7 +178,7 @@ describe('JSONP', function () {
     it('should trigger when server closes a client', function (done) {
       var engine = listen({ allowUpgrades: false, transports: ['polling'] }, function (port) {
         var socket = new eioc.Socket('ws://localhost:' + port,
-            { transports: ['polling'], forceJSONP: true, upgrade: false });
+          { transports: ['polling'], forceJSONP: true, upgrade: false });
         var total = 2;
 
         engine.on('connection', function (conn) {
