@@ -31,11 +31,12 @@
     "socket.io-parser": "~3.1.1"
   },
   "devDependencies": {
-    "babel-preset-es2015": "^6.24.1",
+    "babel-core": "^7.0.0-beta.0",
+    "babel-preset-env": "2.0.0-beta.0",
     "del": "^2.2.2",
     "expect.js": "0.3.1",
     "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
+    "gulp-babel": "^7.0.0",
     "gulp-istanbul": "^1.1.1",
     "gulp-mocha": "^4.3.1",
     "gulp-task-listing": "1.0.1",
