@@ -92,7 +92,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var index = __webpack_require__(30);
 	var parser = __webpack_require__(9);
 	var parseuri = __webpack_require__(31);
-	var parsejson = __webpack_require__(32);
 	var parseqs = __webpack_require__(20);
 
 	/**
@@ -514,7 +513,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    switch (packet.type) {
 	      case 'open':
-	        this.onHandshake(parsejson(packet.data));
+	        this.onHandshake(JSON.parse(packet.data));
 	        break;
 
 	      case 'pong':
@@ -4662,44 +4661,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return uri;
 	};
 
-
-/***/ },
-/* 32 */
-/***/ function(module, exports) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {/**
-	 * JSON parse.
-	 *
-	 * @see Based on jQuery#parseJSON (MIT) and JSON2
-	 * @api private
-	 */
-
-	var rvalidchars = /^[\],:{}\s]*$/;
-	var rvalidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
-	var rvalidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
-	var rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g;
-	var rtrimLeft = /^\s+/;
-	var rtrimRight = /\s+$/;
-
-	module.exports = function parsejson(data) {
-	  if ('string' != typeof data || !data) {
-	    return null;
-	  }
-
-	  data = data.replace(rtrimLeft, '').replace(rtrimRight, '');
-
-	  // Attempt to parse using the native JSON parser first
-	  if (global.JSON && JSON.parse) {
-	    return JSON.parse(data);
-	  }
-
-	  if (rvalidchars.test(data.replace(rvalidescape, '@')
-	      .replace(rvalidtokens, ']')
-	      .replace(rvalidbraces, ''))) {
-	    return (new Function('return ' + data))();
-	  }
-	};
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ }
 /******/ ])
