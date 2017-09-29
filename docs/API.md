@@ -661,7 +661,7 @@ io.on('connection', (socket) => {
   socket.join('room 237', () => {
     let rooms = Object.keys(socket.rooms);
     console.log(rooms); // [ <socket.id>, 'room 237' ]
-    io.to('room 237', 'a new user has joined the room'); // broadcast to everyone in the room
+    io.to('room 237').emit('a new user has joined the room'); // broadcast to everyone in the room
   });
 });
 ```
