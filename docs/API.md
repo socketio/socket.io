@@ -241,7 +241,7 @@ Provides a function taking two arguments `origin:String` and `callback(error, su
 __Potential drawbacks__:
 * in some situations, when it is not possible to determine `origin` it may have value of `*`
 * As this function will be executed for every request, it is advised to make this function work as fast as possible
-* If `socket.io` is used together with `Express`, the CORS headers will be affected only for `socket.io` requests. For Express can use [cors](https://github.com/expressjs/cors).
+* If `socket.io` is used together with `Express`, the CORS headers will be affected only for `socket.io` requests. For Express you can use [cors](https://github.com/expressjs/cors).
 
 ```js
 io.origins((origin, callback) => {
