@@ -14,7 +14,7 @@ const TRANSPILE_DEST_DIR = './dist';
 // By default, individual js files are transformed by babel and exported to /dist
 gulp.task('transpile', function () {
   return gulp.src("lib/*.js")
-    .pipe(babel({ "presets": ["es2015"] }))
+    .pipe(babel({ "presets": ["env"] }))
     .pipe(gulp.dest(TRANSPILE_DEST_DIR));
 });
 
