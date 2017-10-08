@@ -26,7 +26,7 @@
   "dependencies": {
     "component-emitter": "1.2.1",
     "component-inherit": "0.0.3",
-    "debug": "~2.6.4",
+    "debug": "~2.6.9",
     "engine.io-parser": "~2.1.1",
     "has-cors": "1.1.0",
     "parseqs": "0.0.5",
