@@ -29,6 +29,7 @@
     "debug": "~2.6.9",
     "engine.io-parser": "~2.1.1",
     "has-cors": "1.1.0",
+    "indexof": "0.0.1",
     "parseqs": "0.0.5",
     "parseuri": "0.0.5",
     "ws": "~2.3.1",
