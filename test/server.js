@@ -2651,4 +2651,26 @@ describe('server', function () {
       });
     });
   });
+
+  describe('remoteAddress', function () {
+    it('should be defined (polling)', function (done) {
+      var engine = listen({ transports: ['polling'] }, port => {
+        eioc('ws://localhost:%d'.s(port), { transports: ['polling'] });
+        engine.on('connection', socket => {
+          expect(socket.remoteAddress).to.be('::ffff:127.0.0.1');
+          done();
+        });
+      });
+    });
+
+    it('should be defined (ws)', function (done) {
+      var engine = listen({ transports: ['websocket'] }, port => {
+        eioc('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        engine.on('connection', socket => {
+          expect(socket.remoteAddress).to.be('::ffff:127.0.0.1');
+          done();
+        });
+      });
+    });
+  });
 });
