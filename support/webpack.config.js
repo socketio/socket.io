@@ -1,6 +1,6 @@
 
 module.exports = {
-  entry: './index.js',
+  entry: './lib/index.js',
   output: {
     filename: 'engine.io.js',
     library: 'eio',
