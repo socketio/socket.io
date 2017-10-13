@@ -21,10 +21,7 @@
     "url": "git://github.com/socketio/socket.io"
   },
   "scripts": {
-    "transpile": "babel lib --out-dir dist --presets=es2015",
-    "pretest": "npm run transpile",
-    "test": "nyc mocha --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.js",
-    "test-compat": "cross-env TEST_VERSION=compat npm test"
+    "test": "nyc mocha --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.js"
   },
   "dependencies": {
     "debug": "~2.6.6",
@@ -34,9 +31,6 @@
     "socket.io-parser": "~3.1.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-preset-es2015": "^6.24.1",
-    "cross-env": "^5.0.5",
     "expect.js": "0.3.1",
     "mocha": "^3.5.3",
     "nyc": "^11.2.1",
