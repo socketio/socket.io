@@ -2107,7 +2107,7 @@ describe('socket.io', function(){
   });
 
   describe('middleware', function(done){
-    var Socket = require('../dist/socket');
+    var Socket = require('../lib/socket');
 
     it('should call functions', function(done){
       var srv = http();
