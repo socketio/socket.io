@@ -261,7 +261,7 @@ to a single process.
     - Overwrite this method to generate your custom socket id.
     - **Parameters**
       - `http.IncomingMessage`: a node request object
-  - **Returns** A socket id for connected client.
+      - `Function`: a callback method which contains an error (if there is) object and the generated id value
 
 <hr><br>
 
