@@ -111,7 +111,6 @@ describe('socket', function () {
       var socket = io('/', { forceNew: true, query: { e: 'f' } });
 
       socket.emit('getHandshake', function (handshake) {
-        console.log('getHandhskae', handshake);
         expect(handshake.query.e).to.be('f');
         socket.disconnect();
         done();
@@ -122,7 +121,6 @@ describe('socket', function () {
       var socket = io('/?c=d', { forceNew: true });
 
       socket.emit('getHandshake', function (handshake) {
-        console.log('getHandhskae', handshake);
         expect(handshake.query.c).to.be('d');
         socket.disconnect();
         done();
