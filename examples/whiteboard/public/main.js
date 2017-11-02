@@ -16,6 +16,12 @@
   canvas.addEventListener('mouseup', onMouseUp, false);
   canvas.addEventListener('mouseout', onMouseUp, false);
   canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
+  
+  //Touch support for mobile devices
+  canvas.addEventListener('touchstart', onMouseDown, false);
+  canvas.addEventListener('touchend', onMouseUp, false);
+  canvas.addEventListener('touchcancle', onMouseUp, false);
+  canvas.addEventListener('touchmove', throttle(onMouseMove, 10), false);
 
   for (var i = 0; i < colors.length; i++){
     colors[i].addEventListener('click', onColorUpdate, false);
@@ -51,21 +57,21 @@
 
   function onMouseDown(e){
     drawing = true;
-    current.x = e.clientX;
-    current.y = e.clientY;
+    current.x = e.clientX||e.touches[0].clientX;
+    current.y = e.clientY||e.touches[0].clientY;
   }
 
   function onMouseUp(e){
     if (!drawing) { return; }
     drawing = false;
-    drawLine(current.x, current.y, e.clientX, e.clientY, current.color, true);
+    drawLine(current.x, current.y, e.clientX||e.touches[0].clientX, e.clientY||e.touches[0].clientY, current.color, true);
   }
 
   function onMouseMove(e){
     if (!drawing) { return; }
-    drawLine(current.x, current.y, e.clientX, e.clientY, current.color, true);
-    current.x = e.clientX;
-    current.y = e.clientY;
+    drawLine(current.x, current.y, e.clientX||e.touches[0].clientX, e.clientY||e.touches[0].clientY, current.color, true);
+    current.x = e.clientX||e.touches[0].clientX;
+    current.y = e.clientY||e.touches[0].clientY;
   }
 
   function onColorUpdate(e){
