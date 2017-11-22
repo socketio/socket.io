@@ -4,6 +4,7 @@ node_js:
   - "4"
   - "6"
   - "8"
+  - "9"
 git:
   depth: 1
 notifications:

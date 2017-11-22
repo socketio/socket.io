@@ -48,7 +48,7 @@
     "superagent": "0.15.4"
   },
   "optionalDependencies": {
-    "uws": "~0.14.4"
+    "uws": "~9.14.0"
   },
   "scripts": {
     "lint": "eslint lib/ test/ *.js",
