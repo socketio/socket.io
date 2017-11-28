@@ -142,6 +142,32 @@ describe('Emitter', function(){
 
       calls.should.eql([]);
     })
+
+    it('should remove event array to avoid memory leak', function() {
+      var emitter = new Emitter;
+      var calls = [];
+
+      function cb() {}
+
+      emitter.on('foo', cb);
+      emitter.off('foo', cb);
+
+      emitter._callbacks.should.not.have.property('$foo');
+    })
+
+    it('should only remove the event array when the last subscriber unsubscribes', function() {
+      var emitter = new Emitter;
+      var calls = [];
+
+      function cb1() {}
+      function cb2() {}
+
+      emitter.on('foo', cb1);
+      emitter.on('foo', cb2);
+      emitter.off('foo', cb1);
+
+      emitter._callbacks.should.have.property('$foo');
+    })
   })
 
   describe('.off()', function(){
