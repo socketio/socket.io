@@ -16,15 +16,18 @@
     "url": "git://github.com/Automattic/socket.io"
   },
   "scripts": {
-    "test": "make test"
+    "test": "make test",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "dependencies": {
     "engine.io": "Automattic/engine.io#15afd3",
-    "socket.io-parser": "2.2.1",
+    "socket.io-parser": "3.1.0",
     "socket.io-client": "Automattic/socket.io-client#05c9632",
-    "socket.io-adapter": "0.2.0",
+    "socket.io-adapter": "1.1.1",
     "has-binary-data": "0.1.3",
-    "debug": "0.7.4"
+    "debug": "2.6.9",
+    "snyk": "^1.53.0"
   },
   "devDependencies": {
     "mocha": "1.16.2",
@@ -50,5 +53,6 @@
       "name": "Einar Otto Stangvik",
       "email": "einaros@gmail.com"
     }
-  ]
+  ],
+  "snyk": true
 }

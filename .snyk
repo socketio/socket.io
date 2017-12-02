@@ -1,0 +1,43 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.8.0
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  'npm:debug:20170905':
+    - socket.io-client > socket.io-parser > debug:
+        reason: None given
+        expires: '2018-01-01T23:40:43.791Z'
+    - socket.io-client > debug:
+        reason: None given
+        expires: '2018-01-01T23:40:43.791Z'
+    - socket.io-client > engine.io-client > debug:
+        reason: None given
+        expires: '2018-01-01T23:40:43.791Z'
+    - engine.io > debug:
+        reason: None given
+        expires: '2018-01-01T23:40:43.791Z'
+    - socket.io-client > socket.io-parser > debug:
+        reason: None given
+        expires: '2018-01-01T23:40:43.791Z'
+    - socket.io-client > debug:
+        reason: None given
+        expires: '2018-01-01T23:40:43.791Z'
+    - socket.io-client > engine.io-client > debug:
+        reason: None given
+        expires: '2018-01-01T23:40:43.791Z'
+    - engine.io > debug:
+        reason: None given
+        expires: '2018-01-01T23:40:43.791Z'
+  'npm:engine.io-client:20160426':
+    - socket.io-client > engine.io-client:
+        reason: None given
+        expires: '2018-01-01T23:40:43.791Z'
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:ms:20151024':
+    - engine.io > debug > ms:
+        patched: '2017-12-02T23:40:43.848Z'
+  'npm:ws:20160920':
+    - engine.io > ws:
+        patched: '2017-12-02T23:40:43.848Z'
+    - socket.io-client > engine.io-client > ws:
+        patched: '2017-12-02T23:40:43.848Z'
