@@ -382,7 +382,7 @@ npm install
 
 ## Tests
 
-Tests run with `make test`. It runs the server tests that are aided by
+Tests run with `npm test`. It runs the server tests that are aided by
 the usage of `engine.io-client`.
 
 Make sure `npm install` is run first.
