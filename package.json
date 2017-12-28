@@ -3,6 +3,7 @@
   "description": "Parser for the client for the realtime Engine",
   "license": "MIT",
   "version": "2.1.1",
+  "main": "lib/index.js",
   "homepage": "https://github.com/socketio/engine.io-parser",
   "devDependencies": {
     "expect.js": "0.3.1",
@@ -26,7 +27,6 @@
     "url": "git@github.com:socketio/engine.io-parser.git"
   },
   "files": [
-    "index.js",
     "lib/"
   ],
   "browser": "./lib/browser.js"
