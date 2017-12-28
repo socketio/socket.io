@@ -36,7 +36,8 @@ describe('server', function () {
       listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'tobi' }) // no tobi transport - outrageous
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be.an(Error);
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(0);
             expect(res.body.message).to.be('Transport unknown');
@@ -52,7 +53,8 @@ describe('server', function () {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'constructor' })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be.an(Error);
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(0);
             expect(res.body.message).to.be('Transport unknown');
@@ -68,7 +70,8 @@ describe('server', function () {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'polling', sid: 'test' })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be.an(Error);
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(1);
             expect(res.body.message).to.be('Session ID unknown');
@@ -84,7 +87,8 @@ describe('server', function () {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'polling' })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be.an(Error);
             expect(res.status).to.be(403);
             expect(res.body.code).to.be(4);
             expect(res.body.message).to.be('Thou shall not pass');
@@ -110,7 +114,8 @@ describe('server', function () {
       listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', b64: 1 })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be(null);
             // hack-obtain sid
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
@@ -123,7 +128,8 @@ describe('server', function () {
       listen({ cookie: 'woot' }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', b64: 1 })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('woot=' + sid + '; Path=/; HttpOnly');
             done();
@@ -135,7 +141,8 @@ describe('server', function () {
       listen({ cookiePath: '/custom' }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', b64: 1 })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/custom; HttpOnly');
             done();
@@ -147,7 +154,8 @@ describe('server', function () {
       listen({ cookiePath: false }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', b64: 1 })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
             done();
@@ -159,7 +167,8 @@ describe('server', function () {
       listen({ cookieHttpOnly: true }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', b64: 1 })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
             done();
@@ -171,7 +180,8 @@ describe('server', function () {
       listen({ cookieHttpOnly: true, cookiePath: false }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', b64: 1 })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
             done();
@@ -183,7 +193,8 @@ describe('server', function () {
       listen({ cookieHttpOnly: false }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', b64: 1 })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/');
             done();
@@ -195,7 +206,8 @@ describe('server', function () {
       listen({ cookieHttpOnly: 'no' }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', b64: 1 })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
             done();
@@ -207,7 +219,8 @@ describe('server', function () {
       listen({ cookie: false }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling' })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be(null);
             expect(res.headers['set-cookie']).to.be(undefined);
             done();
           });
@@ -369,7 +382,7 @@ describe('server', function () {
             .set({ connection: 'close' })
             .query({ transport: 'websocket', sid: socket.id })
             .end(function (err, res) {
-              expect(err).to.be(null);
+              expect(err).to.be.an(Error);
               expect(res.status).to.be(400);
               expect(res.body.code).to.be(3);
               socket.send('echo');
@@ -410,7 +423,8 @@ describe('server', function () {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'websocket' })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be.an(Error);
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(3);
             expect(res.body.message).to.be('Bad request');
@@ -2592,7 +2606,8 @@ describe('server', function () {
         request.options('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'polling' })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be.an(Error);
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(2);
             expect(res.body.message).to.be('Bad handshake method');
@@ -2608,7 +2623,8 @@ describe('server', function () {
         request.options('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'polling' })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be.an(Error);
             expect(res.status).to.be(501);
             expect(res.body.code).to.be(undefined);
             done();
@@ -2634,7 +2650,8 @@ describe('server', function () {
         request.options('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'polling' })
-          .end(function (res) {
+          .end(function (err, res) {
+            expect(err).to.be(null);
             expect(res.status).to.be(200);
             expect(res.body).to.be.empty();
             expect(res.header['access-control-allow-credentials']).to.be('true');

@@ -29,7 +29,8 @@ describe('JSONP', function () {
         });
 
         script.__defineSetter__('src', function (uri) {
-          request.get(uri).end(function (res) {
+          request.get(uri).end(function (err, res) {
+            expect(err).to.be(null);
             eval(res.text); // eslint-disable-line no-eval
           });
         });

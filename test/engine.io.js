@@ -36,7 +36,8 @@ describe('engine', function () {
   describe('listen', function () {
     it('should open a http server that returns 501', function (done) {
       listen(function (port) {
-        request.get('http://localhost:%d/'.s(port), function (res) {
+        request.get('http://localhost:%d/'.s(port), function (err, res) {
+          expect(err).to.be.an(Error);
           expect(res.status).to.be(501);
           done();
         });
@@ -65,7 +66,8 @@ describe('engine', function () {
 
       server.listen(function () {
         var uri = 'http://localhost:%d/engine.io/default/'.s(server.address().port);
-        request.get(uri, function (res) {
+        request.get(uri, function (err, res) {
+          expect(err).to.be.an(Error);
           expect(res.status).to.be(400);
           expect(res.body.code).to.be(0);
           expect(res.body.message).to.be('Transport unknown');
@@ -216,11 +218,13 @@ describe('engine', function () {
 
       server.listen(function () {
         var port = server.address().port;
-        request.get('http://localhost:%d/engine.io/default/'.s(port), function (res) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port), function (err, res) {
+          expect(err).to.be.an(Error);
           expect(res.status).to.be(400);
           expect(res.body.code).to.be(0);
           expect(res.body.message).to.be('Transport unknown');
-          request.get('http://localhost:%d/test'.s(port), function (res) {
+          request.get('http://localhost:%d/test'.s(port), function (err, res) {
+            expect(err).to.be(null);
             expect(res.status).to.be(200);
             expect(listeners).to.eql(2);
             server.once('close', done);
