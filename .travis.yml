@@ -3,9 +3,15 @@ sudo: false
 node_js:
   - '4'
   - 'node'
+git:
+  depth: 1
 notifications:
   irc: irc.freenode.org##socket.io
 matrix:
   include:
   - node_js: 'node'
     env: BROWSERS=1
+
+cache:
+  directories:
+    - node_modules
