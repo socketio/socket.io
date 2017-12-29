@@ -45,14 +45,12 @@
     "expect.js": "^0.3.1",
     "mocha": "^4.0.1",
     "s": "0.1.1",
-    "superagent": "^3.8.1"
-  },
-  "optionalDependencies": {
+    "superagent": "^3.8.1",
     "uws": "~9.14.0"
   },
   "scripts": {
     "lint": "eslint lib/ test/ *.js",
-    "test": "npm run lint && mocha && EIO_WS_ENGINE=ws mocha"
+    "test": "npm run lint && mocha && EIO_WS_ENGINE=uws mocha"
   },
   "repository": {
     "type": "git",
