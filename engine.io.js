@@ -1164,6 +1164,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      xhr.setRequestHeader('Accept', '*/*');
 	    } catch (e) {}
 
+	    if (this.supportsBinary) {
+	      xhr.responseType = 'arraybuffer';
+	    }
+
 	    // ie6 check
 	    if ('withCredentials' in xhr) {
 	      xhr.withCredentials = true;
@@ -1183,13 +1187,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    } else {
 	      xhr.onreadystatechange = function () {
 	        if (xhr.readyState === 2) {
-	          var contentType;
 	          try {
-	            contentType = xhr.getResponseHeader('Content-Type');
+	            var contentType = xhr.getResponseHeader('Content-Type');
+	            if (contentType !== 'application/octet-stream') {
+	              xhr.responseType = 'text';
+	            }
 	          } catch (e) {}
-	          if (contentType === 'application/octet-stream') {
-	            xhr.responseType = 'arraybuffer';
-	          }
 	        }
 	        if (4 !== xhr.readyState) return;
 	        if (200 === xhr.status || 1223 === xhr.status) {
@@ -1299,7 +1302,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	      contentType = this.xhr.getResponseHeader('Content-Type');
 	    } catch (e) {}
 	    if (contentType === 'application/octet-stream') {
-	      data = this.xhr.response || this.xhr.responseText;
+	      if (this.xhr.responseType === 'arraybuffer') {
+	        data = this.xhr.response || this.xhr.responseText;
+	      } else {
+	        data = String.fromCharCode.apply(null, new Uint8Array(this.xhr.response));
+	      }
 	    } else {
 	      data = this.xhr.responseText;
 	    }
@@ -3335,12 +3342,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	exports.colors = [
-	  'lightseagreen',
-	  'forestgreen',
-	  'goldenrod',
-	  'dodgerblue',
-	  'darkorchid',
-	  'crimson'
+	  '#0000CC', '#0000FF', '#0033CC', '#0033FF', '#0066CC', '#0066FF', '#0099CC',
+	  '#0099FF', '#00CC00', '#00CC33', '#00CC66', '#00CC99', '#00CCCC', '#00CCFF',
+	  '#3300CC', '#3300FF', '#3333CC', '#3333FF', '#3366CC', '#3366FF', '#3399CC',
+	  '#3399FF', '#33CC00', '#33CC33', '#33CC66', '#33CC99', '#33CCCC', '#33CCFF',
+	  '#6600CC', '#6600FF', '#6633CC', '#6633FF', '#66CC00', '#66CC33', '#9900CC',
+	  '#9900FF', '#9933CC', '#9933FF', '#99CC00', '#99CC33', '#CC0000', '#CC0033',
+	  '#CC0066', '#CC0099', '#CC00CC', '#CC00FF', '#CC3300', '#CC3333', '#CC3366',
+	  '#CC3399', '#CC33CC', '#CC33FF', '#CC6600', '#CC6633', '#CC9900', '#CC9933',
+	  '#CCCC00', '#CCCC33', '#FF0000', '#FF0033', '#FF0066', '#FF0099', '#FF00CC',
+	  '#FF00FF', '#FF3300', '#FF3333', '#FF3366', '#FF3399', '#FF33CC', '#FF33FF',
+	  '#FF6600', '#FF6633', '#FF9900', '#FF9933', '#FFCC00', '#FFCC33'
 	];
 
 	/**
@@ -3357,6 +3369,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // explicitly
 	  if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
 	    return true;
+	  }
+
+	  // Internet Explorer and Edge do not support colors.
+	  if (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) {
+	    return false;
 	  }
 
 	  // is webkit? http://stackoverflow.com/a/16459606/376773
@@ -3711,6 +3728,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.humanize = __webpack_require__(25);
 
 	/**
+	 * Active `debug` instances.
+	 */
+	exports.instances = [];
+
+	/**
 	 * The currently active debug mode names, and names to skip.
 	 */
 
@@ -3724,12 +3746,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	exports.formatters = {};
-
-	/**
-	 * Previous log timestamp.
-	 */
-
-	var prevTime;
 
 	/**
 	 * Select a color.
@@ -3758,6 +3774,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	function createDebug(namespace) {
+
+	  var prevTime;
 
 	  function debug() {
 	    // disabled?
@@ -3815,13 +3833,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	  debug.enabled = exports.enabled(namespace);
 	  debug.useColors = exports.useColors();
 	  debug.color = selectColor(namespace);
+	  debug.destroy = destroy;
 
 	  // env-specific initialization logic for debug instances
 	  if ('function' === typeof exports.init) {
 	    exports.init(debug);
 	  }
 
+	  exports.instances.push(debug);
+
 	  return debug;
+	}
+
+	function destroy () {
+	  var index = exports.instances.indexOf(this);
+	  if (index !== -1) {
+	    exports.instances.splice(index, 1);
+	    return true;
+	  } else {
+	    return false;
+	  }
 	}
 
 	/**
@@ -3838,10 +3869,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  exports.names = [];
 	  exports.skips = [];
 
+	  var i;
 	  var split = (typeof namespaces === 'string' ? namespaces : '').split(/[\s,]+/);
 	  var len = split.length;
 
-	  for (var i = 0; i < len; i++) {
+	  for (i = 0; i < len; i++) {
 	    if (!split[i]) continue; // ignore empty strings
 	    namespaces = split[i].replace(/\*/g, '.*?');
 	    if (namespaces[0] === '-') {
@@ -3849,6 +3881,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    } else {
 	      exports.names.push(new RegExp('^' + namespaces + '$'));
 	    }
+	  }
+
+	  for (i = 0; i < exports.instances.length; i++) {
+	    var instance = exports.instances[i];
+	    instance.enabled = exports.enabled(instance.namespace);
 	  }
 	}
 
@@ -3871,6 +3908,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	function enabled(name) {
+	  if (name[name.length - 1] === '*') {
+	    return true;
+	  }
 	  var i, len;
 	  for (i = 0, len = exports.skips.length; i < len; i++) {
 	    if (exports.skips[i].test(name)) {
