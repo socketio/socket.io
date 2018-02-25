@@ -8,7 +8,7 @@ describe('parser', function() {
   it('encodes a Buffer', function() {
       helpers.test_bin({
         type: parser.BINARY_EVENT,
-        data: new Buffer('abc', 'utf8'),
+        data: ['a', new Buffer('abc', 'utf8')],
         id: 23,
         nsp: '/cool'
       });

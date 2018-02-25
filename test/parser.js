@@ -12,6 +12,8 @@ describe('parser', function(){
     expect(parser.EVENT).to.be.a('number');
     expect(parser.ACK).to.be.a('number');
     expect(parser.ERROR).to.be.a('number');
+    expect(parser.BINARY_EVENT).to.be.a('number');
+    expect(parser.BINARY_ACK).to.be.a('number');
   });
 
   it('encodes connection', function(){
@@ -51,6 +53,14 @@ describe('parser', function(){
     });
   });
 
+  it('encodes an error', function(){
+    helpers.test({
+      type: parser.ERROR,
+      data: 'Unauthorized',
+      nsp: '/'
+    });
+  });
+
   it('decodes a bad binary packet', function(){
     try {
       var decoder = new parser.Decoder();
@@ -58,5 +68,14 @@ describe('parser', function(){
     } catch(e){
       expect(e.message).to.match(/Illegal/);
     }
+  });
+
+  it('returns an error packet on parsing error', function(done){
+    var decoder = new parser.Decoder();
+    decoder.on('decoded', function(packet) {
+      expect(packet).to.eql({ type: 4, data: 'parser error: invalid payload' });
+      done();
+    });
+    decoder.add('442["some","data"');
   });
 });
