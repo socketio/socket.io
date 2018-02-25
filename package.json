@@ -19,7 +19,7 @@
     "base64-arraybuffer": "0.1.5",
     "component-bind": "1.0.0",
     "component-emitter": "1.2.1",
-    "debug": "~2.6.4",
+    "debug": "~3.1.0",
     "engine.io-client": "~3.1.0",
     "has-cors": "1.1.0",
     "indexof": "0.0.1",
