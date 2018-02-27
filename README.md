@@ -196,7 +196,7 @@ to a single process.
       - `Object`: optional, options object
     - **Options**
       - `pingTimeout` (`Number`): how many ms without a pong packet to
-        consider the connection closed (`60000`)
+        consider the connection closed (`5000`)
       - `pingInterval` (`Number`): how many ms before sending a new ping
         packet (`25000`)
       - `upgradeTimeout` (`Number`): how many ms before an uncompleted transport upgrade is cancelled (`10000`)
