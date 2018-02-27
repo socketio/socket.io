@@ -1,4 +1,3 @@
-'use strict';
 /* eslint-disable standard/no-callback-literal */
 
 /**
@@ -248,8 +247,8 @@ describe('server', function () {
 
         var customId = 'CustomId' + Date.now();
 
-        engine.generateId = function (req, callback) {
-          callback(null, customId);
+        engine.generateId = function (req) {
+          return customId;
         };
 
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
@@ -260,18 +259,6 @@ describe('server', function () {
           expect(engine.clients[customId].id).to.be(customId);
           done();
         });
-      });
-    });
-
-    it('should disallow connection when custom id cannot be generated', function (done) {
-      let engine = listen({ allowUpgrades: false }, port => {
-        engine.generateId = (req, callback) => {
-          callback(new Error('no ID found'));
-        };
-
-        let socket = new eioc.Socket('ws://localhost:%d'.s(port));
-        socket.on('open', () => done(new Error('should not be able to connect')));
-        socket.on('error', () => done());
       });
     });
 
