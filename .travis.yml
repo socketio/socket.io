@@ -2,16 +2,25 @@ language: node_js
 sudo: false
 node_js:
   - '4'
-  - 'node'
+  - '6'
+  - '8'
+  - node
 git:
   depth: 1
 notifications:
-  irc: irc.freenode.org##socket.io
+  irc: 'irc.freenode.org##socket.io'
 matrix:
   include:
-  - node_js: 'node'
-    env: BROWSERS=1
-
+    - node_js: node
+      env: BROWSERS=1
 cache:
   directories:
     - node_modules
+env:
+  global:
+    - secure: >-
+        pGbZsNAyl4VfSrwmUS5Ehqa2OBuGlpoA/QRIczF1PZyBjdYHVQprQnbaTstNdd0QrXbvuYXhmHovYfpGhXPWf5isJTaRlx5NxTM6PVlUSEcQ9D6Irx2WzsjPpUluTq/bsswUouvLQ6nEE1o1F1ohfBxnsybJmhoaLfMaP/P+1YM=
+    - secure: >-
+        bAPAi8quHuSghT12Ow5vHd05dTQfttb6IIvCL1xQ6yKhvV19ZJspCemRaXsvQG1Yf4IaR9dM/wRRkvZq/Q7Wpzxuqw7E2u/bJMskaljST1/sHr7rKuPmetia0I/aan6miUenekozSNa5J720qC2Hs1OCH3KjaymOFae/TamBq5A=
+    - secure: >-
+        h7TGTubiBRLAFB+Q/elOuUYaMwWqskLxhBjfkEFBoUAqWfdnLCLd411MJEG6GcU4EFCGuv8brVRBxL3TXHxPs7yClairEx+Y1emhtHptC4pQI+YtN+i6WYVptThW2zgYg+SkLfMhl51B/JvPdwVXpJT8BlqvBf339br4TIu93Rc=
