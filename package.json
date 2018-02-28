@@ -14,7 +14,6 @@
   "dependencies": {
     "debug": "~3.1.0",
     "component-emitter": "1.2.1",
-    "has-binary2": "~1.0.2",
     "isarray": "2.0.1"
   },
   "devDependencies": {

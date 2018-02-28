@@ -5,7 +5,7 @@ var withNativeBuffer = typeof global.Buffer === 'function' && typeof global.Buff
 var withNativeArrayBuffer = typeof global.ArrayBuffer === 'function';
 
 var isView = (function () {
-  if (typeof global.ArrayBuffer.isView === 'function') {
+  if (withNativeArrayBuffer && typeof global.ArrayBuffer.isView === 'function') {
     return global.ArrayBuffer.isView;
   } else {
     return function (obj) { return obj.buffer instanceof global.ArrayBuffer; };

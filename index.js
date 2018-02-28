@@ -5,7 +5,6 @@
 
 var debug = require('debug')('socket.io-parser');
 var Emitter = require('component-emitter');
-var hasBin = require('has-binary2');
 var binary = require('./binary');
 var isArray = require('isarray');
 var isBuf = require('./is-buffer');
@@ -125,10 +124,6 @@ function Encoder() {}
  */
 
 Encoder.prototype.encode = function(obj, callback){
-  if ((obj.type === exports.EVENT || obj.type === exports.ACK) && hasBin(obj.data)) {
-    obj.type = obj.type === exports.EVENT ? exports.BINARY_EVENT : exports.BINARY_ACK;
-  }
-
   debug('encoding packet %j', obj);
 
   if (exports.BINARY_EVENT === obj.type || exports.BINARY_ACK === obj.type) {
