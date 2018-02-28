@@ -14,6 +14,19 @@ describe('parser', function() {
     helpers.test_bin(packet);
   });
 
+  it('encodes a TypedArray', function() {
+    var array = new Uint8Array(5);
+    for (var i = 0; i < array.length; i++) array[i] = i;
+
+    var packet = {
+      type: parser.BINARY_EVENT,
+      data: ['a', array],
+      id: 0,
+      nsp: '/'
+    };
+    helpers.test_bin(packet);
+  });
+
   it('encodes ArrayBuffers deep in JSON', function() {
     var packet = {
       type: parser.BINARY_EVENT,
