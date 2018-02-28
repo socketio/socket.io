@@ -878,6 +878,81 @@ describe('socket.io', function(){
         });
       });
     });
+
+    describe('dynamic', function () {
+      it('should allow connections to dynamic namespaces', function(done){
+        var srv = http();
+        var sio = io(srv);
+        srv.listen(function(){
+          var namespace = '/dynamic';
+          var dynamic = client(srv, namespace);
+          sio.useNamespaceValidator(function(nsp, next) {
+            expect(nsp).to.be(namespace);
+            next(null, true);
+          });
+          dynamic.on('error', function(err) {
+            expect().fail();
+          });
+          dynamic.on('connect', function() {
+            expect(sio.nsps[namespace]).to.be.a(Namespace);
+            expect(Object.keys(sio.nsps[namespace].sockets).length).to.be(1);
+            done();
+          });
+        });
+      });
+
+      it('should not allow connections to dynamic namespaces if not supported', function(done){
+        var srv = http();
+        var sio = io(srv);
+        srv.listen(function(){
+          var namespace = '/dynamic';
+          sio.useNamespaceValidator(function(nsp, next) {
+            expect(nsp).to.be(namespace);
+            next(null, false);
+          });
+          sio.on('connect', function(socket) {
+            if (socket.nsp.name === namespace) {
+              expect().fail();
+            }
+          });
+
+          var dynamic = client(srv,namespace);
+          dynamic.on('connect', function(){
+            expect().fail();
+          });
+          dynamic.on('error', function(err) {
+            expect(err).to.be("Invalid namespace");
+            done();
+          });
+        });
+      });
+
+      it('should not allow connections to dynamic namespaces if there is an error', function(done){
+        var srv = http();
+        var sio = io(srv);
+        srv.listen(function(){
+          var namespace = '/dynamic';
+          sio.useNamespaceValidator(function(nsp, next) {
+            expect(nsp).to.be(namespace);
+            next(new Error(), true);
+          });
+          sio.on('connect', function(socket) {
+            if (socket.nsp.name === namespace) {
+              expect().fail();
+            }
+          });
+
+          var dynamic = client(srv,namespace);
+          dynamic.on('connect', function(){
+            expect().fail();
+          });
+          dynamic.on('error', function(err) {
+            expect(err).to.be("Invalid namespace");
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe('socket', function(){
