@@ -1,8 +1,6 @@
 var parser = require('../index.js');
 var expect = require('expect.js');
 var helpers = require('./helpers.js');
-var encode = parser.encode;
-var decode = parser.decode;
 
 describe('parser', function(){
 
@@ -58,6 +56,24 @@ describe('parser', function(){
       type: parser.ERROR,
       data: 'Unauthorized',
       nsp: '/'
+    });
+  });
+
+  it('properly handles circular objects', function() {
+    var a = {};
+    a.b = a;
+
+    var data = {
+      type: parser.EVENT,
+      data: a,
+      id: 1,
+      nsp: '/'
+    }
+
+    var encoder = new parser.Encoder();
+
+    encoder.encode(data, function(encodedPackets) {
+      expect(encodedPackets[0]).to.be('4"encode error"');
     });
   });
 
