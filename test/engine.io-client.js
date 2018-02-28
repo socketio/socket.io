@@ -2,6 +2,8 @@
 var expect = require('expect.js');
 var eio = require('../');
 
+var expectedPort = global.location && 'https:' === location.protocol ? '443' : '80';
+
 describe('engine.io-client', function () {
   var open;
 
@@ -45,7 +47,7 @@ describe('engine.io-client', function () {
   it('should properly parse a host without port', function () {
     var client = eio({ host: 'localhost' });
     expect(client.hostname).to.be('localhost');
-    expect(client.port).to.be('80');
+    expect(client.port).to.be(expectedPort);
   });
 
   it('should properly parse a host with port', function () {
@@ -69,7 +71,7 @@ describe('engine.io-client', function () {
   it('should properly parse an IPv6 host without port (1/2)', function () {
     var client = eio({ host: '[::1]' });
     expect(client.hostname).to.be('::1');
-    expect(client.port).to.be('80');
+    expect(client.port).to.be(expectedPort);
   });
 
   it('should properly parse an IPv6 host without port (2/2)', function () {
@@ -87,6 +89,6 @@ describe('engine.io-client', function () {
   it('should properly parse an IPv6 host without brace', function () {
     var client = eio({ host: '::1' });
     expect(client.hostname).to.be('::1');
-    expect(client.port).to.be('80');
+    expect(client.port).to.be(expectedPort);
   });
 });

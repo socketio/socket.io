@@ -4,37 +4,20 @@ node_js:
   - '4'
   - '6'
   - '8'
+  - node
 git:
   depth: 1
 notifications:
-  irc: "irc.freenode.org#socket.io"
+  irc: irc.freenode.org#socket.io
 matrix:
   include:
-  - node_js: 'node'
-    env: BROWSER_NAME=chrome BROWSER_VERSION=latest
-  - node_js: 'node'
-    env: BROWSER_NAME=safari BROWSER_VERSION=latest
-  - node_js: 'node'
-    env: BROWSER_NAME=firefox BROWSER_VERSION=latest
-  - node_js: 'node'
-    env: BROWSER_NAME=ie BROWSER_VERSION=8
-  - node_js: 'node'
-    env: BROWSER_NAME=ie BROWSER_VERSION=9
-  - node_js: 'node'
-    env: BROWSER_NAME=ie BROWSER_VERSION=10
-  - node_js: 'node'
-    env: BROWSER_NAME=ie BROWSER_VERSION=11
-  - node_js: 'node'
-    env: BROWSER_NAME=iphone BROWSER_VERSION=8.4
-  - node_js: 'node'
-    env: BROWSER_NAME=iphone BROWSER_VERSION=9.2
-  - node_js: 'node'
-    env: BROWSER_NAME=iphone BROWSER_VERSION=10.0
-  - node_js: 'node'
-    env: BROWSER_NAME=android BROWSER_VERSION=4.4
-  - node_js: 'node'
-    env: BROWSER_NAME=android BROWSER_VERSION=5.1
-  - node_js: 'node'
-    env: BROWSER_NAME=ipad BROWSER_VERSION=9.3
-  - node_js: 'node'
-    env: BROWSER_NAME=ipad BROWSER_VERSION=10.0
+    - node_js: node
+      env: BROWSERS=1
+cache:
+  directories:
+    - node_modules
+env:
+  global:
+    - secure: EeWHa83dNLzbmwn7tai2D7nnqRMhpbZrWh8054je+6M2Iui6heV412ginyx+MfTBkDe9PF9yPhoknpJ1ZiitbFHVhdofzJJErEHWS33gLVXTL2PU1IzAU9h9T/wVSrVsiNfTARW4Bh9JexVl8x8erTzSh/P6fH2KWx4CaPtmYG4=
+    - secure: 0yzzTFfFW032oyHzLJPkjgtehnJiqbpmI5kPosjC3Nk0AT6wLSdXuo1Cv5mccggPoqtHQ4oo7e4roLgRaZD34ihc2n98oT5LUPoU6ifA2Z+1zmdmFS9oYTvmkMxaxHlyYuWn47INukGLVJkH5mukb4QDji+v2LjbZVGdVHL5iNM=
+    - secure: l2aD07VwTMZh+8dcE7u7X0lpdYuwl/wk5no1hxaOKvnHiaVSW39kEJFReO0EZXF/ld7teBNwdWVtRK0P28hKjXEr4Z1OjvGyz6WYZ6cSwxAPmDoTaKC4z1NsAlatqjOKyjSqadncYzWwKS+Trxgj8eO1mZt5h+EvgU2gz6l2N+I=
