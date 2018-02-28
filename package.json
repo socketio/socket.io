@@ -26,9 +26,10 @@
   "dependencies": {
     "debug": "~3.1.0",
     "engine.io": "~3.1.0",
+    "has-binary2": "~1.0.2",
     "socket.io-adapter": "~1.1.0",
     "socket.io-client": "2.0.4",
-    "socket.io-parser": "~3.1.1"
+    "socket.io-parser": "~3.2.0"
   },
   "devDependencies": {
     "expect.js": "0.3.1",
