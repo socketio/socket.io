@@ -33,6 +33,8 @@
     - [Event: 'pong'](#event-pong)
   - [Class: io.Socket](#socket)
     - [socket.id](#socketid)
+    - [socket.connected](#socketconnected)
+    - [socket.disconnected](#socketdisconnected)
     - [socket.open()](#socketopen)
     - [socket.connect()](#socketconnect)
     - [socket.send([...args][, ack])](#socketsendargs-ack)
@@ -393,6 +395,34 @@ console.log(socket.id); // undefined
 
 socket.on('connect', () => {
   console.log(socket.id); // 'G5p5...'
+});
+```
+
+#### socket.connected
+
+  - _(Boolean)_
+
+Whether or not the socket is connected to the server.
+
+```js
+const socket = io('http://localhost');
+
+socket.on('connect', () => {
+  console.log(socket.connected); // true
+});
+```
+
+#### socket.disconnected
+
+  - _(Boolean)_
+
+Whether or not the socket is disconnected from the server.
+
+```js
+const socket = io('http://localhost');
+
+socket.on('connect', () => {
+  console.log(socket.disconnected); // false
 });
 ```
 
