@@ -20,6 +20,7 @@
     - [server.onconnection(socket)](#serveronconnectionsocket)
     - [server.of(nsp)](#serverofnsp)
     - [server.close([callback])](#serverclosecallback)
+    - [server.useNamespaceValidator(fn)](#serverusenamespacevalidatorfn)
   - [Class: Namespace](#namespace)
     - [namespace.name](#namespacename)
     - [namespace.connected](#namespaceconnected)
@@ -319,6 +320,22 @@ io.close(); // Close current server
 server.listen(PORT); // PORT is free to use
 
 io = Server(server);
+```
+
+#### server.useNamespaceValidator(fn)
+
+  - `fn` _(Function)_
+
+Sets up server middleware to validate whether a new namespace should be created.
+
+```js
+io.useNamespaceValidator((nsp, next) => {
+  if (nsp === 'dynamic') {
+    next(null, true);
+  } else {
+    next(new Error('Invalid namespace'));
+  }
+});
 ```
 
 #### server.engine.generateId
