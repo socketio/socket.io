@@ -129,20 +129,26 @@ These are exposed by `require('engine.io')`:
       - `Object`: optional, options object (see `Server#constructor` api docs below)
 
   The following are identical ways to instantiate a server and then attach it.
-  ```js
-  var httpServer; // previously created with `http.createServer();` from node.js api.
 
-  // create a server first, and then attach
-  var eioServer = require('engine.io').Server();
-  eioServer.attach(httpServer);
+```js
+var httpServer; // previously created with `http.createServer();` from node.js api.
 
-  // or call the module as a function to get `Server`
-  var eioServer = require('engine.io')();
-  eioServer.attach(httpServer);
+// create a server first, and then attach
+var eioServer = require('engine.io').Server();
+eioServer.attach(httpServer);
 
-  // immediately attach
-  var eioServer = require('engine.io')(httpServer);
-  ```
+// or call the module as a function to get `Server`
+var eioServer = require('engine.io')();
+eioServer.attach(httpServer);
+
+// immediately attach
+var eioServer = require('engine.io')(httpServer);
+
+// with custom options
+var eioServer = require('engine.io')(httpServer, {
+  maxHttpBufferSize: 1e3
+});
+```
 
 - `listen`
     - Creates an `http.Server` which listens on the given port and attaches WS
@@ -155,6 +161,17 @@ These are exposed by `require('engine.io')`:
       - All options from `Server.attach` method, documented below.
       - **Additionally** See Server `constructor` below for options you can pass for creating the new Server
     - **Returns** `Server`
+
+```js
+var engine = require('engine.io');
+var server = engine.listen(3000, {
+  pingTimeout: 2000,
+  pingInterval: 10000
+});
+
+server.on('connection', /* ... */);
+```
+
 - `attach`
     - Captures `upgrade` requests for a `http.Server`. In other words, makes
       a regular http.Server WebSocket-compatible.
@@ -166,7 +183,15 @@ These are exposed by `require('engine.io')`:
       - **Additionally** See Server `constructor` below for options you can pass for creating the new Server
     - **Returns** `Server` a new Server instance.
 
-<hr><br>
+```js
+var engine = require('engine.io');
+var httpServer = require('http').createServer().listen(3000);
+var server = engine.attach(httpServer, {
+  wsEngine: 'uws' // requires having uws as dependency
+});
+
+server.on('connection', /* ... */);
+```
 
 #### Server
 
