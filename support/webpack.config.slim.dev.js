@@ -15,13 +15,13 @@ module.exports = {
   },
   devtool: 'source-map',
   plugins: [
-    new webpack.NormalModuleReplacementPlugin(/debug/, process.cwd() + '/support/noop.js'),
+    new webpack.NormalModuleReplacementPlugin(/debug/, process.cwd() + '/support/noop.js')
   ],
   module: {
     loaders: [{
       test: /\.js$/,
       exclude: /(node_modules|bower_components)/,
-      loader: 'babel', // 'babel-loader' is also a legal name to reference
+      loader: 'babel-loader',
       query: { presets: ['es2015'] }
     }, {
       test: /\json3.js/,

@@ -1,6 +1,6 @@
 var webpack = require('webpack');
 var merge = require('webpack-merge');
-var baseConfig = require('./webpack.config.dev.js')
+var baseConfig = require('./webpack.config.dev.js');
 
 module.exports = merge(baseConfig, {
   output: {
@@ -21,5 +21,5 @@ module.exports = merge(baseConfig, {
         beautify: false
       }
     })
-  ],
+  ]
 });

@@ -2,7 +2,9 @@
 require('./support/env');
 
 // whitelist some globals to avoid warnings
-global.___eio = null;
+if (global.mocha) {
+  global.mocha.globals(['___eio', 'eio_iframe_*']);
+}
 
 require('./url');
 
