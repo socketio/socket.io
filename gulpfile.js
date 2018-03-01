@@ -21,7 +21,9 @@ gulp.task('build', function () {
     .pipe(webpack({
       config: [
         require('./support/webpack.config.js'),
-        require('./support/webpack.config.slim.js')
+        require('./support/webpack.config.dev.js'),
+        require('./support/webpack.config.slim.js'),
+        require('./support/webpack.config.slim.dev.js')
       ]
     }))
     .pipe(gulp.dest(BUILD_TARGET_DIR));
