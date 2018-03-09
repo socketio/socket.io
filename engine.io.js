@@ -1164,10 +1164,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      xhr.setRequestHeader('Accept', '*/*');
 	    } catch (e) {}
 
-	    if (this.supportsBinary) {
-	      xhr.responseType = 'arraybuffer';
-	    }
-
 	    // ie6 check
 	    if ('withCredentials' in xhr) {
 	      xhr.withCredentials = true;
@@ -1189,8 +1185,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (xhr.readyState === 2) {
 	          try {
 	            var contentType = xhr.getResponseHeader('Content-Type');
-	            if (contentType !== 'application/octet-stream') {
-	              xhr.responseType = 'text';
+	            if (self.supportsBinary && contentType === 'application/octet-stream') {
+	              xhr.responseType = 'arraybuffer';
 	            }
 	          } catch (e) {}
 	        }
@@ -1303,8 +1299,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    } catch (e) {}
 	    if (contentType === 'application/octet-stream') {
 	      data = this.xhr.response || this.xhr.responseText;
-	    } else if (this.xhr.responseType === 'arraybuffer') {
-	      data = String.fromCharCode.apply(null, new Uint8Array(this.xhr.response));
 	    } else {
 	      data = this.xhr.responseText;
 	    }
