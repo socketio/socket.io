@@ -62,10 +62,28 @@ describe('connection', function () {
   if (global.Worker) {
     it('should work in a worker', function (done) {
       var worker = new Worker('/test/support/worker.js');
+      var msg = 0;
+      var utf8yay = 'пойду сать всем мпокойной ночи';
       worker.onmessage = function (e) {
-        expect(e.data);
-        done();
+        msg++;
+        if (msg === 1) {
+          expect(e.data).to.be('hi');
+        } else if (msg < 11) {
+          expect(e.data).to.be(utf8yay);
+        } else if (msg < 20) {
+          testBinary(e.data);
+        } else {
+          testBinary(e.data);
+          done();
+        }
       };
+
+      function testBinary (data) {
+        var byteArray = new Uint8Array(data);
+        for (var i = 0; i < byteArray.byteLength; i++) {
+          expect(byteArray[i]).to.be(i);
+        }
+      }
     });
   }
 

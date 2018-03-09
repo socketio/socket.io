@@ -32,6 +32,9 @@ server.on('connection', function (socket) {
       }
       socket.send(abv);
       return;
+    } else if (data === 'give utf8') {
+      socket.send('пойду сать всем мпокойной ночи');
+      return;
     }
 
     socket.send(data);
