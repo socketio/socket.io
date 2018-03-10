@@ -41,6 +41,7 @@
     - [socket.emit(eventName[, ...args][, ack])](#socketemiteventname-args-ack)
     - [socket.on(eventName, callback)](#socketoneventname-callback)
     - [socket.compress(value)](#socketcompressvalue)
+    - [socket.binary(value)](#socketbinaryvalue)
     - [socket.close()](#socketclose)
     - [socket.disconnect()](#socketdisconnect)
     - [Event: 'connect'](#event-connect)
@@ -524,6 +525,14 @@ Sets a modifier for a subsequent event emission that the event data will only be
 
 ```js
 socket.compress(false).emit('an event', { some: 'data' });
+```
+
+#### socket.binary(value)
+
+Specifies whether the emitted data contains binary. Increases performance when specified. Can be `true` or `false`.
+
+```js
+socket.binary(false).emit('an event', { some: 'data' });
 ```
 
 #### socket.close()

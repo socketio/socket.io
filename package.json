@@ -21,12 +21,13 @@
     "component-emitter": "1.2.1",
     "debug": "~3.1.0",
     "engine.io-client": "~3.2.0",
+    "has-binary2": "~1.0.2",
     "has-cors": "1.1.0",
     "indexof": "0.0.1",
     "object-component": "0.0.3",
     "parseqs": "0.0.5",
     "parseuri": "0.0.5",
-    "socket.io-parser": "3.1.2",
+    "socket.io-parser": "~3.2.0",
     "to-array": "0.1.4"
   },
   "devDependencies": {
@@ -48,7 +49,7 @@
     "imports-loader": "^0.7.1",
     "istanbul": "^0.4.5",
     "mocha": "^3.3.0",
-    "socket.io": "2.0.4",
+    "socket.io": "socketio/socket.io",
     "socket.io-browsers": "^1.0.0",
     "strip-loader": "0.1.2",
     "text-blob-builder": "0.0.1",
