@@ -354,6 +354,17 @@ describe('socket.io', function(){
           done();
         });
     });
+
+    it('should allow request when using an array of origins', function(done) {
+      io({ origins: [ 'http://foo.example:54024' ] }).listen('54024');
+      request.get('http://localhost:54024/socket.io/default/')
+        .set('origin', 'http://foo.example:54024')
+        .query({ transport: 'polling' })
+        .end(function (err, res) {
+          expect(res.status).to.be(200);
+          done();
+        });
+    });
   });
 
   describe('close', function(){
