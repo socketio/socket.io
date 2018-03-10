@@ -239,7 +239,7 @@ io.origins(['https://foo.example.com:443']);
   - `fn` _(Function)_
   - **Returns** `Server`
 
-Provides a function taking two arguments `origin:String` and `callback(error, success)`, where `success` is a boolean value indicating whether origin is allowed or not.
+Provides a function taking two arguments `origin:String` and `callback(error, success)`, where `success` is a boolean value indicating whether origin is allowed or not.  If `success` is set to `false`, `error` must be provided as a string value that will be appended to the server response, e.g. "Origin not allowed".
 
 __Potential drawbacks__:
 * in some situations, when it is not possible to determine `origin` it may have value of `*`
