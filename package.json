@@ -28,7 +28,7 @@
     "engine.io": "~3.2.0",
     "has-binary2": "~1.0.2",
     "socket.io-adapter": "~1.1.0",
-    "socket.io-client": "2.0.4",
+    "socket.io-client": "socketio/socket.io-client",
     "socket.io-parser": "~3.2.0"
   },
   "devDependencies": {

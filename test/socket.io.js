@@ -2352,6 +2352,23 @@ describe('socket.io', function(){
         done();
       });
     });
+
+    it('should work with a custom namespace', (done) => {
+      var srv = http();
+      var sio = io();
+      sio.listen(srv);
+      sio.of('/chat').use(function(socket, next){
+        next();
+      });
+
+      var count = 0;
+      client(srv, '/').on('connect', () => {
+        if (++count === 2) done();
+      });
+      client(srv, '/chat').on('connect', () => {
+        if (++count === 2) done();
+      });
+    });
   });
 
   describe('socket middleware', function(done){
