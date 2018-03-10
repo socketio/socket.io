@@ -225,13 +225,13 @@ io.adapter(redis({ host: 'localhost', port: 6379 }));
 
 #### server.origins([value])
 
-  - `value` _(String)_
+  - `value` _(String|String[])_
   - **Returns** `Server|String`
 
 Sets the allowed origins `value`. Defaults to any origins being allowed. If no arguments are supplied this method returns the current value.
 
 ```js
-io.origins(['foo.example.com:443']);
+io.origins(['https://foo.example.com:443']);
 ```
 
 #### server.origins(fn)
