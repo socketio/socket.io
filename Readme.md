@@ -11,10 +11,10 @@
 
 ## Features
 
-Socket.IO enables real-time bidirectional event-based communication. It consists in:
+Socket.IO enables real-time, bidirectional, event-based communication. It consists of 2 parts:
 
-- a Node.js server (this repository)
-- a [Javascript client library](https://github.com/socketio/socket.io-client) for the browser (or a Node.js client)
+- a Socket.IO server contained in this repository.
+- a [Socket.IO client](https://github.com/socketio/socket.io-client) which is a dependency in this library's package.json file.
 
 Some implementations in other languages are also available:
 
