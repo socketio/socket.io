@@ -292,13 +292,41 @@ Advanced use only. Creates a new `socket.io` client from the incoming engine.io 
 
 #### server.of(nsp)
 
-  - `nsp` _(String)_
+  - `nsp` _(String|RegExp|Function)_
   - **Returns** `Namespace`
 
 Initializes and retrieves the given `Namespace` by its pathname identifier `nsp`. If the namespace was already initialized it returns it immediately.
 
 ```js
 const adminNamespace = io.of('/admin');
+```
+
+A regex or a function can also be provided, in order to create namespace in a dynamic way:
+
+```js
+const dynamicNsp = io.of(/^\/dynamic-\d+$/).on('connect', (socket) => {
+  const newNamespace = socket.nsp; // newNamespace.name === '/dynamic-101'
+
+  // broadcast to all clients in the given sub-namespace
+  newNamespace.emit('hello');
+});
+
+// client-side
+const socket = io('/dynamic-101');
+
+// broadcast to all clients in each sub-namespace
+dynamicNsp.emit('hello');
+
+// use a middleware for each sub-namespace
+dynamicNsp.use((socket, next) => { /* ... */ });
+```
+
+With a function:
+
+```js
+io.of((name, query, next) => {
+  next(null, checkToken(query.token));
+}).on('connect', (socket) => { /* ... */ });
 ```
 
 #### server.close([callback])

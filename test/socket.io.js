@@ -1,3 +1,5 @@
+'use strict';
+
 var http = require('http').Server;
 var io = require('../lib');
 var fs = require('fs');
@@ -889,6 +891,61 @@ describe('socket.io', function(){
         });
       });
     });
+
+    describe('dynamic namespaces', function () {
+      it('should allow connections to dynamic namespaces with a regex', function(done){
+        const srv = http();
+        const sio = io(srv);
+        let count = 0;
+        srv.listen(function(){
+          const socket = client(srv, '/dynamic-101');
+          let dynamicNsp = sio.of(/^\/dynamic-\d+$/).on('connect', (socket) => {
+            expect(socket.nsp.name).to.be('/dynamic-101');
+            dynamicNsp.emit('hello', 1, '2', { 3: '4'});
+            if (++count === 4) done();
+          }).use((socket, next) => {
+            next();
+            if (++count === 4) done();
+          });
+          socket.on('error', function(err) {
+            expect().fail();
+          });
+          socket.on('connect', () => {
+            if (++count === 4) done();
+          });
+          socket.on('hello', (a, b, c) => {
+            expect(a).to.eql(1);
+            expect(b).to.eql('2');
+            expect(c).to.eql({ 3: '4' });
+            if (++count === 4) done();
+          });
+        });
+      });
+
+      it('should allow connections to dynamic namespaces with a function', function(done){
+        const srv = http();
+        const sio = io(srv);
+        srv.listen(function(){
+          const socket = client(srv, '/dynamic-101');
+          sio.of((name, query, next) => next(null, '/dynamic-101' === name));
+          socket.on('connect', done);
+        });
+      });
+
+      it('should disallow connections when no dynamic namespace matches', function(done){
+        const srv = http();
+        const sio = io(srv);
+        srv.listen(function(){
+          const socket = client(srv, '/abc');
+          sio.of(/^\/dynamic-\d+$/);
+          sio.of((name, query, next) => next(null, '/dynamic-101' === name));
+          socket.on('error', (err) => {
+            expect(err).to.be('Invalid namespace');
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe('socket', function(){
@@ -1684,7 +1741,7 @@ describe('socket.io', function(){
         var socket = client(srv, { reconnection: false });
         sio.on('connection', function(s){
           s.conn.on('upgrade', function(){
-            console.log('\033[96mNote: warning expected and normal in test.\033[39m');
+            console.log('\u001b[96mNote: warning expected and normal in test.\u001b[39m');
             socket.io.engine.write('5woooot');
             setTimeout(function(){
               done();
@@ -1701,7 +1758,7 @@ describe('socket.io', function(){
         var socket = client(srv, { reconnection: false });
         sio.on('connection', function(s){
           s.conn.on('upgrade', function(){
-            console.log('\033[96mNote: warning expected and normal in test.\033[39m');
+            console.log('\u001b[96mNote: warning expected and normal in test.\u001b[39m');
             socket.io.engine.write('44["handle me please"]');
             setTimeout(function(){
               done();
