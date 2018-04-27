@@ -29,7 +29,7 @@ function onConnect(socket){
   io.of('myNamespace').to('room').emit('event', 'message');
 
   // sending to individual socketid (private message)
-  socket.to(<socketid>).emit('hey', 'I just met you');
+  io.to(<socketid>).emit('hey', 'I just met you');
 
   // sending with acknowledgement
   socket.emit('question', 'do you think so?', function (answer) {});
