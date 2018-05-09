@@ -27,7 +27,7 @@
     "debug": "~3.1.0",
     "engine.io": "~3.2.0",
     "has-binary2": "~1.0.2",
-    "socket.io-adapter": "~1.1.0",
+    "socket.io-adapter": "kr-project/socket.io-adapter",
     "socket.io-client": "2.1.0",
     "socket.io-parser": "~3.2.0"
   },
