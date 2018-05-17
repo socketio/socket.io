@@ -25,6 +25,15 @@ server.of('/abc').on('connection', function (socket) {
   socket.emit('handshake', socket.handshake);
 });
 
+server.use(function (socket, next) {
+  if (socket.request._query.fail) return next(new Error('Auth failed (main namespace)'));
+  next();
+});
+
+server.of('/no').use(function (socket, next) {
+  next(new Error('Auth failed (custom namespace)'));
+});
+
 server.on('connection', function (socket) {
   // simple test
   socket.on('hi', function () {

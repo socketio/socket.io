@@ -158,4 +158,22 @@ describe('socket', function () {
       });
     });
   });
+
+  it('should fire an error event on middleware failure from main namespace', function (done) {
+    var socket = io('/foo', { forceNew: true, query: { 'fail': true } });
+    socket.on('error', function (err) {
+      expect(err).to.eql('Auth failed (main namespace)');
+      socket.disconnect();
+      done();
+    });
+  });
+
+  it('should fire an error event on middleware failure from custom namespace', function (done) {
+    var socket = io('/no', { forceNew: true });
+    socket.on('error', function (err) {
+      expect(err).to.eql('Auth failed (custom namespace)');
+      socket.disconnect();
+      done();
+    });
+  });
 });
