@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v2.1.0
+ * Socket.IO v2.1.1
  * (c) 2014-2018 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -6287,7 +6287,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	
 	Socket.prototype.onpacket = function (packet) {
-	  if (packet.nsp !== this.nsp) return;
+	  var sameNamespace = packet.nsp === this.nsp;
+	  var rootNamespaceError = packet.type === parser.ERROR && packet.nsp === '/';
+	
+	  if (!sameNamespace && !rootNamespaceError) return;
 	
 	  switch (packet.type) {
 	    case parser.CONNECT:
