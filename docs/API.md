@@ -820,7 +820,8 @@ io.on('connection', function(socket){
 
 #### Event: 'disconnect'
 
-  - `reason` _(String)_ the reason of the disconnection (either client or server-side)
+  - `reason` _(String)_ the reason of the disconnection (either client or server-side) 
+
 
 Fired upon disconnection.
 
@@ -849,6 +850,15 @@ io.on('connection', (socket) => {
 #### Event: 'disconnecting'
 
   - `reason` _(String)_ the reason of the disconnection (either client or server-side)
+
+Available options:
+| Reason | Motivation |
+| ------- | ---------------|
+| client namespace disconnect | got disconnect packet from client |
+| server namespace disconnect | server performs a `socket.disconnect()` |
+| transport error | Transport error |
+| ping timeout | client stopped responding to pings in the allowed amount of time (per the pingTimeout config setting|
+| transport close | client stopped sending data|
 
 Fired when the client is going to be disconnected (but hasn't left its `rooms` yet).
 
