@@ -853,13 +853,13 @@ io.on('connection', (socket) => {
 
 Available options:
 
-| Reason | Motivation |
-| ------- | ---------------|
-| client namespace disconnect | got disconnect packet from client |
-| server namespace disconnect | server performs a `socket.disconnect()` |
-| transport error | Transport error |
-| ping timeout | client stopped responding to pings in the allowed amount of time (per the pingTimeout config setting |
-| transport close | client stopped sending data|
+| Reason | Side | Motivation |
+| ------- | ------ | ---------------|
+| client namespace disconnect | Client Side | got disconnect packet from client |
+| server namespace disconnect | Server Side  | server performs a `socket.disconnect()` |
+| transport error | Server Side  | Transport error |
+| ping timeout | Client Side  | client stopped responding to pings in the allowed amount of time (per the pingTimeout config setting |
+| transport close  | Client Side | client stopped sending data|
 
 Fired when the client is going to be disconnected (but hasn't left its `rooms` yet).
 
