@@ -52,7 +52,7 @@ describe('parser', function() {
     var firstBuffer = new Int8Array(123);
     for (var i = 0; i < firstBuffer.length; i++) firstBuffer[i] = i;
 
-    encPayloadB([{ type: 'message', data: firstBuffer.buffer }, { type: 'message', data: 'hello' }, { type: 'close' } ], function(data) {
+    encPayloadB([{ type: 'message', data: firstBuffer.buffer }, { type: 'message', data: 'hello 亜' }, { type: 'close' } ], function(data) {
       var fr = new FileReader();
       fr.onload = function() {
         decPayloadB(this.result,
@@ -62,7 +62,7 @@ describe('parser', function() {
               expect(new Int8Array(packet.data)).to.eql(firstBuffer);
             } else if (index == 1) {
               expect(packet.type).to.eql('message');
-              expect(packet.data).to.eql('hello');
+              expect(packet.data).to.eql('hello 亜');
             } else {
               expect(packet.type).to.eql('close');
               done();

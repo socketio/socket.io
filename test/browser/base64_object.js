@@ -20,7 +20,7 @@ describe('parser', function() {
     var data = new Buffer(5);
     for (var i = 0; i < data.length; i++) data[i] = i;
     var msg = { base64: true, data: new Buffer(data).toString('base64') };
-    encPayload([{ type: 'message', data: msg }, { type: 'message', data: 'hello' }], function(encoded) {
+    encPayload([{ type: 'message', data: msg }, { type: 'message', data: 'hello 亜' }], function(encoded) {
       decPayload(encoded,
         function(packet, index, total) {
           var isLast = index + 1 == total;
@@ -32,7 +32,7 @@ describe('parser', function() {
               expect(new Int8Array(packet.data)).to.eql(new Int8Array(data));
             }
           } else {
-            expect(packet.data).to.eql('hello');
+            expect(packet.data).to.eql('hello 亜');
             done();
           }
         });

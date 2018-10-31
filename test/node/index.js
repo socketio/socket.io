@@ -33,7 +33,7 @@ describe('parser', function() {
   it('should encode/decode mixed binary and string contents as b64', function(done) {
     var data = new Buffer(5);
     for (var i = 0; i < data.length; i++) data[i] = i;
-    encPayload([{ type: 'message', data: data }, { type: 'message', data: 'hello' }], function(encoded) {
+    encPayload([{ type: 'message', data: data }, { type: 'message', data: 'hello 亜' }], function(encoded) {
       decPayload(encoded,
         function(packet, index, total) {
           var isLast = index + 1 == total;
@@ -41,7 +41,7 @@ describe('parser', function() {
           if (!isLast) {
             expect(packet.data).to.eql(data);
           } else {
-            expect(packet.data).to.eql('hello');
+            expect(packet.data).to.eql('hello 亜');
             done();
           }
         });
@@ -73,7 +73,7 @@ describe('parser', function() {
     var firstBuffer = new Buffer(123);
     for (var i = 0; i < firstBuffer.length; i++) firstBuffer[i] = i;
 
-    encPayloadB([{ type: 'message', data: firstBuffer }, { type: 'message', data: 'hello' }, { type: 'close' } ], function(data) {
+    encPayloadB([{ type: 'message', data: firstBuffer }, { type: 'message', data: 'hello 亜' }, { type: 'close' } ], function(data) {
       decPayloadB(data,
         function(packet, index, total) {
           if (index == 0) {
@@ -81,7 +81,7 @@ describe('parser', function() {
             expect(packet.data).to.eql(firstBuffer);
           } else if (index == 1) {
             expect(packet.type).to.eql('message');
-            expect(packet.data).to.eql('hello');
+            expect(packet.data).to.eql('hello 亜');
           } else {
             expect(packet.type).to.eql('close');
             done();
