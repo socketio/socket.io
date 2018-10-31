@@ -17,9 +17,9 @@ var decPayload = parser.decodePayload;
  */
 describe('parser', function() {
   it('should encode/decode mixed base64 object and string', function(done) {
-    var data = new Buffer(5);
+    var data = Buffer.allocUnsafe(5);
     for (var i = 0; i < data.length; i++) data[i] = i;
-    var msg = { base64: true, data: new Buffer(data).toString('base64') };
+    var msg = { base64: true, data: data.toString('base64') };
     encPayload([{ type: 'message', data: msg }, { type: 'message', data: 'hello 亜' }], function(encoded) {
       decPayload(encoded,
         function(packet, index, total) {

@@ -239,7 +239,7 @@ module.exports = function(parser) {
           });
 
           if ('undefined' == typeof window || window.Int8Array) {
-            var data = 'undefined' !== typeof window ? (new Int8Array([64])).buffer : new Buffer([64]);
+            var data = 'undefined' !== typeof window ? (new Int8Array([64])).buffer : Buffer.from([64]);
             decPayload(data, function (packet, index, total) {
               var isLast = index + 1 == total;
               expect(packet).to.eql(err);

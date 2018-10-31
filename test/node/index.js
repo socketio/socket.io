@@ -22,7 +22,7 @@ var decPayloadB = parser.decodePayloadAsBinary;
 
 describe('parser', function() {
   it('should encode a binary message', function(done) {
-    var data = new Buffer(5);
+    var data = Buffer.allocUnsafe(5);
     for (var i = 0; i < data.length; i++) { data[i] = i; }
     encode({ type: 'message', data: data }, function(encoded) {
       expect(decode(encoded)).to.eql({ type: 'message', data: data }); 
@@ -31,7 +31,7 @@ describe('parser', function() {
   });
 
   it('should encode/decode mixed binary and string contents as b64', function(done) {
-    var data = new Buffer(5);
+    var data = Buffer.allocUnsafe(5);
     for (var i = 0; i < data.length; i++) data[i] = i;
     encPayload([{ type: 'message', data: data }, { type: 'message', data: 'hello 亜' }], function(encoded) {
       decPayload(encoded,
@@ -49,28 +49,28 @@ describe('parser', function() {
   });
 
   it('should encode binary contents as binary', function(done) {
-    var firstBuffer = new Buffer(5);
-      for (var i = 0; i < firstBuffer.length; i++) firstBuffer[i] = i;
-      var secondBuffer = new Buffer(4);
-      for (var i = 0; i < secondBuffer.length; i++) secondBuffer[i] = firstBuffer.length + i;
+    var firstBuffer = Buffer.allocUnsafe(5);
+    for (var i = 0; i < firstBuffer.length; i++) firstBuffer[i] = i;
+    var secondBuffer = Buffer.allocUnsafe(4);
+    for (var i = 0; i < secondBuffer.length; i++) secondBuffer[i] = firstBuffer.length + i;
 
-      encPayloadB([{ type: 'message', data: firstBuffer }, { type: 'message', data: secondBuffer }], function(data) {
-        decPayloadB(data,
-          function(packet, index, total) {
-            var isLast = index + 1 == total;
-            expect(packet.type).to.eql('message');
-            if (!isLast) {
-              expect(packet.data).to.eql(firstBuffer);
-            } else {
-              expect(packet.data).to.eql(secondBuffer);
-              done();
-            }
-          });
-      });
+    encPayloadB([{ type: 'message', data: firstBuffer }, { type: 'message', data: secondBuffer }], function(data) {
+      decPayloadB(data,
+        function(packet, index, total) {
+          var isLast = index + 1 == total;
+          expect(packet.type).to.eql('message');
+          if (!isLast) {
+            expect(packet.data).to.eql(firstBuffer);
+          } else {
+            expect(packet.data).to.eql(secondBuffer);
+            done();
+          }
+        });
+    });
   });
 
   it('should encode mixed binary and string contents as binary', function(done) {
-    var firstBuffer = new Buffer(123);
+    var firstBuffer = Buffer.allocUnsafe(123);
     for (var i = 0; i < firstBuffer.length; i++) firstBuffer[i] = i;
 
     encPayloadB([{ type: 'message', data: firstBuffer }, { type: 'message', data: 'hello 亜' }, { type: 'close' } ], function(data) {
@@ -147,7 +147,7 @@ describe('parser', function() {
     for (var i = 0; i < buffer.byteLength ; i++) dataview.setInt8(i, 4 - i);
 
     var decoded = decode(buffer);
-    var expectedOutput = new Buffer([3,2,1]);
+    var expectedOutput = Buffer.from([3,2,1]);
     expect(decoded).to.eql({ type: 'message', data: expectedOutput });
     expect(new Uint8Array(decoded.data)).to.eql(new Uint8Array(expectedOutput));
   });
