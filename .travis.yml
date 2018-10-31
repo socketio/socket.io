@@ -1,14 +1,10 @@
 language: node_js
 sudo: false
 node_js:
-  - '4'
-  - '6'
   - '8'
-  - node
+  - '10'
 git:
   depth: 1
-notifications:
-  irc: 'irc.freenode.org##socket.io'
 matrix:
   include:
     - node_js: node
