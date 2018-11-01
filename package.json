@@ -16,7 +16,7 @@
     "after": "0.8.2",
     "arraybuffer.slice": "~0.0.7",
     "base64-arraybuffer": "0.1.5",
-    "blob": "0.0.4",
+    "blob": "0.0.5",
     "has-binary2": "~1.0.2"
   },
   "scripts": {
