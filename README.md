@@ -213,7 +213,7 @@ Exposed as `eio` in the browser standalone build.
         try websocket. A connection attempt following a transport error will use the
         normal upgrade process. It is recommended you turn this on only when using
         SSL/TLS connections, or if you know that your network does not block websockets.
-      - `pfx` (`String`): Certificate, Private key and CA certificates to use for SSL. Can be used in Node.js client environment to manually specify certificate information.
+      - `pfx` (`String`|`Buffer`): Certificate, Private key and CA certificates to use for SSL. Can be used in Node.js client environment to manually specify certificate information.
       - `key` (`String`): Private key to use for SSL. Can be used in Node.js client environment to manually specify certificate information.
       - `passphrase` (`String`): A string of passphrase for the private key or pfx. Can be used in Node.js client environment to manually specify certificate information.
       - `cert` (`String`): Public x509 certificate to use. Can be used in Node.js client environment to manually specify certificate information.
