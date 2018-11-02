@@ -58,7 +58,6 @@
     "gulp-task-listing": "1.0.1",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
-    "socket.io-browsers": "^1.0.0",
     "webpack": "1.12.12",
     "webpack-stream": "^3.2.0",
     "zuul": "3.11.1",
