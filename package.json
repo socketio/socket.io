@@ -29,7 +29,7 @@
     "base64id": "1.0.0",
     "debug": "~3.1.0",
     "engine.io-parser": "~2.1.0",
-    "ws": "~3.3.1",
+    "ws": "~6.1.0",
     "cookie": "0.3.1"
   },
   "devDependencies": {
