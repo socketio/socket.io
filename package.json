@@ -1,6 +1,6 @@
 {
   "name": "engine.io",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server",
   "main": "lib/engine.io",
   "author": "Guillermo Rauch <guillermo@learnboost.com>",
@@ -35,7 +35,7 @@
   "devDependencies": {
     "babel-eslint": "^8.0.2",
     "babel-preset-es2015": "^6.24.0",
-    "engine.io-client": "3.2.0",
+    "engine.io-client": "3.2.1",
     "eslint": "^4.5.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-import": "^2.7.0",
