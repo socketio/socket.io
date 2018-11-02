@@ -58,7 +58,7 @@ describe('server', function () {
             expect(res.body.code).to.be(0);
             expect(res.body.message).to.be('Transport unknown');
             expect(res.header['access-control-allow-credentials']).to.be('true');
-            expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
+            expect(res.header['access-control-allow-origin']).to.be('*');
             done();
           });
       });
@@ -75,7 +75,7 @@ describe('server', function () {
             expect(res.body.code).to.be(1);
             expect(res.body.message).to.be('Session ID unknown');
             expect(res.header['access-control-allow-credentials']).to.be('true');
-            expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
+            expect(res.header['access-control-allow-origin']).to.be('*');
             done();
           });
       });
@@ -416,7 +416,7 @@ describe('server', function () {
             expect(res.body.code).to.be(3);
             expect(res.body.message).to.be('Bad request');
             expect(res.header['access-control-allow-credentials']).to.be('true');
-            expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
+            expect(res.header['access-control-allow-origin']).to.be('*');
             done();
           });
       });
@@ -932,7 +932,7 @@ describe('server', function () {
     it('should trigger transport close before open for ws', function (done) {
       var opts = { transports: ['websocket'] };
       listen(opts, function (port) {
-        var url = 'ws://%s:%d'.s('0.0.0.50', port);
+        var url = 'ws://%s:%d'.s('0.0.0.0', port);
         var socket = new eioc.Socket(url);
         socket.on('open', function () {
           done(new Error('Test invalidation'));
@@ -2589,7 +2589,7 @@ describe('server', function () {
 
   describe('cors', function () {
     it('should handle OPTIONS requests', function (done) {
-      listen({handlePreflightRequest: true}, function (port) {
+      listen({handlePreflightRequest: true, origins: 'engine.io:*'}, function (port) {
         request.options('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'polling' })
@@ -2599,7 +2599,7 @@ describe('server', function () {
             expect(res.body.code).to.be(2);
             expect(res.body.message).to.be('Bad handshake method');
             expect(res.header['access-control-allow-credentials']).to.be('true');
-            expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
+            expect(res.header['access-control-allow-origin']).to.be('engine.io:*');
             done();
           });
       });
@@ -2624,7 +2624,7 @@ describe('server', function () {
         var headers = {};
         if (req.headers.origin) {
           headers['Access-Control-Allow-Credentials'] = 'true';
-          headers['Access-Control-Allow-Origin'] = req.headers.origin;
+          headers['Access-Control-Allow-Origin'] = '*';
         } else {
           headers['Access-Control-Allow-Origin'] = '*';
         }
@@ -2642,7 +2642,7 @@ describe('server', function () {
             expect(res.status).to.be(200);
             expect(res.body).to.be.empty();
             expect(res.header['access-control-allow-credentials']).to.be('true');
-            expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
+            expect(res.header['access-control-allow-origin']).to.be('*');
             expect(res.header['access-control-allow-methods']).to.be('GET,HEAD,PUT,PATCH,POST,DELETE');
             expect(res.header['access-control-allow-headers']).to.be('origin, content-type, accept');
             done();
