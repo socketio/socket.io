@@ -54,7 +54,7 @@ var packet = {
 encoder.encode(packet, function(encodedPackets) {
   var decoder = new parser.Decoder();
   decoder.on('decoded', function(decodedPacket) {
-    // decodedPacket.type == parser.BINARY_EVENTEVENT
+    // decodedPacket.type == parser.BINARY_EVENT
     // Buffer.isBuffer(decodedPacket.data.i) == true
     // Buffer.isBuffer(decodedPacket.data.j) == true
     // decodedPacket.id == 15
