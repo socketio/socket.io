@@ -94,7 +94,7 @@ HTTP server listening on port `3000`.
 
 ```js
 const server = require('http').createServer();
-sonst io = require('socket.io')(server);
+const io = require('socket.io')(server);
 io.on('connection', client => {
   client.on('event', data => { /* … */ });
   client.on('disconnect', () => { /* … */ });
