@@ -12,7 +12,10 @@ var blobSupported = (function() {
  * Create a blob builder even when vendor prefixes exist
  */
 
-var BlobBuilder = global.BlobBuilder || global.WebKitBlobBuilder || global.MSBlobBuilder || global.MozBlobBuilder;
+var BlobBuilder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
+                  typeof WebKitBlobBuilder !== 'undefined' ? WebKitBlobBuilder :
+                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
+                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder : false;
 var blobBuilderSupported = !!BlobBuilder && !!BlobBuilder.prototype.append && !!BlobBuilder.prototype.getBlob;
 
 require('./parser.js');
@@ -21,7 +24,7 @@ if (!env.browser) {
   require('./buffer.js');
 }
 
-if (global.ArrayBuffer) {
+if (typeof ArrayBuffer !== 'undefined') {
   require('./arraybuffer.js');
 }
 

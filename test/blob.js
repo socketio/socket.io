@@ -1,10 +1,10 @@
 var parser = require('../index.js');
-var expect = require('expect.js');
 var helpers = require('./helpers.js');
-var encode = parser.encode;
-var decode = parser.decode;
 
-var BlobBuilder = global.BlobBuilder || global.WebKitBlobBuilder || global.MSBlobBuilder || global.MozBlobBuilder;
+var BlobBuilder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
+                  typeof WebKitBlobBuilder !== 'undefined' ? WebKitBlobBuilder :
+                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
+                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder : false;
 
 describe('parser', function() {
   it('encodes a Blob', function() {
