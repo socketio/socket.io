@@ -6,8 +6,8 @@ module.exports = {
     library: 'eio',
     libraryTarget: 'umd'
   },
-  externals: {
-    global: glob()
+  node: {
+    Buffer: false
   },
   module: {
     loaders: [{
@@ -20,15 +20,3 @@ module.exports = {
     }]
   }
 };
-
-/**
- * Populates `global`.
- *
- * @api private
- */
-
-function glob () {
-  return 'typeof self !== "undefined" ? self : ' +
-      'typeof window !== "undefined" ? window : ' +
-      'typeof global !== "undefined" ? global : {}';
-}

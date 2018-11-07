@@ -59,7 +59,7 @@ describe('connection', function () {
   });
 
   // no `Worker` on old IE
-  if (global.Worker) {
+  if (typeof Worker !== 'undefined') {
     it('should work in a worker', function (done) {
       var worker = new Worker('/test/support/worker.js');
       var msg = 0;

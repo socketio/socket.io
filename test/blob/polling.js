@@ -18,7 +18,7 @@ describe('blob', function () {
       socket.on('message', function (data) {
         if (typeof data === 'string') return;
 
-        expect(data).to.be.a(global.Blob);
+        expect(data).to.be.a(Blob);
         var fr = new FileReader();
         fr.onload = function () {
           var ab = this.result;

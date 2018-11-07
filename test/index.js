@@ -1,7 +1,9 @@
 require('./support/env');
 
 // whitelist some globals to avoid warnings
-global.___eio = null;
+if (typeof window !== 'undefined') {
+  window.___eio = null;
+}
 
 var Blob = require('blob');
 
@@ -12,7 +14,7 @@ require('./connection');
 require('./transports');
 require('./xmlhttprequest');
 
-if (global.ArrayBuffer) {
+if (typeof ArrayBuffer !== 'undefined') {
   require('./arraybuffer');
 } else {
   require('./binary-fallback');

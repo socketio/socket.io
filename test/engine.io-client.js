@@ -2,7 +2,7 @@
 var expect = require('expect.js');
 var eio = require('../');
 
-var expectedPort = global.location && 'https:' === location.protocol ? '443' : '80';
+var expectedPort = typeof location !== 'undefined' && 'https:' === location.protocol ? '443' : '80';
 
 describe('engine.io-client', function () {
   var open;
