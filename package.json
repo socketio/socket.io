@@ -55,7 +55,7 @@
     "text-blob-builder": "0.0.1",
     "webpack-merge": "4.1.2",
     "webpack-stream": "3.2.0",
-    "zuul": "^3.11.1  ",
+    "zuul": "~3.11.1",
     "zuul-builder-webpack": "^1.2.0",
     "zuul-ngrok": "4.0.0"
   },
