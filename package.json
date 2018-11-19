@@ -35,7 +35,7 @@
   "devDependencies": {
     "babel-eslint": "^8.0.2",
     "babel-preset-es2015": "^6.24.0",
-    "engine.io-client": "3.3.0",
+    "engine.io-client": "https://github.com/socketio/engine.io-client#develop",
     "eslint": "^4.5.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-import": "^2.7.0",
