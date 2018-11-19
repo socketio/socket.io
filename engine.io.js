@@ -1345,7 +1345,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (typeof attachEvent === 'function') {
 	    attachEvent('onunload', unloadHandler);
 	  } else if (typeof addEventListener === 'function') {
-	    addEventListener('beforeunload', unloadHandler, false);
+	    var terminationEvent = 'onpagehide' in self ? 'pagehide' : 'unload';
+	    addEventListener(terminationEvent, unloadHandler, false);
 	  }
 	}
 
@@ -4039,7 +4040,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
 
 	/**
 	 * Module requirements.
@@ -4074,6 +4075,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	function empty() {}
 
 	/**
+	 * Until https://github.com/tc39/proposal-global is shipped.
+	 */
+	function glob() {
+	  return typeof self !== 'undefined' ? self : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : {};
+	}
+
+	/**
 	 * JSONP Polling constructor.
 	 *
 	 * @param {Object} opts.
@@ -4089,8 +4097,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // we do this here (lazily) to avoid unneeded global pollution
 	  if (!callbacks) {
 	    // we need to consider multiple engines in the same page
-	    if (!window.___eio) window.___eio = [];
-	    callbacks = window.___eio;
+	    var global = glob();
+	    callbacks = global.___eio = global.___eio || [];
 	  }
 
 	  // callback identifier
@@ -4271,6 +4279,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.iframe.onload = complete;
 	  }
 	};
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 26 */
