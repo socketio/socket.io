@@ -24,12 +24,12 @@
     "test": "nyc mocha --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.js"
   },
   "dependencies": {
-    "debug": "~3.1.0",
-    "engine.io": "~3.2.0",
+    "debug": "~4.1.0",
+    "engine.io": "~3.3.1",
     "has-binary2": "~1.0.2",
     "socket.io-adapter": "~1.1.0",
-    "socket.io-client": "2.1.1",
-    "socket.io-parser": "~3.2.0"
+    "socket.io-client": "https://github.com/socketio/socket.io-client.git#develop",
+    "socket.io-parser": "~3.3.0"
   },
   "devDependencies": {
     "expect.js": "0.3.1",
