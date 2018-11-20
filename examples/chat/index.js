@@ -6,7 +6,7 @@ var server = require('http').createServer(app);
 var io = require('../..')(server);
 var port = process.env.PORT || 3000;
 
-server.listen(port, function () {
+server.listen(port, () => {
   console.log('Server listening at port %d', port);
 });
 
@@ -17,11 +17,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 var numUsers = 0;
 
-io.on('connection', function (socket) {
+io.on('connection', (socket) => {
   var addedUser = false;
 
   // when the client emits 'new message', this listens and executes
-  socket.on('new message', function (data) {
+  socket.on('new message', (data) => {
     // we tell the client to execute 'new message'
     socket.broadcast.emit('new message', {
       username: socket.username,
@@ -30,7 +30,7 @@ io.on('connection', function (socket) {
   });
 
   // when the client emits 'add user', this listens and executes
-  socket.on('add user', function (username) {
+  socket.on('add user', (username) => {
     if (addedUser) return;
 
     // we store the username in the socket session for this client
@@ -48,21 +48,21 @@ io.on('connection', function (socket) {
   });
 
   // when the client emits 'typing', we broadcast it to others
-  socket.on('typing', function () {
+  socket.on('typing', () => {
     socket.broadcast.emit('typing', {
       username: socket.username
     });
   });
 
   // when the client emits 'stop typing', we broadcast it to others
-  socket.on('stop typing', function () {
+  socket.on('stop typing', () => {
     socket.broadcast.emit('stop typing', {
       username: socket.username
     });
   });
 
   // when the user disconnects.. perform this
-  socket.on('disconnect', function () {
+  socket.on('disconnect', () => {
     if (addedUser) {
       --numUsers;
 
