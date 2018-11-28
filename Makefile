@@ -1,21 +1,20 @@
 
-REPORTER = dot
+help: ## print this message
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-build: socket.io.js
+build: ## update the browser builds
+	@./node_modules/.bin/gulp build
 
-socket.io.js socket.io.min.js: lib/*.js package.json
-	@./node_modules/.bin/gulp
-
-test:
+test: ## run tests either in the browser or in Node.js, based on the `BROWSERS` variable
 	@./node_modules/.bin/gulp test
 
-test-node:
+test-node: ## run tests in Node.js
 	@./node_modules/.bin/gulp test-node
 
-test-zuul:
+test-zuul: ## run tests in the browser
 	@./node_modules/.bin/gulp test-zuul
 
-test-cov:
+test-cov: ## run tests with coverage in Node.js
 	@./node_modules/.bin/gulp test-cov
 
-.PHONY: test
+.PHONY: help test test-node test-zuul test-cov
