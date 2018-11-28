@@ -3,7 +3,8 @@
   "parser": "babel-eslint",
   "env": {
     // Note: mocha env is defined inside test/.eslintrc.json
-    "node": true
+    "node": true,
+    "browser": true
   },
   "rules": {
     "yoda": 0,

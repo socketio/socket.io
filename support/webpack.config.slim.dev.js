@@ -10,8 +10,10 @@ module.exports = {
     filename: 'socket.io.slim.dev.js'
   },
   externals: {
-    global: glob(),
-    json3: 'JSON'
+    global: glob()
+  },
+  node: {
+    Buffer: false
   },
   devtool: 'source-map',
   plugins: [
@@ -23,9 +25,6 @@ module.exports = {
       exclude: /(node_modules|bower_components)/,
       loader: 'babel-loader',
       query: { presets: ['es2015'] }
-    }, {
-      test: /\json3.js/,
-      loader: 'imports?define=>false'
     }, {
       test: /\.js$/,
       loader: 'strip-loader?strip[]=debug'

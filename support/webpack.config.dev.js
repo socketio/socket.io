@@ -10,6 +10,9 @@ module.exports = {
   externals: {
     global: glob()
   },
+  node: {
+    Buffer: false
+  },
   devtool: 'source-map',
   module: {
     loaders: [{
@@ -17,9 +20,6 @@ module.exports = {
       exclude: /(node_modules|bower_components)/,
       loader: 'babel-loader',
       query: { presets: ['es2015'] }
-    }, {
-      test: /\json3.js/,
-      loader: 'imports?define=>false'
     }]
   }
 };
