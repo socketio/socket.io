@@ -228,7 +228,6 @@ to a single process.
       - `maxHttpBufferSize` (`Number`): how many bytes or characters a message
         can be, before closing the session (to avoid DoS). Default
         value is `10E7`.
-      - `origins` (`String`): the allowed origins (`*`)
       - `allowRequest` (`Function`): A function that receives a given handshake
         or upgrade request as its first parameter, and can decide whether to
         continue or not. The second argument is a function that needs to be
