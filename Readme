@@ -1,0 +1,440 @@
+Codecov.md
+ 
+Search or jump to…
+
+Pull requests
+Issues
+Marketplace
+Explore
+ @oscarg933 Sign out
+You are over your private repository plan limit (4 of 0). Please upgrade your plan, make private repositories public, or remove private repositories so that you are within your plan limit.
+Your private repositories have been locked until this is resolved. Thanks for understanding. You can contact support with any questions.
+0
+0 2 oscarg933/NetClean-Complex-Networks-Data-Cleanser
+forked from bt3gl/NetClean-Complex-Networks-Data-Cleanser
+ Code  Issues 0  Pull requests 0  Projects 0  Wiki  Insights  Settings
+ batteryCleanse output files from https://github.com/bt3gl/NetAna-Complex-Network-Analysisbattery
+ 26 commits
+ 1 branch
+ 1 release
+ 2 contributors
+ MIT
+ Python 98.3%	 Shell 1.7%
+ Pull request   Compare This branch is 10 commits ahead of bt3gl:master.
+@oscarg933
+oscarg933 Create Md.Contributions.changelogs
+Latest commit f692b2e  just now
+Type	Name	Latest commit message	Commit time
+.github/ISSUE_TEMPLATE	Update issue templates	9 days ago
+data	all data	5 years ago
+output	checking	5 years ago
+src	more data	5 years ago
+.gitignore	Initial commit	5 years ago
+Deepclean.ros.patch	Create Deepclean.ros.patch	2 days ago
+LICENSE	Initial commit	5 years ago
+Md.Contributions.changelogs	Create Md.Contributions.changelogs	just now
+README.md	Update README.md	9 days ago
+Severity.holmes	Create Severity.holmes	2 days ago
+Veneno.iot	Create Veneno.iot	5 days ago
+_config.yml	Set theme jekyll-theme-time-machine	9 days ago
+run_clean_for_data_ana.sh	more dataq	5 years ago
+veneno.iot	Update veneno.iot	9 days ago
+ README.md
+battery NetClean - Complex Networks Data-Cleanser
+Cleanse and organize the output files from this repository.
+
+To be used in this repository.
+
+1. Cleansing Data
+Here we get all the outputs from MNet Network Analysis and we put together into vector files, separated by sampling groups (for further sampling analysis) and network type. It contains header. Missing values are completed with '-'.
+
+2. Organizing Data
+Here we get all the outputs from MNet Network Analysis and we put together into vector files for each network (all sampling results all together. We also add an additional column for the class. It does not contain the above header. Missing values are completed with '0'.
+
+3. Generating Final Files
+Here we read the vectors files from previous step and create a unique file for all the data.
+
+The file for the entire nets is here. The file "label.data" explain each column.
+
+License
+When making a reference to my work, please use my website.
+
+Creative Commons License
+
+This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
+
+Skip to content
+
+Pull requests Issues Marketplace Explore
+
+Sign out Your account has been flagged. Because of that, your profile is hidden from the public. If you believe this is a mistake, contact support to have your account status reviewed.
+
+Watch 1 Star 0 Fork 212
+
+BlockchainSamples/build-blockchain-insurance-app forked from IBM/build-blockchain-insurance-app Code Pull requests 0 Projects 0 Wiki Insights Open a pull request Create a new pull request by comparing changes across two branches. If you need to, you can also compare across forks.
+
+base fork: BlockchainSamples/build-blockchain-insurance-app base: master head fork: oscarg933/build-blockchain-insurance-app compare: master Able to merge. These branches can be automatically merged.
+
+Write Preview
+
+Attach files by dragging & dropping or selecting them.
+
+Allow edits from maintainers. Learn more Create pull request
+
+9 commits 10 files changed 0 commit comments 1 contributor
+
+Commits on Nov 17, 2018
+
+oscarg933 Create sync.go (IBM#1) Verified
+
+9a4ffbf
+
+oscarg933 Update build_ubuntu.sh (IBM#2) Verified
+
+a8901af
+
+Commits on Nov 21, 2018
+
+oscarg933 Create veneno.iot Verified
+
+8373c23
+
+oscarg933 Update veneno.iot Verified
+
+a17dc9d
+
+oscarg933 Update README-cn.md Verified
+
+7e7f6db
+
+oscarg933 Set theme jekyll-theme-time-machine
+
+eb90899
+
+oscarg933 Update issue templates …
+
+d5b1d71
+
+oscarg933 Update README-ja.md Verified
+
+7fcff9e
+
+oscarg933 Update README.md Verified
+
+281e1d3 Unified Split
+
+Showing 10 changed files with 98 additions and 0 deletions.
+
+Copy path View file
+
+35 .github/ISSUE_TEMPLATE/bug_report.md
+
+@@ -0,0 +1,35 @@
+
+name: Bug report
+
+about: Create a report to help us improve
+
+Describe the bug
+
+A clear and concise description of what the bug is.
+
+To Reproduce
+
+Steps to reproduce the behavior:
+
+Go to '...'
+
+Click on '....'
+
+Scroll down to '....'
+
+See error
+
+Expected behavior
+
+A clear and concise description of what you expected to happen.
+
+Screenshots
+
+If applicable, add screenshots to help explain your problem.
+
+Desktop (please complete the following information):
+
+OS: [e.g. iOS]
+
+Browser [e.g. chrome, safari]
+
+Version [e.g. 22]
+
+Smartphone (please complete the following information):
+
+Device: [e.g. iPhone6]
+
+OS: [e.g. iOS8.1]
+
+Browser [e.g. stock browser, safari]
+
+Version [e.g. 22]
+
+Additional context
+
+Add any other context about the problem here.
+
+Copy path View file
+
+7 .github/ISSUE_TEMPLATE/custom.md
+
+@@ -0,0 +1,7 @@
+
+name: Custom issue template
+
+about: Describe this issue template's purpose here.
+
+Copy path View file
+
+17 .github/ISSUE_TEMPLATE/feature_request.md
+
+@@ -0,0 +1,17 @@
+
+name: Feature request
+
+about: Suggest an idea for this project
+
+Is your feature request related to a problem? Please describe.
+
+A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+
+Describe the solution you'd like
+
+A clear and concise description of what you want to happen.
+
+Describe alternatives you've considered
+
+A clear and concise description of any alternative solutions or features you've considered.
+
+Additional context
+
+Add any other context or screenshots about the feature request here.
+
+Copy path View file
+
+9 README-cn.md
+
+@@ -227,4 +227,13 @@ Police 对等节点可以查看包含盗窃的索赔。如果报告自行车被
+
+./clean.sh
+
+
+
+## 许可 
+
+
+ 
+
+
+https://github.com/Privatix/privatix.git 
+
+
+https://github.com/Privatix/dappctrl.git 
+
+
+https://github.com/Privatix/dapp-installer.git 
+
+
+https://github.com/Privatix/dapp-gui.git 
+
+
+https://github.com/Privatix/dapp-openvpn.git 
+
+
+https://github.com/Privatix/dapp-somc.git 
+
+
+https://github.com/Privatix/dapp-smart-contract.git 
+
+
+https://github.com/Privatix/meetupcode.git 
+
+
+[Apache 2.0](LICENSE) 
+ 
+ 
+ 
+ 
+Copy path 
+View file 
+  
+9 README-ja.md 
+
+
+
+ 
+@@ -221,3 +221,12 @@ http://localhost:3000 のリンクでブラウザでWebアプリケーション
+
+
+License
+Apache 2.0
+
+https://github.com/Privatix/privatix.git
+
+https://github.com/Privatix/dappctrl.git
+
+https://github.com/Privatix/dapp-installer.git
+
+https://github.com/Privatix/dapp-gui.git
+
+https://github.com/Privatix/dapp-openvpn.git
+
+https://github.com/Privatix/dapp-somc.git
+
+https://github.com/Privatix/dapp-smart-contract.git
+
+https://github.com/Privatix/meetupcode.git
+
+Copy path View file
+
+9 README.md
+
+@@ -221,3 +221,12 @@ Following is a list of additional blockchain resources:
+
+
+
+## License 
+
+
+[Apache 2.0](LICENSE) 
+
+
+ 
+
+
+https://github.com/Privatix/privatix.git 
+
+
+https://github.com/Privatix/dappctrl.git 
+
+
+https://github.com/Privatix/dapp-installer.git 
+
+
+https://github.com/Privatix/dapp-gui.git 
+
+
+https://github.com/Privatix/dapp-openvpn.git 
+
+
+https://github.com/Privatix/dapp-somc.git 
+
+
+https://github.com/Privatix/dapp-smart-contract.git 
+
+
+https://github.com/Privatix/meetupcode.git 
+ 
+Copy path 
+View file 
+  
+1 _config.yml 
+
+
+@@ -0,0 +1 @@
+
+
+theme: jekyll-theme-time-machine  
+ 
+Copy path 
+View file 
+  
+1 build_ubuntu.sh 
+ 
+@@ -5,3 +5,4 @@ sh ./ibm_fabric.sh
+
+
+sh ./docker-images.sh 
+
+
+sleep 5 
+
+
+docker-compose up -d 
+
+
+.md 
+ 
+Copy path 
+View file 
+  
+1 sync.go 
+
+
+@@ -0,0 +1 @@
+
+
+�[31m[2017-07-18 10:17:46.784] [ERROR] blockchain_sdk - �[39mdoQuery : Could not parse query response - SyntaxError: Unexpected end of JSON input    at Object.parse (native)    at TransactionContext.<anonymous> (/home/rapidqube/nodemockups/CommercialInsurance/commercialInsurance/src/blockchain/blockchain_sdk.js:413:45)    at emitOne (events.js:96:13)    at TransactionContext.emit (events.js:188:7)    at Object.callback (/home/rapidqube/nodemockups/CommercialInsurance/commercialInsurance/node_modules/hfc/lib/hfc.js:1803:42)    at /home/rapidqube/nodemockups/CommercialInsurance/commercialInsurance/node_modules/grpc/src/node/src/client.js:422:14 
+ 
+Copy path 
+View file 
+  
+9 veneno.iot 
+
+
+@@ -0,0 +1,9 @@
+
+
+https://github.com/oscarg933/privatix.git 
+
+
+https://github.com/Privatix/privatix.git 
+
+
+https://github.com/Privatix/dappctrl.git 
+
+
+https://github.com/Privatix/dapp-installer.git 
+
+
+https://github.com/Privatix/dapp-gui.git 
+
+
+https://github.com/Privatix/dapp-openvpn.git 
+
+
+https://github.com/Privatix/dapp-somc.git 
+
+
+https://github.com/Privatix/dapp-smart-contract.git 
+
+
+https://github.com/Privatix/meetupcode.git 
+        
+
+No commit comments for this range
+© 2018 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+ 
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+
+Press h to open a hovercard with more details. 
+© 2018 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+Press h to open a hovercard with more details.
