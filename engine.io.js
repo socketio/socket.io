@@ -4297,13 +4297,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	var inherit = __webpack_require__(19);
 	var yeast = __webpack_require__(20);
 	var debug = __webpack_require__(21)('engine.io-client:websocket');
+
 	var BrowserWebSocket, NodeWebSocket;
-	if (typeof self === 'undefined') {
+
+	if (typeof WebSocket !== 'undefined') {
+	  BrowserWebSocket = WebSocket;
+	} else if (typeof self !== 'undefined') {
+	  BrowserWebSocket = self.WebSocket || self.MozWebSocket;
+	} else {
 	  try {
 	    NodeWebSocket = __webpack_require__(27);
 	  } catch (e) {}
-	} else {
-	  BrowserWebSocket = self.WebSocket || self.MozWebSocket;
 	}
 
 	/**
@@ -4312,7 +4316,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * interface exposed by `ws` for Node-like environment.
 	 */
 
-	var WebSocket = BrowserWebSocket || NodeWebSocket;
+	var WebSocketImpl = BrowserWebSocket || NodeWebSocket;
 
 	/**
 	 * Module exports.
@@ -4336,7 +4340,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.usingBrowserWebSocket = BrowserWebSocket && !opts.forceNode;
 	  this.protocols = opts.protocols;
 	  if (!this.usingBrowserWebSocket) {
-	    WebSocket = NodeWebSocket;
+	    WebSocketImpl = NodeWebSocket;
 	  }
 	  Transport.call(this, opts);
 	}
@@ -4396,7 +4400,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  try {
-	    this.ws = this.usingBrowserWebSocket && !this.isReactNative ? protocols ? new WebSocket(uri, protocols) : new WebSocket(uri) : new WebSocket(uri, protocols, opts);
+	    this.ws = this.usingBrowserWebSocket && !this.isReactNative ? protocols ? new WebSocketImpl(uri, protocols) : new WebSocketImpl(uri) : new WebSocketImpl(uri, protocols, opts);
 	  } catch (err) {
 	    return this.emit('error', err);
 	  }
@@ -4568,7 +4572,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 
 	WS.prototype.check = function () {
-	  return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
+	  return !!WebSocketImpl && !('__initialize' in WebSocketImpl && this.name === WS.prototype.name);
 	};
 
 /***/ },
