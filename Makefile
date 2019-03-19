@@ -11,4 +11,7 @@ test-node: ## run tests in Node.js
 test-zuul: ## run tests in the browser
 	@./node_modules/zuul/bin/zuul test/index.js
 
+run-benchmarks: ## run the benchmarks
+	node benchmarks/index.js
+
 .PHONY: help test test-node test-zuul
