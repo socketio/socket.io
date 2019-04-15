@@ -1,4 +1,11 @@
 
+1.3.0 / 2018-04-15
+==================
+
+ * removed bower support
+ * expose emitter on `exports`
+ * prevent de-optimization from using `arguments`
+
 1.2.1 / 2016-04-18
 ==================
 
