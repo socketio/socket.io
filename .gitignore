@@ -12,3 +12,4 @@ coverage
 .idea
 dist
 .nyc_output
+xunit.xml

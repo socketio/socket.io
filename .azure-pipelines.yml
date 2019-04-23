@@ -1,0 +1,45 @@
+trigger:
+- master
+- develop
+
+jobs:
+  - job: Tests
+    displayName: Run tests
+    strategy:
+      matrix:
+        linux-node8:
+          imageName: 'ubuntu-16.04'
+          nodeVersion: 8.x
+        linux-node10:
+          imageName: 'ubuntu-16.04'
+          nodeVersion: 10.x
+        mac-node8:
+          imageName: 'macos-10.13'
+          nodeVersion: 8.x
+        mac-node10:
+          imageName: 'macos-10.13'
+          nodeVersion: 10.x
+        windows-node8:
+          imageName: 'vs2017-win2016'
+          nodeVersion: 8.x
+        windows-node10:
+          imageName: 'vs2017-win2016'
+          nodeVersion: 10.x
+    pool:
+      vmImage: $(imageName)
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "$(nodeVersion)"
+        displayName: Use Node
+
+      - script: npm install
+        displayName: Install Dependencies
+
+      - script: npm test
+        displayName: Run Tests
+
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFiles: '**/xunit.xml'
+        condition: succeededOrFailed()
