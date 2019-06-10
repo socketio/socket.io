@@ -29,6 +29,7 @@
     - [namespace.emit(eventName[, ...args])](#namespaceemiteventname-args)
     - [namespace.clients(callback)](#namespaceclientscallback)
     - [namespace.use(fn)](#namespaceusefn)
+    - [namespace.useinterceptor(fn)](#namespaceuseinterceptorfn)
     - [Event: 'connect'](#event-connect)
     - [Event: 'connection'](#event-connect)
     - [Flag: 'volatile'](#flag-volatile)
@@ -42,6 +43,7 @@
     - [socket.request](#socketrequest)
     - [socket.handshake](#sockethandshake)
     - [socket.use(fn)](#socketusefn)
+    - [socket.useinterceptor(fn)](#socketuseinterceptorfn)
     - [socket.send([...args][, ack])](#socketsendargs-ack)
     - [socket.emit(eventName[, ...args][, ack])](#socketemiteventname-args-ack)
     - [socket.on(eventName, callback)](#socketoneventname-callback)
@@ -472,6 +474,22 @@ io.use((socket, next) => {
 });
 ```
 
+#### namespace.useinterceptor(fn)
+
+  - `fn` _(Function)_
+
+Registers a middleware, which is a function that gets executed for every outgoing message that was initiated via `emit`, and receives as parameters the packet and a function to optionally defer execution to the next registered middleware.
+
+Errors passed to middleware callbacks are sent as special `error` packets to clients.
+
+```js
+io.useinterceptor((packet, next) => {
+  let authenticated = checkAuth();
+  if (authenticated) return next();
+  next(new Error('Authentication error'));
+});
+```
+
 #### Event: 'connect'
 
   - `socket` _(Socket)_ socket connection with client
@@ -612,6 +630,22 @@ io.on('connection', (socket) => {
     if (packet.doge === true) return next();
     next(new Error('Not a doge error'));
   });
+});
+```
+
+#### socket.useinterceptor(fn)
+
+  - `fn` _(Function)_
+
+Registers a middleware, which is a function that gets executed for every outgoing message that was initiated via `emit`, and receives as parameters the packet and a function to optionally defer execution to the next registered middleware.
+
+Errors passed to middleware callbacks are sent as special `error` packets to clients.
+
+```js
+io.useinterceptor((packet, next) => {
+  let authenticated = checkAuth();
+  if (authenticated) return next();
+  next(new Error('Authentication error'));
 });
 ```
 
