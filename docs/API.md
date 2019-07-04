@@ -78,7 +78,7 @@ Exposed by `require('socket.io')`.
     - `path` _(String)_: name of the path to capture (`/socket.io`)
     - `serveClient` _(Boolean)_: whether to serve the client files (`true`)
     - `adapter` _(Adapter)_: the adapter to use. Defaults to an instance of the `Adapter` that ships with socket.io which is memory based. See [socket.io-adapter](https://github.com/socketio/socket.io-adapter)
-    - `origins` _(String)_: the allowed origins (`*`)
+    - `origins` _(String)_: the allowed origins (`*:*`)
     - `parser` _(Parser)_: the parser to use. Defaults to an instance of the `Parser` that ships with socket.io. See [socket.io-parser](https://github.com/socketio/socket.io-parser).
 
 Works with and without `new`:
