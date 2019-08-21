@@ -27,7 +27,11 @@ let server4 = io(3004, {
 
 let string = [];
 let numeric = [];
+<<<<<<< HEAD
 let binary = new Buffer(1e3);
+=======
+let binary = new Buffer.alloc(1e3);
+>>>>>>> e210a60... fix: Buffer() is deprecated
 for (var i = 0; i < 1e3; i++) {
   string.push('' + i);
   numeric.push(i);

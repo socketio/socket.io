@@ -1496,7 +1496,11 @@ describe('socket.io', function(){
             expect(Buffer.isBuffer(buf)).to.be(true);
             fn(1, 2);
           });
+<<<<<<< HEAD
           socket.emit('woot', new Buffer(3), function(a, b){
+=======
+          socket.emit('woot', new Buffer.alloc(3), function(a, b){
+>>>>>>> e210a60... fix: Buffer() is deprecated
             expect(a).to.be(1);
             expect(b).to.be(2);
             done();
@@ -1515,7 +1519,11 @@ describe('socket.io', function(){
             expect(Buffer.isBuffer(a)).to.be(true);
             fn();
           });
+<<<<<<< HEAD
           s.emit('hi', new Buffer(4), function(){
+=======
+          s.emit('hi', new Buffer.alloc(4), function(){
+>>>>>>> e210a60... fix: Buffer() is deprecated
             done();
           });
         });
@@ -1529,7 +1537,11 @@ describe('socket.io', function(){
         var socket = client(srv);
         sio.on('connection', function(s){
           socket.on('hi', function(fn){
+<<<<<<< HEAD
             fn(new Buffer(1));
+=======
+            fn(new Buffer.alloc(1));
+>>>>>>> e210a60... fix: Buffer() is deprecated
           });
           s.emit('hi', function(a){
             expect(Buffer.isBuffer(a)).to.be(true);
@@ -1546,7 +1558,11 @@ describe('socket.io', function(){
         var socket = client(srv);
         sio.on('connection', function(s){
           s.on('woot', function(fn){
+<<<<<<< HEAD
             fn(new Buffer(2));
+=======
+            fn(new Buffer.alloc(2));
+>>>>>>> e210a60... fix: Buffer() is deprecated
           });
           socket.emit('woot', function(a){
             expect(Buffer.isBuffer(a)).to.be(true);
@@ -1899,7 +1915,11 @@ describe('socket.io', function(){
         });
 
         function emit(){
+<<<<<<< HEAD
           sio.emit('bin', new Buffer(10));
+=======
+          sio.emit('bin', new Buffer.alloc(10));
+>>>>>>> e210a60... fix: Buffer() is deprecated
         }
       });
     });
@@ -2083,8 +2103,13 @@ describe('socket.io', function(){
             socket.join(room, fn);
           });
           socket.on('broadcast', function(){
+<<<<<<< HEAD
             socket.broadcast.to('test').emit('bin', new Buffer(5));
             socket.emit('bin2', new Buffer(5));
+=======
+            socket.broadcast.to('test').emit('bin', new Buffer.alloc(5));
+            socket.emit('bin2', new Buffer.alloc(5));
+>>>>>>> e210a60... fix: Buffer() is deprecated
           });
         });
       });

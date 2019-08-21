@@ -14,7 +14,11 @@ They are tested with various payloads:
 
 - string: `['1', '2', ... '1000']`
 - numeric: `[1, 2, ... 1000]`
+<<<<<<< HEAD
 - binary: `new Buffer(1000), where buf[i] = i`
+=======
+- binary: `new Buffer.alloc(1000), where buf[i] = i`
+>>>>>>> e210a60... fix: Buffer() is deprecated
 
 ## How to use
 

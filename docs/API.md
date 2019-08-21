@@ -635,7 +635,11 @@ Emits an event to the socket identified by the string name. Any other parameters
 
 ```js
 socket.emit('hello', 'world');
+<<<<<<< HEAD
 socket.emit('with-binary', 1, '2', { 3: '4', 5: new Buffer(6) });
+=======
+socket.emit('with-binary', 1, '2', { 3: '4', 5: new Buffer.alloc(6) });
+>>>>>>> e210a60... fix: Buffer() is deprecated
 ```
 
 The `ack` argument is optional and will be called with the client's answer.
