@@ -437,10 +437,11 @@ export class Server extends EventEmitter {
     // Per the standard, ETags must be quoted:
     // https://tools.ietf.org/html/rfc7232#section-2.3
     const expectedEtag = '"' + clientVersion + '"';
+    const weakEtag = "W/" + expectedEtag;
 
     const etag = req.headers["if-none-match"];
     if (etag) {
-      if (expectedEtag == etag) {
+      if (expectedEtag === etag || weakEtag === etag) {
         debug("serve client %s 304", type);
         res.writeHead(304);
         res.end();

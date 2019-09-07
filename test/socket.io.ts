@@ -128,6 +128,19 @@ describe("socket.io", () => {
           });
       });
 
+      it("should handle 304", (done) => {
+        const srv = createServer();
+        new Server(srv);
+        request(srv)
+          .get("/socket.io/socket.io.js")
+          .set("If-None-Match", 'W/"' + clientVersion + '"')
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.statusCode).to.be(304);
+            done();
+          });
+      });
+
       it("should not serve static files", (done) => {
         const srv = createServer();
         new Server(srv, { serveClient: false });
