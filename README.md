@@ -196,6 +196,7 @@ Exposed as `eio` in the browser standalone build.
         will be used instead.
       - `forceBase64` (`Boolean`): forces base 64 encoding for polling transport even when XHR2 responseType is available and WebSocket even if the used standard supports binary.
       - `enablesXDR` (`Boolean`): enables XDomainRequest for IE8 to avoid loading bar flashing with click sound. default to `false` because XDomainRequest has a flaw of not sending cookie.
+      - `withCredentials` (`Boolean`): defaults to `true`, whether to include credentials (cookies, authorization headers, TLS client certificates, etc.) with cross-origin XHR polling requests.
       - `timestampRequests` (`Boolean`): whether to add the timestamp with each
         transport request. Note: polling requests are always stamped unless this
         option is explicitly set to `false` (`false`)
