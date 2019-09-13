@@ -104,7 +104,7 @@ module.exports = function(parser) {
 
         it('should encode a message packet coercing to string', function (done) {
           encode({ type: 'message', data: 1 }, function(data) {
-            expect(decode(data)).to.eql({ type: 'message', data: 1 });
+            expect(decode(data)).to.eql({ type: 'message', data: '1' });
             done();
           });
         });
