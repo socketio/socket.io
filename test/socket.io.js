@@ -182,6 +182,19 @@ describe('socket.io', function(){
         });
       });
 
+      it('should handle 304 from weak etag', function(done){
+        var srv = http();
+        io(srv);
+        request(srv)
+            .get('/socket.io/socket.io.js')
+            .set('If-None-Match', 'W/"' + clientVersion + '"')
+            .end(function(err, res){
+              if (err) return done(err);
+              expect(res.statusCode).to.be(304);
+              done();
+            });
+      });
+
       it('should not serve static files', function(done){
         var srv = http();
         io(srv, { serveClient: false });
