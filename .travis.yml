@@ -1,9 +1,7 @@
 language: node_js
 node_js:
-  - '4'
-  - '6'
   - '8'
-  - node
+  - '10'
 sudo: false
 git:
   depth: 1
@@ -11,7 +9,7 @@ notifications:
   irc: 'irc.freenode.org#socket.io'
 matrix:
   include:
-    - node_js: node
+    - node_js: '10'
       env: BROWSERS=1
 cache:
   directories:
