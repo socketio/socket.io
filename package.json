@@ -1,6 +1,6 @@
 {
   "name": "socket.io-client",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "keywords": [
     "realtime",
     "framework",
@@ -49,7 +49,7 @@
     "imports-loader": "^0.7.1",
     "istanbul": "^0.4.5",
     "mocha": "^3.3.0",
-    "socket.io": "2.2.0",
+    "socket.io": "2.3.0",
     "socket.io-browsers": "^1.0.0",
     "strip-loader": "0.1.2",
     "text-blob-builder": "0.0.1",

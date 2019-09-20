@@ -1,6 +1,6 @@
 /*!
- * Socket.IO v2.2.0
- * (c) 2014-2018 Guillermo Rauch
+ * Socket.IO v2.3.0
+ * (c) 2014-2019 Guillermo Rauch
  * Released under the MIT License.
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -1727,6 +1727,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.jsonp = false !== opts.jsonp;
 	  this.forceBase64 = !!opts.forceBase64;
 	  this.enablesXDR = !!opts.enablesXDR;
+	  this.withCredentials = false !== opts.withCredentials;
 	  this.timestampParam = opts.timestampParam || 't';
 	  this.timestampRequests = opts.timestampRequests;
 	  this.transports = opts.transports || ['polling', 'websocket'];
@@ -1844,6 +1845,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    jsonp: options.jsonp || this.jsonp,
 	    forceBase64: options.forceBase64 || this.forceBase64,
 	    enablesXDR: options.enablesXDR || this.enablesXDR,
+	    withCredentials: options.withCredentials || this.withCredentials,
 	    timestampRequests: options.timestampRequests || this.timestampRequests,
 	    timestampParam: options.timestampParam || this.timestampParam,
 	    policyPort: options.policyPort || this.policyPort,
@@ -2615,6 +2617,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  opts.agent = this.agent || false;
 	  opts.supportsBinary = this.supportsBinary;
 	  opts.enablesXDR = this.enablesXDR;
+	  opts.withCredentials = this.withCredentials;
 	
 	  // SSL options for Node.js client
 	  opts.pfx = this.pfx;
@@ -2688,6 +2691,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.isBinary = opts.isBinary;
 	  this.supportsBinary = opts.supportsBinary;
 	  this.enablesXDR = opts.enablesXDR;
+	  this.withCredentials = opts.withCredentials;
 	  this.requestTimeout = opts.requestTimeout;
 	
 	  // SSL options for Node.js client
@@ -2762,7 +2766,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    // ie6 check
 	    if ('withCredentials' in xhr) {
-	      xhr.withCredentials = true;
+	      xhr.withCredentials = this.withCredentials;
 	    }
 	
 	    if (this.requestTimeout) {
@@ -2781,7 +2785,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (xhr.readyState === 2) {
 	          try {
 	            var contentType = xhr.getResponseHeader('Content-Type');
-	            if (self.supportsBinary && contentType === 'application/octet-stream') {
+	            if (self.supportsBinary && contentType === 'application/octet-stream' || contentType === 'application/octet-stream; charset=UTF-8') {
 	              xhr.responseType = 'arraybuffer';
 	            }
 	          } catch (e) {}
@@ -2793,7 +2797,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          // make sure the `error` event handler that's user-set
 	          // does not throw in the same tick and gets caught here
 	          setTimeout(function () {
-	            self.onError(xhr.status);
+	            self.onError(typeof xhr.status === 'number' ? xhr.status : 0);
 	          }, 0);
 	        }
 	      };
@@ -2893,7 +2897,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    try {
 	      contentType = this.xhr.getResponseHeader('Content-Type');
 	    } catch (e) {}
-	    if (contentType === 'application/octet-stream') {
+	    if (contentType === 'application/octet-stream' || contentType === 'application/octet-stream; charset=UTF-8') {
 	      data = this.xhr.response || this.xhr.responseText;
 	    } else {
 	      data = this.xhr.responseText;
@@ -3240,6 +3244,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.agent = opts.agent || false;
 	  this.socket = opts.socket;
 	  this.enablesXDR = opts.enablesXDR;
+	  this.withCredentials = opts.withCredentials;
 	
 	  // SSL options for Node.js client
 	  this.pfx = opts.pfx;
@@ -4929,13 +4934,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	var inherit = __webpack_require__(27);
 	var yeast = __webpack_require__(28);
 	var debug = __webpack_require__(3)('engine.io-client:websocket');
+	
 	var BrowserWebSocket, NodeWebSocket;
-	if (typeof self === 'undefined') {
+	
+	if (typeof WebSocket !== 'undefined') {
+	  BrowserWebSocket = WebSocket;
+	} else if (typeof self !== 'undefined') {
+	  BrowserWebSocket = self.WebSocket || self.MozWebSocket;
+	}
+	
+	if (typeof window === 'undefined') {
 	  try {
 	    NodeWebSocket = __webpack_require__(31);
 	  } catch (e) { }
-	} else {
-	  BrowserWebSocket = self.WebSocket || self.MozWebSocket;
 	}
 	
 	/**
@@ -4944,7 +4955,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * interface exposed by `ws` for Node-like environment.
 	 */
 	
-	var WebSocket = BrowserWebSocket || NodeWebSocket;
+	var WebSocketImpl = BrowserWebSocket || NodeWebSocket;
 	
 	/**
 	 * Module exports.
@@ -4968,7 +4979,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.usingBrowserWebSocket = BrowserWebSocket && !opts.forceNode;
 	  this.protocols = opts.protocols;
 	  if (!this.usingBrowserWebSocket) {
-	    WebSocket = NodeWebSocket;
+	    WebSocketImpl = NodeWebSocket;
 	  }
 	  Transport.call(this, opts);
 	}
@@ -5028,7 +5039,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	
 	  try {
-	    this.ws = this.usingBrowserWebSocket && !this.isReactNative ? (protocols ? new WebSocket(uri, protocols) : new WebSocket(uri)) : new WebSocket(uri, protocols, opts);
+	    this.ws =
+	      this.usingBrowserWebSocket && !this.isReactNative
+	        ? protocols
+	          ? new WebSocketImpl(uri, protocols)
+	          : new WebSocketImpl(uri)
+	        : new WebSocketImpl(uri, protocols, opts);
 	  } catch (err) {
 	    return this.emit('error', err);
 	  }
@@ -5201,7 +5217,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	
 	WS.prototype.check = function () {
-	  return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
+	  return !!WebSocketImpl && !('__initialize' in WebSocketImpl && this.name === WS.prototype.name);
 	};
 
 
