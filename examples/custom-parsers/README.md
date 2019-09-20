@@ -14,7 +14,7 @@ They are tested with various payloads:
 
 - string: `['1', '2', ... '1000']`
 - numeric: `[1, 2, ... 1000]`
-- binary: `new Buffer(1000), where buf[i] = i`
+- binary: `Buffer.allocUnsafe(1000), where buf[i] = i`
 
 ## How to use
 

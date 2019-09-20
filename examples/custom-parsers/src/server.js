@@ -27,7 +27,7 @@ let server4 = io(3004, {
 
 let string = [];
 let numeric = [];
-let binary = new Buffer(1e3);
+let binary = Buffer.allocUnsafe(1e3);
 for (var i = 0; i < 1e3; i++) {
   string.push('' + i);
   numeric.push(i);
