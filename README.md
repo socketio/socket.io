@@ -14,7 +14,7 @@
 
 A standalone build of `socket.io-client` is exposed automatically by the
 socket.io server as `/socket.io/socket.io.js`. Alternatively you can
-serve the file `socket.io.js` found in the `dist` folder.
+serve the file `socket.io.js` found in the `dist` folder or include it via [CDN](https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js).
 
 ```html
 <script src="/socket.io/socket.io.js"></script>
