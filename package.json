@@ -12,7 +12,7 @@
     "is-buffer.js"
   ],
   "dependencies": {
-    "debug": "~3.1.0",
+    "debug": "~4.1.0",
     "component-emitter": "1.2.1",
     "isarray": "2.0.1"
   },
