@@ -17,7 +17,7 @@ module.exports = {
   module: {
     loaders: [{
       test: /\.js$/,
-      exclude: /(node_modules|bower_components)/,
+      include: /debug/,
       loader: 'babel-loader',
       query: { presets: ['es2015'] }
     }]
