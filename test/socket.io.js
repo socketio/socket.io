@@ -1621,8 +1621,25 @@ describe('socket.io', function(){
         expect(s.handshake.query.key2).to.be('&=bb');
         done();
       });
+    });
 
+    it('should see the query options sent in the Socket.IO handshake (specific to the given socket)', (done) => {
+      const srv = http();
+      const sio = io(srv);
+      const socket = client(srv, '/namespace',{ query: { key1: 'a', key2: 'b' }}); // manager-specific query option
+      socket.query = { key2: 'c' }; // socket-specific query option
 
+      const success = () => {
+        sio.close();
+        socket.close();
+        done();
+      }
+
+      sio.of('/namespace').on('connection', (s) => {
+        expect(s.handshake.query.key1).to.be('a'); // in the query params
+        expect(s.handshake.query.key2).to.be('c'); // in the Socket.IO handshake
+        success();
+      });
     });
 
     it('should handle very large json', function(done){
