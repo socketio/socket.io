@@ -4,6 +4,7 @@ var app = express();
 var path = require('path');
 var server = require('http').createServer(app);
 var io = require('../..')(server);
+var redis = require('socket.io-redis');
 var port = process.env.PORT || 3000;
 
 server.listen(port, () => {
@@ -16,6 +17,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Chatroom
 
 var numUsers = 0;
+
+// Adapting Redis
+io.adapter(redis({ host: 'localhost', port: 6379 }));
 
 io.on('connection', (socket) => {
   var addedUser = false;

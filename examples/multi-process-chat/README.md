@@ -8,12 +8,12 @@ A simple chat demo for socket.io
 ```
 $ cd socket.io
 $ npm install
-$ cd examples/chat
+$ cd examples/multi-process-chat
 $ npm install
 $ npm start
 ```
 
-And point your browser to `http://localhost:3000`. Optionally, specify
+And point your browser to `http://localhost:8080`. Optionally, specify
 a port by supplying the `PORT` env variable.
 
 ## Features

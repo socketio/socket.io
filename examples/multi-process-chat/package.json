@@ -1,13 +1,14 @@
 {
-  "name": "socket.io-chat",
+  "name": "socket.io-multi-process-chat",
   "version": "0.0.0",
-  "description": "A simple chat client using socket.io",
+  "description": "A simple multi process chat client using socket.io & redis",
   "main": "index.js",
-  "author": "Grant Timmerman",
+  "author": "DOZAKA",
   "private": true,
   "license": "BSD",
   "dependencies": {
-    "express": "4.13.4"
+    "express": "4.13.4",
+    "socket.io-redis": "^5.2.0"
   },
   "scripts": {
     "start": "node index.js"
