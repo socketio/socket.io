@@ -8,6 +8,7 @@ lib-cov
 *.pid
 benchmarks/*.png
 node_modules
+package-lock.json
 coverage
 .idea
 dist
