@@ -384,7 +384,7 @@ The hash of `Socket` objects that are connected to this namespace, indexed by `i
 
   * _(Adapter)_
 
-The `Adapter` used for the namespace. Useful when using the `Adapter` based on [Redis](https://github.com/socketio/socket.io-redis), as it exposes methods to manage sockets and rooms accross your cluster.
+The `Adapter` used for the namespace. Useful when using the `Adapter` based on [Redis](https://github.com/socketio/socket.io-redis), as it exposes methods to manage sockets and rooms across your cluster.
 
 **Note:** the adapter of the main namespace can be accessed with `io.of('/').adapter`.
 
