@@ -23,7 +23,8 @@ $(function() {
   var lastTypingTime;
   var $currentInput = $usernameInput.focus();
 
-  var socket = io('https://redistest.gabia.io', {transports: [ 'websocket' ]});
+  // TODO - Change your url
+  var socket = io('URL', {transports: [ 'websocket' ]});
 
   const addParticipantsMessage = (data) => {
     var message = '';
