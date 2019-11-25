@@ -74,8 +74,8 @@ Adapter.prototype.addAll = function(id, rooms, fn){
  */
 
 Adapter.prototype.del = function(id, room, fn){
-  this.sids[id] = this.sids[id] || {};
-  delete this.sids[id][room];
+  if (this.sids[id]) delete this.sids[id][room];
+
   if (this.rooms.hasOwnProperty(room)) {
     this.rooms[room].del(id);
     if (this.rooms[room].length === 0) delete this.rooms[room];
