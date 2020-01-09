@@ -5,3 +5,5 @@ components
 /coverage
 npm-debug.log
 .idea
+dist/
+test/support/public/engine.io.js

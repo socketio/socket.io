@@ -6,10 +6,11 @@ var join = require('path').join;
 var http = require('http').Server(app);
 var server = require('engine.io').attach(http, {'pingInterval': 500});
 var webpack = require('webpack');
+const path = require('path');
 
 var webpackConfig = require('../../support/webpack.config.js');
 
-webpackConfig.output.path = 'test/support/public';
+webpackConfig.output.path = path.resolve(__dirname, 'public');
 
 webpack(webpackConfig, function (err, stats) {
   if (err) console.log(err);
