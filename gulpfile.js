@@ -37,7 +37,7 @@ const FILES_TO_CLEAN = [
   'test/support/public/engine.io.js'
 ];
 
-gulp.task('test', ['lint'], function () {
+gulp.task('test', [], function () {
   if (process.env.hasOwnProperty('BROWSERS')) {
     return testZuul();
   } else {

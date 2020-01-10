@@ -1,1 +1,1 @@
-require('./polling-xhr.js');
+require("./polling-xhr.js");
