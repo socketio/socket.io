@@ -1,12 +1,12 @@
-var expect = require('expect.js');
-var eio = require('../');
-var env = require('./support/env');
+const expect = require('expect.js');
+const Socket = require('../').Socket;
+const env = require('./support/env');
 
 describe('connection', function () {
   this.timeout(20000);
 
   it('should connect to localhost', function (done) {
-    var socket = new eio.Socket();
+    const socket = new Socket();
     socket.on('open', function () {
       socket.on('message', function (data) {
         expect(data).to.equal('hi');
@@ -17,7 +17,7 @@ describe('connection', function () {
   });
 
   it('should receive multibyte utf-8 strings with polling', function (done) {
-    var socket = new eio.Socket();
+    const socket = new Socket();
     socket.on('open', function () {
       socket.send('cash money €€€');
       socket.on('message', function (data) {
@@ -30,7 +30,7 @@ describe('connection', function () {
   });
 
   it('should receive emoji', function (done) {
-    var socket = new eio.Socket();
+    const socket = new Socket();
     socket.on('open', function () {
       socket.send('\uD800\uDC00-\uDB7F\uDFFF\uDB80\uDC00-\uDBFF\uDFFF\uE000-\uF8FF');
       socket.on('message', function (data) {
@@ -43,7 +43,7 @@ describe('connection', function () {
   });
 
   it('should not send packets if socket closes', function (done) {
-    var socket = new eio.Socket();
+    const socket = new Socket();
     socket.on('open', function () {
       var noPacket = true;
       socket.on('packetCreate', function () {
@@ -88,7 +88,7 @@ describe('connection', function () {
   }
 
   it('should not connect at all when JSONP forced and disabled', function (done) {
-    var socket = eio.Socket({ transports: ['polling'], forceJSONP: true, jsonp: false });
+    const socket = new Socket({ transports: ['polling'], forceJSONP: true, jsonp: false });
     socket.on('error', function (msg) {
       expect(msg).to.be('No transports available');
       done();
@@ -97,7 +97,7 @@ describe('connection', function () {
 
   if (env.wsSupport && !env.isOldSimulator && !env.isAndroid && !env.isIE11) {
     it('should connect with ws when JSONP forced and disabled', function (done) {
-      var socket = eio.Socket({ transports: ['polling', 'websocket'], forceJSONP: true, jsonp: false });
+      const socket = new Socket({ transports: ['polling', 'websocket'], forceJSONP: true, jsonp: false });
 
       socket.on('open', function () {
         expect(socket.transport.name).to.be('websocket');
@@ -107,7 +107,7 @@ describe('connection', function () {
     });
 
     it('should defer close when upgrading', function (done) {
-      var socket = new eio.Socket();
+      const socket = new Socket();
       socket.on('open', function () {
         var upgraded = false;
         socket.on('upgrade', function () {
@@ -123,7 +123,7 @@ describe('connection', function () {
     });
 
     it('should close on upgradeError if closing is deferred', function (done) {
-      var socket = new eio.Socket();
+      const socket = new Socket();
       socket.on('open', function () {
         var upgradeError = false;
         socket.on('upgradeError', function () {
@@ -140,7 +140,7 @@ describe('connection', function () {
     });
 
     it('should not send packets if closing is deferred', function (done) {
-      var socket = new eio.Socket();
+      const socket = new Socket();
       socket.on('open', function () {
         var noPacket = true;
         socket.on('upgrading', function () {
@@ -158,7 +158,7 @@ describe('connection', function () {
     });
 
     it('should send all buffered packets if closing is deferred', function (done) {
-      var socket = new eio.Socket();
+      const socket = new Socket();
       socket.on('open', function () {
         socket.on('upgrading', function () {
           socket.send('hi');
