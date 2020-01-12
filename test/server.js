@@ -315,6 +315,36 @@ describe("server", function() {
       });
     });
 
+    it("should register a new client with custom id (with a Promise)", function(done) {
+      const engine = listen({ allowUpgrades: false }, port => {
+        const customId = "CustomId" + Date.now();
+
+        engine.generateId = function() {
+          return Promise.resolve(customId);
+        };
+
+        const socket = new eioc.Socket("ws://localhost:%d".s(port));
+        socket.once("open", () => {
+          expect(socket.id).to.be(customId);
+          expect(engine.clients[customId].id).to.be(customId);
+          done();
+        });
+      });
+    });
+
+    it("should disallow connection that are rejected by `generateId`", function(done) {
+      const engine = listen({ allowUpgrades: false }, port => {
+        engine.generateId = () => {
+          return Promise.reject(new Error("nope"));
+        };
+
+        const socket = new eioc.Socket("ws://localhost:%d".s(port));
+        socket.on("error", () => {
+          done();
+        });
+      });
+    });
+
     it("should exchange handshake data", function(done) {
       listen({ allowUpgrades: false }, function(port) {
         var socket = new eioc.Socket("ws://localhost:%d".s(port));
