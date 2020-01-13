@@ -6,10 +6,17 @@
   "main": "lib/index.js",
   "homepage": "https://github.com/socketio/engine.io-parser",
   "devDependencies": {
+    "@babel/core": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "babel-eslint": "^10.0.3",
+    "babelify": "^10.0.0",
     "benchmark": "^2.1.4",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
     "expect.js": "0.3.1",
     "mocha": "^5.2.0",
-    "socket.io-browsers": "^1.0.2",
+    "prettier": "^1.19.1",
+    "socket.io-browsers": "^1.0.4",
     "zuul": "3.11.1",
     "zuul-ngrok": "4.0.0"
   },
@@ -21,7 +28,10 @@
     "has-binary2": "~1.0.2"
   },
   "scripts": {
-    "test": "make test"
+    "test": "npm run lint && npm run format:check && make test",
+    "format:check": "prettier --check 'lib/**/*.js' 'test/**/*.js'",
+    "format:fix": "prettier --write 'lib/**/*.js' 'test/**/*.js'",
+    "lint": "eslint 'lib/**/*.js' 'test/**/*.js'"
   },
   "repository": {
     "type": "git",

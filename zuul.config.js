@@ -7,6 +7,7 @@ var zuulConfig = module.exports = {
 
   // test on localhost by default
   local: true,
+  open: true,
 
   concurrency: 2, // ngrok only accepts two tunnels by default
   // if browser does not sends output in 120s since last output:
@@ -23,6 +24,14 @@ if (process.env.CI === 'true') {
     type: 'ngrok',
     bind_tls: true
   };
+  zuulConfig.browserify = [
+    {
+      transform: {
+        name: "babelify",
+        presets: ["@babel/preset-env"]
+      }
+    }
+  ]
 }
 
 var isPullRequest = process.env.TRAVIS_PULL_REQUEST && process.env.TRAVIS_PULL_REQUEST !== 'false';
