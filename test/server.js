@@ -17,11 +17,6 @@ var expect = require("expect.js");
 var request = require("superagent");
 var cookieMod = require("cookie");
 
-// are we running on node < 4.4.3 ?
-var NODE_LT_443 = (function() {
-  var parts = process.versions.node.split(".");
-  return parts[0] < 4 || parts[1] < 4 || parts[2] < 3;
-})();
 // are we running uws wsEngine ?
 var UWS_ENGINE = process.env.EIO_WS_ENGINE === "uws";
 
@@ -1769,7 +1764,6 @@ describe("server", function() {
     });
 
     it("should send and receive data with key and cert (polling)", function(done) {
-      if (UWS_ENGINE && NODE_LT_443) return done();
       var srvOpts = {
         key: fs.readFileSync("test/fixtures/server.key"),
         cert: fs.readFileSync("test/fixtures/server.crt"),
@@ -1810,7 +1804,6 @@ describe("server", function() {
     });
 
     it("should send and receive data with ca when not requiring auth (polling)", function(done) {
-      if (UWS_ENGINE && NODE_LT_443) return done();
       var srvOpts = {
         key: fs.readFileSync("test/fixtures/server.key"),
         cert: fs.readFileSync("test/fixtures/server.crt"),
@@ -1849,6 +1842,9 @@ describe("server", function() {
     });
 
     it("should send and receive data with key and cert (ws)", function(done) {
+      if (UWS_ENGINE) {
+        return this.skip();
+      }
       var srvOpts = {
         key: fs.readFileSync("test/fixtures/server.key"),
         cert: fs.readFileSync("test/fixtures/server.crt"),
@@ -1889,7 +1885,6 @@ describe("server", function() {
     });
 
     it("should send and receive data with pfx (polling)", function(done) {
-      if (UWS_ENGINE && NODE_LT_443) return done();
       var srvOpts = {
         key: fs.readFileSync("test/fixtures/server.key"),
         cert: fs.readFileSync("test/fixtures/server.crt"),
@@ -1929,7 +1924,9 @@ describe("server", function() {
     });
 
     it("should send and receive data with pfx (ws)", function(done) {
-      if (UWS_ENGINE && NODE_LT_443) return done();
+      if (UWS_ENGINE) {
+        return this.skip();
+      }
       var srvOpts = {
         key: fs.readFileSync("test/fixtures/server.key"),
         cert: fs.readFileSync("test/fixtures/server.crt"),

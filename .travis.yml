@@ -2,7 +2,9 @@ sudo: false
 language: node_js
 node_js:
   - "8"
-  - "9"
+  - "10"
+  - "12"
+  - "13"
 git:
   depth: 1
 notifications:
