@@ -29,12 +29,12 @@
     "base64id": "2.0.0",
     "cookie": "0.3.1",
     "debug": "~4.1.0",
-    "engine.io-parser": "~2.2.0",
+    "engine.io-parser": "git+https://github.com/socketio/engine.io-parser.git#v4",
     "ws": "^7.1.2"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.2",
-    "engine.io-client": "3.4.0",
+    "engine.io-client": "git+https://github.com/socketio/engine.io-client.git#v4",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^6.9.0",
     "expect.js": "^0.3.1",
