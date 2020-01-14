@@ -155,9 +155,8 @@ describe("parser", function() {
     for (let i = 0; i < arrayBuffer.byteLength; i++) dataview.setInt8(i, 4 - i);
 
     const decoded = decode(arrayBuffer, "arraybuffer");
-    const expectedOutput = arrayBuffer.slice(1);
-    expect(decoded).to.eql({ type: "message", data: expectedOutput });
-    expect(new Uint8Array(decoded.data)).to.eql(new Uint8Array(expectedOutput));
+    expect(decoded).to.eql({ type: "message", data: arrayBuffer });
+    expect(new Uint8Array(decoded.data)).to.eql(new Uint8Array(arrayBuffer));
   });
 
   it("should decode an ArrayBuffer without specifying binaryType", function() {
@@ -166,7 +165,7 @@ describe("parser", function() {
     for (let i = 0; i < buffer.byteLength; i++) dataview.setInt8(i, 4 - i);
 
     const decoded = decode(buffer);
-    const expectedOutput = Buffer.from([3, 2, 1]);
+    const expectedOutput = Buffer.from([4, 3, 2, 1]);
     expect(decoded).to.eql({ type: "message", data: expectedOutput });
     expect(new Uint8Array(decoded.data)).to.eql(new Uint8Array(expectedOutput));
   });
