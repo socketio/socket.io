@@ -26,7 +26,7 @@
   "dependencies": {
     "component-emitter": "1.2.1",
     "debug": "~4.1.0",
-    "engine.io-parser": "~2.2.0",
+    "engine.io-parser": "git+https://github.com/socketio/engine.io-parser.git#v4",
     "has-cors": "1.1.0",
     "indexof": "0.0.1",
     "parseqs": "0.0.5",
@@ -44,7 +44,7 @@
     "concat-stream": "^1.6.0",
     "del": "^2.2.2",
     "derequire": "^2.0.6",
-    "engine.io": "3.4.0",
+    "engine.io": "git+https://github.com/socketio/engine.io.git#v4",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.9.0",
     "expect.js": "^0.3.1",
