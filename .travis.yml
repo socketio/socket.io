@@ -1,13 +1,14 @@
 language: node_js
 sudo: false
 node_js:
-  - '8'
-  - '10'
+  - "8"
+  - "10"
+  - "12"
 git:
   depth: 1
 matrix:
   include:
-    - node_js: node
+    - node_js: "12"
       env: BROWSERS=1
 cache:
   directories:

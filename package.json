@@ -40,5 +40,8 @@
   "files": [
     "lib/"
   ],
-  "browser": "./lib/browser.js"
+  "browser": "./lib/browser.js",
+  "engines": {
+    "node": ">=8.0.0"
+  }
 }
