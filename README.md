@@ -321,7 +321,7 @@ A representation of a client. _Inherits from EventEmitter_.
       - `type`: packet type
       - `data`: packet data (if type is message)
 - `packetCreate`
-    - Called before a socket sends a packet (`message`, `pong`)
+    - Called before a socket sends a packet (`message`, `ping`)
     - **Arguments**
       - `type`: packet type
       - `data`: packet data (if type is message)

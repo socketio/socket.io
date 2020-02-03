@@ -1011,8 +1011,8 @@ describe("server", function() {
 
           engine.on("connection", function(conn) {
             conn.once("heartbeat", function() {
+              socket.onPacket = function() {};
               setTimeout(function() {
-                socket.onPacket = function() {};
                 expect(clientCloseReason).to.be(null);
               }, 150);
               setTimeout(function() {
@@ -2396,7 +2396,7 @@ describe("server", function() {
       });
     });
 
-    it("should emit when receives ping", function(done) {
+    it("should emit when receives pong", function(done) {
       var engine = listen({ allowUpgrades: false, pingInterval: 4 }, function(
         port
       ) {
@@ -2404,7 +2404,7 @@ describe("server", function() {
         engine.on("connection", function(conn) {
           conn.on("packet", function(packet) {
             conn.close();
-            expect(packet.type).to.be("ping");
+            expect(packet.type).to.be("pong");
             done();
           });
         });
@@ -2435,7 +2435,7 @@ describe("server", function() {
         engine.on("connection", function(conn) {
           conn.on("packetCreate", function(packet) {
             conn.close();
-            expect(packet.type).to.be("pong");
+            expect(packet.type).to.be("ping");
             done();
           });
         });
