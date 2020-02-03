@@ -172,9 +172,9 @@ Exposed as `eio` in the browser standalone build.
 - `upgrade`
   - Fired upon upgrade success, after the new transport is set
 - `ping`
-  - Fired upon _flushing_ a ping packet (ie: actual packet write out)
+  - Fired upon receiving a ping packet.
 - `pong`
-  - Fired upon receiving a pong packet.
+  - Fired upon _flushing_ a pong packet (ie: actual packet write out)
 
 #### Methods
 
