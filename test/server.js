@@ -141,133 +141,137 @@ describe("server", function() {
   });
 
   describe("handshake", function() {
-    it("should send the io cookie", function(done) {
-      listen(function(port) {
+    it("should send the io cookie", done => {
+      listen({ cookie: true }, port => {
         request
           .get("http://localhost:%d/engine.io/default/".s(port))
           .query({ transport: "polling", b64: 1 })
           .end(function(err, res) {
             expect(err).to.be(null);
             // hack-obtain sid
-            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              "io=" + sid + "; Path=/; HttpOnly"
+              `io=${sid}; Path=/; HttpOnly; SameSite=Lax`
             );
             done();
           });
       });
     });
 
-    it("should send the io cookie custom name", function(done) {
-      listen({ cookie: "woot" }, function(port) {
+    it("should send the io cookie custom name", done => {
+      listen({ cookie: { name: "woot" } }, port => {
         request
           .get("http://localhost:%d/engine.io/default/".s(port))
           .query({ transport: "polling", b64: 1 })
           .end(function(err, res) {
             expect(err).to.be(null);
-            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              "woot=" + sid + "; Path=/; HttpOnly"
+              `woot=${sid}; Path=/; HttpOnly; SameSite=Lax`
             );
             done();
           });
       });
     });
 
-    it("should send the cookie with custom path", function(done) {
-      listen({ cookiePath: "/custom" }, function(port) {
+    it("should send the cookie with custom path", done => {
+      listen({ cookie: { path: "/custom" } }, port => {
         request
           .get("http://localhost:%d/engine.io/default/".s(port))
           .query({ transport: "polling", b64: 1 })
           .end(function(err, res) {
             expect(err).to.be(null);
-            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              "io=" + sid + "; Path=/custom; HttpOnly"
+              `io=${sid}; Path=/custom; HttpOnly; SameSite=Lax`
             );
             done();
           });
       });
     });
 
-    it("should send the cookie with path=false", function(done) {
-      listen({ cookiePath: false }, function(port) {
+    it("should send the cookie with path=false", done => {
+      listen({ cookie: { path: false } }, port => {
         request
           .get("http://localhost:%d/engine.io/default/".s(port))
           .query({ transport: "polling", b64: 1 })
           .end(function(err, res) {
             expect(err).to.be(null);
-            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers["set-cookie"][0]).to.be("io=" + sid);
-            done();
-          });
-      });
-    });
-
-    it("should send the io cookie with httpOnly=true", function(done) {
-      listen({ cookieHttpOnly: true }, function(port) {
-        request
-          .get("http://localhost:%d/engine.io/default/".s(port))
-          .query({ transport: "polling", b64: 1 })
-          .end(function(err, res) {
-            expect(err).to.be(null);
-            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              "io=" + sid + "; Path=/; HttpOnly"
+              `io=${sid}; SameSite=Lax`
             );
             done();
           });
       });
     });
 
-    it("should send the io cookie with httpOnly=true and path=false", function(done) {
-      listen({ cookieHttpOnly: true, cookiePath: false }, function(port) {
+    it("should send the io cookie with httpOnly=true", done => {
+      listen({ cookie: { httpOnly: true } }, port => {
         request
           .get("http://localhost:%d/engine.io/default/".s(port))
           .query({ transport: "polling", b64: 1 })
           .end(function(err, res) {
             expect(err).to.be(null);
-            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers["set-cookie"][0]).to.be("io=" + sid);
-            done();
-          });
-      });
-    });
-
-    it("should send the io cookie with httpOnly=false", function(done) {
-      listen({ cookieHttpOnly: false }, function(port) {
-        request
-          .get("http://localhost:%d/engine.io/default/".s(port))
-          .query({ transport: "polling", b64: 1 })
-          .end(function(err, res) {
-            expect(err).to.be(null);
-            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              "io=" + sid + "; Path=/"
+              `io=${sid}; Path=/; HttpOnly; SameSite=Lax`
             );
             done();
           });
       });
     });
 
-    it("should send the io cookie with httpOnly not boolean", function(done) {
-      listen({ cookieHttpOnly: "no" }, function(port) {
+    it("should send the io cookie with sameSite=strict", done => {
+      listen({ cookie: { sameSite: "strict" } }, port => {
         request
           .get("http://localhost:%d/engine.io/default/".s(port))
           .query({ transport: "polling", b64: 1 })
           .end(function(err, res) {
             expect(err).to.be(null);
-            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              "io=" + sid + "; Path=/; HttpOnly"
+              `io=${sid}; Path=/; HttpOnly; SameSite=Strict`
             );
             done();
           });
       });
     });
 
-    it("should not send the io cookie", function(done) {
-      listen({ cookie: false }, function(port) {
+    it("should send the io cookie with httpOnly=false", done => {
+      listen({ cookie: { httpOnly: false } }, port => {
+        request
+          .get("http://localhost:%d/engine.io/default/".s(port))
+          .query({ transport: "polling", b64: 1 })
+          .end(function(err, res) {
+            expect(err).to.be(null);
+            const sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers["set-cookie"][0]).to.be(
+              `io=${sid}; Path=/; SameSite=Lax`
+            );
+            done();
+          });
+      });
+    });
+
+    it("should send the io cookie with httpOnly not boolean", done => {
+      listen({ cookie: { httpOnly: "no" } }, port => {
+        request
+          .get("http://localhost:%d/engine.io/default/".s(port))
+          .query({ transport: "polling", b64: 1 })
+          .end(function(err, res) {
+            expect(err).to.be(null);
+            const sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers["set-cookie"][0]).to.be(
+              `io=${sid}; Path=/; HttpOnly; SameSite=Lax`
+            );
+            done();
+          });
+      });
+    });
+
+    it("should not send the io cookie", done => {
+      listen({ cookie: false }, port => {
         request
           .get("http://localhost:%d/engine.io/default/".s(port))
           .query({ transport: "polling" })
@@ -2549,7 +2553,9 @@ describe("server", function() {
     }
 
     it("should compress by default", function(done) {
-      var engine = listen({ transports: ["polling"] }, function(port) {
+      var engine = listen({ cookie: true, transports: ["polling"] }, function(
+        port
+      ) {
         engine.on("connection", function(conn) {
           var buf = Buffer.allocUnsafe(1024);
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
@@ -2584,7 +2590,9 @@ describe("server", function() {
     });
 
     it("should compress using deflate", function(done) {
-      var engine = listen({ transports: ["polling"] }, function(port) {
+      var engine = listen({ cookie: true, transports: ["polling"] }, function(
+        port
+      ) {
         engine.on("connection", function(conn) {
           var buf = Buffer.allocUnsafe(1024);
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
@@ -2620,7 +2628,11 @@ describe("server", function() {
 
     it("should set threshold", function(done) {
       var engine = listen(
-        { transports: ["polling"], httpCompression: { threshold: 0 } },
+        {
+          cookie: true,
+          transports: ["polling"],
+          httpCompression: { threshold: 0 }
+        },
         function(port) {
           engine.on("connection", function(conn) {
             var buf = Buffer.allocUnsafe(10);
@@ -2654,7 +2666,7 @@ describe("server", function() {
 
     it("should disable compression", function(done) {
       var engine = listen(
-        { transports: ["polling"], httpCompression: false },
+        { cookie: true, transports: ["polling"], httpCompression: false },
         function(port) {
           engine.on("connection", function(conn) {
             var buf = Buffer.allocUnsafe(1024);
@@ -2687,7 +2699,9 @@ describe("server", function() {
     });
 
     it("should disable compression per message", function(done) {
-      var engine = listen({ transports: ["polling"] }, function(port) {
+      var engine = listen({ cookie: true, transports: ["polling"] }, function(
+        port
+      ) {
         engine.on("connection", function(conn) {
           var buf = Buffer.allocUnsafe(1024);
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
@@ -2718,7 +2732,9 @@ describe("server", function() {
     });
 
     it("should not compress when the byte size is below threshold", function(done) {
-      var engine = listen({ transports: ["polling"] }, function(port) {
+      var engine = listen({ cookie: true, transports: ["polling"] }, function(
+        port
+      ) {
         engine.on("connection", function(conn) {
           var buf = Buffer.allocUnsafe(100);
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;

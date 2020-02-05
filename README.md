@@ -244,13 +244,10 @@ to a single process.
       - `httpCompression` (`Object|Boolean`): parameters of the http compression for the polling transports
         (see [zlib](http://nodejs.org/api/zlib.html#zlib_options) api docs). Set to `false` to disable. (`true`)
         - `threshold` (`Number`): data is compressed only if the byte size is above this value (`1024`)
-      - `cookie` (`String|Boolean`): name of the HTTP cookie that
+      - `cookie` (`Object|Boolean`): configuration of the cookie that
         contains the client sid to send as part of handshake response
-        headers. Set to `false` to not send one. (`io`)
-      - `cookiePath` (`String|Boolean`): path of the above `cookie`
-        option. If false, no path will be sent, which means browsers will only send the cookie on the engine.io attached path (`/engine.io`).
-        Set false to not save io cookie on all requests. (`/`)
-      - `cookieHttpOnly` (`Boolean`): If `true` HttpOnly io cookie cannot be accessed by client-side APIs, such as JavaScript. (`true`) _This option has no effect if `cookie` or `cookiePath` is set to `false`._
+        headers. This cookie might be used for sticky-session. Defaults to not sending any cookie (`false`).
+        See [here](https://github.com/jshttp/cookie#options-1) for all supported options.
       - `wsEngine` (`String`): what WebSocket server implementation to use. Specified module must conform to the `ws` interface (see [ws module api docs](https://github.com/websockets/ws/blob/master/doc/ws.md)). Default value is `ws`. An alternative c++ addon is also available by installing `uws` module.
       - `initialPacket` (`Object`): an optional packet which will be concatenated to the handshake packet emitted by Engine.IO.
 - `close`
