@@ -249,6 +249,7 @@ to a single process.
         headers. This cookie might be used for sticky-session. Defaults to not sending any cookie (`false`).
         See [here](https://github.com/jshttp/cookie#options-1) for all supported options.
       - `wsEngine` (`String`): what WebSocket server implementation to use. Specified module must conform to the `ws` interface (see [ws module api docs](https://github.com/websockets/ws/blob/master/doc/ws.md)). Default value is `ws`. An alternative c++ addon is also available by installing `uws` module.
+      - `cors` (`Object`): the options that will be forwarded to the cors module. See [there](https://github.com/expressjs/cors#configuration-options) for all available options. Defaults to no CORS allowed.
       - `initialPacket` (`Object`): an optional packet which will be concatenated to the handshake packet emitted by Engine.IO.
 - `close`
     - Closes all clients
@@ -277,7 +278,6 @@ to a single process.
       - `path` (`String`): name of the path to capture (`/engine.io`).
       - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
       - `destroyUpgradeTimeout` (`Number`): milliseconds after which unhandled requests are ended (`1000`)
-      - `handlePreflightRequest` (`Boolean|Function`): whether to let engine.io handle the OPTIONS requests. You can also pass a custom function to handle the requests (`true`)
 - `generateId`
     - Generate a socket id.
     - Overwrite this method to generate your custom socket id.

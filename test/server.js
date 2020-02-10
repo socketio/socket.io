@@ -2881,85 +2881,136 @@ describe("server", function() {
   });
 
   describe("cors", function() {
-    it("should handle OPTIONS requests", function(done) {
-      listen({ handlePreflightRequest: true }, function(port) {
-        request
-          .options("http://localhost:%d/engine.io/default/".s(port))
-          .set("Origin", "http://engine.io")
-          .query({ transport: "polling" })
-          .end(function(err, res) {
-            expect(err).to.be.an(Error);
-            expect(res.status).to.be(400);
-            expect(res.body.code).to.be(2);
-            expect(res.body.message).to.be("Bad handshake method");
-            expect(res.header["access-control-allow-credentials"]).to.be(
-              "true"
-            );
-            expect(res.header["access-control-allow-origin"]).to.be(
-              "http://engine.io"
-            );
-            done();
-          });
-      });
-    });
-
-    it("should not handle OPTIONS requests", function(done) {
-      listen({ handlePreflightRequest: false }, function(port) {
-        request
-          .options("http://localhost:%d/engine.io/default/".s(port))
-          .set("Origin", "http://engine.io")
-          .query({ transport: "polling" })
-          .end(function(err, res) {
-            expect(err).to.be.an(Error);
-            expect(res.status).to.be(501);
-            expect(res.body.code).to.be(undefined);
-            done();
-          });
-      });
-    });
-
-    it("should handle OPTIONS requests with the given function", function(done) {
-      var handlePreflightRequest = function(req, res) {
-        var headers = {};
-        if (req.headers.origin) {
-          headers["Access-Control-Allow-Credentials"] = "true";
-          headers["Access-Control-Allow-Origin"] = req.headers.origin;
-        } else {
-          headers["Access-Control-Allow-Origin"] = "*";
+    it("should allow CORS from the current origin (preflight request)", done => {
+      listen(
+        { cors: { origin: true, headers: ["my-header"], credentials: true } },
+        port => {
+          request
+            .options("http://localhost:%d/engine.io/default/".s(port))
+            .set("Origin", "http://engine.io")
+            .query({ transport: "polling" })
+            .end(function(err, res) {
+              expect(err).to.be(null);
+              expect(res.status).to.be(204);
+              expect(res.body).to.be.empty();
+              expect(res.header["access-control-allow-origin"]).to.be(
+                "http://engine.io"
+              );
+              expect(res.header["access-control-allow-methods"]).to.be(
+                "GET,HEAD,PUT,PATCH,POST,DELETE"
+              );
+              expect(res.header["access-control-allow-headers"]).to.be(
+                "my-header"
+              );
+              expect(res.header["access-control-allow-credentials"]).to.be(
+                "true"
+              );
+              done();
+            });
         }
-        headers["Access-Control-Allow-Methods"] =
-          "GET,HEAD,PUT,PATCH,POST,DELETE";
-        headers["Access-Control-Allow-Headers"] =
-          "origin, content-type, accept";
-        res.writeHead(200, headers);
-        res.end();
-      };
-      listen({ handlePreflightRequest: handlePreflightRequest }, function(
-        port
-      ) {
-        request
-          .options("http://localhost:%d/engine.io/default/".s(port))
-          .set("Origin", "http://engine.io")
-          .query({ transport: "polling" })
-          .end(function(err, res) {
-            expect(err).to.be(null);
-            expect(res.status).to.be(200);
-            expect(res.body).to.be.empty();
-            expect(res.header["access-control-allow-credentials"]).to.be(
-              "true"
-            );
-            expect(res.header["access-control-allow-origin"]).to.be(
-              "http://engine.io"
-            );
-            expect(res.header["access-control-allow-methods"]).to.be(
-              "GET,HEAD,PUT,PATCH,POST,DELETE"
-            );
-            expect(res.header["access-control-allow-headers"]).to.be(
-              "origin, content-type, accept"
-            );
-            done();
-          });
-      });
+      );
+    });
+
+    it("should allow CORS from the current origin (actual request)", done => {
+      listen(
+        { cors: { origin: true, headers: ["my-header"], credentials: true } },
+        port => {
+          request
+            .get("http://localhost:%d/engine.io/default/".s(port))
+            .set("Origin", "http://engine.io")
+            .query({ transport: "polling" })
+            .end(function(err, res) {
+              expect(err).to.be(null);
+              expect(res.status).to.be(200);
+              expect(res.body).to.be.empty();
+              expect(res.header["access-control-allow-origin"]).to.be(
+                "http://engine.io"
+              );
+              expect(res.header["access-control-allow-methods"]).to.be(
+                undefined
+              );
+              expect(res.header["access-control-allow-headers"]).to.be(
+                undefined
+              );
+              expect(res.header["access-control-allow-credentials"]).to.be(
+                "true"
+              );
+              done();
+            });
+        }
+      );
+    });
+
+    it("should disallow CORS from a bad origin", done => {
+      listen(
+        {
+          cors: {
+            origin: ["http://good-domain.com"]
+          }
+        },
+        port => {
+          request
+            .options("http://localhost:%d/engine.io/default/".s(port))
+            .set("Origin", "http://bad-domain.com")
+            .query({ transport: "polling" })
+            .end(function(err, res) {
+              expect(err).to.be(null);
+              expect(res.status).to.be(204);
+              expect(res.body).to.be.empty();
+              expect(res.header["access-control-allow-origin"]).to.be(
+                undefined
+              );
+              expect(res.header["access-control-allow-credentials"]).to.be(
+                undefined
+              );
+              done();
+            });
+        }
+      );
+    });
+
+    it("should forward the configuration to the cors module", done => {
+      listen(
+        {
+          cors: {
+            origin: "http://good-domain.com",
+            methods: ["GET", "PUT", "POST"],
+            allowedHeaders: ["my-header"],
+            exposedHeaders: ["my-exposed-header"],
+            credentials: true,
+            maxAge: 123,
+            optionsSuccessStatus: 200
+          }
+        },
+        port => {
+          request
+            .options("http://localhost:%d/engine.io/default/".s(port))
+            .set("Origin", "http://good-domain.com")
+            .query({ transport: "polling" })
+            .end(function(err, res) {
+              expect(err).to.be(null);
+              expect(res.status).to.be(200);
+              expect(res.body).to.be.empty();
+              expect(res.header["access-control-allow-origin"]).to.be(
+                "http://good-domain.com"
+              );
+              expect(res.header["access-control-allow-methods"]).to.be(
+                "GET,PUT,POST"
+              );
+              expect(res.header["access-control-allow-headers"]).to.be(
+                "my-header"
+              );
+              expect(res.header["access-control-expose-headers"]).to.be(
+                "my-exposed-header"
+              );
+              expect(res.header["access-control-allow-credentials"]).to.be(
+                "true"
+              );
+              expect(res.header["access-control-max-age"]).to.be("123");
+              done();
+            });
+        }
+      );
     });
   });
 
