@@ -247,7 +247,7 @@ describe("Transport", function() {
             hostname: "localhost",
             extraHeaders: headers
           });
-          expect(polling.extraHeaders).to.equal(headers);
+          expect(polling.opts.extraHeaders).to.equal(headers);
         });
         it("should correctly set them for XMLHttpRequest", function() {
           var headers = {
@@ -260,7 +260,7 @@ describe("Transport", function() {
             hostname: "localhost",
             extraHeaders: headers
           });
-          expect(polling.extraHeaders).to.equal(headers);
+          expect(polling.opts.extraHeaders).to.equal(headers);
         });
       });
 
@@ -320,7 +320,7 @@ describe("Transport", function() {
         }
       });
       expect(socket.transport.name).to.be("polling");
-      expect(socket.transport.extraHeaders).to.equal(headers);
+      expect(socket.transport.opts.extraHeaders).to.equal(headers);
     });
   });
 });
