@@ -1,3 +1,12 @@
+# [4.0.0-alpha.1](https://github.com/socketio/engine.io/compare/v4.0.0-alpha.0...v4.0.0-alpha.1) (2020-02-12)
+
+#### Links
+
+- Server release: [v4.0.0-alpha.1](https://github.com/socketio/engine.io-client/releases/tag/v4.0.0-alpha.1)
+- ws version: [^7.1.2](https://github.com/websockets/ws/releases/tag/7.1.2)
+
+
+
 # [4.0.0-alpha.0](https://github.com/socketio/engine.io/compare/3.4.0...v4.0.0-alpha.0) (2020-02-12)
 
 
@@ -67,3 +76,9 @@ new Server({
 All other options (domain, maxAge, sameSite, ...) are now supported.
 
 * v3.x clients will not be able to connect anymore (they will send a ping packet and timeout while waiting for a pong packet).
+
+#### Links
+
+- Server release: [v4.0.0-alpha.0](https://github.com/socketio/engine.io-client/releases/tag/v4.0.0-alpha.0)
+- ws version: [^7.1.2](https://github.com/websockets/ws/releases/tag/7.1.2)
+
