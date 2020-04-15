@@ -802,6 +802,27 @@ describe("server", function() {
       });
     });
 
+    it("should abort connection when upgrade fails", done => {
+      listen({ allowUpgrades: true }, port => {
+        const req = http.request(
+          {
+            port,
+            path: "/engine.io/",
+            headers: {
+              connection: "Upgrade",
+              upgrade: "websocket"
+            }
+          },
+          res => {
+            expect(res.statusCode).to.eql(400);
+            res.resume();
+            res.on("end", done);
+          }
+        );
+        req.end();
+      });
+    });
+
     it(
       "should trigger if a poll request is ongoing and the underlying " +
         "socket closes, as in a browser tab close",
