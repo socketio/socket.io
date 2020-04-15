@@ -212,13 +212,13 @@ module.exports = function(parser) {
           );
         });
 
-        it("should encode/decode empty payloads", function() {
-          encPayload([], function(data) {
-            decPayload(data, function(packet, index, total) {
-              expect(packet.type).to.eql("open");
-              const isLast = index + 1 == total;
-              expect(isLast).to.eql(true);
+        it("should encode/decode empty payloads", done => {
+          encPayload([], data => {
+            expect(data).to.eql("0:");
+            decPayload(data, () => {
+              done(new Error("callback should not be called"));
             });
+            done();
           });
         });
 
