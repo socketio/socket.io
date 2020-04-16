@@ -65,7 +65,9 @@
   },
   "browser": {
     "ws": false,
-    "xmlhttprequest-ssl": "./lib/xmlhttprequest.js"
+    "xmlhttprequest-ssl": "./lib/xmlhttprequest.js",
+    "./lib/transports/websocket-constructor.js": "./lib/transports/websocket-constructor.browser.js",
+    "./lib/globalThis.js": "./lib/globalThis.browser.js"
   },
   "repository": {
     "type": "git",
