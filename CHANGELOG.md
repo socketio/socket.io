@@ -1,3 +1,17 @@
+## [3.4.1](https://github.com/socketio/engine.io-client/compare/3.4.0...3.4.1) (2020-04-17)
+
+
+### Bug Fixes
+
+* use globalThis polyfill instead of self/global ([357f01d](https://github.com/socketio/engine.io-client/commit/357f01d90448d8565b650377bc7cabb351d991bd))
+
+#### Links
+
+- Diff: [3.4.0...3.4.1](https://github.com/socketio/engine.io-client/compare/3.4.0...3.4.1)
+- Server release: [3.4.1](https://github.com/socketio/engine.io/releases/tag/3.4.1)
+- ws version: [~6.1.0](https://github.com/websockets/ws/releases/tag/6.1.0)
+
+
 # [4.0.0-alpha.1](https://github.com/socketio/engine.io-client/compare/v4.0.0-alpha.0...v4.0.0-alpha.1) (2020-02-12)
 
 
@@ -7,6 +21,7 @@
 
 #### Links
 
+- Diff: [v4.0.0-alpha.0...v4.0.0-alpha.1](https://github.com/socketio/engine.io-client/compare/v4.0.0-alpha.0...v4.0.0-alpha.1)
 - Server release: [v4.0.0-alpha.1](https://github.com/socketio/engine.io/releases/tag/v4.0.0-alpha.1)
 - ws version: [~7.2.1](https://github.com/websockets/ws/releases/tag/7.2.1)
 
@@ -34,5 +49,6 @@ will send a ping packet and timeout while waiting for a pong packet).
 
 #### Links
 
+- Diff: [3.4.0...v4.0.0-alpha.0](https://github.com/socketio/engine.io-client/compare/3.4.0...v4.0.0-alpha.0)
 - Server release: [v4.0.0-alpha.0](https://github.com/socketio/engine.io/releases/tag/v4.0.0-alpha.0)
 - ws version: [~7.2.1](https://github.com/websockets/ws/releases/tag/7.2.1)
