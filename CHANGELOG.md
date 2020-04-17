@@ -1,8 +1,25 @@
+## [3.4.1](https://github.com/socketio/engine.io/compare/3.4.0...3.4.1) (2020-04-17)
+
+
+### Bug Fixes
+
+* ignore errors when forcefully closing the socket ([da851ec](https://github.com/socketio/engine.io/commit/da851ec4ec89d96df2ee5c711f328b5d795423e9))
+* use SameSite=Strict by default ([001ca62](https://github.com/socketio/engine.io/commit/001ca62cc4a8f511f3b2fbd9e4493ad274a6a0e5))
+
+#### Links
+
+- Diff: [3.4.0...3.4.1](https://github.com/socketio/engine.io/compare/3.4.0...3.4.1)
+- Client release: [3.4.1](https://github.com/socketio/engine.io-client/releases/tag/3.4.1)
+- ws version: [^7.1.2](https://github.com/websockets/ws/releases/tag/7.1.2)
+
+
+
 # [4.0.0-alpha.1](https://github.com/socketio/engine.io/compare/v4.0.0-alpha.0...v4.0.0-alpha.1) (2020-02-12)
 
 #### Links
 
-- Server release: [v4.0.0-alpha.1](https://github.com/socketio/engine.io-client/releases/tag/v4.0.0-alpha.1)
+- Diff: [v4.0.0-alpha.0...v4.0.0-alpha.1](https://github.com/socketio/engine.io-client/compare/v4.0.0-alpha.0...v4.0.0-alpha.1)
+- Client release: [v4.0.0-alpha.1](https://github.com/socketio/engine.io-client/releases/tag/v4.0.0-alpha.1)
 - ws version: [^7.1.2](https://github.com/websockets/ws/releases/tag/7.1.2)
 
 
@@ -79,6 +96,7 @@ All other options (domain, maxAge, sameSite, ...) are now supported.
 
 #### Links
 
-- Server release: [v4.0.0-alpha.0](https://github.com/socketio/engine.io-client/releases/tag/v4.0.0-alpha.0)
+- Diff: [3.4.0...v4.0.0-alpha.0](https://github.com/socketio/engine.io-client/compare/3.4.0...v4.0.0-alpha.0)
+- Client release: [v4.0.0-alpha.0](https://github.com/socketio/engine.io-client/releases/tag/v4.0.0-alpha.0)
 - ws version: [^7.1.2](https://github.com/websockets/ws/releases/tag/7.1.2)
 
