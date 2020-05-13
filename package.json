@@ -17,6 +17,9 @@
     "isarray": "2.0.1"
   },
   "devDependencies": {
+    "@babel/core": "~7.9.6",
+    "@babel/preset-env": "~7.9.6",
+    "babelify": "~10.0.0",
     "benchmark": "2.1.2",
     "expect.js": "0.3.1",
     "mocha": "3.2.0",

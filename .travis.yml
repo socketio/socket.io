@@ -7,7 +7,7 @@ git:
   depth: 1
 matrix:
   include:
-    - node_js: node
+    - node_js: 10
       env: BROWSERS=1
 cache:
   directories:
