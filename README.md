@@ -406,7 +406,7 @@ For example, `€` was encoded to `2:4€`, though `Buffer.byteLength('€') ===
 
 Note: this assumes the record separator is not used in the data.
 
-The revision 4 of the protocol will be included in Socket.IO v4.
+The revision 4 of the protocol will be included in Socket.IO v3.
 
 ## Difference between v2 and v3
 
