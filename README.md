@@ -26,6 +26,88 @@ with `pong` packets.
 5. Polling transports can send a `close` packet to close the socket, since
 they're expected to be "opening" and "closing" all the time.
 
+Example:
+
+- Request n°1 (open packet)
+
+```
+GET /engine.io/?EIO=3&transport=polling&t=N8hyd6w
+< HTTP/1.1 200 OK
+< Content-Type: text/plain; charset=UTF-8
+96:0{"sid":"lv_VI97HAXpY6yYWAAAC","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":5000}
+```
+
+Details:
+
+```
+96          => number of characters (not bytes)
+:           => separator
+0           => "open" packet type
+{"sid":...  => the handshake data
+```
+
+- Request n°2 (message in):
+
+```
+GET /engine.io/?EIO=3&transport=polling&t=N8hyd7H&sid=lv_VI97HAXpY6yYWAAAC
+< HTTP/1.1 200 OK
+< Content-Type: text/plain; charset=UTF-8
+4:4hey
+```
+
+Details:
+
+```
+4           => number of characters
+:           => separator
+4           => "message" packet type
+hey         => the actual message
+```
+
+- Request n°3 (message out)
+
+```
+POST /engine.io/?EIO=3&transport=polling&t=N8hzxke&sid=lv_VI97HAXpY6yYWAAAC
+> Content-Type: text/plain; charset=UTF-8
+6:4hello6:4world
+< HTTP/1.1 200 OK
+< Content-Type: text/plain; charset=UTF-8
+ok
+```
+
+Details:
+
+```
+6           => number of characters of the 1st packet
+:           => separator
+4           => "message" packet type
+hello       => the 1st message
+6           => number of characters of the 2nd packet
+:           => separator
+4           => "message" message type
+world       => the 2nd message
+```
+
+- Request n°4 (WebSocket upgrade)
+
+```
+GET /engine.io/?EIO=3&transport=websocket&sid=lv_VI97HAXpY6yYWAAAC
+< HTTP/1.1 101 Switching Protocols
+```
+
+WebSocket frames:
+
+```
+< 2probe    => probe request
+> 3probe    => probe response
+> 5         => "upgrade" packet type
+> 4hello    => message (not concatenated)
+> 4world
+> 2         => "ping" packet type
+< 3         => "pong" packet type
+> 1         => "close" packet type
+```
+
 ## URLs
 
 An Engine.IO url is composed as follows:
@@ -37,7 +119,7 @@ An Engine.IO url is composed as follows:
 - The `engine.io` pathname should only be changed by higher-level
   frameworks whose protocol sits on top of engine's.
 
-- The query string is optional and has four reserved keys:
+- The query string is optional and has six reserved keys:
 
   - `transport`: indicates the transport name. Supported ones by default are
     `polling`, `websocket`.
@@ -47,6 +129,8 @@ An Engine.IO url is composed as follows:
     in the querystring.
   - `b64`: if the client doesn't support XHR2, `b64=1` is sent in the query string
     to signal the server that all binary data should be sent base64 encoded.
+  - `EIO`: the version of the protocol
+  - `t`: a hashed-timestamp used for cache-busting
 
 *FAQ:* Is the `/engine.io` portion modifiable?
 
@@ -181,6 +265,95 @@ are represented so that each character is written as a character code into a
 byte.
 
 The payload is used for transports which do not support framing, as the polling protocol for example.
+
+- Example without binary:
+
+```
+[
+  {
+    "type": "message",
+    "data": "hello"
+  },
+  {
+    "type": "message",
+    "data": "€"
+  }
+]
+```
+
+is encoded to:
+
+```
+6:4hello2:4€
+```
+
+Please note that we are not counting bytes, but characters, hence 2 (1 + 1) instead of 4 (1 + 3).
+
+- Example with binary (both the client and the transport support binary):
+
+```
+[
+  {
+    "type": "message",
+    "data": "€"
+  },
+  {
+    "type": "message",
+    "data": buffer <01 02 03 04>
+  }
+]
+```
+
+is encoded to:
+
+```
+buffer <00 04 ff 34 e2 82 ac 01 04 ff 01 02 03 04>
+
+with:
+
+00              => string header
+04              => string length in bytes
+ff              => separator
+34              => "message" packet type ("4")
+e2 82 ac        => "€"
+01              => binary header
+04              => buffer length in bytes
+ff              => separator
+01 02 03 04     => buffer content
+```
+
+- Example with binary (either the client or the transport does not support binary):
+
+```
+[
+  {
+    "type": "message",
+    "data": "€"
+  },
+  {
+    "type": "message",
+    "data": buffer <01 02 03 04>
+  }
+]
+```
+
+is encoded to:
+
+```
+2:4€10:b4AQIDBA==
+
+with
+
+2           => number of characters of the 1st packet
+:           => separator
+4           => "message" packet type
+€
+10          => number of characters of the 2nd packet
+:           => separator
+b           => indicates a base64 packet
+4           => "message" packet type
+AQIDBA==    => buffer content encoded in base64
+```
 
 ## Transports
 
