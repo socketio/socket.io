@@ -10,6 +10,8 @@ and [engine.io](https://github.com/learnboost/engine.io).
 
 This is revision **3** of the Engine.IO protocol.
 
+The revision 2 can be found here: https://github.com/socketio/engine.io-protocol/tree/v2
+
 ## Anatomy of an Engine.IO session
 
 1. Transport establishes a connection to the Engine.IO URL .
@@ -449,3 +451,9 @@ sending a `ping` packet again.
 Since the two values are shared between the server and the client, the server
 will also be able to detect whether the client becomes unresponsive when it
 does not receive any data within `pingTimeout + pingInterval`.
+
+## Difference between v2 and v3
+
+- add support for binary data
+
+v2 is included in Socket.IO v0.9, while v3 is included in Socket.IO v1/v2.
