@@ -6,6 +6,30 @@ implementation, take a look at
 [engine.io-client](https://github.com/learnboost/engine.io-client)
 and [engine.io](https://github.com/learnboost/engine.io).
 
+Table of Contents:
+
+- [Revision](#revision)
+- [Anatomy of an Engine.IO session](#anatomy-of-an-engineio-session)
+- [URLs](#urls)
+- [Encoding](#encoding)
+    - [Packet](#packet)
+        - [0 open](#0-open)
+        - [1 close](#1-close)
+        - [2 ping](#2-ping)
+        - [3 pong](#3-pong)
+        - [4 message](#4-message)
+        - [5 upgrade](#5-upgrade)
+        - [6 noop](#6-noop)
+    - [Payload](#payload)
+- [Transports](#transports)
+    - [Polling](#polling)
+        - [XHR](#xhr)
+        - [JSONP](#jsonp)
+    - [WebSocket](#websocket)
+- [Transport upgrading](#transport-upgrading)
+- [Timeouts](#timeouts)
+- [Difference between v2 and v3](#difference-between-v2-and-v3)
+
 ## Revision
 
 This is revision **3** of the Engine.IO protocol.
