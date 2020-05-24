@@ -1,0 +1,8 @@
+{
+    "name": "socket.io-client",
+    "version": "2.3.0",
+    "keywords": [
+      "this package.json is a fixture for a socket.io test"
+    ],
+    "main": "./lib/index"
+  }

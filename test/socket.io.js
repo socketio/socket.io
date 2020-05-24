@@ -205,6 +205,23 @@ describe('socket.io', function(){
           done();
         });
       });
+
+      describe('when serving the socket.io-client lib', function(){
+        require('./fixtures/create-fake-socket.io-client-module.js')
+
+        it('should serve the closest socket.io-client module it can find', function(done){
+          var srv = http();
+          io(srv);
+          request(srv)
+          .get('/socket.io/socket.io.js')
+          .buffer(true)
+          .end(function(err, res){
+            if (err) return done(err);
+            expect(res.text).to.not.match(/im a fake socket\.io-client/);
+            done();
+          })
+        });
+      });
     });
 
     describe('port', function(done){
