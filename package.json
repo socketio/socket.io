@@ -48,6 +48,7 @@
     "express": "4.15.2",
     "mocha": "^3.2.0",
     "prettier": "^1.19.1",
+    "socket.io-browsers": "~1.0.4",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
     "zuul": "3.11.1",

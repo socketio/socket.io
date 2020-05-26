@@ -1,5 +1,7 @@
 'use strict';
 
+const browsers = require('socket.io-browsers');
+
 const zuulConfig = module.exports = {
   ui: 'mocha-bdd',
 
@@ -27,21 +29,5 @@ if (process.env.CI === 'true') {
   };
 }
 
-zuulConfig.browsers = [
-  {
-    name: 'chrome',
-    version: 'latest'
-  }, {
-    name: 'firefox',
-    version: 'latest'
-  }, {
-    name: 'internet explorer',
-    version: '9..11'
-  }, {
-    name: 'safari',
-    version: 'latest'
-  }, {
-    name: 'android',
-    version: '5.1..6.0'
-  }
-];
+var isPullRequest = process.env.TRAVIS_PULL_REQUEST && process.env.TRAVIS_PULL_REQUEST !== 'false';
+zuulConfig.browsers = isPullRequest ? browsers.pullRequest : browsers.all;
