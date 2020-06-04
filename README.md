@@ -19,10 +19,10 @@ standalone build you can use as follows:
 <script src="/path/to/engine.io.js"></script>
 <script>
   // eio = Socket
-  var socket = eio('ws://localhost');
-  socket.on('open', function(){
-    socket.on('message', function(data){});
-    socket.on('close', function(){});
+  const socket = eio('ws://localhost');
+  socket.on('open', () => {
+    socket.on('message', (data) => {});
+    socket.on('close', () => {});
   });
 </script>
 ```
@@ -41,10 +41,10 @@ Engine.IO is a commonjs module, which means you can include it by using
 1. write your app code
 
     ```js
-    var socket = require('engine.io-client')('ws://localhost');
-    socket.on('open', function(){
-      socket.on('message', function(data){});
-      socket.on('close', function(){});
+    const socket = require('engine.io-client')('ws://localhost');
+    socket.on('open', () => {
+      socket.on('message', (data) => {});
+      socket.on('close', () => {});
     });
     ```
 
@@ -65,12 +65,12 @@ Engine.IO is a commonjs module, which means you can include it by using
 ```html
 <script src="/path/to/engine.io.js"></script>
 <script>
-  var socket = new eio.Socket('ws://localhost/');
+  const socket = new eio.Socket('ws://localhost/');
   socket.binaryType = 'blob';
-  socket.on('open', function () {
+  socket.on('open', () => {
     socket.send(new Int8Array(5));
-    socket.on('message', function(blob){});
-    socket.on('close', function(){ });
+    socket.on('message', (blob) => {});
+    socket.on('close', () => {});
   });
 </script>
 ```
@@ -80,41 +80,41 @@ Engine.IO is a commonjs module, which means you can include it by using
 Add `engine.io-client` to your `package.json` and then:
 
 ```js
-var socket = require('engine.io-client')('ws://localhost');
-socket.on('open', function(){
-  socket.on('message', function(data){});
-  socket.on('close', function(){});
+const socket = require('engine.io-client')('ws://localhost');
+socket.on('open', () => {
+  socket.on('message', (data) => {});
+  socket.on('close', () => {});
 });
 ```
 
 ### Node.js with certificates
 ```js
-var opts = {
+const opts = {
   key: fs.readFileSync('test/fixtures/client.key'),
   cert: fs.readFileSync('test/fixtures/client.crt'),
   ca: fs.readFileSync('test/fixtures/ca.crt')
 };
 
-var socket = require('engine.io-client')('ws://localhost', opts);
-socket.on('open', function(){
-  socket.on('message', function(data){});
-  socket.on('close', function(){});
+const socket = require('engine.io-client')('ws://localhost', opts);
+socket.on('open', () => {
+  socket.on('message', (data) => {});
+  socket.on('close', () => {});
 });
 ```
 
 ### Node.js with extraHeaders
 ```js
-var opts = {
+const opts = {
   extraHeaders: {
     'X-Custom-Header-For-My-Project': 'my-secret-access-token',
     'Cookie': 'user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly'
   }
 };
 
-var socket = require('engine.io-client')('ws://localhost', opts);
-socket.on('open', function(){
-  socket.on('message', function(data){});
-  socket.on('close', function(){});
+const socket = require('engine.io-client')('ws://localhost', opts);
+socket.on('open', () => {
+  socket.on('message', (data) => {});
+  socket.on('close', () => {});
 });
 ```
 
