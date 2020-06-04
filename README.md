@@ -118,6 +118,41 @@ socket.on('open', () => {
 });
 ```
 
+In the browser, the [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket) object does not support additional headers.
+In case you want to add some headers as part of some authentication mechanism, you can use the `transportOptions` attribute.
+Please note that in this case the headers won't be sent in the WebSocket upgrade request.
+
+```js
+// WILL NOT WORK in the browser
+require('engine.io-client')('http://localhost', {
+  extraHeaders: {
+    'X-Custom-Header-For-My-Project': 'will not be sent'
+  }
+});
+// WILL NOT WORK
+require('engine.io-client')('http://localhost', {
+  transports: ['websocket'], // polling is disabled
+  transportOptions: {
+    polling: {
+      extraHeaders: {
+        'X-Custom-Header-For-My-Project': 'will not be sent'
+      }
+    }
+  }
+});
+// WILL WORK
+require('engine.io-client')('http://localhost', {
+  transports: ['polling', 'websocket'],
+  transportOptions: {
+    polling: {
+      extraHeaders: {
+        'X-Custom-Header-For-My-Project': 'will be used'
+      }
+    }
+  }
+});
+```
+
 ## Features
 
 - Lightweight
