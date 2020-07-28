@@ -4,6 +4,11 @@ var app = express();
 var path = require('path');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
+/*
+Note: if your frontend is a more advanced ( React, Angular, etc )
+add the path option when initialising,
+see docs: /docs/API.md#with-custom-path
+*/
 var port = process.env.PORT || 3000;
 
 server.listen(port, () => {
