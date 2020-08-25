@@ -94,7 +94,7 @@ The same options passed to socket.io are always passed to the `engine.io` `Serve
 
 Among those options:
 
-  - `pingTimeout` _(Number)_: how many ms without a pong packet to consider the connection closed (`60000`)
+  - `pingTimeout` _(Number)_: how many ms without a pong packet to consider the connection closed (`5000`)
   - `pingInterval` _(Number)_: how many ms before sending a new ping packet (`25000`).
 
 Those two parameters will impact the delay before a client knows the server is not available anymore. For example, if the underlying TCP connection is not closed properly due to a network issue, a client may have to wait up to `pingTimeout + pingInterval` ms before getting a `disconnect` event.
