@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "expect.js": "0.3.1",
-    "mocha": "^3.5.3",
+    "mocha": "^8.1.2",
     "nyc": "^11.2.1",
     "superagent": "^3.8.2",
     "supertest": "^3.0.0"
