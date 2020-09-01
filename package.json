@@ -24,7 +24,7 @@
     "test": "nyc mocha --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.js"
   },
   "dependencies": {
-    "debug": "~3.1.0",
+    "debug": "~4.1.1",
     "engine.io": "~3.4.2",
     "has-binary2": "~2.0.0",
     "socket.io-adapter": "kr-project/socket.io-adapter",
