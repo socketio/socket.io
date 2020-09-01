@@ -140,7 +140,9 @@ server.listen(3000);
 
 ## Documentation
 
-Please see the documentation [here](/docs/README.md). Contributions are welcome!
+Please see the documentation [here](https://socket.io/docs/).
+
+The source code of the website can be found [here](https://github.com/socketio/socket.io-website). Contributions are welcome!
 
 ## Debug / logging
 
