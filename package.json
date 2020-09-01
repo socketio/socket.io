@@ -36,7 +36,7 @@
     "mocha": "^8.1.2",
     "nyc": "^15.1.0",
     "superagent": "^6.0.0",
-    "supertest": "^3.0.0"
+    "supertest": "^4.0.2"
   },
   "contributors": [
     {
