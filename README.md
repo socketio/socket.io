@@ -18,6 +18,8 @@ Table of Contents:
         - [2 ping](#2-ping)
         - [3 pong](#3-pong)
         - [4 message](#4-message)
+        - [5 upgrade](#5-upgrade)
+        - [6 noop](#6-noop)
     - [Payload](#payload)
 - [Transports](#transports)
     - [Polling](#polling)
@@ -25,7 +27,7 @@ Table of Contents:
         - [JSONP](#jsonp)
     - [Server-sent events](#server-sent-events)
     - [WebSocket](#websocket)
-- [Transport fallback](#transport-fallback)
+- [Transport upgrading](#transport-upgrading)
 - [Timeouts](#timeouts)
 - [Difference between v3 and v4](#difference-between-v3-and-v4)
 - [Difference between v2 and v3](#difference-between-v2-and-v3)
@@ -126,7 +128,25 @@ hello       => the 1st message
 world       => the 2nd message
 ```
 
+- Request n°4 (WebSocket upgrade)
 
+```
+GET /engine.io/?EIO=3&transport=websocket&sid=lv_VI97HAXpY6yYWAAAC
+< HTTP/1.1 101 Switching Protocols
+```
+
+WebSocket frames:
+
+```
+< 2probe    => probe request
+> 3probe    => probe response
+> 5         => "upgrade" packet type
+> 4hello    => message (not concatenated)
+> 4world
+> 2         => "ping" packet type
+< 3         => "pong" packet type
+> 1         => "close" packet type
+```
 
 ## URLs
 
@@ -218,6 +238,23 @@ actual message, client and server should call their callbacks with the data.
 
 1. client sends: ```4HelloWorld```
 2. server receives and calls callback ```socket.on('message', function (data) { console.log(data); });```
+
+#### 5 upgrade
+
+Before engine.io switches a transport, it tests, if server and client can communicate over this transport.
+If this test succeed, the client sends an upgrade packets which requests the server to flush its cache on
+the old transport and switch to the new transport.
+
+#### 6 noop
+
+A noop packet. Used primarily to force a poll cycle when an incoming websocket connection is received.
+
+##### example
+1. client connects through new transport
+2. client sends ```2probe```
+3. server receives and sends ```3probe```
+4. client receives and sends ```5```
+5. server flushes and closes old transport and switches to new.
 
 ### Payload
 
@@ -356,13 +393,23 @@ already has a lightweight framing mechanism.
 In order to send a payload of messages, encode packets individually
 and `send()` them in succession.
 
-## Transport fallback
+## Transport upgrading
 
-A connection always starts with WebSocket (if supported by the client).
+A connection always starts with polling (either XHR or JSONP). WebSocket
+gets tested on the side by sending a probe. If the probe is responded
+from the server, an upgrade packet is sent.
 
-If the connection cannot be established, the client will try to establish a SSE stream.
+To ensure no messages are lost, the upgrade packet will only be sent
+once all the buffers of the existing transport are flushed and the
+transport is considered _paused_.
 
-If the connection still fails, the client will use polling as a fallback (either XHR or JSONP).
+When the server receives the upgrade packet, it must assume this is the
+new transport channel and send all existing buffers (if any) to it.
+
+The probe sent by the client is a `ping` packet with `probe` sent as data.
+The probe sent by the server is a `pong` packet with `probe` sent as data.
+
+Moving forward, upgrades other than just `polling -> x` are being considered.
 
 ## Timeouts
 
@@ -385,12 +432,6 @@ does not receive any data within `pingTimeout + pingInterval`.
 
 The ping packets will now be sent by the server, because the timers set in the browsers are not reliable enough. We
 suspect that a lot of timeout problems came from timers being delayed on the client-side.
-
-- fallback to polling instead of upgrading to WebSocket
-
-As of today, most browsers now support WebSocket: https://caniuse.com/#search=websocket
-
-Please note that this does not remove the need to use sticky-session for the polling transport.
 
 - always use base64 when encoding a payload with binary data
 
