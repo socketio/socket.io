@@ -52,6 +52,7 @@
     "socket.io-browsers": "~1.0.4",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
+    "webpack-remove-debug": "^0.1.0",
     "zuul": "3.11.1",
     "zuul-builder-webpack": "^1.2.0",
     "zuul-ngrok": "4.0.0"
@@ -61,8 +62,8 @@
     "test:node": "mocha --reporter dot --require test/support/server.js test/index.js",
     "test:browser": "zuul test/index.js",
     "build": "webpack --config ./support/webpack.config.js",
-    "format:check": "prettier --check 'lib/**/*.js' 'test/**/*.js'",
-    "format:fix": "prettier --write 'lib/**/*.js' 'test/**/*.js'",
+    "format:check": "prettier --check 'lib/**/*.js' 'test/**/*.js' 'support/**/*.js'",
+    "format:fix": "prettier --write 'lib/**/*.js' 'test/**/*.js' 'support/**/*.js'",
     "lint": "eslint lib/**/*.js test/**/*.js"
   },
   "browser": {
