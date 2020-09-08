@@ -1,3 +1,42 @@
+# [4.0.0](https://github.com/socketio/engine.io-parser/compare/v4.0.0-alpha.1...v4.0.0) (2020-09-08)
+
+This major release contains the necessary changes for the version 4 of the Engine.IO protocol. More information about the new version can be found [there](https://github.com/socketio/engine.io-protocol#difference-between-v3-and-v4).
+
+Encoding changes between v3 and v4:
+
+- encodePacket with string
+  - input: `{ type: "message", data: "hello" }`
+  - output in v3: `"4hello"`
+  - output in v4: `"4hello"`
+
+- encodePacket with binary
+  - input: `{ type: 'message', data: <Buffer 01 02 03> }`
+  - output in v3: `<Buffer 04 01 02 03>`
+  - output in v4: `<Buffer 01 02 03>`
+
+- encodePayload with strings
+  - input: `[ { type: 'message', data: 'hello' }, { type: 'message', data: '€€€' } ]`
+  - output in v3: `"6:4hello4:4€€€"`
+  - output in v4: `"4hello\x1e4€€€"`
+
+- encodePayload with string and binary
+  - input: `[ { type: 'message', data: 'hello' }, { type: 'message', data: <Buffer 01 02 03> } ]`
+  - output in v3: `<Buffer 00 06 ff 34 68 65 6c 6c 6f 01 04 ff 04 01 02 03>`
+  - output in v4: `"4hello\x1ebAQID"`
+
+Please note that the parser is now dependency-free! This should help reduce the size of the browser bundle.
+
+### Bug Fixes
+
+* keep track of the buffer initial length ([8edf2d1](https://github.com/socketio/engine.io-parser/commit/8edf2d1478026da442f519c2d2521af43ba01832))
+
+
+### Features
+
+* restore the upgrade mechanism ([6efedfa](https://github.com/socketio/engine.io-parser/commit/6efedfa0f3048506a4ba99e70674ddf4c0732e0c))
+
+
+
 # [4.0.0-alpha.1](https://github.com/socketio/engine.io-parser/compare/v4.0.0-alpha.0...v4.0.0-alpha.1) (2020-05-19)
 
 
