@@ -30,12 +30,12 @@
     "cookie": "~0.4.1",
     "cors": "~2.8.5",
     "debug": "~4.1.0",
-    "engine.io-parser": "~4.0.0-alpha.0",
+    "engine.io-parser": "~4.0.0",
     "ws": "^7.1.2"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.2",
-    "engine.io-client": "~4.0.0-alpha.1",
+    "engine.io-client": "github:socketio/engine.io-client#master",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^6.9.0",
     "expect.js": "^0.3.1",
