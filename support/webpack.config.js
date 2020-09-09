@@ -24,7 +24,7 @@ module.exports = {
       }
     })()`
   },
-  mode: "production",
+  mode: "development",
   node: {
     Buffer: false
   },

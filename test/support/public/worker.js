@@ -1,6 +1,6 @@
 /* global importScripts,eio,postMessage */
 
-importScripts("/test/support/engine.io.js");
+importScripts("/test/support/engine.io.min.js");
 
 var socket = new eio.Socket();
 

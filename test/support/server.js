@@ -8,7 +8,7 @@ var server = require("engine.io").attach(http, { pingInterval: 500 });
 var webpack = require("webpack");
 const path = require("path");
 
-var webpackConfig = require("../../support/webpack.config.js");
+var webpackConfig = require("../../support/prod.config.js");
 
 webpackConfig.output.path = path.resolve(__dirname, "public");
 
