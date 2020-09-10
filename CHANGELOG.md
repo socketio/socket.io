@@ -1,3 +1,25 @@
+# [4.0.0](https://github.com/socketio/engine.io-client/compare/v4.0.0-alpha.1...4.0.0) (2020-09-10)
+
+More details about this release in the blog post: https://socket.io/blog/engine-io-4-release/
+
+### Bug Fixes
+
+* **react-native:** restrict the list of options for the WebSocket object ([2f5c948](https://github.com/socketio/engine.io-client/commit/2f5c948abe8fd1c0fdb010e88f96bd933a3792ea))
+* use globalThis polyfill instead of self/global ([#634](https://github.com/socketio/engine.io-client/issues/634)) ([3f3a6f9](https://github.com/socketio/engine.io-client/commit/3f3a6f991404ef601252193382d2d2029cff6c45))
+
+
+### Features
+
+* strip debug from the browser bundle ([f7ba966](https://github.com/socketio/engine.io-client/commit/f7ba966e53f4609f755880be8fa504f7252b0817))
+
+#### Links
+
+- Diff: [v4.0.0-alpha.1...4.0.0](https://github.com/socketio/engine.io-client/compare/v4.0.0-alpha.1...4.0.0)
+- Full diff: [3.4.0...4.0.0](https://github.com/socketio/engine.io-client/compare/3.4.0...4.0.0)
+- Server release: [4.0.0](https://github.com/socketio/engine.io/releases/tag/4.0.0)
+- ws version: [~7.2.1](https://github.com/websockets/ws/releases/tag/7.2.1)
+
+
 ## [3.4.1](https://github.com/socketio/engine.io-client/compare/3.4.0...3.4.1) (2020-04-17)
 
 
