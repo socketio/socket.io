@@ -1,4 +1,12 @@
-# [4.0.0](https://github.com/socketio/engine.io-parser/compare/v4.0.0-alpha.1...v4.0.0) (2020-09-08)
+## [4.0.1](https://github.com/socketio/engine.io-parser/compare/4.0.0...4.0.1) (2020-09-10)
+
+
+### Bug Fixes
+
+* use a terser-compatible representation of the separator ([886f9ea](https://github.com/socketio/engine.io-parser/commit/886f9ea7c4e717573152c31320f6fb6c6664061b))
+
+
+# [4.0.0](https://github.com/socketio/engine.io-parser/compare/v4.0.0-alpha.1...4.0.0) (2020-09-08)
 
 This major release contains the necessary changes for the version 4 of the Engine.IO protocol. More information about the new version can be found [there](https://github.com/socketio/engine.io-protocol#difference-between-v3-and-v4).
 
