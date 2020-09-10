@@ -2810,25 +2810,28 @@ describe("server", function() {
     });
 
     it("should not compress when the byte size is below threshold", function(done) {
-      var engine = listen({ transports: ["websocket"] }, function(port) {
-        engine.on("connection", function(conn) {
-          var socket = conn.transport.socket;
-          var send = socket.send;
-          socket.send = function(data, opts, callback) {
-            socket.send = send;
-            socket.send(data, opts, callback);
+      var engine = listen(
+        { transports: ["websocket"], perMessageDeflate: true },
+        function(port) {
+          engine.on("connection", function(conn) {
+            var socket = conn.transport.socket;
+            var send = socket.send;
+            socket.send = function(data, opts, callback) {
+              socket.send = send;
+              socket.send(data, opts, callback);
 
-            expect(opts.compress).to.be(false);
-            conn.close();
-            done();
-          };
+              expect(opts.compress).to.be(false);
+              conn.close();
+              done();
+            };
 
-          var buf = Buffer.allocUnsafe(100);
-          for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
-          conn.send(buf, { compress: true });
-        });
-        eioc("http://localhost:%d".s(port), { transports: ["websocket"] });
-      });
+            var buf = Buffer.allocUnsafe(100);
+            for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
+            conn.send(buf, { compress: true });
+          });
+          eioc("http://localhost:%d".s(port), { transports: ["websocket"] });
+        }
+      );
     });
   });
 
