@@ -1,3 +1,25 @@
+# [4.0.0](https://github.com/socketio/engine.io/compare/v4.0.0-alpha.1...4.0.0) (2020-09-10)
+
+More details about this release in the blog post: https://socket.io/blog/engine-io-4-release/
+
+### Bug Fixes
+
+* ignore errors when forcefully closing the socket ([#601](https://github.com/socketio/engine.io/issues/601)) ([dcdbccb](https://github.com/socketio/engine.io/commit/dcdbccb3dd8a7b7db057d23925356034fcd35d48))
+* remove implicit require of uws ([82cdca2](https://github.com/socketio/engine.io/commit/82cdca23bab0ed69b61b60961900d456a3065e6a))
+
+
+### Features
+
+* disable perMessageDeflate by default ([078527a](https://github.com/socketio/engine.io/commit/078527a384b70dc46d99083fa218be5d45213e51))
+
+#### Links
+
+- Diff: [v4.0.0-alpha.1...4.0.0](https://github.com/socketio/engine.io/compare/v4.0.0-alpha.1...4.0.0)
+- Full diff: [3.4.0...4.0.0](https://github.com/socketio/engine.io/compare/3.4.0...4.0.0)
+- Client release: [4.0.0](https://github.com/socketio/engine.io-client/releases/tag/4.0.0)
+- ws version: [^7.1.2](https://github.com/websockets/ws/releases/tag/7.1.2)
+
+
 ## [3.4.2](https://github.com/socketio/engine.io/compare/3.4.1...3.4.2) (2020-06-04)
 
 
