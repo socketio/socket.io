@@ -2,10 +2,10 @@
   "name": "eio-latency",
   "version": "0.1.0",
   "dependencies": {
-    "express": "3.3.5",
     "enchilada": "0.13.0",
-    "engine.io": "1.6.0",
-    "engine.io-client": "1.6.0",
+    "engine.io": "^4.0.0",
+    "engine.io-client": "^4.0.0",
+    "express": "^4.17.1",
     "smoothie": "1.19.0"
   }
 }

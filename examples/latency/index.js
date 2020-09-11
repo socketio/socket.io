@@ -3,28 +3,32 @@
  * Module dependencies.
  */
 
-var express = require('express');
-var app = express();
-var server = require('http').createServer(app);
-var enchilada = require('enchilada');
-var io = require('engine.io').attach(server);
+const express = require('express');
+const app = express();
+const server = require('http').createServer(app);
+const enchilada = require('enchilada');
+const io = require('engine.io').attach(server);
 
 app.use(enchilada({
   src: __dirname + '/public',
   debug: true
 }));
 app.use(express.static(__dirname + '/public'));
-app.get('/', function (req, res, next) {
-  res.sendfile('index.html');
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
 });
 
-io.on('connection', function (socket) {
-  socket.on('message', function (v) {
+app.get('/engine.io.min.js', (req, res) => {
+  res.sendFile(require.resolve('engine.io-client/dist/engine.io.min.js'));
+});
+
+io.on('connection', (socket) => {
+  socket.on('message', () => {
     socket.send('pong');
   });
 });
 
-var port = process.env.PORT || 3000;
-server.listen(port, function () {
+const port = process.env.PORT || 3000;
+server.listen(port, () => {
   console.log('\x1B[96mlistening on localhost:' + port + ' \x1B[39m');
 });
