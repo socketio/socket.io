@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^8.0.2",
+    "eiows": "^3.3.0",
     "engine.io-client": "4.0.0",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^6.9.0",
@@ -42,12 +43,11 @@
     "mocha": "^4.0.1",
     "prettier": "^1.19.1",
     "s": "0.1.1",
-    "superagent": "^3.8.1",
-    "uws": "github:mmdevries/uws#2.4.1"
+    "superagent": "^3.8.1"
   },
   "scripts": {
     "lint": "eslint lib/ test/ *.js",
-    "test": "npm run lint && npm run format:check && mocha && EIO_WS_ENGINE=uws mocha",
+    "test": "npm run lint && npm run format:check && mocha && EIO_WS_ENGINE=eiows mocha",
     "format:check": "prettier --check 'lib/**/*.js' 'test/**/*.js'",
     "format:fix": "prettier --write 'lib/**/*.js' 'test/**/*.js'"
   },

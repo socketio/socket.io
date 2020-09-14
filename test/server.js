@@ -17,9 +17,6 @@ var expect = require("expect.js");
 var request = require("superagent");
 var cookieMod = require("cookie");
 
-// are we running uws wsEngine ?
-var UWS_ENGINE = process.env.EIO_WS_ENGINE === "uws";
-
 /**
  * Tests.
  */
@@ -1863,9 +1860,6 @@ describe("server", function() {
     });
 
     it("should send and receive data with key and cert (ws)", function(done) {
-      if (UWS_ENGINE) {
-        return this.skip();
-      }
       var srvOpts = {
         key: fs.readFileSync("test/fixtures/server.key"),
         cert: fs.readFileSync("test/fixtures/server.crt"),
@@ -1945,9 +1939,6 @@ describe("server", function() {
     });
 
     it("should send and receive data with pfx (ws)", function(done) {
-      if (UWS_ENGINE) {
-        return this.skip();
-      }
       var srvOpts = {
         key: fs.readFileSync("test/fixtures/server.key"),
         cert: fs.readFileSync("test/fixtures/server.crt"),
@@ -3039,11 +3030,11 @@ describe("server", function() {
   });
 
   describe("wsEngine option", function() {
-    it("should allow loading of other websocket server implementation like uws", function(done) {
-      var engine = listen({ allowUpgrades: false, wsEngine: "uws" }, function(
+    it("should allow loading of other websocket server implementation like eiows", function(done) {
+      var engine = listen({ allowUpgrades: false, wsEngine: "eiows" }, function(
         port
       ) {
-        expect(engine.ws instanceof require("uws").Server).to.be.ok();
+        expect(engine.ws instanceof require("eiows").Server).to.be.ok();
         var socket = new eioc.Socket("ws://localhost:%d".s(port));
         engine.on("connection", function(conn) {
           conn.send("a");
