@@ -15,10 +15,10 @@ cross-browser/cross-device bi-directional communication layer for
 #### (A) Listening on a port
 
 ```js
-var engine = require('engine.io');
-var server = engine.listen(80);
+const engine = require('engine.io');
+const server = engine.listen(80);
 
-server.on('connection', function(socket){
+server.on('connection', socket => {
   socket.send('utf 8 string');
   socket.send(Buffer.from([0, 1, 2, 3, 4, 5])); // binary data
 });
@@ -27,31 +27,32 @@ server.on('connection', function(socket){
 #### (B) Intercepting requests for a http.Server
 
 ```js
-var engine = require('engine.io');
-var http = require('http').createServer().listen(3000);
-var server = engine.attach(http);
+const engine = require('engine.io');
+const http = require('http').createServer().listen(3000);
+const server = engine.attach(http);
 
-server.on('connection', function (socket) {
-  socket.on('message', function(data){ });
-  socket.on('close', function(){ });
+server.on('connection', socket => {
+  socket.on('message', data => { });
+  socket.on('close', () => { });
 });
 ```
 
 #### (C) Passing in requests
 
 ```js
-var engine = require('engine.io');
-var server = new engine.Server();
+const engine = require('engine.io');
+const server = new engine.Server();
 
-server.on('connection', function(socket){
+server.on('connection', socket => {
   socket.send('hi');
 });
 
 // …
-httpServer.on('upgrade', function(req, socket, head){
+httpServer.on('upgrade', (req, socket, head) => {
   server.handleUpgrade(req, socket, head);
 });
-httpServer.on('request', function(req, res){
+
+httpServer.on('request', (req, res) => {
   server.handleRequest(req, res);
 });
 ```
@@ -61,10 +62,10 @@ httpServer.on('request', function(req, res){
 ```html
 <script src="/path/to/engine.io.js"></script>
 <script>
-  var socket = new eio.Socket('ws://localhost/');
-  socket.on('open', function(){
-    socket.on('message', function(data){});
-    socket.on('close', function(){});
+  const socket = new eio.Socket('ws://localhost/');
+  socket.on('open', () => {
+    socket.on('message', data => {});
+    socket.on('close', () => {});
   });
 </script>
 ```
@@ -131,21 +132,21 @@ These are exposed by `require('engine.io')`:
   The following are identical ways to instantiate a server and then attach it.
 
 ```js
-var httpServer; // previously created with `http.createServer();` from node.js api.
+const httpServer; // previously created with `http.createServer();` from node.js api.
 
 // create a server first, and then attach
-var eioServer = require('engine.io').Server();
+const eioServer = require('engine.io').Server();
 eioServer.attach(httpServer);
 
 // or call the module as a function to get `Server`
-var eioServer = require('engine.io')();
+const eioServer = require('engine.io')();
 eioServer.attach(httpServer);
 
 // immediately attach
-var eioServer = require('engine.io')(httpServer);
+const eioServer = require('engine.io')(httpServer);
 
 // with custom options
-var eioServer = require('engine.io')(httpServer, {
+const eioServer = require('engine.io')(httpServer, {
   maxHttpBufferSize: 1e3
 });
 ```
@@ -163,8 +164,8 @@ var eioServer = require('engine.io')(httpServer, {
     - **Returns** `Server`
 
 ```js
-var engine = require('engine.io');
-var server = engine.listen(3000, {
+const engine = require('engine.io');
+const server = engine.listen(3000, {
   pingTimeout: 2000,
   pingInterval: 10000
 });
@@ -184,9 +185,9 @@ server.on('connection', /* ... */);
     - **Returns** `Server` a new Server instance.
 
 ```js
-var engine = require('engine.io');
-var httpServer = require('http').createServer().listen(3000);
-var server = engine.attach(httpServer, {
+const engine = require('engine.io');
+const httpServer = require('http').createServer().listen(3000);
+const server = engine.attach(httpServer, {
   wsEngine: 'uws' // requires having uws as dependency
 });
 
