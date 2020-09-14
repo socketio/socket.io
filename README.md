@@ -71,7 +71,7 @@ httpServer.on('request', (req, res) => {
 ```
 
 For more information on the client refer to the
-[engine-client](http://github.com/learnboost/engine.io-client) repository.
+[engine-client](http://github.com/socketio/engine.io-client) repository.
 
 ## What features does it have?
 
@@ -532,9 +532,9 @@ has you covered.
 
 ### Can I implement `Engine` in other languages?
 
-Absolutely. The [engine.io-protocol](https://github.com/LearnBoost/engine.io-protocol)
-repository contains the most up to date description of the specification
-at all times, and the parser implementation in JavaScript.
+Absolutely. The [engine.io-protocol](https://github.com/socketio/engine.io-protocol)
+repository contains the most up-to-date description of the specification
+at all times.
 
 ## License
 
