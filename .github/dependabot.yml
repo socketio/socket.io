@@ -7,5 +7,9 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 50
+    ignore:
+      # Has breaking changes that require careful rollout. https://socket.io/blog/engine-io-4-release/#Major-breaking-changes
+      - dependency-name: "engine.io"
+        versions: ["4.x"]
     reviewers:
       - "kr-project/sre"
