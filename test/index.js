@@ -26,7 +26,7 @@ describe("socket.io-adapter", () => {
     expect(adapter.sids.has("s2")).to.be(false);
   });
 
-  it("should return a list of clients", () => {
+  it("should return a list of sockets", () => {
     const adapter = new Adapter({
       server: { encoder: null },
       connected: new Map([
@@ -39,11 +39,11 @@ describe("socket.io-adapter", () => {
     adapter.addAll("s2", new Set(["r2", "r3"]));
     adapter.addAll("s3", new Set(["r3"]));
 
-    const clients = adapter.clients(new Set());
-    expect(clients).to.be.a(Set);
-    expect(clients.size).to.be(3);
-    expect(adapter.clients(new Set(["r2"])).size).to.be(2);
-    expect(adapter.clients(new Set(["r4"])).size).to.be(0);
+    const sockets = adapter.sockets(new Set());
+    expect(sockets).to.be.a(Set);
+    expect(sockets.size).to.be(3);
+    expect(adapter.sockets(new Set(["r2"])).size).to.be(2);
+    expect(adapter.sockets(new Set(["r4"])).size).to.be(0);
   });
 
   it("should return a list of rooms", () => {
@@ -52,9 +52,9 @@ describe("socket.io-adapter", () => {
     adapter.addAll("s2", new Set(["r2", "r3"]));
     adapter.addAll("s3", new Set(["r3"]));
 
-    const rooms = adapter.clientRooms("s2");
+    const rooms = adapter.socketRooms("s2");
     expect(rooms).to.be.a(Set);
     expect(rooms.size).to.be(2);
-    expect(adapter.clientRooms("s4")).to.be(undefined);
+    expect(adapter.socketRooms("s4")).to.be(undefined);
   });
 });

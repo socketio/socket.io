@@ -124,12 +124,12 @@ class Adapter extends EventEmitter {
   }
 
   /**
-   * Gets a list of clients by sid.
+   * Gets a list of sockets by sid.
    *
    * @param {Set<string>} rooms   the explicit set of rooms to check.
    * @public
    */
-  clients(rooms) {
+  sockets(rooms) {
     const sids = new Set();
 
     if (rooms.size) {
@@ -152,12 +152,12 @@ class Adapter extends EventEmitter {
   }
 
   /**
-   * Gets the list of rooms a given client has joined.
+   * Gets the list of rooms a given socket has joined.
    *
    * @param {String} id   the socket id
    * @public
    */
-  clientRooms(id) {
+  socketRooms(id) {
     return this.sids.get(id);
   }
 }
