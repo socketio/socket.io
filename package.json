@@ -21,7 +21,10 @@
     "url": "git://github.com/socketio/socket.io"
   },
   "scripts": {
-    "test": "nyc mocha --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.js"
+    "lint": "eslint lib/ test/",
+    "test": "npm run lint && npm run format:check && nyc mocha --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.js",
+    "format:check": "prettier --check 'lib/**/*.js' 'test/**/*.js'",
+    "format:fix": "prettier --write 'lib/**/*.js' 'test/**/*.js'"
   },
   "dependencies": {
     "debug": "~4.1.0",
@@ -32,9 +35,13 @@
     "socket.io-parser": "~3.4.0"
   },
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.9.0",
+    "eslint-config-prettier": "^6.11.0",
     "expect.js": "0.3.1",
     "mocha": "^3.5.3",
     "nyc": "^11.2.1",
+    "prettier": "^1.19.1",
     "superagent": "^3.8.2",
     "supertest": "^3.0.0"
   },
