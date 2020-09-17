@@ -55,5 +55,8 @@
       "name": "Einar Otto Stangvik",
       "email": "einaros@gmail.com"
     }
-  ]
+  ],
+  "engines": {
+    "node": ">=10.0.0"
+  }
 }

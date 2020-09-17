@@ -1,12 +1,10 @@
 language: node_js
 sudo: false
 node_js:
-  - '8'
   - '10'
+  - '12'
+  - '14'
 notifications:
   irc: "irc.freenode.org#socket.io"
 git:
   depth: 1
-cache:
-  directories:
-    - node_modules
