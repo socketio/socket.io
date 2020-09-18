@@ -1,20 +1,21 @@
-var Benchmark = require('benchmark');
-var parser = require('../index');
+const Benchmark = require('benchmark');
+const parser = require('../index');
 
 function test(packet, deferred) {
-  var encoder = new parser.Encoder();
-  var decoder = new parser.Decoder();
-  encoder.encode(packet, function(encodedPackets) {
-    var decoder = new parser.Decoder();
-    decoder.on('decoded', function(packet) {
+  const encoder = new parser.Encoder();
+  encoder.encode(packet, encodedPackets => {
+    const decoder = new parser.Decoder();
+    decoder.on('decoded', packet => {
       deferred.resolve();
     });
 
-    decoder.add(encodedPackets[0]);
+    for (const encodedPacket of encodedPackets) {
+      decoder.add(encodedPacket);
+    }
   });
 }
 
-var dataObject = {
+const dataObject = [{
   'a': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
   'b': 'xxxyyyzzzalsdfalskdjfalksdjfalksdjfalksdjfjjfjfjfjjfjfjfj',
   'data': {
@@ -25,57 +26,54 @@ var dataObject = {
       }
     }
    }
-};
-var bigArray = [];
-for (var i = 0; i < 250; i++) {
+}];
+const bigArray = [];
+for (let i = 0; i < 250; i++) {
   bigArray.push(dataObject);
 }
 
+const suite = new Benchmark.Suite();
 
-
-module.exports = function(callback) {
-  var suite = new Benchmark.Suite();
-
-  suite.add('small json parse', {defer: true, fn: function(deferred) {
-    var packet = {
+suite
+  .add('small json parse', {defer: true, fn: deferred => {
+    const packet = {
       type: parser.EVENT,
       nsp: '/bench',
       data: dataObject
     };
     test(packet, deferred);
   }})
-  .add('big json parse', {defer: true, fn: function(deferred) {
-    var packet = {
+  .add('big json parse', {defer: true, fn: deferred => {
+    const packet = {
       type: parser.EVENT,
       nsp: '/bench',
       data: bigArray
     };
     test(packet, deferred);
   }})
-  .add('json with small binary parse', {defer: true, fn: function(deferred) {
-    var packet = {
-      type: parser.EVENT,
+  .add('json with small binary parse', {defer: true, fn: deferred => {
+    const packet = {
+      type: parser.BINARY_EVENT,
       nsp: '/bench',
-      data: {'a': [1, 2, 3], 'b': 'xxxyyyzzz', 'data': new Buffer(1000)}
+      data: [{'a': [1, 2, 3], 'b': 'xxxyyyzzz', 'data': Buffer.allocUnsafe(1000)}]
     };
     test(packet, deferred);
   }})
-  .add('json with big binary parse', {defer: true, fn: function(deferred) {
-    var bigBinaryData = {
-      bin1: new Buffer(10000),
+  .add('json with big binary parse', {defer: true, fn: deferred => {
+    const bigBinaryData = [{
+      bin1: Buffer.allocUnsafe(10000),
       arr: bigArray,
-      bin2: new Buffer(10000),
-      bin3: new Buffer(10000)
-    };
-    var packet = {
-      type: parser.EVENT,
+      bin2: Buffer.allocUnsafe(10000),
+      bin3: Buffer.allocUnsafe(10000)
+    }];
+    const packet = {
+      type: parser.BINARY_EVENT,
       nsp: '/bench',
       data: bigBinaryData
     };
     test(packet, deferred);
   }})
-  .on('complete', function() {
-    callback(this);
+  .on('cycle', function(event) {
+    console.log(String(event.target));
   })
   .run({'async': true});
-};
