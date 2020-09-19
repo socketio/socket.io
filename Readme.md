@@ -64,7 +64,7 @@ io.on('connection', socket => {
 
 #### Cross-browser
 
-Browser support is tested in Saucelabs:
+Browser support is tested in Sauce Labs:
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/socket.svg)](https://saucelabs.com/u/socket)
 
