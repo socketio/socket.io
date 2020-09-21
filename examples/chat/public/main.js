@@ -108,7 +108,7 @@ $(function() {
 
   // Removes the visual chat typing message
   const removeChatTyping = (data) => {
-    getTypingMessages(data).fadeOut(() => {
+    getTypingMessages(data).fadeOut(function () {
       $(this).remove();
     });
   }
@@ -171,7 +171,7 @@ $(function() {
 
   // Gets the 'X is typing' messages of a user
   const getTypingMessages = (data) => {
-    return $('.typing.message').filter(i => {
+    return $('.typing.message').filter(function (i) {
       return $(this).data('username') === data.username;
     });
   }
