@@ -6,7 +6,7 @@ A simple collaborative whiteboard for socket.io
 ## How to use
 
 ```
-$ npm i && npm start
+$ npm ci && npm start
 ```
 
 And point your browser to `http://localhost:3000`. Optionally, specify
