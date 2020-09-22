@@ -257,7 +257,7 @@ export class Decoder extends Emitter {
    * @param {String} str
    * @return {Object} packet
    */
-  private decodeString(str) {
+  private decodeString(str): Packet {
     let i = 0;
     // look up type
     const p: any = {
@@ -265,7 +265,7 @@ export class Decoder extends Emitter {
     };
 
     if (null == exports.types[p.type]) {
-      return error("unknown packet type " + p.type);
+      throw new Error("unknown packet type " + p.type);
     }
 
     // look up attachments if type binary
@@ -316,7 +316,7 @@ export class Decoder extends Emitter {
       if (isPayloadValid) {
         p.data = payload;
       } else {
-        return error("invalid payload");
+        throw new Error("invalid payload");
       }
     }
 
@@ -385,11 +385,4 @@ class BinaryReconstructor {
     this.reconPack = null;
     this.buffers = [];
   }
-}
-
-function error(msg) {
-  return {
-    type: exports.ERROR,
-    data: "parser error: " + msg,
-  };
 }

@@ -86,12 +86,8 @@ describe('parser', function(){
     }
   });
 
-  it('returns an error packet on parsing error', function(done){
-    var decoder = new parser.Decoder();
-    decoder.on('decoded', function(packet) {
-      expect(packet).to.eql({ type: 4, data: 'parser error: invalid payload' });
-      done();
-    });
-    decoder.add('442["some","data"');
+  it('throw an error upon parsing error', () => {
+    expect(() => new parser.Decoder().add('442["some","data"')).to.throwException(/^invalid payload$/);
+    expect(() => new parser.Decoder().add('999')).to.throwException(/^unknown packet type 9$/);
   });
 });
