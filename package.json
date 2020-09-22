@@ -41,7 +41,7 @@
     "expect.js": "0.3.1",
     "mocha": "^8.1.2",
     "nyc": "^15.1.0",
-    "prettier": "^1.19.1",
+    "prettier": "^2.1.2",
     "superagent": "^6.0.0",
     "supertest": "^4.0.2"
   },
