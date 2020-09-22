@@ -6,8 +6,8 @@ const BlobBuilder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
                   typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
                   typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder : false;
 
-describe('parser', function() {
-  it('encodes a Blob', function() {
+describe('parser', () => {
+  it('encodes a Blob', () => {
     var data;
     if (BlobBuilder) {
       var bb = new BlobBuilder();
@@ -26,7 +26,7 @@ describe('parser', function() {
     helpers.test_bin(packet);
   });
 
-  it('encodes an Blob deep in JSON', function() {
+  it('encodes an Blob deep in JSON', () => {
     var data;
     if (BlobBuilder) {
       var bb = new BlobBuilder();
@@ -45,7 +45,7 @@ describe('parser', function() {
     helpers.test_bin(packet);
   });
 
-  it('encodes a binary ack with a blob', function() {
+  it('encodes a binary ack with a blob', () => {
     var data;
     if (BlobBuilder) {
       var bb = new BlobBuilder();

@@ -1,8 +1,8 @@
 const { PacketType } = require('..');
 const helpers = require('./helpers.js');
 
-describe('parser', function() {
-  it('encodes a Buffer', function() {
+describe('parser', () => {
+  it('encodes a Buffer', () => {
       helpers.test_bin({
         type: PacketType.BINARY_EVENT,
         data: ['a', Buffer.from('abc', 'utf8')],
@@ -11,7 +11,7 @@ describe('parser', function() {
       });
   });
 
-  it('encodes a binary ack with Buffer', function() {
+  it('encodes a binary ack with Buffer', () => {
     helpers.test_bin({
       type: PacketType.BINARY_ACK,
       data: ['a', Buffer.from('xxx', 'utf8'), {}],

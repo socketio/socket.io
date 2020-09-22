@@ -1,22 +1,22 @@
-var env = require('./support/env.js');
+const env = require('./support/env.js');
 
-var blobSupported = (function() {
+const blobSupported = (function () {
   try {
     new Blob(['hi']);
     return true;
-  } catch(e) {}
+  } catch (e) {
+  }
   return false;
 })();
 
 /**
  * Create a blob builder even when vendor prefixes exist
  */
-
-var BlobBuilder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
-                  typeof WebKitBlobBuilder !== 'undefined' ? WebKitBlobBuilder :
-                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
-                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder : false;
-var blobBuilderSupported = !!BlobBuilder && !!BlobBuilder.prototype.append && !!BlobBuilder.prototype.getBlob;
+const BlobBuilderRef = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
+  typeof WebKitBlobBuilder !== 'undefined' ? WebKitBlobBuilder :
+    typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
+      typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder : false;
+const blobBuilderSupported = !!BlobBuilderRef && !!BlobBuilderRef.prototype.append && !!BlobBuilderRef.prototype.getBlob;
 
 require('./parser.js');
 

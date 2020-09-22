@@ -2,9 +2,9 @@ const { PacketType, Decoder, Encoder } = require('..');
 const expect = require('expect.js');
 const helpers = require('./helpers.js');
 
-describe('parser', function(){
+describe('parser', () => {
 
-  it('exposes types', function(){
+  it('exposes types', () => {
     expect(PacketType.CONNECT).to.be.a('number');
     expect(PacketType.DISCONNECT).to.be.a('number');
     expect(PacketType.EVENT).to.be.a('number');
@@ -14,21 +14,21 @@ describe('parser', function(){
     expect(PacketType.BINARY_ACK).to.be.a('number');
   });
 
-  it('encodes connection', function(){
+  it('encodes connection', () => {
     helpers.test({
       type: PacketType.CONNECT,
       nsp: '/woot'
     });
   });
 
-  it('encodes disconnection', function(){
+  it('encodes disconnection', () => {
     helpers.test({
       type: PacketType.DISCONNECT,
       nsp: '/woot'
     });
   });
 
-  it('encodes an event', function(){
+  it('encodes an event', () => {
     helpers.test({
       type: PacketType.EVENT,
       data: ['a', 1, {}],
@@ -42,7 +42,7 @@ describe('parser', function(){
     });
   });
 
-  it('encodes an ack', function(){
+  it('encodes an ack', () => {
     helpers.test({
       type: PacketType.ACK,
       data: ['a', 1, {}],
@@ -51,7 +51,7 @@ describe('parser', function(){
     });
   });
 
-  it('encodes an error', function(){
+  it('encodes an error', () => {
     helpers.test({
       type: PacketType.ERROR,
       data: 'Unauthorized',
@@ -59,7 +59,7 @@ describe('parser', function(){
     });
   });
 
-  it('throws an error when encoding circular objects', function() {
+  it('throws an error when encoding circular objects', () => {
     var a = {};
     a.b = a;
 
@@ -75,7 +75,7 @@ describe('parser', function(){
     expect(() => encoder.encode(data)).to.throwException();
   });
 
-  it('decodes a bad binary packet', function(){
+  it('decodes a bad binary packet', () => {
     try {
       const decoder = new Decoder();
       decoder.add('5');

@@ -3,8 +3,8 @@ const expect = require('expect.js');
 const helpers = require('./helpers.js');
 const encoder = new Encoder();
 
-describe('parser', function() {
-  it('encodes an ArrayBuffer', function() {
+describe('parser', () => {
+  it('encodes an ArrayBuffer', () => {
     var packet = {
       type: PacketType.BINARY_EVENT,
       data: ['a', new ArrayBuffer(2)],
@@ -14,7 +14,7 @@ describe('parser', function() {
     helpers.test_bin(packet);
   });
 
-  it('encodes a TypedArray', function() {
+  it('encodes a TypedArray', () => {
     var array = new Uint8Array(5);
     for (var i = 0; i < array.length; i++) array[i] = i;
 
@@ -27,7 +27,7 @@ describe('parser', function() {
     helpers.test_bin(packet);
   });
 
-  it('encodes ArrayBuffers deep in JSON', function() {
+  it('encodes ArrayBuffers deep in JSON', () => {
     var packet = {
       type: PacketType.BINARY_EVENT,
       data: ['a', {a: 'hi', b: {why: new ArrayBuffer(3)}, c: {a: 'bye', b: { a: new ArrayBuffer(6)}}}],
@@ -37,7 +37,7 @@ describe('parser', function() {
     helpers.test_bin(packet);
   });
 
-  it('encodes deep binary JSON with null values', function() {
+  it('encodes deep binary JSON with null values', () => {
     var packet = {
       type: PacketType.BINARY_EVENT,
       data: ['a', {a: 'b', c: 4, e: {g: null}, h: new ArrayBuffer(9)}],
@@ -47,7 +47,7 @@ describe('parser', function() {
     helpers.test_bin(packet);
   });
 
-  it('cleans itself up on close', function() {
+  it('cleans itself up on close', () => {
     var packet = {
       type: PacketType.BINARY_EVENT,
       data: [new ArrayBuffer(2), new ArrayBuffer(3)],
@@ -55,9 +55,9 @@ describe('parser', function() {
       nsp: '/'
     };
 
-    encoder.encode(packet, function(encodedPackets) {
+    encoder.encode(packet, encodedPackets => {
       var decoder = new Decoder();
-      decoder.on('decoded', function(packet) {
+      decoder.on('decoded', packet => {
         throw new Error("received a packet when not all binary data was sent.");
       });
 
