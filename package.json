@@ -27,7 +27,7 @@
     "format:fix": "prettier --write 'lib/**/*.js' 'test/**/*.js'"
   },
   "dependencies": {
-    "debug": "~4.1.1",
+    "debug": "~4.2.0",
     "engine.io": "~3.4.2",
     "has-binary2": "~2.0.0",
     "socket.io-adapter": "kr-project/socket.io-adapter",
