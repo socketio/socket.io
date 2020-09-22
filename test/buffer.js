@@ -1,13 +1,10 @@
-var parser = require('..');
-var expect = require('expect.js');
-var helpers = require('./helpers.js');
-var encode = parser.encode;
-var decode = parser.decode;
+const { PacketType } = require('..');
+const helpers = require('./helpers.js');
 
 describe('parser', function() {
   it('encodes a Buffer', function() {
       helpers.test_bin({
-        type: parser.BINARY_EVENT,
+        type: PacketType.BINARY_EVENT,
         data: ['a', Buffer.from('abc', 'utf8')],
         id: 23,
         nsp: '/cool'
@@ -16,7 +13,7 @@ describe('parser', function() {
 
   it('encodes a binary ack with Buffer', function() {
     helpers.test_bin({
-      type: parser.BINARY_ACK,
+      type: PacketType.BINARY_ACK,
       data: ['a', Buffer.from('xxx', 'utf8'), {}],
       id: 127,
       nsp: '/back'

@@ -13,22 +13,6 @@ const debug = debugModule("socket.io-parser");
 
 export const protocol: number = 4;
 
-/**
- * Packet types.
- *
- * @public
- */
-
-export const types: Array<string> = [
-  "CONNECT",
-  "DISCONNECT",
-  "EVENT",
-  "ACK",
-  "ERROR",
-  "BINARY_EVENT",
-  "BINARY_ACK",
-];
-
 export enum PacketType {
   CONNECT,
   DISCONNECT,
@@ -46,62 +30,6 @@ interface Packet {
   id?: number;
   attachments?: number;
 }
-
-/**
- * Packet type `connect`.
- *
- * @public
- */
-
-export const CONNECT: number = 0;
-
-/**
- * Packet type `disconnect`.
- *
- * @public
- */
-
-export const DISCONNECT: number = 1;
-
-/**
- * Packet type `event`.
- *
- * @public
- */
-
-export const EVENT: number = 2;
-
-/**
- * Packet type `ack`.
- *
- * @public
- */
-
-export const ACK: number = 3;
-
-/**
- * Packet type `error`.
- *
- * @public
- */
-
-export const ERROR: number = 4;
-
-/**
- * Packet type 'binary event'
- *
- * @public
- */
-
-export const BINARY_EVENT: number = 5;
-
-/**
- * Packet type `binary ack`. For acks with binary arguments.
- *
- * @api public
- */
-
-export const BINARY_ACK: number = 6;
 
 /**
  * A socket.io Encoder instance
@@ -139,7 +67,10 @@ export class Encoder {
     let str = "" + obj.type;
 
     // attachments if we have them
-    if (exports.BINARY_EVENT === obj.type || exports.BINARY_ACK === obj.type) {
+    if (
+      obj.type === PacketType.BINARY_EVENT ||
+      obj.type === PacketType.BINARY_ACK
+    ) {
       str += obj.attachments + "-";
     }
 
@@ -186,7 +117,7 @@ export class Encoder {
   }
 }
 
-const ERROR_PACKET = exports.ERROR + '"encode error"';
+const ERROR_PACKET = PacketType.ERROR + '"encode error"';
 
 function tryStringify(str) {
   try {
@@ -220,8 +151,8 @@ export class Decoder extends Emitter {
     if (typeof obj === "string") {
       packet = this.decodeString(obj);
       if (
-        exports.BINARY_EVENT === packet.type ||
-        exports.BINARY_ACK === packet.type
+        packet.type === PacketType.BINARY_EVENT ||
+        packet.type === PacketType.BINARY_ACK
       ) {
         // binary packet's json
         this.reconstructor = new BinaryReconstructor(packet);
@@ -264,12 +195,15 @@ export class Decoder extends Emitter {
       type: Number(str.charAt(0)),
     };
 
-    if (null == exports.types[p.type]) {
+    if (PacketType[p.type] === undefined) {
       throw new Error("unknown packet type " + p.type);
     }
 
     // look up attachments if type binary
-    if (exports.BINARY_EVENT === p.type || exports.BINARY_ACK === p.type) {
+    if (
+      p.type === PacketType.BINARY_EVENT ||
+      p.type === PacketType.BINARY_ACK
+    ) {
       const start = i + 1;
       while (str.charAt(++i) !== "-" && i != str.length) {}
       const buf = str.substring(start, i);
@@ -312,7 +246,7 @@ export class Decoder extends Emitter {
       const payload = tryParse(str.substr(i));
       const isPayloadValid =
         payload !== false &&
-        (p.type === exports.ERROR || Array.isArray(payload));
+        (p.type === PacketType.ERROR || Array.isArray(payload));
       if (isPayloadValid) {
         p.data = payload;
       } else {

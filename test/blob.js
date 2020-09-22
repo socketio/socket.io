@@ -1,7 +1,7 @@
-var parser = require('..');
-var helpers = require('./helpers.js');
+const { PacketType } = require('..');
+const helpers = require('./helpers.js');
 
-var BlobBuilder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
+const BlobBuilder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
                   typeof WebKitBlobBuilder !== 'undefined' ? WebKitBlobBuilder :
                   typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
                   typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder : false;
@@ -18,7 +18,7 @@ describe('parser', function() {
     }
 
     var packet = {
-      type: parser.BINARY_EVENT,
+      type: PacketType.BINARY_EVENT,
       data: data,
       id: 0,
       nsp: '/'
@@ -37,7 +37,7 @@ describe('parser', function() {
     }
 
     var packet = {
-      type: parser.BINARY_EVENT,
+      type: PacketType.BINARY_EVENT,
       data: {a: 'hi', b: { why: data }, c: 'bye'},
       id: 999,
       nsp: '/deep'
@@ -56,7 +56,7 @@ describe('parser', function() {
     }
 
     var packet = {
-      type: parser.BINARY_ACK,
+      type: PacketType.BINARY_ACK,
       data: {a: 'hi ack', b: { why: data }, c: 'bye ack'},
       id: 999,
       nsp: '/deep'
