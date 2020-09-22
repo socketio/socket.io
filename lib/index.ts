@@ -87,12 +87,7 @@ export class Encoder {
 
     // json data
     if (null != obj.data) {
-      const payload = tryStringify(obj.data);
-      if (payload !== false) {
-        str += payload;
-      } else {
-        return ERROR_PACKET;
-      }
+      str += JSON.stringify(obj.data);
     }
 
     debug("encoded %j as %s", obj, str);
@@ -117,22 +112,11 @@ export class Encoder {
   }
 }
 
-const ERROR_PACKET = PacketType.ERROR + '"encode error"';
-
-function tryStringify(str) {
-  try {
-    return JSON.stringify(str);
-  } catch (e) {
-    return false;
-  }
-}
-
 /**
  * A socket.io Decoder instance
  *
  * @return {Object} decoder
  */
-// @ts-ignore
 export class Decoder extends Emitter {
   private reconstructor: BinaryReconstructor;
 

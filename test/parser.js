@@ -59,7 +59,7 @@ describe('parser', function(){
     });
   });
 
-  it('properly handles circular objects', function() {
+  it('throws an error when encoding circular objects', function() {
     var a = {};
     a.b = a;
 
@@ -72,9 +72,7 @@ describe('parser', function(){
 
     const encoder = new Encoder();
 
-    encoder.encode(data, function(encodedPackets) {
-      expect(encodedPackets[0]).to.be('4"encode error"');
-    });
+    expect(() => encoder.encode(data)).to.throwException();
   });
 
   it('decodes a bad binary packet', function(){
