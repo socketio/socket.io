@@ -1,5 +1,5 @@
 const Benchmark = require('benchmark');
-const parser = require('../index');
+const parser = require('..');
 
 function test(packet, deferred) {
   const encoder = new parser.Encoder();

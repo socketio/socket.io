@@ -1,4 +1,4 @@
-var parser = require('../index.js');
+var parser = require('..');
 var expect = require('expect.js');
 var helpers = require('./helpers.js');
 var encode = parser.encode;
@@ -8,7 +8,7 @@ describe('parser', function() {
   it('encodes a Buffer', function() {
       helpers.test_bin({
         type: parser.BINARY_EVENT,
-        data: ['a', new Buffer('abc', 'utf8')],
+        data: ['a', Buffer.from('abc', 'utf8')],
         id: 23,
         nsp: '/cool'
       });
@@ -17,7 +17,7 @@ describe('parser', function() {
   it('encodes a binary ack with Buffer', function() {
     helpers.test_bin({
       type: parser.BINARY_ACK,
-      data: ['a', new Buffer('xxx', 'utf8'), {}],
+      data: ['a', Buffer.from('xxx', 'utf8'), {}],
       id: 127,
       nsp: '/back'
     })

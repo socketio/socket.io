@@ -1,4 +1,4 @@
-var parser = require('../index.js');
+var parser = require('..');
 var helpers = require('./helpers.js');
 
 var BlobBuilder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :

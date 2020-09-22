@@ -1,4 +1,4 @@
-var parser = require('../index.js');
+var parser = require('..');
 var expect = require('expect.js');
 var helpers = require('./helpers.js');
 

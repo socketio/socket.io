@@ -1,12 +1,14 @@
 'use strict';
 
-var browsers = require('socket.io-browsers');
+const browsers = require('socket.io-browsers');
 
-var zuulConfig = module.exports = {
+const zuulConfig = module.exports = {
   ui: 'mocha-bdd',
 
   // test on localhost by default
   local: true,
+  coverage: false,
+  open: true,
 
   concurrency: 2, // ngrok only accepts two tunnels by default
   // if browser does not sends output in 120s since last output:
@@ -29,11 +31,11 @@ if (process.env.CI === 'true') {
         name: "babelify",
         presets: ["@babel/preset-env"],
         global: true,
-        only: [ /\/node_modules\/debug\// ]
+        ignore: [/\/node_modules\/(?!debug\/)/]
       }
     }
   ]
 }
 
-var isPullRequest = process.env.TRAVIS_PULL_REQUEST && process.env.TRAVIS_PULL_REQUEST !== 'false';
+const isPullRequest = process.env.TRAVIS_PULL_REQUEST && process.env.TRAVIS_PULL_REQUEST !== 'false';
 zuulConfig.browsers = isPullRequest ? browsers.pullRequest : browsers.all;
