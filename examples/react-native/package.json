@@ -20,5 +20,12 @@
     "babel-preset-expo": "~8.1.0",
     "@babel/core": "^7.8.6"
   },
+  "resolutions": {
+    "lodash": "^4.17.19",
+    "logkitty": "^0.7.1",
+    "mem": "^4.0.0",
+    "node-fetch": "^2.6.1",
+    "yargs-parser": "^13.1.2"
+  },
   "private": true
 }

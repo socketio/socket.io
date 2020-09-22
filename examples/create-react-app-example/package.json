@@ -12,6 +12,14 @@
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0"
   },
+  "resolutions": {
+    "elliptic": "^6.5.3",
+    "http-proxy": "^1.18.1",
+    "lodash": "^4.17.19",
+    "node-forge": "^0.10.0",
+    "serialize-javascript": "^3.1.0",
+    "websocket-extensions": "^0.1.4"
+  },
   "scripts": {
     "start": "react-scripts start",
     "start-server": "node server.js",
