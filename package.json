@@ -35,8 +35,8 @@
     "test": "npm run format:check && tsc && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
     "test:node": "mocha --reporter dot --bail test/index.js",
     "test:browser": "zuul test/index.js --no-coverage",
-    "format:fix": "prettier --write --parser typescript \"lib/**/*.ts\"",
-    "format:check": "prettier --check --parser typescript \"lib/**/*.ts\""
+    "format:fix": "prettier --write --parser typescript 'lib/**/*.ts' 'test/**/*.js'",
+    "format:check": "prettier --check --parser typescript 'lib/**/*.ts' 'test/**/*.js'"
   },
   "license": "MIT",
   "engines": {

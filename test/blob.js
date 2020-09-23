@@ -1,13 +1,19 @@
-const { PacketType } = require('..');
-const helpers = require('./helpers.js');
+const { PacketType } = require("..");
+const helpers = require("./helpers.js");
 
-const BlobBuilderImpl = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
-                  typeof WebKitBlobBuilder !== 'undefined' ? WebKitBlobBuilder :
-                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
-                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder : false;
+const BlobBuilderImpl =
+  typeof BlobBuilder !== "undefined"
+    ? BlobBuilder
+    : typeof WebKitBlobBuilder !== "undefined"
+    ? WebKitBlobBuilder
+    : typeof MSBlobBuilder !== "undefined"
+    ? MSBlobBuilder
+    : typeof MozBlobBuilder !== "undefined"
+    ? MozBlobBuilder
+    : false;
 
-describe('parser', () => {
-  it('encodes a Blob', (done) => {
+describe("parser", () => {
+  it("encodes a Blob", (done) => {
     let data;
     if (BlobBuilderImpl) {
       const bb = new BlobBuilderImpl();
@@ -21,12 +27,12 @@ describe('parser', () => {
       type: PacketType.BINARY_EVENT,
       data: [data],
       id: 0,
-      nsp: '/'
+      nsp: "/",
     };
     helpers.test_bin(packet, done);
   });
 
-  it('encodes an Blob deep in JSON', (done) => {
+  it("encodes an Blob deep in JSON", (done) => {
     let data;
     if (BlobBuilderImpl) {
       const bb = new BlobBuilderImpl();
@@ -38,14 +44,14 @@ describe('parser', () => {
 
     const packet = {
       type: PacketType.BINARY_EVENT,
-      data: [{a: 'hi', b: {why: data}, c: 'bye'}],
+      data: [{ a: "hi", b: { why: data }, c: "bye" }],
       id: 999,
-      nsp: '/deep'
+      nsp: "/deep",
     };
     helpers.test_bin(packet, done);
   });
 
-  it('encodes a binary ack with a blob', (done) => {
+  it("encodes a binary ack with a blob", (done) => {
     let data;
     if (BlobBuilderImpl) {
       const bb = new BlobBuilderImpl();
@@ -57,11 +63,10 @@ describe('parser', () => {
 
     const packet = {
       type: PacketType.BINARY_ACK,
-      data: [{a: 'hi ack', b: {why: data}, c: 'bye ack'}],
+      data: [{ a: "hi ack", b: { why: data }, c: "bye ack" }],
       id: 999,
-      nsp: '/deep'
+      nsp: "/deep",
     };
     helpers.test_bin(packet, done);
-  })
-
+  });
 });
