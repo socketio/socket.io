@@ -1,6 +1,6 @@
 import * as Emitter from "component-emitter";
 import * as binary from "./binary";
-import isBuf from "./is-buffer";
+import isBinary from "./is-binary";
 import debugModule from "debug";
 
 const debug = debugModule("socket.io-parser");
@@ -41,20 +41,18 @@ export class Encoder {
    * buffer sequence, depending on packet type.
    *
    * @param {Object} obj - packet object
-   * @param {Function} callback - function to handle encodings (likely engine.write)
-   * @return Calls callback with Array of encodings
    */
-  public encode(obj: Packet, callback: Function) {
+  public encode(obj: Packet) {
     debug("encoding packet %j", obj);
 
     if (
       obj.type === PacketType.BINARY_EVENT ||
       obj.type === PacketType.BINARY_ACK
     ) {
-      this.encodeAsBinary(obj, callback);
+      return this.encodeAsBinary(obj);
     } else {
       const encoding = this.encodeAsString(obj);
-      callback([encoding]);
+      return [encoding];
     }
   }
 
@@ -100,15 +98,13 @@ export class Encoder {
    * a list of buffers.
    */
 
-  private encodeAsBinary(obj: Packet, callback: Function) {
-    binary.removeBlobs(obj, (bloblessData) => {
-      const deconstruction = binary.deconstructPacket(bloblessData);
-      const pack = this.encodeAsString(deconstruction.packet);
-      const buffers = deconstruction.buffers;
+  private encodeAsBinary(obj: Packet) {
+    const deconstruction = binary.deconstructPacket(obj);
+    const pack = this.encodeAsString(deconstruction.packet);
+    const buffers = deconstruction.buffers;
 
-      buffers.unshift(pack); // add packet info to beginning of data list
-      callback(buffers); // write all the buffers
-    });
+    buffers.unshift(pack); // add packet info to beginning of data list
+    return buffers; // write all the buffers
   }
 }
 
@@ -149,7 +145,7 @@ export class Decoder extends Emitter {
         // non-binary full packet
         super.emit("decoded", packet);
       }
-    } else if (isBuf(obj) || obj.base64) {
+    } else if (isBinary(obj) || obj.base64) {
       // raw binary data
       if (!this.reconstructor) {
         throw new Error("got binary data when not reconstructing a packet");

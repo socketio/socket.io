@@ -4,33 +4,33 @@ const encoder = new parser.Encoder();
 
 // tests encoding and decoding a single packet
 module.exports.test = (obj, done) => {
-  encoder.encode(obj, encodedPackets => {
-    const decoder = new parser.Decoder();
-    decoder.on('decoded', packet => {
-      expect(packet).to.eql(obj);
-      done();
-    });
+  const encodedPackets = encoder.encode(obj);
 
-    decoder.add(encodedPackets[0]);
+  const decoder = new parser.Decoder();
+  decoder.on('decoded', packet => {
+    expect(packet).to.eql(obj);
+    done();
   });
+
+  decoder.add(encodedPackets[0]);
 }
 
 // tests encoding of binary packets
 module.exports.test_bin = (obj, done) => {
   const originalData = obj.data;
-  encoder.encode(obj, encodedPackets => {
-    const decoder = new parser.Decoder();
-    decoder.on('decoded', packet => {
-      obj.data = originalData;
-      obj.attachments = undefined;
-      expect(obj).to.eql(packet);
-      done();
-    });
+  const encodedPackets = encoder.encode(obj);
 
-    for (let i = 0; i < encodedPackets.length; i++) {
-      decoder.add(encodedPackets[i]);
-    }
+  const decoder = new parser.Decoder();
+  decoder.on('decoded', packet => {
+    obj.data = originalData;
+    obj.attachments = undefined;
+    expect(obj).to.eql(packet);
+    done();
   });
+
+  for (let i = 0; i < encodedPackets.length; i++) {
+    decoder.add(encodedPackets[i]);
+  }
 }
 
 // array buffer's slice is native code that is not transported across
