@@ -12,11 +12,11 @@ const blobSupported = (function () {
 /**
  * Create a blob builder even when vendor prefixes exist
  */
-const BlobBuilderRef = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
+const BlobBuilderImpl = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
   typeof WebKitBlobBuilder !== 'undefined' ? WebKitBlobBuilder :
     typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
       typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder : false;
-const blobBuilderSupported = !!BlobBuilderRef && !!BlobBuilderRef.prototype.append && !!BlobBuilderRef.prototype.getBlob;
+const blobBuilderSupported = !!BlobBuilderImpl && !!BlobBuilderImpl.prototype.append && !!BlobBuilderImpl.prototype.getBlob;
 
 require('./parser.js');
 

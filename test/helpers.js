@@ -3,11 +3,12 @@ const expect = require('expect.js');
 const encoder = new parser.Encoder();
 
 // tests encoding and decoding a single packet
-module.exports.test = obj => {
+module.exports.test = (obj, done) => {
   encoder.encode(obj, encodedPackets => {
     const decoder = new parser.Decoder();
     decoder.on('decoded', packet => {
       expect(packet).to.eql(obj);
+      done();
     });
 
     decoder.add(encodedPackets[0]);
@@ -15,7 +16,7 @@ module.exports.test = obj => {
 }
 
 // tests encoding of binary packets
-module.exports.test_bin = obj => {
+module.exports.test_bin = (obj, done) => {
   const originalData = obj.data;
   encoder.encode(obj, encodedPackets => {
     const decoder = new parser.Decoder();
@@ -23,6 +24,7 @@ module.exports.test_bin = obj => {
       obj.data = originalData;
       obj.attachments = undefined;
       expect(obj).to.eql(packet);
+      done();
     });
 
     for (let i = 0; i < encodedPackets.length; i++) {

@@ -14,49 +14,52 @@ describe('parser', () => {
     expect(PacketType.BINARY_ACK).to.be.a('number');
   });
 
-  it('encodes connection', () => {
+  it('encodes connection', done => {
     helpers.test({
       type: PacketType.CONNECT,
       nsp: '/woot'
-    });
+    }, done);
   });
 
-  it('encodes disconnection', () => {
+  it('encodes disconnection', done => {
     helpers.test({
       type: PacketType.DISCONNECT,
       nsp: '/woot'
-    });
+    }, done);
   });
 
-  it('encodes an event', () => {
+  it('encodes an event', done => {
     helpers.test({
       type: PacketType.EVENT,
       data: ['a', 1, {}],
       nsp: '/'
-    });
+    }, done);
+  });
+
+  it('encodes an event (with ack)', done => {
     helpers.test({
       type: PacketType.EVENT,
       data: ['a', 1, {}],
       id: 1,
       nsp: '/test'
-    });
+    }, done);
   });
 
-  it('encodes an ack', () => {
+  it('encodes an ack', done => {
     helpers.test({
       type: PacketType.ACK,
       data: ['a', 1, {}],
       id: 123,
       nsp: '/'
-    });
+    }, done);
   });
 
-  it('encodes an error', () => {
+  it('encodes an error', done => {
     helpers.test({
       type: PacketType.ERROR,
       data: 'Unauthorized',
       nsp: '/'
-    });
+    }, done);
   });
 
   it('throws an error when encoding circular objects', () => {

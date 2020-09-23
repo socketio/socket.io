@@ -4,17 +4,17 @@ const helpers = require('./helpers.js');
 const encoder = new Encoder();
 
 describe('parser', () => {
-  it('encodes an ArrayBuffer', () => {
+  it('encodes an ArrayBuffer', done => {
     var packet = {
       type: PacketType.BINARY_EVENT,
       data: ['a', new ArrayBuffer(2)],
       id: 0,
       nsp: '/'
     };
-    helpers.test_bin(packet);
+    helpers.test_bin(packet, done);
   });
 
-  it('encodes a TypedArray', () => {
+  it('encodes a TypedArray', done => {
     var array = new Uint8Array(5);
     for (var i = 0; i < array.length; i++) array[i] = i;
 
@@ -24,27 +24,27 @@ describe('parser', () => {
       id: 0,
       nsp: '/'
     };
-    helpers.test_bin(packet);
+    helpers.test_bin(packet, done);
   });
 
-  it('encodes ArrayBuffers deep in JSON', () => {
+  it('encodes ArrayBuffers deep in JSON', done => {
     var packet = {
       type: PacketType.BINARY_EVENT,
       data: ['a', {a: 'hi', b: {why: new ArrayBuffer(3)}, c: {a: 'bye', b: { a: new ArrayBuffer(6)}}}],
       id: 999,
       nsp: '/deep'
     };
-    helpers.test_bin(packet);
+    helpers.test_bin(packet, done);
   });
 
-  it('encodes deep binary JSON with null values', () => {
+  it('encodes deep binary JSON with null values', done => {
     var packet = {
       type: PacketType.BINARY_EVENT,
       data: ['a', {a: 'b', c: 4, e: {g: null}, h: new ArrayBuffer(9)}],
       nsp: '/',
       id: 600
     };
-    helpers.test_bin(packet);
+    helpers.test_bin(packet, done);
   });
 
   it('cleans itself up on close', () => {
