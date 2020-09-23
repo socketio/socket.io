@@ -1,4 +1,4 @@
-const Adapter = require("..");
+const { Adapter } = require("..");
 const expect = require("expect.js");
 
 describe("socket.io-adapter", () => {
@@ -26,7 +26,7 @@ describe("socket.io-adapter", () => {
     expect(adapter.sids.has("s2")).to.be(false);
   });
 
-  it("should return a list of sockets", () => {
+  it("should return a list of sockets", async () => {
     const adapter = new Adapter({
       server: { encoder: null },
       connected: new Map([
@@ -39,11 +39,11 @@ describe("socket.io-adapter", () => {
     adapter.addAll("s2", new Set(["r2", "r3"]));
     adapter.addAll("s3", new Set(["r3"]));
 
-    const sockets = adapter.sockets(new Set());
+    const sockets = await adapter.sockets(new Set());
     expect(sockets).to.be.a(Set);
     expect(sockets.size).to.be(3);
-    expect(adapter.sockets(new Set(["r2"])).size).to.be(2);
-    expect(adapter.sockets(new Set(["r4"])).size).to.be(0);
+    expect((await adapter.sockets(new Set(["r2"]))).size).to.be(2);
+    expect((await adapter.sockets(new Set(["r4"]))).size).to.be(0);
   });
 
   it("should return a list of rooms", () => {

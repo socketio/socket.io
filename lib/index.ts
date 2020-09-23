@@ -1,28 +1,45 @@
-const EventEmitter = require("events");
+import { EventEmitter } from "events";
 
-class Adapter extends EventEmitter {
+export type SocketId = string;
+export type Room = string;
+
+export interface BroadcastFlags {
+  volatile?: boolean;
+  compress?: boolean;
+  local?: boolean;
+  broadcast?: boolean;
+  binary?: boolean;
+}
+
+export interface BroadcastOptions {
+  rooms: Set<Room>;
+  except?: Set<SocketId>;
+  flags?: BroadcastFlags;
+}
+
+export class Adapter extends EventEmitter {
+  protected rooms: Map<Room, Set<SocketId>> = new Map();
+  protected sids: Map<SocketId, Set<Room>> = new Map();
+  private readonly encoder;
+
   /**
    * In-memory adapter constructor.
    *
    * @param {Namespace} nsp
-   * @public
    */
-  constructor(nsp) {
+  constructor(readonly nsp: any) {
     super();
-    this.nsp = nsp;
-    this.rooms = new Map(); // Map<Room, Set<SocketId>>
-    this.sids = new Map(); // Map<SocketId, Set<Room>>
     this.encoder = nsp.server.encoder;
   }
 
   /**
    * Adds a socket to a list of room.
    *
-   * @param {string}      id      the socket id
-   * @param {Set<string>} rooms   a set of rooms
+   * @param {SocketId}  id      the socket id
+   * @param {Set<Room>} rooms   a set of rooms
    * @public
    */
-  addAll(id, rooms) {
+  public addAll(id: SocketId, rooms: Set<Room>): void {
     for (const room of rooms) {
       if (!this.sids.has(id)) {
         this.sids.set(id, new Set());
@@ -39,11 +56,10 @@ class Adapter extends EventEmitter {
   /**
    * Removes a socket from a room.
    *
-   * @param {string} id     the socket id
-   * @param {string} room   the room name
-   * @public
+   * @param {SocketId} id     the socket id
+   * @param {Room}     room   the room name
    */
-  del(id, room) {
+  public del(id: SocketId, room: Room): void {
     if (this.sids.has(id)) {
       this.sids.get(id).delete(room);
     }
@@ -57,10 +73,9 @@ class Adapter extends EventEmitter {
   /**
    * Removes a socket from all rooms it's joined.
    *
-   * @param {string} id   the socket id
-   * @public
+   * @param {SocketId} id   the socket id
    */
-  delAll(id) {
+  public delAll(id: SocketId): void {
     if (!this.sids.has(id)) {
       return;
     }
@@ -87,9 +102,9 @@ class Adapter extends EventEmitter {
    * @param {Object} opts     the options
    * @public
    */
-  broadcast(packet, opts) {
+  public broadcast(packet: any, opts: BroadcastOptions): void {
     const rooms = opts.rooms;
-    const except = opts.except || [];
+    const except = opts.except || new Set();
     const flags = opts.flags || {};
     const packetOpts = {
       preEncoded: true,
@@ -105,7 +120,7 @@ class Adapter extends EventEmitter {
           if (!this.rooms.has(room)) continue;
 
           for (const id of this.rooms.get(room)) {
-            if (ids.has(id) || ~except.indexOf(id)) continue;
+            if (ids.has(id) || except.has(id)) continue;
             const socket = this.nsp.connected.get(id);
             if (socket) {
               socket.packet(encodedPackets, packetOpts);
@@ -115,7 +130,7 @@ class Adapter extends EventEmitter {
         }
       } else {
         for (const [id] of this.sids) {
-          if (~except.indexOf(id)) continue;
+          if (except.has(id)) continue;
           const socket = this.nsp.connected.get(id);
           if (socket) socket.packet(encodedPackets, packetOpts);
         }
@@ -126,11 +141,10 @@ class Adapter extends EventEmitter {
   /**
    * Gets a list of sockets by sid.
    *
-   * @param {Set<string>} rooms   the explicit set of rooms to check.
-   * @public
+   * @param {Set<Room>} rooms   the explicit set of rooms to check.
    */
-  sockets(rooms) {
-    const sids = new Set();
+  public sockets(rooms: Set<Room>): Promise<Set<SocketId>> {
+    const sids = new Set<SocketId>();
 
     if (rooms.size) {
       for (const room of rooms) {
@@ -148,18 +162,15 @@ class Adapter extends EventEmitter {
       }
     }
 
-    return sids;
+    return Promise.resolve(sids);
   }
 
   /**
    * Gets the list of rooms a given socket has joined.
    *
-   * @param {String} id   the socket id
-   * @public
+   * @param {SocketId} id   the socket id
    */
-  socketRooms(id) {
+  public socketRooms(id: SocketId): Set<Room> | undefined {
     return this.sids.get(id);
   }
 }
-
-module.exports = Adapter;
