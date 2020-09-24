@@ -11,20 +11,20 @@
     "socket",
     "io"
   ],
-  "main": "./lib/index",
   "files": [
-    "lib/"
+    "dist/"
   ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git://github.com/socketio/socket.io"
   },
   "scripts": {
-    "lint": "eslint lib/ test/",
-    "test": "npm run lint && npm run format:check && nyc mocha --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.js",
-    "format:check": "prettier --check 'lib/**/*.js' 'test/**/*.js'",
-    "format:fix": "prettier --write 'lib/**/*.js' 'test/**/*.js'"
+    "test": "npm run format:check && tsc && nyc mocha --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.js",
+    "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js'",
+    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js'"
   },
   "dependencies": {
     "debug": "~4.1.0",
@@ -35,6 +35,7 @@
     "socket.io-parser": "~3.4.0"
   },
   "devDependencies": {
+    "@types/node": "^14.11.2",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.9.0",
     "eslint-config-prettier": "^6.11.0",
@@ -43,7 +44,8 @@
     "nyc": "^11.2.1",
     "prettier": "^1.19.1",
     "superagent": "^3.8.2",
-    "supertest": "^3.0.0"
+    "supertest": "^3.0.0",
+    "typescript": "^4.0.3"
   },
   "contributors": [
     {

@@ -1,16 +1,18 @@
-const EventEmitter = require("events");
-const parser = require("socket.io-parser");
-const hasBin = require("has-binary2");
-const url = require("url");
-const debug = require("debug")("socket.io:socket");
+import { EventEmitter } from "events";
+import parser from "socket.io-parser";
+import hasBin from "has-binary2";
+import url from "url";
+import debugModule from "debug";
+import { Client, Namespace, Server } from "./index";
+import { IncomingMessage } from "http";
+
+const debug = debugModule("socket.io:socket");
 
 /**
  * Blacklisted events.
- *
- * @api public
  */
 
-exports.events = [
+const events = [
   "error",
   "connect",
   "disconnect",
@@ -20,56 +22,102 @@ exports.events = [
 ];
 
 /**
- * Flags.
- *
- * @api private
+ * The handshake details
  */
+export interface Handshake {
+  /**
+   * The headers sent as part of the handshake
+   */
+  headers: object;
 
-const flags = ["json", "volatile", "broadcast", "local"];
+  /**
+   * The date of creation (as string)
+   */
+  time: string;
 
-class Socket extends EventEmitter {
+  /**
+   * The ip of the client
+   */
+  address: string;
+
+  /**
+   * Whether the connection is cross-domain
+   */
+  xdomain: boolean;
+
+  /**
+   * Whether the connection is secure
+   */
+  secure: boolean;
+
+  /**
+   * The date of creation (as unix timestamp)
+   */
+  issued: number;
+
+  /**
+   * The request URL string
+   */
+  url: string;
+
+  /**
+   * The query object
+   */
+  query: object;
+}
+
+export class Socket extends EventEmitter {
+  public readonly id: string;
+  public readonly handshake: Handshake;
+
+  public rooms = {};
+  public connected: boolean;
+  public disconnected: boolean;
+
+  private readonly server: Server;
+  private readonly adapter;
+  private acks: object = {};
+  private fns: Array<
+    (event: Array<any>, next: (err: Error) => void) => void
+  > = [];
+  private flags: any = {};
+  private _rooms: Array<string> = [];
+
   /**
    * Interface to a `Client` for a given `Namespace`.
    *
    * @param {Namespace} nsp
    * @param {Client} client
-   * @api public
+   * @param {Object} query
+   * @package
    */
-  constructor(nsp, client, query) {
+  constructor(readonly nsp: Namespace, readonly client: Client, query) {
     super();
-    this.nsp = nsp;
     this.server = nsp.server;
     this.adapter = this.nsp.adapter;
     this.id = nsp.name !== "/" ? nsp.name + "#" + client.id : client.id;
-    this.client = client;
-    this.conn = client.conn;
-    this.rooms = {};
-    this.acks = {};
     this.connected = true;
     this.disconnected = false;
     this.handshake = this.buildHandshake(query);
-    this.fns = [];
-    this.flags = {};
-    this._rooms = [];
   }
 
   /**
    * Builds the `handshake` BC object
-   *
-   * @api private
    */
-  buildHandshake(query) {
+  private buildHandshake(query): Handshake {
     const self = this;
     function buildQuery() {
       const requestQuery = url.parse(self.request.url, true).query;
       //if socket-specific query exist, replace query strings in requestQuery
       return Object.assign({}, query, requestQuery);
     }
+
     return {
       headers: this.request.headers,
       time: new Date() + "",
       address: this.conn.remoteAddress,
       xdomain: !!this.request.headers.origin,
+      // @ts-ignore
       secure: !!this.request.connection.encrypted,
       issued: +new Date(),
       url: this.request.url,
@@ -81,16 +129,16 @@ class Socket extends EventEmitter {
    * Emits to this client.
    *
    * @return {Socket} self
-   * @api public
    */
-  emit(ev) {
-    if (~exports.events.indexOf(ev)) {
+  // @ts-ignore
+  public emit(ev) {
+    if (~events.indexOf(ev)) {
       super.emit.apply(this, arguments);
       return this;
     }
 
     const args = Array.prototype.slice.call(arguments);
-    const packet = {
+    const packet: any = {
       type: (this.flags.binary !== undefined
       ? this.flags.binary
       : hasBin(args))
@@ -135,14 +183,19 @@ class Socket extends EventEmitter {
    *
    * @param {String} name
    * @return {Socket} self
-   * @api public
    */
-  to(name) {
+  public to(name: string) {
     if (!~this._rooms.indexOf(name)) this._rooms.push(name);
     return this;
   }
 
-  in(name) {
+  /**
+   * Targets a room when broadcasting.
+   *
+   * @param {String} name
+   * @return {Socket} self
+   */
+  public in(name: string): Socket {
     if (!~this._rooms.indexOf(name)) this._rooms.push(name);
     return this;
   }
@@ -151,17 +204,19 @@ class Socket extends EventEmitter {
    * Sends a `message` event.
    *
    * @return {Socket} self
-   * @api public
    */
-  send() {
-    const args = Array.prototype.slice.call(arguments);
+  public send(...args): Socket {
     args.unshift("message");
     this.emit.apply(this, args);
     return this;
   }
 
-  write() {
-    const args = Array.prototype.slice.call(arguments);
+  /**
+   * Sends a `message` event.
+   *
+   * @return {Socket} self
+   */
+  public write(...args): Socket {
     args.unshift("message");
     this.emit.apply(this, args);
     return this;
@@ -170,13 +225,11 @@ class Socket extends EventEmitter {
   /**
    * Writes a packet.
    *
-   * @param {Object} packet object
-   * @param {Object} opts options
-   * @api private
+   * @param {Object} packet - packet object
+   * @param {Object} opts - options
    */
-  packet(packet, opts) {
+  private packet(packet, opts: any = {}) {
     packet.nsp = this.nsp.name;
-    opts = opts || {};
     opts.compress = false !== opts.compress;
     this.client.packet(packet, opts);
   }
@@ -184,12 +237,11 @@ class Socket extends EventEmitter {
   /**
    * Joins a room.
    *
-   * @param {String|Array} room or array of rooms
-   * @param {Function} fn optional, callback
+   * @param {String|Array} rooms - room or array of rooms
+   * @param {Function} fn - optional, callback
    * @return {Socket} self
-   * @api private
    */
-  join(rooms, fn) {
+  public join(rooms, fn?: (err: Error) => void): Socket {
     debug("joining room %s", rooms);
     const self = this;
     if (!Array.isArray(rooms)) {
@@ -217,11 +269,10 @@ class Socket extends EventEmitter {
    * Leaves a room.
    *
    * @param {String} room
-   * @param {Function} fn optional, callback
+   * @param {Function} fn - optional, callback
    * @return {Socket} self
-   * @api private
    */
-  leave(room, fn) {
+  public leave(room: string, fn?: (err: Error) => void): Socket {
     debug("leave room %s", room);
     const self = this;
     this.adapter.del(this.id, room, function(err) {
@@ -235,10 +286,8 @@ class Socket extends EventEmitter {
 
   /**
    * Leave all rooms.
-   *
-   * @api private
    */
-  leaveAll() {
+  private leaveAll(): void {
     this.adapter.delAll(this.id);
     this.rooms = {};
   }
@@ -249,9 +298,9 @@ class Socket extends EventEmitter {
    * Socket is added to namespace array before
    * call to join, so adapters can access it.
    *
-   * @api private
+   * @package
    */
-  onconnect() {
+  public onconnect(): void {
     debug("socket connected - writing packet");
     this.nsp.connected[this.id] = this;
     this.join(this.id);
@@ -267,9 +316,9 @@ class Socket extends EventEmitter {
    * Called with each packet. Called by `Client`.
    *
    * @param {Object} packet
-   * @api private
+   * @package
    */
-  onpacket(packet) {
+  public onpacket(packet) {
     debug("got packet %j", packet);
     switch (packet.type) {
       case parser.EVENT:
@@ -300,10 +349,9 @@ class Socket extends EventEmitter {
   /**
    * Called upon event packet.
    *
-   * @param {Object} packet object
-   * @api private
+   * @param {Object} packet - packet object
    */
-  onevent(packet) {
+  private onevent(packet): void {
     const args = packet.data || [];
     debug("emitting event %j", args);
 
@@ -318,10 +366,9 @@ class Socket extends EventEmitter {
   /**
    * Produces an ack callback to emit with an event.
    *
-   * @param {Number} id packet id
-   * @api private
+   * @param {Number} id - packet id
    */
-  ack(id) {
+  private ack(id: number) {
     const self = this;
     let sent = false;
     return function() {
@@ -342,10 +389,8 @@ class Socket extends EventEmitter {
 
   /**
    * Called upon ack packet.
-   *
-   * @api private
    */
-  onack(packet) {
+  private onack(packet): void {
     const ack = this.acks[packet.id];
     if ("function" == typeof ack) {
       debug("calling ack %s with %j", packet.id, packet.data);
@@ -358,22 +403,18 @@ class Socket extends EventEmitter {
 
   /**
    * Called upon client disconnect packet.
-   *
-   * @api private
    */
-  ondisconnect() {
+  private ondisconnect(): void {
     debug("got disconnect packet");
     this.onclose("client namespace disconnect");
   }
 
   /**
    * Handles a client error.
-   *
-   * @api private
    */
-  onerror(err) {
+  private onerror(err): void {
     if (this.listeners("error").length) {
-      this.emit("error", err);
+      super.emit("error", err);
     } else {
       console.error("Missing error handler on `socket`.");
       console.error(err.stack);
@@ -385,39 +426,38 @@ class Socket extends EventEmitter {
    *
    * @param {String} reason
    * @throw {Error} optional error object
-   * @api private
    */
-  onclose(reason) {
+  private onclose(reason: string) {
     if (!this.connected) return this;
     debug("closing socket - reason %s", reason);
-    this.emit("disconnecting", reason);
+    super.emit("disconnecting", reason);
     this.leaveAll();
     this.nsp.remove(this);
     this.client.remove(this);
     this.connected = false;
     this.disconnected = true;
     delete this.nsp.connected[this.id];
-    this.emit("disconnect", reason);
+    super.emit("disconnect", reason);
   }
 
   /**
    * Produces an `error` packet.
    *
-   * @param {Object} err error object
-   * @api private
+   * @param {Object} err - error object
+   *
+   * @package
    */
-  error(err) {
+  public error(err) {
     this.packet({ type: parser.ERROR, data: err });
   }
 
   /**
    * Disconnects this client.
    *
-   * @param {Boolean} close if `true`, closes the underlying connection
+   * @param {Boolean} close - if `true`, closes the underlying connection
    * @return {Socket} self
-   * @api public
    */
-  disconnect(close) {
+  public disconnect(close = false): Socket {
     if (!this.connected) return this;
     if (close) {
       this.client.disconnect();
@@ -431,11 +471,10 @@ class Socket extends EventEmitter {
   /**
    * Sets the compress flag.
    *
-   * @param {Boolean} compress if `true`, compresses the sending data
+   * @param {Boolean} compress - if `true`, compresses the sending data
    * @return {Socket} self
-   * @api public
    */
-  compress(compress) {
+  public compress(compress: boolean): Socket {
     this.flags.compress = compress;
     return this;
   }
@@ -443,27 +482,58 @@ class Socket extends EventEmitter {
   /**
    * Sets the binary flag
    *
-   * @param {Boolean} Encode as if it has binary data if `true`, Encode as if it doesnt have binary data if `false`
+   * @param {Boolean} binary - encode as if it has binary data if `true`, Encode as if it doesnt have binary data if `false`
    * @return {Socket} self
-   * @api public
    */
-  binary(binary) {
+  public binary(binary: boolean): Socket {
     this.flags.binary = binary;
+    return this;
+  }
+
+  /**
+   * Sets a modifier for a subsequent event emission that the event data may be lost if the client is not ready to
+   * receive messages (because of network slowness or other issues, or because they’re connected through long polling
+   * and is in the middle of a request-response cycle).
+   *
+   * @return {Socket} self
+   */
+  public get volatile(): Socket {
+    this.flags.volatile = true;
+    return this;
+  }
+
+  /**
+   * Sets a modifier for a subsequent event emission that the event data will only be broadcast to every sockets but the
+   * sender.
+   *
+   * @return {Socket} self
+   */
+  public get broadcast(): Socket {
+    this.flags.broadcast = true;
+    return this;
+  }
+
+  /**
+   * Sets a modifier for a subsequent event emission that the event data will only be broadcast to the current node.
+   *
+   * @return {Socket} self
+   */
+  public get local(): Socket {
+    this.flags.local = true;
     return this;
   }
 
   /**
    * Dispatch incoming event to socket listeners.
    *
-   * @param {Array} event that will get emitted
-   * @api private
+   * @param {Array} event - event that will get emitted
    */
-  dispatch(event) {
+  private dispatch(event: Array<string>): void {
     debug("dispatching an event %j", event);
     this.run(event, err => {
       process.nextTick(() => {
         if (err) {
-          return this.error(err.data || err.message);
+          return this.error(err.message);
         }
         super.emit.apply(this, event);
       });
@@ -473,11 +543,12 @@ class Socket extends EventEmitter {
   /**
    * Sets up socket middleware.
    *
-   * @param {Function} middleware function (event, next)
+   * @param {Function} fn - middleware function (event, next)
    * @return {Socket} self
-   * @api public
    */
-  use(fn) {
+  public use(
+    fn: (event: Array<any>, next: (err: Error) => void) => void
+  ): Socket {
     this.fns.push(fn);
     return this;
   }
@@ -485,11 +556,10 @@ class Socket extends EventEmitter {
   /**
    * Executes the middleware for an incoming event.
    *
-   * @param {Array} event that will get emitted
-   * @param {Function} last fn call in the middleware
-   * @api private
+   * @param {Array} event - event that will get emitted
+   * @param {Function} fn - last fn call in the middleware
    */
-  run(event, fn) {
+  private run(event: Array<any>, fn: (err: Error) => void) {
     const fns = this.fns.slice(0);
     if (!fns.length) return fn(null);
 
@@ -509,22 +579,11 @@ class Socket extends EventEmitter {
     run(0);
   }
 
-  get request() {
-    return this.conn.request;
+  public get request(): IncomingMessage {
+    return this.client.request;
+  }
+
+  public get conn() {
+    return this.client.conn;
   }
 }
-
-/**
- * Apply flags from `Socket`.
- */
-
-flags.forEach(function(flag) {
-  Object.defineProperty(Socket.prototype, flag, {
-    get: function() {
-      this.flags[flag] = true;
-      return this;
-    }
-  });
-});
-
-module.exports = Socket;

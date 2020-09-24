@@ -1,17 +1,20 @@
-const http = require("http");
-const read = require("fs").readFileSync;
-const path = require("path");
-const exists = require("fs").existsSync;
-const engine = require("engine.io");
+import http from "http";
+import { readFileSync as read, existsSync as exists } from "fs";
+import path from "path";
+import engine from "engine.io";
+import { Client } from "./client";
+import { EventEmitter } from "events";
+import { Namespace } from "./namespace";
+import { ParentNamespace } from "./parent-namespace";
+import Adapter from "socket.io-adapter";
+import parser from "socket.io-parser";
+import url from "url";
+import debugModule from "debug";
+import { Socket } from "./socket";
+
+const debug = debugModule("socket.io:server");
+
 const clientVersion = require("socket.io-client/package.json").version;
-const Client = require("./client");
-const EventEmitter = require("events");
-const Namespace = require("./namespace");
-const ParentNamespace = require("./parent-namespace");
-const Adapter = require("socket.io-adapter");
-const parser = require("socket.io-parser");
-const debug = require("debug")("socket.io:server");
-const url = require("url");
 
 /**
  * Socket.IO client source.
@@ -21,22 +24,44 @@ let clientSource = undefined;
 let clientSourceMap = undefined;
 
 class Server extends EventEmitter {
+  public readonly sockets: Namespace;
+
+  /** @package */
+  public readonly parser;
+  /** @package */
+  public readonly encoder;
+
+  private nsps: object = {};
+  private parentNsps: Map<
+    | string
+    | RegExp
+    | ((
+        name: string,
+        query: object,
+        fn: (err: Error, success: boolean) => void
+      ) => void),
+    ParentNamespace
+  > = new Map();
+  private _adapter;
+  private _origins;
+  private _serveClient: boolean;
+  private eio;
+  private engine;
+  private _path: string;
+  private httpServer: http.Server;
+
   /**
    * Server constructor.
    *
    * @param {http.Server|Number|Object} srv http server, port or options
    * @param {Object} [opts]
-   * @api public
    */
-  constructor(srv, opts) {
+  constructor(srv, opts: any = {}) {
     super();
     if ("object" == typeof srv && srv instanceof Object && !srv.listen) {
       opts = srv;
       srv = null;
     }
-    opts = opts || {};
-    this.nsps = {};
-    this.parentNsps = new Map();
     this.path(opts.path || "/socket.io");
     this.serveClient(false !== opts.serveClient);
     this.parser = opts.parser || parser;
@@ -53,7 +78,10 @@ class Server extends EventEmitter {
    * @param {http.IncomingMessage} req request
    * @param {Function} fn callback to be called with the result: `fn(err, success)`
    */
-  checkRequest(req, fn) {
+  private checkRequest(
+    req: http.IncomingMessage,
+    fn: (err: Error, success: boolean) => void
+  ) {
     let origin = req.headers.origin || req.headers.referer;
 
     // file:// URLs produce a null Origin which can't be authorized via echo-back
@@ -64,7 +92,7 @@ class Server extends EventEmitter {
     if (this._origins.indexOf("*:*") !== -1) return fn(null, true);
     if (origin) {
       try {
-        const parts = url.parse(origin);
+        const parts: any = url.parse(origin);
         const defaultPort = "https:" == parts.protocol ? 443 : 80;
         parts.port = parts.port != null ? parts.port : defaultPort;
         const ok =
@@ -84,11 +112,10 @@ class Server extends EventEmitter {
   /**
    * Sets/gets whether client code is being served.
    *
-   * @param {Boolean} v whether to serve client code
+   * @param {Boolean} v - whether to serve client code
    * @return {Server|Boolean} self when setting or value when getting
-   * @api public
    */
-  serveClient(v) {
+  public serveClient(v?: boolean) {
     if (!arguments.length) return this._serveClient;
     this._serveClient = v;
     const resolvePath = function(file) {
@@ -117,11 +144,10 @@ class Server extends EventEmitter {
 
   /**
    * Backwards compatibility.
-   *
-   * @api public
    */
-  set(key, val) {
+  public set(key, val) {
     if ("authorization" == key && val) {
+      // @ts-ignore
       this.use(function(socket, next) {
         val(socket.request, function(err, authorized) {
           if (err) return next(new Error(err));
@@ -145,12 +171,17 @@ class Server extends EventEmitter {
   /**
    * Executes the middleware for an incoming namespace not already created on the server.
    *
-   * @param {String} name name of incoming namespace
-   * @param {Object} query the query parameters
-   * @param {Function} fn callback
-   * @api private
+   * @param {String} name - name of incoming namespace
+   * @param {Object} query - the query parameters
+   * @param {Function} fn - callback
+   *
+   * @package
    */
-  checkNamespace(name, query, fn) {
+  public checkNamespace(
+    name: string,
+    query: object,
+    fn: (nsp: Namespace | boolean) => void
+  ) {
     if (this.parentNsps.size === 0) return fn(false);
 
     const keysIterator = this.parentNsps.keys();
@@ -177,9 +208,8 @@ class Server extends EventEmitter {
    *
    * @param {String} v pathname
    * @return {Server|String} self when setting or value when getting
-   * @api public
    */
-  path(v) {
+  public path(v?: string) {
     if (!arguments.length) return this._path;
     this._path = v.replace(/\/$/, "");
     return this;
@@ -190,9 +220,8 @@ class Server extends EventEmitter {
    *
    * @param {Adapter} v pathname
    * @return {Server|Adapter} self when setting or value when getting
-   * @api public
    */
-  adapter(v) {
+  public adapter(v) {
     if (!arguments.length) return this._adapter;
     this._adapter = v;
     for (const i in this.nsps) {
@@ -208,9 +237,8 @@ class Server extends EventEmitter {
    *
    * @param {String|String[]} v origins
    * @return {Server|Adapter} self when setting or value when getting
-   * @api public
    */
-  origins(v) {
+  public origins(v) {
     if (!arguments.length) return this._origins;
 
     this._origins = v;
@@ -220,12 +248,11 @@ class Server extends EventEmitter {
   /**
    * Attaches socket.io to a server or port.
    *
-   * @param {http.Server|Number} server or port
-   * @param {Object} options passed to engine.io
+   * @param {http.Server|Number} srv - server or port
+   * @param {Object} opts - options passed to engine.io
    * @return {Server} self
-   * @api public
    */
-  listen(srv, opts) {
+  public listen(srv: http.Server | number, opts: any = {}): Server {
     if ("function" == typeof srv) {
       const msg =
         "You are trying to attach socket.io to an express " +
@@ -241,7 +268,7 @@ class Server extends EventEmitter {
     if ("number" == typeof srv) {
       debug("creating http server and binding to %d", srv);
       const port = srv;
-      srv = http.Server(function(req, res) {
+      srv = http.createServer((req, res) => {
         res.writeHead(404);
         res.end();
       });
@@ -249,7 +276,6 @@ class Server extends EventEmitter {
     }
 
     // set engine.io path to `/socket.io`
-    opts = opts || {};
     opts.path = opts.path || this.path();
     // set origins verification
     opts.allowRequest = opts.allowRequest || this.checkRequest.bind(this);
@@ -271,7 +297,7 @@ class Server extends EventEmitter {
     return this;
   }
 
-  attach(srv, opts) {
+  public attach(srv, opts) {
     if ("function" == typeof srv) {
       const msg =
         "You are trying to attach socket.io to an express " +
@@ -287,7 +313,7 @@ class Server extends EventEmitter {
     if ("number" == typeof srv) {
       debug("creating http server and binding to %d", srv);
       const port = srv;
-      srv = http.Server(function(req, res) {
+      srv = http.createServer((req, res) => {
         res.writeHead(404);
         res.end();
       });
@@ -321,9 +347,8 @@ class Server extends EventEmitter {
    * Initialize engine
    *
    * @param {Object} options passed to engine.io
-   * @api private
    */
-  initEngine(srv, opts) {
+  private initEngine(srv, opts) {
     // initialize engine
     debug("creating engine.io instance with opts %j", opts);
     this.eio = engine.attach(srv, opts);
@@ -342,9 +367,8 @@ class Server extends EventEmitter {
    * Attaches the static file serving.
    *
    * @param {Function|http.Server} srv http server
-   * @api private
    */
-  attachServe(srv) {
+  private attachServe(srv) {
     debug("attaching client serving req handler");
     const url = this._path + "/socket.io.js";
     const urlMap = this._path + "/socket.io.js.map";
@@ -367,11 +391,10 @@ class Server extends EventEmitter {
   /**
    * Handles a request serving `/socket.io.js`
    *
-   * @param {http.Request} req
-   * @param {http.Response} res
-   * @api private
+   * @param {http.IncomingMessage} req
+   * @param {http.ServerResponse} res
    */
-  serve(req, res) {
+  private serve(req: http.IncomingMessage, res: http.ServerResponse) {
     // Per the standard, ETags must be quoted:
     // https://tools.ietf.org/html/rfc7232#section-2.3
     const expectedEtag = '"' + clientVersion + '"';
@@ -397,11 +420,10 @@ class Server extends EventEmitter {
   /**
    * Handles a request serving `/socket.io.js.map`
    *
-   * @param {http.Request} req
-   * @param {http.Response} res
-   * @api private
+   * @param {http.IncomingMessage} req
+   * @param {http.ServerResponse} res
    */
-  serveMap(req, res) {
+  private serveMap(req: http.IncomingMessage, res: http.ServerResponse) {
     // Per the standard, ETags must be quoted:
     // https://tools.ietf.org/html/rfc7232#section-2.3
     const expectedEtag = '"' + clientVersion + '"';
@@ -428,9 +450,8 @@ class Server extends EventEmitter {
    *
    * @param {engine.Server} engine engine.io (or compatible) server
    * @return {Server} self
-   * @api public
    */
-  bind(engine) {
+  public bind(engine): Server {
     this.engine = engine;
     this.engine.on("connection", this.onconnection.bind(this));
     return this;
@@ -441,9 +462,8 @@ class Server extends EventEmitter {
    *
    * @param {engine.Socket} conn
    * @return {Server} self
-   * @api public
    */
-  onconnection(conn) {
+  public onconnection(conn): Server {
     debug("incoming connection with id %s", conn.id);
     const client = new Client(this, conn);
     client.connect("/");
@@ -455,9 +475,18 @@ class Server extends EventEmitter {
    *
    * @param {String|RegExp|Function} name nsp name
    * @param {Function} [fn] optional, nsp `connection` ev handler
-   * @api public
    */
-  of(name, fn) {
+  public of(
+    name:
+      | string
+      | RegExp
+      | ((
+          name: string,
+          query: object,
+          fn: (err: Error, success: boolean) => void
+        ) => void),
+    fn?: (socket: Socket) => void
+  ) {
     if (typeof name === "function" || name instanceof RegExp) {
       const parentNsp = new ParentNamespace(this);
       debug("initializing parent namespace %s", parentNsp.name);
@@ -465,11 +494,14 @@ class Server extends EventEmitter {
         this.parentNsps.set(name, parentNsp);
       } else {
         this.parentNsps.set(
-          (nsp, conn, next) => next(null, name.test(nsp)),
+          (nsp, conn, next) => next(null, (name as RegExp).test(nsp)),
           parentNsp
         );
       }
-      if (fn) parentNsp.on("connect", fn);
+      if (fn) {
+        // @ts-ignore
+        parentNsp.on("connect", fn);
+      }
       return parentNsp;
     }
 
@@ -489,9 +521,8 @@ class Server extends EventEmitter {
    * Closes server connection
    *
    * @param {Function} [fn] optional, called as `fn([err])` on error OR all conns closed
-   * @api public
    */
-  close(fn) {
+  public close(fn: (err?: Error) => void): void {
     for (const id in this.nsps["/"].sockets) {
       if (this.nsps["/"].sockets.hasOwnProperty(id)) {
         this.nsps["/"].sockets[id].onclose();
@@ -547,10 +578,6 @@ emitterMethods
   });
 });
 
-/**
- * BC with `io.listen`
- */
-
-Server.listen = Server;
-
-module.exports = (srv, opts) => new Server(srv, opts);
+export { Server, Namespace, ParentNamespace, Client };
+export * from "./socket";
+module.exports = (srv?, opts?) => new Server(srv, opts);

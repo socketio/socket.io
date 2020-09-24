@@ -1,43 +1,52 @@
-const Socket = require("./socket");
-const EventEmitter = require("events").EventEmitter;
-const parser = require("socket.io-parser");
-const hasBin = require("has-binary2");
-const debug = require("debug")("socket.io:namespace");
+import { Socket } from "./socket";
+import { Server } from "./index";
+import { Client } from "./client";
+import { EventEmitter } from "events";
+import parser from "socket.io-parser";
+import hasBin from "has-binary2";
+import debugModule from "debug";
+
+const debug = debugModule("socket.io:namespace");
 
 /**
  * Blacklisted events.
  */
 
-exports.events = [
+const events = [
   "connect", // for symmetry with client
   "connection",
   "newListener"
 ];
 
-/**
- * Flags.
- */
+export class Namespace extends EventEmitter {
+  public readonly name: string;
+  public readonly connected: object = {};
 
-exports.flags = ["json", "volatile", "local"];
+  public adapter;
 
-class Namespace extends EventEmitter {
+  /** @package */
+  public readonly server;
+  /** @package */
+  public fns: Array<(socket: Socket, next: (err: Error) => void) => void> = [];
+  /** @package */
+  public rooms: Array<string> = [];
+  /** @package */
+  public flags: any = {};
+  /** @package */
+  public ids: number = 0;
+
+  private readonly sockets: object = {};
+
   /**
    * Namespace constructor.
    *
    * @param {Server} server instance
-   * @param {Socket} name
-   * @api private
+   * @param {string} name
    */
-  constructor(server, name) {
+  constructor(server: Server, name: string) {
     super();
-    this.name = name;
     this.server = server;
-    this.sockets = {};
-    this.connected = {};
-    this.fns = [];
-    this.ids = 0;
-    this.rooms = [];
-    this.flags = {};
+    this.name = name;
     this.initAdapter();
   }
 
@@ -45,10 +54,8 @@ class Namespace extends EventEmitter {
    * Initializes the `Adapter` for this nsp.
    * Run upon changing adapter by `Server#adapter`
    * in addition to the constructor.
-   *
-   * @api private
    */
-  initAdapter() {
+  private initAdapter(): void {
     this.adapter = new (this.server.adapter())(this);
   }
 
@@ -56,9 +63,10 @@ class Namespace extends EventEmitter {
    * Sets up namespace middleware.
    *
    * @return {Namespace} self
-   * @api public
    */
-  use(fn) {
+  public use(
+    fn: (socket: Socket, next: (err: Error) => void) => void
+  ): Namespace {
     if (this.server.eio && this.name === "/") {
       debug("removing initial packet");
       delete this.server.eio.initialPacket;
@@ -70,11 +78,10 @@ class Namespace extends EventEmitter {
   /**
    * Executes the middleware for an incoming client.
    *
-   * @param {Socket} socket that will get added
-   * @param {Function} fn last fn call in the middleware
-   * @api private
+   * @param {Socket} socket - the socket that will get added
+   * @param {Function} fn - last fn call in the middleware
    */
-  run(socket, fn) {
+  private run(socket: Socket, fn: (err: Error) => void) {
     const fns = this.fns.slice(0);
     if (!fns.length) return fn(null);
 
@@ -99,14 +106,19 @@ class Namespace extends EventEmitter {
    *
    * @param {String} name
    * @return {Namespace} self
-   * @api public
    */
-  to(name) {
+  public to(name: string): Namespace {
     if (!~this.rooms.indexOf(name)) this.rooms.push(name);
     return this;
   }
 
-  in(name) {
+  /**
+   * Targets a room when emitting.
+   *
+   * @param {String} name
+   * @return {Namespace} self
+   */
+  public in(name: string): Namespace {
     if (!~this.rooms.indexOf(name)) this.rooms.push(name);
     return this;
   }
@@ -115,16 +127,15 @@ class Namespace extends EventEmitter {
    * Adds a new client.
    *
    * @return {Socket}
-   * @api private
    */
-  add(client, query, fn) {
+  private add(client: Client, query, fn?: () => void): Socket {
     debug("adding socket to nsp %s", this.name);
     const socket = new Socket(this, client, query);
     const self = this;
-    this.run(socket, function(err) {
-      process.nextTick(function() {
+    this.run(socket, err => {
+      process.nextTick(() => {
         if ("open" == client.conn.readyState) {
-          if (err) return socket.error(err.data || err.message);
+          if (err) return socket.error(err.message);
 
           // track socket
           self.sockets[socket.id] = socket;
@@ -137,8 +148,8 @@ class Namespace extends EventEmitter {
           if (fn) fn();
 
           // fire user-set events
-          self.emit("connect", socket);
-          self.emit("connection", socket);
+          super.emit("connect", socket);
+          super.emit("connection", socket);
         } else {
           debug("next called after client was closed - ignoring socket");
         }
@@ -150,9 +161,9 @@ class Namespace extends EventEmitter {
   /**
    * Removes a client. Called by each `Socket`.
    *
-   * @api private
+   * @package
    */
-  remove(socket) {
+  public remove(socket: Socket): void {
     if (this.sockets.hasOwnProperty(socket.id)) {
       delete this.sockets[socket.id];
     } else {
@@ -164,10 +175,10 @@ class Namespace extends EventEmitter {
    * Emits to all clients.
    *
    * @return {Namespace} self
-   * @api public
    */
-  emit(ev) {
-    if (~exports.events.indexOf(ev)) {
+  // @ts-ignore
+  public emit(ev): Namespace {
+    if (~events.indexOf(ev)) {
       super.emit.apply(this, arguments);
       return this;
     }
@@ -205,17 +216,19 @@ class Namespace extends EventEmitter {
    * Sends a `message` event to all clients.
    *
    * @return {Namespace} self
-   * @api public
    */
-  send() {
-    const args = Array.prototype.slice.call(arguments);
+  public send(...args): Namespace {
     args.unshift("message");
     this.emit.apply(this, args);
     return this;
   }
 
-  write() {
-    const args = Array.prototype.slice.call(arguments);
+  /**
+   * Sends a `message` event to all clients.
+   *
+   * @return {Namespace} self
+   */
+  public write(...args): Namespace {
     args.unshift("message");
     this.emit.apply(this, args);
     return this;
@@ -225,9 +238,8 @@ class Namespace extends EventEmitter {
    * Gets a list of clients.
    *
    * @return {Namespace} self
-   * @api public
    */
-  clients(fn) {
+  public clients(fn: (clients: Array<string>) => void): Namespace {
     if (!this.adapter) {
       throw new Error(
         "No adapter for this namespace, are you trying to get the list of clients of a dynamic namespace?"
@@ -243,11 +255,10 @@ class Namespace extends EventEmitter {
   /**
    * Sets the compress flag.
    *
-   * @param {Boolean} compress if `true`, compresses the sending data
-   * @return {Socket} self
-   * @api public
+   * @param {Boolean} compress - if `true`, compresses the sending data
+   * @return {Namespace} self
    */
-  compress(compress) {
+  public compress(compress: boolean): Namespace {
     this.flags.compress = compress;
     return this;
   }
@@ -255,27 +266,33 @@ class Namespace extends EventEmitter {
   /**
    * Sets the binary flag
    *
-   * @param {Boolean} Encode as if it has binary data if `true`, Encode as if it doesnt have binary data if `false`
-   * @return {Socket} self
-   * @api public
+   * @param {Boolean} binary - encode as if it has binary data if `true`, Encode as if it doesnt have binary data if `false`
+   * @return {Namespace} self
    */
-  binary(binary) {
+  public binary(binary: boolean): Namespace {
     this.flags.binary = binary;
     return this;
   }
+
+  /**
+   * Sets a modifier for a subsequent event emission that the event data may be lost if the client is not ready to
+   * receive messages (because of network slowness or other issues, or because they’re connected through long polling
+   * and is in the middle of a request-response cycle).
+   *
+   * @return {Namespace} self
+   */
+  public get volatile(): Namespace {
+    this.flags.volatile = true;
+    return this;
+  }
+
+  /**
+   * Sets a modifier for a subsequent event emission that the event data will only be broadcast to the current node.
+   *
+   * @return {Namespace} self
+   */
+  public get local(): Namespace {
+    this.flags.local = true;
+    return this;
+  }
 }
-
-/**
- * Apply flags from `Socket`.
- */
-
-exports.flags.forEach(function(flag) {
-  Object.defineProperty(Namespace.prototype, flag, {
-    get: function() {
-      this.flags[flag] = true;
-      return this;
-    }
-  });
-});
-
-module.exports = Namespace;

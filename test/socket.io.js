@@ -1,7 +1,7 @@
 "use strict";
 
 var http = require("http").Server;
-var io = require("../lib");
+var io = require("..");
 var fs = require("fs");
 var join = require("path").join;
 var exec = require("child_process").exec;
@@ -465,8 +465,8 @@ describe("socket.io", function() {
   });
 
   describe("namespaces", function() {
-    var Socket = require("../lib/socket");
-    var Namespace = require("../lib/namespace");
+    const { Socket } = require("../dist/socket");
+    const { Namespace } = require("../dist/namespace");
 
     it("should be accessible through .sockets", function() {
       var sio = io();
@@ -2246,7 +2246,7 @@ describe("socket.io", function() {
   });
 
   describe("middleware", function(done) {
-    var Socket = require("../lib/socket");
+    const { Socket } = require("../dist/socket");
 
     it("should call functions", function(done) {
       var srv = http();
@@ -2288,27 +2288,6 @@ describe("socket.io", function() {
         });
         socket.on("error", function(err) {
           expect(err).to.be("Authentication error");
-          done();
-        });
-      });
-    });
-
-    it("should pass `data` of error object", function(done) {
-      var srv = http();
-      var sio = io(srv);
-      var run = 0;
-      sio.use(function(socket, next) {
-        var err = new Error("Authentication error");
-        err.data = { a: "b", c: 3 };
-        next(err);
-      });
-      srv.listen(function() {
-        var socket = client(srv);
-        socket.on("connect", function() {
-          done(new Error("nope"));
-        });
-        socket.on("error", function(err) {
-          expect(err).to.eql({ a: "b", c: 3 });
           done();
         });
       });
@@ -2436,7 +2415,7 @@ describe("socket.io", function() {
   });
 
   describe("socket middleware", function(done) {
-    var Socket = require("../lib/socket");
+    const { Socket } = require("../dist/socket");
 
     it("should call functions", function(done) {
       var srv = http();
@@ -2490,34 +2469,6 @@ describe("socket.io", function() {
           });
           socket.use(function(event, next) {
             done(new Error("nope"));
-          });
-
-          socket.on("join", function() {
-            done(new Error("nope"));
-          });
-        });
-      });
-    });
-
-    it("should pass `data` of error object", function(done) {
-      var srv = http();
-      var sio = io(srv);
-
-      srv.listen(function() {
-        var clientSocket = client(srv, { multiplex: false });
-
-        clientSocket.emit("join", "woot");
-
-        clientSocket.on("error", function(err) {
-          expect(err).to.eql({ a: "b", c: 3 });
-          done();
-        });
-
-        sio.on("connection", function(socket) {
-          socket.use(function(event, next) {
-            var err = new Error("Authentication error");
-            err.data = { a: "b", c: 3 };
-            next(err);
           });
 
           socket.on("join", function() {

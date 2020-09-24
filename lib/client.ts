@@ -1,34 +1,51 @@
-const parser = require("socket.io-parser");
-const debug = require("debug")("socket.io:client");
-const url = require("url");
+import parser from "socket.io-parser";
+import url from "url";
+import debugModule = require("debug");
+import { IncomingMessage } from "http";
+import { Server } from "./index";
+import { Socket } from "./socket";
 
-class Client {
+const debug = debugModule("socket.io:client");
+
+export class Client {
+  public readonly conn;
+  /** @package */
+  public readonly id: string;
+
+  private readonly server;
+  private readonly encoder;
+  private readonly decoder;
+  private sockets: object = {};
+  private nsps: object = {};
+  private connectBuffer: Array<string> = [];
+
   /**
    * Client constructor.
    *
    * @param {Server} server instance
    * @param {Socket} conn
-   * @api private
+   * @package
    */
-  constructor(server, conn) {
+  constructor(server: Server, conn) {
     this.server = server;
     this.conn = conn;
     this.encoder = server.encoder;
     this.decoder = new server.parser.Decoder();
     this.id = conn.id;
-    this.request = conn.request;
     this.setup();
-    this.sockets = {};
-    this.nsps = {};
-    this.connectBuffer = [];
+  }
+
+  /**
+   * @return the reference to the request that originated the Engine.IO connection
+   */
+  public get request(): IncomingMessage {
+    return this.conn.request;
   }
 
   /**
    * Sets up event listeners.
-   *
-   * @api private
    */
-  setup() {
+  private setup() {
     this.onclose = this.onclose.bind(this);
     this.ondata = this.ondata.bind(this);
     this.onerror = this.onerror.bind(this);
@@ -45,9 +62,9 @@ class Client {
    *
    * @param {String} name namespace
    * @param {Object} query the query parameters
-   * @api private
+   * @package
    */
-  connect(name, query) {
+  public connect(name, query = {}) {
     if (this.server.nsps[name]) {
       debug("connecting to namespace %s", name);
       return this.doConnect(name, query);
@@ -73,9 +90,8 @@ class Client {
    *
    * @param {String} name namespace
    * @param {String} query the query parameters
-   * @api private
    */
-  doConnect(name, query) {
+  private doConnect(name, query) {
     const nsp = this.server.of(name);
 
     if ("/" != name && !this.nsps["/"]) {
@@ -98,9 +114,9 @@ class Client {
   /**
    * Disconnects from all namespaces and closes transport.
    *
-   * @api private
+   * @package
    */
-  disconnect() {
+  public disconnect() {
     for (const id in this.sockets) {
       if (this.sockets.hasOwnProperty(id)) {
         this.sockets[id].disconnect();
@@ -113,9 +129,9 @@ class Client {
   /**
    * Removes a socket. Called by each `Socket`.
    *
-   * @api private
+   * @package
    */
-  remove(socket) {
+  public remove(socket: Socket) {
     if (this.sockets.hasOwnProperty(socket.id)) {
       const nsp = this.sockets[socket.id].nsp.name;
       delete this.sockets[socket.id];
@@ -127,10 +143,8 @@ class Client {
 
   /**
    * Closes the underlying connection.
-   *
-   * @api private
    */
-  close() {
+  private close() {
     if ("open" == this.conn.readyState) {
       debug("forcing transport close");
       this.conn.close();
@@ -143,9 +157,9 @@ class Client {
    *
    * @param {Object} packet object
    * @param {Object} opts
-   * @api private
+   * @package
    */
-  packet(packet, opts) {
+  public packet(packet, opts?) {
     opts = opts || {};
     const self = this;
 
@@ -173,10 +187,8 @@ class Client {
 
   /**
    * Called with incoming transport data.
-   *
-   * @api private
    */
-  ondata(data) {
+  private ondata(data) {
     // try/catch is needed for protocol violations (GH-1880)
     try {
       this.decoder.add(data);
@@ -187,10 +199,8 @@ class Client {
 
   /**
    * Called when parser fully decodes a packet.
-   *
-   * @api private
    */
-  ondecoded(packet) {
+  private ondecoded(packet) {
     if (parser.CONNECT == packet.type) {
       this.connect(
         url.parse(packet.nsp).pathname,
@@ -212,9 +222,8 @@ class Client {
    * Handles an error.
    *
    * @param {Object} err object
-   * @api private
    */
-  onerror(err) {
+  private onerror(err) {
     for (const id in this.sockets) {
       if (this.sockets.hasOwnProperty(id)) {
         this.sockets[id].onerror(err);
@@ -226,10 +235,9 @@ class Client {
   /**
    * Called upon transport close.
    *
-   * @param {String} reason
-   * @api private
+   * @param reason
    */
-  onclose(reason) {
+  private onclose(reason: string) {
     debug("client close with reason %s", reason);
 
     // ignore a potential subsequent `close` event
@@ -248,15 +256,11 @@ class Client {
 
   /**
    * Cleans up event listeners.
-   *
-   * @api private
    */
-  destroy() {
+  private destroy() {
     this.conn.removeListener("data", this.ondata);
     this.conn.removeListener("error", this.onerror);
     this.conn.removeListener("close", this.onclose);
     this.decoder.removeListener("decoded", this.ondecoded);
   }
 }
-
-module.exports = Client;
