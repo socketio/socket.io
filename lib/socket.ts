@@ -71,7 +71,6 @@ export class Socket extends EventEmitter {
   public readonly id: SocketId;
   public readonly handshake: Handshake;
 
-  public rooms = {};
   public connected: boolean;
   public disconnected: boolean;
 
@@ -242,24 +241,14 @@ export class Socket extends EventEmitter {
    * @param {Function} fn - optional, callback
    * @return {Socket} self
    */
-  public join(rooms, fn?: (err: Error) => void): Socket {
+  public join(rooms: Room | Array<Room>, fn?: (err: Error) => void): Socket {
     debug("joining room %s", rooms);
 
-    if (!Array.isArray(rooms)) {
-      rooms = [rooms];
-    }
-    rooms = rooms.filter(room => {
-      return !this.rooms.hasOwnProperty(room);
-    });
-    if (!rooms.length) {
-      fn && fn(null);
-      return this;
-    }
-    this.adapter.addAll(this.id, rooms);
+    this.adapter.addAll(
+      this.id,
+      new Set(Array.isArray(rooms) ? rooms : [rooms])
+    );
     debug("joined room %s", rooms);
-    rooms.forEach(room => {
-      this.rooms[room] = room;
-    });
     fn && fn(null);
     return this;
   }
@@ -276,7 +265,6 @@ export class Socket extends EventEmitter {
     this.adapter.del(this.id, room);
 
     debug("left room %s", room);
-    delete this.rooms[room];
     fn && fn(null);
 
     return this;
@@ -287,7 +275,6 @@ export class Socket extends EventEmitter {
    */
   private leaveAll(): void {
     this.adapter.delAll(this.id);
-    this.rooms = {};
   }
 
   /**
@@ -583,5 +570,9 @@ export class Socket extends EventEmitter {
 
   public get conn() {
     return this.client.conn;
+  }
+
+  public get rooms(): Set<Room> {
+    return this.adapter.socketRooms(this.id) || new Set();
   }
 }

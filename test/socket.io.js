@@ -682,12 +682,12 @@ describe("socket.io", () => {
 
           let total = 2;
           s.on("disconnecting", reason => {
-            expect(Object.keys(s.rooms)).to.eql([s.id, "a"]);
+            expect(s.rooms).to.contain(s.id, "a");
             total--;
           });
 
           s.on("disconnect", reason => {
-            expect(Object.keys(s.rooms)).to.eql([]);
+            expect(s.rooms.size).to.eql(0);
             --total || done();
           });
         });
@@ -2150,15 +2150,15 @@ describe("socket.io", () => {
         const socket = client(srv);
         sio.on("connection", s => {
           s.join("a", () => {
-            expect(Object.keys(s.rooms)).to.eql([s.id, "a"]);
+            expect(s.rooms).to.contain(s.id, "a");
             s.join("b", () => {
-              expect(Object.keys(s.rooms)).to.eql([s.id, "a", "b"]);
+              expect(s.rooms).to.contain(s.id, "a", "b");
               s.join("c", () => {
-                expect(Object.keys(s.rooms)).to.eql([s.id, "a", "b", "c"]);
+                expect(s.rooms).to.contain(s.id, "a", "b", "c");
                 s.leave("b", () => {
-                  expect(Object.keys(s.rooms)).to.eql([s.id, "a", "c"]);
+                  expect(s.rooms).to.contain(s.id, "a", "c");
                   s.leaveAll();
-                  expect(Object.keys(s.rooms)).to.eql([]);
+                  expect(s.rooms.size).to.eql(0);
                   done();
                 });
               });
@@ -2194,13 +2194,13 @@ describe("socket.io", () => {
         const socket = client(srv);
         sio.on("connection", s => {
           s.join("a", () => {
-            expect(Object.keys(s.rooms)).to.eql([s.id, "a"]);
+            expect(s.rooms).to.contain(s.id, "a");
             s.join("b", () => {
-              expect(Object.keys(s.rooms)).to.eql([s.id, "a", "b"]);
+              expect(s.rooms).to.contain(s.id, "a", "b");
               s.leave("unknown", () => {
-                expect(Object.keys(s.rooms)).to.eql([s.id, "a", "b"]);
+                expect(s.rooms).to.contain(s.id, "a", "b");
                 s.leaveAll();
-                expect(Object.keys(s.rooms)).to.eql([]);
+                expect(s.rooms.size).to.eql(0);
                 done();
               });
             });
@@ -2217,7 +2217,7 @@ describe("socket.io", () => {
         const socket = client(srv);
         sio.on("connection", s => {
           s.join(["a", "b", "c"], () => {
-            expect(Object.keys(s.rooms)).to.eql([s.id, "a", "b", "c"]);
+            expect(s.rooms).to.contain(s.id, "a", "b", "c");
             done();
           });
         });
