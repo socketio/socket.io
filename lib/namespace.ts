@@ -2,7 +2,7 @@ import { Socket } from "./socket";
 import { Server } from "./index";
 import { Client } from "./client";
 import { EventEmitter } from "events";
-import parser from "socket.io-parser";
+import { PacketType } from "socket.io-parser";
 import hasBin from "has-binary2";
 import debugModule from "debug";
 import { Adapter, Room, SocketId } from "socket.io-adapter";
@@ -190,8 +190,8 @@ export class Namespace extends EventEmitter {
       type: (this.flags.binary !== undefined
       ? this.flags.binary
       : hasBin(args))
-        ? parser.BINARY_EVENT
-        : parser.EVENT,
+        ? PacketType.BINARY_EVENT
+        : PacketType.EVENT,
       data: args
     };
 

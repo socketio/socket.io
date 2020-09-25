@@ -1,4 +1,4 @@
-import parser from "socket.io-parser";
+import { Decoder, Encoder, PacketType } from "socket.io-parser";
 import url from "url";
 import debugModule = require("debug");
 import { IncomingMessage } from "http";
@@ -14,8 +14,8 @@ export class Client {
   public readonly id: string;
 
   private readonly server;
-  private readonly encoder;
-  private readonly decoder;
+  private readonly encoder: Encoder;
+  private readonly decoder: Decoder;
   private sockets: Map<SocketId, Socket> = new Map();
   private nsps: Map<string, Socket> = new Map();
   private connectBuffer: Array<string> = [];
@@ -52,6 +52,7 @@ export class Client {
     this.onerror = this.onerror.bind(this);
     this.ondecoded = this.ondecoded.bind(this);
 
+    // @ts-ignore
     this.decoder.on("decoded", this.ondecoded);
     this.conn.on("data", this.ondata);
     this.conn.on("error", this.onerror);
@@ -78,7 +79,7 @@ export class Client {
       } else {
         debug("creation of namespace %s was denied", name);
         this.packet({
-          type: parser.ERROR,
+          type: PacketType.ERROR,
           nsp: name,
           data: "Invalid namespace"
         });
@@ -173,7 +174,7 @@ export class Client {
       debug("writing packet %j", packet);
       if (!opts.preEncoded) {
         // not broadcasting, need to encode
-        this.encoder.encode(packet, writeToEngine); // encode, then write results to engine
+        writeToEngine(this.encoder.encode(packet)); // encode, then write results to engine
       } else {
         // a broadcast pre-encodes a packet
         writeToEngine(packet);
@@ -199,7 +200,7 @@ export class Client {
    * Called when parser fully decodes a packet.
    */
   private ondecoded(packet) {
-    if (parser.CONNECT == packet.type) {
+    if (PacketType.CONNECT == packet.type) {
       this.connect(
         url.parse(packet.nsp).pathname,
         url.parse(packet.nsp, true).query
@@ -255,6 +256,7 @@ export class Client {
     this.conn.removeListener("data", this.ondata);
     this.conn.removeListener("error", this.onerror);
     this.conn.removeListener("close", this.onclose);
+    // @ts-ignore
     this.decoder.removeListener("decoded", this.ondecoded);
   }
 }

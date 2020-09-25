@@ -1,5 +1,5 @@
 import http from "http";
-import { readFileSync as read, existsSync as exists } from "fs";
+import { existsSync as exists, readFileSync as read } from "fs";
 import path from "path";
 import engine from "engine.io";
 import { Client } from "./client";
@@ -7,7 +7,8 @@ import { EventEmitter } from "events";
 import { Namespace } from "./namespace";
 import { ParentNamespace } from "./parent-namespace";
 import { Adapter } from "socket.io-adapter";
-import parser from "socket.io-parser";
+import * as parser from "socket.io-parser";
+import { Encoder, PacketType } from "socket.io-parser";
 import url from "url";
 import debugModule from "debug";
 import { Socket } from "./socket";
@@ -29,7 +30,7 @@ class Server extends EventEmitter {
   /** @package */
   public readonly parser;
   /** @package */
-  public readonly encoder;
+  public readonly encoder: Encoder;
 
   private nsps: Map<string, Namespace> = new Map();
   private parentNsps: Map<
@@ -257,15 +258,13 @@ class Server extends EventEmitter {
       return this;
     }
 
-    const self = this;
-    const connectPacket = { type: parser.CONNECT, nsp: "/" };
-    this.encoder.encode(connectPacket, function(encodedPacket) {
-      // the CONNECT packet will be merged with Engine.IO handshake,
-      // to reduce the number of round trips
-      opts.initialPacket = encodedPacket;
+    const connectPacket = { type: PacketType.CONNECT, nsp: "/" };
+    // the CONNECT packet will be merged with Engine.IO handshake,
+    // to reduce the number of round trips
+    opts.initialPacket = this.encoder.encode(connectPacket);
 
-      self.initEngine(srv, opts);
-    });
+    this.initEngine(srv, opts);
+
     return this;
   }
 
@@ -303,15 +302,13 @@ class Server extends EventEmitter {
       return this;
     }
 
-    const self = this;
-    const connectPacket = { type: parser.CONNECT, nsp: "/" };
-    this.encoder.encode(connectPacket, function(encodedPacket) {
-      // the CONNECT packet will be merged with Engine.IO handshake,
-      // to reduce the number of round trips
-      opts.initialPacket = encodedPacket;
+    const connectPacket = { type: PacketType.CONNECT, nsp: "/" };
+    // the CONNECT packet will be merged with Engine.IO handshake,
+    // to reduce the number of round trips
+    opts.initialPacket = this.encoder.encode(connectPacket);
 
-      self.initEngine(srv, opts);
-    });
+    this.initEngine(srv, opts);
+
     return this;
   }
 

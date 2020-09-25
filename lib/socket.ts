@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import parser from "socket.io-parser";
+import { PacketType } from "socket.io-parser";
 import hasBin from "has-binary2";
 import url from "url";
 import debugModule from "debug";
@@ -142,8 +142,8 @@ export class Socket extends EventEmitter {
       type: (this.flags.binary !== undefined
       ? this.flags.binary
       : hasBin(args))
-        ? parser.BINARY_EVENT
-        : parser.EVENT,
+        ? PacketType.BINARY_EVENT
+        : PacketType.EVENT,
       data: args
     };
 
@@ -293,7 +293,7 @@ export class Socket extends EventEmitter {
     if (skip) {
       debug("packet already sent in initial handshake");
     } else {
-      this.packet({ type: parser.CONNECT });
+      this.packet({ type: PacketType.CONNECT });
     }
   }
 
@@ -306,27 +306,27 @@ export class Socket extends EventEmitter {
   public onpacket(packet) {
     debug("got packet %j", packet);
     switch (packet.type) {
-      case parser.EVENT:
+      case PacketType.EVENT:
         this.onevent(packet);
         break;
 
-      case parser.BINARY_EVENT:
+      case PacketType.BINARY_EVENT:
         this.onevent(packet);
         break;
 
-      case parser.ACK:
+      case PacketType.ACK:
         this.onack(packet);
         break;
 
-      case parser.BINARY_ACK:
+      case PacketType.BINARY_ACK:
         this.onack(packet);
         break;
 
-      case parser.DISCONNECT:
+      case PacketType.DISCONNECT:
         this.ondisconnect();
         break;
 
-      case parser.ERROR:
+      case PacketType.ERROR:
         this.onerror(new Error(packet.data));
     }
   }
@@ -364,7 +364,7 @@ export class Socket extends EventEmitter {
 
       self.packet({
         id: id,
-        type: hasBin(args) ? parser.BINARY_ACK : parser.ACK,
+        type: hasBin(args) ? PacketType.BINARY_ACK : PacketType.ACK,
         data: args
       });
 
@@ -437,7 +437,7 @@ export class Socket extends EventEmitter {
    * @package
    */
   public error(err) {
-    this.packet({ type: parser.ERROR, data: err });
+    this.packet({ type: PacketType.ERROR, data: err });
   }
 
   /**
@@ -451,7 +451,7 @@ export class Socket extends EventEmitter {
     if (close) {
       this.client.disconnect();
     } else {
-      this.packet({ type: parser.DISCONNECT });
+      this.packet({ type: PacketType.DISCONNECT });
       this.onclose("server namespace disconnect");
     }
     return this;
