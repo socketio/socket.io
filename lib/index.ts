@@ -143,32 +143,6 @@ class Server extends EventEmitter {
   }
 
   /**
-   * Backwards compatibility.
-   */
-  public set(key, val) {
-    if ("authorization" == key && val) {
-      // @ts-ignore
-      this.use(function(socket, next) {
-        val(socket.request, function(err, authorized) {
-          if (err) return next(new Error(err));
-          if (!authorized) return next(new Error("Not authorized"));
-          next();
-        });
-      });
-    } else if ("origins" == key && val) {
-      this.origins(val);
-    } else if ("resource" == key) {
-      this.path(val);
-    } else if (oldSettings[key] && this.eio[oldSettings[key]]) {
-      this.eio[oldSettings[key]] = val;
-    } else {
-      console.error("Option %s is not valid. Please refer to the README.", key);
-    }
-
-    return this;
-  }
-
-  /**
    * Executes the middleware for an incoming namespace not already created on the server.
    *
    * @param {String} name - name of incoming namespace
@@ -534,17 +508,6 @@ class Server extends EventEmitter {
     }
   }
 }
-
-/**
- * Old settings for backwards compatibility
- */
-
-const oldSettings = {
-  transports: "transports",
-  "heartbeat timeout": "pingTimeout",
-  "heartbeat interval": "pingInterval",
-  "destroy buffer size": "maxHttpBufferSize"
-};
 
 /**
  * Expose main namespace (/).
