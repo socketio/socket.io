@@ -10,8 +10,7 @@ export class ParentNamespace extends Namespace {
 
   initAdapter() {}
 
-  // @ts-ignore
-  public emit(...args) {
+  public emit(...args): Namespace {
     this.children.forEach(nsp => {
       nsp.rooms = this.rooms;
       nsp.flags = this.flags;
@@ -19,6 +18,8 @@ export class ParentNamespace extends Namespace {
     });
     this.rooms.clear();
     this.flags = {};
+
+    return this;
   }
 
   createChild(name) {
@@ -33,7 +34,7 @@ export class ParentNamespace extends Namespace {
       namespace.on("connection", listener)
     );
     this.children.add(namespace);
-    this.server.nsps[name] = namespace;
+    this.server.nsps.set(name, namespace);
     return namespace;
   }
 }

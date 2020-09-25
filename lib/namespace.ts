@@ -35,8 +35,8 @@ export class Namespace extends EventEmitter {
   public flags: any = {};
   /** @package */
   public ids: number = 0;
-
-  private readonly sockets: object = {};
+  /** @package */
+  public sockets: Map<SocketId, Socket> = new Map();
 
   /**
    * Namespace constructor.
@@ -55,8 +55,10 @@ export class Namespace extends EventEmitter {
    * Initializes the `Adapter` for this nsp.
    * Run upon changing adapter by `Server#adapter`
    * in addition to the constructor.
+   *
+   * @package
    */
-  private initAdapter(): void {
+  public initAdapter(): void {
     this.adapter = new (this.server.adapter())(this);
   }
 
@@ -132,14 +134,13 @@ export class Namespace extends EventEmitter {
   private add(client: Client, query, fn?: () => void): Socket {
     debug("adding socket to nsp %s", this.name);
     const socket = new Socket(this, client, query);
-    const self = this;
     this.run(socket, err => {
       process.nextTick(() => {
         if ("open" == client.conn.readyState) {
           if (err) return socket.error(err.message);
 
           // track socket
-          self.sockets[socket.id] = socket;
+          this.sockets.set(socket.id, socket);
 
           // it's paramount that the internal `onconnect` logic
           // fires before user-set events to prevent state order
@@ -165,8 +166,8 @@ export class Namespace extends EventEmitter {
    * @package
    */
   public remove(socket: Socket): void {
-    if (this.sockets.hasOwnProperty(socket.id)) {
-      delete this.sockets[socket.id];
+    if (this.sockets.has(socket.id)) {
+      this.sockets.delete(socket.id);
     } else {
       debug("ignoring remove for %s", socket.id);
     }

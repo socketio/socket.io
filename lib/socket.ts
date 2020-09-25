@@ -76,7 +76,7 @@ export class Socket extends EventEmitter {
 
   private readonly server: Server;
   private readonly adapter: Adapter;
-  private acks: object = {};
+  private acks: Map<number, () => void> = new Map();
   private fns: Array<
     (event: Array<any>, next: (err: Error) => void) => void
   > = [];
@@ -154,7 +154,7 @@ export class Socket extends EventEmitter {
       }
 
       debug("emitting packet with ack id %d", this.nsp.ids);
-      this.acks[this.nsp.ids] = args.pop();
+      this.acks.set(this.nsp.ids, args.pop());
       packet.id = this.nsp.ids++;
     }
 
@@ -376,11 +376,11 @@ export class Socket extends EventEmitter {
    * Called upon ack packet.
    */
   private onack(packet): void {
-    const ack = this.acks[packet.id];
+    const ack = this.acks.get(packet.id);
     if ("function" == typeof ack) {
       debug("calling ack %s with %j", packet.id, packet.data);
       ack.apply(this, packet.data);
-      delete this.acks[packet.id];
+      this.acks.delete(packet.id);
     } else {
       debug("bad ack %s", packet.id);
     }
@@ -396,8 +396,10 @@ export class Socket extends EventEmitter {
 
   /**
    * Handles a client error.
+   *
+   * @package
    */
-  private onerror(err): void {
+  public onerror(err): void {
     if (this.listeners("error").length) {
       super.emit("error", err);
     } else {
@@ -411,8 +413,10 @@ export class Socket extends EventEmitter {
    *
    * @param {String} reason
    * @throw {Error} optional error object
+   *
+   * @package
    */
-  private onclose(reason: string) {
+  public onclose(reason: string) {
     if (!this.connected) return this;
     debug("closing socket - reason %s", reason);
     super.emit("disconnecting", reason);

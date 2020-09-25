@@ -4,6 +4,7 @@ import debugModule = require("debug");
 import { IncomingMessage } from "http";
 import { Server } from "./index";
 import { Socket } from "./socket";
+import { SocketId } from "socket.io-adapter";
 
 const debug = debugModule("socket.io:client");
 
@@ -15,8 +16,8 @@ export class Client {
   private readonly server;
   private readonly encoder;
   private readonly decoder;
-  private sockets: object = {};
-  private nsps: object = {};
+  private sockets: Map<SocketId, Socket> = new Map();
+  private nsps: Map<string, Socket> = new Map();
   private connectBuffer: Array<string> = [];
 
   /**
@@ -65,7 +66,7 @@ export class Client {
    * @package
    */
   public connect(name, query = {}) {
-    if (this.server.nsps[name]) {
+    if (this.server.nsps.has(name)) {
       debug("connecting to namespace %s", name);
       return this.doConnect(name, query);
     }
@@ -94,19 +95,18 @@ export class Client {
   private doConnect(name, query) {
     const nsp = this.server.of(name);
 
-    if ("/" != name && !this.nsps["/"]) {
+    if ("/" != name && !this.nsps.has("/")) {
       this.connectBuffer.push(name);
       return;
     }
 
-    const self = this;
-    const socket = nsp.add(this, query, function() {
-      self.sockets[socket.id] = socket;
-      self.nsps[nsp.name] = socket;
+    const socket = nsp.add(this, query, () => {
+      this.sockets.set(socket.id, socket);
+      this.nsps.set(nsp.name, socket);
 
-      if ("/" == nsp.name && self.connectBuffer.length > 0) {
-        self.connectBuffer.forEach(self.connect, self);
-        self.connectBuffer = [];
+      if ("/" == nsp.name && this.connectBuffer.length > 0) {
+        this.connectBuffer.forEach(this.connect, this);
+        this.connectBuffer = [];
       }
     });
   }
@@ -117,12 +117,10 @@ export class Client {
    * @package
    */
   public disconnect() {
-    for (const id in this.sockets) {
-      if (this.sockets.hasOwnProperty(id)) {
-        this.sockets[id].disconnect();
-      }
+    for (const socket of this.sockets.values()) {
+      socket.disconnect();
     }
-    this.sockets = {};
+    this.sockets.clear();
     this.close();
   }
 
@@ -132,10 +130,10 @@ export class Client {
    * @package
    */
   public remove(socket: Socket) {
-    if (this.sockets.hasOwnProperty(socket.id)) {
-      const nsp = this.sockets[socket.id].nsp.name;
-      delete this.sockets[socket.id];
-      delete this.nsps[nsp];
+    if (this.sockets.has(socket.id)) {
+      const nsp = this.sockets.get(socket.id).nsp.name;
+      this.sockets.delete(socket.id);
+      this.nsps.delete(nsp);
     } else {
       debug("ignoring remove for %s", socket.id);
     }
@@ -207,7 +205,7 @@ export class Client {
         url.parse(packet.nsp, true).query
       );
     } else {
-      const socket = this.nsps[packet.nsp];
+      const socket = this.nsps.get(packet.nsp);
       if (socket) {
         process.nextTick(function() {
           socket.onpacket(packet);
@@ -224,10 +222,8 @@ export class Client {
    * @param {Object} err object
    */
   private onerror(err) {
-    for (const id in this.sockets) {
-      if (this.sockets.hasOwnProperty(id)) {
-        this.sockets[id].onerror(err);
-      }
+    for (const socket of this.sockets.values()) {
+      socket.onerror(err);
     }
     this.conn.close();
   }
@@ -244,12 +240,10 @@ export class Client {
     this.destroy();
 
     // `nsps` and `sockets` are cleaned up seamlessly
-    for (const id in this.sockets) {
-      if (this.sockets.hasOwnProperty(id)) {
-        this.sockets[id].onclose(reason);
-      }
+    for (const socket of this.sockets.values()) {
+      socket.onclose(reason);
     }
-    this.sockets = {};
+    this.sockets.clear();
 
     this.decoder.destroy(); // clean up decoder
   }

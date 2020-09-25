@@ -31,7 +31,7 @@ class Server extends EventEmitter {
   /** @package */
   public readonly encoder;
 
-  private nsps: object = {};
+  private nsps: Map<string, Namespace> = new Map();
   private parentNsps: Map<
     | string
     | RegExp
@@ -224,10 +224,8 @@ class Server extends EventEmitter {
   public adapter(v) {
     if (!arguments.length) return this._adapter;
     this._adapter = v;
-    for (const i in this.nsps) {
-      if (this.nsps.hasOwnProperty(i)) {
-        this.nsps[i].initAdapter();
-      }
+    for (const nsp of this.nsps.values()) {
+      nsp.initAdapter();
     }
     return this;
   }
@@ -507,11 +505,11 @@ class Server extends EventEmitter {
 
     if (String(name)[0] !== "/") name = "/" + name;
 
-    let nsp = this.nsps[name];
+    let nsp = this.nsps.get(name);
     if (!nsp) {
       debug("initializing namespace %s", name);
       nsp = new Namespace(this, name);
-      this.nsps[name] = nsp;
+      this.nsps.set(name, nsp);
     }
     if (fn) nsp.on("connect", fn);
     return nsp;
@@ -523,10 +521,8 @@ class Server extends EventEmitter {
    * @param {Function} [fn] optional, called as `fn([err])` on error OR all conns closed
    */
   public close(fn: (err?: Error) => void): void {
-    for (const id in this.nsps["/"].sockets) {
-      if (this.nsps["/"].sockets.hasOwnProperty(id)) {
-        this.nsps["/"].sockets[id].onclose();
-      }
+    for (const socket of this.sockets.sockets.values()) {
+      socket.onclose("server shutting down");
     }
 
     this.engine.close();
