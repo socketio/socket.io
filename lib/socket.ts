@@ -5,6 +5,7 @@ import url from "url";
 import debugModule from "debug";
 import { Client, Namespace, Server } from "./index";
 import { IncomingMessage } from "http";
+import { Adapter, BroadcastFlags, Room, SocketId } from "socket.io-adapter";
 
 const debug = debugModule("socket.io:socket");
 
@@ -67,7 +68,7 @@ export interface Handshake {
 }
 
 export class Socket extends EventEmitter {
-  public readonly id: string;
+  public readonly id: SocketId;
   public readonly handshake: Handshake;
 
   public rooms = {};
@@ -75,13 +76,13 @@ export class Socket extends EventEmitter {
   public disconnected: boolean;
 
   private readonly server: Server;
-  private readonly adapter;
+  private readonly adapter: Adapter;
   private acks: object = {};
   private fns: Array<
     (event: Array<any>, next: (err: Error) => void) => void
   > = [];
-  private flags: any = {};
-  private _rooms: Array<string> = [];
+  private flags: BroadcastFlags = {};
+  private _rooms: Set<Room> = new Set();
 
   /**
    * Interface to a `Client` for a given `Namespace`.
@@ -149,7 +150,7 @@ export class Socket extends EventEmitter {
 
     // access last argument to see if it's an ACK callback
     if (typeof args[args.length - 1] === "function") {
-      if (this._rooms.length || this.flags.broadcast) {
+      if (this._rooms.size || this.flags.broadcast) {
         throw new Error("Callbacks are not supported when broadcasting");
       }
 
@@ -158,16 +159,16 @@ export class Socket extends EventEmitter {
       packet.id = this.nsp.ids++;
     }
 
-    const rooms = this._rooms.slice(0);
+    const rooms = new Set(this._rooms);
     const flags = Object.assign({}, this.flags);
 
     // reset flags
-    this._rooms = [];
+    this._rooms.clear();
     this.flags = {};
 
-    if (rooms.length || flags.broadcast) {
+    if (rooms.size || flags.broadcast) {
       this.adapter.broadcast(packet, {
-        except: [this.id],
+        except: new Set([this.id]),
         rooms: rooms,
         flags: flags
       });
@@ -184,8 +185,8 @@ export class Socket extends EventEmitter {
    * @param {String} name
    * @return {Socket} self
    */
-  public to(name: string) {
-    if (!~this._rooms.indexOf(name)) this._rooms.push(name);
+  public to(name: Room) {
+    this._rooms.add(name);
     return this;
   }
 
@@ -195,8 +196,8 @@ export class Socket extends EventEmitter {
    * @param {String} name
    * @return {Socket} self
    */
-  public in(name: string): Socket {
-    if (!~this._rooms.indexOf(name)) this._rooms.push(name);
+  public in(name: Room): Socket {
+    this._rooms.add(name);
     return this;
   }
 
@@ -243,25 +244,23 @@ export class Socket extends EventEmitter {
    */
   public join(rooms, fn?: (err: Error) => void): Socket {
     debug("joining room %s", rooms);
-    const self = this;
+
     if (!Array.isArray(rooms)) {
       rooms = [rooms];
     }
-    rooms = rooms.filter(function(room) {
-      return !self.rooms.hasOwnProperty(room);
+    rooms = rooms.filter(room => {
+      return !this.rooms.hasOwnProperty(room);
     });
     if (!rooms.length) {
       fn && fn(null);
       return this;
     }
-    this.adapter.addAll(this.id, rooms, function(err) {
-      if (err) return fn && fn(err);
-      debug("joined room %s", rooms);
-      rooms.forEach(function(room) {
-        self.rooms[room] = room;
-      });
-      fn && fn(null);
+    this.adapter.addAll(this.id, rooms);
+    debug("joined room %s", rooms);
+    rooms.forEach(room => {
+      this.rooms[room] = room;
     });
+    fn && fn(null);
     return this;
   }
 
@@ -274,13 +273,12 @@ export class Socket extends EventEmitter {
    */
   public leave(room: string, fn?: (err: Error) => void): Socket {
     debug("leave room %s", room);
-    const self = this;
-    this.adapter.del(this.id, room, function(err) {
-      if (err) return fn && fn(err);
-      debug("left room %s", room);
-      delete self.rooms[room];
-      fn && fn(null);
-    });
+    this.adapter.del(this.id, room);
+
+    debug("left room %s", room);
+    delete this.rooms[room];
+    fn && fn(null);
+
     return this;
   }
 
@@ -302,7 +300,7 @@ export class Socket extends EventEmitter {
    */
   public onconnect(): void {
     debug("socket connected - writing packet");
-    this.nsp.connected[this.id] = this;
+    this.nsp.connected.set(this.id, this);
     this.join(this.id);
     const skip = this.nsp.name === "/" && this.nsp.fns.length === 0;
     if (skip) {
@@ -436,7 +434,7 @@ export class Socket extends EventEmitter {
     this.client.remove(this);
     this.connected = false;
     this.disconnected = true;
-    delete this.nsp.connected[this.id];
+    this.nsp.connected.delete(this.id);
     super.emit("disconnect", reason);
   }
 

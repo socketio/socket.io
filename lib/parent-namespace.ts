@@ -17,7 +17,7 @@ export class ParentNamespace extends Namespace {
       nsp.flags = this.flags;
       nsp.emit.apply(nsp, args);
     });
-    this.rooms = [];
+    this.rooms.clear();
     this.flags = {};
   }
 

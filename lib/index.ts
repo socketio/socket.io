@@ -6,7 +6,7 @@ import { Client } from "./client";
 import { EventEmitter } from "events";
 import { Namespace } from "./namespace";
 import { ParentNamespace } from "./parent-namespace";
-import Adapter from "socket.io-adapter";
+import { Adapter } from "socket.io-adapter";
 import parser from "socket.io-parser";
 import url from "url";
 import debugModule from "debug";

@@ -5,6 +5,7 @@ import { EventEmitter } from "events";
 import parser from "socket.io-parser";
 import hasBin from "has-binary2";
 import debugModule from "debug";
+import { Adapter, Room, SocketId } from "socket.io-adapter";
 
 const debug = debugModule("socket.io:namespace");
 
@@ -20,16 +21,16 @@ const events = [
 
 export class Namespace extends EventEmitter {
   public readonly name: string;
-  public readonly connected: object = {};
+  public readonly connected: Map<SocketId, Socket> = new Map();
 
-  public adapter;
+  public adapter: Adapter;
 
   /** @package */
   public readonly server;
   /** @package */
   public fns: Array<(socket: Socket, next: (err: Error) => void) => void> = [];
   /** @package */
-  public rooms: Array<string> = [];
+  public rooms: Set<Room> = new Set();
   /** @package */
   public flags: any = {};
   /** @package */
@@ -107,8 +108,8 @@ export class Namespace extends EventEmitter {
    * @param {String} name
    * @return {Namespace} self
    */
-  public to(name: string): Namespace {
-    if (!~this.rooms.indexOf(name)) this.rooms.push(name);
+  public to(name: Room): Namespace {
+    this.rooms.add(name);
     return this;
   }
 
@@ -118,8 +119,8 @@ export class Namespace extends EventEmitter {
    * @param {String} name
    * @return {Namespace} self
    */
-  public in(name: string): Namespace {
-    if (!~this.rooms.indexOf(name)) this.rooms.push(name);
+  public in(name: Room): Namespace {
+    this.rooms.add(name);
     return this;
   }
 
@@ -197,11 +198,11 @@ export class Namespace extends EventEmitter {
       throw new Error("Callbacks are not supported when broadcasting");
     }
 
-    const rooms = this.rooms.slice(0);
+    const rooms = new Set(this.rooms);
     const flags = Object.assign({}, this.flags);
 
     // reset flags
-    this.rooms = [];
+    this.rooms.clear();
     this.flags = {};
 
     this.adapter.broadcast(packet, {
@@ -239,17 +240,15 @@ export class Namespace extends EventEmitter {
    *
    * @return {Namespace} self
    */
-  public clients(fn: (clients: Array<string>) => void): Namespace {
+  public allSockets(): Promise<Set<SocketId>> {
     if (!this.adapter) {
       throw new Error(
         "No adapter for this namespace, are you trying to get the list of clients of a dynamic namespace?"
       );
     }
-    this.adapter.clients(this.rooms, fn);
-    // reset rooms for scenario:
-    // .in('room').clients() (GH-1978)
-    this.rooms = [];
-    return this;
+    const rooms = new Set(this.rooms);
+    this.rooms.clear();
+    return this.adapter.sockets(rooms);
   }
 
   /**

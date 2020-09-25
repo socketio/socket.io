@@ -9,6 +9,8 @@ const ioc = require("socket.io-client");
 const request = require("supertest");
 const expect = require("expect.js");
 
+require("./support/util");
+
 // Creates a socket.io client for the given server
 function client(srv, nsp, opts) {
   if ("object" == typeof nsp) {
@@ -674,7 +676,8 @@ describe("socket.io", () => {
 
         sio.on("connection", s => {
           s.join("a", () => {
-            s.disconnect();
+            // FIXME not sure why process.nextTick() is needed here
+            process.nextTick(() => s.disconnect());
           });
 
           let total = 2;
@@ -732,21 +735,19 @@ describe("socket.io", () => {
         let total = 3;
         sio.of("/chat").on("connection", socket => {
           chatSids.push(socket.id);
-          --total || getClients();
+          --total || getSockets();
         });
         sio.of("/other").on("connection", socket => {
           otherSid = socket.id;
-          --total || getClients();
+          --total || getSockets();
         });
       });
-      function getClients() {
-        sio.of("/chat").clients((error, sids) => {
-          expect(error).to.not.be.ok();
-          expect(sids).to.contain(chatSids[0]);
-          expect(sids).to.contain(chatSids[1]);
-          expect(sids).to.not.contain(otherSid);
-          done();
-        });
+      async function getSockets() {
+        const sids = await sio.of("/chat").allSockets();
+
+        expect(sids).to.contain(chatSids[0], chatSids[1]);
+        expect(sids).to.not.contain(otherSid);
+        done();
       }
     });
 
@@ -766,33 +767,32 @@ describe("socket.io", () => {
           if (chatIndex++) {
             socket.join("foo", () => {
               chatFooSid = socket.id;
-              --total || getClients();
+              --total || getSockets();
             });
           } else {
             socket.join("bar", () => {
               chatBarSid = socket.id;
-              --total || getClients();
+              --total || getSockets();
             });
           }
         });
         sio.of("/other").on("connection", socket => {
           socket.join("foo", () => {
             otherSid = socket.id;
-            --total || getClients();
+            --total || getSockets();
           });
         });
       });
-      function getClients() {
-        sio
+      async function getSockets() {
+        const sids = await sio
           .of("/chat")
           .in("foo")
-          .clients((error, sids) => {
-            expect(error).to.not.be.ok();
-            expect(sids).to.contain(chatFooSid);
-            expect(sids).to.not.contain(chatBarSid);
-            expect(sids).to.not.contain(otherSid);
-            done();
-          });
+          .allSockets();
+
+        expect(sids).to.contain(chatFooSid);
+        expect(sids).to.not.contain(chatBarSid);
+        expect(sids).to.not.contain(otherSid);
+        done();
       }
     });
 
@@ -812,30 +812,27 @@ describe("socket.io", () => {
           if (chatIndex++) {
             socket.join("foo", () => {
               chatFooSid = socket.id;
-              --total || getClients();
+              --total || getSockets();
             });
           } else {
             socket.join("bar", () => {
               chatBarSid = socket.id;
-              --total || getClients();
+              --total || getSockets();
             });
           }
         });
         sio.of("/other").on("connection", socket => {
           socket.join("foo", () => {
             otherSid = socket.id;
-            --total || getClients();
+            --total || getSockets();
           });
         });
       });
-      function getClients() {
-        sio.of("/chat").clients((error, sids) => {
-          expect(error).to.not.be.ok();
-          expect(sids).to.contain(chatFooSid);
-          expect(sids).to.contain(chatBarSid);
-          expect(sids).to.not.contain(otherSid);
-          done();
-        });
+      async function getSockets() {
+        const sids = await sio.of("/chat").allSockets();
+        expect(sids).to.contain(chatFooSid, chatBarSid);
+        expect(sids).to.not.contain(otherSid);
+        done();
       }
     });
 
@@ -2179,9 +2176,9 @@ describe("socket.io", () => {
         const socket = client(srv);
         sio.on("connection", s => {
           s.join("a", () => {
-            expect(s.nsp.adapter.rooms).to.have.key("a");
+            expect(s.nsp.adapter.rooms).to.contain("a");
             s.leave("a", () => {
-              expect(s.nsp.adapter.rooms).to.not.have.key("a");
+              expect(s.nsp.adapter.rooms).to.not.contain("a");
               done();
             });
           });
