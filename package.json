@@ -35,6 +35,8 @@
     "socket.io-parser": "~4.0.0"
   },
   "devDependencies": {
+    "@types/cookie": "^0.4.0",
+    "@types/cors": "^2.8.7",
     "@types/node": "^14.11.2",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.9.0",

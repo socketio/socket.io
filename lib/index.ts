@@ -12,6 +12,8 @@ import { Encoder, PacketType } from "socket.io-parser";
 import url from "url";
 import debugModule from "debug";
 import { Socket } from "./socket";
+import { CookieSerializeOptions } from "cookie";
+import { CorsOptions } from "cors";
 
 const debug = debugModule("socket.io:server");
 
@@ -23,6 +25,112 @@ const clientVersion = require("socket.io-client/package.json").version;
 
 let clientSource = undefined;
 let clientSourceMap = undefined;
+
+type Transport = "polling" | "websocket";
+
+interface EngineOptions {
+  /**
+   * how many ms without a pong packet to consider the connection closed (5000)
+   */
+  pingTimeout: number;
+  /**
+   * how many ms before sending a new ping packet (25000)
+   */
+  pingInterval: number;
+  /**
+   * how many ms before an uncompleted transport upgrade is cancelled (10000)
+   */
+  upgradeTimeout: number;
+  /**
+   * how many bytes or characters a message can be, before closing the session (to avoid DoS). Default value is 1E5.
+   */
+  maxHttpBufferSize: number;
+  /**
+   * A function that receives a given handshake or upgrade request as its first parameter,
+   * and can decide whether to continue or not. The second argument is a function that needs
+   * to be called with the decided information: fn(err, success), where success is a boolean
+   * value where false means that the request is rejected, and err is an error code.
+   */
+  allowRequest: (
+    req: http.IncomingMessage,
+    fn: (err: string | null | undefined, success: boolean) => void
+  ) => void;
+  /**
+   * to allow connections to (['polling', 'websocket'])
+   */
+  transports: Transport[];
+  /**
+   * whether to allow transport upgrades (true)
+   */
+  allowUpgrades: boolean;
+  /**
+   * parameters of the WebSocket permessage-deflate extension (see ws module api docs). Set to false to disable. (false)
+   */
+  perMessageDeflate: boolean | object;
+  /**
+   * parameters of the http compression for the polling transports (see zlib api docs). Set to false to disable. (true)
+   */
+  httpCompression: boolean | object;
+  /**
+   * what WebSocket server implementation to use. Specified module must
+   * conform to the ws interface (see ws module api docs). Default value is ws.
+   * An alternative c++ addon is also available by installing uws module.
+   */
+  wsEngine: string;
+  /**
+   * an optional packet which will be concatenated to the handshake packet emitted by Engine.IO.
+   */
+  initialPacket: any;
+  /**
+   * configuration of the cookie that contains the client sid to send as part of handshake response headers. This cookie
+   * might be used for sticky-session. Defaults to not sending any cookie (false)
+   */
+  cookie: CookieSerializeOptions | boolean;
+  /**
+   * the options that will be forwarded to the cors module
+   */
+  cors: CorsOptions;
+}
+
+interface AttachOptions {
+  /**
+   * name of the path to capture (/engine.io).
+   */
+  path: string;
+  /**
+   * destroy unhandled upgrade requests (true)
+   */
+  destroyUpgrade: boolean;
+  /**
+   * milliseconds after which unhandled requests are ended (1000)
+   */
+  destroyUpgradeTimeout: number;
+}
+
+interface EngineAttachOptions extends EngineOptions, AttachOptions {}
+
+export interface ServerOptions extends EngineAttachOptions {
+  /**
+   * name of the path to capture (/socket.io)
+   */
+  path: string;
+  /**
+   * whether to serve the client files (true)
+   */
+  serveClient: boolean;
+  /**
+   * the adapter to use. Defaults to an instance of the Adapter that ships with socket.io which is memory based.
+   */
+  adapter: any;
+  /**
+   * the allowed origins (*:*)
+   */
+  origins: string | string[];
+  /**
+   * the parser to use. Defaults to an instance of the Parser that ships with socket.io.
+   */
+  parser: any;
+}
 
 class Server extends EventEmitter {
   public readonly sockets: Namespace;
@@ -57,7 +165,10 @@ class Server extends EventEmitter {
    * @param {http.Server|Number|Object} srv http server, port or options
    * @param {Object} [opts]
    */
-  constructor(srv, opts: any = {}) {
+  constructor(opts?: Partial<ServerOptions>);
+  constructor(srv: http.Server, opts?: Partial<ServerOptions>);
+  constructor(srv: number, opts?: Partial<ServerOptions>);
+  constructor(srv?: any, opts: Partial<ServerOptions> = {}) {
     super();
     if ("object" == typeof srv && srv instanceof Object && !srv.listen) {
       opts = srv;
@@ -225,50 +336,22 @@ class Server extends EventEmitter {
    * @param {Object} opts - options passed to engine.io
    * @return {Server} self
    */
-  public listen(srv: http.Server | number, opts: any = {}): Server {
-    if ("function" == typeof srv) {
-      const msg =
-        "You are trying to attach socket.io to an express " +
-        "request handler function. Please pass a http.Server instance.";
-      throw new Error(msg);
-    }
-
-    // handle a port as a string
-    if (Number(srv) == srv) {
-      srv = Number(srv);
-    }
-
-    if ("number" == typeof srv) {
-      debug("creating http server and binding to %d", srv);
-      const port = srv;
-      srv = http.createServer((req, res) => {
-        res.writeHead(404);
-        res.end();
-      });
-      srv.listen(port);
-    }
-
-    // set engine.io path to `/socket.io`
-    opts.path = opts.path || this.path();
-    // set origins verification
-    opts.allowRequest = opts.allowRequest || this.checkRequest.bind(this);
-
-    if (this.sockets.fns.length > 0) {
-      this.initEngine(srv, opts);
-      return this;
-    }
-
-    const connectPacket = { type: PacketType.CONNECT, nsp: "/" };
-    // the CONNECT packet will be merged with Engine.IO handshake,
-    // to reduce the number of round trips
-    opts.initialPacket = this.encoder.encode(connectPacket);
-
-    this.initEngine(srv, opts);
-
-    return this;
+  public listen(srv: http.Server, opts?: Partial<ServerOptions>): Server;
+  public listen(srv: number, opts?: Partial<ServerOptions>): Server;
+  public listen(srv: any, opts: Partial<ServerOptions> = {}): Server {
+    return this.attach(srv, opts);
   }
 
-  public attach(srv, opts) {
+  /**
+   * Attaches socket.io to a server or port.
+   *
+   * @param {http.Server|Number} srv - server or port
+   * @param {Object} opts - options passed to engine.io
+   * @return {Server} self
+   */
+  public attach(srv: http.Server, opts?: Partial<ServerOptions>): Server;
+  public attach(port: number, opts?: Partial<ServerOptions>): Server;
+  public attach(srv: any, opts: Partial<ServerOptions> = {}): Server {
     if ("function" == typeof srv) {
       const msg =
         "You are trying to attach socket.io to an express " +
@@ -292,8 +375,7 @@ class Server extends EventEmitter {
     }
 
     // set engine.io path to `/socket.io`
-    opts = opts || {};
-    opts.path = opts.path || this.path();
+    opts.path = opts.path || this._path;
     // set origins verification
     opts.allowRequest = opts.allowRequest || this.checkRequest.bind(this);
 
@@ -315,9 +397,10 @@ class Server extends EventEmitter {
   /**
    * Initialize engine
    *
-   * @param {Object} options passed to engine.io
+   * @param srv - the server to attach to
+   * @param opts - options passed to engine.io
    */
-  private initEngine(srv, opts) {
+  private initEngine(srv: http.Server, opts: Partial<EngineAttachOptions>) {
     // initialize engine
     debug("creating engine.io instance with opts %j", opts);
     this.eio = engine.attach(srv, opts);
@@ -432,7 +515,7 @@ class Server extends EventEmitter {
    * @param {engine.Socket} conn
    * @return {Server} self
    */
-  public onconnection(conn): Server {
+  private onconnection(conn): Server {
     debug("incoming connection with id %s", conn.id);
     const client = new Client(this, conn);
     client.connect("/");
