@@ -1,5 +1,5 @@
-import * as Emitter from "component-emitter";
-import * as binary from "./binary";
+import Emitter from "component-emitter";
+import { deconstructPacket, reconstructPacket } from "./binary";
 import isBinary from "./is-binary";
 import debugModule from "debug";
 
@@ -23,7 +23,7 @@ export enum PacketType {
   BINARY_ACK,
 }
 
-interface Packet {
+export interface Packet {
   type: PacketType;
   nsp: string;
   data?: any;
@@ -99,7 +99,7 @@ export class Encoder {
    */
 
   private encodeAsBinary(obj: Packet) {
-    const deconstruction = binary.deconstructPacket(obj);
+    const deconstruction = deconstructPacket(obj);
     const pack = this.encodeAsString(deconstruction.packet);
     const buffers = deconstruction.buffers;
 
@@ -285,7 +285,7 @@ class BinaryReconstructor {
     this.buffers.push(binData);
     if (this.buffers.length === this.reconPack.attachments) {
       // done with buffer list
-      const packet = binary.reconstructPacket(this.reconPack, this.buffers);
+      const packet = reconstructPacket(this.reconPack, this.buffers);
       this.finishedReconstruction();
       return packet;
     }
