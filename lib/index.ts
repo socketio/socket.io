@@ -114,28 +114,28 @@ export class Adapter extends EventEmitter {
     const ids = new Set();
 
     packet.nsp = this.nsp.name;
-    this.encoder.encode(packet, encodedPackets => {
-      if (rooms.size) {
-        for (const room of rooms) {
-          if (!this.rooms.has(room)) continue;
+    const encodedPackets = this.encoder.encode(packet);
 
-          for (const id of this.rooms.get(room)) {
-            if (ids.has(id) || except.has(id)) continue;
-            const socket = this.nsp.connected.get(id);
-            if (socket) {
-              socket.packet(encodedPackets, packetOpts);
-              ids.add(id);
-            }
+    if (rooms.size) {
+      for (const room of rooms) {
+        if (!this.rooms.has(room)) continue;
+
+        for (const id of this.rooms.get(room)) {
+          if (ids.has(id) || except.has(id)) continue;
+          const socket = this.nsp.connected.get(id);
+          if (socket) {
+            socket.packet(encodedPackets, packetOpts);
+            ids.add(id);
           }
         }
-      } else {
-        for (const [id] of this.sids) {
-          if (except.has(id)) continue;
-          const socket = this.nsp.connected.get(id);
-          if (socket) socket.packet(encodedPackets, packetOpts);
-        }
       }
-    });
+    } else {
+      for (const [id] of this.sids) {
+        if (except.has(id)) continue;
+        const socket = this.nsp.connected.get(id);
+        if (socket) socket.packet(encodedPackets, packetOpts);
+      }
+    }
   }
 
   /**
