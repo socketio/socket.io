@@ -1,6 +1,6 @@
 {
   "name": "socket.io-adapter",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
   "scripts": {
     "test": "npm run format:check && tsc && nyc mocha test/index.js",
     "format:check": "prettier --parser typescript --check 'lib/**/*.ts' 'test/**/*.js'",
-    "format:fix": "prettier --parser typescript --write 'lib/**/*.ts' 'test/**/*.js'"
+    "format:fix": "prettier --parser typescript --write 'lib/**/*.ts' 'test/**/*.js'",
+    "prepack": "tsc"
   }
 }
