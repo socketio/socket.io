@@ -19,7 +19,7 @@ serve the file `socket.io.js` found in the `dist` folder or include it via [CDN]
 ```html
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  var socket = io('http://localhost');
+  var socket = io();
   socket.on('connect', function(){});
   socket.on('event', function(data){});
   socket.on('disconnect', function(){});
@@ -30,7 +30,7 @@ serve the file `socket.io.js` found in the `dist` folder or include it via [CDN]
 // with ES6 import
 import io from 'socket.io-client';
 
-const socket = io('http://localhost');
+const socket = io();
 ```
 
 A slim build (without `JSON3`, a JSON polyfill for IE6/IE7, and `debug`) is also available: `socket.io.slim.js`.
@@ -42,7 +42,7 @@ Socket.IO is compatible with [browserify](http://browserify.org/) and [webpack](
   Add `socket.io-client` to your `package.json` and then:
 
   ```js
-  var socket = require('socket.io-client')('http://localhost');
+  var socket = require('socket.io-client')('http://localhost:3000');
   socket.on('connect', function(){});
   socket.on('event', function(data){});
   socket.on('disconnect', function(){});
