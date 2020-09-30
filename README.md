@@ -48,6 +48,16 @@ Socket.IO is compatible with [browserify](http://browserify.org/) and [webpack](
   socket.on('disconnect', function(){});
   ```
 
+## Debug / logging
+
+In order to see all the client debug output, run the following command on the browser console – including the desired scope – and reload your app page:
+
+```
+localStorage.debug = '*';
+```
+
+And then, filter by the scopes you're interested in. See also: https://socket.io/docs/logging-and-debugging/
+
 ## API
 
 See [API](/docs/API.md)
