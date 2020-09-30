@@ -1,3 +1,6 @@
+## [3.3.1](https://github.com/socketio/socket.io-parser/compare/3.3.0...3.3.1) (2020-09-30)
+
+
 # [4.0.0](https://github.com/socketio/socket.io-parser/compare/3.4.1...4.0.0) (2020-09-28)
 
 This release will be included in Socket.IO v3.
