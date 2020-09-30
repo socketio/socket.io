@@ -436,7 +436,7 @@ describe('connection', function () {
 
     it('should still try to reconnect twice after opening another socket asynchronously', function (done) {
       var manager = io.Manager(
-        `http://localhost:9823`,
+        'http://localhost:9823',
         { reconnect: true, reconnectionAttempts: 2 }
       );
       var delay = Math.floor(manager.reconnectionDelay() * manager.randomizationFactor() * 0.5);
