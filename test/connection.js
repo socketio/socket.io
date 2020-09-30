@@ -458,7 +458,7 @@ describe('connection', function () {
 
       var socket = manager.socket('/room1');
 
-      setTimeout(() => {
+      setTimeout(function () {
         manager.socket('/room2');
       }, delay);
     });
