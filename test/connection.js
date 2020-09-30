@@ -433,6 +433,35 @@ describe('connection', function () {
 
       var socket = manager.socket('/invalid');
     });
+
+    it('should still try to reconnect twice after opening another socket asynchronously', function (done) {
+      var manager = io.Manager(
+        `http://localhost:9823`,
+        { reconnect: true, reconnectionAttempts: 2 }
+      );
+      var delay = Math.floor(manager.reconnectionDelay() * manager.randomizationFactor() * 0.5);
+      delay = Math.max(delay, 10);
+
+      var reconnects = 0;
+      var cb = function () {
+        reconnects++;
+      };
+
+      manager.on('reconnect_attempt', cb);
+
+      manager.on('reconnect_failed', function () {
+        expect(reconnects).to.be(2);
+        socket.disconnect();
+        manager.close();
+        done();
+      });
+
+      var socket = manager.socket('/room1');
+
+      setTimeout(() => {
+        manager.socket('/room2');
+      }, delay);
+    });
   }
 
   it('should emit date as string', function (done) {
