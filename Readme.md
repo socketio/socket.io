@@ -3,158 +3,413 @@
 
   This document describes the Socket.IO protocol. For a reference JavaScript
   implementation, take a look at
-  [socket.io-parser](https://github.com/learnboost/socket.io-parser),
-  [socket.io-client](https://github.com/learnboost/socket.io-client)
-  and [socket.io](https://github.com/learnboost/socket.io).
+  [socket.io-parser](https://github.com/socketio/socket.io-parser),
+  [socket.io-client](https://github.com/socketio/socket.io-client)
+  and [socket.io](https://github.com/socketio/socket.io).
+
+## Table of Contents
+
+- [Protocol version](#protocol-version)
+- [Packet format](#packet-format)
+  - [Packet types](#packet-types)
+    - [CONNECT](#0---connect)
+    - [DISCONNECT](#1---disconnect)
+    - [EVENT](#2---event)
+    - [ACK](#3---ack)
+    - [ERROR](#4---error)
+    - [BINARY_EVENT](#5---binary_event)
+    - [BINARY_ACK](#6---binary_ack)
+- [Packet encoding](#packet-encoding)
+  - [Encoding format](#encoding-format)
+  - [Examples](#examples)
+- [Exchange protocol](#exchange-protocol)
+  - [Connection to the default namespace](#connection-to-the-default-namespace)
+  - [Connection to a non-default namespace](#connection-to-a-non-default-namespace)
+  - [Disconnection from a non-default namespace](#disconnection-from-a-non-default-namespace)
+  - [Acknowledgement](#acknowledgement)
 
 ## Protocol version
 
-  **Current protocol revision:** `4`.
+This is the revision **4** of the Socket.IO protocol.
 
-## Parser API
+It is built on top of the [3rd](https://github.com/socketio/engine.io-protocol/tree/v3) revision of the Engine.IO
+protocol.
 
-### Parser#Encoder
+While the Engine.IO protocol describes the low-level plumbing with WebSocket and HTTP long-polling, the Socket.IO
+protocol adds another layer above in order to provide the following features:
 
-  An object that encodes socket.io packets to engine.io-transportable form.
-  Its only public method is Encoder#encode.
+- multiplexing (what we call [Namespace](https://socket.io/docs/namespaces/))
 
-#### Encoder#encode(Object:packet, Function:callback)
+Example of the Javascript API:
 
-  Encodes a `Packet` object into an array of engine.io-compatible encodings.
-  If the object is pure JSON the array will contain a single item, a socket.io
-  encoded string. If the object contains binary data (ArrayBuffer, Buffer,
-  Blob, or File) the array's first item will be a string with packet-relevant
-  metadata and JSON with placeholders where the binary data was held in the
-  initial packet. The remaining items will be the raw binary data to fill in
-  the placeholders post-decoding.
+```js
+// server-side
+const nsp = io.of("/admin");
+nsp.on("connect", socket => {});
 
-  The callback function is called with the encoded array as its only argument.
-  In the socket.io-parser implementation, the callback writes each item in the
-  array to engine.io for transport. The expectation for any implementation is
-  that each item in the array is transported sequentially.
+// client-side
+const socket1 = io(); // default namespace
+const socket2 = io("/admin");
+socket2.on("connect", () => {});
+```
 
-### Parser#Decoder
+- acknowledgement of packets
 
-  An object that decodes data from engine.io into complete socket.io packets.
+Example of the Javascript API:
 
-  The expected workflow for using the Decoder is to call the `Decoder#add`
-  method upon receiving any encoding from engine.io (in the sequential order in
-  which the encodings are received) and to listen to the Decoder's 'decoded'
-  events to handle fully decoded packets.
+```js
+// on one side
+socket.emit("hello", 1, () => { console.log("received"); });
+// on the other side
+socket.on("hello", (a, cb) => { cb(); });
+```
 
-#### Decoder#add(Object:encoding)
+## Packet format
 
-  Decodes a single encoded object from engine.io transport. In the case of a
-  non-binary packet, the one encoding argument is used to reconstruct the full
-  packet. If the packet is of type `BINARY_EVENT` or `ACK`, then additional calls
-  to add are expected, one for each piece of binary data in the original packet.
-  Once the final binary data encoding is passed to add, the full socket.io
-  packet is reconstructed.
+A packet contains the following fields:
 
-  After a packet is fully decoded, the Decoder emits a 'decoded' event (via
-  Emitter) with the decoded packet as the sole argument. Listeners to this event
-  should treat the packet as ready-to-go.
+- a type (integer, see [below](#packet-types))
+- a namespace (string)
+- optionally, a payload (string | Array)
+- optionally, an acknowledgment id (integer)
 
-#### Decoder#destroy()
+## Packet types
 
-  Deallocates the Decoder instance's resources. Should be called in the event
-  of a disconnect mid-decoding, etc. to prevent memory leaks.
+### 0 - CONNECT
 
-### Parser#types
+This event is sent:
 
-  Array of packet type keys.
+- by the client when requesting access to a namespace
+- by the server when accepting the connection to a namespace
 
-### Packet
+It does not contain any payload nor acknowledgement id.
 
-  Each packet is represented as a vanilla `Object` with a `nsp` key that
-  indicates what namespace it belongs to (see "Multiplexing") and a
-  `type` key that can be one of the following:
+Example:
 
-  - `Packet#CONNECT` (`0`)
-  - `Packet#DISCONNECT` (`1`)
-  - `Packet#EVENT` (`2`)
-  - `Packet#ACK` (`3`)
-  - `Packet#ERROR` (`4`)
-  - `Packet#BINARY_EVENT` (`5`)
-  - `Packet#BINARY_ACK` (`6`)
+```json
+{
+  "type": 0,
+  "nsp": "/admin"
+}
+```
 
-#### EVENT
+The client may include additional information (i.e. for authentication purpose) in the namespace field. Example:
 
-  - `data` (`Array`) a list of arguments, the first of which is the event
-    name. Arguments can contain any type of field that can result of
-    `JSON` decoding, including objects and arrays of arbitrary size.
+```json
+{
+  "type": 0,
+  "nsp": "/admin?token=1234&uid=abcd"
+}
+```
 
-  - `id` (`Number`) if the `id` identifier is present, it indicates that the
-    server wishes to be acknowledged of the reception of this event.
+#### 1 - DISCONNECT
 
-#### BINARY_EVENT
+This event is used when one side wants to disconnect from a namespace.
 
-  - `data` (`Array`) see `EVENT` `data`, but with addition that any of the arguments
-    may contain non-JSON arbitrary binary data. For encoding, binary data is
-    considered either a Buffer, ArrayBuffer, Blob, or File. When decoding, all
-    binary data server-side is a Buffer; on modern clients binary data is an
-    ArrayBuffer. On older browsers that don't support binary, every binary data
-    item is replaced with an object like so:
-`{base64: true, data: <base64_bin_encoding>}`. When a `BINARY_EVENT` or `ACK`
-    packet is initially decoded, all of the binary data items will be placeholders,
-    and will be filled by additional calls to `Decoder#add`.
+It does not contain any payload nor acknowledgement id.
 
-  - `id` (`Number`) see `EVENT` `id`.
+Example:
 
-#### ACK
+```json
+{
+  "type": 1,
+  "nsp": "/admin"
+}
+```
 
-  - `data` (`Array`) see `EVENT` `data`. Encoded as string like the `EVENT` type above.
-    Should be used when an ACK function is not called with binary data.
-  - `id` (`Number`) see `EVENT` `id`.
+#### 2 - EVENT
 
-#### BINARY_ACK
+This event is used when one side wants to transmit some data (without binary) to the other side.
 
-  - `data` (`Array`) see `ACK` `data`. Used when the arguments for an ACK
-    function contain binary data; encodes packet in the `BINARY_EVENT` style
-    documented above.
-  - `id` (`Number`) see `EVENT` `id`.
+It does contain a payload, and an optional acknowledgement id.
 
-#### ERROR
+Example:
 
-  - `data` (`Mixed`) error data
+```json
+{
+  "type": 2,
+  "nsp": "/",
+  "data": ["hello", 1]
+}
+```
 
-## Transport
+With an acknowledgment id:
 
-  The socket.io protocol can be delivered over a variety of transports.
-  [socket.io-client](http://github.com/learnboost/socket.io-client)
-  is the implementation of the protocol for the browser and Node.JS over
-  [engine.io-client](http://github.com/learnboost/engine.io-client).
+```json
+{
+  "type": 2,
+  "nsp": "/admin",
+  "data": ["project:delete", 123],
+  "id": 456
+}
+```
 
-  [socket.io](http://github.com/learnboost/socket.io) is the server
-  implementation of the protocol over
-  [engine.io](http://github.com/learnboost/engine.io).
+#### 3 - ACK
 
-## Multiplexing
+This event is used when one side has received an EVENT or a BINARY_EVENT with an acknowledgement id.
 
-  Socket.IO has built-in multiplexing support, which means that each packet
-  always belongs to a given `namespace`, identified by a path string (like
-  `/this`). The corresponding key in the `Packet` object is `nsp`.
+It contains the acknowledgement id received in the previous packet, and may contain a payload (without binary).
 
-  When the socket.io transport connection is established, a connection
-  attempt to the `/` namespace is assumed (ie: the server behaves as if
-  the client had sent a `CONNECT` packet to the `/` namespace).
+```json
+{
+  "type": 3,
+  "nsp": "/admin",
+  "data": [],
+  "id": 456
+}
+```
 
-  In order to support multiplexing of multiple sockets under
-  the same transport, additional `CONNECT` packets can be sent by the
-  client to arbitrary namespace URIs (eg: `/another`).
+#### 4 - ERROR
 
-  When the server responds with a `CONNECT` packet to the corresponding
-  namespace, the multiplexed socket is considered connected.
+This event is sent by the server when the connection to a namespace is refused.
 
-  Alternatively, the server can respond with an `ERROR` packet to indicate
-  a multiplexed socket connection error, such as authentication errors.
-  The associated error payload varies according to each error, and can
-  be user-defined.
+It may contain a payload indicating the reason of the refusal.
 
-  After a `CONNECT` packet is received by the server for a given `nsp`,
-  the client can then send and receive `EVENT` packets. If any of the
-  parties receives an `EVENT` packet with an `id` field, an `ACK` packet is
-  expected to confirm the reception of said packet.
+Example:
+
+```json
+{
+  "type": 4,
+  "nsp": "/admin",
+  "data": "Not authorized"
+}
+```
+
+#### 5 - BINARY_EVENT
+
+This event is used when one side wants to transmit some data (including binary) to the other side.
+
+It does contain a payload, and an optional acknowledgement id.
+
+Example:
+
+```
+{
+  "type": 5,
+  "nsp": "/",
+  "data": ["hello", <Buffer 01 02 03>]
+}
+```
+
+With an acknowledgment id:
+
+```
+{
+  "type": 5,
+  "nsp": "/admin",
+  "data": ["project:delete", <Buffer 01 02 03>],
+  "id": 456
+}
+```
+
+#### 6 - BINARY_ACK
+
+This event is used when one side has received an EVENT or a BINARY_EVENT with an acknowledgement id.
+
+It contains the acknowledgement id received in the previous packet, and contain a payload including binary.
+
+Example:
+
+```
+{
+  "type": 6,
+  "nsp": "/admin",
+  "data": [<Buffer 03 02 01>],
+  "id": 456
+}
+```
+
+## Packet encoding
+
+This section details the encoding used by the default parser which is included in Socket.IO server and client, and
+whose source can be found [here](https://github.com/socketio/socket.io-parser).
+
+The JS server and client implementations also supports custom parsers, which have different tradeoffs and may benefit to
+certain kind of applications. Please see [socket.io-json-parser](https://github.com/darrachequesne/socket.io-json-parser)
+or [socket.io-msgpack-parser](https://github.com/darrachequesne/socket.io-msgpack-parser) for example.
+
+Please also note that each Socket.IO packet is sent as a Engine.IO `message` packet (more information [here](https://github.com/socketio/engine.io-protocol)),
+so the encoded result will be prefixed by `4` when sent over the wire (in the request/response body with HTTP
+long-polling, or in the WebSocket frame).
+
+### Encoding format
+
+```
+<packet type>[<# of binary attachments>-][<namespace>,][<acknowledgment id>][JSON-stringified payload without binary]
+
++ binary attachments extracted
+```
+
+Note:
+
+- the namespace is only included if it is different from the default namespace (`/`)
+
+### Examples
+
+- `CONNECT` packet for the default namespace
+
+```json
+{
+  "type": 0,
+  "nsp": "/"
+}
+```
+
+is encoded to `0`
+
+- `CONNECT` packet for the `/admin` namespace
+
+```json
+{
+  "type": 0,
+  "nsp": "/admin"
+}
+```
+
+is encoded to `0/admin`
+
+- `DISCONNECT` packet for the `/admin` namespace
+
+```json
+{
+  "type": 1,
+  "nsp": "/admin"
+}
+```
+
+is encoded to `1/admin`
+
+- `EVENT` packet
+
+```json
+{
+  "type": 2,
+  "nsp": "/",
+  "data": ["hello", 1]
+}
+```
+
+is encoded to `2["hello",1]`
+
+- `EVENT` packet with an acknowledgement id
+
+```json
+{
+  "type": 2,
+  "nsp": "/admin",
+  "data": ["project:delete", 123],
+  "id": 456
+}
+```
+
+is encoded to `2/admin,456["project:delete",123]`
+
+- `ACK` packet
+
+```json
+{
+  "type": 3,
+  "nsp": "/admin",
+  "data": [],
+  "id": 456
+}
+```
+
+is encoded to `3/admin,456[]`
+
+- `ERROR` packet
+
+```json
+{
+  "type": 4,
+  "nsp": "/admin",
+  "data": "Not authorized"
+}
+```
+
+is encoded to `4/admin,"Not authorized"`
+
+- `BINARY_EVENT` packet
+
+```
+{
+  "type": 5,
+  "nsp": "/",
+  "data": ["hello", <Buffer 01 02 03>]
+}
+```
+
+is encoded to `51-["hello",{"_placeholder":true,"num":0}]` + `<Buffer 01 02 03>`
+
+- `BINARY_EVENT` packet with an acknowledgement id
+
+```
+{
+  "type": 5,
+  "nsp": "/admin",
+  "data": ["project:delete", <Buffer 01 02 03>],
+  "id": 456
+}
+```
+
+is encoded to `51-/admin,456["project:delete",{"_placeholder":true,"num":0}]` + `<Buffer 01 02 03>`
+
+- `BINARY_ACK` packet
+
+```
+{
+  "type": 6,
+  "nsp": "/admin",
+  "data": [<Buffer 03 02 01>],
+  "id": 456
+}
+```
+
+is encoded to `61-/admin,456[{"_placeholder":true,"num":0}]` + `<Buffer 03 02 01>`
+
+
+## Exchange protocol
+
+### Connection to the default namespace
+
+The server always send a `CONNECT` packet for the default namespace (`/`) when the connection is established.
+
+That is, even if the client requests access to a non-default namespace, it will receive a `CONNECT` packet for the
+default namespace first.
+
+```
+Server > { type: CONNECT, nsp: "/" }
+```
+
+No response is expected from the client.
+
+### Connection to a non-default namespace
+
+```
+Client > { type: CONNECT, nsp: "/admin" }
+Server > { type: CONNECT, nsp: "/admin" } (if the connection is successful)
+or
+Server > { type: ERROR, nsp: "/admin", data: "Not authorized" }
+```
+
+### Disconnection from a non-default namespace
+
+```
+Client > { type: DISCONNECT, nsp: "/admin" }
+```
+
+And vice versa. No response is expected from the other-side.
+
+### Acknowledgement
+
+```
+Client > { type: EVENT, nsp: "/admin", data: ["hello"], id: 456 }
+Server > { type: ACK, nsp: "/admin", data: [], id: 456 }
+or
+Server > { type: BINARY_ACK, nsp: "/admin", data: [ <Buffer 01 02 03> ], id: 456 }
+```
+
+And vice versa.
 
 ## License
 
