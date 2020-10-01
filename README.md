@@ -10,6 +10,8 @@ Table of Contents:
 
 - [Revision](#revision)
 - [Anatomy of an Engine.IO session](#anatomy-of-an-engineio-session)
+  - [Sample session](#sample-session)
+  - [Sample session with WebSocket only](#sample-session-with-websocket-only)
 - [URLs](#urls)
 - [Encoding](#encoding)
     - [Packet](#packet)
@@ -55,25 +57,7 @@ with `pong` packets.
 5. Polling transports can send a `close` packet to close the socket, since
 they're expected to be "opening" and "closing" all the time.
 
-Example with WebSocket connection:
-
-```
-GET /engine.io/?EIO=4&transport=websocket&sid=lv_VI97HAXpY6yYWAAAC
-< HTTP/1.1 101 Switching Protocols
-```
-
-WebSocket frames:
-
-```
-< 0{"sid":"lv_VI97HAXpY6yYWAAAC","pingInterval":25000,"pingTimeout":5000} => handshake
-> 4hello    => message (not concatenated)
-> 4world
-< 2         => "ping" packet type
-> 3         => "pong" packet type
-> 1         => "close" packet type
-```
-
-Example with polling:
+### Sample session
 
 - Request n°1 (open packet)
 
@@ -91,7 +75,11 @@ Details:
 {"sid":...  => the handshake data
 ```
 
+Note: the `t` query param is used to ensure that the request is not cached by the browser.
+
 - Request n°2 (message in):
+
+`socket.send('hey')` is executed on the server:
 
 ```
 GET /engine.io/?EIO=4&transport=polling&t=N8hyd7H&sid=lv_VI97HAXpY6yYWAAAC
@@ -107,7 +95,11 @@ Details:
 hey         => the actual message
 ```
 
+Note: the `sid` query param contains the sid sent in the handshake.
+
 - Request n°3 (message out)
+
+`socket.send('hello'); socket.send('world');` is executed on the client:
 
 ```
 POST /engine.io/?EIO=4&transport=polling&t=N8hzxke&sid=lv_VI97HAXpY6yYWAAAC
@@ -147,6 +139,28 @@ WebSocket frames:
 < 3         => "pong" packet type
 > 1         => "close" packet type
 ```
+
+### Sample session with WebSocket only
+
+In that case, the client only enables WebSocket (without HTTP polling).
+
+```
+GET /engine.io/?EIO=4&transport=websocket
+< HTTP/1.1 101 Switching Protocols
+```
+
+WebSocket frames:
+
+```
+< 0{"sid":"lv_VI97HAXpY6yYWAAAC","pingInterval":25000,"pingTimeout":5000} => handshake
+< 4hey
+> 4hello    => message (not concatenated)
+> 4world
+< 2         => "ping" packet type
+> 3         => "pong" packet type
+> 1         => "close" packet type
+```
+
 
 ## URLs
 
