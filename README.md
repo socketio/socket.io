@@ -47,6 +47,7 @@ The revision 3 can be found here: https://github.com/socketio/engine.io-protocol
 1. Transport establishes a connection to the Engine.IO URL .
 2. Server responds with an `open` packet with JSON-encoded handshake data:
   - `sid` session id (`String`)
+  - `upgrades` possible transport upgrades (`Array` of `String`)
   - `pingTimeout` server configured ping timeout, used for the client
     to detect that the server is unresponsive (`Number`)
   - `pingInterval` server configured ping interval, used for the client
@@ -65,7 +66,7 @@ they're expected to be "opening" and "closing" all the time.
 GET /engine.io/?EIO=4&transport=polling&t=N8hyd6w
 < HTTP/1.1 200 OK
 < Content-Type: text/plain; charset=UTF-8
-0{"sid":"lv_VI97HAXpY6yYWAAAC","pingInterval":25000,"pingTimeout":5000}
+0{"sid":"lv_VI97HAXpY6yYWAAAC","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":5000}
 ```
 
 Details:
