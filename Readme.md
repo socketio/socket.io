@@ -27,10 +27,20 @@
   - [Connection to a non-default namespace](#connection-to-a-non-default-namespace)
   - [Disconnection from a non-default namespace](#disconnection-from-a-non-default-namespace)
   - [Acknowledgement](#acknowledgement)
+- [History](#history)
+  - [Difference between v4 and v3](#difference-between-v4-and-v3)
+  - [Difference between v3 and v2](#difference-between-v3-and-v2)
+  - [Difference between v2 and v1](#difference-between-v2-and-v1)
+  - [Initial revision](#initial-revision)
 
 ## Protocol version
 
-This is the revision **4** of the Socket.IO protocol.
+This is the revision **4** of the Socket.IO protocol, included in ̀`socket.io@1.0.3...latest`.
+
+The 3rd revision (included in ̀`socket.io@1.0.0...1.0.2`) can be found here: https://github.com/socketio/socket.io-protocol/tree/v3
+
+Both the 1st and the 2nd revisions were part of the work towards Socket.IO 1.0 but were never included in a Socket.IO
+release.
 
 It is built on top of the [3rd](https://github.com/socketio/engine.io-protocol/tree/v3) revision of the Engine.IO
 protocol.
@@ -410,6 +420,32 @@ Server > { type: BINARY_ACK, nsp: "/admin", data: [ <Buffer 01 02 03> ], id: 456
 ```
 
 And vice versa.
+
+## History
+
+### Difference between v4 and v3
+
+- add a BINARY_ACK packet type
+
+Previously, an ACK packet was always treated as if it may contain binary objects, with recursive search for such
+objects, which could hurt performance.
+
+### Difference between v3 and v2
+
+- remove the usage of msgpack to encode packets containing binary objects (see also [299849b](https://github.com/socketio/socket.io-parser/commit/299849b00294c3bc95817572441f3aca8ffb1f65))
+
+### Difference between v2 and v1
+
+- add a BINARY_EVENT packet type
+
+This was added during the work towards Socket.IO 1.0, in order to add support for binary objects. The BINARY_EVENT
+packets were encoded with [msgpack](https://msgpack.org/).
+
+### Initial revision
+
+This first revision was the result of the split between the Engine.IO protocol (low-level plumbing with WebSocket / HTTP
+long-polling, heartbeat) and the Socket.IO protocol. It was never included in a Socket.IO release, but paved the way for
+the next iterations.
 
 ## License
 
