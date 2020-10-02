@@ -35,9 +35,9 @@
 
 ## Protocol version
 
-This is the revision **4** of the Socket.IO protocol, included in ̀`socket.io@1.0.3...latest`.
+This is the revision **4** of the Socket.IO protocol, included in `socket.io@1.0.3...latest`.
 
-The 3rd revision (included in ̀`socket.io@1.0.0...1.0.2`) can be found here: https://github.com/socketio/socket.io-protocol/tree/v3
+The 3rd revision (included in `socket.io@1.0.0...1.0.2`) can be found here: https://github.com/socketio/socket.io-protocol/tree/v3
 
 Both the 1st and the 2nd revisions were part of the work towards Socket.IO 1.0 but were never included in a Socket.IO
 release.
@@ -425,9 +425,9 @@ And vice versa.
 
 ### Difference between v4 and v3
 
-- add a BINARY_ACK packet type
+- add a `BINARY_ACK` packet type
 
-Previously, an ACK packet was always treated as if it may contain binary objects, with recursive search for such
+Previously, an `ACK` packet was always treated as if it may contain binary objects, with recursive search for such
 objects, which could hurt performance.
 
 ### Difference between v3 and v2
@@ -436,9 +436,9 @@ objects, which could hurt performance.
 
 ### Difference between v2 and v1
 
-- add a BINARY_EVENT packet type
+- add a `BINARY_EVENT` packet type
 
-This was added during the work towards Socket.IO 1.0, in order to add support for binary objects. The BINARY_EVENT
+This was added during the work towards Socket.IO 1.0, in order to add support for binary objects. The `BINARY_EVENT`
 packets were encoded with [msgpack](https://msgpack.org/).
 
 ### Initial revision
