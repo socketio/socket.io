@@ -138,6 +138,19 @@ io.on('connection', () => { /* … */ });
 server.listen(3000);
 ```
 
+### In conjunction with Fastify
+
+To integrate Socket.io in your Fastify application you just need to
+register `fastify-socket.io` plugin. It will create a `decorator`
+called `io`.
+
+```js
+const app = require('fastify')();
+app.register(require('fastify-socket.io'));
+app.io.on('connection', () => { /* … */ });
+app.listen(3000);
+```
+
 ## Documentation
 
 Please see the documentation [here](https://socket.io/docs/).
