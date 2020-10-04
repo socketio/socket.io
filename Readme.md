@@ -27,6 +27,7 @@
   - [Connection to a non-default namespace](#connection-to-a-non-default-namespace)
   - [Disconnection from a non-default namespace](#disconnection-from-a-non-default-namespace)
   - [Acknowledgement](#acknowledgement)
+- [Sample session](#sample-session)
 - [History](#history)
   - [Difference between v4 and v3](#difference-between-v4-and-v3)
   - [Difference between v3 and v2](#difference-between-v3-and-v2)
@@ -276,7 +277,7 @@ is encoded to `0`
 }
 ```
 
-is encoded to `0/admin`
+is encoded to `0/admin,`
 
 - `DISCONNECT` packet for the `/admin` namespace
 
@@ -287,7 +288,7 @@ is encoded to `0/admin`
 }
 ```
 
-is encoded to `1/admin`
+is encoded to `1/admin,`
 
 - `EVENT` packet
 
@@ -420,6 +421,109 @@ Server > { type: BINARY_ACK, nsp: "/admin", data: [ <Buffer 01 02 03> ], id: 456
 ```
 
 And vice versa.
+
+## Sample session
+
+Here is an example of what is sent over the wire when combining both the Engine.IO and the Socket.IO protocols.
+
+- Request n°1 (open packet)
+
+```
+GET /socket.io/?EIO=3&transport=polling&t=N8hyd6w
+< HTTP/1.1 200 OK
+< Content-Type: text/plain; charset=UTF-8
+96:0{"sid":"lv_VI97HAXpY6yYWAAAC","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":5000}2:40
+```
+
+Details:
+
+```
+96          => number of characters (not bytes) of the first message
+:           => separator
+0           => Engine.IO "open" packet type
+{"sid":...  => the Engine.IO handshake data
+2           => number of characters of the 2nd message
+:           => separator
+4           => Engine.IO "message" packet type
+0           => Socket.IO "CONNECT" packet type
+```
+
+Note: the `t` query param is used to ensure that the request is not cached by the browser.
+
+- Request n°2 (message in):
+
+`socket.emit('hey', 'Jude')` is executed on the server:
+
+```
+GET /socket.io/?EIO=3&transport=polling&t=N8hyd7H&sid=lv_VI97HAXpY6yYWAAAC
+< HTTP/1.1 200 OK
+< Content-Type: text/plain; charset=UTF-8
+16:42["hey","Jude"]
+```
+
+Details:
+
+```
+16          => number of characters
+:           => separator
+4           => Engine.IO "message" packet type
+2           => Socket.IO "EVENT" packet type
+[...]       => content
+```
+
+- Request n°3 (message out)
+
+`socket.emit('hello'); socket.emit('world');` is executed on the client:
+
+```
+POST /socket.io/?EIO=3&transport=polling&t=N8hzxke&sid=lv_VI97HAXpY6yYWAAAC
+> Content-Type: text/plain; charset=UTF-8
+11:42["hello"]11:42["world"]
+< HTTP/1.1 200 OK
+< Content-Type: text/plain; charset=UTF-8
+ok
+```
+
+Details:
+
+```
+11          => number of characters of the 1st packet
+:           => separator
+4           => Engine.IO "message" packet type
+2           => Socket.IO "EVENT" packet type
+["hello"]   => the 1st content
+11          => number of characters of the 2nd packet
+:           => separator
+4           => Engine.IO "message" packet type
+2           => Socket.IO "EVENT" packet type
+["world"]   => the 2nd content
+```
+
+- Request n°4 (WebSocket upgrade)
+
+```
+GET /socket.io/?EIO=3&transport=websocket&sid=lv_VI97HAXpY6yYWAAAC
+< HTTP/1.1 101 Switching Protocols
+```
+
+WebSocket frames:
+
+```
+< 2probe                                        => Engine.IO probe request
+> 3probe                                        => Engine.IO probe response
+> 5                                             => Engine.IO "upgrade" packet type
+> 42["hello"]
+> 42["world"]
+> 40/admin,                                     => request access to the admin namespace (Socket.IO "CONNECT" packet)
+< 40/admin,                                     => grant access to the admin namespace
+> 42/admin,1["tellme"]                          => Socket.IO "EVENT" packet with acknowledgement
+< 461-/admin,1[{"_placeholder":true,"num":0}]   => Socket.IO "BINARY_ACK" packet with a placeholder
+< <binary>                                      => the binary attachment (sent in the following frame)
+... after a while without message
+> 2                                             => Engine.IO "ping" packet type
+< 3                                             => Engine.IO "pong" packet type
+> 1                                             => Engine.IO "close" packet type
+```
 
 ## History
 
