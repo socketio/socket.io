@@ -1,9 +1,8 @@
 import Emitter from "component-emitter";
 import { deconstructPacket, reconstructPacket } from "./binary";
 import isBinary from "./is-binary";
-import debugModule from "debug";
 
-const debug = debugModule("socket.io-parser");
+const debug = require("debug")("socket.io-parser");
 
 /**
  * Protocol version.

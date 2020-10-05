@@ -7,8 +7,7 @@ exports.Decoder = exports.Encoder = exports.PacketType = exports.protocol = void
 const component_emitter_1 = __importDefault(require("component-emitter"));
 const binary_1 = require("./binary");
 const is_binary_1 = __importDefault(require("./is-binary"));
-const debug_1 = __importDefault(require("debug"));
-const debug = debug_1.default("socket.io-parser");
+const debug = require("debug")("socket.io-parser");
 /**
  * Protocol version.
  *
