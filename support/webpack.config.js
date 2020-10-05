@@ -22,11 +22,11 @@ module.exports = {
       } else {
           return Function('return this')();
       }
-    })()`
+    })()`,
   },
   mode: "development",
   node: {
-    Buffer: false
+    Buffer: false,
   },
   module: {
     rules: [
@@ -36,11 +36,11 @@ module.exports = {
           loader: "babel-loader",
           options: {
             presets: ["@babel/preset-env"],
-            plugins: ["@babel/plugin-transform-object-assign"]
-          }
-        }
-      }
-    ]
+            plugins: ["@babel/plugin-transform-object-assign"],
+          },
+        },
+      },
+    ],
   },
-  plugins: [new BannerPlugin(banner)]
+  plugins: [new BannerPlugin(banner)],
 };

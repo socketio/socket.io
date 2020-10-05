@@ -4,7 +4,7 @@ module.exports = {
   ...config,
   output: {
     ...config.output,
-    filename: "socket.io.min.js"
+    filename: "socket.io.min.js",
   },
   mode: "production",
   module: {
@@ -12,8 +12,8 @@ module.exports = {
       ...config.module.rules,
       {
         test: /\.js$/,
-        loader: "webpack-remove-debug"
-      }
-    ]
-  }
+        loader: "webpack-remove-debug",
+      },
+    ],
+  },
 };

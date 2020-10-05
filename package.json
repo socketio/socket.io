@@ -61,8 +61,8 @@
     "test:node": "mocha --reporter dot --require test/support/server.js test/index.js",
     "test:browser": "zuul test/index.js",
     "build": "webpack --config ./support/webpack.config.js --config ./support/prod.config.js",
-    "format:check": "prettier --check 'lib/**/*.ts'",
-    "format:fix": "prettier --write 'lib/**/*.ts'"
+    "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'",
+    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'"
   },
   "contributors": [
     {
