@@ -1,5 +1,4 @@
 import { url } from "./url";
-import parser from "socket.io-parser";
 import { Manager } from "./manager";
 import { Socket } from "./socket";
 
@@ -72,7 +71,7 @@ function lookup(uri, opts): Socket {
  * @api public
  */
 
-exports.protocol = parser.protocol;
+export { protocol } from "socket.io-parser";
 
 /**
  * `connect`.

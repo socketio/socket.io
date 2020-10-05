@@ -1,7 +1,8 @@
 import eio from "engine.io-client";
 import { Socket } from "./socket";
 import Emitter from "component-emitter";
-import parser from "socket.io-parser";
+import * as parser from "socket.io-parser";
+import { Decoder, Encoder } from "socket.io-parser";
 import { on } from "./on";
 import bind from "component-bind";
 import indexOf from "indexof";
@@ -36,8 +37,8 @@ export class Manager extends Emitter {
   private lastPing: number = null;
   private encoding: boolean;
   private packetBuffer: Array<any> = [];
-  private encoder: any;
-  private decoder: any;
+  private encoder: Encoder;
+  private decoder: Decoder;
   private engine: any;
   private skipReconnect: boolean;
 
@@ -468,22 +469,20 @@ export class Manager extends Emitter {
    */
   packet(packet) {
     debug("writing packet %j", packet);
-    const self = this;
     if (packet.query && packet.type === 0) packet.nsp += "?" + packet.query;
 
-    if (!self.encoding) {
+    if (!this.encoding) {
       // encode, then write to engine with result
-      self.encoding = true;
-      this.encoder.encode(packet, function (encodedPackets) {
-        for (let i = 0; i < encodedPackets.length; i++) {
-          self.engine.write(encodedPackets[i], packet.options);
-        }
-        self.encoding = false;
-        self.processPacketQueue();
-      });
+      this.encoding = true;
+      const encodedPackets = this.encoder.encode(packet);
+      for (let i = 0; i < encodedPackets.length; i++) {
+        this.engine.write(encodedPackets[i], packet.options);
+      }
+      this.encoding = false;
+      this.processPacketQueue();
     } else {
       // add packet to the queue
-      self.packetBuffer.push(packet);
+      this.packetBuffer.push(packet);
     }
   }
 

@@ -1,4 +1,4 @@
-import parser from "socket.io-parser";
+import { PacketType } from "socket.io-parser";
 import Emitter from "component-emitter";
 import toArray from "to-array";
 import { on } from "./on";
@@ -142,8 +142,8 @@ export class Socket extends Emitter {
     const args = toArray(arguments);
     const packet: any = {
       type: (this.flags.binary !== undefined ? this.flags.binary : hasBin(args))
-        ? parser.BINARY_EVENT
-        : parser.EVENT,
+        ? PacketType.BINARY_EVENT
+        : PacketType.EVENT,
       data: args,
     };
 
@@ -195,9 +195,9 @@ export class Socket extends Emitter {
             ? parseqs.encode(this.query)
             : this.query;
         debug("sending connect packet with query %s", query);
-        this.packet({ type: parser.CONNECT, query: query });
+        this.packet({ type: PacketType.CONNECT, query: query });
       } else {
-        this.packet({ type: parser.CONNECT });
+        this.packet({ type: PacketType.CONNECT });
       }
     }
   }
@@ -225,36 +225,36 @@ export class Socket extends Emitter {
   onpacket(packet) {
     const sameNamespace = packet.nsp === this.nsp;
     const rootNamespaceError =
-      packet.type === parser.ERROR && packet.nsp === "/";
+      packet.type === PacketType.ERROR && packet.nsp === "/";
 
     if (!sameNamespace && !rootNamespaceError) return;
 
     switch (packet.type) {
-      case parser.CONNECT:
+      case PacketType.CONNECT:
         this.onconnect();
         break;
 
-      case parser.EVENT:
+      case PacketType.EVENT:
         this.onevent(packet);
         break;
 
-      case parser.BINARY_EVENT:
+      case PacketType.BINARY_EVENT:
         this.onevent(packet);
         break;
 
-      case parser.ACK:
+      case PacketType.ACK:
         this.onack(packet);
         break;
 
-      case parser.BINARY_ACK:
+      case PacketType.BINARY_ACK:
         this.onack(packet);
         break;
 
-      case parser.DISCONNECT:
+      case PacketType.DISCONNECT:
         this.ondisconnect();
         break;
 
-      case parser.ERROR:
+      case PacketType.ERROR:
         super.emit("error", packet.data);
         break;
     }
@@ -298,7 +298,7 @@ export class Socket extends Emitter {
       debug("sending ack %j", args);
 
       self.packet({
-        type: hasBin(args) ? parser.BINARY_ACK : parser.ACK,
+        type: hasBin(args) ? PacketType.BINARY_ACK : PacketType.ACK,
         id: id,
         data: args,
       });
@@ -390,7 +390,7 @@ export class Socket extends Emitter {
   close() {
     if (this.connected) {
       debug("performing disconnect (%s)", this.nsp);
-      this.packet({ type: parser.DISCONNECT });
+      this.packet({ type: PacketType.DISCONNECT });
     }
 
     // remove socket from pool
@@ -406,7 +406,7 @@ export class Socket extends Emitter {
   disconnect() {
     if (this.connected) {
       debug("performing disconnect (%s)", this.nsp);
-      this.packet({ type: parser.DISCONNECT });
+      this.packet({ type: PacketType.DISCONNECT });
     }
 
     // remove socket from pool
