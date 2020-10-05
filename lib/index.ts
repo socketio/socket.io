@@ -1,12 +1,9 @@
+import { url } from "./url";
+import parser from "socket.io-parser";
+import { Manager } from "./manager";
+import { Socket } from "./socket";
 
-/**
- * Module dependencies.
- */
-
-var url = require('./url');
-var parser = require('socket.io-parser');
-var Manager = require('./manager');
-var debug = require('debug')('socket.io-client');
+const debug = require("debug")("socket.io-client");
 
 /**
  * Module exports.
@@ -17,8 +14,7 @@ module.exports = exports = lookup;
 /**
  * Managers cache.
  */
-
-var cache = exports.managers = {};
+const cache = (exports.managers = {});
 
 /**
  * Looks up an existing `Manager` for multiplexing.
@@ -33,31 +29,34 @@ var cache = exports.managers = {};
  * @api public
  */
 
-function lookup (uri, opts) {
-  if (typeof uri === 'object') {
+function lookup(uri, opts): Socket {
+  if (typeof uri === "object") {
     opts = uri;
     uri = undefined;
   }
 
   opts = opts || {};
 
-  var parsed = url(uri);
-  var source = parsed.source;
-  var id = parsed.id;
-  var path = parsed.path;
-  var sameNamespace = cache[id] && path in cache[id].nsps;
-  var newConnection = opts.forceNew || opts['force new connection'] ||
-                      false === opts.multiplex || sameNamespace;
+  const parsed = url(uri);
+  const source = parsed.source;
+  const id = parsed.id;
+  const path = parsed.path;
+  const sameNamespace = cache[id] && path in cache[id].nsps;
+  const newConnection =
+    opts.forceNew ||
+    opts["force new connection"] ||
+    false === opts.multiplex ||
+    sameNamespace;
 
-  var io;
+  let io;
 
   if (newConnection) {
-    debug('ignoring socket cache for %s', source);
-    io = Manager(source, opts);
+    debug("ignoring socket cache for %s", source);
+    io = new Manager(source, opts);
   } else {
     if (!cache[id]) {
-      debug('new io instance for %s', source);
-      cache[id] = Manager(source, opts);
+      debug("new io instance for %s", source);
+      cache[id] = new Manager(source, opts);
     }
     io = cache[id];
   }
@@ -90,5 +89,5 @@ exports.connect = lookup;
  * @api public
  */
 
-exports.Manager = require('./manager');
-exports.Socket = require('./socket');
+export { Manager } from "./manager";
+export { Socket } from "./socket";

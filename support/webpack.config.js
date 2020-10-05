@@ -6,7 +6,7 @@ const banner = `Socket.IO v${version}
 Released under the MIT License.`;
 
 module.exports = {
-  entry: "./lib/index.js",
+  entry: "./build/index.js",
   output: {
     filename: "socket.io.js",
     library: "io",

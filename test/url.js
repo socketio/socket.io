@@ -1,6 +1,6 @@
 
 var loc = {};
-var url = require('../lib/url');
+var { url } = require('../build/url');
 var expect = require('expect.js');
 
 describe('url', function () {

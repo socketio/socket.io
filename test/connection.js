@@ -94,7 +94,7 @@ describe('connection', function () {
   });
 
   it('should connect to a namespace after connection established', function (done) {
-    var manager = io.Manager();
+    var manager = new io.Manager();
     var socket = manager.socket('/');
     socket.on('connect', function () {
       var foo = manager.socket('/foo');
@@ -108,7 +108,7 @@ describe('connection', function () {
   });
 
   it('should open a new namespace after connection gets closed', function (done) {
-    var manager = io.Manager();
+    var manager = new io.Manager();
     var socket = manager.socket('/');
     socket.on('connect', function () {
       socket.disconnect();
@@ -164,7 +164,7 @@ describe('connection', function () {
   });
 
   it('should attempt reconnects after a failed reconnect', function (done) {
-    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
+    var manager = new io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
     var socket = manager.socket('/timeout');
     socket.once('reconnect_failed', function () {
       var reconnects = 0;
@@ -184,7 +184,7 @@ describe('connection', function () {
   });
 
   it('reconnect delay should increase every time', function (done) {
-    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 3, reconnectionDelay: 100, randomizationFactor: 0.2 });
+    var manager = new io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 3, reconnectionDelay: 100, randomizationFactor: 0.2 });
     var socket = manager.socket('/timeout');
     var reconnects = 0;
     var increasingDelay = true;
@@ -267,7 +267,7 @@ describe('connection', function () {
   });
 
   it('should stop reconnecting on a socket and keep to reconnect on another', function (done) {
-    var manager = io.Manager();
+    var manager = new io.Manager();
     var socket1 = manager.socket('/');
     var socket2 = manager.socket('/asd');
 
@@ -291,7 +291,7 @@ describe('connection', function () {
   });
 
   it('should try to reconnect twice and fail when requested two attempts with immediate timeout and reconnect enabled', function (done) {
-    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
+    var manager = new io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
     var socket;
 
     var reconnects = 0;
@@ -311,7 +311,7 @@ describe('connection', function () {
   });
 
   it('should fire reconnect_* events on socket', function (done) {
-    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
+    var manager = new io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
     var socket = manager.socket('/timeout_socket');
 
     var reconnects = 0;
@@ -330,7 +330,7 @@ describe('connection', function () {
   });
 
   it('should fire error on socket', function (done) {
-    var manager = io.Manager({ reconnection: true });
+    var manager = new io.Manager({ reconnection: true });
     var socket = manager.socket('/timeout_socket');
 
     socket.on('error', function (data) {
@@ -346,7 +346,7 @@ describe('connection', function () {
   });
 
   it('should fire reconnecting (on socket) with attempts number when reconnecting twice', function (done) {
-    var manager = io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
+    var manager = new io.Manager({ reconnection: true, timeout: 0, reconnectionAttempts: 2, reconnectionDelay: 10 });
     var socket = manager.socket('/timeout_socket');
 
     var reconnects = 0;
@@ -365,7 +365,7 @@ describe('connection', function () {
   });
 
   it('should not try to reconnect and should form a connection when connecting to correct port with default timeout', function (done) {
-    var manager = io.Manager({ reconnection: true, reconnectionDelay: 10 });
+    var manager = new io.Manager({ reconnection: true, reconnectionDelay: 10 });
     var cb = function () {
       socket.close();
       expect().fail();
@@ -384,7 +384,7 @@ describe('connection', function () {
   });
 
   it('should connect while disconnecting another socket', function (done) {
-    var manager = io.Manager();
+    var manager = new io.Manager();
     var socket1 = manager.socket('/foo');
     socket1.on('connect', function () {
       var socket2 = manager.socket('/asd');
@@ -397,7 +397,7 @@ describe('connection', function () {
   // `script.onerror` (see: http://requirejs.org/docs/api.html#ieloadfail)
   if (!global.document || hasCORS) {
     it('should try to reconnect twice and fail when requested two attempts with incorrect address and reconnect enabled', function (done) {
-      var manager = io.Manager('http://localhost:3940', { reconnection: true, reconnectionAttempts: 2, reconnectionDelay: 10 });
+      var manager = new io.Manager('http://localhost:3940', { reconnection: true, reconnectionAttempts: 2, reconnectionDelay: 10 });
       var socket = manager.socket('/asd');
       var reconnects = 0;
       var cb = function () {
@@ -415,7 +415,7 @@ describe('connection', function () {
     });
 
     it('should not try to reconnect with incorrect port when reconnection disabled', function (done) {
-      var manager = io.Manager('http://localhost:9823', { reconnection: false });
+      var manager = new io.Manager('http://localhost:9823', { reconnection: false });
       var cb = function () {
         socket.close();
         expect().fail();
@@ -435,7 +435,7 @@ describe('connection', function () {
     });
 
     it('should still try to reconnect twice after opening another socket asynchronously', function (done) {
-      var manager = io.Manager(
+      var manager = new io.Manager(
         'http://localhost:9823',
         { reconnect: true, reconnectionAttempts: 2 }
       );
