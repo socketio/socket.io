@@ -33,7 +33,7 @@ import io from 'socket.io-client';
 const socket = io();
 ```
 
-A slim build (without `JSON3`, a JSON polyfill for IE6/IE7, and `debug`) is also available: `socket.io.slim.js`.
+A slim build (without [debug](https://github.com/visionmedia/debug)) is also available: `socket.io.slim.js`.
 
 Socket.IO is compatible with [browserify](http://browserify.org/) and [webpack](https://webpack.js.org/) (see example [there](https://github.com/socketio/socket.io/tree/2.0.3/examples/webpack-build)).
 
