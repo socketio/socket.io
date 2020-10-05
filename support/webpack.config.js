@@ -1,25 +1,46 @@
-var webpack = require('webpack');
-var merge = require('webpack-merge');
-var baseConfig = require('./webpack.config.dev.js');
+const { BannerPlugin } = require("webpack");
+const version = require("../package.json").version;
 
-module.exports = merge(baseConfig, {
+const banner = `Socket.IO v${version}
+(c) 2014-${new Date().getFullYear()} Guillermo Rauch
+Released under the MIT License.`;
+
+module.exports = {
+  entry: "./lib/index.js",
   output: {
-    library: 'io',
-    libraryTarget: 'umd',
-    filename: 'socket.io.js'
-  },
-  plugins: [
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        screw_ie8: false
-      },
-      mangle: {
-        screw_ie8: false
-      },
-      output: {
-        screw_ie8: false,
-        beautify: false
+    filename: "socket.io.js",
+    library: "io",
+    libraryTarget: "umd",
+    // see https://github.com/webpack/webpack/issues/6525
+    globalObject: `(() => {
+      if (typeof self !== 'undefined') {
+          return self;
+      } else if (typeof window !== 'undefined') {
+          return window;
+      } else if (typeof global !== 'undefined') {
+          return global;
+      } else {
+          return Function('return this')();
       }
-    })
-  ]
-});
+    })()`
+  },
+  mode: "development",
+  node: {
+    Buffer: false
+  },
+  module: {
+    rules: [
+      {
+        test: /\.m?js$/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"],
+            plugins: ["@babel/plugin-transform-object-assign"]
+          }
+        }
+      }
+    ]
+  },
+  plugins: [new BannerPlugin(banner)]
+};

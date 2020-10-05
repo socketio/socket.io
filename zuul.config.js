@@ -18,7 +18,7 @@ var zuulConfig = module.exports = {
 
   server: './test/support/server.js',
   builder: 'zuul-builder-webpack',
-  webpack: require('./support/webpack.config.dev.js')
+  webpack: require('./support/prod.config.js')
 };
 
 if (process.env.CI === 'true') {
