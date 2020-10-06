@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "debug": "~4.1.0",
-    "engine.io": "~3.4.0",
+    "engine.io": "~4.0.0",
     "has-binary2": "~1.0.2",
     "socket.io-adapter": "~2.0.1",
     "socket.io-client": "github:socketio/socket.io-client#develop",
