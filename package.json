@@ -45,7 +45,7 @@
     "istanbul": "^0.4.5",
     "mocha": "^3.3.0",
     "prettier": "^2.1.2",
-    "socket.io": "2.3.0",
+    "socket.io": "github:socketio/socket.io#develop",
     "socket.io-browsers": "^1.0.0",
     "text-blob-builder": "0.0.1",
     "typescript": "^4.0.3",
