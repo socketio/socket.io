@@ -1,5 +1,7 @@
 "use strict";
 
+import { Server } from "..";
+
 const http = require("http").Server;
 const io = require("..");
 const fs = require("fs");
@@ -12,7 +14,7 @@ const expect = require("expect.js");
 require("./support/util");
 
 // Creates a socket.io client for the given server
-function client(srv, nsp, opts) {
+function client(srv, nsp?: string | object, opts?: object) {
   if ("object" == typeof nsp) {
     opts = nsp;
     nsp = null;
@@ -88,7 +90,7 @@ describe("socket.io", () => {
       });
     });
 
-    describe("port", done => {
+    describe("port", () => {
       it("should be bound", done => {
         const sockets = io(54010);
         request("http://localhost:54010")
@@ -335,7 +337,7 @@ describe("socket.io", () => {
       }
 
       it("should stop socket and timers", done => {
-        exec(fixture("server-close.js"), done);
+        exec(fixture("server-close.ts"), done);
       });
     });
   });
@@ -345,7 +347,7 @@ describe("socket.io", () => {
     const { Namespace } = require("../dist/namespace");
 
     it("should be accessible through .sockets", () => {
-      const sio = io();
+      const sio: Server = io();
       expect(sio.sockets).to.be.a(Namespace);
     });
 
@@ -1721,8 +1723,11 @@ describe("socket.io", () => {
     });
 
     it("should not crash when messing with Object prototype (and other globals)", done => {
+      // @ts-ignore
       Object.prototype.foo = "bar";
+      // @ts-ignore
       global.File = "";
+      // @ts-ignore
       global.Blob = [];
       const srv = http();
       const sio = io(srv);
@@ -2101,7 +2106,7 @@ describe("socket.io", () => {
     });
   });
 
-  describe("middleware", done => {
+  describe("middleware", () => {
     const { Socket } = require("../dist/socket");
 
     it("should call functions", done => {
@@ -2270,7 +2275,7 @@ describe("socket.io", () => {
     });
   });
 
-  describe("socket middleware", done => {
+  describe("socket middleware", () => {
     const { Socket } = require("../dist/socket");
 
     it("should call functions", done => {

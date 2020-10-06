@@ -22,7 +22,7 @@
     "url": "git://github.com/socketio/socket.io"
   },
   "scripts": {
-    "test": "npm run format:check && tsc && nyc mocha --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.js",
+    "test": "npm run format:check && tsc && nyc mocha --require ts-node/register --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.ts",
     "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js'",
     "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js'"
   },
@@ -37,6 +37,7 @@
   "devDependencies": {
     "@types/cookie": "^0.4.0",
     "@types/cors": "^2.8.7",
+    "@types/mocha": "^8.0.3",
     "@types/node": "^14.11.2",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.9.0",
@@ -47,6 +48,7 @@
     "prettier": "^1.19.1",
     "superagent": "^3.8.2",
     "supertest": "^3.0.0",
+    "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
   },
   "contributors": [
