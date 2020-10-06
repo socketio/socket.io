@@ -49,7 +49,6 @@ class Manager extends component_emitter_1.default {
         this.nsps = {};
         this.subs = [];
         this.connecting = [];
-        this.lastPing = null;
         this.packetBuffer = [];
         if (uri && "object" === typeof uri) {
             opts = uri;
@@ -337,7 +336,6 @@ class Manager extends component_emitter_1.default {
         const socket = this.engine;
         this.subs.push(on_1.on(socket, "data", component_bind_1.default(this, "ondata")));
         this.subs.push(on_1.on(socket, "ping", component_bind_1.default(this, "onping")));
-        this.subs.push(on_1.on(socket, "pong", component_bind_1.default(this, "onpong")));
         this.subs.push(on_1.on(socket, "error", component_bind_1.default(this, "onerror")));
         this.subs.push(on_1.on(socket, "close", component_bind_1.default(this, "onclose")));
         this.subs.push(on_1.on(this.decoder, "decoded", component_bind_1.default(this, "ondecoded")));
@@ -348,16 +346,7 @@ class Manager extends component_emitter_1.default {
      * @api private
      */
     onping() {
-        this.lastPing = Date.now();
         this.emitAll("ping");
-    }
-    /**
-     * Called upon a packet.
-     *
-     * @api private
-     */
-    onpong() {
-        this.emitAll("pong", Date.now() - this.lastPing);
     }
     /**
      * Called with data.
@@ -476,7 +465,6 @@ class Manager extends component_emitter_1.default {
         }
         this.packetBuffer = [];
         this.encoding = false;
-        this.lastPing = null;
         this.decoder.destroy();
     }
     /**

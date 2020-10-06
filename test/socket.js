@@ -47,22 +47,6 @@ describe("socket", function () {
     }, 300);
   });
 
-  it("should ping and pong with latency", (done) => {
-    const socket = io({ forceNew: true });
-    socket.on("connect", () => {
-      let pinged;
-      socket.once("ping", () => {
-        pinged = true;
-      });
-      socket.once("pong", (ms) => {
-        expect(pinged).to.be(true);
-        expect(ms).to.be.a("number");
-        socket.disconnect();
-        done();
-      });
-    });
-  });
-
   it("should change socket.id upon reconnection", (done) => {
     const socket = io({ forceNew: true });
     socket.on("connect", () => {

@@ -34,7 +34,6 @@ export class Manager extends Emitter {
   private _timeout: any;
 
   private connecting: Array<Socket> = [];
-  private lastPing: number = null;
   private encoding: boolean;
   private packetBuffer: Array<any> = [];
   private encoder: Encoder;
@@ -363,7 +362,6 @@ export class Manager extends Emitter {
     const socket = this.engine;
     this.subs.push(on(socket, "data", bind(this, "ondata")));
     this.subs.push(on(socket, "ping", bind(this, "onping")));
-    this.subs.push(on(socket, "pong", bind(this, "onpong")));
     this.subs.push(on(socket, "error", bind(this, "onerror")));
     this.subs.push(on(socket, "close", bind(this, "onclose")));
     this.subs.push(on(this.decoder, "decoded", bind(this, "ondecoded")));
@@ -375,17 +373,7 @@ export class Manager extends Emitter {
    * @api private
    */
   onping() {
-    this.lastPing = Date.now();
     this.emitAll("ping");
-  }
-
-  /**
-   * Called upon a packet.
-   *
-   * @api private
-   */
-  onpong() {
-    this.emitAll("pong", Date.now() - this.lastPing);
   }
 
   /**
@@ -515,7 +503,6 @@ export class Manager extends Emitter {
 
     this.packetBuffer = [];
     this.encoding = false;
-    this.lastPing = null;
 
     this.decoder.destroy();
   }

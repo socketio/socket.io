@@ -15,7 +15,6 @@ export declare class Manager extends Emitter {
     private _reconnectionDelayMax;
     private _timeout;
     private connecting;
-    private lastPing;
     private encoding;
     private packetBuffer;
     private encoder;
@@ -118,12 +117,6 @@ export declare class Manager extends Emitter {
      * @api private
      */
     onping(): void;
-    /**
-     * Called upon a packet.
-     *
-     * @api private
-     */
-    onpong(): void;
     /**
      * Called with data.
      *
