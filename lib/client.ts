@@ -1,5 +1,4 @@
-import { Decoder, Encoder, PacketType } from "socket.io-parser";
-import url from "url";
+import { Decoder, Encoder, Packet, PacketType } from "socket.io-parser";
 import debugModule = require("debug");
 import { IncomingMessage } from "http";
 import { Server } from "./index";
@@ -18,7 +17,6 @@ export class Client {
   private readonly decoder: Decoder;
   private sockets: Map<SocketId, Socket> = new Map();
   private nsps: Map<string, Socket> = new Map();
-  private connectBuffer: Array<string> = [];
 
   /**
    * Client constructor.
@@ -62,20 +60,20 @@ export class Client {
   /**
    * Connects a client to a namespace.
    *
-   * @param {String} name namespace
-   * @param {Object} query the query parameters
+   * @param {String} name - the namespace
+   * @param {Object} auth - the auth parameters
    * @package
    */
-  public connect(name, query = {}) {
+  public connect(name: string, auth: object = {}) {
     if (this.server.nsps.has(name)) {
       debug("connecting to namespace %s", name);
-      return this.doConnect(name, query);
+      return this.doConnect(name, auth);
     }
 
-    this.server.checkNamespace(name, query, dynamicNsp => {
+    this.server.checkNamespace(name, auth, dynamicNsp => {
       if (dynamicNsp) {
         debug("dynamic namespace %s was created", dynamicNsp.name);
-        this.doConnect(name, query);
+        this.doConnect(name, auth);
       } else {
         debug("creation of namespace %s was denied", name);
         this.packet({
@@ -90,25 +88,15 @@ export class Client {
   /**
    * Connects a client to a namespace.
    *
-   * @param {String} name namespace
-   * @param {String} query the query parameters
+   * @param {String} name - the namespace
+   * @param {Object} auth - the auth parameters
    */
-  private doConnect(name, query) {
+  private doConnect(name: string, auth: object) {
     const nsp = this.server.of(name);
 
-    if ("/" != name && !this.nsps.has("/")) {
-      this.connectBuffer.push(name);
-      return;
-    }
-
-    const socket = nsp.add(this, query, () => {
+    const socket = nsp.add(this, auth, () => {
       this.sockets.set(socket.id, socket);
       this.nsps.set(nsp.name, socket);
-
-      if ("/" == nsp.name && this.connectBuffer.length > 0) {
-        this.connectBuffer.forEach(this.connect, this);
-        this.connectBuffer = [];
-      }
     });
   }
 
@@ -199,12 +187,9 @@ export class Client {
   /**
    * Called when parser fully decodes a packet.
    */
-  private ondecoded(packet) {
+  private ondecoded(packet: Packet) {
     if (PacketType.CONNECT == packet.type) {
-      this.connect(
-        url.parse(packet.nsp).pathname,
-        url.parse(packet.nsp, true).query
-      );
+      this.connect(packet.nsp, packet.data);
     } else {
       const socket = this.nsps.get(packet.nsp);
       if (socket) {

@@ -507,45 +507,6 @@ describe("socket.io", () => {
       });
     });
 
-    it("should disconnect both default and custom namespace upon disconnect", done => {
-      const srv = http();
-      const sio = io(srv);
-      srv.listen(() => {
-        const lolcats = client(srv, "/lolcats");
-        let total = 2;
-        let totald = 2;
-        let s;
-        sio.of("/", socket => {
-          socket.on("disconnect", reason => {
-            --totald || done();
-          });
-          --total || close();
-        });
-        sio.of("/lolcats", socket => {
-          s = socket;
-          socket.on("disconnect", reason => {
-            --totald || done();
-          });
-          --total || close();
-        });
-        function close() {
-          s.disconnect(true);
-        }
-      });
-    });
-
-    it("should not crash while disconnecting socket", done => {
-      const srv = http();
-      const sio = io(srv);
-      srv.listen(() => {
-        const socket = client(srv, "/ns");
-        sio.on("connection", socket => {
-          socket.disconnect();
-          done();
-        });
-      });
-    });
-
     it("should fire a `disconnecting` event just before leaving all rooms", done => {
       const srv = http();
       const sio = io(srv);
@@ -1529,12 +1490,14 @@ describe("socket.io", () => {
       const sio = io(srv);
       const client1 = client(srv);
       const client2 = client(srv, "/connection2", {
-        query: { key1: "aa", key2: "&=bb" }
+        auth: { key1: "aa", key2: "&=bb" }
       });
       sio.on("connection", s => {});
       sio.of("/connection2").on("connection", s => {
-        expect(s.handshake.query.key1).to.be("aa");
-        expect(s.handshake.query.key2).to.be("&=bb");
+        expect(s.handshake.query.key1).to.be(undefined);
+        expect(s.handshake.query.EIO).to.be("4");
+        expect(s.handshake.auth.key1).to.be("aa");
+        expect(s.handshake.auth.key2).to.be("&=bb");
         done();
       });
     });
@@ -2195,14 +2158,12 @@ describe("socket.io", () => {
       const sio = io(srv);
       let socket;
       sio.use((s, next) => {
-        socket.io.engine.on("open", () => {
-          socket.io.engine.close();
-          s.client.conn.on("close", () => {
-            process.nextTick(next);
-            setTimeout(() => {
-              done();
-            }, 50);
-          });
+        socket.io.engine.close();
+        s.client.conn.on("close", () => {
+          process.nextTick(next);
+          setTimeout(() => {
+            done();
+          }, 50);
         });
       });
       srv.listen(() => {
@@ -2218,11 +2179,14 @@ describe("socket.io", () => {
       const sio = io(srv);
       const result = [];
 
-      sio.use((socket, next) => {
+      sio.use(() => {
+        done(new Error("should not fire"));
+      });
+      sio.of("/chat").use((socket, next) => {
         result.push(1);
         setTimeout(next, 50);
       });
-      sio.use((socket, next) => {
+      sio.of("/chat").use((socket, next) => {
         result.push(2);
         setTimeout(next, 50);
       });
@@ -2230,15 +2194,11 @@ describe("socket.io", () => {
         result.push(3);
         setTimeout(next, 50);
       });
-      sio.of("/chat").use((socket, next) => {
-        result.push(4);
-        setTimeout(next, 50);
-      });
 
       srv.listen(() => {
         const chat = client(srv, "/chat");
         chat.on("connect", () => {
-          expect(result).to.eql([1, 2, 3, 4]);
+          expect(result).to.eql([1, 2, 3]);
           done();
         });
       });

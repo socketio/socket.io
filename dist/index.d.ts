@@ -149,12 +149,12 @@ declare class Server extends EventEmitter {
      * Executes the middleware for an incoming namespace not already created on the server.
      *
      * @param {String} name - name of incoming namespace
-     * @param {Object} query - the query parameters
+     * @param {Object} auth - the auth parameters
      * @param {Function} fn - callback
      *
      * @package
      */
-    checkNamespace(name: string, query: object, fn: (nsp: Namespace | boolean) => void): void;
+    checkNamespace(name: string, auth: object, fn: (nsp: Namespace | boolean) => void): void;
     /**
      * Sets the client serving path.
      *

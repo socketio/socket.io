@@ -11,7 +11,6 @@ export declare class Client {
     private readonly decoder;
     private sockets;
     private nsps;
-    private connectBuffer;
     /**
      * Client constructor.
      *
@@ -31,16 +30,16 @@ export declare class Client {
     /**
      * Connects a client to a namespace.
      *
-     * @param {String} name namespace
-     * @param {Object} query the query parameters
+     * @param {String} name - the namespace
+     * @param {Object} auth - the auth parameters
      * @package
      */
-    connect(name: any, query?: {}): void;
+    connect(name: string, auth?: object): void;
     /**
      * Connects a client to a namespace.
      *
-     * @param {String} name namespace
-     * @param {String} query the query parameters
+     * @param {String} name - the namespace
+     * @param {Object} auth - the auth parameters
      */
     private doConnect;
     /**

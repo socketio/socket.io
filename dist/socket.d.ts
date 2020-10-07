@@ -39,6 +39,10 @@ export interface Handshake {
      * The query object
      */
     query: object;
+    /**
+     * The auth object
+     */
+    auth: object;
 }
 export declare class Socket extends EventEmitter {
     readonly nsp: Namespace;
@@ -58,10 +62,10 @@ export declare class Socket extends EventEmitter {
      *
      * @param {Namespace} nsp
      * @param {Client} client
-     * @param {Object} query
+     * @param {Object} auth
      * @package
      */
-    constructor(nsp: Namespace, client: Client, query: any);
+    constructor(nsp: Namespace, client: Client, auth: object);
     /**
      * Builds the `handshake` BC object
      */

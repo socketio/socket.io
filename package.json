@@ -23,8 +23,8 @@
   },
   "scripts": {
     "test": "npm run format:check && tsc && nyc mocha --require ts-node/register --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.ts",
-    "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js'",
-    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js'"
+    "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.ts'",
+    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.ts'"
   },
   "dependencies": {
     "debug": "~4.1.0",
@@ -32,7 +32,7 @@
     "has-binary2": "~1.0.2",
     "socket.io-adapter": "~2.0.1",
     "socket.io-client": "github:socketio/socket.io-client#develop",
-    "socket.io-parser": "~4.0.0"
+    "socket.io-parser": "github:socketio/socket.io-parser#develop"
   },
   "devDependencies": {
     "@types/cookie": "^0.4.0",

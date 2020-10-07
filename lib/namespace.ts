@@ -70,10 +70,6 @@ export class Namespace extends EventEmitter {
   public use(
     fn: (socket: Socket, next: (err: Error) => void) => void
   ): Namespace {
-    if (this.server.eio && this.name === "/") {
-      debug("removing initial packet");
-      delete this.server.eio.opts.initialPacket;
-    }
     this.fns.push(fn);
     return this;
   }

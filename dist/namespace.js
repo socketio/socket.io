@@ -58,10 +58,6 @@ class Namespace extends events_1.EventEmitter {
      * @return {Namespace} self
      */
     use(fn) {
-        if (this.server.eio && this.name === "/") {
-            debug("removing initial packet");
-            delete this.server.eio.opts.initialPacket;
-        }
         this.fns.push(fn);
         return this;
     }

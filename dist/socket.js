@@ -27,10 +27,10 @@ class Socket extends events_1.EventEmitter {
      *
      * @param {Namespace} nsp
      * @param {Client} client
-     * @param {Object} query
+     * @param {Object} auth
      * @package
      */
-    constructor(nsp, client, query) {
+    constructor(nsp, client, auth) {
         super();
         this.nsp = nsp;
         this.client = client;
@@ -43,18 +43,12 @@ class Socket extends events_1.EventEmitter {
         this.id = nsp.name !== "/" ? nsp.name + "#" + client.id : client.id;
         this.connected = true;
         this.disconnected = false;
-        this.handshake = this.buildHandshake(query);
+        this.handshake = this.buildHandshake(auth);
     }
     /**
      * Builds the `handshake` BC object
      */
-    buildHandshake(query) {
-        const self = this;
-        function buildQuery() {
-            const requestQuery = url_1.default.parse(self.request.url, true).query;
-            //if socket-specific query exist, replace query strings in requestQuery
-            return Object.assign({}, query, requestQuery);
-        }
+    buildHandshake(auth) {
         return {
             headers: this.request.headers,
             time: new Date() + "",
@@ -64,7 +58,8 @@ class Socket extends events_1.EventEmitter {
             secure: !!this.request.connection.encrypted,
             issued: +new Date(),
             url: this.request.url,
-            query: buildQuery()
+            query: url_1.default.parse(this.request.url, true).query,
+            auth
         };
     }
     /**
@@ -211,13 +206,7 @@ class Socket extends events_1.EventEmitter {
         debug("socket connected - writing packet");
         this.nsp.connected.set(this.id, this);
         this.join(this.id);
-        const skip = this.nsp.name === "/" && this.nsp.fns.length === 0;
-        if (skip) {
-            debug("packet already sent in initial handshake");
-        }
-        else {
-            this.packet({ type: socket_io_parser_1.PacketType.CONNECT });
-        }
+        this.packet({ type: socket_io_parser_1.PacketType.CONNECT });
     }
     /**
      * Called with each packet. Called by `Client`.

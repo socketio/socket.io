@@ -1,11 +1,7 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Client = void 0;
 const socket_io_parser_1 = require("socket.io-parser");
-const url_1 = __importDefault(require("url"));
 const debugModule = require("debug");
 const debug = debugModule("socket.io:client");
 class Client {
@@ -19,7 +15,6 @@ class Client {
     constructor(server, conn) {
         this.sockets = new Map();
         this.nsps = new Map();
-        this.connectBuffer = [];
         this.server = server;
         this.conn = conn;
         this.encoder = server.encoder;
@@ -50,19 +45,19 @@ class Client {
     /**
      * Connects a client to a namespace.
      *
-     * @param {String} name namespace
-     * @param {Object} query the query parameters
+     * @param {String} name - the namespace
+     * @param {Object} auth - the auth parameters
      * @package
      */
-    connect(name, query = {}) {
+    connect(name, auth = {}) {
         if (this.server.nsps.has(name)) {
             debug("connecting to namespace %s", name);
-            return this.doConnect(name, query);
+            return this.doConnect(name, auth);
         }
-        this.server.checkNamespace(name, query, dynamicNsp => {
+        this.server.checkNamespace(name, auth, dynamicNsp => {
             if (dynamicNsp) {
                 debug("dynamic namespace %s was created", dynamicNsp.name);
-                this.doConnect(name, query);
+                this.doConnect(name, auth);
             }
             else {
                 debug("creation of namespace %s was denied", name);
@@ -77,22 +72,14 @@ class Client {
     /**
      * Connects a client to a namespace.
      *
-     * @param {String} name namespace
-     * @param {String} query the query parameters
+     * @param {String} name - the namespace
+     * @param {Object} auth - the auth parameters
      */
-    doConnect(name, query) {
+    doConnect(name, auth) {
         const nsp = this.server.of(name);
-        if ("/" != name && !this.nsps.has("/")) {
-            this.connectBuffer.push(name);
-            return;
-        }
-        const socket = nsp.add(this, query, () => {
+        const socket = nsp.add(this, auth, () => {
             this.sockets.set(socket.id, socket);
             this.nsps.set(nsp.name, socket);
-            if ("/" == nsp.name && this.connectBuffer.length > 0) {
-                this.connectBuffer.forEach(this.connect, this);
-                this.connectBuffer = [];
-            }
         });
     }
     /**
@@ -182,7 +169,7 @@ class Client {
      */
     ondecoded(packet) {
         if (socket_io_parser_1.PacketType.CONNECT == packet.type) {
-            this.connect(url_1.default.parse(packet.nsp).pathname, url_1.default.parse(packet.nsp, true).query);
+            this.connect(packet.nsp, packet.data);
         }
         else {
             const socket = this.nsps.get(packet.nsp);

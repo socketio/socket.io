@@ -65,6 +65,11 @@ export interface Handshake {
    * The query object
    */
   query: object;
+
+  /**
+   * The auth object
+   */
+  auth: object;
 }
 
 export class Socket extends EventEmitter {
@@ -88,30 +93,23 @@ export class Socket extends EventEmitter {
    *
    * @param {Namespace} nsp
    * @param {Client} client
-   * @param {Object} query
+   * @param {Object} auth
    * @package
    */
-  constructor(readonly nsp: Namespace, readonly client: Client, query) {
+  constructor(readonly nsp: Namespace, readonly client: Client, auth: object) {
     super();
     this.server = nsp.server;
     this.adapter = this.nsp.adapter;
     this.id = nsp.name !== "/" ? nsp.name + "#" + client.id : client.id;
     this.connected = true;
     this.disconnected = false;
-    this.handshake = this.buildHandshake(query);
+    this.handshake = this.buildHandshake(auth);
   }
 
   /**
    * Builds the `handshake` BC object
    */
-  private buildHandshake(query): Handshake {
-    const self = this;
-    function buildQuery() {
-      const requestQuery = url.parse(self.request.url, true).query;
-      //if socket-specific query exist, replace query strings in requestQuery
-      return Object.assign({}, query, requestQuery);
-    }
-
+  private buildHandshake(auth: object): Handshake {
     return {
       headers: this.request.headers,
       time: new Date() + "",
@@ -121,7 +119,8 @@ export class Socket extends EventEmitter {
       secure: !!this.request.connection.encrypted,
       issued: +new Date(),
       url: this.request.url,
-      query: buildQuery()
+      query: url.parse(this.request.url, true).query,
+      auth
     };
   }
 
@@ -289,12 +288,7 @@ export class Socket extends EventEmitter {
     debug("socket connected - writing packet");
     this.nsp.connected.set(this.id, this);
     this.join(this.id);
-    const skip = this.nsp.name === "/" && this.nsp.fns.length === 0;
-    if (skip) {
-      debug("packet already sent in initial handshake");
-    } else {
-      this.packet({ type: PacketType.CONNECT });
-    }
+    this.packet({ type: PacketType.CONNECT });
   }
 
   /**

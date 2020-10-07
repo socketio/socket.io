@@ -39,7 +39,6 @@ const parent_namespace_1 = require("./parent-namespace");
 Object.defineProperty(exports, "ParentNamespace", { enumerable: true, get: function () { return parent_namespace_1.ParentNamespace; } });
 const socket_io_adapter_1 = require("socket.io-adapter");
 const parser = __importStar(require("socket.io-parser"));
-const socket_io_parser_1 = require("socket.io-parser");
 const url_1 = __importDefault(require("url"));
 const debug_1 = __importDefault(require("debug"));
 const debug = debug_1.default("socket.io:server");
@@ -131,12 +130,12 @@ class Server extends events_1.EventEmitter {
      * Executes the middleware for an incoming namespace not already created on the server.
      *
      * @param {String} name - name of incoming namespace
-     * @param {Object} query - the query parameters
+     * @param {Object} auth - the auth parameters
      * @param {Function} fn - callback
      *
      * @package
      */
-    checkNamespace(name, query, fn) {
+    checkNamespace(name, auth, fn) {
         if (this.parentNsps.size === 0)
             return fn(false);
         const keysIterator = this.parentNsps.keys();
@@ -145,7 +144,7 @@ class Server extends events_1.EventEmitter {
             if (nextFn.done) {
                 return fn(false);
             }
-            nextFn.value(name, query, (err, allow) => {
+            nextFn.value(name, auth, (err, allow) => {
                 if (err || !allow) {
                     run();
                 }
@@ -221,14 +220,6 @@ class Server extends events_1.EventEmitter {
         opts.path = opts.path || this._path;
         // set origins verification
         opts.allowRequest = opts.allowRequest || this.checkRequest.bind(this);
-        if (this.sockets.fns.length > 0) {
-            this.initEngine(srv, opts);
-            return this;
-        }
-        const connectPacket = { type: socket_io_parser_1.PacketType.CONNECT, nsp: "/" };
-        // the CONNECT packet will be merged with Engine.IO handshake,
-        // to reduce the number of round trips
-        opts.initialPacket = this.encoder.encode(connectPacket);
         this.initEngine(srv, opts);
         return this;
     }
@@ -346,8 +337,7 @@ class Server extends events_1.EventEmitter {
      */
     onconnection(conn) {
         debug("incoming connection with id %s", conn.id);
-        const client = new client_1.Client(this, conn);
-        client.connect("/");
+        new client_1.Client(this, conn);
         return this;
     }
     /**

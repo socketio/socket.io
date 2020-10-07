@@ -8,7 +8,7 @@ import { Namespace } from "./namespace";
 import { ParentNamespace } from "./parent-namespace";
 import { Adapter } from "socket.io-adapter";
 import * as parser from "socket.io-parser";
-import { Encoder, PacketType } from "socket.io-parser";
+import { Encoder } from "socket.io-parser";
 import url from "url";
 import debugModule from "debug";
 import { Socket } from "./socket";
@@ -258,14 +258,14 @@ class Server extends EventEmitter {
    * Executes the middleware for an incoming namespace not already created on the server.
    *
    * @param {String} name - name of incoming namespace
-   * @param {Object} query - the query parameters
+   * @param {Object} auth - the auth parameters
    * @param {Function} fn - callback
    *
    * @package
    */
   public checkNamespace(
     name: string,
-    query: object,
+    auth: object,
     fn: (nsp: Namespace | boolean) => void
   ) {
     if (this.parentNsps.size === 0) return fn(false);
@@ -277,7 +277,7 @@ class Server extends EventEmitter {
       if (nextFn.done) {
         return fn(false);
       }
-      nextFn.value(name, query, (err, allow) => {
+      nextFn.value(name, auth, (err, allow) => {
         if (err || !allow) {
           run();
         } else {
@@ -378,16 +378,6 @@ class Server extends EventEmitter {
     opts.path = opts.path || this._path;
     // set origins verification
     opts.allowRequest = opts.allowRequest || this.checkRequest.bind(this);
-
-    if (this.sockets.fns.length > 0) {
-      this.initEngine(srv, opts);
-      return this;
-    }
-
-    const connectPacket = { type: PacketType.CONNECT, nsp: "/" };
-    // the CONNECT packet will be merged with Engine.IO handshake,
-    // to reduce the number of round trips
-    opts.initialPacket = this.encoder.encode(connectPacket);
 
     this.initEngine(srv, opts);
 
@@ -517,8 +507,7 @@ class Server extends EventEmitter {
    */
   private onconnection(conn): Server {
     debug("incoming connection with id %s", conn.id);
-    const client = new Client(this, conn);
-    client.connect("/");
+    new Client(this, conn);
     return this;
   }
 
