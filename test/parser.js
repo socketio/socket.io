@@ -18,6 +18,9 @@ describe("parser", () => {
       {
         type: PacketType.CONNECT,
         nsp: "/woot",
+        data: {
+          token: "123",
+        },
       },
       done
     );
@@ -105,9 +108,17 @@ describe("parser", () => {
   });
 
   it("throw an error upon parsing error", () => {
-    expect(() => new Decoder().add('442["some","data"')).to.throwException(
-      /^invalid payload$/
-    );
+    const isInvalidPayload = (str) =>
+      expect(() => new Decoder().add(str)).to.throwException(
+        /^invalid payload$/
+      );
+
+    isInvalidPayload('442["some","data"');
+    isInvalidPayload('0/admin,"invalid"');
+    isInvalidPayload("1/admin,{}");
+    isInvalidPayload('2/admin,"invalid');
+    isInvalidPayload("2/admin,{}");
+
     expect(() => new Decoder().add("999")).to.throwException(
       /^unknown packet type 9$/
     );

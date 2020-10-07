@@ -223,10 +223,7 @@ export class Decoder extends Emitter {
     // look up json data
     if (str.charAt(++i)) {
       const payload = tryParse(str.substr(i));
-      const isPayloadValid =
-        payload !== false &&
-        (p.type === PacketType.ERROR || Array.isArray(payload));
-      if (isPayloadValid) {
+      if (Decoder.isPayloadValid(p.type, payload)) {
         p.data = payload;
       } else {
         throw new Error("invalid payload");
@@ -235,6 +232,23 @@ export class Decoder extends Emitter {
 
     debug("decoded %s as %j", str, p);
     return p;
+  }
+
+  private static isPayloadValid(type: PacketType, payload: any): boolean {
+    switch (type) {
+      case PacketType.CONNECT:
+        return typeof payload === "object";
+      case PacketType.DISCONNECT:
+        return payload === undefined;
+      case PacketType.ERROR:
+        return typeof payload === "string";
+      case PacketType.EVENT:
+      case PacketType.BINARY_EVENT:
+        return Array.isArray(payload) && typeof payload[0] === "string";
+      case PacketType.ACK:
+      case PacketType.BINARY_ACK:
+        return Array.isArray(payload);
+    }
   }
 
   /**

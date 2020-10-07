@@ -64,6 +64,7 @@ export declare class Decoder extends Emitter {
      * @return {Object} packet
      */
     private decodeString;
+    private static isPayloadValid;
     /**
      * Deallocates a parser's resources
      */

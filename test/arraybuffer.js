@@ -57,7 +57,7 @@ describe("parser", () => {
   it("cleans itself up on close", () => {
     const packet = {
       type: PacketType.BINARY_EVENT,
-      data: [new ArrayBuffer(2), new ArrayBuffer(3)],
+      data: ["a", new ArrayBuffer(2), new ArrayBuffer(3)],
       id: 0,
       nsp: "/",
     };
