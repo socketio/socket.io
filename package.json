@@ -27,6 +27,7 @@
     "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.ts'"
   },
   "dependencies": {
+    "base64id": "~2.0.0",
     "debug": "~4.1.0",
     "engine.io": "~4.0.0",
     "has-binary2": "~1.0.2",

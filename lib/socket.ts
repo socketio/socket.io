@@ -6,6 +6,7 @@ import debugModule from "debug";
 import { Client, Namespace, Server } from "./index";
 import { IncomingMessage } from "http";
 import { Adapter, BroadcastFlags, Room, SocketId } from "socket.io-adapter";
+import base64id from "base64id";
 
 const debug = debugModule("socket.io:socket");
 
@@ -100,7 +101,7 @@ export class Socket extends EventEmitter {
     super();
     this.server = nsp.server;
     this.adapter = this.nsp.adapter;
-    this.id = nsp.name !== "/" ? nsp.name + "#" + client.id : client.id;
+    this.id = base64id.generateId(); // don't reuse the Engine.IO id because it's sensitive information
     this.connected = true;
     this.disconnected = false;
     this.handshake = this.buildHandshake(auth);
@@ -288,7 +289,7 @@ export class Socket extends EventEmitter {
     debug("socket connected - writing packet");
     this.nsp.connected.set(this.id, this);
     this.join(this.id);
-    this.packet({ type: PacketType.CONNECT });
+    this.packet({ type: PacketType.CONNECT, data: { sid: this.id } });
   }
 
   /**

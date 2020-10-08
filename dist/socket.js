@@ -9,6 +9,7 @@ const socket_io_parser_1 = require("socket.io-parser");
 const has_binary2_1 = __importDefault(require("has-binary2"));
 const url_1 = __importDefault(require("url"));
 const debug_1 = __importDefault(require("debug"));
+const base64id_1 = __importDefault(require("base64id"));
 const debug = debug_1.default("socket.io:socket");
 /**
  * Blacklisted events.
@@ -40,7 +41,7 @@ class Socket extends events_1.EventEmitter {
         this._rooms = new Set();
         this.server = nsp.server;
         this.adapter = this.nsp.adapter;
-        this.id = nsp.name !== "/" ? nsp.name + "#" + client.id : client.id;
+        this.id = base64id_1.default.generateId(); // don't reuse the Engine.IO id because it's sensitive information
         this.connected = true;
         this.disconnected = false;
         this.handshake = this.buildHandshake(auth);
@@ -206,7 +207,7 @@ class Socket extends events_1.EventEmitter {
         debug("socket connected - writing packet");
         this.nsp.connected.set(this.id, this);
         this.join(this.id);
-        this.packet({ type: socket_io_parser_1.PacketType.CONNECT });
+        this.packet({ type: socket_io_parser_1.PacketType.CONNECT, data: { sid: this.id } });
     }
     /**
      * Called with each packet. Called by `Client`.
