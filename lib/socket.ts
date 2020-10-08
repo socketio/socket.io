@@ -3,7 +3,6 @@ import Emitter from "component-emitter";
 import toArray from "to-array";
 import { on } from "./on";
 import bind from "component-bind";
-import parseqs from "parseqs";
 import hasBin from "has-binary2";
 import { Manager } from "./manager";
 
@@ -40,7 +39,7 @@ export class Socket extends Emitter {
   public disconnected: boolean;
 
   private readonly nsp: string;
-  private readonly query: string | object;
+  private readonly auth: object | ((cb: (data: object) => void) => void);
 
   private ids: number = 0;
   private acks: object = {};
@@ -65,8 +64,8 @@ export class Socket extends Emitter {
     this.connected = false;
     this.disconnected = true;
     this.flags = {};
-    if (opts && opts.query) {
-      this.query = opts.query;
+    if (opts && opts.auth) {
+      this.auth = opts.auth;
     }
     if (this.io.autoConnect) this.open();
   }
@@ -186,19 +185,12 @@ export class Socket extends Emitter {
    */
   onopen() {
     debug("transport is open - connecting");
-
-    // write connect packet if necessary
-    if ("/" !== this.nsp) {
-      if (this.query) {
-        const query =
-          typeof this.query === "object"
-            ? parseqs.encode(this.query)
-            : this.query;
-        debug("sending connect packet with query %s", query);
-        this.packet({ type: PacketType.CONNECT, query: query });
-      } else {
-        this.packet({ type: PacketType.CONNECT });
-      }
+    if (typeof this.auth == "function") {
+      this.auth((data) => {
+        this.packet({ type: PacketType.CONNECT, data });
+      });
+    } else {
+      this.packet({ type: PacketType.CONNECT, data: this.auth });
     }
   }
 

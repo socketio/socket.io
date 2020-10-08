@@ -6,7 +6,7 @@ export declare class Socket extends Emitter {
     connected: boolean;
     disconnected: boolean;
     private readonly nsp;
-    private readonly query;
+    private readonly auth;
     private ids;
     private acks;
     private receiveBuffer;

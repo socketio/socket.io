@@ -23,7 +23,6 @@
     "engine.io-client": "~4.0.0",
     "has-binary2": "~1.0.2",
     "indexof": "0.0.1",
-    "parseqs": "0.0.6",
     "parseuri": "0.0.6",
     "socket.io-parser": "github:socketio/socket.io-parser#develop",
     "to-array": "0.1.4"

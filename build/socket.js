@@ -9,7 +9,6 @@ const component_emitter_1 = __importDefault(require("component-emitter"));
 const to_array_1 = __importDefault(require("to-array"));
 const on_1 = require("./on");
 const component_bind_1 = __importDefault(require("component-bind"));
-const parseqs_1 = __importDefault(require("parseqs"));
 const has_binary2_1 = __importDefault(require("has-binary2"));
 const debug = require("debug")("socket.io-client:socket");
 /**
@@ -55,8 +54,8 @@ class Socket extends component_emitter_1.default {
         this.connected = false;
         this.disconnected = true;
         this.flags = {};
-        if (opts && opts.query) {
-            this.query = opts.query;
+        if (opts && opts.auth) {
+            this.auth = opts.auth;
         }
         if (this.io.autoConnect)
             this.open();
@@ -169,18 +168,13 @@ class Socket extends component_emitter_1.default {
      */
     onopen() {
         debug("transport is open - connecting");
-        // write connect packet if necessary
-        if ("/" !== this.nsp) {
-            if (this.query) {
-                const query = typeof this.query === "object"
-                    ? parseqs_1.default.encode(this.query)
-                    : this.query;
-                debug("sending connect packet with query %s", query);
-                this.packet({ type: socket_io_parser_1.PacketType.CONNECT, query: query });
-            }
-            else {
-                this.packet({ type: socket_io_parser_1.PacketType.CONNECT });
-            }
+        if (typeof this.auth == "function") {
+            this.auth((data) => {
+                this.packet({ type: socket_io_parser_1.PacketType.CONNECT, data });
+            });
+        }
+        else {
+            this.packet({ type: socket_io_parser_1.PacketType.CONNECT, data: this.auth });
         }
     }
     /**

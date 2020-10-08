@@ -112,7 +112,7 @@ describe("socket", function () {
     });
 
     it("should accept an object", (done) => {
-      const socket = io("/abc", { query: { a: "b" } });
+      const socket = io("/abc", { forceNew: true, query: { a: "b" } });
 
       socket.on("handshake", (handshake) => {
         expect(handshake.query.a).to.be("b");
@@ -122,7 +122,7 @@ describe("socket", function () {
     });
 
     it("should accept a query string", (done) => {
-      const socket = io("/abc?b=c&d=e");
+      const socket = io("/abc?b=c&d=e", { forceNew: true });
 
       socket.on("handshake", (handshake) => {
         expect(handshake.query.b).to.be("c");
@@ -133,7 +133,7 @@ describe("socket", function () {
     });
 
     it("should properly encode the parameters", (done) => {
-      const socket = io("/abc", { query: { "&a": "&=?a" } });
+      const socket = io("/abc", { forceNew: true, query: { "&a": "&=?a" } });
 
       socket.on("handshake", (handshake) => {
         expect(handshake.query["&a"]).to.be("&=?a");
@@ -143,12 +143,31 @@ describe("socket", function () {
     });
   });
 
-  it("should fire an error event on middleware failure from main namespace", (done) => {
-    const socket = io("/foo", { forceNew: true, query: { fail: true } });
-    socket.on("error", (err) => {
-      expect(err).to.eql("Auth failed (main namespace)");
-      socket.disconnect();
-      done();
+  describe("auth option", () => {
+    it("should accept an object", (done) => {
+      const socket = io("/abc", { forceNew: true, auth: { a: "b", c: "d" } });
+
+      socket.on("handshake", (handshake) => {
+        expect(handshake.auth.a).to.be("b");
+        expect(handshake.auth.c).to.be("d");
+        expect(handshake.query.a).to.be(undefined);
+        socket.disconnect();
+        done();
+      });
+    });
+
+    it("should accept an function", (done) => {
+      const socket = io("/abc", {
+        forceNew: true,
+        auth: (cb) => cb({ e: "f" }),
+      });
+
+      socket.on("handshake", (handshake) => {
+        expect(handshake.auth.e).to.be("f");
+        expect(handshake.query.e).to.be(undefined);
+        socket.disconnect();
+        done();
+      });
     });
   });
 
