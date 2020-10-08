@@ -6,9 +6,11 @@ describe("socket", function () {
 
   it("should have an accessible socket id equal to the server-side socket id (default namespace)", (done) => {
     const socket = io({ forceNew: true });
-    socket.on("connect", () => {
+
+    socket.emit("getId", (id) => {
       expect(socket.id).to.be.ok();
-      expect(socket.id).to.eql(socket.io.engine.id);
+      expect(socket.id).to.be.eql(id);
+      expect(socket.id).to.not.eql(socket.io.engine.id);
       socket.disconnect();
       done();
     });
@@ -16,9 +18,10 @@ describe("socket", function () {
 
   it("should have an accessible socket id equal to the server-side socket id (custom namespace)", (done) => {
     const socket = io("/foo", { forceNew: true });
-    socket.on("connect", () => {
+    socket.emit("getId", (id) => {
       expect(socket.id).to.be.ok();
-      expect(socket.id).to.eql("/foo#" + socket.io.engine.id);
+      expect(socket.id).to.be.eql(id);
+      expect(socket.id).to.not.eql(socket.io.engine.id);
       socket.disconnect();
       done();
     });

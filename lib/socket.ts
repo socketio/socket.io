@@ -223,7 +223,8 @@ export class Socket extends Emitter {
 
     switch (packet.type) {
       case PacketType.CONNECT:
-        this.onconnect();
+        const id = packet.data.sid;
+        this.onconnect(id);
         break;
 
       case PacketType.EVENT:
@@ -319,7 +320,8 @@ export class Socket extends Emitter {
    *
    * @api private
    */
-  onconnect() {
+  onconnect(id: string) {
+    this.id = id;
     this.connected = true;
     this.disconnected = false;
     this.emit("connect");

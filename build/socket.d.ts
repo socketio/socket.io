@@ -100,7 +100,7 @@ export declare class Socket extends Emitter {
      *
      * @api private
      */
-    onconnect(): void;
+    onconnect(id: string): void;
     /**
      * Emit buffered events (received and emitted).
      *

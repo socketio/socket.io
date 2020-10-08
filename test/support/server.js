@@ -4,8 +4,10 @@ const io = require("socket.io");
 const server = io(process.env.ZUUL_PORT || 3210, { pingInterval: 2000 });
 const expect = require("expect.js");
 
-server.of("/foo").on("connection", () => {
-  // register namespace
+server.of("/foo").on("connection", (socket) => {
+  socket.on("getId", (cb) => {
+    cb(socket.id);
+  });
 });
 
 server.of("/timeout_socket").on("connection", () => {
@@ -144,5 +146,9 @@ server.on("connection", (socket) => {
 
   socket.on("getHandshake", (cb) => {
     cb(socket.handshake);
+  });
+
+  socket.on("getId", (cb) => {
+    cb(socket.id);
   });
 });

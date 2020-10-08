@@ -94,30 +94,6 @@ export class Manager extends Emitter {
   }
 
   /**
-   * Update `socket.id` of all sockets
-   *
-   * @api private
-   */
-  updateSocketIds() {
-    for (let nsp in this.nsps) {
-      if (has.call(this.nsps, nsp)) {
-        this.nsps[nsp].id = this.generateId(nsp);
-      }
-    }
-  }
-
-  /**
-   * generate `socket.id` for the given `nsp`
-   *
-   * @param {String} nsp
-   * @return {String}
-   * @api private
-   */
-  generateId(nsp) {
-    return (nsp === "/" ? "" : nsp + "#") + this.engine.id;
-  }
-
-  /**
    * Sets the `reconnection` config.
    *
    * @param {Boolean} true/false if it should automatically reconnect
@@ -417,9 +393,6 @@ export class Manager extends Emitter {
       this.nsps[nsp] = socket;
       var self = this;
       socket.on("connecting", onConnecting);
-      socket.on("connect", function () {
-        socket.id = self.generateId(nsp);
-      });
 
       if (this.autoConnect) {
         // manually call here since connecting event is fired before listening
@@ -618,7 +591,6 @@ export class Manager extends Emitter {
     const attempt = this.backoff.attempts;
     this.reconnecting = false;
     this.backoff.reset();
-    this.updateSocketIds();
     this.emitAll("reconnect", attempt);
   }
 }

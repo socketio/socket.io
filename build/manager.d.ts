@@ -36,20 +36,6 @@ export declare class Manager extends Emitter {
      */
     emitAll(event: string, arg?: any): void;
     /**
-     * Update `socket.id` of all sockets
-     *
-     * @api private
-     */
-    updateSocketIds(): void;
-    /**
-     * generate `socket.id` for the given `nsp`
-     *
-     * @param {String} nsp
-     * @return {String}
-     * @api private
-     */
-    generateId(nsp: any): string;
-    /**
      * Sets the `reconnection` config.
      *
      * @param {Boolean} true/false if it should automatically reconnect

@@ -203,7 +203,8 @@ class Socket extends component_emitter_1.default {
             return;
         switch (packet.type) {
             case socket_io_parser_1.PacketType.CONNECT:
-                this.onconnect();
+                const id = packet.data.sid;
+                this.onconnect(id);
                 break;
             case socket_io_parser_1.PacketType.EVENT:
                 this.onevent(packet);
@@ -289,7 +290,8 @@ class Socket extends component_emitter_1.default {
      *
      * @api private
      */
-    onconnect() {
+    onconnect(id) {
+        this.id = id;
         this.connected = true;
         this.disconnected = false;
         this.emit("connect");
