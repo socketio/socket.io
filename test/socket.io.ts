@@ -1,17 +1,17 @@
 "use strict";
 
 import { Server } from "..";
+import { createServer } from "http";
+import fs = require("fs");
+import { join } from "path";
+import { exec } from "child_process";
+import request from "supertest";
+import expect from "expect.js";
+import { AddressInfo } from "net";
 
-const http = require("http").Server;
-const io = require("..");
-const fs = require("fs");
-const join = require("path").join;
-const exec = require("child_process").exec;
 const ioc = require("socket.io-client");
-const request = require("supertest");
-const expect = require("expect.js");
 
-require("./support/util");
+import "./support/util";
 
 // Creates a socket.io client for the given server
 function client(srv, nsp?: string | object, opts?: object) {
@@ -36,8 +36,8 @@ describe("socket.io", () => {
       const clientVersion = require("socket.io-client/package").version;
 
       it("should serve static files", done => {
-        const srv = http();
-        io(srv);
+        const srv = createServer();
+        new Server(srv);
         request(srv)
           .get("/socket.io/socket.io.js")
           .buffer(true)
@@ -53,8 +53,8 @@ describe("socket.io", () => {
       });
 
       it("should handle 304", done => {
-        const srv = http();
-        io(srv);
+        const srv = createServer();
+        new Server(srv);
         request(srv)
           .get("/socket.io/socket.io.js")
           .set("If-None-Match", '"' + clientVersion + '"')
@@ -66,19 +66,19 @@ describe("socket.io", () => {
       });
 
       it("should not serve static files", done => {
-        const srv = http();
-        io(srv, { serveClient: false });
+        const srv = createServer();
+        new Server(srv, { serveClient: false });
         request(srv)
           .get("/socket.io/socket.io.js")
           .expect(400, done);
       });
 
       it("should work with #attach", done => {
-        const srv = http((req, res) => {
+        const srv = createServer((req, res) => {
           res.writeHead(404);
           res.end();
         });
-        const sockets = io();
+        const sockets = new Server();
         sockets.attach(srv);
         request(srv)
           .get("/socket.io/socket.io.js")
@@ -92,28 +92,28 @@ describe("socket.io", () => {
 
     describe("port", () => {
       it("should be bound", done => {
-        const sockets = io(54010);
+        const sockets = new Server(54010);
         request("http://localhost:54010")
           .get("/socket.io/socket.io.js")
           .expect(200, done);
       });
 
       it("should be bound as a string", done => {
-        const sockets = io("54020");
+        const sockets = new Server(54020);
         request("http://localhost:54020")
           .get("/socket.io/socket.io.js")
           .expect(200, done);
       });
 
       it("with listen", done => {
-        const sockets = io().listen(54011);
+        const sockets = new Server().listen(54011);
         request("http://localhost:54011")
           .get("/socket.io/socket.io.js")
           .expect(200, done);
       });
 
       it("as a string", done => {
-        const sockets = io().listen("54012");
+        const sockets = new Server().listen(54012);
         request("http://localhost:54012")
           .get("/socket.io/socket.io.js")
           .expect(200, done);
@@ -125,7 +125,9 @@ describe("socket.io", () => {
     const request = require("superagent");
 
     it("should disallow request when origin defined and none specified", done => {
-      const sockets = io({ origins: "http://foo.example:*" }).listen("54013");
+      const sockets = new Server({ origins: "http://foo.example:*" }).listen(
+        54013
+      );
       request
         .get("http://localhost:54013/socket.io/default/")
         .query({ transport: "polling" })
@@ -136,7 +138,9 @@ describe("socket.io", () => {
     });
 
     it("should disallow request when origin defined and a different one specified", done => {
-      const sockets = io({ origins: "http://foo.example:*" }).listen("54014");
+      const sockets = new Server({ origins: "http://foo.example:*" }).listen(
+        54014
+      );
       request
         .get("http://localhost:54014/socket.io/default/")
         .query({ transport: "polling" })
@@ -148,7 +152,9 @@ describe("socket.io", () => {
     });
 
     it("should allow request when origin defined an the same is specified", done => {
-      const sockets = io({ origins: "http://foo.example:*" }).listen("54015");
+      const sockets = new Server({ origins: "http://foo.example:*" }).listen(
+        54015
+      );
       request
         .get("http://localhost:54015/socket.io/default/")
         .set("origin", "http://foo.example")
@@ -160,14 +166,14 @@ describe("socket.io", () => {
     });
 
     it("should allow request when origin defined as function and same is supplied", done => {
-      const sockets = io({
+      const sockets = new Server({
         origins: (origin, callback) => {
           if (origin == "http://foo.example") {
             return callback(null, true);
           }
           return callback(null, false);
         }
-      }).listen("54016");
+      }).listen(54016);
       request
         .get("http://localhost:54016/socket.io/default/")
         .set("origin", "http://foo.example")
@@ -179,14 +185,14 @@ describe("socket.io", () => {
     });
 
     it("should allow request when origin defined as function and different is supplied", done => {
-      const sockets = io({
+      const sockets = new Server({
         origins: (origin, callback) => {
           if (origin == "http://foo.example") {
             return callback(null, true);
           }
           return callback(null, false);
         }
-      }).listen("54017");
+      }).listen(54017);
       request
         .get("http://localhost:54017/socket.io/default/")
         .set("origin", "http://herp.derp")
@@ -198,14 +204,14 @@ describe("socket.io", () => {
     });
 
     it("should allow request when origin defined as function and no origin is supplied", done => {
-      const sockets = io({
+      const sockets = new Server({
         origins: (origin, callback) => {
           if (origin == "*") {
             return callback(null, true);
           }
           return callback(null, false);
         }
-      }).listen("54021");
+      }).listen(54021);
       request
         .get("http://localhost:54021/socket.io/default/")
         .query({ transport: "polling" })
@@ -216,8 +222,8 @@ describe("socket.io", () => {
     });
 
     it("should default to port 443 when protocol is https", done => {
-      const sockets = io({ origins: "https://foo.example:443" }).listen(
-        "54036"
+      const sockets = new Server({ origins: "https://foo.example:443" }).listen(
+        54036
       );
       request
         .get("http://localhost:54036/socket.io/default/")
@@ -230,7 +236,7 @@ describe("socket.io", () => {
     });
 
     it("should allow request if custom function in opts.allowRequest returns true", done => {
-      const sockets = io(http().listen(54022), {
+      const sockets = new Server(createServer().listen(54022), {
         allowRequest: (req, callback) => callback(null, true),
         origins: "http://foo.example:*"
       });
@@ -245,7 +251,7 @@ describe("socket.io", () => {
     });
 
     it("should disallow request if custom function in opts.allowRequest returns false", done => {
-      const sockets = io(http().listen(54023), {
+      const sockets = new Server(createServer().listen(54023), {
         allowRequest: (req, callback) => callback(null, false)
       });
       request
@@ -259,7 +265,7 @@ describe("socket.io", () => {
     });
 
     it("should allow request when using an array of origins", done => {
-      io({ origins: ["http://foo.example:54024"] }).listen("54024");
+      new Server({ origins: ["http://foo.example:54024"] }).listen(54024);
       request
         .get("http://localhost:54024/socket.io/default/")
         .set("origin", "http://foo.example:54024")
@@ -274,8 +280,8 @@ describe("socket.io", () => {
   describe("close", () => {
     it("should be able to close sio sending a srv", () => {
       const PORT = 54018;
-      const srv = http().listen(PORT);
-      const sio = io(srv);
+      const srv = createServer().listen(PORT);
+      const sio = new Server(srv);
       const net = require("net");
       const server = net.createServer();
 
@@ -301,7 +307,7 @@ describe("socket.io", () => {
 
     it("should be able to close sio sending a port", () => {
       const PORT = 54019;
-      const sio = io(PORT);
+      const sio = new Server(PORT);
       const net = require("net");
       const server = net.createServer();
 
@@ -347,29 +353,29 @@ describe("socket.io", () => {
     const { Namespace } = require("../dist/namespace");
 
     it("should be accessible through .sockets", () => {
-      const sio: Server = io();
+      const sio = new Server();
       expect(sio.sockets).to.be.a(Namespace);
     });
 
     it("should be aliased", () => {
-      const sio = io();
+      const sio = new Server();
       expect(sio.use).to.be.a("function");
       expect(sio.to).to.be.a("function");
       expect(sio["in"]).to.be.a("function");
       expect(sio.emit).to.be.a("function");
       expect(sio.send).to.be.a("function");
       expect(sio.write).to.be.a("function");
-      expect(sio.clients).to.be.a("function");
+      expect(sio.allSockets).to.be.a("function");
       expect(sio.compress).to.be.a("function");
-      expect(sio.json).to.be(sio);
       expect(sio.volatile).to.be(sio);
-      expect(sio.sockets.flags).to.eql({ json: true, volatile: true });
+      expect(sio.local).to.be(sio);
+      expect(sio.sockets.flags).to.eql({ volatile: true, local: true });
       delete sio.sockets.flags;
     });
 
     it("should automatically connect", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         socket.on("connect", () => {
@@ -379,8 +385,8 @@ describe("socket.io", () => {
     });
 
     it("should fire a `connection` event", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", socket => {
@@ -391,8 +397,8 @@ describe("socket.io", () => {
     });
 
     it("should fire a `connect` event", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connect", socket => {
@@ -403,8 +409,8 @@ describe("socket.io", () => {
     });
 
     it("should work with many sockets", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         sio.of("/chat");
         sio.of("/news");
@@ -421,8 +427,8 @@ describe("socket.io", () => {
     });
 
     it('should be able to equivalently start with "" or "/" on server', done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let total = 2;
       sio.of("").on("connection", () => {
         --total || done();
@@ -435,8 +441,8 @@ describe("socket.io", () => {
     });
 
     it('should be equivalent for "" and "/" on client', done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       sio.of("/").on("connection", () => {
         done();
       });
@@ -444,8 +450,8 @@ describe("socket.io", () => {
     });
 
     it("should work with `of` and many sockets", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const chat = client(srv, "/chat");
         const news = client(srv, "/news");
@@ -462,8 +468,8 @@ describe("socket.io", () => {
     });
 
     it("should work with `of` second param", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const chat = client(srv, "/chat");
         const news = client(srv, "/news");
@@ -480,8 +486,8 @@ describe("socket.io", () => {
     });
 
     it("should disconnect upon transport disconnection", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const chat = client(srv, "/chat");
         const news = client(srv, "/news");
@@ -508,8 +514,8 @@ describe("socket.io", () => {
     });
 
     it("should fire a `disconnecting` event just before leaving all rooms", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
 
@@ -534,8 +540,8 @@ describe("socket.io", () => {
     });
 
     it("should return error connecting to non-existent namespace", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv, "/doesnotexist");
         socket.on("error", err => {
@@ -546,8 +552,8 @@ describe("socket.io", () => {
     });
 
     it("should not reuse same-namespace connections", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let connections = 0;
 
       srv.listen(() => {
@@ -563,8 +569,8 @@ describe("socket.io", () => {
     });
 
     it("should find all clients in a namespace", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       const chatSids = [];
       let otherSid = null;
       srv.listen(() => {
@@ -591,8 +597,8 @@ describe("socket.io", () => {
     });
 
     it("should find all clients in a namespace room", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let chatFooSid = null;
       let chatBarSid = null;
       let otherSid = null;
@@ -636,8 +642,8 @@ describe("socket.io", () => {
     });
 
     it("should find all clients across namespace rooms", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let chatFooSid = null;
       let chatBarSid = null;
       let otherSid = null;
@@ -676,8 +682,8 @@ describe("socket.io", () => {
     });
 
     it("should not emit volatile event after regular event", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
 
       let counter = 0;
       srv.listen(() => {
@@ -702,8 +708,8 @@ describe("socket.io", () => {
     });
 
     it("should emit volatile event", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
 
       let counter = 0;
       srv.listen(() => {
@@ -727,8 +733,8 @@ describe("socket.io", () => {
     });
 
     it("should enable compression by default", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv, "/chat");
         sio.of("/chat").on("connection", s => {
@@ -742,8 +748,8 @@ describe("socket.io", () => {
     });
 
     it("should disable compression", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv, "/chat");
         sio.of("/chat").on("connection", s => {
@@ -761,8 +767,8 @@ describe("socket.io", () => {
 
     describe("dynamic namespaces", () => {
       it("should allow connections to dynamic namespaces with a regex", done => {
-        const srv = http();
-        const sio = io(srv);
+        const srv = createServer();
+        const sio = new Server(srv);
         let count = 0;
         srv.listen(() => {
           const socket = client(srv, "/dynamic-101");
@@ -793,8 +799,8 @@ describe("socket.io", () => {
       });
 
       it("should allow connections to dynamic namespaces with a function", done => {
-        const srv = http();
-        const sio = io(srv);
+        const srv = createServer();
+        const sio = new Server(srv);
         srv.listen(() => {
           const socket = client(srv, "/dynamic-101");
           sio.of((name, query, next) => next(null, "/dynamic-101" === name));
@@ -803,8 +809,8 @@ describe("socket.io", () => {
       });
 
       it("should disallow connections when no dynamic namespace matches", done => {
-        const srv = http();
-        const sio = io(srv);
+        const srv = createServer();
+        const sio = new Server(srv);
         srv.listen(() => {
           const socket = client(srv, "/abc");
           sio.of(/^\/dynamic-\d+$/);
@@ -820,8 +826,8 @@ describe("socket.io", () => {
 
   describe("socket", () => {
     it("should not fire events more than once after manually reconnecting", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const clientSocket = client(srv, { reconnection: false });
         clientSocket.on("connect", function init() {
@@ -837,8 +843,8 @@ describe("socket.io", () => {
     });
 
     it("should not fire reconnect_failed event more than once when server closed", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const clientSocket = client(srv, {
           reconnectionAttempts: 3,
@@ -855,8 +861,8 @@ describe("socket.io", () => {
     });
 
     it("should receive events", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -872,8 +878,8 @@ describe("socket.io", () => {
     });
 
     it("should receive message events through `send`", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -887,8 +893,8 @@ describe("socket.io", () => {
     });
 
     it("should error with null messages", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -902,8 +908,8 @@ describe("socket.io", () => {
     });
 
     it("should handle transport null messages", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv, { reconnection: false });
         sio.on("connection", s => {
@@ -920,8 +926,8 @@ describe("socket.io", () => {
     });
 
     it("should emit events", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         socket.on("woot", a => {
@@ -935,8 +941,8 @@ describe("socket.io", () => {
     });
 
     it("should emit events with utf8 multibyte character", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         let i = 0;
@@ -957,8 +963,8 @@ describe("socket.io", () => {
     });
 
     it("should emit events with binary data", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         let imageData;
@@ -980,8 +986,8 @@ describe("socket.io", () => {
     });
 
     it("should emit events with several types of data (including binary)", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         socket.on("multiple", (a, b, c, d, e, f) => {
@@ -1006,8 +1012,8 @@ describe("socket.io", () => {
     });
 
     it("should receive events with binary data", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -1022,8 +1028,8 @@ describe("socket.io", () => {
     });
 
     it("should receive events with several types of data (including binary)", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -1052,8 +1058,8 @@ describe("socket.io", () => {
     });
 
     it("should not emit volatile event after regular event (polling)", done => {
-      const srv = http();
-      const sio = io(srv, { transports: ["polling"] });
+      const srv = createServer();
+      const sio = new Server(srv, { transports: ["polling"] });
 
       let counter = 0;
       srv.listen(() => {
@@ -1075,8 +1081,8 @@ describe("socket.io", () => {
     });
 
     it("should not emit volatile event after regular event (ws)", done => {
-      const srv = http();
-      const sio = io(srv, { transports: ["websocket"] });
+      const srv = createServer();
+      const sio = new Server(srv, { transports: ["websocket"] });
 
       let counter = 0;
       srv.listen(() => {
@@ -1098,8 +1104,8 @@ describe("socket.io", () => {
     });
 
     it("should emit volatile event (polling)", done => {
-      const srv = http();
-      const sio = io(srv, { transports: ["polling"] });
+      const srv = createServer();
+      const sio = new Server(srv, { transports: ["polling"] });
 
       let counter = 0;
       srv.listen(() => {
@@ -1123,8 +1129,8 @@ describe("socket.io", () => {
     });
 
     it("should emit volatile event (ws)", done => {
-      const srv = http();
-      const sio = io(srv, { transports: ["websocket"] });
+      const srv = createServer();
+      const sio = new Server(srv, { transports: ["websocket"] });
 
       let counter = 0;
       srv.listen(() => {
@@ -1148,8 +1154,8 @@ describe("socket.io", () => {
     });
 
     it("should emit only one consecutive volatile event (polling)", done => {
-      const srv = http();
-      const sio = io(srv, { transports: ["polling"] });
+      const srv = createServer();
+      const sio = new Server(srv, { transports: ["polling"] });
 
       let counter = 0;
       srv.listen(() => {
@@ -1174,8 +1180,8 @@ describe("socket.io", () => {
     });
 
     it("should emit only one consecutive volatile event (ws)", done => {
-      const srv = http();
-      const sio = io(srv, { transports: ["websocket"] });
+      const srv = createServer();
+      const sio = new Server(srv, { transports: ["websocket"] });
 
       let counter = 0;
       srv.listen(() => {
@@ -1200,8 +1206,8 @@ describe("socket.io", () => {
     });
 
     it("should emit regular events after trying a failed volatile event (polling)", done => {
-      const srv = http();
-      const sio = io(srv, { transports: ["polling"] });
+      const srv = createServer();
+      const sio = new Server(srv, { transports: ["polling"] });
 
       let counter = 0;
       srv.listen(() => {
@@ -1227,8 +1233,8 @@ describe("socket.io", () => {
     });
 
     it("should emit regular events after trying a failed volatile event (ws)", done => {
-      const srv = http();
-      const sio = io(srv, { transports: ["websocket"] });
+      const srv = createServer();
+      const sio = new Server(srv, { transports: ["websocket"] });
 
       let counter = 0;
       srv.listen(() => {
@@ -1254,8 +1260,8 @@ describe("socket.io", () => {
     });
 
     it("should emit message events through `send`", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         socket.on("message", a => {
@@ -1269,8 +1275,8 @@ describe("socket.io", () => {
     });
 
     it("should receive event with callbacks", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -1287,8 +1293,8 @@ describe("socket.io", () => {
     });
 
     it("should receive all events emitted from namespaced client immediately and in order", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let total = 0;
       srv.listen(() => {
         sio.of("/chat", s => {
@@ -1311,8 +1317,8 @@ describe("socket.io", () => {
     });
 
     it("should emit events with callbacks", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -1327,8 +1333,8 @@ describe("socket.io", () => {
     });
 
     it("should receive events with args and callback", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -1345,8 +1351,8 @@ describe("socket.io", () => {
     });
 
     it("should emit events with args and callback", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -1363,8 +1369,8 @@ describe("socket.io", () => {
     });
 
     it("should receive events with binary args and callbacks", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -1382,8 +1388,8 @@ describe("socket.io", () => {
     });
 
     it("should emit events with binary args and callback", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -1399,8 +1405,8 @@ describe("socket.io", () => {
     });
 
     it("should emit events and receive binary data in a callback", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -1416,8 +1422,8 @@ describe("socket.io", () => {
     });
 
     it("should receive events and pass binary data in a callback", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -1433,8 +1439,8 @@ describe("socket.io", () => {
     });
 
     it("should have access to the client", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -1445,8 +1451,8 @@ describe("socket.io", () => {
     });
 
     it("should have access to the connection", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -1458,8 +1464,8 @@ describe("socket.io", () => {
     });
 
     it("should have access to the request", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
@@ -1471,8 +1477,8 @@ describe("socket.io", () => {
     });
 
     it("should see query parameters in the request", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv, { query: { key1: 1, key2: 2 } });
         sio.on("connection", s => {
@@ -1486,8 +1492,8 @@ describe("socket.io", () => {
     });
 
     it("should see query parameters sent from secondary namespace connections in handshake object", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       const client1 = client(srv);
       const client2 = client(srv, "/connection2", {
         auth: { key1: "aa", key2: "&=bb" }
@@ -1504,8 +1510,8 @@ describe("socket.io", () => {
 
     it("should handle very large json", function(done) {
       this.timeout(30000);
-      const srv = http();
-      const sio = io(srv, { perMessageDeflate: false });
+      const srv = createServer();
+      const sio = new Server(srv, { perMessageDeflate: false });
       let received = 0;
       srv.listen(() => {
         const socket = client(srv);
@@ -1515,11 +1521,14 @@ describe("socket.io", () => {
           else socket.emit("big", a);
         });
         sio.on("connection", s => {
-          fs.readFile(join(__dirname, "fixtures", "big.json"), (err, data) => {
-            if (err) return done(err);
-            data = JSON.parse(data);
-            s.emit("big", { hello: "friend", json: data });
-          });
+          fs.readFile(
+            join(__dirname, "fixtures", "big.json"),
+            (err, data: any) => {
+              if (err) return done(err);
+              data = JSON.parse(data);
+              s.emit("big", { hello: "friend", json: data });
+            }
+          );
           s.on("big", a => {
             s.emit("big", a);
           });
@@ -1529,8 +1538,8 @@ describe("socket.io", () => {
 
     it("should handle very large binary data", function(done) {
       this.timeout(30000);
-      const srv = http();
-      const sio = io(srv, { perMessageDeflate: false });
+      const srv = createServer();
+      const sio = new Server(srv, { perMessageDeflate: false });
       let received = 0;
       srv.listen(() => {
         const socket = client(srv);
@@ -1553,8 +1562,8 @@ describe("socket.io", () => {
     });
 
     it("should be able to emit after server close and restart", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
 
       sio.on("connection", socket => {
         socket.on("ev", data => {
@@ -1564,7 +1573,7 @@ describe("socket.io", () => {
       });
 
       srv.listen(() => {
-        const port = srv.address().port;
+        const { port } = srv.address() as AddressInfo;
         const clientSocket = client(srv, {
           reconnectionAttempts: 10,
           reconnectionDelay: 100
@@ -1581,8 +1590,8 @@ describe("socket.io", () => {
     });
 
     it("should enable compression by default", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv, "/chat");
         sio.of("/chat").on("connection", s => {
@@ -1596,8 +1605,8 @@ describe("socket.io", () => {
     });
 
     it("should disable compression", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv, "/chat");
         sio.of("/chat").on("connection", s => {
@@ -1614,8 +1623,8 @@ describe("socket.io", () => {
     });
 
     it("should error with raw binary and warn", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv, { reconnection: false });
         sio.on("connection", s => {
@@ -1633,8 +1642,8 @@ describe("socket.io", () => {
     });
 
     it("should not crash when receiving an error packet without handler", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv, { reconnection: false });
         sio.on("connection", s => {
@@ -1652,8 +1661,8 @@ describe("socket.io", () => {
     });
 
     it("should not crash with raw binary", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv, { reconnection: false });
         sio.on("connection", s => {
@@ -1669,8 +1678,8 @@ describe("socket.io", () => {
     });
 
     it("should handle empty binary packet", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv, { reconnection: false });
         sio.on("connection", s => {
@@ -1692,8 +1701,8 @@ describe("socket.io", () => {
       global.File = "";
       // @ts-ignore
       global.Blob = [];
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
 
@@ -1708,8 +1717,8 @@ describe("socket.io", () => {
     });
 
     it("should always trigger the callback (if provided) when joining a room", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
 
       srv.listen(() => {
         const socket = client(srv);
@@ -1724,8 +1733,8 @@ describe("socket.io", () => {
 
   describe("messaging many", () => {
     it("emits to a namespace", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let total = 2;
 
       srv.listen(() => {
@@ -1759,8 +1768,8 @@ describe("socket.io", () => {
     });
 
     it("emits binary data to a namespace", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let total = 2;
 
       srv.listen(() => {
@@ -1794,8 +1803,8 @@ describe("socket.io", () => {
     });
 
     it("emits to the rest", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       const total = 2;
 
       srv.listen(() => {
@@ -1827,8 +1836,8 @@ describe("socket.io", () => {
     });
 
     it("emits to rooms", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       const total = 2;
 
       srv.listen(() => {
@@ -1858,8 +1867,8 @@ describe("socket.io", () => {
     });
 
     it("emits to rooms avoiding dupes", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let total = 2;
 
       srv.listen(() => {
@@ -1899,8 +1908,8 @@ describe("socket.io", () => {
     });
 
     it("broadcasts to rooms", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let total = 2;
 
       srv.listen(() => {
@@ -1941,8 +1950,8 @@ describe("socket.io", () => {
     });
 
     it("broadcasts binary data to rooms", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let total = 2;
 
       srv.listen(() => {
@@ -1987,8 +1996,8 @@ describe("socket.io", () => {
     });
 
     it("keeps track of rooms", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
 
       srv.listen(() => {
         const socket = client(srv);
@@ -2013,8 +2022,8 @@ describe("socket.io", () => {
     });
 
     it("deletes empty rooms", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
 
       srv.listen(() => {
         const socket = client(srv);
@@ -2031,8 +2040,8 @@ describe("socket.io", () => {
     });
 
     it("should properly cleanup left rooms", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
 
       srv.listen(() => {
         const socket = client(srv);
@@ -2054,8 +2063,8 @@ describe("socket.io", () => {
     });
 
     it("allows to join several rooms at once", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
 
       srv.listen(() => {
         const socket = client(srv);
@@ -2073,8 +2082,8 @@ describe("socket.io", () => {
     const { Socket } = require("../dist/socket");
 
     it("should call functions", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let run = 0;
       sio.use((socket, next) => {
         expect(socket).to.be.a(Socket);
@@ -2096,8 +2105,8 @@ describe("socket.io", () => {
     });
 
     it("should pass errors", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       const run = 0;
       sio.use((socket, next) => {
         next(new Error("Authentication error"));
@@ -2118,9 +2127,9 @@ describe("socket.io", () => {
     });
 
     it("should only call connection after fns", done => {
-      const srv = http();
-      const sio = io(srv);
-      sio.use((socket, next) => {
+      const srv = createServer();
+      const sio = new Server(srv);
+      sio.use((socket: any, next) => {
         socket.name = "guillermo";
         next();
       });
@@ -2134,8 +2143,8 @@ describe("socket.io", () => {
     });
 
     it("should only call connection after (lengthy) fns", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let authenticated = false;
 
       sio.use((socket, next) => {
@@ -2154,8 +2163,8 @@ describe("socket.io", () => {
     });
 
     it("should be ignored if socket gets closed", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let socket;
       sio.use((s, next) => {
         socket.io.engine.close();
@@ -2175,8 +2184,8 @@ describe("socket.io", () => {
     });
 
     it("should call functions in expected order", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       const result = [];
 
       sio.use(() => {
@@ -2205,8 +2214,8 @@ describe("socket.io", () => {
     });
 
     it("should disable the merge of handshake packets", done => {
-      const srv = http();
-      const sio = io();
+      const srv = createServer();
+      const sio = new Server();
       sio.use((socket, next) => {
         next();
       });
@@ -2218,8 +2227,8 @@ describe("socket.io", () => {
     });
 
     it("should work with a custom namespace", done => {
-      const srv = http();
-      const sio = io();
+      const srv = createServer();
+      const sio = new Server();
       sio.listen(srv);
       sio.of("/chat").use((socket, next) => {
         next();
@@ -2239,8 +2248,8 @@ describe("socket.io", () => {
     const { Socket } = require("../dist/socket");
 
     it("should call functions", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
       let run = 0;
 
       srv.listen(() => {
@@ -2271,8 +2280,8 @@ describe("socket.io", () => {
     });
 
     it("should pass errors", done => {
-      const srv = http();
-      const sio = io(srv);
+      const srv = createServer();
+      const sio = new Server(srv);
 
       srv.listen(() => {
         const clientSocket = client(srv, { multiplex: false });

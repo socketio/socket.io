@@ -18,25 +18,19 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Client = exports.ParentNamespace = exports.Namespace = exports.Server = void 0;
+exports.Server = void 0;
 const http_1 = __importDefault(require("http"));
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const engine_io_1 = __importDefault(require("engine.io"));
 const client_1 = require("./client");
-Object.defineProperty(exports, "Client", { enumerable: true, get: function () { return client_1.Client; } });
 const events_1 = require("events");
 const namespace_1 = require("./namespace");
-Object.defineProperty(exports, "Namespace", { enumerable: true, get: function () { return namespace_1.Namespace; } });
 const parent_namespace_1 = require("./parent-namespace");
-Object.defineProperty(exports, "ParentNamespace", { enumerable: true, get: function () { return parent_namespace_1.ParentNamespace; } });
 const socket_io_adapter_1 = require("socket.io-adapter");
 const parser = __importStar(require("socket.io-parser"));
 const url_1 = __importDefault(require("url"));
@@ -391,6 +385,104 @@ class Server extends events_1.EventEmitter {
             fn && fn();
         }
     }
+    /**
+     * Sets up namespace middleware.
+     *
+     * @return {Server} self
+     * @public
+     */
+    use(fn) {
+        this.sockets.use(fn);
+        return this;
+    }
+    /**
+     * Targets a room when emitting.
+     *
+     * @param {String} name
+     * @return {Server} self
+     * @public
+     */
+    to(name) {
+        this.sockets.to(name);
+        return this;
+    }
+    /**
+     * Targets a room when emitting.
+     *
+     * @param {String} name
+     * @return {Server} self
+     * @public
+     */
+    in(name) {
+        this.sockets.in(name);
+        return this;
+    }
+    /**
+     * Sends a `message` event to all clients.
+     *
+     * @return {Namespace} self
+     */
+    send(...args) {
+        args.unshift("message");
+        this.sockets.emit.apply(this.sockets, args);
+        return this;
+    }
+    /**
+     * Sends a `message` event to all clients.
+     *
+     * @return {Namespace} self
+     */
+    write(...args) {
+        args.unshift("message");
+        this.sockets.emit.apply(this.sockets, args);
+        return this;
+    }
+    /**
+     * Gets a list of socket ids.
+     */
+    allSockets() {
+        return this.sockets.allSockets();
+    }
+    /**
+     * Sets the compress flag.
+     *
+     * @param {Boolean} compress - if `true`, compresses the sending data
+     * @return {Server} self
+     */
+    compress(compress) {
+        this.sockets.compress(compress);
+        return this;
+    }
+    /**
+     * Sets the binary flag
+     *
+     * @param {Boolean} binary - encode as if it has binary data if `true`, Encode as if it doesnt have binary data if `false`
+     * @return {Server} self
+     */
+    binary(binary) {
+        this.sockets.binary(binary);
+        return this;
+    }
+    /**
+     * Sets a modifier for a subsequent event emission that the event data may be lost if the client is not ready to
+     * receive messages (because of network slowness or other issues, or because they’re connected through long polling
+     * and is in the middle of a request-response cycle).
+     *
+     * @return {Server} self
+     */
+    get volatile() {
+        this.sockets.volatile;
+        return this;
+    }
+    /**
+     * Sets a modifier for a subsequent event emission that the event data will only be broadcast to the current node.
+     *
+     * @return {Server} self
+     */
+    get local() {
+        this.sockets.local;
+        return this;
+    }
 }
 exports.Server = Server;
 /**
@@ -399,21 +491,10 @@ exports.Server = Server;
 const emitterMethods = Object.keys(events_1.EventEmitter.prototype).filter(function (key) {
     return typeof events_1.EventEmitter.prototype[key] === "function";
 });
-emitterMethods
-    .concat(["to", "in", "use", "send", "write", "clients", "compress", "binary"])
-    .forEach(function (fn) {
+emitterMethods.forEach(function (fn) {
     Server.prototype[fn] = function () {
         return this.sockets[fn].apply(this.sockets, arguments);
     };
 });
-["json", "volatile", "local"].forEach(function (flag) {
-    Object.defineProperty(Server.prototype, flag, {
-        get: function () {
-            this.sockets.flags = this.sockets.flags || {};
-            this.sockets.flags[flag] = true;
-            return this;
-        }
-    });
-});
-__exportStar(require("./socket"), exports);
 module.exports = (srv, opts) => new Server(srv, opts);
+module.exports.Server = Server;

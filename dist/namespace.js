@@ -157,13 +157,13 @@ class Namespace extends events_1.EventEmitter {
      * @return {Namespace} self
      */
     // @ts-ignore
-    emit(ev) {
+    emit(ev, ...args) {
         if (~events.indexOf(ev)) {
             super.emit.apply(this, arguments);
             return this;
         }
         // set up packet object
-        const args = Array.prototype.slice.call(arguments);
+        args.unshift(ev);
         const packet = {
             type: (this.flags.binary !== undefined
                 ? this.flags.binary

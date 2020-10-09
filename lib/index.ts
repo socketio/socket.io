@@ -6,7 +6,7 @@ import { Client } from "./client";
 import { EventEmitter } from "events";
 import { Namespace } from "./namespace";
 import { ParentNamespace } from "./parent-namespace";
-import { Adapter } from "socket.io-adapter";
+import { Adapter, Room, SocketId } from "socket.io-adapter";
 import * as parser from "socket.io-parser";
 import { Encoder } from "socket.io-parser";
 import url from "url";
@@ -109,7 +109,7 @@ interface AttachOptions {
 
 interface EngineAttachOptions extends EngineOptions, AttachOptions {}
 
-export interface ServerOptions extends EngineAttachOptions {
+interface ServerOptions extends EngineAttachOptions {
   /**
    * name of the path to capture (/socket.io)
    */
@@ -125,14 +125,17 @@ export interface ServerOptions extends EngineAttachOptions {
   /**
    * the allowed origins (*:*)
    */
-  origins: string | string[];
+  origins:
+    | string
+    | string[]
+    | ((origin: string, cb: (err: Error, allow: boolean) => void) => void);
   /**
    * the parser to use. Defaults to an instance of the Parser that ships with socket.io.
    */
   parser: any;
 }
 
-class Server extends EventEmitter {
+export class Server extends EventEmitter {
   public readonly sockets: Namespace;
 
   /** @package */
@@ -140,7 +143,7 @@ class Server extends EventEmitter {
   /** @package */
   public readonly encoder: Encoder;
 
-  private nsps: Map<string, Namespace> = new Map();
+  public nsps: Map<string, Namespace> = new Map();
   private parentNsps: Map<
     | string
     | RegExp
@@ -563,7 +566,7 @@ class Server extends EventEmitter {
    *
    * @param {Function} [fn] optional, called as `fn([err])` on error OR all conns closed
    */
-  public close(fn: (err?: Error) => void): void {
+  public close(fn?: (err?: Error) => void): void {
     for (const socket of this.sockets.sockets.values()) {
       socket.onclose("server shutting down");
     }
@@ -575,6 +578,116 @@ class Server extends EventEmitter {
     } else {
       fn && fn();
     }
+  }
+
+  /**
+   * Sets up namespace middleware.
+   *
+   * @return {Server} self
+   * @public
+   */
+  public use(
+    fn: (socket: Socket, next: (err?: Error) => void) => void
+  ): Server {
+    this.sockets.use(fn);
+    return this;
+  }
+
+  /**
+   * Targets a room when emitting.
+   *
+   * @param {String} name
+   * @return {Server} self
+   * @public
+   */
+  public to(name: Room): Server {
+    this.sockets.to(name);
+    return this;
+  }
+
+  /**
+   * Targets a room when emitting.
+   *
+   * @param {String} name
+   * @return {Server} self
+   * @public
+   */
+  public in(name: Room): Server {
+    this.sockets.in(name);
+    return this;
+  }
+
+  /**
+   * Sends a `message` event to all clients.
+   *
+   * @return {Namespace} self
+   */
+  public send(...args): Server {
+    args.unshift("message");
+    this.sockets.emit.apply(this.sockets, args);
+    return this;
+  }
+
+  /**
+   * Sends a `message` event to all clients.
+   *
+   * @return {Namespace} self
+   */
+  public write(...args): Server {
+    args.unshift("message");
+    this.sockets.emit.apply(this.sockets, args);
+    return this;
+  }
+
+  /**
+   * Gets a list of socket ids.
+   */
+  public allSockets(): Promise<Set<SocketId>> {
+    return this.sockets.allSockets();
+  }
+
+  /**
+   * Sets the compress flag.
+   *
+   * @param {Boolean} compress - if `true`, compresses the sending data
+   * @return {Server} self
+   */
+  public compress(compress: boolean): Server {
+    this.sockets.compress(compress);
+    return this;
+  }
+
+  /**
+   * Sets the binary flag
+   *
+   * @param {Boolean} binary - encode as if it has binary data if `true`, Encode as if it doesnt have binary data if `false`
+   * @return {Server} self
+   */
+  public binary(binary: boolean): Server {
+    this.sockets.binary(binary);
+    return this;
+  }
+
+  /**
+   * Sets a modifier for a subsequent event emission that the event data may be lost if the client is not ready to
+   * receive messages (because of network slowness or other issues, or because they’re connected through long polling
+   * and is in the middle of a request-response cycle).
+   *
+   * @return {Server} self
+   */
+  public get volatile(): Server {
+    this.sockets.volatile;
+    return this;
+  }
+
+  /**
+   * Sets a modifier for a subsequent event emission that the event data will only be broadcast to the current node.
+   *
+   * @return {Server} self
+   */
+  public get local(): Server {
+    this.sockets.local;
+    return this;
   }
 }
 
@@ -588,24 +701,11 @@ const emitterMethods = Object.keys(EventEmitter.prototype).filter(function(
   return typeof EventEmitter.prototype[key] === "function";
 });
 
-emitterMethods
-  .concat(["to", "in", "use", "send", "write", "clients", "compress", "binary"])
-  .forEach(function(fn) {
-    Server.prototype[fn] = function() {
-      return this.sockets[fn].apply(this.sockets, arguments);
-    };
-  });
-
-["json", "volatile", "local"].forEach(function(flag) {
-  Object.defineProperty(Server.prototype, flag, {
-    get: function() {
-      this.sockets.flags = this.sockets.flags || {};
-      this.sockets.flags[flag] = true;
-      return this;
-    }
-  });
+emitterMethods.forEach(function(fn) {
+  Server.prototype[fn] = function() {
+    return this.sockets[fn].apply(this.sockets, arguments);
+  };
 });
 
-export { Server, Namespace, ParentNamespace, Client };
-export * from "./socket";
 module.exports = (srv?, opts?) => new Server(srv, opts);
+module.exports.Server = Server;

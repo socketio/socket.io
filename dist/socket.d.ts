@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { EventEmitter } from "events";
-import { Client, Namespace } from "./index";
+import { Client } from "./client";
+import { Namespace } from "./namespace";
 import { IncomingMessage } from "http";
 import { Room, SocketId } from "socket.io-adapter";
 /**

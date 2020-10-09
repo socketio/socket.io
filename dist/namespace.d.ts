@@ -39,7 +39,7 @@ export declare class Namespace extends EventEmitter {
      *
      * @return {Namespace} self
      */
-    use(fn: (socket: Socket, next: (err: Error) => void) => void): Namespace;
+    use(fn: (socket: Socket, next: (err?: Error) => void) => void): Namespace;
     /**
      * Executes the middleware for an incoming client.
      *
@@ -78,7 +78,7 @@ export declare class Namespace extends EventEmitter {
      *
      * @return {Namespace} self
      */
-    emit(ev: any): Namespace;
+    emit(ev: string, ...args: any[]): Namespace;
     /**
      * Sends a `message` event to all clients.
      *

@@ -68,7 +68,7 @@ export class Namespace extends EventEmitter {
    * @return {Namespace} self
    */
   public use(
-    fn: (socket: Socket, next: (err: Error) => void) => void
+    fn: (socket: Socket, next: (err?: Error) => void) => void
   ): Namespace {
     this.fns.push(fn);
     return this;
@@ -175,13 +175,13 @@ export class Namespace extends EventEmitter {
    * @return {Namespace} self
    */
   // @ts-ignore
-  public emit(ev): Namespace {
+  public emit(ev: string, ...args: any[]): Namespace {
     if (~events.indexOf(ev)) {
       super.emit.apply(this, arguments);
       return this;
     }
     // set up packet object
-    const args = Array.prototype.slice.call(arguments);
+    args.unshift(ev);
     const packet = {
       type: (this.flags.binary !== undefined
       ? this.flags.binary

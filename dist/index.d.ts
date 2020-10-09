@@ -1,9 +1,8 @@
 /// <reference types="node" />
 import http from "http";
-import { Client } from "./client";
 import { EventEmitter } from "events";
 import { Namespace } from "./namespace";
-import { ParentNamespace } from "./parent-namespace";
+import { Room, SocketId } from "socket.io-adapter";
 import { Encoder } from "socket.io-parser";
 import { Socket } from "./socket";
 import { CookieSerializeOptions } from "cookie";
@@ -85,7 +84,7 @@ interface AttachOptions {
 }
 interface EngineAttachOptions extends EngineOptions, AttachOptions {
 }
-export interface ServerOptions extends EngineAttachOptions {
+interface ServerOptions extends EngineAttachOptions {
     /**
      * name of the path to capture (/socket.io)
      */
@@ -101,19 +100,19 @@ export interface ServerOptions extends EngineAttachOptions {
     /**
      * the allowed origins (*:*)
      */
-    origins: string | string[];
+    origins: string | string[] | ((origin: string, cb: (err: Error, allow: boolean) => void) => void);
     /**
      * the parser to use. Defaults to an instance of the Parser that ships with socket.io.
      */
     parser: any;
 }
-declare class Server extends EventEmitter {
+export declare class Server extends EventEmitter {
     readonly sockets: Namespace;
     /** @package */
     readonly parser: any;
     /** @package */
     readonly encoder: Encoder;
-    private nsps;
+    nsps: Map<string, Namespace>;
     private parentNsps;
     private _adapter;
     private _origins;
@@ -241,13 +240,79 @@ declare class Server extends EventEmitter {
      * @param {String|RegExp|Function} name nsp name
      * @param {Function} [fn] optional, nsp `connection` ev handler
      */
-    of(name: string | RegExp | ((name: string, query: object, fn: (err: Error, success: boolean) => void) => void), fn?: (socket: Socket) => void): Namespace | ParentNamespace;
+    of(name: string | RegExp | ((name: string, query: object, fn: (err: Error, success: boolean) => void) => void), fn?: (socket: Socket) => void): Namespace;
     /**
      * Closes server connection
      *
      * @param {Function} [fn] optional, called as `fn([err])` on error OR all conns closed
      */
-    close(fn: (err?: Error) => void): void;
+    close(fn?: (err?: Error) => void): void;
+    /**
+     * Sets up namespace middleware.
+     *
+     * @return {Server} self
+     * @public
+     */
+    use(fn: (socket: Socket, next: (err?: Error) => void) => void): Server;
+    /**
+     * Targets a room when emitting.
+     *
+     * @param {String} name
+     * @return {Server} self
+     * @public
+     */
+    to(name: Room): Server;
+    /**
+     * Targets a room when emitting.
+     *
+     * @param {String} name
+     * @return {Server} self
+     * @public
+     */
+    in(name: Room): Server;
+    /**
+     * Sends a `message` event to all clients.
+     *
+     * @return {Namespace} self
+     */
+    send(...args: any[]): Server;
+    /**
+     * Sends a `message` event to all clients.
+     *
+     * @return {Namespace} self
+     */
+    write(...args: any[]): Server;
+    /**
+     * Gets a list of socket ids.
+     */
+    allSockets(): Promise<Set<SocketId>>;
+    /**
+     * Sets the compress flag.
+     *
+     * @param {Boolean} compress - if `true`, compresses the sending data
+     * @return {Server} self
+     */
+    compress(compress: boolean): Server;
+    /**
+     * Sets the binary flag
+     *
+     * @param {Boolean} binary - encode as if it has binary data if `true`, Encode as if it doesnt have binary data if `false`
+     * @return {Server} self
+     */
+    binary(binary: boolean): Server;
+    /**
+     * Sets a modifier for a subsequent event emission that the event data may be lost if the client is not ready to
+     * receive messages (because of network slowness or other issues, or because they’re connected through long polling
+     * and is in the middle of a request-response cycle).
+     *
+     * @return {Server} self
+     */
+    get volatile(): Server;
+    /**
+     * Sets a modifier for a subsequent event emission that the event data will only be broadcast to the current node.
+     *
+     * @return {Server} self
+     */
+    get local(): Server;
 }
-export { Server, Namespace, ParentNamespace, Client };
-export * from "./socket";
+export {};
