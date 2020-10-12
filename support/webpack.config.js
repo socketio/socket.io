@@ -25,6 +25,7 @@ module.exports = {
     })()`,
   },
   mode: "development",
+  devtool: "source-map",
   node: {
     Buffer: false,
   },
