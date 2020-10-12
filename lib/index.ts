@@ -9,7 +9,6 @@ import { ParentNamespace } from "./parent-namespace";
 import { Adapter, Room, SocketId } from "socket.io-adapter";
 import * as parser from "socket.io-parser";
 import { Encoder } from "socket.io-parser";
-import url from "url";
 import debugModule from "debug";
 import { Socket } from "./socket";
 import { CookieSerializeOptions } from "cookie";
@@ -123,13 +122,6 @@ interface ServerOptions extends EngineAttachOptions {
    */
   adapter: any;
   /**
-   * the allowed origins (*:*)
-   */
-  origins:
-    | string
-    | string[]
-    | ((origin: string, cb: (err: Error, allow: boolean) => void) => void);
-  /**
    * the parser to use. Defaults to an instance of the Parser that ships with socket.io.
    */
   parser: any;
@@ -155,7 +147,6 @@ export class Server extends EventEmitter {
     ParentNamespace
   > = new Map();
   private _adapter;
-  private _origins;
   private _serveClient: boolean;
   private eio;
   private engine;
@@ -182,46 +173,8 @@ export class Server extends EventEmitter {
     this.parser = opts.parser || parser;
     this.encoder = new this.parser.Encoder();
     this.adapter(opts.adapter || Adapter);
-    this.origins(opts.origins || "*:*");
     this.sockets = this.of("/");
     if (srv) this.attach(srv, opts);
-  }
-
-  /**
-   * Server request verification function, that checks for allowed origins
-   *
-   * @param {http.IncomingMessage} req request
-   * @param {Function} fn callback to be called with the result: `fn(err, success)`
-   */
-  private checkRequest(
-    req: http.IncomingMessage,
-    fn: (err: Error, success: boolean) => void
-  ) {
-    let origin = req.headers.origin || req.headers.referer;
-
-    // file:// URLs produce a null Origin which can't be authorized via echo-back
-    if ("null" == origin || null == origin) origin = "*";
-
-    if (!!origin && typeof this._origins == "function")
-      return this._origins(origin, fn);
-    if (this._origins.indexOf("*:*") !== -1) return fn(null, true);
-    if (origin) {
-      try {
-        const parts: any = url.parse(origin);
-        const defaultPort = "https:" == parts.protocol ? 443 : 80;
-        parts.port = parts.port != null ? parts.port : defaultPort;
-        const ok =
-          ~this._origins.indexOf(
-            parts.protocol + "//" + parts.hostname + ":" + parts.port
-          ) ||
-          ~this._origins.indexOf(parts.hostname + ":" + parts.port) ||
-          ~this._origins.indexOf(parts.hostname + ":*") ||
-          ~this._origins.indexOf("*:" + parts.port);
-        debug("origin %s is %svalid", origin, !!ok ? "" : "not ");
-        return fn(null, !!ok);
-      } catch (ex) {}
-    }
-    fn(null, false);
   }
 
   /**
@@ -320,19 +273,6 @@ export class Server extends EventEmitter {
   }
 
   /**
-   * Sets the allowed origins for requests.
-   *
-   * @param {String|String[]} v origins
-   * @return {Server|Adapter} self when setting or value when getting
-   */
-  public origins(v) {
-    if (!arguments.length) return this._origins;
-
-    this._origins = v;
-    return this;
-  }
-
-  /**
    * Attaches socket.io to a server or port.
    *
    * @param {http.Server|Number} srv - server or port
@@ -379,8 +319,6 @@ export class Server extends EventEmitter {
 
     // set engine.io path to `/socket.io`
     opts.path = opts.path || this._path;
-    // set origins verification
-    opts.allowRequest = opts.allowRequest || this.checkRequest.bind(this);
 
     this.initEngine(srv, opts);
 

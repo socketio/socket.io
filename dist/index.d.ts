@@ -98,10 +98,6 @@ interface ServerOptions extends EngineAttachOptions {
      */
     adapter: any;
     /**
-     * the allowed origins (*:*)
-     */
-    origins: string | string[] | ((origin: string, cb: (err: Error, allow: boolean) => void) => void);
-    /**
      * the parser to use. Defaults to an instance of the Parser that ships with socket.io.
      */
     parser: any;
@@ -115,7 +111,6 @@ export declare class Server extends EventEmitter {
     nsps: Map<string, Namespace>;
     private parentNsps;
     private _adapter;
-    private _origins;
     private _serveClient;
     private eio;
     private engine;
@@ -130,13 +125,6 @@ export declare class Server extends EventEmitter {
     constructor(opts?: Partial<ServerOptions>);
     constructor(srv: http.Server, opts?: Partial<ServerOptions>);
     constructor(srv: number, opts?: Partial<ServerOptions>);
-    /**
-     * Server request verification function, that checks for allowed origins
-     *
-     * @param {http.IncomingMessage} req request
-     * @param {Function} fn callback to be called with the result: `fn(err, success)`
-     */
-    private checkRequest;
     /**
      * Sets/gets whether client code is being served.
      *
@@ -168,13 +156,6 @@ export declare class Server extends EventEmitter {
      * @return {Server|Adapter} self when setting or value when getting
      */
     adapter(v: any): any;
-    /**
-     * Sets the allowed origins for requests.
-     *
-     * @param {String|String[]} v origins
-     * @return {Server|Adapter} self when setting or value when getting
-     */
-    origins(v: any): any;
     /**
      * Attaches socket.io to a server or port.
      *

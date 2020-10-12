@@ -33,7 +33,6 @@ const namespace_1 = require("./namespace");
 const parent_namespace_1 = require("./parent-namespace");
 const socket_io_adapter_1 = require("socket.io-adapter");
 const parser = __importStar(require("socket.io-parser"));
-const url_1 = __importDefault(require("url"));
 const debug_1 = __importDefault(require("debug"));
 const debug = debug_1.default("socket.io:server");
 const clientVersion = require("socket.io-client/package.json").version;
@@ -56,41 +55,9 @@ class Server extends events_1.EventEmitter {
         this.parser = opts.parser || parser;
         this.encoder = new this.parser.Encoder();
         this.adapter(opts.adapter || socket_io_adapter_1.Adapter);
-        this.origins(opts.origins || "*:*");
         this.sockets = this.of("/");
         if (srv)
             this.attach(srv, opts);
-    }
-    /**
-     * Server request verification function, that checks for allowed origins
-     *
-     * @param {http.IncomingMessage} req request
-     * @param {Function} fn callback to be called with the result: `fn(err, success)`
-     */
-    checkRequest(req, fn) {
-        let origin = req.headers.origin || req.headers.referer;
-        // file:// URLs produce a null Origin which can't be authorized via echo-back
-        if ("null" == origin || null == origin)
-            origin = "*";
-        if (!!origin && typeof this._origins == "function")
-            return this._origins(origin, fn);
-        if (this._origins.indexOf("*:*") !== -1)
-            return fn(null, true);
-        if (origin) {
-            try {
-                const parts = url_1.default.parse(origin);
-                const defaultPort = "https:" == parts.protocol ? 443 : 80;
-                parts.port = parts.port != null ? parts.port : defaultPort;
-                const ok = ~this._origins.indexOf(parts.protocol + "//" + parts.hostname + ":" + parts.port) ||
-                    ~this._origins.indexOf(parts.hostname + ":" + parts.port) ||
-                    ~this._origins.indexOf(parts.hostname + ":*") ||
-                    ~this._origins.indexOf("*:" + parts.port);
-                debug("origin %s is %svalid", origin, !!ok ? "" : "not ");
-                return fn(null, !!ok);
-            }
-            catch (ex) { }
-        }
-        fn(null, false);
     }
     /**
      * Sets/gets whether client code is being served.
@@ -176,18 +143,6 @@ class Server extends events_1.EventEmitter {
         }
         return this;
     }
-    /**
-     * Sets the allowed origins for requests.
-     *
-     * @param {String|String[]} v origins
-     * @return {Server|Adapter} self when setting or value when getting
-     */
-    origins(v) {
-        if (!arguments.length)
-            return this._origins;
-        this._origins = v;
-        return this;
-    }
     listen(srv, opts = {}) {
         return this.attach(srv, opts);
     }
@@ -212,8 +167,6 @@ class Server extends events_1.EventEmitter {
         }
         // set engine.io path to `/socket.io`
         opts.path = opts.path || this._path;
-        // set origins verification
-        opts.allowRequest = opts.allowRequest || this.checkRequest.bind(this);
         this.initEngine(srv, opts);
         return this;
     }

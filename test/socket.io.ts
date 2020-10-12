@@ -124,121 +124,61 @@ describe("socket.io", () => {
   describe("handshake", () => {
     const request = require("superagent");
 
-    it("should disallow request when origin defined and none specified", done => {
-      const sockets = new Server({ origins: "http://foo.example:*" }).listen(
-        54013
-      );
+    it("should send the Access-Control-Allow-xxx headers on OPTIONS request", done => {
+      const sockets = new Server(54013, {
+        cors: {
+          origin: "http://localhost:54023",
+          methods: ["GET", "POST"],
+          allowedHeaders: ["content-type"],
+          credentials: true
+        }
+      });
       request
-        .get("http://localhost:54013/socket.io/default/")
+        .options("http://localhost:54013/socket.io/default/")
         .query({ transport: "polling" })
+        .set("Origin", "http://localhost:54023")
         .end((err, res) => {
-          expect(res.status).to.be(403);
+          expect(res.status).to.be(204);
+
+          expect(res.headers["access-control-allow-origin"]).to.be(
+            "http://localhost:54023"
+          );
+          expect(res.headers["access-control-allow-methods"]).to.be("GET,POST");
+          expect(res.headers["access-control-allow-headers"]).to.be(
+            "content-type"
+          );
+          expect(res.headers["access-control-allow-credentials"]).to.be("true");
           done();
         });
     });
 
-    it("should disallow request when origin defined and a different one specified", done => {
-      const sockets = new Server({ origins: "http://foo.example:*" }).listen(
-        54014
-      );
+    it("should send the Access-Control-Allow-xxx headers on GET request", done => {
+      const sockets = new Server(54014, {
+        cors: {
+          origin: "http://localhost:54024",
+          methods: ["GET", "POST"],
+          allowedHeaders: ["content-type"],
+          credentials: true
+        }
+      });
       request
         .get("http://localhost:54014/socket.io/default/")
         .query({ transport: "polling" })
-        .set("origin", "http://herp.derp")
-        .end((err, res) => {
-          expect(res.status).to.be(403);
-          done();
-        });
-    });
-
-    it("should allow request when origin defined an the same is specified", done => {
-      const sockets = new Server({ origins: "http://foo.example:*" }).listen(
-        54015
-      );
-      request
-        .get("http://localhost:54015/socket.io/default/")
-        .set("origin", "http://foo.example")
-        .query({ transport: "polling" })
+        .set("Origin", "http://localhost:54024")
         .end((err, res) => {
           expect(res.status).to.be(200);
-          done();
-        });
-    });
 
-    it("should allow request when origin defined as function and same is supplied", done => {
-      const sockets = new Server({
-        origins: (origin, callback) => {
-          if (origin == "http://foo.example") {
-            return callback(null, true);
-          }
-          return callback(null, false);
-        }
-      }).listen(54016);
-      request
-        .get("http://localhost:54016/socket.io/default/")
-        .set("origin", "http://foo.example")
-        .query({ transport: "polling" })
-        .end((err, res) => {
-          expect(res.status).to.be(200);
-          done();
-        });
-    });
-
-    it("should allow request when origin defined as function and different is supplied", done => {
-      const sockets = new Server({
-        origins: (origin, callback) => {
-          if (origin == "http://foo.example") {
-            return callback(null, true);
-          }
-          return callback(null, false);
-        }
-      }).listen(54017);
-      request
-        .get("http://localhost:54017/socket.io/default/")
-        .set("origin", "http://herp.derp")
-        .query({ transport: "polling" })
-        .end((err, res) => {
-          expect(res.status).to.be(403);
-          done();
-        });
-    });
-
-    it("should allow request when origin defined as function and no origin is supplied", done => {
-      const sockets = new Server({
-        origins: (origin, callback) => {
-          if (origin == "*") {
-            return callback(null, true);
-          }
-          return callback(null, false);
-        }
-      }).listen(54021);
-      request
-        .get("http://localhost:54021/socket.io/default/")
-        .query({ transport: "polling" })
-        .end((err, res) => {
-          expect(res.status).to.be(200);
-          done();
-        });
-    });
-
-    it("should default to port 443 when protocol is https", done => {
-      const sockets = new Server({ origins: "https://foo.example:443" }).listen(
-        54036
-      );
-      request
-        .get("http://localhost:54036/socket.io/default/")
-        .set("origin", "https://foo.example")
-        .query({ transport: "polling" })
-        .end((err, res) => {
-          expect(res.status).to.be(200);
+          expect(res.headers["access-control-allow-origin"]).to.be(
+            "http://localhost:54024"
+          );
+          expect(res.headers["access-control-allow-credentials"]).to.be("true");
           done();
         });
     });
 
     it("should allow request if custom function in opts.allowRequest returns true", done => {
       const sockets = new Server(createServer().listen(54022), {
-        allowRequest: (req, callback) => callback(null, true),
-        origins: "http://foo.example:*"
+        allowRequest: (req, callback) => callback(null, true)
       });
 
       request
@@ -260,18 +200,6 @@ describe("socket.io", () => {
         .query({ transport: "polling" })
         .end((err, res) => {
           expect(res.status).to.be(403);
-          done();
-        });
-    });
-
-    it("should allow request when using an array of origins", done => {
-      new Server({ origins: ["http://foo.example:54024"] }).listen(54024);
-      request
-        .get("http://localhost:54024/socket.io/default/")
-        .set("origin", "http://foo.example:54024")
-        .query({ transport: "polling" })
-        .end((err, res) => {
-          expect(res.status).to.be(200);
           done();
         });
     });
