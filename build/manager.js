@@ -77,19 +77,6 @@ class Manager extends component_emitter_1.default {
             this.open();
     }
     /**
-     * Propagate given event to sockets and emit on `this`
-     *
-     * @api private
-     */
-    emitAll(event, arg) {
-        super.emit(event, arg);
-        for (let nsp in this.nsps) {
-            if (has.call(this.nsps, nsp)) {
-                this.nsps[nsp].emit(event, arg);
-            }
-        }
-    }
-    /**
      * Sets the `reconnection` config.
      *
      * @param {Boolean} true/false if it should automatically reconnect
@@ -200,11 +187,11 @@ class Manager extends component_emitter_1.default {
             fn && fn();
         });
         // emit `connect_error`
-        const errorSub = on_1.on(socket, "error", function (data) {
+        const errorSub = on_1.on(socket, "error", (data) => {
             debug("connect_error");
             self.cleanup();
             self.readyState = "closed";
-            self.emitAll("connect_error", data);
+            super.emit("connect_error", data);
             if (fn) {
                 const err = new Error("Connection error");
                 // err.data = data;
@@ -223,12 +210,12 @@ class Manager extends component_emitter_1.default {
                 openSub.destroy(); // prevents a race condition with the 'open' event
             }
             // set timer
-            const timer = setTimeout(function () {
+            const timer = setTimeout(() => {
                 debug("connect attempt timed out after %d", timeout);
                 openSub.destroy();
                 socket.close();
                 socket.emit("error", "timeout");
-                self.emitAll("connect_timeout", timeout);
+                super.emit("connect_timeout", "timeout");
             }, timeout);
             this.subs.push({
                 destroy: function () {
@@ -241,60 +228,7 @@ class Manager extends component_emitter_1.default {
         return this;
     }
     connect(fn, opts) {
-        debug("readyState %s", this.readyState);
-        if (~this.readyState.indexOf("open"))
-            return this;
-        debug("opening %s", this.uri);
-        this.engine = engine_io_client_1.default(this.uri, this.opts);
-        const socket = this.engine;
-        const self = this;
-        this.readyState = "opening";
-        this.skipReconnect = false;
-        // emit `open`
-        const openSub = on_1.on(socket, "open", function () {
-            self.onopen();
-            fn && fn();
-        });
-        // emit `connect_error`
-        const errorSub = on_1.on(socket, "error", function (data) {
-            debug("connect_error");
-            self.cleanup();
-            self.readyState = "closed";
-            self.emitAll("connect_error", data);
-            if (fn) {
-                const err = new Error("Connection error");
-                // err.data = data;
-                fn(err);
-            }
-            else {
-                // Only do this if there is no fn to handle the error
-                self.maybeReconnectOnOpen();
-            }
-        });
-        // emit `connect_timeout`
-        if (false !== this._timeout) {
-            const timeout = this._timeout;
-            debug("connect attempt will timeout after %d", timeout);
-            if (timeout === 0) {
-                openSub.destroy(); // prevents a race condition with the 'open' event
-            }
-            // set timer
-            const timer = setTimeout(function () {
-                debug("connect attempt timed out after %d", timeout);
-                openSub.destroy();
-                socket.close();
-                socket.emit("error", "timeout");
-                self.emitAll("connect_timeout", timeout);
-            }, timeout);
-            this.subs.push({
-                destroy: function () {
-                    clearTimeout(timer);
-                },
-            });
-        }
-        this.subs.push(openSub);
-        this.subs.push(errorSub);
-        return this;
+        return this.open(fn, opts);
     }
     /**
      * Called upon transport open.
@@ -322,7 +256,7 @@ class Manager extends component_emitter_1.default {
      * @api private
      */
     onping() {
-        this.emitAll("ping");
+        super.emit("ping");
     }
     /**
      * Called with data.
@@ -347,7 +281,7 @@ class Manager extends component_emitter_1.default {
      */
     onerror(err) {
         debug("error", err);
-        this.emitAll("error", err);
+        super.emit("error", err);
     }
     /**
      * Creates a new socket for the given `nsp`.
@@ -476,28 +410,28 @@ class Manager extends component_emitter_1.default {
         if (this.backoff.attempts >= this._reconnectionAttempts) {
             debug("reconnect failed");
             this.backoff.reset();
-            this.emitAll("reconnect_failed");
+            super.emit("reconnect_failed");
             this.reconnecting = false;
         }
         else {
             const delay = this.backoff.duration();
             debug("will wait %dms before reconnect attempt", delay);
             this.reconnecting = true;
-            const timer = setTimeout(function () {
+            const timer = setTimeout(() => {
                 if (self.skipReconnect)
                     return;
                 debug("attempting reconnect");
-                self.emitAll("reconnect_attempt", self.backoff.attempts);
-                self.emitAll("reconnecting", self.backoff.attempts);
+                super.emit("reconnect_attempt", self.backoff.attempts);
+                super.emit("reconnecting", self.backoff.attempts);
                 // check again for the case socket closed in above events
                 if (self.skipReconnect)
                     return;
-                self.open(function (err) {
+                self.open((err) => {
                     if (err) {
                         debug("reconnect attempt error");
                         self.reconnecting = false;
                         self.reconnect();
-                        self.emitAll("reconnect_error", err.data);
+                        super.emit("reconnect_error", err.data);
                     }
                     else {
                         debug("reconnect success");
@@ -521,7 +455,7 @@ class Manager extends component_emitter_1.default {
         const attempt = this.backoff.attempts;
         this.reconnecting = false;
         this.backoff.reset();
-        this.emitAll("reconnect", attempt);
+        super.emit("reconnect", attempt);
     }
 }
 exports.Manager = Manager;

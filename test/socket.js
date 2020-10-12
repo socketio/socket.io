@@ -42,7 +42,7 @@ describe("socket", function () {
   it("doesn't fire a connect_error if we force disconnect in opening state", (done) => {
     const socket = io({ forceNew: true, timeout: 100 });
     socket.disconnect();
-    socket.on("connect_error", () => {
+    socket.io.on("connect_error", () => {
       throw new Error("Unexpected");
     });
     setTimeout(() => {
@@ -55,11 +55,11 @@ describe("socket", function () {
     socket.on("connect", () => {
       const id = socket.id;
 
-      socket.on("reconnect_attempt", () => {
+      socket.io.on("reconnect_attempt", () => {
         expect(socket.id).to.not.be.ok();
       });
 
-      socket.on("reconnect", () => {
+      socket.io.on("reconnect", () => {
         expect(socket.id).to.not.eql(id);
         socket.disconnect();
         done();

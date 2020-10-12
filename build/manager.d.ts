@@ -28,12 +28,6 @@ export declare class Manager extends Emitter {
      */
     constructor(uri: any, opts: any);
     /**
-     * Propagate given event to sockets and emit on `this`
-     *
-     * @api private
-     */
-    emitAll(event: string, arg?: any): void;
-    /**
      * Sets the `reconnection` config.
      *
      * @param {Boolean} true/false if it should automatically reconnect
@@ -87,8 +81,8 @@ export declare class Manager extends Emitter {
      * @return {Manager} self
      * @api public
      */
-    open(fn?: any, opts?: any): this;
-    connect(fn: any, opts: any): this;
+    open(fn?: any, opts?: any): Manager;
+    connect(fn: any, opts: any): Manager;
     /**
      * Called upon transport open.
      *

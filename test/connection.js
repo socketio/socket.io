@@ -158,7 +158,7 @@ describe("connection", function () {
         socket.disconnect();
       })
       .once("disconnect", () => {
-        socket.on("reconnect", () => {
+        socket.io.on("reconnect", () => {
           socket.disconnect();
           done();
         });
@@ -177,7 +177,7 @@ describe("connection", function () {
       reconnectionDelay: 10,
     });
     const socket = manager.socket("/timeout");
-    socket.once("reconnect_failed", () => {
+    manager.once("reconnect_failed", () => {
       let reconnects = 0;
       const reconnectCb = () => {
         reconnects++;
@@ -208,10 +208,10 @@ describe("connection", function () {
     let startTime;
     let prevDelay = 0;
 
-    socket.on("connect_error", () => {
+    manager.on("connect_error", () => {
       startTime = new Date().getTime();
     });
-    socket.on("reconnect_attempt", () => {
+    manager.on("reconnect_attempt", () => {
       reconnects++;
       const currentTime = new Date().getTime();
       const delay = currentTime - startTime;
@@ -221,7 +221,7 @@ describe("connection", function () {
       prevDelay = delay;
     });
 
-    socket.on("reconnect_failed", () => {
+    manager.on("reconnect_failed", () => {
       expect(reconnects).to.be(3);
       expect(increasingDelay).to.be.ok();
       socket.close();
@@ -230,27 +230,14 @@ describe("connection", function () {
     });
   });
 
-  it("reconnect event should fire in socket", (done) => {
-    const socket = io({ forceNew: true });
-
-    socket.on("reconnect", () => {
-      socket.disconnect();
-      done();
-    });
-
-    setTimeout(() => {
-      socket.io.engine.close();
-    }, 500);
-  });
-
   it("should not reconnect when force closed", (done) => {
     const socket = io("/invalid", {
       forceNew: true,
       timeout: 0,
       reconnectionDelay: 10,
     });
-    socket.on("connect_error", () => {
-      socket.on("reconnect_attempt", () => {
+    socket.io.once("connect_error", () => {
+      socket.io.on("reconnect_attempt", () => {
         expect().fail();
       });
       socket.disconnect();
@@ -267,8 +254,8 @@ describe("connection", function () {
       timeout: 0,
       reconnectionDelay: 10,
     });
-    socket.once("reconnect_attempt", () => {
-      socket.on("reconnect_attempt", () => {
+    socket.io.once("reconnect_attempt", () => {
+      socket.io.on("reconnect_attempt", () => {
         expect().fail();
       });
       socket.disconnect();
@@ -285,8 +272,8 @@ describe("connection", function () {
       timeout: 0,
       reconnectionDelay: 10,
     });
-    socket.once("reconnect_attempt", () => {
-      socket.on("reconnect_attempt", () => {
+    socket.io.once("reconnect_attempt", () => {
+      socket.io.on("reconnect_attempt", () => {
         socket.disconnect();
         done();
       });
@@ -344,7 +331,7 @@ describe("connection", function () {
     socket = manager.socket("/timeout");
   });
 
-  it("should fire reconnect_* events on socket", (done) => {
+  it("should fire reconnect_* events on manager", (done) => {
     const manager = new io.Manager({
       reconnection: true,
       timeout: 0,
@@ -359,8 +346,8 @@ describe("connection", function () {
       expect(attempts).to.be(reconnects);
     };
 
-    socket.on("reconnect_attempt", reconnectCb);
-    socket.on("reconnect_failed", () => {
+    manager.on("reconnect_attempt", reconnectCb);
+    manager.on("reconnect_failed", () => {
       expect(reconnects).to.be(2);
       socket.close();
       manager.close();
@@ -368,23 +355,7 @@ describe("connection", function () {
     });
   });
 
-  it("should fire error on socket", (done) => {
-    const manager = new io.Manager({ reconnection: true });
-    const socket = manager.socket("/timeout_socket");
-
-    socket.on("error", (data) => {
-      expect(data.code).to.be("test");
-      socket.close();
-      manager.close();
-      done();
-    });
-
-    socket.on("connect", () => {
-      manager.engine.onPacket({ type: "error", data: "test" });
-    });
-  });
-
-  it("should fire reconnecting (on socket) with attempts number when reconnecting twice", (done) => {
+  it("should fire reconnecting (on manager) with attempts number when reconnecting twice", (done) => {
     const manager = new io.Manager({
       reconnection: true,
       timeout: 0,
@@ -399,8 +370,8 @@ describe("connection", function () {
       expect(attempts).to.be(reconnects);
     };
 
-    socket.on("reconnecting", reconnectCb);
-    socket.on("reconnect_failed", () => {
+    manager.on("reconnecting", reconnectCb);
+    manager.on("reconnect_failed", () => {
       expect(reconnects).to.be(2);
       socket.close();
       manager.close();
