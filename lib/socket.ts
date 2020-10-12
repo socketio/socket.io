@@ -91,7 +91,6 @@ export class Socket extends Emitter {
     this.subEvents();
     if (!this.io.reconnecting) this.io.open(); // ensure open
     if ("open" === this.io.readyState) this.onopen();
-    super.emit("connecting");
     return this;
   }
 
@@ -101,7 +100,6 @@ export class Socket extends Emitter {
     this.subEvents();
     if (!this.io.reconnecting) this.io.open(); // ensure open
     if ("open" === this.io.readyState) this.onopen();
-    super.emit("connecting");
     return this;
   }
 
