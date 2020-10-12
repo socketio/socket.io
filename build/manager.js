@@ -49,7 +49,6 @@ class Manager extends component_emitter_1.default {
         this.nsps = {};
         this.subs = [];
         this.connecting = [];
-        this.packetBuffer = [];
         if (uri && "object" === typeof uri) {
             opts = uri;
             uri = undefined;
@@ -70,7 +69,6 @@ class Manager extends component_emitter_1.default {
         this.timeout(null == opts.timeout ? 20000 : opts.timeout);
         this.readyState = "closed";
         this.uri = uri;
-        this.encoding = false;
         const _parser = opts.parser || parser;
         this.encoder = new _parser.Encoder();
         this.decoder = new _parser.Decoder();
@@ -399,31 +397,9 @@ class Manager extends component_emitter_1.default {
         debug("writing packet %j", packet);
         if (packet.query && packet.type === 0)
             packet.nsp += "?" + packet.query;
-        if (!this.encoding) {
-            // encode, then write to engine with result
-            this.encoding = true;
-            const encodedPackets = this.encoder.encode(packet);
-            for (let i = 0; i < encodedPackets.length; i++) {
-                this.engine.write(encodedPackets[i], packet.options);
-            }
-            this.encoding = false;
-            this.processPacketQueue();
-        }
-        else {
-            // add packet to the queue
-            this.packetBuffer.push(packet);
-        }
-    }
-    /**
-     * If packet buffer is non-empty, begins encoding the
-     * next packet in line.
-     *
-     * @api private
-     */
-    processPacketQueue() {
-        if (this.packetBuffer.length > 0 && !this.encoding) {
-            const pack = this.packetBuffer.shift();
-            this.packet(pack);
+        const encodedPackets = this.encoder.encode(packet);
+        for (let i = 0; i < encodedPackets.length; i++) {
+            this.engine.write(encodedPackets[i], packet.options);
         }
     }
     /**
@@ -438,8 +414,6 @@ class Manager extends component_emitter_1.default {
             const sub = this.subs.shift();
             sub.destroy();
         }
-        this.packetBuffer = [];
-        this.encoding = false;
         this.decoder.destroy();
     }
     /**

@@ -15,8 +15,6 @@ export declare class Manager extends Emitter {
     private _reconnectionDelayMax;
     private _timeout;
     private connecting;
-    private encoding;
-    private packetBuffer;
     private encoder;
     private decoder;
     private engine;
@@ -141,13 +139,6 @@ export declare class Manager extends Emitter {
      * @api private
      */
     packet(packet: any): void;
-    /**
-     * If packet buffer is non-empty, begins encoding the
-     * next packet in line.
-     *
-     * @api private
-     */
-    processPacketQueue(): void;
     /**
      * Clean up transport subscriptions and packet buffer.
      *
