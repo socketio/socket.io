@@ -13,7 +13,17 @@
     "dist/",
     "build/"
   ],
+  "type": "commonjs",
   "main": "./build/index.js",
+  "exports": {
+    "./package.json": "./package.json",
+    "./dist/socket.io.js": "./dist/socket.io.js",
+    "./dist/socket.io.js.map": "./dist/socket.io.js.map",
+    ".": {
+      "import": "./wrapper.mjs",
+      "require": "./build/index.js"
+    }
+  },
   "types": "./build/index.d.ts",
   "dependencies": {
     "backo2": "1.0.2",
