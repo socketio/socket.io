@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Socket = void 0;
+exports.Socket = exports.RESERVED_EVENTS = void 0;
 const events_1 = require("events");
 const socket_io_parser_1 = require("socket.io-parser");
 const has_binary2_1 = __importDefault(require("has-binary2"));
@@ -11,17 +11,15 @@ const url_1 = __importDefault(require("url"));
 const debug_1 = __importDefault(require("debug"));
 const base64id_1 = __importDefault(require("base64id"));
 const debug = debug_1.default("socket.io:socket");
-/**
- * Blacklisted events.
- */
-const events = [
+exports.RESERVED_EVENTS = new Set([
     "error",
     "connect",
     "disconnect",
     "disconnecting",
+    // EventEmitter reserved events: https://nodejs.org/api/events.html#events_event_newlistener
     "newListener",
     "removeListener"
-];
+]);
 class Socket extends events_1.EventEmitter {
     /**
      * Interface to a `Client` for a given `Namespace`.
@@ -69,12 +67,11 @@ class Socket extends events_1.EventEmitter {
      * @return {Socket} self
      */
     // @ts-ignore
-    emit(ev) {
-        if (~events.indexOf(ev)) {
-            super.emit.apply(this, arguments);
-            return this;
+    emit(ev, ...args) {
+        if (exports.RESERVED_EVENTS.has(ev)) {
+            throw new Error(`"${ev}" is a reserved event name`);
         }
-        const args = Array.prototype.slice.call(arguments);
+        args.unshift(ev);
         const packet = {
             type: (this.flags.binary !== undefined
                 ? this.flags.binary

@@ -693,6 +693,14 @@ describe("socket.io", () => {
       });
     });
 
+    it("should throw on reserved event", () => {
+      const sio = new Server();
+
+      expect(() => sio.emit("connect")).to.throwException(
+        /"connect" is a reserved event name/
+      );
+    });
+
     describe("dynamic namespaces", () => {
       it("should allow connections to dynamic namespaces with a regex", done => {
         const srv = createServer();
@@ -1654,6 +1662,22 @@ describe("socket.io", () => {
           s.join("a", () => {
             s.join("a", done);
           });
+        });
+      });
+    });
+
+    it("should throw on reserved event", done => {
+      const srv = createServer();
+      const sio = new Server(srv);
+
+      srv.listen(() => {
+        const socket = client(srv);
+        sio.on("connection", s => {
+          expect(() => s.emit("error")).to.throwException(
+            /"error" is a reserved event name/
+          );
+          socket.close();
+          done();
         });
       });
     });

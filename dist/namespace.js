@@ -10,14 +10,6 @@ const socket_io_parser_1 = require("socket.io-parser");
 const has_binary2_1 = __importDefault(require("has-binary2"));
 const debug_1 = __importDefault(require("debug"));
 const debug = debug_1.default("socket.io:namespace");
-/**
- * Blacklisted events.
- */
-const events = [
-    "connect",
-    "connection",
-    "newListener"
-];
 class Namespace extends events_1.EventEmitter {
     /**
      * Namespace constructor.
@@ -158,9 +150,8 @@ class Namespace extends events_1.EventEmitter {
      */
     // @ts-ignore
     emit(ev, ...args) {
-        if (~events.indexOf(ev)) {
-            super.emit.apply(this, arguments);
-            return this;
+        if (socket_1.RESERVED_EVENTS.has(ev)) {
+            throw new Error(`"${ev}" is a reserved event name`);
         }
         // set up packet object
         args.unshift(ev);

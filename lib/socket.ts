@@ -12,18 +12,15 @@ import base64id from "base64id";
 
 const debug = debugModule("socket.io:socket");
 
-/**
- * Blacklisted events.
- */
-
-const events = [
+export const RESERVED_EVENTS = new Set([
   "error",
   "connect",
   "disconnect",
   "disconnecting",
+  // EventEmitter reserved events: https://nodejs.org/api/events.html#events_event_newlistener
   "newListener",
   "removeListener"
-];
+]);
 
 /**
  * The handshake details
@@ -133,13 +130,11 @@ export class Socket extends EventEmitter {
    * @return {Socket} self
    */
   // @ts-ignore
-  public emit(ev) {
-    if (~events.indexOf(ev)) {
-      super.emit.apply(this, arguments);
-      return this;
+  public emit(ev: string, ...args: any[]) {
+    if (RESERVED_EVENTS.has(ev)) {
+      throw new Error(`"${ev}" is a reserved event name`);
     }
-
-    const args = Array.prototype.slice.call(arguments);
+    args.unshift(ev);
     const packet: any = {
       type: (this.flags.binary !== undefined
       ? this.flags.binary

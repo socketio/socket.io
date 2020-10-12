@@ -1,4 +1,4 @@
-import { Socket } from "./socket";
+import { Socket, RESERVED_EVENTS } from "./socket";
 import { Server } from "./index";
 import { Client } from "./client";
 import { EventEmitter } from "events";
@@ -8,16 +8,6 @@ import debugModule from "debug";
 import { Adapter, Room, SocketId } from "socket.io-adapter";
 
 const debug = debugModule("socket.io:namespace");
-
-/**
- * Blacklisted events.
- */
-
-const events = [
-  "connect", // for symmetry with client
-  "connection",
-  "newListener"
-];
 
 export class Namespace extends EventEmitter {
   public readonly name: string;
@@ -176,9 +166,8 @@ export class Namespace extends EventEmitter {
    */
   // @ts-ignore
   public emit(ev: string, ...args: any[]): Namespace {
-    if (~events.indexOf(ev)) {
-      super.emit.apply(this, arguments);
-      return this;
+    if (RESERVED_EVENTS.has(ev)) {
+      throw new Error(`"${ev}" is a reserved event name`);
     }
     // set up packet object
     args.unshift(ev);

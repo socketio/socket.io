@@ -4,6 +4,7 @@ import { Client } from "./client";
 import { Namespace } from "./namespace";
 import { IncomingMessage } from "http";
 import { Room, SocketId } from "socket.io-adapter";
+export declare const RESERVED_EVENTS: Set<string>;
 /**
  * The handshake details
  */
@@ -76,7 +77,7 @@ export declare class Socket extends EventEmitter {
      *
      * @return {Socket} self
      */
-    emit(ev: any): this;
+    emit(ev: string, ...args: any[]): this;
     /**
      * Targets a room when broadcasting.
      *
