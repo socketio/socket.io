@@ -790,7 +790,7 @@ describe("socket.io", () => {
           srv.close();
         });
 
-        clientSocket.on("reconnect_failed", () => {
+        clientSocket.io.on("reconnect_failed", () => {
           done();
         });
       });
@@ -1516,7 +1516,7 @@ describe("socket.io", () => {
         });
         clientSocket.once("connect", () => {
           srv.close(() => {
-            clientSocket.on("reconnect", () => {
+            clientSocket.io.on("reconnect", () => {
               clientSocket.emit("ev", "payload");
             });
             sio.listen(port);
