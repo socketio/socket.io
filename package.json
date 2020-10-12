@@ -1,6 +1,6 @@
 {
   "name": "socket.io-parser",
-  "version": "4.0.0",
+  "version": "4.0.1-rc1",
   "description": "socket.io protocol parser",
   "repository": {
     "type": "git",
@@ -36,7 +36,8 @@
     "test:node": "mocha --reporter dot --bail test/index.js",
     "test:browser": "zuul test/index.js --no-coverage",
     "format:fix": "prettier --write --parser typescript 'lib/**/*.ts' 'test/**/*.js'",
-    "format:check": "prettier --check --parser typescript 'lib/**/*.ts' 'test/**/*.js'"
+    "format:check": "prettier --check --parser typescript 'lib/**/*.ts' 'test/**/*.js'",
+    "prepack": "tsc"
   },
   "license": "MIT",
   "engines": {

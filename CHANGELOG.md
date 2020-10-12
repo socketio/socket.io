@@ -1,3 +1,12 @@
+## [4.0.1-rc1](https://github.com/socketio/socket.io-parser/compare/4.0.0...4.0.1-rc1) (2020-10-12)
+
+
+### Features
+
+* add support for a payload in a CONNECT packet ([78f9fc2](https://github.com/socketio/socket.io-parser/commit/78f9fc2999b15804b02f2c22a2b4007734a26af9))
+
+
+
 ## [3.3.1](https://github.com/socketio/socket.io-parser/compare/3.3.0...3.3.1) (2020-09-30)
 
 
