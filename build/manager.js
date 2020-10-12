@@ -187,14 +187,12 @@ class Manager extends component_emitter_1.default {
             fn && fn();
         });
         // emit `connect_error`
-        const errorSub = on_1.on(socket, "error", (data) => {
+        const errorSub = on_1.on(socket, "error", (err) => {
             debug("connect_error");
             self.cleanup();
             self.readyState = "closed";
-            super.emit("connect_error", data);
+            super.emit("connect_error", err);
             if (fn) {
-                const err = new Error("Connection error");
-                // err.data = data;
                 fn(err);
             }
             else {
@@ -215,7 +213,7 @@ class Manager extends component_emitter_1.default {
                 openSub.destroy();
                 socket.close();
                 socket.emit("error", "timeout");
-                super.emit("connect_timeout", "timeout");
+                super.emit("connect_error", new Error("timeout"));
             }, timeout);
             this.subs.push({
                 destroy: function () {
@@ -431,7 +429,7 @@ class Manager extends component_emitter_1.default {
                         debug("reconnect attempt error");
                         self.reconnecting = false;
                         self.reconnect();
-                        super.emit("reconnect_error", err.data);
+                        super.emit("reconnect_error", err);
                     }
                     else {
                         debug("reconnect success");

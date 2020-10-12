@@ -192,14 +192,12 @@ export class Manager extends Emitter {
     });
 
     // emit `connect_error`
-    const errorSub = on(socket, "error", (data) => {
+    const errorSub = on(socket, "error", (err) => {
       debug("connect_error");
       self.cleanup();
       self.readyState = "closed";
-      super.emit("connect_error", data);
+      super.emit("connect_error", err);
       if (fn) {
-        const err = new Error("Connection error");
-        // err.data = data;
         fn(err);
       } else {
         // Only do this if there is no fn to handle the error
@@ -222,7 +220,7 @@ export class Manager extends Emitter {
         openSub.destroy();
         socket.close();
         socket.emit("error", "timeout");
-        super.emit("connect_timeout", "timeout");
+        super.emit("connect_error", new Error("timeout"));
       }, timeout);
 
       this.subs.push({
@@ -464,7 +462,7 @@ export class Manager extends Emitter {
             debug("reconnect attempt error");
             self.reconnecting = false;
             self.reconnect();
-            super.emit("reconnect_error", err.data);
+            super.emit("reconnect_error", err);
           } else {
             debug("reconnect success");
             self.onreconnect();

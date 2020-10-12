@@ -82,7 +82,6 @@ class Socket extends component_emitter_1.default {
             this.io.open(); // ensure open
         if ("open" === this.io.readyState)
             this.onopen();
-        super.emit("connecting");
         return this;
     }
     connect() {
@@ -93,7 +92,6 @@ class Socket extends component_emitter_1.default {
             this.io.open(); // ensure open
         if ("open" === this.io.readyState)
             this.onopen();
-        super.emit("connecting");
         return this;
     }
     /**
