@@ -9,26 +9,20 @@ import { Manager } from "./manager";
 const debug = require("debug")("socket.io-client:socket");
 
 /**
- * Internal events (blacklisted).
+ * Internal events.
  * These events can't be emitted by the user.
  *
  * @api private
  */
 
-const events = {
+const RESERVED_EVENTS = {
   connect: 1,
-  connect_error: 1,
-  connect_timeout: 1,
-  connecting: 1,
   disconnect: 1,
+  disconnecting: 1,
   error: 1,
-  reconnect: 1,
-  reconnect_attempt: 1,
-  reconnect_failed: 1,
-  reconnect_error: 1,
-  reconnecting: 1,
-  ping: 1,
-  pong: 1,
+  // EventEmitter reserved events: https://nodejs.org/api/events.html#events_event_newlistener
+  newListener: 1,
+  removeListener: 1,
 };
 
 export class Socket extends Emitter {
@@ -97,7 +91,7 @@ export class Socket extends Emitter {
     this.subEvents();
     if (!this.io.reconnecting) this.io.open(); // ensure open
     if ("open" === this.io.readyState) this.onopen();
-    this.emit("connecting");
+    super.emit("connecting");
     return this;
   }
 
@@ -107,7 +101,7 @@ export class Socket extends Emitter {
     this.subEvents();
     if (!this.io.reconnecting) this.io.open(); // ensure open
     if ("open" === this.io.readyState) this.onopen();
-    this.emit("connecting");
+    super.emit("connecting");
     return this;
   }
 
@@ -133,9 +127,8 @@ export class Socket extends Emitter {
    * @api public
    */
   emit(ev) {
-    if (events.hasOwnProperty(ev)) {
-      super.emit.apply(this, arguments);
-      return this;
+    if (RESERVED_EVENTS.hasOwnProperty(ev)) {
+      throw new Error('"' + ev + '" is a reserved event name');
     }
 
     const args = toArray(arguments);
@@ -324,7 +317,7 @@ export class Socket extends Emitter {
     this.id = id;
     this.connected = true;
     this.disconnected = false;
-    this.emit("connect");
+    super.emit("connect");
     this.emitBuffered();
   }
 

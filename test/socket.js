@@ -182,4 +182,12 @@ describe("socket", function () {
       done();
     });
   });
+
+  it("should throw on reserved event", () => {
+    const socket = io("/no", { forceNew: true });
+
+    expect(() => socket.emit("disconnecting", "goodbye")).to.throwException(
+      /"disconnecting" is a reserved event name/
+    );
+  });
 });
