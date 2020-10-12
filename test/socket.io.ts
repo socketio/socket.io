@@ -28,12 +28,12 @@ function client(srv, nsp?: string | object, opts?: object) {
 describe("socket.io", () => {
   it.skip("should be the same version as client", () => {
     const version = require("../package").version;
-    expect(version).to.be(require("socket.io-client/package").version);
+    expect(version).to.be(require("socket.io-client/package.json").version);
   });
 
   describe("server attachment", () => {
     describe("http.Server", () => {
-      const clientVersion = require("socket.io-client/package").version;
+      const clientVersion = require("socket.io-client/package.json").version;
 
       it("should serve static files", done => {
         const srv = createServer();
