@@ -1,6 +1,6 @@
 {
   "name": "socket.io-client",
-  "version": "2.3.1",
+  "version": "3.0.0-rc1",
   "keywords": [
     "realtime",
     "framework",
@@ -34,7 +34,7 @@
     "has-binary2": "~1.0.2",
     "indexof": "0.0.1",
     "parseuri": "0.0.6",
-    "socket.io-parser": "github:socketio/socket.io-parser#develop",
+    "socket.io-parser": "4.0.1-rc1",
     "to-array": "0.1.4"
   },
   "devDependencies": {
@@ -54,7 +54,7 @@
     "istanbul": "^0.4.5",
     "mocha": "^3.3.0",
     "prettier": "^2.1.2",
-    "socket.io": "github:socketio/socket.io#develop",
+    "socket.io": "3.0.0-rc1",
     "socket.io-browsers": "^1.0.0",
     "text-blob-builder": "0.0.1",
     "typescript": "^4.0.3",
@@ -66,12 +66,14 @@
     "zuul-ngrok": "4.0.0"
   },
   "scripts": {
-    "test": "npm run format:check && tsc && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
+    "compile": "tsc",
+    "test": "npm run format:check && npm run compile if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
     "test:node": "mocha --reporter dot --require test/support/server.js test/index.js",
     "test:browser": "zuul test/index.js",
-    "build": "webpack --config ./support/webpack.config.js --config ./support/prod.config.js",
+    "build": "npm run compile && webpack --config ./support/webpack.config.js --config ./support/prod.config.js",
     "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'",
-    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'"
+    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'",
+    "prepack": "npm run compile"
   },
   "contributors": [
     {
@@ -95,5 +97,8 @@
     "type": "git",
     "url": "https://github.com/Automattic/socket.io-client.git"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=10.0.0"
+  }
 }
