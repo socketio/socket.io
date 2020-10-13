@@ -67,7 +67,7 @@
   },
   "scripts": {
     "compile": "tsc",
-    "test": "npm run format:check && npm run compile if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
+    "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
     "test:node": "mocha --reporter dot --require test/support/server.js test/index.js",
     "test:browser": "zuul test/index.js",
     "build": "npm run compile && webpack --config ./support/webpack.config.js --config ./support/prod.config.js",
