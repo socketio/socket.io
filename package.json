@@ -12,7 +12,8 @@
     "io"
   ],
   "files": [
-    "dist/"
+    "dist/",
+    "./wrapper.mjs"
   ],
   "type": "commonjs",
   "main": "./dist/index.js",
