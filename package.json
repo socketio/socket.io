@@ -11,7 +11,8 @@
   ],
   "files": [
     "dist/",
-    "build/"
+    "build/",
+    "./wrapper.mjs"
   ],
   "type": "commonjs",
   "main": "./build/index.js",
