@@ -1,6 +1,6 @@
 {
   "name": "socket.io",
-  "version": "2.3.0",
+  "version": "3.0.0-rc1",
   "description": "node.js realtime framework server",
   "keywords": [
     "realtime",
@@ -29,7 +29,8 @@
   "scripts": {
     "test": "npm run format:check && tsc && nyc mocha --require ts-node/register --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.ts",
     "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.ts'",
-    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.ts'"
+    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.ts'",
+    "prepack": "tsc"
   },
   "dependencies": {
     "base64id": "~2.0.0",
@@ -37,8 +38,8 @@
     "engine.io": "~4.0.0",
     "has-binary2": "~1.0.2",
     "socket.io-adapter": "~2.0.1",
-    "socket.io-client": "github:socketio/socket.io-client#develop",
-    "socket.io-parser": "github:socketio/socket.io-parser#develop"
+    "socket.io-client": "3.0.0-rc1",
+    "socket.io-parser": "4.0.1-rc1"
   },
   "devDependencies": {
     "@types/cookie": "^0.4.0",
