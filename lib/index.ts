@@ -10,7 +10,7 @@ const debug = require("debug")("socket.io-parser");
  * @public
  */
 
-export const protocol: number = 4;
+export const protocol: number = 5;
 
 export enum PacketType {
   CONNECT,
