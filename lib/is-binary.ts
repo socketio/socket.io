@@ -1,5 +1,3 @@
-const withNativeBuffer: boolean =
-  typeof Buffer === "function" && typeof Buffer.isBuffer === "function";
 const withNativeArrayBuffer: boolean = typeof ArrayBuffer === "function";
 
 const isView = (obj: any) => {
@@ -24,11 +22,45 @@ const withNativeFile =
  * @private
  */
 
-export default function isBinary(obj: any) {
+export function isBinary(obj: any) {
   return (
-    (withNativeBuffer && Buffer.isBuffer(obj)) ||
     (withNativeArrayBuffer && (obj instanceof ArrayBuffer || isView(obj))) ||
     (withNativeBlob && obj instanceof Blob) ||
     (withNativeFile && obj instanceof File)
   );
+}
+
+export function hasBinary(obj: any, toJSON?: boolean) {
+  if (!obj || typeof obj !== "object") {
+    return false;
+  }
+
+  if (Array.isArray(obj)) {
+    for (let i = 0, l = obj.length; i < l; i++) {
+      if (hasBinary(obj[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  if (isBinary(obj)) {
+    return true;
+  }
+
+  if (
+    obj.toJSON &&
+    typeof obj.toJSON === "function" &&
+    arguments.length === 1
+  ) {
+    return hasBinary(obj.toJSON(), true);
+  }
+
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key) && hasBinary(obj[key])) {
+      return true;
+    }
+  }
+
+  return false;
 }

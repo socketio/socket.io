@@ -24,7 +24,7 @@ describe("parser", () => {
     }
 
     const packet = {
-      type: PacketType.BINARY_EVENT,
+      type: PacketType.EVENT,
       data: ["a", data],
       id: 0,
       nsp: "/",
@@ -43,7 +43,7 @@ describe("parser", () => {
     }
 
     const packet = {
-      type: PacketType.BINARY_EVENT,
+      type: PacketType.EVENT,
       data: ["a", { a: "hi", b: { why: data }, c: "bye" }],
       id: 999,
       nsp: "/deep",
@@ -62,7 +62,7 @@ describe("parser", () => {
     }
 
     const packet = {
-      type: PacketType.BINARY_ACK,
+      type: PacketType.ACK,
       data: [{ a: "hi ack", b: { why: data }, c: "bye ack" }],
       id: 999,
       nsp: "/deep",

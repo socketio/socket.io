@@ -1,6 +1,6 @@
-import Emitter from "component-emitter";
+import Emitter = require("component-emitter");
 import { deconstructPacket, reconstructPacket } from "./binary";
-import isBinary from "./is-binary";
+import { isBinary, hasBinary } from "./is-binary";
 
 const debug = require("debug")("socket.io-parser");
 
@@ -44,15 +44,16 @@ export class Encoder {
   public encode(obj: Packet) {
     debug("encoding packet %j", obj);
 
-    if (
-      obj.type === PacketType.BINARY_EVENT ||
-      obj.type === PacketType.BINARY_ACK
-    ) {
-      return this.encodeAsBinary(obj);
-    } else {
-      const encoding = this.encodeAsString(obj);
-      return [encoding];
+    if (obj.type === PacketType.EVENT || obj.type === PacketType.ACK) {
+      if (hasBinary(obj)) {
+        obj.type =
+          obj.type === PacketType.EVENT
+            ? PacketType.BINARY_EVENT
+            : PacketType.BINARY_ACK;
+        return this.encodeAsBinary(obj);
+      }
     }
+    return [this.encodeAsString(obj)];
   }
 
   /**

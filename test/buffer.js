@@ -5,7 +5,7 @@ describe("parser", () => {
   it("encodes a Buffer", (done) => {
     helpers.test_bin(
       {
-        type: PacketType.BINARY_EVENT,
+        type: PacketType.EVENT,
         data: ["a", Buffer.from("abc", "utf8")],
         id: 23,
         nsp: "/cool",
@@ -17,7 +17,7 @@ describe("parser", () => {
   it("encodes a binary ack with Buffer", (done) => {
     helpers.test_bin(
       {
-        type: PacketType.BINARY_ACK,
+        type: PacketType.ACK,
         data: ["a", Buffer.from("xxx", "utf8"), {}],
         id: 127,
         nsp: "/back",
