@@ -27,6 +27,7 @@
   },
   "types": "./build/index.d.ts",
   "dependencies": {
+    "@types/component-emitter": "^1.2.10",
     "backo2": "1.0.2",
     "component-bind": "1.0.0",
     "component-emitter": "~1.3.0",
@@ -35,14 +36,14 @@
     "has-binary2": "~1.0.2",
     "indexof": "0.0.1",
     "parseuri": "0.0.6",
-    "socket.io-parser": "4.0.1-rc1",
-    "to-array": "0.1.4"
+    "socket.io-parser": "4.0.1-rc1"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",
     "@babel/plugin-transform-object-assign": "^7.10.4",
     "@babel/preset-env": "^7.11.5",
-    "@types/node": "^14.11.2",
+    "@types/mocha": "^8.0.3",
+    "@types/node": "^14.11.8",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
     "babel-preset-es2015": "6.24.1",
@@ -58,6 +59,8 @@
     "socket.io": "3.0.0-rc1",
     "socket.io-browsers": "^1.0.0",
     "text-blob-builder": "0.0.1",
+    "ts-loader": "^8.0.5",
+    "ts-node": "^9.0.0",
     "typescript": "^4.0.3",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",
@@ -69,11 +72,11 @@
   "scripts": {
     "compile": "tsc",
     "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
-    "test:node": "mocha --reporter dot --require test/support/server.js test/index.js",
+    "test:node": "mocha --require ts-node/register --reporter dot --require test/support/server.js test/index.js",
     "test:browser": "zuul test/index.js",
     "build": "npm run compile && webpack --config ./support/webpack.config.js --config ./support/prod.config.js",
-    "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'",
-    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'",
+    "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js' 'test/**/*.ts' 'support/**/*.js'",
+    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js' 'test/**/*.ts' 'support/**/*.js'",
     "prepack": "npm run compile"
   },
   "contributors": [

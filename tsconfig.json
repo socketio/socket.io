@@ -5,7 +5,7 @@
     "target": "es2017",
     "module": "commonjs",
     "declaration": true,
-    "esModuleInterop": true
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "./lib/**/*"

@@ -5,8 +5,8 @@ if (global.mocha) {
   global.mocha.globals(["___eio", "eio_iframe_*"]);
 }
 
-require("./url");
+require("./url.ts");
 
 // browser only tests
-require("./connection");
-require("./socket");
+require("./connection.ts");
+require("./socket.ts");

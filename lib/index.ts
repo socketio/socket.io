@@ -1,6 +1,6 @@
 import { url } from "./url";
-import { Manager } from "./manager";
-import { Socket } from "./socket";
+import { Manager, ManagerOptions } from "./manager";
+import { Socket, SocketOptions } from "./socket";
 
 const debug = require("debug")("socket.io-client");
 
@@ -25,10 +25,14 @@ const cache = (exports.managers = {});
  * We reuse the existing instance based on same scheme/port/host,
  * and we initialize sockets for each namespace.
  *
- * @api public
+ * @public
  */
-
-function lookup(uri, opts): Socket {
+function lookup(opts?: Partial<ManagerOptions | SocketOptions>): Socket;
+function lookup(
+  uri: string,
+  opts?: Partial<ManagerOptions | SocketOptions>
+): Socket;
+function lookup(uri: any, opts?: any): Socket {
   if (typeof uri === "object") {
     opts = uri;
     uri = undefined;
@@ -68,7 +72,7 @@ function lookup(uri, opts): Socket {
 /**
  * Protocol version.
  *
- * @api public
+ * @public
  */
 
 export { protocol } from "socket.io-parser";
@@ -77,7 +81,7 @@ export { protocol } from "socket.io-parser";
  * `connect`.
  *
  * @param {String} uri
- * @api public
+ * @public
  */
 
 exports.connect = lookup;
@@ -85,8 +89,8 @@ exports.connect = lookup;
 /**
  * Expose constructors for standalone build.
  *
- * @api public
+ * @public
  */
 
 export { Manager } from "./manager";
-export { Socket } from "./socket";
+export { lookup as io };

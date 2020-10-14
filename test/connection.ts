@@ -1,8 +1,8 @@
-const expect = require("expect.js");
-const io = require("../");
-const hasCORS = require("has-cors");
-const textBlobBuilder = require("text-blob-builder");
-const env = require("./support/env");
+import * as expect from "expect.js";
+import { io, Manager } from "..";
+import * as hasCORS from "has-cors";
+import * as textBlobBuilder from "text-blob-builder";
+import * as env from "./support/env";
 
 describe("connection", function () {
   this.timeout(70000);
@@ -94,21 +94,21 @@ describe("connection", function () {
   });
 
   it("should connect to a namespace after connection established", (done) => {
-    const manager = new io.Manager();
+    const manager = new Manager();
     const socket = manager.socket("/");
     socket.on("connect", () => {
       const foo = manager.socket("/foo");
       foo.on("connect", () => {
         foo.close();
         socket.close();
-        manager.close();
+        manager._close();
         done();
       });
     });
   });
 
   it("should open a new namespace after connection gets closed", (done) => {
-    const manager = new io.Manager();
+    const manager = new Manager();
     const socket = manager.socket("/");
     socket
       .on("connect", () => {
@@ -118,7 +118,7 @@ describe("connection", function () {
         const foo = manager.socket("/foo");
         foo.on("connect", () => {
           foo.disconnect();
-          manager.close();
+          manager._close();
           done();
         });
       });
@@ -170,7 +170,7 @@ describe("connection", function () {
   });
 
   it("should attempt reconnects after a failed reconnect", (done) => {
-    const manager = new io.Manager({
+    const manager = new Manager({
       reconnection: true,
       timeout: 0,
       reconnectionAttempts: 2,
@@ -187,7 +187,7 @@ describe("connection", function () {
       manager.on("reconnect_failed", () => {
         expect(reconnects).to.be(2);
         socket.close();
-        manager.close();
+        manager._close();
         done();
       });
       socket.connect();
@@ -195,7 +195,7 @@ describe("connection", function () {
   });
 
   it("reconnect delay should increase every time", (done) => {
-    const manager = new io.Manager({
+    const manager = new Manager({
       reconnection: true,
       timeout: 0,
       reconnectionAttempts: 3,
@@ -225,7 +225,7 @@ describe("connection", function () {
       expect(reconnects).to.be(3);
       expect(increasingDelay).to.be.ok();
       socket.close();
-      manager.close();
+      manager._close();
       done();
     });
   });
@@ -283,7 +283,7 @@ describe("connection", function () {
   });
 
   it("should stop reconnecting on a socket and keep to reconnect on another", (done) => {
-    const manager = new io.Manager();
+    const manager = new Manager();
     const socket1 = manager.socket("/");
     const socket2 = manager.socket("/asd");
 
@@ -294,7 +294,7 @@ describe("connection", function () {
       socket2.on("connect", () => {
         setTimeout(() => {
           socket2.disconnect();
-          manager.disconnect();
+          manager._close();
           done();
         }, 500);
       });
@@ -307,7 +307,7 @@ describe("connection", function () {
   });
 
   it("should try to reconnect twice and fail when requested two attempts with immediate timeout and reconnect enabled", (done) => {
-    const manager = new io.Manager({
+    const manager = new Manager({
       reconnection: true,
       timeout: 0,
       reconnectionAttempts: 2,
@@ -324,7 +324,7 @@ describe("connection", function () {
     manager.on("reconnect_failed", () => {
       expect(reconnects).to.be(2);
       socket.close();
-      manager.close();
+      manager._close();
       done();
     });
 
@@ -332,7 +332,7 @@ describe("connection", function () {
   });
 
   it("should fire reconnect_* events on manager", (done) => {
-    const manager = new io.Manager({
+    const manager = new Manager({
       reconnection: true,
       timeout: 0,
       reconnectionAttempts: 2,
@@ -350,13 +350,13 @@ describe("connection", function () {
     manager.on("reconnect_failed", () => {
       expect(reconnects).to.be(2);
       socket.close();
-      manager.close();
+      manager._close();
       done();
     });
   });
 
   it("should fire reconnecting (on manager) with attempts number when reconnecting twice", (done) => {
-    const manager = new io.Manager({
+    const manager = new Manager({
       reconnection: true,
       timeout: 0,
       reconnectionAttempts: 2,
@@ -374,13 +374,13 @@ describe("connection", function () {
     manager.on("reconnect_failed", () => {
       expect(reconnects).to.be(2);
       socket.close();
-      manager.close();
+      manager._close();
       done();
     });
   });
 
   it("should not try to reconnect and should form a connection when connecting to correct port with default timeout", (done) => {
-    const manager = new io.Manager({
+    const manager = new Manager({
       reconnection: true,
       reconnectionDelay: 10,
     });
@@ -395,14 +395,14 @@ describe("connection", function () {
       // set a timeout to let reconnection possibly fire
       setTimeout(() => {
         socket.close();
-        manager.close();
+        manager._close();
         done();
       }, 1000);
     });
   });
 
   it("should connect while disconnecting another socket", (done) => {
-    const manager = new io.Manager();
+    const manager = new Manager();
     const socket1 = manager.socket("/foo");
     socket1.on("connect", () => {
       const socket2 = manager.socket("/asd");
@@ -415,7 +415,7 @@ describe("connection", function () {
   // `script.onerror` (see: http://requirejs.org/docs/api.html#ieloadfail)
   if (!global.document || hasCORS) {
     it("should try to reconnect twice and fail when requested two attempts with incorrect address and reconnect enabled", (done) => {
-      const manager = new io.Manager("http://localhost:3940", {
+      const manager = new Manager("http://localhost:3940", {
         reconnection: true,
         reconnectionAttempts: 2,
         reconnectionDelay: 10,
@@ -431,13 +431,13 @@ describe("connection", function () {
       manager.on("reconnect_failed", () => {
         expect(reconnects).to.be(2);
         socket.disconnect();
-        manager.close();
+        manager._close();
         done();
       });
     });
 
     it("should not try to reconnect with incorrect port when reconnection disabled", (done) => {
-      const manager = new io.Manager("http://localhost:9823", {
+      const manager = new Manager("http://localhost:9823", {
         reconnection: false,
       });
       const cb = () => {
@@ -450,7 +450,7 @@ describe("connection", function () {
         // set a timeout to let reconnection possibly fire
         setTimeout(() => {
           socket.disconnect();
-          manager.close();
+          manager._close();
           done();
         }, 1000);
       });
@@ -459,8 +459,8 @@ describe("connection", function () {
     });
 
     it("should still try to reconnect twice after opening another socket asynchronously", (done) => {
-      const manager = new io.Manager("http://localhost:9823", {
-        reconnect: true,
+      const manager = new Manager("http://localhost:9823", {
+        reconnection: true,
         reconnectionAttempts: 2,
       });
       let delay = Math.floor(
@@ -478,7 +478,7 @@ describe("connection", function () {
       manager.on("reconnect_failed", () => {
         expect(reconnects).to.be(2);
         socket.disconnect();
-        manager.close();
+        manager._close();
         done();
       });
 

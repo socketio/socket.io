@@ -1,6 +1,7 @@
-const loc = {};
-const { url } = require("../build/url");
-const expect = require("expect.js");
+import { url } from "../build/url";
+import * as expect from "expect.js";
+
+const loc: any = {};
 
 describe("url", () => {
   it("works with undefined", () => {

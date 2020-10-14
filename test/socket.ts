@@ -1,5 +1,5 @@
-const expect = require("expect.js");
-const io = require("../");
+import * as expect from "expect.js";
+import { io } from "..";
 
 describe("socket", function () {
   this.timeout(70000);

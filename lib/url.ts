@@ -1,17 +1,17 @@
-import parseuri from "parseuri";
+import * as parseuri from "parseuri";
 
 const debug = require("debug")("socket.io-client:url");
 
 /**
  * URL parser.
  *
- * @param {String} url
- * @param {Object} An object meant to mimic window.location.
+ * @param {String} uri - url
+ * @param {Object} loc - An object meant to mimic window.location.
  *                 Defaults to window.location.
- * @api public
+ * @public
  */
 
-export function url(uri, loc?) {
+export function url(uri: any, loc?: Location) {
   let obj = uri;
 
   // default to window.location

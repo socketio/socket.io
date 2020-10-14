@@ -1,24 +1,271 @@
-import eio from "engine.io-client";
-import { Socket } from "./socket";
-import Emitter from "component-emitter";
+import * as eio from "engine.io-client";
+import { Socket, SocketOptions } from "./socket";
+import * as Emitter from "component-emitter";
 import * as parser from "socket.io-parser";
 import { Decoder, Encoder } from "socket.io-parser";
 import { on } from "./on";
-import bind from "component-bind";
-import indexOf from "indexof";
-import Backoff from "backo2";
+import * as bind from "component-bind";
+import * as indexOf from "indexof";
+import * as Backoff from "backo2";
 
 const debug = require("debug")("socket.io-client:manager");
 
-/**
- * IE6+ hasOwnProperty
- */
-const has = Object.prototype.hasOwnProperty;
+interface EngineOptions {
+  /**
+   * The host that we're connecting to. Set from the URI passed when connecting
+   */
+  host: string;
+
+  /**
+   * The hostname for our connection. Set from the URI passed when connecting
+   */
+  hostname: string;
+
+  /**
+   * If this is a secure connection. Set from the URI passed when connecting
+   */
+  secure: boolean;
+
+  /**
+   * The port for our connection. Set from the URI passed when connecting
+   */
+  port: string;
+
+  /**
+   * Any query parameters in our uri. Set from the URI passed when connecting
+   */
+  query: Object;
+
+  /**
+   * `http.Agent` to use, defaults to `false` (NodeJS only)
+   */
+  agent: string | boolean;
+
+  /**
+   * Whether the client should try to upgrade the transport from
+   * long-polling to something better.
+   * @default true
+   */
+  upgrade: boolean;
+
+  /**
+   * Forces JSONP for polling transport.
+   */
+  forceJSONP: boolean;
+
+  /**
+   * Determines whether to use JSONP when necessary for polling. If
+   * disabled (by settings to false) an error will be emitted (saying
+   * "No transports available") if no other transports are available.
+   * If another transport is available for opening a connection (e.g.
+   * WebSocket) that transport will be used instead.
+   * @default true
+   */
+  jsonp: boolean;
+
+  /**
+   * Forces base 64 encoding for polling transport even when XHR2
+   * responseType is available and WebSocket even if the used standard
+   * supports binary.
+   */
+  forceBase64: boolean;
+
+  /**
+   * Enables XDomainRequest for IE8 to avoid loading bar flashing with
+   * click sound. default to `false` because XDomainRequest has a flaw
+   * of not sending cookie.
+   * @default false
+   */
+  enablesXDR: boolean;
+
+  /**
+   * The param name to use as our timestamp key
+   * @default 't'
+   */
+  timestampParam: string;
+
+  /**
+   * Whether to add the timestamp with each transport request. Note: this
+   * is ignored if the browser is IE or Android, in which case requests
+   * are always stamped
+   * @default false
+   */
+  timestampRequests: boolean;
+
+  /**
+   * A list of transports to try (in order). Engine.io always attempts to
+   * connect directly with the first one, provided the feature detection test
+   * for it passes.
+   * @default ['polling','websocket']
+   */
+  transports: string[];
+
+  /**
+   * The port the policy server listens on
+   * @default 843
+   */
+  policyPost: number;
+
+  /**
+   * If true and if the previous websocket connection to the server succeeded,
+   * the connection attempt will bypass the normal upgrade process and will
+   * initially try websocket. A connection attempt following a transport error
+   * will use the normal upgrade process. It is recommended you turn this on
+   * only when using SSL/TLS connections, or if you know that your network does
+   * not block websockets.
+   * @default false
+   */
+  rememberUpgrade: boolean;
+
+  /**
+   * Are we only interested in transports that support binary?
+   */
+  onlyBinaryUpgrades: boolean;
+
+  /**
+   * Transport options for Node.js client (headers etc)
+   */
+  transportOptions: Object;
+
+  /**
+   * (SSL) Certificate, Private key and CA certificates to use for SSL.
+   * Can be used in Node.js client environment to manually specify
+   * certificate information.
+   */
+  pfx: string;
+
+  /**
+   * (SSL) Private key to use for SSL. Can be used in Node.js client
+   * environment to manually specify certificate information.
+   */
+  key: string;
+
+  /**
+   * (SSL) A string or passphrase for the private key or pfx. Can be
+   * used in Node.js client environment to manually specify certificate
+   * information.
+   */
+  passphrase: string;
+
+  /**
+   * (SSL) Public x509 certificate to use. Can be used in Node.js client
+   * environment to manually specify certificate information.
+   */
+  cert: string;
+
+  /**
+   * (SSL) An authority certificate or array of authority certificates to
+   * check the remote host against.. Can be used in Node.js client
+   * environment to manually specify certificate information.
+   */
+  ca: string | string[];
+
+  /**
+   * (SSL) A string describing the ciphers to use or exclude. Consult the
+   * [cipher format list]
+   * (http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT) for
+   * details on the format.. Can be used in Node.js client environment to
+   * manually specify certificate information.
+   */
+  ciphers: string;
+
+  /**
+   * (SSL) If true, the server certificate is verified against the list of
+   * supplied CAs. An 'error' event is emitted if verification fails.
+   * Verification happens at the connection level, before the HTTP request
+   * is sent. Can be used in Node.js client environment to manually specify
+   * certificate information.
+   */
+  rejectUnauthorized: boolean;
+}
+
+export interface ManagerOptions extends EngineOptions {
+  /**
+   * Should we force a new Manager for this connection?
+   * @default false
+   */
+  forceNew: boolean;
+
+  /**
+   * Should we multiplex our connection (reuse existing Manager) ?
+   * @default true
+   */
+  multiplex: boolean;
+
+  /**
+   * The path to get our client file from, in the case of the server
+   * serving it
+   * @default '/socket.io'
+   */
+  path: string;
+
+  /**
+   * Should we allow reconnections?
+   * @default true
+   */
+  reconnection: boolean;
+
+  /**
+   * How many reconnection attempts should we try?
+   * @default Infinity
+   */
+  reconnectionAttempts: number;
+
+  /**
+   * The time delay in milliseconds between reconnection attempts
+   * @default 1000
+   */
+  reconnectionDelay: number;
+
+  /**
+   * The max time delay in milliseconds between reconnection attempts
+   * @default 5000
+   */
+  reconnectionDelayMax: number;
+
+  /**
+   * Used in the exponential backoff jitter when reconnecting
+   * @default 0.5
+   */
+  randomizationFactor: number;
+
+  /**
+   * The timeout in milliseconds for our connection attempt
+   * @default 20000
+   */
+  timeout: number;
+
+  /**
+   * Should we automatically connect?
+   * @default true
+   */
+  autoConnect: boolean;
+
+  /**
+   * the parser to use. Defaults to an instance of the Parser that ships with socket.io.
+   */
+  parser: any;
+}
 
 export class Manager extends Emitter {
-  public autoConnect: boolean;
-  public readyState: "opening" | "open" | "closed";
-  public reconnecting: boolean;
+  /**
+   * The Engine.IO client instance
+   *
+   * @public
+   */
+  public engine: any;
+  /**
+   * @private
+   */
+  _autoConnect: boolean;
+  /**
+   * @private
+   */
+  _readyState: "opening" | "open" | "closed";
+  /**
+   * @private
+   */
+  _reconnecting: boolean;
 
   private readonly uri: string;
   private readonly opts: object;
@@ -36,17 +283,18 @@ export class Manager extends Emitter {
   private connecting: Array<Socket> = [];
   private encoder: Encoder;
   private decoder: Decoder;
-  private engine: any;
   private skipReconnect: boolean;
 
   /**
    * `Manager` constructor.
    *
-   * @param {String} engine instance or engine uri/opts
-   * @param {Object} options
-   * @api public
+   * @param {String} uri - engine instance or engine uri/opts
+   * @param {Object} opts - options
+   * @public
    */
-  constructor(uri, opts) {
+  constructor(opts: Partial<ManagerOptions>);
+  constructor(uri?: string, opts?: Partial<ManagerOptions>);
+  constructor(uri?: any, opts?: any) {
     super();
     if (uri && "object" === typeof uri) {
       opts = uri;
@@ -67,23 +315,25 @@ export class Manager extends Emitter {
       jitter: this.randomizationFactor(),
     });
     this.timeout(null == opts.timeout ? 20000 : opts.timeout);
-    this.readyState = "closed";
+    this._readyState = "closed";
     this.uri = uri;
     const _parser = opts.parser || parser;
     this.encoder = new _parser.Encoder();
     this.decoder = new _parser.Decoder();
-    this.autoConnect = opts.autoConnect !== false;
-    if (this.autoConnect) this.open();
+    this._autoConnect = opts.autoConnect !== false;
+    if (this._autoConnect) this.open();
   }
 
   /**
    * Sets the `reconnection` config.
    *
-   * @param {Boolean} true/false if it should automatically reconnect
+   * @param {Boolean} v - true/false if it should automatically reconnect
    * @return {Manager} self or value
-   * @api public
+   * @public
    */
-  reconnection(v?) {
+  public reconnection(v: boolean): Manager;
+  public reconnection(): boolean;
+  public reconnection(v?: boolean): Manager | boolean {
     if (!arguments.length) return this._reconnection;
     this._reconnection = !!v;
     return this;
@@ -92,12 +342,14 @@ export class Manager extends Emitter {
   /**
    * Sets the reconnection attempts config.
    *
-   * @param {Number} max reconnection attempts before giving up
+   * @param {Number} v - max reconnection attempts before giving up
    * @return {Manager} self or value
-   * @api public
+   * @public
    */
-  reconnectionAttempts(v?) {
-    if (!arguments.length) return this._reconnectionAttempts;
+  public reconnectionAttempts(v: number): Manager;
+  public reconnectionAttempts(): number;
+  public reconnectionAttempts(v?: number): Manager | number {
+    if (v === undefined) return this._reconnectionAttempts;
     this._reconnectionAttempts = v;
     return this;
   }
@@ -105,19 +357,30 @@ export class Manager extends Emitter {
   /**
    * Sets the delay between reconnections.
    *
-   * @param {Number} delay
+   * @param {Number} v - delay
    * @return {Manager} self or value
-   * @api public
+   * @public
    */
-  reconnectionDelay(v?) {
-    if (!arguments.length) return this._reconnectionDelay;
+  public reconnectionDelay(v: number): Manager;
+  public reconnectionDelay(): number;
+  public reconnectionDelay(v?: number): Manager | number {
+    if (v === undefined) return this._reconnectionDelay;
     this._reconnectionDelay = v;
     this.backoff && this.backoff.setMin(v);
     return this;
   }
 
-  randomizationFactor(v?) {
-    if (!arguments.length) return this._randomizationFactor;
+  /**
+   * Sets the randomization factor
+   *
+   * @param {Number} v - the randomization factor
+   * @return {Manager} self or value
+   * @public
+   */
+  public randomizationFactor(v: number): Manager;
+  public randomizationFactor(): number;
+  public randomizationFactor(v?: number): Manager | number {
+    if (v === undefined) return this._randomizationFactor;
     this._randomizationFactor = v;
     this.backoff && this.backoff.setJitter(v);
     return this;
@@ -126,12 +389,14 @@ export class Manager extends Emitter {
   /**
    * Sets the maximum delay between reconnections.
    *
-   * @param {Number} delay
+   * @param {Number} v - delay
    * @return {Manager} self or value
-   * @api public
+   * @public
    */
-  reconnectionDelayMax(v?) {
-    if (!arguments.length) return this._reconnectionDelayMax;
+  public reconnectionDelayMax(v: number): Manager;
+  public reconnectionDelayMax(): number;
+  public reconnectionDelayMax(v?: number): Manager | number {
+    if (v === undefined) return this._reconnectionDelayMax;
     this._reconnectionDelayMax = v;
     this.backoff && this.backoff.setMax(v);
     return this;
@@ -141,9 +406,11 @@ export class Manager extends Emitter {
    * Sets the connection timeout. `false` to disable
    *
    * @return {Manager} self or value
-   * @api public
+   * @public
    */
-  timeout(v?) {
+  public timeout(v: number | boolean): Manager;
+  public timeout(): number | boolean;
+  public timeout(v?: number | boolean): Manager | number | boolean {
     if (!arguments.length) return this._timeout;
     this._timeout = v;
     return this;
@@ -153,12 +420,12 @@ export class Manager extends Emitter {
    * Starts trying to reconnect if reconnection is enabled and we have not
    * started reconnecting yet
    *
-   * @api private
+   * @private
    */
-  maybeReconnectOnOpen() {
+  private maybeReconnectOnOpen() {
     // Only try to reconnect if it's the first time we're connecting
     if (
-      !this.reconnecting &&
+      !this._reconnecting &&
       this._reconnection &&
       this.backoff.attempts === 0
     ) {
@@ -170,19 +437,19 @@ export class Manager extends Emitter {
   /**
    * Sets the current transport `socket`.
    *
-   * @param {Function} optional, callback
+   * @param {Function} fn - optional, callback
    * @return {Manager} self
-   * @api public
+   * @public
    */
-  open(fn?, opts?): Manager {
-    debug("readyState %s", this.readyState);
-    if (~this.readyState.indexOf("open")) return this;
+  public open(fn?: (err?: Error) => void): Manager {
+    debug("readyState %s", this._readyState);
+    if (~this._readyState.indexOf("open")) return this;
 
     debug("opening %s", this.uri);
     this.engine = eio(this.uri, this.opts);
     const socket = this.engine;
     const self = this;
-    this.readyState = "opening";
+    this._readyState = "opening";
     this.skipReconnect = false;
 
     // emit `open`
@@ -195,7 +462,7 @@ export class Manager extends Emitter {
     const errorSub = on(socket, "error", (err) => {
       debug("connect_error");
       self.cleanup();
-      self.readyState = "closed";
+      self._readyState = "closed";
       super.emit("connect_error", err);
       if (fn) {
         fn(err);
@@ -236,23 +503,29 @@ export class Manager extends Emitter {
     return this;
   }
 
-  connect(fn, opts): Manager {
-    return this.open(fn, opts);
+  /**
+   * Alias for open()
+   *
+   * @return {Manager} self
+   * @public
+   */
+  public connect(fn?: (err?: Error) => void): Manager {
+    return this.open(fn);
   }
 
   /**
    * Called upon transport open.
    *
-   * @api private
+   * @private
    */
-  onopen() {
+  private onopen() {
     debug("open");
 
     // clear old subs
     this.cleanup();
 
     // mark as open
-    this.readyState = "open";
+    this._readyState = "open";
     super.emit("open");
 
     // add new subs
@@ -267,36 +540,36 @@ export class Manager extends Emitter {
   /**
    * Called upon a ping.
    *
-   * @api private
+   * @private
    */
-  onping() {
+  private onping() {
     super.emit("ping");
   }
 
   /**
    * Called with data.
    *
-   * @api private
+   * @private
    */
-  ondata(data) {
+  private ondata(data) {
     this.decoder.add(data);
   }
 
   /**
    * Called when parser fully decodes a packet.
    *
-   * @api private
+   * @private
    */
-  ondecoded(packet) {
+  private ondecoded(packet) {
     super.emit("packet", packet);
   }
 
   /**
    * Called upon socket error.
    *
-   * @api private
+   * @private
    */
-  onerror(err) {
+  private onerror(err) {
     debug("error", err);
     super.emit("error", err);
   }
@@ -305,9 +578,9 @@ export class Manager extends Emitter {
    * Creates a new socket for the given `nsp`.
    *
    * @return {Socket}
-   * @api public
+   * @public
    */
-  socket(nsp, opts) {
+  public socket(nsp: string, opts?: SocketOptions): Socket {
     let socket = this.nsps[nsp];
     if (!socket) {
       socket = new Socket(this, nsp, opts);
@@ -315,7 +588,7 @@ export class Manager extends Emitter {
       var self = this;
       socket.on("connecting", onConnecting);
 
-      if (this.autoConnect) {
+      if (this._autoConnect) {
         // manually call here since connecting event is fired before listening
         onConnecting();
       }
@@ -334,22 +607,23 @@ export class Manager extends Emitter {
    * Called upon a socket close.
    *
    * @param {Socket} socket
+   * @private
    */
-  destroy(socket) {
+  _destroy(socket) {
     const index = indexOf(this.connecting, socket);
     if (~index) this.connecting.splice(index, 1);
     if (this.connecting.length) return;
 
-    this.close();
+    this._close();
   }
 
   /**
    * Writes a packet.
    *
    * @param {Object} packet
-   * @api private
+   * @private
    */
-  packet(packet) {
+  _packet(packet) {
     debug("writing packet %j", packet);
     if (packet.query && packet.type === 0) packet.nsp += "?" + packet.query;
 
@@ -362,9 +636,9 @@ export class Manager extends Emitter {
   /**
    * Clean up transport subscriptions and packet buffer.
    *
-   * @api private
+   * @private
    */
-  cleanup() {
+  private cleanup() {
     debug("cleanup");
 
     const subsLength = this.subs.length;
@@ -379,47 +653,42 @@ export class Manager extends Emitter {
   /**
    * Close the current socket.
    *
-   * @api private
+   * @private
    */
-  close() {
+  _close() {
     debug("disconnect");
     this.skipReconnect = true;
-    this.reconnecting = false;
-    if ("opening" === this.readyState) {
+    this._reconnecting = false;
+    if ("opening" === this._readyState) {
       // `onclose` will not fire because
       // an open event never happened
       this.cleanup();
     }
     this.backoff.reset();
-    this.readyState = "closed";
+    this._readyState = "closed";
     if (this.engine) this.engine.close();
   }
 
-  disconnect() {
-    debug("disconnect");
-    this.skipReconnect = true;
-    this.reconnecting = false;
-    if ("opening" === this.readyState) {
-      // `onclose` will not fire because
-      // an open event never happened
-      this.cleanup();
-    }
-    this.backoff.reset();
-    this.readyState = "closed";
-    if (this.engine) this.engine.close();
+  /**
+   * Alias for close()
+   *
+   * @private
+   */
+  private disconnect() {
+    return this._close();
   }
 
   /**
    * Called upon engine close.
    *
-   * @api private
+   * @private
    */
-  onclose(reason) {
+  private onclose(reason) {
     debug("onclose");
 
     this.cleanup();
     this.backoff.reset();
-    this.readyState = "closed";
+    this._readyState = "closed";
     super.emit("close", reason);
 
     if (this._reconnection && !this.skipReconnect) {
@@ -430,10 +699,10 @@ export class Manager extends Emitter {
   /**
    * Attempt a reconnection.
    *
-   * @api private
+   * @private
    */
-  reconnect() {
-    if (this.reconnecting || this.skipReconnect) return this;
+  private reconnect() {
+    if (this._reconnecting || this.skipReconnect) return this;
 
     const self = this;
 
@@ -441,12 +710,12 @@ export class Manager extends Emitter {
       debug("reconnect failed");
       this.backoff.reset();
       super.emit("reconnect_failed");
-      this.reconnecting = false;
+      this._reconnecting = false;
     } else {
       const delay = this.backoff.duration();
       debug("will wait %dms before reconnect attempt", delay);
 
-      this.reconnecting = true;
+      this._reconnecting = true;
       const timer = setTimeout(() => {
         if (self.skipReconnect) return;
 
@@ -460,7 +729,7 @@ export class Manager extends Emitter {
         self.open((err) => {
           if (err) {
             debug("reconnect attempt error");
-            self.reconnecting = false;
+            self._reconnecting = false;
             self.reconnect();
             super.emit("reconnect_error", err);
           } else {
@@ -481,11 +750,11 @@ export class Manager extends Emitter {
   /**
    * Called upon successful reconnect.
    *
-   * @api private
+   * @private
    */
-  onreconnect() {
+  private onreconnect() {
     const attempt = this.backoff.attempts;
-    this.reconnecting = false;
+    this._reconnecting = false;
     this.backoff.reset();
     super.emit("reconnect", attempt);
   }

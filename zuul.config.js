@@ -1,12 +1,30 @@
 'use strict';
 
-var browsers = require('socket.io-browsers');
+const browsers = require('socket.io-browsers');
 
-var zuulConfig = module.exports = {
+const webpackConfig = require('./support/prod.config.js');
+
+webpackConfig.module.rules.push({
+  test: /\.tsx?$/,
+  use: [
+    {
+      loader: "ts-loader",
+      options: {
+        compilerOptions: {
+          target: "es5",
+        }
+      }
+    },
+  ],
+  exclude: /node_modules/,
+});
+
+const zuulConfig = module.exports = {
   ui: 'mocha-bdd',
 
   // test on localhost by default
   local: true,
+  open: true,
 
   concurrency: 2, // ngrok only accepts two tunnels by default
   // if browser does not sends output in 120s since last output:
@@ -18,7 +36,7 @@ var zuulConfig = module.exports = {
 
   server: './test/support/server.js',
   builder: 'zuul-builder-webpack',
-  webpack: require('./support/prod.config.js')
+  webpack: webpackConfig
 };
 
 if (process.env.CI === 'true') {
@@ -29,5 +47,5 @@ if (process.env.CI === 'true') {
   };
 }
 
-var isPullRequest = process.env.TRAVIS_PULL_REQUEST && process.env.TRAVIS_PULL_REQUEST !== 'false';
+const isPullRequest = process.env.TRAVIS_PULL_REQUEST && process.env.TRAVIS_PULL_REQUEST !== 'false';
 zuulConfig.browsers = isPullRequest ? browsers.pullRequest : browsers.all;
