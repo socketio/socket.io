@@ -130,12 +130,15 @@ interface ServerOptions extends EngineAttachOptions {
 export class Server extends EventEmitter {
   public readonly sockets: Namespace;
 
-  /** @package */
-  public readonly parser;
-  /** @package */
-  public readonly encoder: Encoder;
+  /** @private */
+  readonly _parser;
+  /** @private */
+  readonly encoder: Encoder;
 
-  public nsps: Map<string, Namespace> = new Map();
+  /**
+   * @private
+   */
+  _nsps: Map<string, Namespace> = new Map();
   private parentNsps: Map<
     | string
     | RegExp
@@ -158,6 +161,7 @@ export class Server extends EventEmitter {
    *
    * @param {http.Server|Number|Object} srv http server, port or options
    * @param {Object} [opts]
+   * @public
    */
   constructor(opts?: Partial<ServerOptions>);
   constructor(srv: http.Server, opts?: Partial<ServerOptions>);
@@ -170,8 +174,8 @@ export class Server extends EventEmitter {
     }
     this.path(opts.path || "/socket.io");
     this.serveClient(false !== opts.serveClient);
-    this.parser = opts.parser || parser;
-    this.encoder = new this.parser.Encoder();
+    this._parser = opts.parser || parser;
+    this.encoder = new this._parser.Encoder();
     this.adapter(opts.adapter || Adapter);
     this.sockets = this.of("/");
     if (srv) this.attach(srv, opts);
@@ -182,6 +186,7 @@ export class Server extends EventEmitter {
    *
    * @param {Boolean} v - whether to serve client code
    * @return {Server|Boolean} self when setting or value when getting
+   * @public
    */
   public serveClient(v?: boolean) {
     if (!arguments.length) return this._serveClient;
@@ -217,9 +222,9 @@ export class Server extends EventEmitter {
    * @param {Object} auth - the auth parameters
    * @param {Function} fn - callback
    *
-   * @package
+   * @private
    */
-  public checkNamespace(
+  _checkNamespace(
     name: string,
     auth: object,
     fn: (nsp: Namespace | boolean) => void
@@ -250,6 +255,7 @@ export class Server extends EventEmitter {
    *
    * @param {String} v pathname
    * @return {Server|String} self when setting or value when getting
+   * @public
    */
   public path(v?: string) {
     if (!arguments.length) return this._path;
@@ -262,12 +268,13 @@ export class Server extends EventEmitter {
    *
    * @param {Adapter} v pathname
    * @return {Server|Adapter} self when setting or value when getting
+   * @public
    */
   public adapter(v) {
     if (!arguments.length) return this._adapter;
     this._adapter = v;
-    for (const nsp of this.nsps.values()) {
-      nsp.initAdapter();
+    for (const nsp of this._nsps.values()) {
+      nsp._initAdapter();
     }
     return this;
   }
@@ -278,6 +285,7 @@ export class Server extends EventEmitter {
    * @param {http.Server|Number} srv - server or port
    * @param {Object} opts - options passed to engine.io
    * @return {Server} self
+   * @public
    */
   public listen(srv: http.Server, opts?: Partial<ServerOptions>): Server;
   public listen(srv: number, opts?: Partial<ServerOptions>): Server;
@@ -291,6 +299,7 @@ export class Server extends EventEmitter {
    * @param {http.Server|Number} srv - server or port
    * @param {Object} opts - options passed to engine.io
    * @return {Server} self
+   * @public
    */
   public attach(srv: http.Server, opts?: Partial<ServerOptions>): Server;
   public attach(port: number, opts?: Partial<ServerOptions>): Server;
@@ -330,6 +339,7 @@ export class Server extends EventEmitter {
    *
    * @param srv - the server to attach to
    * @param opts - options passed to engine.io
+   * @private
    */
   private initEngine(srv: http.Server, opts: Partial<EngineAttachOptions>) {
     // initialize engine
@@ -350,6 +360,7 @@ export class Server extends EventEmitter {
    * Attaches the static file serving.
    *
    * @param {Function|http.Server} srv http server
+   * @private
    */
   private attachServe(srv) {
     debug("attaching client serving req handler");
@@ -376,6 +387,7 @@ export class Server extends EventEmitter {
    *
    * @param {http.IncomingMessage} req
    * @param {http.ServerResponse} res
+   * @private
    */
   private serve(req: http.IncomingMessage, res: http.ServerResponse) {
     // Per the standard, ETags must be quoted:
@@ -405,6 +417,7 @@ export class Server extends EventEmitter {
    *
    * @param {http.IncomingMessage} req
    * @param {http.ServerResponse} res
+   * @private
    */
   private serveMap(req: http.IncomingMessage, res: http.ServerResponse) {
     // Per the standard, ETags must be quoted:
@@ -433,6 +446,7 @@ export class Server extends EventEmitter {
    *
    * @param {engine.Server} engine engine.io (or compatible) server
    * @return {Server} self
+   * @public
    */
   public bind(engine): Server {
     this.engine = engine;
@@ -445,6 +459,7 @@ export class Server extends EventEmitter {
    *
    * @param {engine.Socket} conn
    * @return {Server} self
+   * @private
    */
   private onconnection(conn): Server {
     debug("incoming connection with id %s", conn.id);
@@ -457,6 +472,7 @@ export class Server extends EventEmitter {
    *
    * @param {String|RegExp|Function} name nsp name
    * @param {Function} [fn] optional, nsp `connection` ev handler
+   * @public
    */
   public of(
     name:
@@ -489,11 +505,11 @@ export class Server extends EventEmitter {
 
     if (String(name)[0] !== "/") name = "/" + name;
 
-    let nsp = this.nsps.get(name);
+    let nsp = this._nsps.get(name);
     if (!nsp) {
       debug("initializing namespace %s", name);
       nsp = new Namespace(this, name);
-      this.nsps.set(name, nsp);
+      this._nsps.set(name, nsp);
     }
     if (fn) nsp.on("connect", fn);
     return nsp;
@@ -503,10 +519,11 @@ export class Server extends EventEmitter {
    * Closes server connection
    *
    * @param {Function} [fn] optional, called as `fn([err])` on error OR all conns closed
+   * @public
    */
   public close(fn?: (err?: Error) => void): void {
-    for (const socket of this.sockets.sockets.values()) {
-      socket.onclose("server shutting down");
+    for (const socket of this.sockets._sockets.values()) {
+      socket._onclose("server shutting down");
     }
 
     this.engine.close();
@@ -558,7 +575,8 @@ export class Server extends EventEmitter {
   /**
    * Sends a `message` event to all clients.
    *
-   * @return {Namespace} self
+   * @return {Server} self
+   * @public
    */
   public send(...args): Server {
     args.unshift("message");
@@ -569,7 +587,8 @@ export class Server extends EventEmitter {
   /**
    * Sends a `message` event to all clients.
    *
-   * @return {Namespace} self
+   * @return {Server} self
+   * @public
    */
   public write(...args): Server {
     args.unshift("message");
@@ -579,6 +598,8 @@ export class Server extends EventEmitter {
 
   /**
    * Gets a list of socket ids.
+   *
+   * @public
    */
   public allSockets(): Promise<Set<SocketId>> {
     return this.sockets.allSockets();
@@ -589,6 +610,7 @@ export class Server extends EventEmitter {
    *
    * @param {Boolean} compress - if `true`, compresses the sending data
    * @return {Server} self
+   * @public
    */
   public compress(compress: boolean): Server {
     this.sockets.compress(compress);
@@ -601,6 +623,7 @@ export class Server extends EventEmitter {
    * and is in the middle of a request-response cycle).
    *
    * @return {Server} self
+   * @public
    */
   public get volatile(): Server {
     this.sockets.volatile;
@@ -611,6 +634,7 @@ export class Server extends EventEmitter {
    * Sets a modifier for a subsequent event emission that the event data will only be broadcast to the current node.
    *
    * @return {Server} self
+   * @public
    */
   public get local(): Server {
     this.sockets.local;

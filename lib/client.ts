@@ -9,9 +9,8 @@ const debug = debugModule("socket.io:client");
 
 export class Client {
   public readonly conn;
-  /** @package */
-  public readonly id: string;
 
+  private readonly id: string;
   private readonly server;
   private readonly encoder: Encoder;
   private readonly decoder: Decoder;
@@ -29,13 +28,15 @@ export class Client {
     this.server = server;
     this.conn = conn;
     this.encoder = server.encoder;
-    this.decoder = new server.parser.Decoder();
+    this.decoder = new server._parser.Decoder();
     this.id = conn.id;
     this.setup();
   }
 
   /**
    * @return the reference to the request that originated the Engine.IO connection
+   *
+   * @public
    */
   public get request(): IncomingMessage {
     return this.conn.request;
@@ -43,6 +44,8 @@ export class Client {
 
   /**
    * Sets up event listeners.
+   *
+   * @private
    */
   private setup() {
     this.onclose = this.onclose.bind(this);
@@ -62,21 +65,21 @@ export class Client {
    *
    * @param {String} name - the namespace
    * @param {Object} auth - the auth parameters
-   * @package
+   * @private
    */
-  public connect(name: string, auth: object = {}) {
-    if (this.server.nsps.has(name)) {
+  private connect(name: string, auth: object = {}) {
+    if (this.server._nsps.has(name)) {
       debug("connecting to namespace %s", name);
       return this.doConnect(name, auth);
     }
 
-    this.server.checkNamespace(name, auth, dynamicNsp => {
+    this.server._checkNamespace(name, auth, dynamicNsp => {
       if (dynamicNsp) {
         debug("dynamic namespace %s was created", dynamicNsp.name);
         this.doConnect(name, auth);
       } else {
         debug("creation of namespace %s was denied", name);
-        this.packet({
+        this._packet({
           type: PacketType.ERROR,
           nsp: name,
           data: "Invalid namespace"
@@ -90,6 +93,8 @@ export class Client {
    *
    * @param {String} name - the namespace
    * @param {Object} auth - the auth parameters
+   *
+   * @private
    */
   private doConnect(name: string, auth: object) {
     const nsp = this.server.of(name);
@@ -103,9 +108,9 @@ export class Client {
   /**
    * Disconnects from all namespaces and closes transport.
    *
-   * @package
+   * @private
    */
-  public disconnect() {
+  _disconnect() {
     for (const socket of this.sockets.values()) {
       socket.disconnect();
     }
@@ -116,9 +121,9 @@ export class Client {
   /**
    * Removes a socket. Called by each `Socket`.
    *
-   * @package
+   * @private
    */
-  public remove(socket: Socket) {
+  _remove(socket: Socket) {
     if (this.sockets.has(socket.id)) {
       const nsp = this.sockets.get(socket.id).nsp.name;
       this.sockets.delete(socket.id);
@@ -130,6 +135,8 @@ export class Client {
 
   /**
    * Closes the underlying connection.
+   *
+   * @private
    */
   private close() {
     if ("open" == this.conn.readyState) {
@@ -144,9 +151,9 @@ export class Client {
    *
    * @param {Object} packet object
    * @param {Object} opts
-   * @package
+   * @private
    */
-  public packet(packet, opts?) {
+  _packet(packet, opts?) {
     opts = opts || {};
     const self = this;
 
@@ -174,6 +181,8 @@ export class Client {
 
   /**
    * Called with incoming transport data.
+   *
+   * @private
    */
   private ondata(data) {
     // try/catch is needed for protocol violations (GH-1880)
@@ -186,6 +195,8 @@ export class Client {
 
   /**
    * Called when parser fully decodes a packet.
+   *
+   * @private
    */
   private ondecoded(packet: Packet) {
     if (PacketType.CONNECT == packet.type) {
@@ -194,7 +205,7 @@ export class Client {
       const socket = this.nsps.get(packet.nsp);
       if (socket) {
         process.nextTick(function() {
-          socket.onpacket(packet);
+          socket._onpacket(packet);
         });
       } else {
         debug("no socket for namespace %s", packet.nsp);
@@ -206,10 +217,11 @@ export class Client {
    * Handles an error.
    *
    * @param {Object} err object
+   * @private
    */
   private onerror(err) {
     for (const socket of this.sockets.values()) {
-      socket.onerror(err);
+      socket._onerror(err);
     }
     this.conn.close();
   }
@@ -218,6 +230,7 @@ export class Client {
    * Called upon transport close.
    *
    * @param reason
+   * @private
    */
   private onclose(reason: string) {
     debug("client close with reason %s", reason);
@@ -227,7 +240,7 @@ export class Client {
 
     // `nsps` and `sockets` are cleaned up seamlessly
     for (const socket of this.sockets.values()) {
-      socket.onclose(reason);
+      socket._onclose(reason);
     }
     this.sockets.clear();
 
@@ -236,6 +249,7 @@ export class Client {
 
   /**
    * Cleans up event listeners.
+   * @private
    */
   private destroy() {
     this.conn.removeListener("data", this.ondata);

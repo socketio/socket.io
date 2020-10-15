@@ -107,6 +107,8 @@ export class Socket extends EventEmitter {
 
   /**
    * Builds the `handshake` BC object
+   *
+   * @private
    */
   private buildHandshake(auth: object): Handshake {
     return {
@@ -127,6 +129,7 @@ export class Socket extends EventEmitter {
    * Emits to this client.
    *
    * @return {Socket} self
+   * @public
    */
   // @ts-ignore
   public emit(ev: string, ...args: any[]) {
@@ -145,9 +148,9 @@ export class Socket extends EventEmitter {
         throw new Error("Callbacks are not supported when broadcasting");
       }
 
-      debug("emitting packet with ack id %d", this.nsp.ids);
-      this.acks.set(this.nsp.ids, args.pop());
-      packet.id = this.nsp.ids++;
+      debug("emitting packet with ack id %d", this.nsp._ids);
+      this.acks.set(this.nsp._ids, args.pop());
+      packet.id = this.nsp._ids++;
     }
 
     const rooms = new Set(this._rooms);
@@ -175,6 +178,7 @@ export class Socket extends EventEmitter {
    *
    * @param {String} name
    * @return {Socket} self
+   * @public
    */
   public to(name: Room) {
     this._rooms.add(name);
@@ -186,6 +190,7 @@ export class Socket extends EventEmitter {
    *
    * @param {String} name
    * @return {Socket} self
+   * @public
    */
   public in(name: Room): Socket {
     this._rooms.add(name);
@@ -196,6 +201,7 @@ export class Socket extends EventEmitter {
    * Sends a `message` event.
    *
    * @return {Socket} self
+   * @public
    */
   public send(...args): Socket {
     args.unshift("message");
@@ -207,6 +213,7 @@ export class Socket extends EventEmitter {
    * Sends a `message` event.
    *
    * @return {Socket} self
+   * @public
    */
   public write(...args): Socket {
     args.unshift("message");
@@ -219,11 +226,12 @@ export class Socket extends EventEmitter {
    *
    * @param {Object} packet - packet object
    * @param {Object} opts - options
+   * @private
    */
   private packet(packet, opts: any = {}) {
     packet.nsp = this.nsp.name;
     opts.compress = false !== opts.compress;
-    this.client.packet(packet, opts);
+    this.client._packet(packet, opts);
   }
 
   /**
@@ -232,6 +240,7 @@ export class Socket extends EventEmitter {
    * @param {String|Array} rooms - room or array of rooms
    * @param {Function} fn - optional, callback
    * @return {Socket} self
+   * @public
    */
   public join(rooms: Room | Array<Room>, fn?: (err: Error) => void): Socket {
     debug("joining room %s", rooms);
@@ -251,6 +260,7 @@ export class Socket extends EventEmitter {
    * @param {String} room
    * @param {Function} fn - optional, callback
    * @return {Socket} self
+   * @public
    */
   public leave(room: string, fn?: (err: Error) => void): Socket {
     debug("leave room %s", room);
@@ -264,6 +274,8 @@ export class Socket extends EventEmitter {
 
   /**
    * Leave all rooms.
+   *
+   * @private
    */
   private leaveAll(): void {
     this.adapter.delAll(this.id);
@@ -275,9 +287,9 @@ export class Socket extends EventEmitter {
    * Socket is added to namespace array before
    * call to join, so adapters can access it.
    *
-   * @package
+   * @private
    */
-  public onconnect(): void {
+  _onconnect(): void {
     debug("socket connected - writing packet");
     this.nsp.connected.set(this.id, this);
     this.join(this.id);
@@ -288,9 +300,9 @@ export class Socket extends EventEmitter {
    * Called with each packet. Called by `Client`.
    *
    * @param {Object} packet
-   * @package
+   * @private
    */
-  public onpacket(packet) {
+  _onpacket(packet) {
     debug("got packet %j", packet);
     switch (packet.type) {
       case PacketType.EVENT:
@@ -314,7 +326,7 @@ export class Socket extends EventEmitter {
         break;
 
       case PacketType.ERROR:
-        this.onerror(new Error(packet.data));
+        this._onerror(new Error(packet.data));
     }
   }
 
@@ -322,6 +334,7 @@ export class Socket extends EventEmitter {
    * Called upon event packet.
    *
    * @param {Object} packet - packet object
+   * @private
    */
   private onevent(packet): void {
     const args = packet.data || [];
@@ -339,6 +352,7 @@ export class Socket extends EventEmitter {
    * Produces an ack callback to emit with an event.
    *
    * @param {Number} id - packet id
+   * @private
    */
   private ack(id: number) {
     const self = this;
@@ -361,6 +375,8 @@ export class Socket extends EventEmitter {
 
   /**
    * Called upon ack packet.
+   *
+   * @private
    */
   private onack(packet): void {
     const ack = this.acks.get(packet.id);
@@ -375,18 +391,20 @@ export class Socket extends EventEmitter {
 
   /**
    * Called upon client disconnect packet.
+   *
+   * @private
    */
   private ondisconnect(): void {
     debug("got disconnect packet");
-    this.onclose("client namespace disconnect");
+    this._onclose("client namespace disconnect");
   }
 
   /**
    * Handles a client error.
    *
-   * @package
+   * @private
    */
-  public onerror(err): void {
+  _onerror(err): void {
     if (this.listeners("error").length) {
       super.emit("error", err);
     } else {
@@ -401,15 +419,15 @@ export class Socket extends EventEmitter {
    * @param {String} reason
    * @throw {Error} optional error object
    *
-   * @package
+   * @private
    */
-  public onclose(reason: string) {
+  _onclose(reason: string) {
     if (!this.connected) return this;
     debug("closing socket - reason %s", reason);
     super.emit("disconnecting", reason);
     this.leaveAll();
-    this.nsp.remove(this);
-    this.client.remove(this);
+    this.nsp._remove(this);
+    this.client._remove(this);
     this.connected = false;
     this.disconnected = true;
     this.nsp.connected.delete(this.id);
@@ -421,9 +439,9 @@ export class Socket extends EventEmitter {
    *
    * @param {Object} err - error object
    *
-   * @package
+   * @private
    */
-  public error(err) {
+  _error(err) {
     this.packet({ type: PacketType.ERROR, data: err });
   }
 
@@ -432,14 +450,16 @@ export class Socket extends EventEmitter {
    *
    * @param {Boolean} close - if `true`, closes the underlying connection
    * @return {Socket} self
+   *
+   * @public
    */
   public disconnect(close = false): Socket {
     if (!this.connected) return this;
     if (close) {
-      this.client.disconnect();
+      this.client._disconnect();
     } else {
       this.packet({ type: PacketType.DISCONNECT });
-      this.onclose("server namespace disconnect");
+      this._onclose("server namespace disconnect");
     }
     return this;
   }
@@ -449,6 +469,7 @@ export class Socket extends EventEmitter {
    *
    * @param {Boolean} compress - if `true`, compresses the sending data
    * @return {Socket} self
+   * @public
    */
   public compress(compress: boolean): Socket {
     this.flags.compress = compress;
@@ -461,6 +482,7 @@ export class Socket extends EventEmitter {
    * and is in the middle of a request-response cycle).
    *
    * @return {Socket} self
+   * @public
    */
   public get volatile(): Socket {
     this.flags.volatile = true;
@@ -472,6 +494,7 @@ export class Socket extends EventEmitter {
    * sender.
    *
    * @return {Socket} self
+   * @public
    */
   public get broadcast(): Socket {
     this.flags.broadcast = true;
@@ -482,6 +505,7 @@ export class Socket extends EventEmitter {
    * Sets a modifier for a subsequent event emission that the event data will only be broadcast to the current node.
    *
    * @return {Socket} self
+   * @public
    */
   public get local(): Socket {
     this.flags.local = true;
@@ -492,13 +516,14 @@ export class Socket extends EventEmitter {
    * Dispatch incoming event to socket listeners.
    *
    * @param {Array} event - event that will get emitted
+   * @private
    */
   private dispatch(event: Array<string>): void {
     debug("dispatching an event %j", event);
     this.run(event, err => {
       process.nextTick(() => {
         if (err) {
-          return this.error(err.message);
+          return this._error(err.message);
         }
         super.emit.apply(this, event);
       });
@@ -510,6 +535,7 @@ export class Socket extends EventEmitter {
    *
    * @param {Function} fn - middleware function (event, next)
    * @return {Socket} self
+   * @public
    */
   public use(
     fn: (event: Array<any>, next: (err: Error) => void) => void
@@ -523,6 +549,7 @@ export class Socket extends EventEmitter {
    *
    * @param {Array} event - event that will get emitted
    * @param {Function} fn - last fn call in the middleware
+   * @private
    */
   private run(event: Array<any>, fn: (err: Error) => void) {
     const fns = this.fns.slice(0);
@@ -544,14 +571,27 @@ export class Socket extends EventEmitter {
     run(0);
   }
 
+  /**
+   * A reference to the request that originated the underlying Engine.IO Socket.
+   *
+   * @public
+   */
   public get request(): IncomingMessage {
     return this.client.request;
   }
 
+  /**
+   * A reference to the underlying Client transport connection (Engine.IO Socket object).
+   *
+   * @public
+   */
   public get conn() {
     return this.client.conn;
   }
 
+  /**
+   * @public
+   */
   public get rooms(): Set<Room> {
     return this.adapter.socketRooms(this.id) || new Set();
   }

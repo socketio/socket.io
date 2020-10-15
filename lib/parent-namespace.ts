@@ -8,23 +8,23 @@ export class ParentNamespace extends Namespace {
     super(server, "/_" + ParentNamespace.count++);
   }
 
-  initAdapter() {}
+  _initAdapter() {}
 
   public emit(...args): Namespace {
     this.children.forEach(nsp => {
-      nsp.rooms = this.rooms;
-      nsp.flags = this.flags;
+      nsp._rooms = this._rooms;
+      nsp._flags = this._flags;
       nsp.emit.apply(nsp, args);
     });
-    this.rooms.clear();
-    this.flags = {};
+    this._rooms.clear();
+    this._flags = {};
 
     return this;
   }
 
   createChild(name) {
     const namespace = new Namespace(this.server, name);
-    namespace.fns = this.fns.slice(0);
+    namespace._fns = this._fns.slice(0);
     this.listeners("connect").forEach(listener =>
       // @ts-ignore
       namespace.on("connect", listener)
@@ -34,7 +34,7 @@ export class ParentNamespace extends Namespace {
       namespace.on("connection", listener)
     );
     this.children.add(namespace);
-    this.server.nsps.set(name, namespace);
+    this.server._nsps.set(name, namespace);
     return namespace;
   }
 }

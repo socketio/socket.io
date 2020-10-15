@@ -14,18 +14,23 @@ export class Namespace extends EventEmitter {
 
   public adapter: Adapter;
 
-  /** @package */
-  public readonly server;
-  /** @package */
-  public fns: Array<(socket: Socket, next: (err: Error) => void) => void> = [];
-  /** @package */
-  public rooms: Set<Room> = new Set();
-  /** @package */
-  public flags: any = {};
-  /** @package */
-  public ids: number = 0;
-  /** @package */
-  public sockets: Map<SocketId, Socket> = new Map();
+  /** @private */
+  readonly server;
+
+  /** @private */
+  _fns: Array<(socket: Socket, next: (err: Error) => void) => void> = [];
+
+  /** @private */
+  _rooms: Set<Room> = new Set();
+
+  /** @private */
+  _flags: any = {};
+
+  /** @private */
+  _ids: number = 0;
+
+  /** @private */
+  _sockets: Map<SocketId, Socket> = new Map();
 
   /**
    * Namespace constructor.
@@ -37,7 +42,7 @@ export class Namespace extends EventEmitter {
     super();
     this.server = server;
     this.name = name;
-    this.initAdapter();
+    this._initAdapter();
   }
 
   /**
@@ -45,9 +50,9 @@ export class Namespace extends EventEmitter {
    * Run upon changing adapter by `Server#adapter`
    * in addition to the constructor.
    *
-   * @package
+   * @private
    */
-  public initAdapter(): void {
+  _initAdapter(): void {
     this.adapter = new (this.server.adapter())(this);
   }
 
@@ -55,11 +60,12 @@ export class Namespace extends EventEmitter {
    * Sets up namespace middleware.
    *
    * @return {Namespace} self
+   * @public
    */
   public use(
     fn: (socket: Socket, next: (err?: Error) => void) => void
   ): Namespace {
-    this.fns.push(fn);
+    this._fns.push(fn);
     return this;
   }
 
@@ -68,9 +74,10 @@ export class Namespace extends EventEmitter {
    *
    * @param {Socket} socket - the socket that will get added
    * @param {Function} fn - last fn call in the middleware
+   * @private
    */
   private run(socket: Socket, fn: (err: Error) => void) {
-    const fns = this.fns.slice(0);
+    const fns = this._fns.slice(0);
     if (!fns.length) return fn(null);
 
     function run(i) {
@@ -94,9 +101,10 @@ export class Namespace extends EventEmitter {
    *
    * @param {String} name
    * @return {Namespace} self
+   * @public
    */
   public to(name: Room): Namespace {
-    this.rooms.add(name);
+    this._rooms.add(name);
     return this;
   }
 
@@ -105,9 +113,10 @@ export class Namespace extends EventEmitter {
    *
    * @param {String} name
    * @return {Namespace} self
+   * @public
    */
   public in(name: Room): Namespace {
-    this.rooms.add(name);
+    this._rooms.add(name);
     return this;
   }
 
@@ -115,6 +124,7 @@ export class Namespace extends EventEmitter {
    * Adds a new client.
    *
    * @return {Socket}
+   * @private
    */
   private add(client: Client, query, fn?: () => void): Socket {
     debug("adding socket to nsp %s", this.name);
@@ -122,16 +132,16 @@ export class Namespace extends EventEmitter {
     this.run(socket, err => {
       process.nextTick(() => {
         if ("open" == client.conn.readyState) {
-          if (err) return socket.error(err.message);
+          if (err) return socket._error(err.message);
 
           // track socket
-          this.sockets.set(socket.id, socket);
+          this._sockets.set(socket.id, socket);
 
           // it's paramount that the internal `onconnect` logic
           // fires before user-set events to prevent state order
           // violations (such as a disconnection before the connection
           // logic is complete)
-          socket.onconnect();
+          socket._onconnect();
           if (fn) fn();
 
           // fire user-set events
@@ -148,11 +158,11 @@ export class Namespace extends EventEmitter {
   /**
    * Removes a client. Called by each `Socket`.
    *
-   * @package
+   * @private
    */
-  public remove(socket: Socket): void {
-    if (this.sockets.has(socket.id)) {
-      this.sockets.delete(socket.id);
+  _remove(socket: Socket): void {
+    if (this._sockets.has(socket.id)) {
+      this._sockets.delete(socket.id);
     } else {
       debug("ignoring remove for %s", socket.id);
     }
@@ -162,6 +172,7 @@ export class Namespace extends EventEmitter {
    * Emits to all clients.
    *
    * @return {Namespace} self
+   * @public
    */
   // @ts-ignore
   public emit(ev: string, ...args: any[]): Namespace {
@@ -179,12 +190,12 @@ export class Namespace extends EventEmitter {
       throw new Error("Callbacks are not supported when broadcasting");
     }
 
-    const rooms = new Set(this.rooms);
-    const flags = Object.assign({}, this.flags);
+    const rooms = new Set(this._rooms);
+    const flags = Object.assign({}, this._flags);
 
     // reset flags
-    this.rooms.clear();
-    this.flags = {};
+    this._rooms.clear();
+    this._flags = {};
 
     this.adapter.broadcast(packet, {
       rooms: rooms,
@@ -198,6 +209,7 @@ export class Namespace extends EventEmitter {
    * Sends a `message` event to all clients.
    *
    * @return {Namespace} self
+   * @public
    */
   public send(...args): Namespace {
     args.unshift("message");
@@ -209,6 +221,7 @@ export class Namespace extends EventEmitter {
    * Sends a `message` event to all clients.
    *
    * @return {Namespace} self
+   * @public
    */
   public write(...args): Namespace {
     args.unshift("message");
@@ -220,6 +233,7 @@ export class Namespace extends EventEmitter {
    * Gets a list of clients.
    *
    * @return {Namespace} self
+   * @public
    */
   public allSockets(): Promise<Set<SocketId>> {
     if (!this.adapter) {
@@ -227,8 +241,8 @@ export class Namespace extends EventEmitter {
         "No adapter for this namespace, are you trying to get the list of clients of a dynamic namespace?"
       );
     }
-    const rooms = new Set(this.rooms);
-    this.rooms.clear();
+    const rooms = new Set(this._rooms);
+    this._rooms.clear();
     return this.adapter.sockets(rooms);
   }
 
@@ -237,9 +251,10 @@ export class Namespace extends EventEmitter {
    *
    * @param {Boolean} compress - if `true`, compresses the sending data
    * @return {Namespace} self
+   * @public
    */
   public compress(compress: boolean): Namespace {
-    this.flags.compress = compress;
+    this._flags.compress = compress;
     return this;
   }
 
@@ -249,9 +264,10 @@ export class Namespace extends EventEmitter {
    * and is in the middle of a request-response cycle).
    *
    * @return {Namespace} self
+   * @public
    */
   public get volatile(): Namespace {
-    this.flags.volatile = true;
+    this._flags.volatile = true;
     return this;
   }
 
@@ -259,9 +275,10 @@ export class Namespace extends EventEmitter {
    * Sets a modifier for a subsequent event emission that the event data will only be broadcast to the current node.
    *
    * @return {Namespace} self
+   * @public
    */
   public get local(): Namespace {
-    this.flags.local = true;
+    this._flags.local = true;
     return this;
   }
 }

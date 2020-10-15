@@ -216,12 +216,12 @@ describe("socket.io", () => {
       const clientSocket = client(srv, { reconnection: false });
 
       clientSocket.on("disconnect", () => {
-        expect(Object.keys(sio.nsps["/"].sockets).length).to.equal(0);
+        expect(Object.keys(sio._nsps["/"].sockets).length).to.equal(0);
         server.listen(PORT);
       });
 
       clientSocket.on("connect", () => {
-        expect(Object.keys(sio.nsps["/"].sockets).length).to.equal(1);
+        expect(Object.keys(sio._nsps["/"].sockets).length).to.equal(1);
         sio.close();
       });
 
@@ -242,12 +242,12 @@ describe("socket.io", () => {
       const clientSocket = ioc("ws://0.0.0.0:" + PORT, { reconnection: false });
 
       clientSocket.on("disconnect", () => {
-        expect(Object.keys(sio.nsps["/"].sockets).length).to.equal(0);
+        expect(Object.keys(sio._nsps["/"].sockets).length).to.equal(0);
         server.listen(PORT);
       });
 
       clientSocket.on("connect", () => {
-        expect(Object.keys(sio.nsps["/"].sockets).length).to.equal(1);
+        expect(Object.keys(sio._nsps["/"].sockets).length).to.equal(1);
         sio.close();
       });
 
@@ -297,8 +297,8 @@ describe("socket.io", () => {
       expect(sio.compress).to.be.a("function");
       expect(sio.volatile).to.be(sio);
       expect(sio.local).to.be(sio);
-      expect(sio.sockets.flags).to.eql({ volatile: true, local: true });
-      delete sio.sockets.flags;
+      expect(sio.sockets._flags).to.eql({ volatile: true, local: true });
+      delete sio.sockets._flags;
     });
 
     it("should automatically connect", done => {
