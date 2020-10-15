@@ -2,7 +2,6 @@ import { Packet, PacketType } from "socket.io-parser";
 import * as Emitter from "component-emitter";
 import { on } from "./on";
 import * as bind from "component-bind";
-import * as hasBin from "has-binary2";
 import { Manager } from "./manager";
 
 const debug = require("debug")("socket.io-client:socket");
@@ -132,9 +131,7 @@ export class Socket extends Emitter {
 
     args.unshift(ev);
     const packet: any = {
-      type: (this.flags.binary !== undefined ? this.flags.binary : hasBin(args))
-        ? PacketType.BINARY_EVENT
-        : PacketType.EVENT,
+      type: PacketType.EVENT,
       data: args,
     };
 
@@ -282,7 +279,7 @@ export class Socket extends Emitter {
       debug("sending ack %j", args);
 
       self.packet({
-        type: hasBin(args) ? PacketType.BINARY_ACK : PacketType.ACK,
+        type: PacketType.ACK,
         id: id,
         data: args,
       });
@@ -407,18 +404,6 @@ export class Socket extends Emitter {
    */
   public compress(compress: boolean) {
     this.flags.compress = compress;
-    return this;
-  }
-
-  /**
-   * Sets the binary flag
-   *
-   * @param {Boolean} binary - whether the emitted data contains binary
-   * @return {Socket} self
-   * @public
-   */
-  public binary(binary: boolean): Socket {
-    this.flags.binary = binary;
     return this;
   }
 }

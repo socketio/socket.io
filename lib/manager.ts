@@ -5,7 +5,6 @@ import * as parser from "socket.io-parser";
 import { Decoder, Encoder } from "socket.io-parser";
 import { on } from "./on";
 import * as bind from "component-bind";
-import * as indexOf from "indexof";
 import * as Backoff from "backo2";
 
 const debug = require("debug")("socket.io-client:manager");
@@ -595,7 +594,7 @@ export class Manager extends Emitter {
     }
 
     function onConnecting() {
-      if (!~indexOf(self.connecting, socket)) {
+      if (!~self.connecting.indexOf(socket)) {
         self.connecting.push(socket);
       }
     }
@@ -610,7 +609,7 @@ export class Manager extends Emitter {
    * @private
    */
   _destroy(socket) {
-    const index = indexOf(this.connecting, socket);
+    const index = this.connecting.indexOf(socket);
     if (~index) this.connecting.splice(index, 1);
     if (this.connecting.length) return;
 

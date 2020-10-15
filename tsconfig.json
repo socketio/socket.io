@@ -4,8 +4,7 @@
     "allowJs": false,
     "target": "es2017",
     "module": "commonjs",
-    "declaration": true,
-    "allowSyntheticDefaultImports": true
+    "declaration": true
   },
   "include": [
     "./lib/**/*"
