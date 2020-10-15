@@ -568,7 +568,7 @@ export class Server extends EventEmitter {
    * @public
    */
   public close(fn?: (err?: Error) => void): void {
-    for (const socket of this.sockets._sockets.values()) {
+    for (const socket of this.sockets.sockets.values()) {
       socket._onclose("server shutting down");
     }
 

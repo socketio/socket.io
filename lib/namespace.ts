@@ -10,7 +10,7 @@ const debug = debugModule("socket.io:namespace");
 
 export class Namespace extends EventEmitter {
   public readonly name: string;
-  public readonly connected: Map<SocketId, Socket> = new Map();
+  public readonly sockets: Map<SocketId, Socket> = new Map();
 
   public adapter: Adapter;
 
@@ -28,9 +28,6 @@ export class Namespace extends EventEmitter {
 
   /** @private */
   _ids: number = 0;
-
-  /** @private */
-  _sockets: Map<SocketId, Socket> = new Map();
 
   /**
    * Namespace constructor.
@@ -135,7 +132,7 @@ export class Namespace extends EventEmitter {
           if (err) return socket._error(err.message);
 
           // track socket
-          this._sockets.set(socket.id, socket);
+          this.sockets.set(socket.id, socket);
 
           // it's paramount that the internal `onconnect` logic
           // fires before user-set events to prevent state order
@@ -161,8 +158,8 @@ export class Namespace extends EventEmitter {
    * @private
    */
   _remove(socket: Socket): void {
-    if (this._sockets.has(socket.id)) {
-      this._sockets.delete(socket.id);
+    if (this.sockets.has(socket.id)) {
+      this.sockets.delete(socket.id);
     } else {
       debug("ignoring remove for %s", socket.id);
     }

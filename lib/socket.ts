@@ -291,7 +291,6 @@ export class Socket extends EventEmitter {
    */
   _onconnect(): void {
     debug("socket connected - writing packet");
-    this.nsp.connected.set(this.id, this);
     this.join(this.id);
     this.packet({ type: PacketType.CONNECT, data: { sid: this.id } });
   }
@@ -430,7 +429,6 @@ export class Socket extends EventEmitter {
     this.client._remove(this);
     this.connected = false;
     this.disconnected = true;
-    this.nsp.connected.delete(this.id);
     super.emit("disconnect", reason);
   }
 
