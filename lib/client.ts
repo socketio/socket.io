@@ -4,6 +4,7 @@ import { IncomingMessage } from "http";
 import { Server } from "./index";
 import { Socket } from "./socket";
 import { SocketId } from "socket.io-adapter";
+import { ParentNamespace } from "./parent-namespace";
 
 const debug = debugModule("socket.io:client");
 
@@ -11,7 +12,7 @@ export class Client {
   public readonly conn;
 
   private readonly id: string;
-  private readonly server;
+  private readonly server: Server;
   private readonly encoder: Encoder;
   private readonly decoder: Decoder;
   private sockets: Map<SocketId, Socket> = new Map();
@@ -83,7 +84,7 @@ export class Client {
       return this.doConnect(name, auth);
     }
 
-    this.server._checkNamespace(name, auth, dynamicNsp => {
+    this.server._checkNamespace(name, auth, (dynamicNsp: ParentNamespace) => {
       if (dynamicNsp) {
         debug("dynamic namespace %s was created", dynamicNsp.name);
         this.doConnect(name, auth);
@@ -113,7 +114,7 @@ export class Client {
     }
     const nsp = this.server.of(name);
 
-    const socket = nsp.add(this, auth, () => {
+    const socket = nsp._add(this, auth, () => {
       this.sockets.set(socket.id, socket);
       this.nsps.set(nsp.name, socket);
     });

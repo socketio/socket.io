@@ -15,7 +15,7 @@ export class Namespace extends EventEmitter {
   public adapter: Adapter;
 
   /** @private */
-  readonly server;
+  readonly server: Server;
 
   /** @private */
   _fns: Array<(socket: Socket, next: (err: Error) => void) => void> = [];
@@ -126,7 +126,7 @@ export class Namespace extends EventEmitter {
    * @return {Socket}
    * @private
    */
-  private add(client: Client, query, fn?: () => void): Socket {
+  _add(client: Client, query, fn?: () => void): Socket {
     debug("adding socket to nsp %s", this.name);
     const socket = new Socket(this, client, query);
     this.run(socket, err => {

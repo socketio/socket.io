@@ -170,12 +170,16 @@ export class Server extends EventEmitter {
       ) => void),
     ParentNamespace
   > = new Map();
-  private _adapter;
+  private _adapter: any;
   private _serveClient: boolean;
   private eio;
   private engine;
   private _path: string;
-  private _connectTimeout: number;
+
+  /**
+   * @private
+   */
+  _connectTimeout: number;
   private httpServer: http.Server;
 
   /**
@@ -211,7 +215,9 @@ export class Server extends EventEmitter {
    * @return {Server|Boolean} self when setting or value when getting
    * @public
    */
-  public serveClient(v?: boolean) {
+  public serveClient(v: boolean): Server;
+  public serveClient(): boolean;
+  public serveClient(v?: boolean): Server | boolean {
     if (!arguments.length) return this._serveClient;
     this._serveClient = v;
     const resolvePath = function(file) {
@@ -280,7 +286,9 @@ export class Server extends EventEmitter {
    * @return {Server|String} self when setting or value when getting
    * @public
    */
-  public path(v?: string) {
+  public path(v: string): Server;
+  public path(): string;
+  public path(v?: string): Server | string {
     if (!arguments.length) return this._path;
     this._path = v.replace(/\/$/, "");
     return this;
@@ -306,7 +314,9 @@ export class Server extends EventEmitter {
    * @return {Server|Adapter} self when setting or value when getting
    * @public
    */
-  public adapter(v) {
+  public adapter(): any;
+  public adapter(v: any);
+  public adapter(v?): Server | any {
     if (!arguments.length) return this._adapter;
     this._adapter = v;
     for (const nsp of this._nsps.values()) {
