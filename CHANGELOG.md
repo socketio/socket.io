@@ -1,3 +1,12 @@
+## [4.0.1-rc2](https://github.com/socketio/socket.io-parser/compare/4.0.1-rc1...4.0.1-rc2) (2020-10-15)
+
+
+### Features
+
+* move binary detection back to the parser ([285e7cd](https://github.com/socketio/socket.io-parser/commit/285e7cd0d837adfc911c999e7294788681226ae1))
+
+
+
 ## [4.0.1-rc1](https://github.com/socketio/socket.io-parser/compare/4.0.0...4.0.1-rc1) (2020-10-12)
 
 
