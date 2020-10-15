@@ -3,7 +3,6 @@ import { Server } from "./index";
 import { Client } from "./client";
 import { EventEmitter } from "events";
 import { PacketType } from "socket.io-parser";
-import hasBin from "has-binary2";
 import debugModule from "debug";
 import { Adapter, Room, SocketId } from "socket.io-adapter";
 
@@ -172,11 +171,7 @@ export class Namespace extends EventEmitter {
     // set up packet object
     args.unshift(ev);
     const packet = {
-      type: (this.flags.binary !== undefined
-      ? this.flags.binary
-      : hasBin(args))
-        ? PacketType.BINARY_EVENT
-        : PacketType.EVENT,
+      type: PacketType.EVENT,
       data: args
     };
 
@@ -245,17 +240,6 @@ export class Namespace extends EventEmitter {
    */
   public compress(compress: boolean): Namespace {
     this.flags.compress = compress;
-    return this;
-  }
-
-  /**
-   * Sets the binary flag
-   *
-   * @param {Boolean} binary - encode as if it has binary data if `true`, Encode as if it doesnt have binary data if `false`
-   * @return {Namespace} self
-   */
-  public binary(binary: boolean): Namespace {
-    this.flags.binary = binary;
     return this;
   }
 

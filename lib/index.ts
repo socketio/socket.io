@@ -596,17 +596,6 @@ export class Server extends EventEmitter {
   }
 
   /**
-   * Sets the binary flag
-   *
-   * @param {Boolean} binary - encode as if it has binary data if `true`, Encode as if it doesnt have binary data if `false`
-   * @return {Server} self
-   */
-  public binary(binary: boolean): Server {
-    this.sockets.binary(binary);
-    return this;
-  }
-
-  /**
    * Sets a modifier for a subsequent event emission that the event data may be lost if the client is not ready to
    * receive messages (because of network slowness or other issues, or because they’re connected through long polling
    * and is in the middle of a request-response cycle).
