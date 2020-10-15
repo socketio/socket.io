@@ -1,3 +1,28 @@
+# [3.0.0-rc2](https://github.com/socketio/socket.io/compare/3.0.0-rc1...3.0.0-rc2) (2020-10-15)
+
+
+### Bug Fixes
+
+* close clients with no namespace ([91cd255](https://github.com/socketio/socket.io/commit/91cd255ba76ff6a780c62740f9f5cd3a76f5d7c7))
+
+
+### Code Refactoring
+
+* remove duplicate _sockets map ([8a5db7f](https://github.com/socketio/socket.io/commit/8a5db7fa36a075da75cde43cd4fb6382b7659953))
+
+
+### Features
+
+* move binary detection back to the parser ([669592d](https://github.com/socketio/socket.io/commit/669592d120409a5cf00f128070dee6d22259ba4f))
+
+
+### BREAKING CHANGES
+
+* the "connected" map is renamed to "sockets"
+* the Socket#binary() method is removed, as this use case is now covered by the ability to provide your own parser.
+
+
+
 # [3.0.0-rc1](https://github.com/socketio/socket.io/compare/2.3.0...3.0.0-rc1) (2020-10-13)
 
 
