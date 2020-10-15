@@ -29,7 +29,7 @@ describe("socket.io-adapter", () => {
   it("should return a list of sockets", async () => {
     const adapter = new Adapter({
       server: { encoder: null },
-      connected: new Map([
+      sockets: new Map([
         ["s1", true],
         ["s2", true],
         ["s3", true]

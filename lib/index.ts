@@ -122,7 +122,7 @@ export class Adapter extends EventEmitter {
 
         for (const id of this.rooms.get(room)) {
           if (ids.has(id) || except.has(id)) continue;
-          const socket = this.nsp.connected.get(id);
+          const socket = this.nsp.sockets.get(id);
           if (socket) {
             socket.packet(encodedPackets, packetOpts);
             ids.add(id);
@@ -132,7 +132,7 @@ export class Adapter extends EventEmitter {
     } else {
       for (const [id] of this.sids) {
         if (except.has(id)) continue;
-        const socket = this.nsp.connected.get(id);
+        const socket = this.nsp.sockets.get(id);
         if (socket) socket.packet(encodedPackets, packetOpts);
       }
     }
@@ -151,14 +151,14 @@ export class Adapter extends EventEmitter {
         if (!this.rooms.has(room)) continue;
 
         for (const id of this.rooms.get(room)) {
-          if (this.nsp.connected.has(id)) {
+          if (this.nsp.sockets.has(id)) {
             sids.add(id);
           }
         }
       }
     } else {
       for (const [id] of this.sids) {
-        if (this.nsp.connected.has(id)) sids.add(id);
+        if (this.nsp.sockets.has(id)) sids.add(id);
       }
     }
 
