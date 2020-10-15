@@ -1,6 +1,6 @@
 {
   "name": "socket.io-client",
-  "version": "3.0.0-rc1",
+  "version": "3.0.0-rc2",
   "keywords": [
     "realtime",
     "framework",
@@ -12,7 +12,7 @@
   "files": [
     "dist/",
     "build/",
-    "./wrapper.mjs"
+    "wrapper.mjs"
   ],
   "type": "commonjs",
   "main": "./build/index.js",
@@ -54,7 +54,7 @@
     "istanbul": "^0.4.5",
     "mocha": "^3.3.0",
     "prettier": "^2.1.2",
-    "socket.io": "3.0.0-rc1",
+    "socket.io": "3.0.0-rc2",
     "socket.io-browsers": "^1.0.0",
     "text-blob-builder": "0.0.1",
     "ts-loader": "^8.0.5",

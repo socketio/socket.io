@@ -1,3 +1,17 @@
+# [3.0.0-rc2](https://github.com/socketio/socket.io-client/compare/3.0.0-rc1...3.0.0-rc2) (2020-10-15)
+
+
+### Features
+
+* move binary detection back to the parser ([1789094](https://github.com/socketio/socket.io-client/commit/178909471a3dd232e71cba83b729b4cc66f1412f))
+
+
+### BREAKING CHANGES
+
+* the Socket#binary() method is removed, as this use case is now covered by the ability to provide your own parser.
+
+
+
 # [3.0.0-rc1](https://github.com/socketio/socket.io-client/compare/2.3.1...3.0.0-rc1) (2020-10-13)
 
 
