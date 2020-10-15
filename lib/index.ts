@@ -29,19 +29,23 @@ type Transport = "polling" | "websocket";
 
 interface EngineOptions {
   /**
-   * how many ms without a pong packet to consider the connection closed (5000)
+   * how many ms without a pong packet to consider the connection closed
+   * @default 5000
    */
   pingTimeout: number;
   /**
-   * how many ms before sending a new ping packet (25000)
+   * how many ms before sending a new ping packet
+   * @default 25000
    */
   pingInterval: number;
   /**
-   * how many ms before an uncompleted transport upgrade is cancelled (10000)
+   * how many ms before an uncompleted transport upgrade is cancelled
+   * @default 10000
    */
   upgradeTimeout: number;
   /**
-   * how many bytes or characters a message can be, before closing the session (to avoid DoS). Default value is 1E5.
+   * how many bytes or characters a message can be, before closing the session (to avoid DoS).
+   * @default 1e5 (100 KB)
    */
   maxHttpBufferSize: number;
   /**
@@ -55,19 +59,23 @@ interface EngineOptions {
     fn: (err: string | null | undefined, success: boolean) => void
   ) => void;
   /**
-   * to allow connections to (['polling', 'websocket'])
+   * the low-level transports that are enabled
+   * @default ["polling", "websocket"]
    */
   transports: Transport[];
   /**
-   * whether to allow transport upgrades (true)
+   * whether to allow transport upgrades
+   * @default true
    */
   allowUpgrades: boolean;
   /**
-   * parameters of the WebSocket permessage-deflate extension (see ws module api docs). Set to false to disable. (false)
+   * parameters of the WebSocket permessage-deflate extension (see ws module api docs). Set to false to disable.
+   * @default false
    */
   perMessageDeflate: boolean | object;
   /**
-   * parameters of the http compression for the polling transports (see zlib api docs). Set to false to disable. (true)
+   * parameters of the http compression for the polling transports (see zlib api docs). Set to false to disable.
+   * @default true
    */
   httpCompression: boolean | object;
   /**
@@ -82,7 +90,8 @@ interface EngineOptions {
   initialPacket: any;
   /**
    * configuration of the cookie that contains the client sid to send as part of handshake response headers. This cookie
-   * might be used for sticky-session. Defaults to not sending any cookie (false)
+   * might be used for sticky-session. Defaults to not sending any cookie.
+   * @default false
    */
   cookie: CookieSerializeOptions | boolean;
   /**
@@ -93,15 +102,18 @@ interface EngineOptions {
 
 interface AttachOptions {
   /**
-   * name of the path to capture (/engine.io).
+   * name of the path to capture
+   * @default "/engine.io"
    */
   path: string;
   /**
-   * destroy unhandled upgrade requests (true)
+   * destroy unhandled upgrade requests
+   * @default true
    */
   destroyUpgrade: boolean;
   /**
-   * milliseconds after which unhandled requests are ended (1000)
+   * milliseconds after which unhandled requests are ended
+   * @default 1000
    */
   destroyUpgradeTimeout: number;
 }
@@ -110,21 +122,30 @@ interface EngineAttachOptions extends EngineOptions, AttachOptions {}
 
 interface ServerOptions extends EngineAttachOptions {
   /**
-   * name of the path to capture (/socket.io)
+   * name of the path to capture
+   * @default "/socket.io"
    */
   path: string;
   /**
-   * whether to serve the client files (true)
+   * whether to serve the client files
+   * @default true
    */
   serveClient: boolean;
   /**
-   * the adapter to use. Defaults to an instance of the Adapter that ships with socket.io which is memory based.
+   * the adapter to use
+   * @default the in-memory adapter (https://github.com/socketio/socket.io-adapter)
    */
   adapter: any;
   /**
-   * the parser to use. Defaults to an instance of the Parser that ships with socket.io.
+   * the parser to use
+   * @default the default parser (https://github.com/socketio/socket.io-parser)
    */
   parser: any;
+  /**
+   * how many ms before a client without namespace is closed
+   * @default 45000
+   */
+  connectTimeout: number;
 }
 
 export class Server extends EventEmitter {
@@ -154,6 +175,7 @@ export class Server extends EventEmitter {
   private eio;
   private engine;
   private _path: string;
+  private _connectTimeout: number;
   private httpServer: http.Server;
 
   /**
@@ -173,6 +195,7 @@ export class Server extends EventEmitter {
       srv = null;
     }
     this.path(opts.path || "/socket.io");
+    this.connectTimeout(opts.connectTimeout || 45000);
     this.serveClient(false !== opts.serveClient);
     this._parser = opts.parser || parser;
     this.encoder = new this._parser.Encoder();
@@ -260,6 +283,19 @@ export class Server extends EventEmitter {
   public path(v?: string) {
     if (!arguments.length) return this._path;
     this._path = v.replace(/\/$/, "");
+    return this;
+  }
+
+  /**
+   * Set the delay after which a client without namespace is closed
+   * @param v
+   * @public
+   */
+  public connectTimeout(v: number): Server;
+  public connectTimeout(): number;
+  public connectTimeout(v?: number): Server | number {
+    if (v === undefined) return this._connectTimeout;
+    this._connectTimeout = v;
     return this;
   }
 

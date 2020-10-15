@@ -16,6 +16,7 @@ export class Client {
   private readonly decoder: Decoder;
   private sockets: Map<SocketId, Socket> = new Map();
   private nsps: Map<string, Socket> = new Map();
+  private connectTimeout: NodeJS.Timeout;
 
   /**
    * Client constructor.
@@ -58,6 +59,15 @@ export class Client {
     this.conn.on("data", this.ondata);
     this.conn.on("error", this.onerror);
     this.conn.on("close", this.onclose);
+
+    this.connectTimeout = setTimeout(() => {
+      if (this.nsps.size === 0) {
+        debug("no namespace joined yet, close the client");
+        this.close();
+      } else {
+        debug("the client has already joined a namespace, nothing to do");
+      }
+    }, this.server._connectTimeout);
   }
 
   /**
@@ -97,6 +107,10 @@ export class Client {
    * @private
    */
   private doConnect(name: string, auth: object) {
+    if (this.connectTimeout) {
+      clearTimeout(this.connectTimeout);
+      this.connectTimeout = null;
+    }
     const nsp = this.server.of(name);
 
     const socket = nsp.add(this, auth, () => {
