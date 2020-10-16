@@ -35,18 +35,58 @@ describe("socket.io", () => {
     describe("http.Server", () => {
       const clientVersion = require("socket.io-client/package.json").version;
 
-      it("should serve static files", done => {
+      const testSource = filename => done => {
+        const srv = createServer();
+        new Server(srv);
+        request(srv)
+          .get("/socket.io/" + filename)
+          .buffer(true)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.headers["content-type"]).to.be("application/javascript");
+            expect(res.headers.etag).to.be('"' + clientVersion + '"');
+            expect(res.headers["x-sourcemap"]).to.be(filename + ".map");
+            expect(res.text).to.match(/engine\.io/);
+            expect(res.status).to.be(200);
+            done();
+          });
+      };
+
+      const testSourceMap = filename => done => {
+        const srv = createServer();
+        new Server(srv);
+        request(srv)
+          .get("/socket.io/" + filename)
+          .buffer(true)
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.headers["content-type"]).to.be("application/json");
+            expect(res.headers.etag).to.be('"' + clientVersion + '"');
+            expect(res.text).to.match(/engine\.io/);
+            expect(res.status).to.be(200);
+            done();
+          });
+      };
+
+      it("should serve client", testSource("socket.io.js"));
+      it("should serve source map", testSourceMap("socket.io.js.map"));
+      it("should serve client (min)", testSource("socket.io.min.js"));
+
+      it(
+        "should serve source map (min)",
+        testSourceMap("socket.io.min.js.map")
+      );
+
+      it("should serve client (gzip)", done => {
         const srv = createServer();
         new Server(srv);
         request(srv)
           .get("/socket.io/socket.io.js")
+          .set("accept-encoding", "gzip,br,deflate")
           .buffer(true)
           .end((err, res) => {
             if (err) return done(err);
-            const ctype = res.headers["content-type"];
-            expect(ctype).to.be("application/javascript");
-            expect(res.headers.etag).to.be('"' + clientVersion + '"');
-            expect(res.text).to.match(/engine\.io/);
+            expect(res.headers["content-encoding"]).to.be("gzip");
             expect(res.status).to.be(200);
             done();
           });

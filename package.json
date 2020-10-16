@@ -34,11 +34,11 @@
     "prepack": "tsc"
   },
   "dependencies": {
+    "accepts": "~1.3.4",
     "base64id": "~2.0.0",
     "debug": "~4.1.0",
     "engine.io": "~4.0.0",
     "socket.io-adapter": "2.0.3-rc1",
-    "socket.io-client": "3.0.0-rc2",
     "socket.io-parser": "4.0.1-rc2"
   },
   "devDependencies": {
@@ -53,6 +53,7 @@
     "mocha": "^3.5.3",
     "nyc": "^11.2.1",
     "prettier": "^1.19.1",
+    "socket.io-client": "3.0.0-rc2",
     "superagent": "^3.8.2",
     "supertest": "^3.0.0",
     "ts-node": "^9.0.0",

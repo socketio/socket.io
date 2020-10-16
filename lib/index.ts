@@ -1,5 +1,8 @@
 import http from "http";
-import { existsSync as exists, readFileSync as read } from "fs";
+import { createReadStream } from "fs";
+import { createDeflate, createGzip, createBrotliCompress } from "zlib";
+import accepts = require("accepts");
+import { pipeline } from "stream";
 import path from "path";
 import engine from "engine.io";
 import { Client } from "./client";
@@ -16,14 +19,8 @@ import { CorsOptions } from "cors";
 
 const debug = debugModule("socket.io:server");
 
-const clientVersion = require("socket.io-client/package.json").version;
-
-/**
- * Socket.IO client source.
- */
-
-let clientSource = undefined;
-let clientSourceMap = undefined;
+const clientVersion = require("../package.json").version;
+const dotMapRegex = /\.map/;
 
 type Transport = "polling" | "websocket";
 
@@ -175,6 +172,7 @@ export class Server extends EventEmitter {
   private eio;
   private engine;
   private _path: string;
+  private clientPathRegex: RegExp;
 
   /**
    * @private
@@ -220,27 +218,6 @@ export class Server extends EventEmitter {
   public serveClient(v?: boolean): Server | boolean {
     if (!arguments.length) return this._serveClient;
     this._serveClient = v;
-    const resolvePath = function(file) {
-      const filepath = path.resolve(__dirname, "./../../", file);
-      if (exists(filepath)) {
-        return filepath;
-      }
-      return require.resolve(file);
-    };
-    if (v && !clientSource) {
-      clientSource = read(
-        resolvePath("socket.io-client/dist/socket.io.js"),
-        "utf-8"
-      );
-      try {
-        clientSourceMap = read(
-          resolvePath("socket.io-client/dist/socket.io.js.map"),
-          "utf-8"
-        );
-      } catch (err) {
-        debug("could not load sourcemap file");
-      }
-    }
     return this;
   }
 
@@ -290,7 +267,13 @@ export class Server extends EventEmitter {
   public path(): string;
   public path(v?: string): Server | string {
     if (!arguments.length) return this._path;
+
     this._path = v.replace(/\/$/, "");
+
+    const escapedPath = this._path.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+    this.clientPathRegex = new RegExp(
+      "^" + escapedPath + "/socket\\.io(\\.min)?\\.js(\\.map)?$"
+    );
     return this;
   }
 
@@ -410,16 +393,12 @@ export class Server extends EventEmitter {
    */
   private attachServe(srv) {
     debug("attaching client serving req handler");
-    const url = this._path + "/socket.io.js";
-    const urlMap = this._path + "/socket.io.js.map";
+
     const evs = srv.listeners("request").slice(0);
-    const self = this;
     srv.removeAllListeners("request");
-    srv.on("request", function(req, res) {
-      if (0 === req.url.indexOf(urlMap)) {
-        self.serveMap(req, res);
-      } else if (0 === req.url.indexOf(url)) {
-        self.serve(req, res);
+    srv.on("request", (req, res) => {
+      if (this.clientPathRegex.test(req.url)) {
+        this.serve(req, res);
       } else {
         for (let i = 0; i < evs.length; i++) {
           evs[i].call(srv, req, res);
@@ -429,13 +408,17 @@ export class Server extends EventEmitter {
   }
 
   /**
-   * Handles a request serving `/socket.io.js`
+   * Handles a request serving of client source and map
    *
    * @param {http.IncomingMessage} req
    * @param {http.ServerResponse} res
    * @private
    */
   private serve(req: http.IncomingMessage, res: http.ServerResponse) {
+    const filename = req.url.replace(this._path, "");
+    const isMap = dotMapRegex.test(filename);
+    const type = isMap ? "map" : "source";
+
     // Per the standard, ETags must be quoted:
     // https://tools.ietf.org/html/rfc7232#section-2.3
     const expectedEtag = '"' + clientVersion + '"';
@@ -443,48 +426,68 @@ export class Server extends EventEmitter {
     const etag = req.headers["if-none-match"];
     if (etag) {
       if (expectedEtag == etag) {
-        debug("serve client 304");
+        debug("serve client %s 304", type);
         res.writeHead(304);
         res.end();
         return;
       }
     }
 
-    debug("serve client source");
+    debug("serve client %s", type);
+
     res.setHeader("Cache-Control", "public, max-age=0");
-    res.setHeader("Content-Type", "application/javascript");
+    res.setHeader(
+      "Content-Type",
+      "application/" + (isMap ? "json" : "javascript")
+    );
     res.setHeader("ETag", expectedEtag);
-    res.writeHead(200);
-    res.end(clientSource);
+
+    if (!isMap) {
+      res.setHeader("X-SourceMap", filename.substring(1) + ".map");
+    }
+    Server.sendFile(filename, req, res);
   }
 
   /**
-   * Handles a request serving `/socket.io.js.map`
-   *
-   * @param {http.IncomingMessage} req
-   * @param {http.ServerResponse} res
+   * @param filename
+   * @param req
+   * @param res
    * @private
    */
-  private serveMap(req: http.IncomingMessage, res: http.ServerResponse) {
-    // Per the standard, ETags must be quoted:
-    // https://tools.ietf.org/html/rfc7232#section-2.3
-    const expectedEtag = '"' + clientVersion + '"';
+  private static sendFile(
+    filename: string,
+    req: http.IncomingMessage,
+    res: http.ServerResponse
+  ) {
+    const readStream = createReadStream(
+      path.join(__dirname, "../client-dist/", filename)
+    );
+    const encoding = accepts(req).encodings(["br", "gzip", "deflate"]);
 
-    const etag = req.headers["if-none-match"];
-    if (etag) {
-      if (expectedEtag == etag) {
-        debug("serve client 304");
-        res.writeHead(304);
+    const onError = err => {
+      if (err) {
         res.end();
-        return;
       }
-    }
+    };
 
-    debug("serve client sourcemap");
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("ETag", expectedEtag);
-    res.writeHead(200);
-    res.end(clientSourceMap);
+    switch (encoding) {
+      case "br":
+        res.writeHead(200, { "content-encoding": "br" });
+        readStream.pipe(createBrotliCompress()).pipe(res);
+        pipeline(readStream, createBrotliCompress(), res, onError);
+        break;
+      case "gzip":
+        res.writeHead(200, { "content-encoding": "gzip" });
+        pipeline(readStream, createGzip(), res, onError);
+        break;
+      case "deflate":
+        res.writeHead(200, { "content-encoding": "deflate" });
+        pipeline(readStream, createDeflate(), res, onError);
+        break;
+      default:
+        res.writeHead(200);
+        pipeline(readStream, res, onError);
+    }
   }
 
   /**
