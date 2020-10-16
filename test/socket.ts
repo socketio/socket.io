@@ -190,4 +190,48 @@ describe("socket", function () {
       /"disconnecting" is a reserved event name/
     );
   });
+
+  describe("volatile packets", () => {
+    it("should discard a volatile packet when the socket is not connected", (done) => {
+      const socket = io({ forceNew: true, autoConnect: false });
+
+      socket.volatile.emit("getId", () => {
+        done(new Error("should not happen"));
+      });
+
+      socket.emit("getId", () => {
+        socket.disconnect();
+        done();
+      });
+
+      socket.connect();
+    });
+
+    it("should discard a volatile packet when the pipe is not ready", (done) => {
+      const socket = io({ forceNew: true });
+
+      socket.on("connect", () => {
+        socket.emit("getId", () => {
+          socket.disconnect();
+          done();
+        });
+
+        socket.volatile.emit("getId", () => {
+          done(new Error("should not happen"));
+        });
+      });
+    });
+
+    it("should send a volatile packet when the socket is connected and the pipe is ready", (done) => {
+      const socket = io({ forceNew: true });
+
+      const interval = setInterval(() => {
+        socket.volatile.emit("getId", () => {
+          clearInterval(interval);
+          socket.disconnect();
+          done();
+        });
+      }, 200);
+    });
+  });
 });

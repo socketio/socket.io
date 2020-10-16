@@ -28,6 +28,11 @@ const RESERVED_EVENTS = {
   removeListener: 1,
 };
 
+interface Flags {
+  compress?: boolean;
+  volatile?: boolean;
+}
+
 export class Socket extends Emitter {
   public readonly io: Manager;
 
@@ -42,7 +47,7 @@ export class Socket extends Emitter {
   private acks: object = {};
   private receiveBuffer: Array<any> = [];
   private sendBuffer: Array<any> = [];
-  private flags: any = {};
+  private flags: Flags = {};
   private subs: Array<any>;
 
   /**
@@ -136,7 +141,7 @@ export class Socket extends Emitter {
     };
 
     packet.options = {};
-    packet.options.compress = !this.flags || false !== this.flags.compress;
+    packet.options.compress = this.flags.compress !== false;
 
     // event ack callback
     if ("function" === typeof args[args.length - 1]) {
@@ -145,7 +150,16 @@ export class Socket extends Emitter {
       packet.id = this.ids++;
     }
 
-    if (this.connected) {
+    const isTransportWritable =
+      this.io.engine &&
+      this.io.engine.transport &&
+      this.io.engine.transport.writable;
+
+    const discardPacket =
+      this.flags.volatile && (!isTransportWritable || !this.connected);
+    if (discardPacket) {
+      debug("discard packet as the transport is not currently writable");
+    } else if (this.connected) {
       this.packet(packet);
     } else {
       this.sendBuffer.push(packet);
@@ -404,6 +418,18 @@ export class Socket extends Emitter {
    */
   public compress(compress: boolean) {
     this.flags.compress = compress;
+    return this;
+  }
+
+  /**
+   * Sets a modifier for a subsequent event emission that the event message will be dropped when this socket is not
+   * ready to send messages.
+   *
+   * @returns {Socket} self
+   * @public
+   */
+  public get volatile(): Socket {
+    this.flags.volatile = true;
     return this;
   }
 }
