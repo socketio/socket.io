@@ -1,6 +1,6 @@
 "use strict";
 
-import { Server } from "..";
+import { Server, Socket } from "..";
 import { createServer } from "http";
 import fs = require("fs");
 import { join } from "path";
@@ -357,7 +357,7 @@ describe("socket.io", () => {
       const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv);
-        sio.on("connection", socket => {
+        sio.on("connection", (socket: Socket) => {
           expect(socket).to.be.a(Socket);
           done();
         });
