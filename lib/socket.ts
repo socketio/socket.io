@@ -1,5 +1,5 @@
 import { Packet, PacketType } from "socket.io-parser";
-import * as Emitter from "component-emitter";
+import Emitter = require("component-emitter");
 import { on } from "./on";
 import * as bind from "component-bind";
 import { Manager } from "./manager";

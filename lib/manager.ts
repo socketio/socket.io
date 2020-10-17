@@ -1,6 +1,6 @@
 import * as eio from "engine.io-client";
 import { Socket, SocketOptions } from "./socket";
-import * as Emitter from "component-emitter";
+import Emitter = require("component-emitter");
 import * as parser from "socket.io-parser";
 import { Decoder, Encoder } from "socket.io-parser";
 import { on } from "./on";
@@ -579,7 +579,7 @@ export class Manager extends Emitter {
    * @return {Socket}
    * @public
    */
-  public socket(nsp: string, opts?: SocketOptions): Socket {
+  public socket(nsp: string, opts?: Partial<SocketOptions>): Socket {
     let socket = this.nsps[nsp];
     if (!socket) {
       socket = new Socket(this, nsp, opts);
