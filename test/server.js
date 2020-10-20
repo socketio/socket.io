@@ -33,7 +33,6 @@ describe("server", function() {
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(0);
             expect(res.body.message).to.be("Transport unknown");
-            expect(res.header["access-control-allow-origin"]).to.be("*");
             done();
           });
       });
@@ -51,12 +50,6 @@ describe("server", function() {
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(0);
             expect(res.body.message).to.be("Transport unknown");
-            expect(res.header["access-control-allow-credentials"]).to.be(
-              "true"
-            );
-            expect(res.header["access-control-allow-origin"]).to.be(
-              "http://engine.io"
-            );
             done();
           });
       });
@@ -73,12 +66,6 @@ describe("server", function() {
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(1);
             expect(res.body.message).to.be("Session ID unknown");
-            expect(res.header["access-control-allow-credentials"]).to.be(
-              "true"
-            );
-            expect(res.header["access-control-allow-origin"]).to.be(
-              "http://engine.io"
-            );
             done();
           });
       });
@@ -101,12 +88,6 @@ describe("server", function() {
               expect(res.status).to.be(403);
               expect(res.body.code).to.be(4);
               expect(res.body.message).to.be("Thou shall not pass");
-              expect(res.header["access-control-allow-credentials"]).to.be(
-                undefined
-              );
-              expect(res.header["access-control-allow-origin"]).to.be(
-                undefined
-              );
               done();
             });
         }
@@ -488,25 +469,30 @@ describe("server", function() {
     });
 
     it("should disallow bad requests", function(done) {
-      listen(function(port) {
-        request
-          .get("http://localhost:%d/engine.io/default/".s(port))
-          .set("Origin", "http://engine.io")
-          .query({ transport: "websocket" })
-          .end(function(err, res) {
-            expect(err).to.be.an(Error);
-            expect(res.status).to.be(400);
-            expect(res.body.code).to.be(3);
-            expect(res.body.message).to.be("Bad request");
-            expect(res.header["access-control-allow-credentials"]).to.be(
-              "true"
-            );
-            expect(res.header["access-control-allow-origin"]).to.be(
-              "http://engine.io"
-            );
-            done();
-          });
-      });
+      listen(
+        {
+          cors: { credentials: true, origin: "http://engine.io" }
+        },
+        function(port) {
+          request
+            .get("http://localhost:%d/engine.io/default/".s(port))
+            .set("Origin", "http://engine.io")
+            .query({ transport: "websocket" })
+            .end(function(err, res) {
+              expect(err).to.be.an(Error);
+              expect(res.status).to.be(400);
+              expect(res.body.code).to.be(3);
+              expect(res.body.message).to.be("Bad request");
+              expect(res.header["access-control-allow-credentials"]).to.be(
+                "true"
+              );
+              expect(res.header["access-control-allow-origin"]).to.be(
+                "http://engine.io"
+              );
+              done();
+            });
+        }
+      );
     });
 
     it("should send a packet along with the handshake", function(done) {
