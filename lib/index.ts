@@ -33,13 +33,23 @@ export class Adapter extends EventEmitter {
   }
 
   /**
+   * To be overridden
+   */
+  public init(): Promise<void> | void {}
+
+  /**
+   * To be overridden
+   */
+  public close(): Promise<void> | void {}
+
+  /**
    * Adds a socket to a list of room.
    *
    * @param {SocketId}  id      the socket id
    * @param {Set<Room>} rooms   a set of rooms
    * @public
    */
-  public addAll(id: SocketId, rooms: Set<Room>): void {
+  public addAll(id: SocketId, rooms: Set<Room>): Promise<void> | void {
     for (const room of rooms) {
       if (!this.sids.has(id)) {
         this.sids.set(id, new Set());
@@ -59,7 +69,7 @@ export class Adapter extends EventEmitter {
    * @param {SocketId} id     the socket id
    * @param {Room}     room   the room name
    */
-  public del(id: SocketId, room: Room): void {
+  public del(id: SocketId, room: Room): Promise<void> | void {
     if (this.sids.has(id)) {
       this.sids.get(id).delete(room);
     }
