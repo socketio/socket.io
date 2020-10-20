@@ -3,6 +3,13 @@
 
 Default socket.io in-memory adapter class.
 
+Compatibility table:
+
+| Adapter version | Socket.IO server version |
+|-----------------| ------------------------ |
+| 1.x.x           | 1.x.x / 2.x.x            |
+| 2.x.x           | 3.x.x                    |
+
 ## How to use
 
 This module is not intended for end-user usage, but can be used as an
