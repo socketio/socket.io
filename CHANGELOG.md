@@ -1,3 +1,12 @@
+## [2.0.3-rc2](https://github.com/socketio/socket.io-adapter/compare/2.0.3-rc1...2.0.3-rc2) (2020-10-20)
+
+
+### Features
+
+* add init() and close() methods ([2e023bf](https://github.com/socketio/socket.io-adapter/commit/2e023bf2b651e543a34147fab19497fbdb8bdb72))
+
+
+
 ## [2.0.3-rc1](https://github.com/socketio/socket.io-adapter/compare/2.0.2...2.0.3-rc1) (2020-10-15)
 
 
