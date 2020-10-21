@@ -36,7 +36,7 @@
   "devDependencies": {
     "babel-eslint": "^8.0.2",
     "eiows": "^3.3.0",
-    "engine.io-client": "4.0.0",
+    "engine.io-client": "4.0.1",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^6.9.0",
     "expect.js": "^0.3.1",
