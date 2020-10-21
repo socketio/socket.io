@@ -48,7 +48,7 @@ var parser = require('socket.io-parser');
 var encoder = new parser.Encoder();
 var packet = {
   type: parser.BINARY_EVENT,
-  data: {i: new Buffer(1234), j: new Blob([new ArrayBuffer(2)])}
+  data: {i: new Buffer(1234), j: new Blob([new ArrayBuffer(2)])},
   id: 15
 };
 encoder.encode(packet, function(encodedPackets) {
