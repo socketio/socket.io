@@ -488,10 +488,9 @@ describe("socket.io", () => {
         const socket = client(srv);
 
         sio.on("connection", s => {
-          s.join("a", () => {
-            // FIXME not sure why process.nextTick() is needed here
-            process.nextTick(() => s.disconnect());
-          });
+          s.join("a");
+          // FIXME not sure why process.nextTick() is needed here
+          process.nextTick(() => s.disconnect());
 
           let total = 2;
           s.on("disconnecting", reason => {
@@ -578,22 +577,19 @@ describe("socket.io", () => {
         let total = 3;
         sio.of("/chat").on("connection", socket => {
           if (chatIndex++) {
-            socket.join("foo", () => {
-              chatFooSid = socket.id;
-              --total || getSockets();
-            });
+            socket.join("foo");
+            chatFooSid = socket.id;
+            --total || getSockets();
           } else {
-            socket.join("bar", () => {
-              chatBarSid = socket.id;
-              --total || getSockets();
-            });
+            socket.join("bar");
+            chatBarSid = socket.id;
+            --total || getSockets();
           }
         });
         sio.of("/other").on("connection", socket => {
-          socket.join("foo", () => {
-            otherSid = socket.id;
-            --total || getSockets();
-          });
+          socket.join("foo");
+          otherSid = socket.id;
+          --total || getSockets();
         });
       });
       async function getSockets() {
@@ -623,22 +619,19 @@ describe("socket.io", () => {
         let total = 3;
         sio.of("/chat").on("connection", socket => {
           if (chatIndex++) {
-            socket.join("foo", () => {
-              chatFooSid = socket.id;
-              --total || getSockets();
-            });
+            socket.join("foo");
+            chatFooSid = socket.id;
+            --total || getSockets();
           } else {
-            socket.join("bar", () => {
-              chatBarSid = socket.id;
-              --total || getSockets();
-            });
+            socket.join("bar");
+            chatBarSid = socket.id;
+            --total || getSockets();
           }
         });
         sio.of("/other").on("connection", socket => {
-          socket.join("foo", () => {
-            otherSid = socket.id;
-            --total || getSockets();
-          });
+          socket.join("foo");
+          otherSid = socket.id;
+          --total || getSockets();
         });
       });
       async function getSockets() {
@@ -1711,20 +1704,6 @@ describe("socket.io", () => {
       });
     });
 
-    it("should always trigger the callback (if provided) when joining a room", done => {
-      const srv = createServer();
-      const sio = new Server(srv);
-
-      srv.listen(() => {
-        const socket = client(srv);
-        sio.on("connection", s => {
-          s.join("a", () => {
-            s.join("a", done);
-          });
-        });
-      });
-    });
-
     it("should throw on reserved event", done => {
       const srv = createServer();
       const sio = new Server(srv);
@@ -1861,13 +1840,13 @@ describe("socket.io", () => {
         socket1.on("a", () => {
           done();
         });
-        socket1.emit("join", "woot", () => {
-          socket1.emit("emit", "woot");
-        });
+        socket1.emit("join", "woot");
+        socket1.emit("emit", "woot");
 
         sio.on("connection", socket => {
           socket.on("join", (room, fn) => {
-            socket.join(room, fn);
+            socket.join(room);
+            fn && fn();
           });
 
           socket.on("emit", room => {
@@ -1904,7 +1883,8 @@ describe("socket.io", () => {
 
         sio.on("connection", socket => {
           socket.on("join", (room, fn) => {
-            socket.join(room, fn);
+            socket.join(room);
+            fn && fn();
           });
 
           socket.on("emit", room => {
@@ -1949,7 +1929,8 @@ describe("socket.io", () => {
 
         sio.on("connection", socket => {
           socket.on("join", (room, fn) => {
-            socket.join(room, fn);
+            socket.join(room);
+            fn && fn();
           });
 
           socket.on("broadcast", () => {
@@ -1996,7 +1977,8 @@ describe("socket.io", () => {
 
         sio.on("connection", socket => {
           socket.on("join", (room, fn) => {
-            socket.join(room, fn);
+            socket.join(room);
+            fn && fn();
           });
           socket.on("broadcast", () => {
             socket.broadcast.to("test").emit("bin", Buffer.alloc(5));
@@ -2013,21 +1995,17 @@ describe("socket.io", () => {
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
-          s.join("a", () => {
-            expect(s.rooms).to.contain(s.id, "a");
-            s.join("b", () => {
-              expect(s.rooms).to.contain(s.id, "a", "b");
-              s.join("c", () => {
-                expect(s.rooms).to.contain(s.id, "a", "b", "c");
-                s.leave("b", () => {
-                  expect(s.rooms).to.contain(s.id, "a", "c");
-                  s.leaveAll();
-                  expect(s.rooms.size).to.eql(0);
-                  done();
-                });
-              });
-            });
-          });
+          s.join("a");
+          expect(s.rooms).to.contain(s.id, "a");
+          s.join("b");
+          expect(s.rooms).to.contain(s.id, "a", "b");
+          s.join("c");
+          expect(s.rooms).to.contain(s.id, "a", "b", "c");
+          s.leave("b");
+          expect(s.rooms).to.contain(s.id, "a", "c");
+          s.leaveAll();
+          expect(s.rooms.size).to.eql(0);
+          done();
         });
       });
     });
@@ -2039,13 +2017,11 @@ describe("socket.io", () => {
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
-          s.join("a", () => {
-            expect(s.nsp.adapter.rooms).to.contain("a");
-            s.leave("a", () => {
-              expect(s.nsp.adapter.rooms).to.not.contain("a");
-              done();
-            });
-          });
+          s.join("a");
+          expect(s.nsp.adapter.rooms).to.contain("a");
+          s.leave("a");
+          expect(s.nsp.adapter.rooms).to.not.contain("a");
+          done();
         });
       });
     });
@@ -2057,18 +2033,15 @@ describe("socket.io", () => {
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
-          s.join("a", () => {
-            expect(s.rooms).to.contain(s.id, "a");
-            s.join("b", () => {
-              expect(s.rooms).to.contain(s.id, "a", "b");
-              s.leave("unknown", () => {
-                expect(s.rooms).to.contain(s.id, "a", "b");
-                s.leaveAll();
-                expect(s.rooms.size).to.eql(0);
-                done();
-              });
-            });
-          });
+          s.join("a");
+          expect(s.rooms).to.contain(s.id, "a");
+          s.join("b");
+          expect(s.rooms).to.contain(s.id, "a", "b");
+          s.leave("unknown");
+          expect(s.rooms).to.contain(s.id, "a", "b");
+          s.leaveAll();
+          expect(s.rooms.size).to.eql(0);
+          done();
         });
       });
     });
@@ -2080,10 +2053,9 @@ describe("socket.io", () => {
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
-          s.join(["a", "b", "c"], () => {
-            expect(s.rooms).to.contain(s.id, "a", "b", "c");
-            done();
-          });
+          s.join(["a", "b", "c"]);
+          expect(s.rooms).to.contain(s.id, "a", "b", "c");
+          done();
         });
       });
     });

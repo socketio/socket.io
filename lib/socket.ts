@@ -238,38 +238,29 @@ export class Socket extends EventEmitter {
    * Joins a room.
    *
    * @param {String|Array} rooms - room or array of rooms
-   * @param {Function} fn - optional, callback
-   * @return {Socket} self
+   * @return a Promise or nothing, depending on the adapter
    * @public
    */
-  public join(rooms: Room | Array<Room>, fn?: (err: Error) => void): Socket {
-    debug("joining room %s", rooms);
+  public join(rooms: Room | Array<Room>): Promise<void> | void {
+    debug("join room %s", rooms);
 
-    this.adapter.addAll(
+    return this.adapter.addAll(
       this.id,
       new Set(Array.isArray(rooms) ? rooms : [rooms])
     );
-    debug("joined room %s", rooms);
-    fn && fn(null);
-    return this;
   }
 
   /**
    * Leaves a room.
    *
    * @param {String} room
-   * @param {Function} fn - optional, callback
-   * @return {Socket} self
+   * @return a Promise or nothing, depending on the adapter
    * @public
    */
-  public leave(room: string, fn?: (err: Error) => void): Socket {
+  public leave(room: string): Promise<void> | void {
     debug("leave room %s", room);
-    this.adapter.del(this.id, room);
 
-    debug("left room %s", room);
-    fn && fn(null);
-
-    return this;
+    return this.adapter.del(this.id, room);
   }
 
   /**
