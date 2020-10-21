@@ -1,3 +1,12 @@
+## [4.0.1](https://github.com/socketio/engine.io/compare/4.0.0...4.0.1) (2020-10-21)
+
+
+### Bug Fixes
+
+* do not overwrite CORS headers upon error ([fe093ba](https://github.com/socketio/engine.io/commit/fe093bae1adce99e01dfdd3ce7542957785098b5))
+
+
+
 # [4.0.0](https://github.com/socketio/engine.io/compare/v4.0.0-alpha.1...4.0.0) (2020-09-10)
 
 More details about this release in the blog post: https://socket.io/blog/engine-io-4-release/
