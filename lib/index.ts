@@ -26,7 +26,7 @@ type Transport = "polling" | "websocket";
 
 interface EngineOptions {
   /**
-   * how many ms without a pong packet to consider the connection closed
+   * how many ms without a ping packet to consider the connection closed
    * @default 5000
    */
   pingTimeout: number;
