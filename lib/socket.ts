@@ -49,6 +49,7 @@ export class Socket extends Emitter {
   private sendBuffer: Array<any> = [];
   private flags: Flags = {};
   private subs: Array<any>;
+  private _anyListeners: Array<(...args: any[]) => void>;
 
   /**
    * `Socket` constructor.
@@ -272,10 +273,20 @@ export class Socket extends Emitter {
     }
 
     if (this.connected) {
-      super.emit.apply(this, args);
+      this.emitEvent(args);
     } else {
       this.receiveBuffer.push(args);
     }
+  }
+
+  private emitEvent(args) {
+    if (this._anyListeners && this._anyListeners.length) {
+      const listeners = this._anyListeners.slice();
+      for (const listener of listeners) {
+        listener.apply(this, args);
+      }
+    }
+    super.emit.apply(this, args);
   }
 
   /**
@@ -337,7 +348,7 @@ export class Socket extends Emitter {
    */
   private emitBuffered() {
     for (let i = 0; i < this.receiveBuffer.length; i++) {
-      super.emit.apply(this, this.receiveBuffer[i]);
+      this.emitEvent(this.receiveBuffer[i]);
     }
     this.receiveBuffer = [];
 
@@ -431,5 +442,65 @@ export class Socket extends Emitter {
   public get volatile(): Socket {
     this.flags.volatile = true;
     return this;
+  }
+
+  /**
+   * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
+   * callback.
+   *
+   * @param listener
+   * @public
+   */
+  public onAny(listener: (...args: any[]) => void): Socket {
+    this._anyListeners = this._anyListeners || [];
+    this._anyListeners.push(listener);
+    return this;
+  }
+
+  /**
+   * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
+   * callback. The listener is added to the beginning of the listeners array.
+   *
+   * @param listener
+   * @public
+   */
+  public prependAny(listener: (...args: any[]) => void): Socket {
+    this._anyListeners = this._anyListeners || [];
+    this._anyListeners.unshift(listener);
+    return this;
+  }
+
+  /**
+   * Removes the listener that will be fired when any event is emitted.
+   *
+   * @param listener
+   * @public
+   */
+  public offAny(listener?: (...args: any[]) => void): Socket {
+    if (!this._anyListeners) {
+      return this;
+    }
+    if (listener) {
+      const listeners = this._anyListeners;
+      for (let i = 0; i < listeners.length; i++) {
+        if (listener === listeners[i]) {
+          listeners.splice(i, 1);
+          return this;
+        }
+      }
+    } else {
+      this._anyListeners = [];
+    }
+    return this;
+  }
+
+  /**
+   * Returns an array of listeners that are listening for any event that is specified. This array can be manipulated,
+   * e.g. to remove listeners.
+   *
+   * @public
+   */
+  public listenersAny() {
+    return this._anyListeners || [];
   }
 }

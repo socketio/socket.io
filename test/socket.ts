@@ -234,4 +234,51 @@ describe("socket", function () {
       }, 200);
     });
   });
+
+  describe("onAny", () => {
+    it("should call listener", (done) => {
+      const socket = io("/abc");
+
+      socket.onAny((event, arg1) => {
+        expect(event).to.be("handshake");
+        expect(arg1).to.be.an(Object);
+        done();
+      });
+    });
+
+    it("should prepend listener", (done) => {
+      const socket = io("/abc");
+
+      let count = 0;
+
+      socket.onAny((event, arg1) => {
+        expect(count).to.be(2);
+        done();
+      });
+
+      socket.prependAny(() => {
+        expect(count++).to.be(1);
+      });
+
+      socket.prependAny(() => {
+        expect(count++).to.be(0);
+      });
+    });
+
+    it("should remove listener", (done) => {
+      const socket = io("/abc");
+
+      let count = 0;
+
+      const fail = () => done(new Error("fail"));
+
+      socket.onAny(fail);
+      socket.offAny(fail);
+      expect(socket.listenersAny.length).to.be(0);
+
+      socket.onAny(() => {
+        done();
+      });
+    });
+  });
 });
