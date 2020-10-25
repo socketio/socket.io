@@ -17,7 +17,7 @@ export enum PacketType {
   DISCONNECT,
   EVENT,
   ACK,
-  ERROR,
+  CONNECT_ERROR,
   BINARY_EVENT,
   BINARY_ACK,
 }
@@ -241,8 +241,8 @@ export class Decoder extends Emitter {
         return typeof payload === "object";
       case PacketType.DISCONNECT:
         return payload === undefined;
-      case PacketType.ERROR:
-        return typeof payload === "string";
+      case PacketType.CONNECT_ERROR:
+        return typeof payload === "string" || typeof payload === "object";
       case PacketType.EVENT:
       case PacketType.BINARY_EVENT:
         return Array.isArray(payload) && typeof payload[0] === "string";

@@ -8,7 +8,7 @@ describe("parser", () => {
     expect(PacketType.DISCONNECT).to.be.a("number");
     expect(PacketType.EVENT).to.be.a("number");
     expect(PacketType.ACK).to.be.a("number");
-    expect(PacketType.ERROR).to.be.a("number");
+    expect(PacketType.CONNECT_ERROR).to.be.a("number");
     expect(PacketType.BINARY_EVENT).to.be.a("number");
     expect(PacketType.BINARY_ACK).to.be.a("number");
   });
@@ -71,11 +71,24 @@ describe("parser", () => {
     );
   });
 
-  it("encodes an error", (done) => {
+  it("encodes an connect error", (done) => {
     helpers.test(
       {
-        type: PacketType.ERROR,
+        type: PacketType.CONNECT_ERROR,
         data: "Unauthorized",
+        nsp: "/",
+      },
+      done
+    );
+  });
+
+  it("encodes an connect error (with object)", (done) => {
+    helpers.test(
+      {
+        type: PacketType.CONNECT_ERROR,
+        data: {
+          message: "Unauthorized",
+        },
         nsp: "/",
       },
       done
