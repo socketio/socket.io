@@ -91,7 +91,7 @@ export class Client {
       } else {
         debug("creation of namespace %s was denied", name);
         this._packet({
-          type: PacketType.ERROR,
+          type: PacketType.CONNECT_ERROR,
           nsp: name,
           data: "Invalid namespace"
         });

@@ -12,8 +12,8 @@ import base64id from "base64id";
 const debug = debugModule("socket.io:socket");
 
 export const RESERVED_EVENTS = new Set([
-  "error",
   "connect",
+  "connect_error",
   "disconnect",
   "disconnecting",
   // EventEmitter reserved events: https://nodejs.org/api/events.html#events_event_newlistener
@@ -316,7 +316,7 @@ export class Socket extends EventEmitter {
         this.ondisconnect();
         break;
 
-      case PacketType.ERROR:
+      case PacketType.CONNECT_ERROR:
         this._onerror(new Error(packet.data));
     }
   }
@@ -438,7 +438,7 @@ export class Socket extends EventEmitter {
    * @private
    */
   _error(err) {
-    this.packet({ type: PacketType.ERROR, data: err });
+    this.packet({ type: PacketType.CONNECT_ERROR, data: err });
   }
 
   /**

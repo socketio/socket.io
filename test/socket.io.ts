@@ -1711,8 +1711,8 @@ describe("socket.io", () => {
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", s => {
-          expect(() => s.emit("error")).to.throwException(
-            /"error" is a reserved event name/
+          expect(() => s.emit("connect_error")).to.throwException(
+            /"connect_error" is a reserved event name/
           );
           socket.close();
           done();

@@ -39,7 +39,7 @@
     "debug": "~4.1.0",
     "engine.io": "~4.0.0",
     "socket.io-adapter": "2.0.3-rc2",
-    "socket.io-parser": "4.0.1-rc2"
+    "socket.io-parser": "4.0.1-rc3"
   },
   "devDependencies": {
     "@types/cookie": "^0.4.0",
