@@ -1719,6 +1719,78 @@ describe("socket.io", () => {
         });
       });
     });
+
+    describe("onAny", () => {
+      it("should call listener", done => {
+        const srv = createServer();
+        const sio = new Server(srv);
+
+        srv.listen(() => {
+          const socket = client(srv, { multiplex: false });
+
+          socket.emit("my-event", "123");
+
+          sio.on("connection", (socket: Socket) => {
+            socket.onAny((event, arg1) => {
+              expect(event).to.be("my-event");
+              expect(arg1).to.be("123");
+              done();
+            });
+          });
+        });
+      });
+
+      it("should prepend listener", done => {
+        const srv = createServer();
+        const sio = new Server(srv);
+
+        srv.listen(() => {
+          const socket = client(srv, { multiplex: false });
+
+          socket.emit("my-event", "123");
+
+          sio.on("connection", (socket: Socket) => {
+            let count = 0;
+
+            socket.onAny((event, arg1) => {
+              expect(count).to.be(2);
+              done();
+            });
+
+            socket.prependAny(() => {
+              expect(count++).to.be(1);
+            });
+
+            socket.prependAny(() => {
+              expect(count++).to.be(0);
+            });
+          });
+        });
+      });
+
+      it("should remove listener", done => {
+        const srv = createServer();
+        const sio = new Server(srv);
+
+        srv.listen(() => {
+          const socket = client(srv, { multiplex: false });
+
+          socket.emit("my-event", "123");
+
+          sio.on("connection", (socket: Socket) => {
+            const fail = () => done(new Error("fail"));
+
+            socket.onAny(fail);
+            socket.offAny(fail);
+            expect(socket.listenersAny.length).to.be(0);
+
+            socket.onAny(() => {
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 
   describe("messaging many", () => {
@@ -2223,71 +2295,6 @@ describe("socket.io", () => {
       });
       client(srv, "/chat").on("connect", () => {
         if (++count === 2) done();
-      });
-    });
-  });
-
-  describe("socket middleware", () => {
-    const { Socket } = require("../dist/socket");
-
-    it("should call functions", done => {
-      const srv = createServer();
-      const sio = new Server(srv);
-      let run = 0;
-
-      srv.listen(() => {
-        const socket = client(srv, { multiplex: false });
-
-        socket.emit("join", "woot");
-
-        sio.on("connection", socket => {
-          socket.use((event, next) => {
-            expect(event).to.eql(["join", "woot"]);
-            event.unshift("wrap");
-            run++;
-            next();
-          });
-          socket.use((event, next) => {
-            expect(event).to.eql(["wrap", "join", "woot"]);
-            run++;
-            next();
-          });
-          socket.on("wrap", (data1, data2) => {
-            expect(data1).to.be("join");
-            expect(data2).to.be("woot");
-            expect(run).to.be(2);
-            done();
-          });
-        });
-      });
-    });
-
-    it("should pass errors", done => {
-      const srv = createServer();
-      const sio = new Server(srv);
-
-      srv.listen(() => {
-        const clientSocket = client(srv, { multiplex: false });
-
-        clientSocket.emit("join", "woot");
-
-        clientSocket.on("error", err => {
-          expect(err).to.be("Authentication error");
-          done();
-        });
-
-        sio.on("connection", socket => {
-          socket.use((event, next) => {
-            next(new Error("Authentication error"));
-          });
-          socket.use((event, next) => {
-            done(new Error("nope"));
-          });
-
-          socket.on("join", () => {
-            done(new Error("nope"));
-          });
-        });
       });
     });
   });

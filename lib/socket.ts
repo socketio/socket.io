@@ -86,6 +86,7 @@ export class Socket extends EventEmitter {
   > = [];
   private flags: BroadcastFlags = {};
   private _rooms: Set<Room> = new Set();
+  private _anyListeners: Array<(...args: any[]) => void>;
 
   /**
    * Interface to a `Client` for a given `Namespace`.
@@ -335,7 +336,13 @@ export class Socket extends EventEmitter {
       args.push(this.ack(packet.id));
     }
 
-    this.dispatch(args);
+    if (this._anyListeners && this._anyListeners.length) {
+      const listeners = this._anyListeners.slice();
+      for (const listener of listeners) {
+        listener.apply(this, args);
+      }
+    }
+    super.emit.apply(this, args);
   }
 
   /**
@@ -502,65 +509,6 @@ export class Socket extends EventEmitter {
   }
 
   /**
-   * Dispatch incoming event to socket listeners.
-   *
-   * @param {Array} event - event that will get emitted
-   * @private
-   */
-  private dispatch(event: Array<string>): void {
-    debug("dispatching an event %j", event);
-    this.run(event, err => {
-      process.nextTick(() => {
-        if (err) {
-          return this._error(err.message);
-        }
-        super.emit.apply(this, event);
-      });
-    });
-  }
-
-  /**
-   * Sets up socket middleware.
-   *
-   * @param {Function} fn - middleware function (event, next)
-   * @return {Socket} self
-   * @public
-   */
-  public use(
-    fn: (event: Array<any>, next: (err: Error) => void) => void
-  ): Socket {
-    this.fns.push(fn);
-    return this;
-  }
-
-  /**
-   * Executes the middleware for an incoming event.
-   *
-   * @param {Array} event - event that will get emitted
-   * @param {Function} fn - last fn call in the middleware
-   * @private
-   */
-  private run(event: Array<any>, fn: (err: Error) => void) {
-    const fns = this.fns.slice(0);
-    if (!fns.length) return fn(null);
-
-    function run(i) {
-      fns[i](event, function(err) {
-        // upon error, short-circuit
-        if (err) return fn(err);
-
-        // if no middleware left, summon callback
-        if (!fns[i + 1]) return fn(null);
-
-        // go on to next
-        run(i + 1);
-      });
-    }
-
-    run(0);
-  }
-
-  /**
    * A reference to the request that originated the underlying Engine.IO Socket.
    *
    * @public
@@ -583,5 +531,65 @@ export class Socket extends EventEmitter {
    */
   public get rooms(): Set<Room> {
     return this.adapter.socketRooms(this.id) || new Set();
+  }
+
+  /**
+   * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
+   * callback.
+   *
+   * @param listener
+   * @public
+   */
+  public onAny(listener: (...args: any[]) => void): Socket {
+    this._anyListeners = this._anyListeners || [];
+    this._anyListeners.push(listener);
+    return this;
+  }
+
+  /**
+   * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
+   * callback. The listener is added to the beginning of the listeners array.
+   *
+   * @param listener
+   * @public
+   */
+  public prependAny(listener: (...args: any[]) => void): Socket {
+    this._anyListeners = this._anyListeners || [];
+    this._anyListeners.unshift(listener);
+    return this;
+  }
+
+  /**
+   * Removes the listener that will be fired when any event is emitted.
+   *
+   * @param listener
+   * @public
+   */
+  public offAny(listener?: (...args: any[]) => void): Socket {
+    if (!this._anyListeners) {
+      return this;
+    }
+    if (listener) {
+      const listeners = this._anyListeners;
+      for (let i = 0; i < listeners.length; i++) {
+        if (listener === listeners[i]) {
+          listeners.splice(i, 1);
+          return this;
+        }
+      }
+    } else {
+      this._anyListeners = [];
+    }
+    return this;
+  }
+
+  /**
+   * Returns an array of listeners that are listening for any event that is specified. This array can be manipulated,
+   * e.g. to remove listeners.
+   *
+   * @public
+   */
+  public listenersAny() {
+    return this._anyListeners || [];
   }
 }
