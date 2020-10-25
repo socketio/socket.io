@@ -20,9 +20,9 @@ export interface SocketOptions {
 
 const RESERVED_EVENTS = {
   connect: 1,
+  connect_error: 1,
   disconnect: 1,
   disconnecting: 1,
-  error: 1,
   // EventEmitter reserved events: https://nodejs.org/api/events.html#events_event_newlistener
   newListener: 1,
   removeListener: 1,
@@ -220,10 +220,8 @@ export class Socket extends Emitter {
    */
   private onpacket(packet) {
     const sameNamespace = packet.nsp === this.nsp;
-    const rootNamespaceError =
-      packet.type === PacketType.ERROR && packet.nsp === "/";
 
-    if (!sameNamespace && !rootNamespaceError) return;
+    if (!sameNamespace) return;
 
     switch (packet.type) {
       case PacketType.CONNECT:
@@ -251,8 +249,8 @@ export class Socket extends Emitter {
         this.ondisconnect();
         break;
 
-      case PacketType.ERROR:
-        super.emit("error", packet.data);
+      case PacketType.CONNECT_ERROR:
+        super.emit("connect_error", packet.data);
         break;
     }
   }
