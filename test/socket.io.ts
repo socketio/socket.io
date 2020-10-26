@@ -511,7 +511,7 @@ describe("socket.io", () => {
       const sio = new Server(srv);
       srv.listen(() => {
         const socket = client(srv, "/doesnotexist");
-        socket.on("error", err => {
+        socket.on("connect_error", err => {
           expect(err).to.be("Invalid namespace");
           done();
         });
@@ -771,7 +771,7 @@ describe("socket.io", () => {
               next();
               if (++count === 4) done();
             });
-          socket.on("error", err => {
+          socket.on("connect_error", err => {
             expect().fail();
           });
           socket.on("connect", () => {
@@ -803,7 +803,7 @@ describe("socket.io", () => {
           const socket = client(srv, "/abc");
           sio.of(/^\/dynamic-\d+$/);
           sio.of((name, query, next) => next(null, "/dynamic-101" === name));
-          socket.on("error", err => {
+          socket.on("connect_error", err => {
             expect(err).to.be("Invalid namespace");
             done();
           });
@@ -2174,7 +2174,7 @@ describe("socket.io", () => {
         socket.on("connect", () => {
           done(new Error("nope"));
         });
-        socket.on("error", err => {
+        socket.on("connect_error", err => {
           expect(err).to.be("Authentication error");
           done();
         });

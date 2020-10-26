@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v3.0.0-rc2
+ * Socket.IO v3.0.0-rc3
  * (c) 2014-2020 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -802,6 +802,12 @@ exports.on = on;
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -848,9 +854,9 @@ var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.j
 
 var RESERVED_EVENTS = {
   connect: 1,
+  connect_error: 1,
   disconnect: 1,
   disconnecting: 1,
-  error: 1,
   // EventEmitter reserved events: https://nodejs.org/api/events.html#events_event_newlistener
   newListener: 1,
   removeListener: 1
@@ -977,7 +983,7 @@ var Socket = /*#__PURE__*/function (_Emitter) {
         data: args
       };
       packet.options = {};
-      packet.options.compress = !this.flags || false !== this.flags.compress; // event ack callback
+      packet.options.compress = this.flags.compress !== false; // event ack callback
 
       if ("function" === typeof args[args.length - 1]) {
         debug("emitting packet with ack id %d", this.ids);
@@ -985,7 +991,12 @@ var Socket = /*#__PURE__*/function (_Emitter) {
         packet.id = this.ids++;
       }
 
-      if (this.connected) {
+      var isTransportWritable = this.io.engine && this.io.engine.transport && this.io.engine.transport.writable;
+      var discardPacket = this.flags["volatile"] && (!isTransportWritable || !this.connected);
+
+      if (discardPacket) {
+        debug("discard packet as the transport is not currently writable");
+      } else if (this.connected) {
         this.packet(packet);
       } else {
         this.sendBuffer.push(packet);
@@ -1063,8 +1074,7 @@ var Socket = /*#__PURE__*/function (_Emitter) {
     key: "onpacket",
     value: function onpacket(packet) {
       var sameNamespace = packet.nsp === this.nsp;
-      var rootNamespaceError = packet.type === socket_io_parser_1.PacketType.ERROR && packet.nsp === "/";
-      if (!sameNamespace && !rootNamespaceError) return;
+      if (!sameNamespace) return;
 
       switch (packet.type) {
         case socket_io_parser_1.PacketType.CONNECT:
@@ -1092,8 +1102,8 @@ var Socket = /*#__PURE__*/function (_Emitter) {
           this.ondisconnect();
           break;
 
-        case socket_io_parser_1.PacketType.ERROR:
-          _get(_getPrototypeOf(Socket.prototype), "emit", this).call(this, "error", packet.data);
+        case socket_io_parser_1.PacketType.CONNECT_ERROR:
+          _get(_getPrototypeOf(Socket.prototype), "emit", this).call(this, "connect_error", packet.data);
 
           break;
       }
@@ -1117,10 +1127,33 @@ var Socket = /*#__PURE__*/function (_Emitter) {
       }
 
       if (this.connected) {
-        _get(_getPrototypeOf(Socket.prototype), "emit", this).apply(this, args);
+        this.emitEvent(args);
       } else {
         this.receiveBuffer.push(args);
       }
+    }
+  }, {
+    key: "emitEvent",
+    value: function emitEvent(args) {
+      if (this._anyListeners && this._anyListeners.length) {
+        var listeners = this._anyListeners.slice();
+
+        var _iterator = _createForOfIteratorHelper(listeners),
+            _step;
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var listener = _step.value;
+            listener.apply(this, args);
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+      }
+
+      _get(_getPrototypeOf(Socket.prototype), "emit", this).apply(this, args);
     }
     /**
      * Produces an ack callback to emit with an event.
@@ -1197,7 +1230,7 @@ var Socket = /*#__PURE__*/function (_Emitter) {
     key: "emitBuffered",
     value: function emitBuffered() {
       for (var i = 0; i < this.receiveBuffer.length; i++) {
-        _get(_getPrototypeOf(Socket.prototype), "emit", this).apply(this, this.receiveBuffer[i]);
+        this.emitEvent(this.receiveBuffer[i]);
       }
 
       this.receiveBuffer = [];
@@ -1294,6 +1327,95 @@ var Socket = /*#__PURE__*/function (_Emitter) {
     key: "compress",
     value: function compress(_compress) {
       this.flags.compress = _compress;
+      return this;
+    }
+    /**
+     * Sets a modifier for a subsequent event emission that the event message will be dropped when this socket is not
+     * ready to send messages.
+     *
+     * @returns {Socket} self
+     * @public
+     */
+
+  }, {
+    key: "onAny",
+
+    /**
+     * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
+     * callback.
+     *
+     * @param listener
+     * @public
+     */
+    value: function onAny(listener) {
+      this._anyListeners = this._anyListeners || [];
+
+      this._anyListeners.push(listener);
+
+      return this;
+    }
+    /**
+     * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
+     * callback. The listener is added to the beginning of the listeners array.
+     *
+     * @param listener
+     * @public
+     */
+
+  }, {
+    key: "prependAny",
+    value: function prependAny(listener) {
+      this._anyListeners = this._anyListeners || [];
+
+      this._anyListeners.unshift(listener);
+
+      return this;
+    }
+    /**
+     * Removes the listener that will be fired when any event is emitted.
+     *
+     * @param listener
+     * @public
+     */
+
+  }, {
+    key: "offAny",
+    value: function offAny(listener) {
+      if (!this._anyListeners) {
+        return this;
+      }
+
+      if (listener) {
+        var listeners = this._anyListeners;
+
+        for (var i = 0; i < listeners.length; i++) {
+          if (listener === listeners[i]) {
+            listeners.splice(i, 1);
+            return this;
+          }
+        }
+      } else {
+        this._anyListeners = [];
+      }
+
+      return this;
+    }
+    /**
+     * Returns an array of listeners that are listening for any event that is specified. This array can be manipulated,
+     * e.g. to remove listeners.
+     *
+     * @public
+     */
+
+  }, {
+    key: "listenersAny",
+    value: function listenersAny() {
+      return this._anyListeners || [];
+    }
+  }, {
+    key: "volatile",
+    get: function get() {
+      this.flags["volatile"] = true;
       return this;
     }
   }]);
@@ -2334,7 +2456,7 @@ var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.j
 
 var parser = __webpack_require__(/*! engine.io-parser */ "./node_modules/engine.io-parser/lib/index.js");
 
-var parseuri = __webpack_require__(/*! parseuri */ "./node_modules/engine.io-client/node_modules/parseuri/index.js");
+var parseuri = __webpack_require__(/*! parseuri */ "./node_modules/parseuri/index.js");
 
 var parseqs = __webpack_require__(/*! parseqs */ "./node_modules/parseqs/index.js");
 
@@ -3769,7 +3891,7 @@ var Request = /*#__PURE__*/function (_Emitter) {
         debug("xhr data %s", this.data);
         xhr.send(this.data);
       } catch (e) {
-        // Need to defer since .create() is called directly fhrom the constructor
+        // Need to defer since .create() is called directly from the constructor
         // and thus the 'error' event can only be only bound *after* this exception
         // occurs.  Therefore, also, we cannot throw here at all.
         setTimeout(function () {
@@ -4584,51 +4706,6 @@ module.exports = function (opts) {
       return new globalThis[["Active"].concat("Object").join("X")]("Microsoft.XMLHTTP");
     } catch (e) {}
   }
-};
-
-/***/ }),
-
-/***/ "./node_modules/engine.io-client/node_modules/parseuri/index.js":
-/*!**********************************************************************!*\
-  !*** ./node_modules/engine.io-client/node_modules/parseuri/index.js ***!
-  \**********************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-/**
- * Parses an URI
- *
- * @author Steven Levithan <stevenlevithan.com> (MIT license)
- * @api private
- */
-var re = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
-var parts = ['source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'];
-
-module.exports = function parseuri(str) {
-  var src = str,
-      b = str.indexOf('['),
-      e = str.indexOf(']');
-
-  if (b != -1 && e != -1) {
-    str = str.substring(0, b) + str.substring(b, e).replace(/:/g, ';') + str.substring(e, str.length);
-  }
-
-  var m = re.exec(str || ''),
-      uri = {},
-      i = 14;
-
-  while (i--) {
-    uri[parts[i]] = m[i] || '';
-  }
-
-  if (b != -1 && e != -1) {
-    uri.source = src;
-    uri.host = uri.host.substring(1, uri.host.length - 1).replace(/;/g, ':');
-    uri.authority = uri.authority.replace('[', '').replace(']', '').replace(/;/g, ':');
-    uri.ipv6uri = true;
-  }
-
-  return uri;
 };
 
 /***/ }),
@@ -5584,7 +5661,7 @@ var PacketType;
   PacketType[PacketType["DISCONNECT"] = 1] = "DISCONNECT";
   PacketType[PacketType["EVENT"] = 2] = "EVENT";
   PacketType[PacketType["ACK"] = 3] = "ACK";
-  PacketType[PacketType["ERROR"] = 4] = "ERROR";
+  PacketType[PacketType["CONNECT_ERROR"] = 4] = "CONNECT_ERROR";
   PacketType[PacketType["BINARY_EVENT"] = 5] = "BINARY_EVENT";
   PacketType[PacketType["BINARY_ACK"] = 6] = "BINARY_ACK";
 })(PacketType = exports.PacketType || (exports.PacketType = {}));
@@ -5839,8 +5916,8 @@ var Decoder = /*#__PURE__*/function (_Emitter) {
         case PacketType.DISCONNECT:
           return payload === undefined;
 
-        case PacketType.ERROR:
-          return typeof payload === "string";
+        case PacketType.CONNECT_ERROR:
+          return typeof payload === "string" || _typeof(payload) === "object";
 
         case PacketType.EVENT:
         case PacketType.BINARY_EVENT:

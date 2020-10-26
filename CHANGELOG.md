@@ -1,3 +1,37 @@
+# [3.0.0-rc3](https://github.com/socketio/socket.io/compare/3.0.0-rc2...3.0.0-rc3) (2020-10-26)
+
+
+### Features
+
+* add support for catch-all listeners ([5c73733](https://github.com/socketio/socket.io/commit/5c737339858d59eab4b5ee2dd6feff0e82c4fe5a))
+* make Socket#join() and Socket#leave() synchronous ([129c641](https://github.com/socketio/socket.io/commit/129c6417bd818bc8b4e1b831644323876e627c13))
+* remove prod dependency to socket.io-client ([7603da7](https://github.com/socketio/socket.io/commit/7603da71a535481e3fc60e38b013abf78516d322))
+
+
+### BREAKING CHANGES
+
+* the Socket#use() method is removed (see [5c73733](https://github.com/socketio/socket.io/commit/5c737339858d59eab4b5ee2dd6feff0e82c4fe5a))
+
+* Socket#join() and Socket#leave() do not accept a callback argument anymore.
+
+Before:
+
+```js
+socket.join("room1", () => {
+ io.to("room1").emit("hello");
+});
+```
+
+After:
+
+```js
+socket.join("room1");
+io.to("room1").emit("hello");
+// or await socket.join("room1"); for custom adapters
+```
+
+
+
 # [3.0.0-rc2](https://github.com/socketio/socket.io/compare/3.0.0-rc1...3.0.0-rc2) (2020-10-15)
 
 
