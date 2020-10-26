@@ -1,3 +1,32 @@
+# [3.0.0-rc3](https://github.com/socketio/socket.io-client/compare/3.0.0-rc2...3.0.0-rc3) (2020-10-26)
+
+
+### Code Refactoring
+
+* rename ERROR to CONNECT_ERROR ([13e1db7](https://github.com/socketio/socket.io-client/commit/13e1db7c94291c583d843beaa9e06ee041ae4f26))
+
+
+### Features
+
+* add bundle with msgpack parser ([71d6048](https://github.com/socketio/socket.io-client/commit/71d60480af9ea06d22792540dafb18a76e9362e7))
+* add support for catch-all listeners ([55f464f](https://github.com/socketio/socket.io-client/commit/55f464f59ed523fa1c1948ec10752bfdf808262d))
+* add volatile events ([7ddad2c](https://github.com/socketio/socket.io-client/commit/7ddad2c09dea0391b20378ef03b40040f0230d3e))
+
+
+### BREAKING CHANGES
+
+* the Socket instance will now emit a "connect_error" event instead of "error" (which is not a reserved event anymore)
+
+```js
+// before
+socket.on("error", () => {});
+
+// after
+socket.on("connect_error", () => {});
+```
+
+
+
 # [3.0.0-rc2](https://github.com/socketio/socket.io-client/compare/3.0.0-rc1...3.0.0-rc2) (2020-10-15)
 
 
