@@ -92,6 +92,16 @@ describe("socket.io", () => {
           });
       });
 
+      it(
+        "should serve bundle with msgpack parser",
+        testSource("socket.io.msgpack.min.js")
+      );
+
+      it(
+        "should serve source map for bundle with msgpack parser",
+        testSourceMap("socket.io.msgpack.min.js.map")
+      );
+
       it("should handle 304", done => {
         const srv = createServer();
         new Server(srv);

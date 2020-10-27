@@ -272,7 +272,9 @@ export class Server extends EventEmitter {
 
     const escapedPath = this._path.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
     this.clientPathRegex = new RegExp(
-      "^" + escapedPath + "/socket\\.io(\\.min)?\\.js(\\.map)?$"
+      "^" +
+        escapedPath +
+        "/socket\\.io(\\.min|\\.msgpack\\.min)?\\.js(\\.map)?$"
     );
     return this;
   }
