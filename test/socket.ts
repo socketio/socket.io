@@ -39,10 +39,10 @@ describe("socket", function () {
     });
   });
 
-  it("doesn't fire a connect_error if we force disconnect in opening state", (done) => {
+  it("doesn't fire an error event if we force disconnect in opening state", (done) => {
     const socket = io({ forceNew: true, timeout: 100 });
     socket.disconnect();
-    socket.io.on("connect_error", () => {
+    socket.io.on("error", () => {
       throw new Error("Unexpected");
     });
     setTimeout(() => {

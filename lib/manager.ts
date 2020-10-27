@@ -457,12 +457,12 @@ export class Manager extends Emitter {
       fn && fn();
     });
 
-    // emit `connect_error`
+    // emit `error`
     const errorSub = on(socket, "error", (err) => {
-      debug("connect_error");
+      debug("error");
       self.cleanup();
       self._readyState = "closed";
-      super.emit("connect_error", err);
+      super.emit("error", err);
       if (fn) {
         fn(err);
       } else {
@@ -471,7 +471,6 @@ export class Manager extends Emitter {
       }
     });
 
-    // emit `connect_timeout`
     if (false !== this._timeout) {
       const timeout = this._timeout;
       debug("connect attempt will timeout after %d", timeout);
@@ -485,8 +484,7 @@ export class Manager extends Emitter {
         debug("connect attempt timed out after %d", timeout);
         openSub.destroy();
         socket.close();
-        socket.emit("error", "timeout");
-        super.emit("connect_error", new Error("timeout"));
+        socket.emit("error", new Error("timeout"));
       }, timeout);
 
       this.subs.push({
@@ -720,7 +718,6 @@ export class Manager extends Emitter {
 
         debug("attempting reconnect");
         super.emit("reconnect_attempt", self.backoff.attempts);
-        super.emit("reconnecting", self.backoff.attempts);
 
         // check again for the case socket closed in above events
         if (self.skipReconnect) return;

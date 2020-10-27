@@ -208,7 +208,7 @@ describe("connection", function () {
     let startTime;
     let prevDelay = 0;
 
-    manager.on("connect_error", () => {
+    manager.on("error", () => {
       startTime = new Date().getTime();
     });
     manager.on("reconnect_attempt", () => {
@@ -236,7 +236,7 @@ describe("connection", function () {
       timeout: 0,
       reconnectionDelay: 10,
     });
-    socket.io.once("connect_error", () => {
+    socket.io.once("error", () => {
       socket.io.on("reconnect_attempt", () => {
         expect().fail();
       });
@@ -370,7 +370,7 @@ describe("connection", function () {
       expect(attempts).to.be(reconnects);
     };
 
-    manager.on("reconnecting", reconnectCb);
+    manager.on("reconnect_attempt", reconnectCb);
     manager.on("reconnect_failed", () => {
       expect(reconnects).to.be(2);
       socket.close();
@@ -446,7 +446,7 @@ describe("connection", function () {
       };
       manager.on("reconnect_attempt", cb);
 
-      manager.on("connect_error", () => {
+      manager.on("error", () => {
         // set a timeout to let reconnection possibly fire
         setTimeout(() => {
           socket.disconnect();
