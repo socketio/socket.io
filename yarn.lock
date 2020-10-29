@@ -1928,10 +1928,10 @@ superagent@6.1.0, superagent@^6.0.0:
     readable-stream "^3.6.0"
     semver "^7.3.2"
 
-supertest@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/supertest/-/supertest-5.0.0.tgz#771aedfeb0a95466cc5d100d5d11288736fd25da"
-  integrity sha512-2JAWpPrUOZF4hHH5ZTCN2xjKXvJS3AEwPNXl0HUseHsfcXFvMy9kcsufIHCNAmQ5hlGCvgeAqaR5PBEouN3hlQ==
+supertest@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/supertest/-/supertest-6.0.0.tgz#8371509fadd616217b42ff3d3be7cc0267baea1b"
+  integrity sha512-7+Skilm7kvUZIaKfALPgjS3i8zYs11zvEudAeYdqJZL3f+SGGFV4qQkkTVkYcs+zbE6de47HP8o0a0hy1BFlMA==
   dependencies:
     methods "1.1.2"
     superagent "6.1.0"

@@ -43,7 +43,7 @@
     "nyc": "^15.1.0",
     "prettier": "^2.1.2",
     "superagent": "^6.0.0",
-    "supertest": "^5.0.0"
+    "supertest": "^6.0.0"
   },
   "resolutions": {
     "minimist": "^0.2.1"
