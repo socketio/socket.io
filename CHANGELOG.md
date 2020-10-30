@@ -1,3 +1,12 @@
+# [3.0.0-rc4](https://github.com/socketio/socket.io-client/compare/3.0.0-rc3...3.0.0-rc4) (2020-10-30)
+
+
+### Features
+
+* emit an Error object upon middleware error ([0939395](https://github.com/socketio/socket.io-client/commit/09393952e3397a0c71f239ea983f8ec1623b7c21))
+
+
+
 # [3.0.0-rc3](https://github.com/socketio/socket.io-client/compare/3.0.0-rc2...3.0.0-rc3) (2020-10-26)
 
 

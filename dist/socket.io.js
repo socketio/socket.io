@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v3.0.0-rc3
+ * Socket.IO v3.0.0-rc4
  * (c) 2014-2020 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -416,14 +416,14 @@ var Manager = /*#__PURE__*/function (_Emitter) {
       var openSub = on_1.on(socket, "open", function () {
         self.onopen();
         fn && fn();
-      }); // emit `connect_error`
+      }); // emit `error`
 
       var errorSub = on_1.on(socket, "error", function (err) {
-        debug("connect_error");
+        debug("error");
         self.cleanup();
         self._readyState = "closed";
 
-        _get(_getPrototypeOf(Manager.prototype), "emit", _this2).call(_this2, "connect_error", err);
+        _get(_getPrototypeOf(Manager.prototype), "emit", _this2).call(_this2, "error", err);
 
         if (fn) {
           fn(err);
@@ -431,7 +431,7 @@ var Manager = /*#__PURE__*/function (_Emitter) {
           // Only do this if there is no fn to handle the error
           self.maybeReconnectOnOpen();
         }
-      }); // emit `connect_timeout`
+      });
 
       if (false !== this._timeout) {
         var timeout = this._timeout;
@@ -446,9 +446,7 @@ var Manager = /*#__PURE__*/function (_Emitter) {
           debug("connect attempt timed out after %d", timeout);
           openSub.destroy();
           socket.close();
-          socket.emit("error", "timeout");
-
-          _get(_getPrototypeOf(Manager.prototype), "emit", _this2).call(_this2, "connect_error", new Error("timeout"));
+          socket.emit("error", new Error("timeout"));
         }, timeout);
         this.subs.push({
           destroy: function destroy() {
@@ -712,9 +710,7 @@ var Manager = /*#__PURE__*/function (_Emitter) {
           if (self.skipReconnect) return;
           debug("attempting reconnect");
 
-          _get(_getPrototypeOf(Manager.prototype), "emit", _this3).call(_this3, "reconnect_attempt", self.backoff.attempts);
-
-          _get(_getPrototypeOf(Manager.prototype), "emit", _this3).call(_this3, "reconnecting", self.backoff.attempts); // check again for the case socket closed in above events
+          _get(_getPrototypeOf(Manager.prototype), "emit", _this3).call(_this3, "reconnect_attempt", self.backoff.attempts); // check again for the case socket closed in above events
 
 
           if (self.skipReconnect) return;
@@ -1103,7 +1099,11 @@ var Socket = /*#__PURE__*/function (_Emitter) {
           break;
 
         case socket_io_parser_1.PacketType.CONNECT_ERROR:
-          _get(_getPrototypeOf(Socket.prototype), "emit", this).call(this, "connect_error", packet.data);
+          var err = new Error(packet.data.message); // @ts-ignore
+
+          err.data = packet.data.data;
+
+          _get(_getPrototypeOf(Socket.prototype), "emit", this).call(this, "connect_error", err);
 
           break;
       }
