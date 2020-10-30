@@ -1,3 +1,13 @@
+# [3.0.0-rc4](https://github.com/socketio/socket.io/compare/3.0.0-rc3...3.0.0-rc4) (2020-10-30)
+
+
+### Features
+
+* emit an Error object upon middleware error ([54bf4a4](https://github.com/socketio/socket.io/commit/54bf4a44e9e896dfb64764ee7bd4e8823eb7dc7b))
+* serve msgpack bundle ([aa7574f](https://github.com/socketio/socket.io/commit/aa7574f88471aa30ae472a5cddf1000a8baa70fd))
+
+
+
 # [3.0.0-rc3](https://github.com/socketio/socket.io/compare/3.0.0-rc2...3.0.0-rc3) (2020-10-26)
 
 
