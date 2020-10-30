@@ -7,7 +7,7 @@ import path from "path";
 import engine from "engine.io";
 import { Client } from "./client";
 import { EventEmitter } from "events";
-import { Namespace } from "./namespace";
+import { ExtendedError, Namespace } from "./namespace";
 import { ParentNamespace } from "./parent-namespace";
 import { Adapter, Room, SocketId } from "socket.io-adapter";
 import * as parser from "socket.io-parser";
@@ -593,7 +593,7 @@ export class Server extends EventEmitter {
    * @public
    */
   public use(
-    fn: (socket: Socket, next: (err?: Error) => void) => void
+    fn: (socket: Socket, next: (err?: ExtendedError) => void) => void
   ): Server {
     this.sockets.use(fn);
     return this;

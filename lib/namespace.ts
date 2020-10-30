@@ -8,6 +8,10 @@ import { Adapter, Room, SocketId } from "socket.io-adapter";
 
 const debug = debugModule("socket.io:namespace");
 
+export interface ExtendedError extends Error {
+  data?: any;
+}
+
 export class Namespace extends EventEmitter {
   public readonly name: string;
   public readonly sockets: Map<SocketId, Socket> = new Map();
@@ -18,7 +22,9 @@ export class Namespace extends EventEmitter {
   readonly server: Server;
 
   /** @private */
-  _fns: Array<(socket: Socket, next: (err: Error) => void) => void> = [];
+  _fns: Array<
+    (socket: Socket, next: (err: ExtendedError) => void) => void
+  > = [];
 
   /** @private */
   _rooms: Set<Room> = new Set();
@@ -60,7 +66,7 @@ export class Namespace extends EventEmitter {
    * @public
    */
   public use(
-    fn: (socket: Socket, next: (err?: Error) => void) => void
+    fn: (socket: Socket, next: (err?: ExtendedError) => void) => void
   ): Namespace {
     this._fns.push(fn);
     return this;
@@ -73,7 +79,7 @@ export class Namespace extends EventEmitter {
    * @param {Function} fn - last fn call in the middleware
    * @private
    */
-  private run(socket: Socket, fn: (err: Error) => void) {
+  private run(socket: Socket, fn: (err: ExtendedError) => void) {
     const fns = this._fns.slice(0);
     if (!fns.length) return fn(null);
 
@@ -129,7 +135,11 @@ export class Namespace extends EventEmitter {
     this.run(socket, err => {
       process.nextTick(() => {
         if ("open" == client.conn.readyState) {
-          if (err) return socket._error(err.message);
+          if (err)
+            return socket._error({
+              message: err.message,
+              data: err.data
+            });
 
           // track socket
           this.sockets.set(socket.id, socket);

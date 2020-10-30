@@ -93,7 +93,9 @@ export class Client {
         this._packet({
           type: PacketType.CONNECT_ERROR,
           nsp: name,
-          data: "Invalid namespace"
+          data: {
+            message: "Invalid namespace"
+          }
         });
       }
     });
