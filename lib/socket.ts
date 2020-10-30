@@ -250,7 +250,10 @@ export class Socket extends Emitter {
         break;
 
       case PacketType.CONNECT_ERROR:
-        super.emit("connect_error", packet.data);
+        const err = new Error(packet.data.message);
+        // @ts-ignore
+        err.data = packet.data.data;
+        super.emit("connect_error", err);
         break;
     }
   }

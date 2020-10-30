@@ -177,7 +177,8 @@ describe("socket", function () {
   it("should fire an error event on middleware failure from custom namespace", (done) => {
     const socket = io("/no", { forceNew: true });
     socket.on("connect_error", (err) => {
-      expect(err).to.eql("Auth failed (custom namespace)");
+      expect(err).to.be.an(Error);
+      expect(err.message).to.eql("Auth failed (custom namespace)");
       socket.disconnect();
       done();
     });
