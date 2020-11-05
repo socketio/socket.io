@@ -1,6 +1,6 @@
 {
   "name": "socket.io-client",
-  "version": "3.0.0-rc4",
+  "version": "3.0.0",
   "keywords": [
     "realtime",
     "framework",
@@ -34,7 +34,7 @@
     "debug": "~4.1.0",
     "engine.io-client": "~4.0.0",
     "parseuri": "0.0.6",
-    "socket.io-parser": "4.0.1-rc3"
+    "socket.io-parser": "~4.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",
@@ -54,7 +54,7 @@
     "istanbul": "^0.4.5",
     "mocha": "^3.3.0",
     "prettier": "^2.1.2",
-    "socket.io": "3.0.0-rc4",
+    "socket.io": "3.0.0",
     "socket.io-browsers": "^1.0.0",
     "socket.io-msgpack-parser": "^3.0.0",
     "text-blob-builder": "0.0.1",

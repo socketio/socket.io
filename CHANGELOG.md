@@ -1,3 +1,46 @@
+# [3.0.0](https://github.com/socketio/socket.io-client/compare/2.3.1...3.0.0) (2020-11-05)
+
+### Code Refactoring
+
+* rename ERROR to CONNECT_ERROR ([13e1db7](https://github.com/socketio/socket.io-client/commit/13e1db7c94291c583d843beaa9e06ee041ae4f26))
+
+### Features
+
+* emit an Error object upon middleware error ([0939395](https://github.com/socketio/socket.io-client/commit/09393952e3397a0c71f239ea983f8ec1623b7c21))
+* add bundle with msgpack parser ([71d6048](https://github.com/socketio/socket.io-client/commit/71d60480af9ea06d22792540dafb18a76e9362e7))
+* add support for catch-all listeners ([55f464f](https://github.com/socketio/socket.io-client/commit/55f464f59ed523fa1c1948ec10752bfdf808262d))
+* add volatile events ([7ddad2c](https://github.com/socketio/socket.io-client/commit/7ddad2c09dea0391b20378ef03b40040f0230d3e))
+* move binary detection back to the parser ([1789094](https://github.com/socketio/socket.io-client/commit/178909471a3dd232e71cba83b729b4cc66f1412f))
+* add ES6 module export ([cbabb03](https://github.com/socketio/socket.io-client/commit/cbabb0308ef4f7d302654755e08fe2103b9f22c8))
+* do not reuse the Engine.IO id ([bbe94ad](https://github.com/socketio/socket.io-client/commit/bbe94adb822a306c6272e977d394e3e203cae25d))
+* remove the implicit connection to the default namespace ([249e0be](https://github.com/socketio/socket.io-client/commit/249e0bef9071e7afd785485961c4eef0094254e8))
+* split the events of the Manager and Socket ([132f8ec](https://github.com/socketio/socket.io-client/commit/132f8ec918a596eec872aee0c61d4ce63714c400))
+* throw upon reserved event names ([6494f61](https://github.com/socketio/socket.io-client/commit/6494f61be0d38d267d77c30ea4f43941f97b1bc0))
+
+### BREAKING CHANGES
+
+* the Socket instance will now emit a "connect_error" event instead of "error" (which is not a reserved event anymore)
+
+```js
+// before
+socket.on("error", () => {});
+
+// after
+socket.on("connect_error", () => {});
+```
+
+* the Socket#binary() method is removed, as this use case is now covered by the ability to provide your own parser.
+
+* the Socket instance will no longer forward the events of its Manager
+
+Those events can still be accessed on the Manager instance though:
+
+```js
+socket.io.on("reconnect", () => {
+  // ...
+});
+```
+
 # [3.0.0-rc4](https://github.com/socketio/socket.io-client/compare/3.0.0-rc3...3.0.0-rc4) (2020-10-30)
 
 
@@ -64,8 +107,7 @@ socket.on("connect_error", () => {});
 
 ### BREAKING CHANGES
 
-* the Socket instance will no longer forward the events
-of its Manager
+* the Socket instance will no longer forward the events of its Manager
 
 Those events can still be accessed on the Manager instance though:
 
