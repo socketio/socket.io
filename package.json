@@ -1,6 +1,6 @@
 {
   "name": "socket.io-adapter",
-  "version": "2.0.3-rc2",
+  "version": "2.0.3",
   "license": "MIT",
   "repository": {
     "type": "git",

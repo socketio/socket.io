@@ -1,3 +1,16 @@
+## [2.0.3](https://github.com/socketio/socket.io-adapter/compare/1.1.2...2.0.3) (2020-11-05)
+
+### Features
+
+* add init() and close() methods ([2e023bf](https://github.com/socketio/socket.io-adapter/commit/2e023bf2b651e543a34147fab19497fbdb8bdb72))
+* use ES6 Sets and Maps ([53ed3f4](https://github.com/socketio/socket.io-adapter/commit/53ed3f4099c073546c66d911a95171adcefc524c))
+
+### Bug Fixes
+
+* Encoder#encode() is now synchronous ([c043650](https://github.com/socketio/socket.io-adapter/commit/c043650f1c6e58b20364383103314ddc733e4615))
+
+
+
 ## [2.0.3-rc2](https://github.com/socketio/socket.io-adapter/compare/2.0.3-rc1...2.0.3-rc2) (2020-10-20)
 
 
@@ -22,7 +35,7 @@ The dist/ directory was not up-to-date when publishing the previous version...
 
 ### Bug Fixes
 
-* Adapter#encode() is now synchronous ([c043650](https://github.com/socketio/socket.io-adapter/commit/c043650f1c6e58b20364383103314ddc733e4615))
+* Encoder#encode() is now synchronous ([c043650](https://github.com/socketio/socket.io-adapter/commit/c043650f1c6e58b20364383103314ddc733e4615))
 
 
 
