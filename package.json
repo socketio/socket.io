@@ -1,6 +1,6 @@
 {
   "name": "socket.io",
-  "version": "3.0.0-rc4",
+  "version": "3.0.0",
   "description": "node.js realtime framework server",
   "keywords": [
     "realtime",
@@ -39,8 +39,8 @@
     "base64id": "~2.0.0",
     "debug": "~4.1.0",
     "engine.io": "~4.0.0",
-    "socket.io-adapter": "2.0.3-rc2",
-    "socket.io-parser": "4.0.1-rc3"
+    "socket.io-adapter": "~2.0.3",
+    "socket.io-parser": "~4.0.1"
   },
   "devDependencies": {
     "@types/cookie": "^0.4.0",
@@ -54,7 +54,7 @@
     "mocha": "^3.5.3",
     "nyc": "^11.2.1",
     "prettier": "^1.19.1",
-    "socket.io-client": "3.0.0-rc4",
+    "socket.io-client": "3.0.0",
     "superagent": "^3.8.2",
     "supertest": "^3.0.0",
     "ts-node": "^9.0.0",
