@@ -4,10 +4,18 @@
 [![Build Status](https://secure.travis-ci.org/socketio/socket.io-parser.svg?branch=master)](http://travis-ci.org/socketio/socket.io-parser)
 [![NPM version](https://badge.fury.io/js/socket.io-parser.svg)](http://badge.fury.io/js/socket.io-parser)
 
-A socket.io encoder and decoder written in JavaScript complying with version `4`
+A socket.io encoder and decoder written in JavaScript complying with version `5`
 of [socket.io-protocol](https://github.com/socketio/socket.io-protocol).
 Used by [socket.io](https://github.com/automattic/socket.io) and
 [socket.io-client](https://github.com/automattic/socket.io-client).
+
+Compatibility table:
+
+| Parser version | Socket.IO server version | Protocol revision |
+|----------------| ------------------------ | ----------------- |
+| 3.x            | 1.x / 2.x                | 4                 |
+| 4.x            | 3.x                      | 5                 |
+
 
 ## Parser API
 
