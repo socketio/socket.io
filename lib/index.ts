@@ -143,6 +143,11 @@ interface ServerOptions extends EngineAttachOptions {
    * @default 45000
    */
   connectTimeout: number;
+  /**
+   * whether or not to automatically join clients to a room bearing the name of the client's id
+   * @default true
+   */
+  autoJoin: boolean;
 }
 
 export class Server extends EventEmitter {
@@ -152,6 +157,8 @@ export class Server extends EventEmitter {
   readonly _parser;
   /** @private */
   readonly encoder: Encoder;
+  /** @private */
+  readonly autoJoin: boolean;
 
   /**
    * @private
@@ -202,6 +209,7 @@ export class Server extends EventEmitter {
     this._parser = opts.parser || parser;
     this.encoder = new this._parser.Encoder();
     this.adapter(opts.adapter || Adapter);
+    this.autoJoin = opts.autoJoin ?? true;
     this.sockets = this.of("/");
     if (srv) this.attach(srv, opts);
   }

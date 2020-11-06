@@ -283,7 +283,9 @@ export class Socket extends EventEmitter {
    */
   _onconnect(): void {
     debug("socket connected - writing packet");
-    this.join(this.id);
+    if (this.server.autoJoin) {
+      this.join(this.id);
+    }
     this.packet({ type: PacketType.CONNECT, data: { sid: this.id } });
   }
 
