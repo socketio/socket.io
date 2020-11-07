@@ -178,11 +178,10 @@ export class Namespace extends EventEmitter {
   /**
    * Emits to all clients.
    *
-   * @return {Namespace} self
+   * @return {Boolean} Always true
    * @public
    */
-  // @ts-ignore
-  public emit(ev: string, ...args: any[]): Namespace {
+  public emit(ev: string, ...args: any[]): boolean {
     if (RESERVED_EVENTS.has(ev)) {
       throw new Error(`"${ev}" is a reserved event name`);
     }
@@ -209,7 +208,7 @@ export class Namespace extends EventEmitter {
       flags: flags
     });
 
-    return this;
+    return true;
   }
 
   /**

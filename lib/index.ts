@@ -1,10 +1,10 @@
-import http from "http";
+import http = require("http");
 import { createReadStream } from "fs";
 import { createDeflate, createGzip, createBrotliCompress } from "zlib";
 import accepts = require("accepts");
 import { pipeline } from "stream";
-import path from "path";
-import engine from "engine.io";
+import path = require("path");
+import engine = require("engine.io");
 import { Client } from "./client";
 import { EventEmitter } from "events";
 import { ExtendedError, Namespace } from "./namespace";

@@ -10,7 +10,7 @@ export class ParentNamespace extends Namespace {
 
   _initAdapter() {}
 
-  public emit(...args): Namespace {
+  public emit(...args: any[]): boolean {
     this.children.forEach(nsp => {
       nsp._rooms = this._rooms;
       nsp._flags = this._flags;
@@ -19,7 +19,7 @@ export class ParentNamespace extends Namespace {
     this._rooms.clear();
     this._flags = {};
 
-    return this;
+    return true;
   }
 
   createChild(name) {

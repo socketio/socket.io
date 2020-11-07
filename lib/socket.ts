@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import { PacketType } from "socket.io-parser";
-import url from "url";
+import url = require("url");
 import debugModule from "debug";
 import { Server } from "./index";
 import { Client } from "./client";
@@ -129,11 +129,10 @@ export class Socket extends EventEmitter {
   /**
    * Emits to this client.
    *
-   * @return {Socket} self
+   * @return {Boolean} Always true
    * @public
    */
-  // @ts-ignore
-  public emit(ev: string, ...args: any[]) {
+  public emit(ev: string, ...args: any[]): boolean {
     if (RESERVED_EVENTS.has(ev)) {
       throw new Error(`"${ev}" is a reserved event name`);
     }
@@ -171,7 +170,7 @@ export class Socket extends EventEmitter {
       // dispatch packet
       this.packet(packet, flags);
     }
-    return this;
+    return true;
   }
 
   /**
