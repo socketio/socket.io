@@ -712,4 +712,4 @@ emitterMethods.forEach(function(fn) {
 module.exports = (srv?, opts?) => new Server(srv, opts);
 module.exports.Server = Server;
 
-export { Socket }; // for "connect" event typing
+export { Socket, ServerOptions, Namespace };
