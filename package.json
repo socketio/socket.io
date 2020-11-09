@@ -42,7 +42,7 @@
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
     "blob": "^0.0.4",
-    "engine.io": "4.0.1",
+    "engine.io": "4.0.2",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.9.0",
     "expect.js": "^0.3.1",
