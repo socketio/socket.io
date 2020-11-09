@@ -1,3 +1,11 @@
+## [4.0.2](https://github.com/socketio/engine.io/compare/4.0.1...4.0.2) (2020-11-09)
+
+
+### Bug Fixes
+
+* add extension in the package.json main entry ([#608](https://github.com/socketio/engine.io/issues/608)) ([17b8c2f](https://github.com/socketio/engine.io/commit/17b8c2f199e7a307b6d6294b8599abacb3ec56e7))
+
+
 ## [4.0.1](https://github.com/socketio/engine.io/compare/4.0.0...4.0.1) (2020-10-21)
 
 
