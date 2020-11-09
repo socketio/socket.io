@@ -1,3 +1,12 @@
+## [3.0.1](https://github.com/socketio/socket.io/compare/3.0.0...3.0.1) (2020-11-09)
+
+
+### Bug Fixes
+
+* export ServerOptions and Namespace types ([#3684](https://github.com/socketio/socket.io/issues/3684)) ([f62f180](https://github.com/socketio/socket.io/commit/f62f180edafdd56d8a8a277e092bc66df0c5f07f))
+* **typings:** update the signature of the emit method ([50671d9](https://github.com/socketio/socket.io/commit/50671d984a81535a6a15c704546ca7465e2ea295))
+
+
 # [3.0.0](https://github.com/socketio/socket.io/compare/2.3.0...3.0.0) (2020-11-05)
 
 ### Bug Fixes
