@@ -1,3 +1,11 @@
+## [3.0.1](https://github.com/socketio/socket.io-client/compare/3.0.0...3.0.1) (2020-11-09)
+
+
+### Bug Fixes
+
+* **typings:** export Socket and SocketOptions types ([#1394](https://github.com/socketio/socket.io-client/issues/1394)) ([19ab1e9](https://github.com/socketio/socket.io-client/commit/19ab1e9e4e1373d4ef4dad5381c8ae24167f5d89))
+
+
 # [3.0.0](https://github.com/socketio/socket.io-client/compare/2.3.1...3.0.0) (2020-11-05)
 
 ### Code Refactoring

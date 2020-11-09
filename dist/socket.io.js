@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v3.0.0
+ * Socket.IO v3.0.1
  * (c) 2014-2020 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -126,11 +126,20 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.io = exports.Manager = exports.protocol = void 0;
+exports.Socket = exports.io = exports.Manager = exports.protocol = void 0;
 
 var url_1 = __webpack_require__(/*! ./url */ "./build/url.js");
 
 var manager_1 = __webpack_require__(/*! ./manager */ "./build/manager.js");
+
+var socket_1 = __webpack_require__(/*! ./socket */ "./build/socket.js");
+
+Object.defineProperty(exports, "Socket", {
+  enumerable: true,
+  get: function get() {
+    return socket_1.Socket;
+  }
+});
 
 var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.js")("socket.io-client");
 /**
@@ -3982,25 +3991,9 @@ var Request = /*#__PURE__*/function (_Emitter) {
   }, {
     key: "onLoad",
     value: function onLoad() {
-      var data;
+      var data = this.xhr.responseText;
 
-      try {
-        var contentType;
-
-        try {
-          contentType = this.xhr.getResponseHeader("Content-Type");
-        } catch (e) {}
-
-        if (contentType === "application/octet-stream" || contentType === "application/octet-stream; charset=UTF-8") {
-          data = this.xhr.response || this.xhr.responseText;
-        } else {
-          data = this.xhr.responseText;
-        }
-      } catch (e) {
-        this.onError(e);
-      }
-
-      if (null != data) {
+      if (data !== null) {
         this.onData(data);
       }
     }
