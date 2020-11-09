@@ -1,7 +1,7 @@
 
 # Socket.IO Chat
 
-A simple chat demo for socket.io
+A simple chat demo for Socket.IO
 
 ## How to use
 

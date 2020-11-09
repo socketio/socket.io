@@ -1,7 +1,7 @@
 
 # Socket.IO Collaborative Whiteboard
 
-A simple collaborative whiteboard for socket.io
+A simple collaborative whiteboard for Socket.IO
 
 ## How to use
 

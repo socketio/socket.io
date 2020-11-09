@@ -9,7 +9,7 @@
     "node": ">=12.17.0"
   },
   "dependencies": {
-    "socket.io": "beta",
-    "socket.io-client": "beta"
+    "socket.io": "^3.0.0",
+    "socket.io-client": "^3.0.0"
   }
 }
