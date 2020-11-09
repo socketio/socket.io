@@ -330,7 +330,7 @@ is encoded to:
 is encoded to:
 
 ```
-4€\x1eb4AQIDBA==
+4€\x1ebAQIDBA==
 
 with
 
@@ -452,6 +452,8 @@ suspect that a lot of timeout problems came from timers being delayed on the cli
 
 This change allows to treat all payloads (with or without binary) the same way, without having to take in account
 whether the client or the current transport supports binary data or not.
+
+Please note that this only applies to HTTP long-polling. Binary data is sent in WebSocket frames with no additional transformation.
 
 - use a record separator (`\x1e`) instead of counting of characters
 
