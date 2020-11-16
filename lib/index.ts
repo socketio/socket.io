@@ -92,5 +92,5 @@ exports.connect = lookup;
  * @public
  */
 
-export { Manager } from "./manager";
+export { Manager, ManagerOptions } from "./manager";
 export { lookup as io, Socket, SocketOptions };
