@@ -176,6 +176,13 @@ interface EngineOptions {
    * certificate information.
    */
   rejectUnauthorized: boolean;
+
+  /**
+   * Whether to include credentials (cookies, authorization headers, TLS
+   * client certificates, etc.) with cross-origin XHR polling requests
+   * @default false
+   */
+  withCredentials: boolean;
 }
 
 export interface ManagerOptions extends EngineOptions {
