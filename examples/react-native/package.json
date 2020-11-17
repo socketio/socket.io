@@ -13,8 +13,8 @@
     "react-dom": "~16.9.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-37.0.1.tar.gz",
     "react-native-web": "~0.11.7",
-    "socket.io": "~2.3.0",
-    "socket.io-client": "~2.3.0"
+    "socket.io": "^3.0.1",
+    "socket.io-client": "^3.0.1"
   },
   "devDependencies": {
     "babel-preset-expo": "~8.1.0",

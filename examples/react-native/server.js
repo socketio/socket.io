@@ -8,7 +8,11 @@ io.on('connection', socket => {
   });
 });
 
-io.listen(3000);
+io.listen(3000, {
+  cors: {
+    origin: ["http://localhost:19006"]
+  }
+});
 
 setInterval(() => {
   io.emit('message', new Date().toISOString());
