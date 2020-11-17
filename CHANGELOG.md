@@ -1,3 +1,12 @@
+## [4.0.3](https://github.com/socketio/engine.io-client/compare/4.0.2...4.0.3) (2020-11-17)
+
+
+### Bug Fixes
+
+* **react-native:** add a default value for the withCredentials option ([ccb99e3](https://github.com/socketio/engine.io-client/commit/ccb99e3718e8ee2c50960430d2bd6c12a3dcb0dc))
+* **react-native:** exclude the localAddress option ([177b95f](https://github.com/socketio/engine.io-client/commit/177b95fe463ad049b35170f042a771380fdaedee))
+
+
 ## [4.0.2](https://github.com/socketio/engine.io-client/compare/4.0.1...4.0.2) (2020-11-09)
 
 
