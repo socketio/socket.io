@@ -138,6 +138,24 @@ describe("socket.io", () => {
             done();
           });
       });
+
+      it("should work with #attach (and merge options)", () => {
+        const srv = createServer((req, res) => {
+          res.writeHead(404);
+          res.end();
+        });
+        const server = new Server({
+          pingTimeout: 6000
+        });
+        server.attach(srv, {
+          pingInterval: 24000
+        });
+        // @ts-ignore
+        expect(server.eio.opts.pingTimeout).to.eql(6000);
+        // @ts-ignore
+        expect(server.eio.opts.pingInterval).to.eql(24000);
+        server.close();
+      });
     });
 
     describe("port", () => {

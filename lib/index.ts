@@ -169,6 +169,7 @@ export class Server extends EventEmitter {
   > = new Map();
   private _adapter: any;
   private _serveClient: boolean;
+  private opts: Partial<EngineOptions>;
   private eio;
   private engine;
   private _path: string;
@@ -203,7 +204,8 @@ export class Server extends EventEmitter {
     this.encoder = new this._parser.Encoder();
     this.adapter(opts.adapter || Adapter);
     this.sockets = this.of("/");
-    if (srv) this.attach(srv, opts);
+    this.opts = opts;
+    if (srv) this.attach(srv);
   }
 
   /**
@@ -357,6 +359,8 @@ export class Server extends EventEmitter {
       srv.listen(port);
     }
 
+    // merge the options passed to the Socket.IO server
+    Object.assign(opts, this.opts);
     // set engine.io path to `/socket.io`
     opts.path = opts.path || this._path;
 
