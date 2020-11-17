@@ -26,7 +26,7 @@ function client(srv, nsp?: string | object, opts?: object) {
 }
 
 describe("socket.io", () => {
-  it.skip("should be the same version as client", () => {
+  it("should be the same version as client", () => {
     const version = require("../package").version;
     expect(version).to.be(require("socket.io-client/package.json").version);
   });

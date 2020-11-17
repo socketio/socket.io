@@ -1,3 +1,11 @@
+## [3.0.2](https://github.com/socketio/socket.io/compare/3.0.1...3.0.2) (2020-11-17)
+
+
+### Bug Fixes
+
+* merge Engine.IO options ([43705d7](https://github.com/socketio/socket.io/commit/43705d7a9149833afc69edc937ea7f8c9aabfeef))
+
+
 ## [3.0.1](https://github.com/socketio/socket.io/compare/3.0.0...3.0.1) (2020-11-09)
 
 

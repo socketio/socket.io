@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v3.0.1
+ * Socket.IO v3.0.2
  * (c) 2014-2020 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -2521,6 +2521,7 @@ var Socket = /*#__PURE__*/function (_Emitter) {
     _this.opts = _extends({
       path: "/engine.io",
       agent: false,
+      withCredentials: false,
       upgrade: true,
       jsonp: true,
       timestampParam: "t",
@@ -3722,7 +3723,6 @@ var XHR = /*#__PURE__*/function (_Polling) {
       var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       _extends(opts, {
-        supportsBinary: this.supportsBinary,
         xd: this.xd,
         xs: this.xs
       }, this.opts);
@@ -3740,11 +3740,9 @@ var XHR = /*#__PURE__*/function (_Polling) {
   }, {
     key: "doWrite",
     value: function doWrite(data, fn) {
-      var isBinary = typeof data !== "string" && data !== undefined;
       var req = this.request({
         method: "POST",
-        data: data,
-        isBinary: isBinary
+        data: data
       });
       var self = this;
       req.on("success", fn);
@@ -3799,8 +3797,6 @@ var Request = /*#__PURE__*/function (_Emitter) {
     _this2.uri = uri;
     _this2.async = false !== opts.async;
     _this2.data = undefined !== opts.data ? opts.data : null;
-    _this2.isBinary = opts.isBinary;
-    _this2.supportsBinary = opts.supportsBinary;
 
     _this2.create();
 
@@ -3836,17 +3832,11 @@ var Request = /*#__PURE__*/function (_Emitter) {
               }
             }
           }
-        } catch (e) {
-          console.log(e);
-        }
+        } catch (e) {}
 
         if ("POST" === this.method) {
           try {
-            if (this.isBinary) {
-              xhr.setRequestHeader("Content-type", "application/octet-stream");
-            } else {
-              xhr.setRequestHeader("Content-type", "text/plain;charset=UTF-8");
-            }
+            xhr.setRequestHeader("Content-type", "text/plain;charset=UTF-8");
           } catch (e) {}
         }
 
@@ -3873,16 +3863,6 @@ var Request = /*#__PURE__*/function (_Emitter) {
           };
         } else {
           xhr.onreadystatechange = function () {
-            if (xhr.readyState === 2) {
-              try {
-                var contentType = xhr.getResponseHeader("Content-Type");
-
-                if (self.supportsBinary && contentType === "application/octet-stream" || contentType === "application/octet-stream; charset=UTF-8") {
-                  xhr.responseType = "arraybuffer";
-                }
-              } catch (e) {}
-            }
-
             if (4 !== xhr.readyState) return;
 
             if (200 === xhr.status || 1223 === xhr.status) {
@@ -4188,7 +4168,7 @@ var Polling = /*#__PURE__*/function (_Transport) {
 
       var callback = function callback(packet, index, total) {
         // if its the first message we consider the transport open
-        if ("opening" === self.readyState) {
+        if ("opening" === self.readyState && packet.type === "open") {
           self.onOpen();
         } // if its a close packet, we close the ongoing requests
 
@@ -4404,14 +4384,7 @@ var WS = /*#__PURE__*/function (_Transport) {
     _classCallCheck(this, WS);
 
     _this = _super.call(this, opts);
-    var forceBase64 = opts && opts.forceBase64;
-
-    if (forceBase64) {
-      _this.supportsBinary = false;
-    } // WebSockets support binary
-
-
-    _this.supportsBinary = true;
+    _this.supportsBinary = !opts.forceBase64;
     return _this;
   }
   /**
@@ -4436,14 +4409,9 @@ var WS = /*#__PURE__*/function (_Transport) {
       }
 
       var uri = this.uri();
-      var protocols = this.opts.protocols;
-      var opts;
+      var protocols = this.opts.protocols; // React Native only supports the 'headers' option, and will print a warning if anything else is passed
 
-      if (isReactNative) {
-        opts = pick(this.opts, "localAddress");
-      } else {
-        opts = pick(this.opts, "agent", "perMessageDeflate", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized", "localAddress");
-      }
+      var opts = isReactNative ? {} : pick(this.opts, "agent", "perMessageDeflate", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized", "localAddress");
 
       if (this.opts.extraHeaders) {
         opts.headers = this.opts.extraHeaders;
