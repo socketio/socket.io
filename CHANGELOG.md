@@ -1,3 +1,12 @@
+## [4.0.4](https://github.com/socketio/engine.io-client/compare/4.0.3...4.0.4) (2020-11-17)
+
+
+### Bug Fixes
+
+* check the type of the initial packet ([1c8cba8](https://github.com/socketio/engine.io-client/commit/1c8cba8818e930205918a70f05c1164865842a48))
+* restore the cherry-picking of the WebSocket options ([4873a23](https://github.com/socketio/engine.io-client/commit/4873a237f1ce5fcb18e255dd604d50dcfc624ea8))
+
+
 ## [4.0.3](https://github.com/socketio/engine.io-client/compare/4.0.2...4.0.3) (2020-11-17)
 
 
