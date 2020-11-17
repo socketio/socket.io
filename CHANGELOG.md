@@ -1,3 +1,13 @@
+## [3.0.2](https://github.com/socketio/socket.io-client/compare/3.0.1...3.0.2) (2020-11-17)
+
+
+### Bug Fixes
+
+* **typings:** export withCredentials option ([7193078](https://github.com/socketio/socket.io-client/commit/719307801a2170f02d3a16ab52752ac219ca4b6e))
+* **typings:** export ManagerOptions ([#1398](https://github.com/socketio/socket.io-client/issues/1398)) ([96cd2c9](https://github.com/socketio/socket.io-client/commit/96cd2c9ae4c48f9d2e6638ab26074277a3a6cf6b))
+* add io as named exports ([7b3ec9f](https://github.com/socketio/socket.io-client/commit/7b3ec9fad9df9d2f030f644a26fcd642bf2a91ab))
+
+
 ## [3.0.1](https://github.com/socketio/socket.io-client/compare/3.0.0...3.0.1) (2020-11-09)
 
 
