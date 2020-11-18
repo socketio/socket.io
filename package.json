@@ -54,6 +54,7 @@
     "istanbul": "^0.4.5",
     "mocha": "^3.3.0",
     "prettier": "^2.1.2",
+    "rimraf": "^3.0.2",
     "socket.io": "3.0.0",
     "socket.io-browsers": "^1.0.0",
     "socket.io-msgpack-parser": "^3.0.0",
@@ -69,7 +70,7 @@
     "zuul-ngrok": "4.0.0"
   },
   "scripts": {
-    "compile": "tsc",
+    "compile": "rimraf ./build && tsc",
     "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
     "test:node": "mocha --require ts-node/register --reporter dot --require test/support/server.js test/index.js",
     "test:browser": "zuul test/index.js",
