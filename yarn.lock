@@ -1742,10 +1742,10 @@ socket.io-adapter@kr-project/socket.io-adapter:
   version "1.1.1"
   resolved "https://codeload.github.com/kr-project/socket.io-adapter/tar.gz/9eb55482bf759f349b19fbc805ef44505f4b90e4"
 
-socket.io-client@3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/socket.io-client/-/socket.io-client-3.0.1.tgz#1f3e9c78c233181fa54401f4cb46c4db513c48e8"
-  integrity sha512-iIzWRDrF/h3KPtHjvLt5LL/1n7Euvv35zVa1r10ScRjVw40yc8DxFj7GnKrj1RNYkbtveWOwEsy2lWp3oFJO7w==
+socket.io-client@3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/socket.io-client/-/socket.io-client-3.0.2.tgz#7984b1cd8e7274f8a53d032b01fb15694a0210d5"
+  integrity sha512-SEgeBLWAztLoOIePauBEvY1plhheShoNY7CA5gUnrjBxe+NOYiK+neazrpdXQ2RYYBlXXEosPWCtEhKydVdagA==
   dependencies:
     "@types/component-emitter" "^1.2.10"
     backo2 "1.0.2"
