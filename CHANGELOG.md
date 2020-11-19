@@ -1,3 +1,11 @@
+## [3.0.3](https://github.com/socketio/socket.io-client/compare/3.0.2...3.0.3) (2020-11-19)
+
+
+### Bug Fixes
+
+* properly export io in ES modules wrapper ([bec1524](https://github.com/socketio/socket.io-client/commit/bec15240ea67e9d296ac94093974d7d831239e8d))
+
+
 ## [3.0.2](https://github.com/socketio/socket.io-client/compare/3.0.1...3.0.2) (2020-11-17)
 
 
