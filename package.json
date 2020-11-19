@@ -29,10 +29,11 @@
     "url": "git://github.com/socketio/socket.io"
   },
   "scripts": {
-    "test": "npm run format:check && tsc && nyc mocha --require ts-node/register --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.ts",
+    "compile": "rimraf ./dist && tsc",
+    "test": "npm run format:check && npm run compile && nyc mocha --require ts-node/register --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.ts",
     "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.ts'",
     "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.ts'",
-    "prepack": "tsc"
+    "prepack": "npm run compile"
   },
   "dependencies": {
     "@types/cookie": "^0.4.0",
@@ -54,6 +55,7 @@
     "mocha": "^3.5.3",
     "nyc": "^11.2.1",
     "prettier": "^1.19.1",
+    "rimraf": "^3.0.2",
     "socket.io-client": "3.0.2",
     "superagent": "^3.8.2",
     "supertest": "^3.0.0",
