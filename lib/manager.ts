@@ -178,6 +178,12 @@ interface EngineOptions {
   rejectUnauthorized: boolean;
 
   /**
+   * Headers that will be passed for each request to the server (via xhr-polling and via websockets).
+   * These values then can be used during handshake or for special proxies.
+   */
+  extraHeaders?: { [header: string]: string };
+
+  /**
    * Whether to include credentials (cookies, authorization headers, TLS
    * client certificates, etc.) with cross-origin XHR polling requests
    * @default false
