@@ -1,3 +1,11 @@
+## [4.0.2](https://github.com/socketio/socket.io-parser/compare/4.0.1...4.0.2) (2020-11-25)
+
+
+### Bug Fixes
+
+* move @types/component-emitter to dependencies ([#99](https://github.com/socketio/socket.io-parser/issues/99)) ([4efa005](https://github.com/socketio/socket.io-parser/commit/4efa005846ae15ecc7fb0a7f27141439113b1179))
+
+
 ## [4.0.1](https://github.com/socketio/socket.io-parser/compare/3.4.1...4.0.1) (2020-11-05)
 
 ### Features
