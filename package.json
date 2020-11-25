@@ -26,18 +26,20 @@
     "expect.js": "0.3.1",
     "mocha": "3.2.0",
     "prettier": "^2.1.2",
+    "rimraf": "^3.0.2",
     "socket.io-browsers": "^1.0.0",
     "typescript": "^4.0.3",
     "zuul": "3.11.1",
     "zuul-ngrok": "4.0.0"
   },
   "scripts": {
-    "test": "npm run format:check && tsc && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
+    "compile": "rimraf ./dist && tsc",
+    "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
     "test:node": "mocha --reporter dot --bail test/index.js",
     "test:browser": "zuul test/index.js --no-coverage",
     "format:fix": "prettier --write --parser typescript 'lib/**/*.ts' 'test/**/*.js'",
     "format:check": "prettier --check --parser typescript 'lib/**/*.ts' 'test/**/*.js'",
-    "prepack": "tsc"
+    "prepack": "npm run compile"
   },
   "license": "MIT",
   "engines": {
