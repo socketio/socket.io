@@ -57,8 +57,8 @@
     "prettier": "^1.19.1",
     "rimraf": "^3.0.2",
     "socket.io-client": "3.0.3",
-    "superagent": "^3.8.2",
-    "supertest": "^3.0.0",
+    "superagent": "^6.1.0",
+    "supertest": "^6.0.1",
     "ts-node": "^9.0.0",
     "typescript": "^4.1.2"
   },
