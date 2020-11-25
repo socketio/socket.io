@@ -7,10 +7,10 @@
 * [ ] a code change that improves performance
 * [ ] other
 
-### Current behaviour
+### Current behavior
 
 
-### New behaviour
+### New behavior
 
 
 ### Other information (e.g. related issues)
