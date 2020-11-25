@@ -47,7 +47,7 @@
     "socket.io-parser": "^4.0.2"
   },
   "devDependencies": {
-    "@types/mocha": "^8.0.3",
+    "@types/mocha": "^8.0.4",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^6.11.0",
