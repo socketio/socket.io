@@ -224,8 +224,17 @@ export class Socket extends Emitter {
 
     switch (packet.type) {
       case PacketType.CONNECT:
-        const id = packet.data.sid;
-        this.onconnect(id);
+        if (packet.data && packet.data.sid) {
+          const id = packet.data.sid;
+          this.onconnect(id);
+        } else {
+          super.emit(
+            "connect_error",
+            new Error(
+              "It seems you are trying to reach a Socket.IO server in v2.x with a v3.x client, but they are not compatible (more information here: https://socket.io/docs/v3/migrating-from-2-x-to-3-0/)"
+            )
+          );
+        }
         break;
 
       case PacketType.EVENT:

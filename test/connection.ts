@@ -411,6 +411,22 @@ describe("connection", function () {
     });
   });
 
+  it("should emit a connect_error event when reaching a Socket.IO server in v2.x", (done) => {
+    const socket = io({
+      autoConnect: false,
+    });
+
+    socket.on("connect_error", () => {
+      done();
+    });
+
+    // @ts-ignore
+    socket.onpacket({
+      nsp: "/",
+      type: 0,
+    });
+  });
+
   // Ignore incorrect connection test for old IE due to no support for
   // `script.onerror` (see: http://requirejs.org/docs/api.html#ieloadfail)
   if (!global.document || hasCORS) {
