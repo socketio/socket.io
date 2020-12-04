@@ -89,6 +89,13 @@ export class Socket extends Emitter {
   }
 
   /**
+   * Whether the Socket will try to reconnect when its Manager connects or reconnects
+   */
+  public get active(): boolean {
+    return !!this.subs;
+  }
+
+  /**
    * "Opens" the socket.
    *
    * @public
@@ -343,6 +350,7 @@ export class Socket extends Emitter {
    * @private
    */
   private onconnect(id: string) {
+    debug("socket connected with id %s", id);
     this.id = id;
     this.connected = true;
     this.disconnected = false;

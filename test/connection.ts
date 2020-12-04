@@ -427,6 +427,33 @@ describe("connection", function () {
     });
   });
 
+  it("should not close the connection when disconnecting a single socket", (done) => {
+    const manager = new Manager({
+      autoConnect: false,
+    });
+    const socket1 = manager.socket("/foo");
+    const socket2 = manager.socket("/asd");
+
+    socket1.connect();
+    socket1.on("connect", () => {
+      socket2.connect();
+    });
+
+    socket2.on("connect", () => {
+      socket2.on("disconnect", () => {
+        done(new Error("should not happen for now"));
+      });
+      socket1.disconnect();
+      setTimeout(() => {
+        socket2.off("disconnect");
+        manager.on("close", () => {
+          done();
+        });
+        socket2.disconnect();
+      }, 200);
+    });
+  });
+
   // Ignore incorrect connection test for old IE due to no support for
   // `script.onerror` (see: http://requirejs.org/docs/api.html#ieloadfail)
   if (!global.document || hasCORS) {

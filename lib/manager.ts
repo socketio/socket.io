@@ -292,7 +292,6 @@ export class Manager extends Emitter {
   private _reconnectionDelayMax: number;
   private _timeout: any;
 
-  private connecting: Array<Socket> = [];
   private encoder: Encoder;
   private decoder: Decoder;
   private skipReconnect: boolean;
@@ -601,19 +600,6 @@ export class Manager extends Emitter {
     if (!socket) {
       socket = new Socket(this, nsp, opts);
       this.nsps[nsp] = socket;
-      var self = this;
-      socket.on("connecting", onConnecting);
-
-      if (this._autoConnect) {
-        // manually call here since connecting event is fired before listening
-        onConnecting();
-      }
-    }
-
-    function onConnecting() {
-      if (!~self.connecting.indexOf(socket)) {
-        self.connecting.push(socket);
-      }
     }
 
     return socket;
@@ -626,9 +612,16 @@ export class Manager extends Emitter {
    * @private
    */
   _destroy(socket: Socket) {
-    const index = this.connecting.indexOf(socket);
-    if (~index) this.connecting.splice(index, 1);
-    if (this.connecting.length) return;
+    const nsps = Object.keys(this.nsps);
+
+    for (const nsp of nsps) {
+      const socket = this.nsps[nsp];
+
+      if (socket.active) {
+        debug("socket %s is still active, skipping close", nsp);
+        return;
+      }
+    }
 
     this._close();
   }
