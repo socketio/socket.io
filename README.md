@@ -1,7 +1,7 @@
 
 # Engine.IO: the realtime engine
 
-[![Build Status](https://travis-ci.org/socketio/engine.io.svg?branch=master)](http://travis-ci.org/socketio/engine.io)
+[![Build Status](https://github.com/socketio/engine.io/workflows/CI/badge.svg)](https://github.com/socketio/engine.io/actions)
 [![NPM version](https://badge.fury.io/js/engine.io.svg)](http://badge.fury.io/js/engine.io)
 
 `Engine.IO` is the implementation of transport-based
