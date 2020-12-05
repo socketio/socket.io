@@ -1,7 +1,7 @@
 
 # Engine.IO client
 
-[![Build Status](https://travis-ci.org/socketio/engine.io-client.svg?branch=master)](http://travis-ci.org/socketio/engine.io-client)
+[![Build Status](https://github.com/socketio/engine.io-client/workflows/CI/badge.svg)](https://github.com/socketio/engine.io-client/actions)
 [![NPM version](https://badge.fury.io/js/engine.io-client.svg)](http://badge.fury.io/js/engine.io-client)
 
 This is the client for [Engine.IO](http://github.com/socketio/engine.io),
