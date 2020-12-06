@@ -75,8 +75,8 @@
     "test:node": "mocha --require ts-node/register --reporter dot --require test/support/server.js test/index.js",
     "test:browser": "zuul test/index.js",
     "build": "npm run compile && webpack --config ./support/webpack.config.js --config ./support/prod.config.js --config ./support/msgpack-parser.config.js",
-    "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js' 'test/**/*.ts' 'support/**/*.js'",
-    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js' 'test/**/*.ts' 'support/**/*.js'",
+    "format:check": "prettier --check \"lib/**/*.ts\" \"test/**/*.js\" \"test/**/*.ts\" \"support/**/*.js\"",
+    "format:fix": "prettier --write \"lib/**/*.ts\" \"test/**/*.js\" \"test/**/*.ts\" \"support/**/*.js\"",
     "prepack": "npm run compile"
   },
   "contributors": [

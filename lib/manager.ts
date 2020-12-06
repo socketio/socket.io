@@ -2,7 +2,7 @@ import * as eio from "engine.io-client";
 import { Socket, SocketOptions } from "./socket";
 import Emitter = require("component-emitter");
 import * as parser from "socket.io-parser";
-import { Decoder, Encoder } from "socket.io-parser";
+import { Decoder, Encoder, Packet } from "socket.io-parser";
 import { on } from "./on";
 import * as bind from "component-bind";
 import * as Backoff from "backo2";
@@ -280,11 +280,11 @@ export class Manager extends Emitter {
   _reconnecting: boolean;
 
   private readonly uri: string;
-  private readonly opts: object;
+  private readonly opts: Partial<ManagerOptions>;
 
-  private nsps: object = {};
-  private subs: Array<any> = [];
-  private backoff: any;
+  private nsps: Record<string, Socket> = {};
+  private subs: Array<ReturnType<typeof on>> = [];
+  private backoff: Backoff;
   private _reconnection: boolean;
   private _reconnectionAttempts: number;
   private _reconnectionDelay: number;
@@ -300,13 +300,16 @@ export class Manager extends Emitter {
   /**
    * `Manager` constructor.
    *
-   * @param {String} uri - engine instance or engine uri/opts
-   * @param {Object} opts - options
+   * @param uri - engine instance or engine uri/opts
+   * @param opts - options
    * @public
    */
   constructor(opts: Partial<ManagerOptions>);
   constructor(uri?: string, opts?: Partial<ManagerOptions>);
-  constructor(uri?: any, opts?: any) {
+  constructor(
+    uri?: string | Partial<ManagerOptions>,
+    opts?: Partial<ManagerOptions>
+  ) {
     super();
     if (uri && "object" === typeof uri) {
       opts = uri;
@@ -328,7 +331,7 @@ export class Manager extends Emitter {
     });
     this.timeout(null == opts.timeout ? 20000 : opts.timeout);
     this._readyState = "closed";
-    this.uri = uri;
+    this.uri = uri as string;
     const _parser = opts.parser || parser;
     this.encoder = new _parser.Encoder();
     this.decoder = new _parser.Decoder();
@@ -378,15 +381,15 @@ export class Manager extends Emitter {
   public reconnectionDelay(v?: number): Manager | number {
     if (v === undefined) return this._reconnectionDelay;
     this._reconnectionDelay = v;
-    this.backoff && this.backoff.setMin(v);
+    this.backoff?.setMin(v);
     return this;
   }
 
   /**
    * Sets the randomization factor
    *
-   * @param {Number} v - the randomization factor
-   * @return {Manager} self or value
+   * @param v - the randomization factor
+   * @return self or value
    * @public
    */
   public randomizationFactor(v: number): Manager;
@@ -394,15 +397,15 @@ export class Manager extends Emitter {
   public randomizationFactor(v?: number): Manager | number {
     if (v === undefined) return this._randomizationFactor;
     this._randomizationFactor = v;
-    this.backoff && this.backoff.setJitter(v);
+    this.backoff?.setJitter(v);
     return this;
   }
 
   /**
    * Sets the maximum delay between reconnections.
    *
-   * @param {Number} v - delay
-   * @return {Manager} self or value
+   * @param v - delay
+   * @return self or value
    * @public
    */
   public reconnectionDelayMax(v: number): Manager;
@@ -410,14 +413,15 @@ export class Manager extends Emitter {
   public reconnectionDelayMax(v?: number): Manager | number {
     if (v === undefined) return this._reconnectionDelayMax;
     this._reconnectionDelayMax = v;
-    this.backoff && this.backoff.setMax(v);
+    this.backoff?.setMax(v);
     return this;
   }
 
   /**
    * Sets the connection timeout. `false` to disable
    *
-   * @return {Manager} self or value
+   * @param v - connection timeout
+   * @return self or value
    * @public
    */
   public timeout(v: number | boolean): Manager;
@@ -450,7 +454,7 @@ export class Manager extends Emitter {
    * Sets the current transport `socket`.
    *
    * @param {Function} fn - optional, callback
-   * @return {Manager} self
+   * @return self
    * @public
    */
   public open(fn?: (err?: Error) => void): Manager {
@@ -540,11 +544,13 @@ export class Manager extends Emitter {
 
     // add new subs
     const socket = this.engine;
-    this.subs.push(on(socket, "data", bind(this, "ondata")));
-    this.subs.push(on(socket, "ping", bind(this, "onping")));
-    this.subs.push(on(socket, "error", bind(this, "onerror")));
-    this.subs.push(on(socket, "close", bind(this, "onclose")));
-    this.subs.push(on(this.decoder, "decoded", bind(this, "ondecoded")));
+    this.subs.push(
+      on(socket, "data", bind(this, "ondata")),
+      on(socket, "ping", bind(this, "onping")),
+      on(socket, "error", bind(this, "onerror")),
+      on(socket, "close", bind(this, "onclose")),
+      on(this.decoder, "decoded", bind(this, "ondecoded"))
+    );
   }
 
   /**
@@ -616,10 +622,10 @@ export class Manager extends Emitter {
   /**
    * Called upon a socket close.
    *
-   * @param {Socket} socket
+   * @param socket
    * @private
    */
-  _destroy(socket) {
+  _destroy(socket: Socket) {
     const index = this.connecting.indexOf(socket);
     if (~index) this.connecting.splice(index, 1);
     if (this.connecting.length) return;
@@ -630,14 +636,14 @@ export class Manager extends Emitter {
   /**
    * Writes a packet.
    *
-   * @param {Object} packet
+   * @param packet
    * @private
    */
-  _packet(packet) {
+  _packet(packet: Partial<Packet & { query: string; options: any }>) {
     debug("writing packet %j", packet);
     if (packet.query && packet.type === 0) packet.nsp += "?" + packet.query;
 
-    const encodedPackets = this.encoder.encode(packet);
+    const encodedPackets = this.encoder.encode(packet as Packet);
     for (let i = 0; i < encodedPackets.length; i++) {
       this.engine.write(encodedPackets[i], packet.options);
     }
@@ -693,7 +699,7 @@ export class Manager extends Emitter {
    *
    * @private
    */
-  private onclose(reason) {
+  private onclose(reason: string) {
     debug("onclose");
 
     this.cleanup();

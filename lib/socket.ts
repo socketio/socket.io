@@ -17,8 +17,7 @@ export interface SocketOptions {
  * Internal events.
  * These events can't be emitted by the user.
  */
-
-const RESERVED_EVENTS = {
+const RESERVED_EVENTS = Object.freeze({
   connect: 1,
   connect_error: 1,
   disconnect: 1,
@@ -26,7 +25,7 @@ const RESERVED_EVENTS = {
   // EventEmitter reserved events: https://nodejs.org/api/events.html#events_event_newlistener
   newListener: 1,
   removeListener: 1,
-};
+});
 
 interface Flags {
   compress?: boolean;
@@ -45,8 +44,8 @@ export class Socket extends Emitter {
 
   private ids: number = 0;
   private acks: object = {};
-  private receiveBuffer: Array<any> = [];
-  private sendBuffer: Array<any> = [];
+  private receiveBuffer: Array<ReadonlyArray<any>> = [];
+  private sendBuffer: Array<Packet> = [];
   private flags: Flags = {};
   private subs: Array<any>;
   private _anyListeners: Array<(...args: any[]) => void>;
@@ -98,7 +97,7 @@ export class Socket extends Emitter {
     if (this.connected) return this;
 
     this.subEvents();
-    if (!this.io._reconnecting) this.io.open(); // ensure open
+    if (!this.io["_reconnecting"]) this.io.open(); // ensure open
     if ("open" === this.io._readyState) this.onopen();
     return this;
   }
@@ -113,10 +112,10 @@ export class Socket extends Emitter {
   /**
    * Sends a `message` event.
    *
-   * @return {Socket} self
+   * @return self
    * @public
    */
-  public send(...args: any[]) {
+  public send(...args: any[]): Socket {
     args.unshift("message");
     this.emit.apply(this, args);
     return this;
@@ -126,11 +125,11 @@ export class Socket extends Emitter {
    * Override `emit`.
    * If the event is in `events`, it's emitted normally.
    *
-   * @param {String} ev - event name
-   * @return {Socket} self
+   * @param ev - event name
+   * @return self
    * @public
    */
-  public emit(ev: string, ...args: any[]) {
+  public emit(ev: string, ...args: any[]): Socket {
     if (RESERVED_EVENTS.hasOwnProperty(ev)) {
       throw new Error('"' + ev + '" is a reserved event name');
     }
@@ -174,7 +173,7 @@ export class Socket extends Emitter {
   /**
    * Sends a packet.
    *
-   * @param {Object} packet
+   * @param packet
    * @private
    */
   private packet(packet: Partial<Packet>) {
@@ -201,10 +200,10 @@ export class Socket extends Emitter {
   /**
    * Called upon engine `close`.
    *
-   * @param {String} reason
+   * @param reason
    * @private
    */
-  private onclose(reason) {
+  private onclose(reason: Socket.DisconnectReason) {
     debug("close (%s)", reason);
     this.connected = false;
     this.disconnected = true;
@@ -215,10 +214,10 @@ export class Socket extends Emitter {
   /**
    * Called with socket packet.
    *
-   * @param {Object} packet
+   * @param packet
    * @private
    */
-  private onpacket(packet) {
+  private onpacket(packet: Packet) {
     const sameNamespace = packet.nsp === this.nsp;
 
     if (!sameNamespace) return;
@@ -261,11 +260,11 @@ export class Socket extends Emitter {
   /**
    * Called upon a server event.
    *
-   * @param {Object} packet
+   * @param packet
    * @private
    */
-  private onevent(packet) {
-    const args = packet.data || [];
+  private onevent(packet: Packet) {
+    const args: Array<any> = packet.data || [];
     debug("emitting event %j", args);
 
     if (null != packet.id) {
@@ -276,11 +275,11 @@ export class Socket extends Emitter {
     if (this.connected) {
       this.emitEvent(args);
     } else {
-      this.receiveBuffer.push(args);
+      this.receiveBuffer.push(Object.freeze(args));
     }
   }
 
-  private emitEvent(args) {
+  private emitEvent(args: ReadonlyArray<any>) {
     if (this._anyListeners && this._anyListeners.length) {
       const listeners = this._anyListeners.slice();
       for (const listener of listeners) {
@@ -295,7 +294,7 @@ export class Socket extends Emitter {
    *
    * @private
    */
-  private ack(id) {
+  private ack(id: number) {
     const self = this;
     let sent = false;
     return function (...args: any[]) {
@@ -315,10 +314,10 @@ export class Socket extends Emitter {
   /**
    * Called upon a server acknowlegement.
    *
-   * @param {Object} packet
+   * @param packet
    * @private
    */
-  private onack(packet) {
+  private onack(packet: Packet) {
     const ack = this.acks[packet.id];
     if ("function" === typeof ack) {
       debug("calling ack %s with %j", packet.id, packet.data);
@@ -348,14 +347,10 @@ export class Socket extends Emitter {
    * @private
    */
   private emitBuffered() {
-    for (let i = 0; i < this.receiveBuffer.length; i++) {
-      this.emitEvent(this.receiveBuffer[i]);
-    }
+    this.receiveBuffer.forEach((args) => this.emitEvent(args));
     this.receiveBuffer = [];
 
-    for (let i = 0; i < this.sendBuffer.length; i++) {
-      this.packet(this.sendBuffer[i]);
-    }
+    this.sendBuffer.forEach((packet) => this.packet(packet));
     this.sendBuffer = [];
   }
 
@@ -386,13 +381,13 @@ export class Socket extends Emitter {
       this.subs = null;
     }
 
-    this.io._destroy(this);
+    this.io["_destroy"](this);
   }
 
   /**
    * Disconnects the socket manually.
    *
-   * @return {Socket} self
+   * @return self
    * @public
    */
   public disconnect(): Socket {
@@ -414,7 +409,7 @@ export class Socket extends Emitter {
   /**
    * Alias for disconnect()
    *
-   * @return {Socket} self
+   * @return self
    * @public
    */
   public close(): Socket {
@@ -424,11 +419,11 @@ export class Socket extends Emitter {
   /**
    * Sets the compress flag.
    *
-   * @param {Boolean} compress - if `true`, compresses the sending data
-   * @return {Socket} self
+   * @param compress - if `true`, compresses the sending data
+   * @return self
    * @public
    */
-  public compress(compress: boolean) {
+  public compress(compress: boolean): Socket {
     this.flags.compress = compress;
     return this;
   }
@@ -437,7 +432,7 @@ export class Socket extends Emitter {
    * Sets a modifier for a subsequent event emission that the event message will be dropped when this socket is not
    * ready to send messages.
    *
-   * @returns {Socket} self
+   * @returns self
    * @public
    */
   public get volatile(): Socket {
@@ -504,4 +499,13 @@ export class Socket extends Emitter {
   public listenersAny() {
     return this._anyListeners || [];
   }
+}
+
+export namespace Socket {
+  export type DisconnectReason =
+    | "io server disconnect"
+    | "io client disconnect"
+    | "ping timeout"
+    | "transport close"
+    | "transport error";
 }

@@ -2,24 +2,47 @@ import * as parseuri from "parseuri";
 
 const debug = require("debug")("socket.io-client:url");
 
+type ParsedUrl = {
+  source: string;
+  protocol: string;
+  authority: string;
+  userInfo: string;
+  user: string;
+  password: string;
+  host: string;
+  port: string;
+  relative: string;
+  path: string;
+  directory: string;
+  file: string;
+  query: string;
+  anchor: string;
+  pathNames: Array<string>;
+  queryKey: Record<string, string>;
+
+  // Custom properties (not native to parseuri):
+  id: string;
+  href: string;
+};
+
 /**
  * URL parser.
  *
- * @param {String} uri - url
- * @param {Object} loc - An object meant to mimic window.location.
- *                 Defaults to window.location.
+ * @param uri - url
+ * @param loc - An object meant to mimic window.location.
+ *        Defaults to window.location.
  * @public
  */
 
-export function url(uri: any, loc?: Location) {
-  let obj = uri;
+export function url(uri: string | ParsedUrl, loc?: Location): ParsedUrl {
+  let obj = uri as ParsedUrl;
 
   // default to window.location
   loc = loc || (typeof location !== "undefined" && location);
   if (null == uri) uri = loc.protocol + "//" + loc.host;
 
   // relative path support
-  if ("string" === typeof uri) {
+  if (typeof uri === "string") {
     if ("/" === uri.charAt(0)) {
       if ("/" === uri.charAt(1)) {
         uri = loc.protocol + uri;
@@ -39,7 +62,7 @@ export function url(uri: any, loc?: Location) {
 
     // parse
     debug("parse %s", uri);
-    obj = parseuri(uri);
+    obj = parseuri(uri) as ParsedUrl;
   }
 
   // make sure we treat `localhost:80` and `localhost` equally

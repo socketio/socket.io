@@ -13,7 +13,7 @@ module.exports = exports = lookup;
 /**
  * Managers cache.
  */
-const cache = (exports.managers = {});
+const cache: Record<string, Manager> = (exports.managers = {});
 
 /**
  * Looks up an existing `Manager` for multiplexing.
@@ -27,12 +27,15 @@ const cache = (exports.managers = {});
  *
  * @public
  */
-function lookup(opts?: Partial<ManagerOptions | SocketOptions>): Socket;
+function lookup(opts?: Partial<ManagerOptions & SocketOptions>): Socket;
 function lookup(
   uri: string,
-  opts?: Partial<ManagerOptions | SocketOptions>
+  opts?: Partial<ManagerOptions & SocketOptions>
 ): Socket;
-function lookup(uri: any, opts?: any): Socket {
+function lookup(
+  uri: string | Partial<ManagerOptions & SocketOptions>,
+  opts?: Partial<ManagerOptions & SocketOptions>
+): Socket {
   if (typeof uri === "object") {
     opts = uri;
     uri = undefined;
@@ -40,18 +43,18 @@ function lookup(uri: any, opts?: any): Socket {
 
   opts = opts || {};
 
-  const parsed = url(uri);
+  const parsed = url(uri as string);
   const source = parsed.source;
   const id = parsed.id;
   const path = parsed.path;
-  const sameNamespace = cache[id] && path in cache[id].nsps;
+  const sameNamespace = cache[id] && path in cache[id]["nsps"];
   const newConnection =
     opts.forceNew ||
     opts["force new connection"] ||
     false === opts.multiplex ||
     sameNamespace;
 
-  let io;
+  let io: Manager;
 
   if (newConnection) {
     debug("ignoring socket cache for %s", source);
