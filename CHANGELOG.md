@@ -1,3 +1,7 @@
+## [4.0.5](https://github.com/socketio/engine.io/compare/4.0.4...4.0.5) (2020-12-07)
+
+No change on the server-side, this matches the client release.
+
 ## [4.0.4](https://github.com/socketio/engine.io/compare/4.0.3...4.0.4) (2020-11-17)
 
 No change on the server-side, this matches the client release.
