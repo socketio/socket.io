@@ -1,3 +1,11 @@
+## [4.0.2](https://github.com/socketio/engine.io-parser/compare/4.0.1...4.0.2) (2020-12-07)
+
+
+### Bug Fixes
+
+* add base64-arraybuffer as prod dependency ([2ccdeb2](https://github.com/socketio/engine.io-parser/commit/2ccdeb277955bed8742a29f2dcbbf57ca95eb12a))
+
+
 ## [2.2.1](https://github.com/socketio/engine.io-parser/compare/2.2.0...2.2.1) (2020-09-30)
 
 
