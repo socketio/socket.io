@@ -1,9 +1,9 @@
-var eioc = require("engine.io-client");
-var listen = require("../common").listen;
+const eioc = require("engine.io-client");
+const listen = require("../common").listen;
 
-var engine = listen(function(port) {
-  var socket = new eioc.Socket("ws://localhost:" + port);
-  socket.on("open", function() {
+const engine = listen(port => {
+  const socket = new eioc.Socket("ws://localhost:" + port);
+  socket.on("open", () => {
     engine.httpServer.close();
     engine.close();
   });
