@@ -236,7 +236,6 @@ Exposed as `eio` in the browser standalone build.
         transport request. Note: polling requests are always stamped unless this
         option is explicitly set to `false` (`false`)
       - `timestampParam` (`String`): timestamp parameter (`t`)
-      - `policyPort` (`Number`): port the policy server listens on (`843`)
       - `path` (`String`): path to connect to, default is `/engine.io`
       - `transports` (`Array`): a list of transports to try (in order).
       Defaults to `['polling', 'websocket']`. `Engine`
