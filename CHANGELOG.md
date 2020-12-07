@@ -1,3 +1,13 @@
+## [3.0.4](https://github.com/socketio/socket.io-client/compare/3.0.3...3.0.4) (2020-12-07)
+
+
+### Bug Fixes
+
+* emit an error when reaching a v2.x server ([ec1f8c3](https://github.com/socketio/socket.io-client/commit/ec1f8c3474b54600420487a0554cb195cc78f2bc)), closes [/github.com/socketio/engine.io-protocol#difference-between-v3-and-v4](https://github.com//github.com/socketio/engine.io-protocol/issues/difference-between-v3-and-v4) [/github.com/socketio/socket.io-protocol#difference-between-v5-and-v4](https://github.com//github.com/socketio/socket.io-protocol/issues/difference-between-v5-and-v4)
+* keep track of active sockets ([f8f60fc](https://github.com/socketio/socket.io-client/commit/f8f60fc860f51aa6465fc32dd9275a8e1d22f05d))
+* **typings:** export extraHeaders option ([#1410](https://github.com/socketio/socket.io-client/issues/1410)) ([b3de861](https://github.com/socketio/socket.io-client/commit/b3de861a928c0eb5f0b2f37956c671e72432715d))
+
+
 ## [3.0.3](https://github.com/socketio/socket.io-client/compare/3.0.2...3.0.3) (2020-11-19)
 
 
