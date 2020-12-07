@@ -10,7 +10,6 @@
     "@babel/preset-env": "~7.9.6",
     "babel-eslint": "^10.0.3",
     "babelify": "^10.0.0",
-    "base64-arraybuffer": "0.1.5",
     "benchmark": "^2.1.4",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.9.0",
@@ -22,7 +21,9 @@
     "zuul": "3.11.1",
     "zuul-ngrok": "4.0.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "base64-arraybuffer": "0.1.4"
+  },
   "scripts": {
     "test": "npm run lint && npm run format:check && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
     "test:node": "nyc mocha test/index.js",
