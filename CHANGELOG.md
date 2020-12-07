@@ -1,3 +1,6 @@
+## [3.0.4](https://github.com/socketio/socket.io/compare/3.0.3...3.0.4) (2020-12-07)
+
+
 ## [3.0.3](https://github.com/socketio/socket.io/compare/3.0.2...3.0.3) (2020-11-19)
 
 
