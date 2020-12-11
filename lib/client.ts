@@ -1,10 +1,9 @@
 import { Decoder, Encoder, Packet, PacketType } from "socket.io-parser";
 import debugModule = require("debug");
-import { IncomingMessage } from "http";
-import { Server } from "./index";
-import { Socket } from "./socket";
-import { SocketId } from "socket.io-adapter";
-import { ParentNamespace } from "./parent-namespace";
+import type { IncomingMessage } from "http";
+import type { Namespace, Server } from "./index";
+import type { Socket } from "./socket";
+import type { SocketId } from "socket.io-adapter";
 
 const debug = debugModule("socket.io:client");
 
@@ -17,16 +16,16 @@ export class Client {
   private readonly decoder: Decoder;
   private sockets: Map<SocketId, Socket> = new Map();
   private nsps: Map<string, Socket> = new Map();
-  private connectTimeout: NodeJS.Timeout;
+  private connectTimeout?: NodeJS.Timeout;
 
   /**
    * Client constructor.
    *
-   * @param {Server} server instance
-   * @param {Socket} conn
+   * @param server instance
+   * @param conn
    * @package
    */
-  constructor(server: Server, conn) {
+  constructor(server: Server, conn: Socket) {
     this.server = server;
     this.conn = conn;
     this.encoder = server.encoder;
@@ -84,27 +83,31 @@ export class Client {
       return this.doConnect(name, auth);
     }
 
-    this.server._checkNamespace(name, auth, (dynamicNsp: ParentNamespace) => {
-      if (dynamicNsp) {
-        debug("dynamic namespace %s was created", dynamicNsp.name);
-        this.doConnect(name, auth);
-      } else {
-        debug("creation of namespace %s was denied", name);
-        this._packet({
-          type: PacketType.CONNECT_ERROR,
-          nsp: name,
-          data: {
-            message: "Invalid namespace"
-          }
-        });
+    this.server._checkNamespace(
+      name,
+      auth,
+      (dynamicNspName: Namespace | false) => {
+        if (dynamicNspName) {
+          debug("dynamic namespace %s was created", dynamicNspName);
+          this.doConnect(name, auth);
+        } else {
+          debug("creation of namespace %s was denied", name);
+          this._packet({
+            type: PacketType.CONNECT_ERROR,
+            nsp: name,
+            data: {
+              message: "Invalid namespace",
+            },
+          });
+        }
       }
-    });
+    );
   }
 
   /**
    * Connects a client to a namespace.
    *
-   * @param {String} name - the namespace
+   * @param name - the namespace
    * @param {Object} auth - the auth parameters
    *
    * @private
@@ -112,7 +115,7 @@ export class Client {
   private doConnect(name: string, auth: object) {
     if (this.connectTimeout) {
       clearTimeout(this.connectTimeout);
-      this.connectTimeout = null;
+      this.connectTimeout = undefined;
     }
     const nsp = this.server.of(name);
 
@@ -142,7 +145,7 @@ export class Client {
    */
   _remove(socket: Socket) {
     if (this.sockets.has(socket.id)) {
-      const nsp = this.sockets.get(socket.id).nsp.name;
+      const nsp = this.sockets.get(socket.id)!.nsp.name;
       this.sockets.delete(socket.id);
       this.nsps.delete(nsp);
     } else {
@@ -221,7 +224,7 @@ export class Client {
     } else {
       const socket = this.nsps.get(packet.nsp);
       if (socket) {
-        process.nextTick(function() {
+        process.nextTick(function () {
           socket._onpacket(packet);
         });
       } else {
