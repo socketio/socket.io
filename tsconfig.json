@@ -4,7 +4,17 @@
     "target": "es2017",
     "module": "commonjs",
     "declaration": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+
+    "incremental": true,
+    "skipLibCheck": true,
+
+    "strict": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "strictPropertyInitialization": false,
+    "noImplicitReturns": true,
+    "importsNotUsedAsValues": "error",
   },
   "include": [
     "./lib/**/*"

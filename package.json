@@ -14,8 +14,15 @@
   "files": [
     "dist/",
     "client-dist/",
-    "wrapper.mjs"
+    "wrapper.mjs",
+    "!**/*.tsbuildinfo"
   ],
+  "directories": {
+    "doc": "docs/",
+    "example": "example/",
+    "lib": "lib/",
+    "test": "test/"
+  },
   "type": "commonjs",
   "main": "./dist/index.js",
   "exports": {
@@ -54,7 +61,7 @@
     "expect.js": "0.3.1",
     "mocha": "^3.5.3",
     "nyc": "^15.1.0",
-    "prettier": "^1.19.1",
+    "prettier": "^2.2.0",
     "rimraf": "^3.0.2",
     "socket.io-client": "3.0.4",
     "superagent": "^3.8.2",

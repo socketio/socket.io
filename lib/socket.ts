@@ -2,24 +2,29 @@ import { EventEmitter } from "events";
 import { PacketType } from "socket.io-parser";
 import url = require("url");
 import debugModule from "debug";
-import { Server } from "./index";
-import { Client } from "./client";
-import { Namespace } from "./namespace";
-import { IncomingMessage } from "http";
-import { Adapter, BroadcastFlags, Room, SocketId } from "socket.io-adapter";
+import type { Server } from "./index";
+import type { Client } from "./client";
+import type { Namespace } from "./namespace";
+import type { IncomingMessage } from "http";
+import type {
+  Adapter,
+  BroadcastFlags,
+  Room,
+  SocketId,
+} from "socket.io-adapter";
 import base64id from "base64id";
 
 const debug = debugModule("socket.io:socket");
 
-export const RESERVED_EVENTS = new Set([
+export const RESERVED_EVENTS = new Set(<const>[
   "connect",
   "connect_error",
   "disconnect",
   "disconnecting",
   // EventEmitter reserved events: https://nodejs.org/api/events.html#events_event_newlistener
   "newListener",
-  "removeListener"
-]);
+  "removeListener",
+]) as ReadonlySet<string | Symbol>;
 
 /**
  * The handshake details
@@ -86,7 +91,7 @@ export class Socket extends EventEmitter {
   > = [];
   private flags: BroadcastFlags = {};
   private _rooms: Set<Room> = new Set();
-  private _anyListeners: Array<(...args: any[]) => void>;
+  private _anyListeners?: Array<(...args: any[]) => void>;
 
   /**
    * Interface to a `Client` for a given `Namespace`.
@@ -120,16 +125,16 @@ export class Socket extends EventEmitter {
       // @ts-ignore
       secure: !!this.request.connection.encrypted,
       issued: +new Date(),
-      url: this.request.url,
-      query: url.parse(this.request.url, true).query,
-      auth
+      url: this.request.url!,
+      query: url.parse(this.request.url!, true).query,
+      auth,
     };
   }
 
   /**
    * Emits to this client.
    *
-   * @return {Boolean} Always true
+   * @return Always returns `true`.
    * @public
    */
   public emit(ev: string, ...args: any[]): boolean {
@@ -139,7 +144,7 @@ export class Socket extends EventEmitter {
     args.unshift(ev);
     const packet: any = {
       type: PacketType.EVENT,
-      data: args
+      data: args,
     };
 
     // access last argument to see if it's an ACK callback
@@ -164,7 +169,7 @@ export class Socket extends EventEmitter {
       this.adapter.broadcast(packet, {
         except: new Set([this.id]),
         rooms: rooms,
-        flags: flags
+        flags: flags,
       });
     } else {
       // dispatch packet
@@ -176,11 +181,11 @@ export class Socket extends EventEmitter {
   /**
    * Targets a room when broadcasting.
    *
-   * @param {String} name
-   * @return {Socket} self
+   * @param name
+   * @return self
    * @public
    */
-  public to(name: Room) {
+  public to(name: Room): Socket {
     this._rooms.add(name);
     return this;
   }
@@ -188,8 +193,8 @@ export class Socket extends EventEmitter {
   /**
    * Targets a room when broadcasting.
    *
-   * @param {String} name
-   * @return {Socket} self
+   * @param name
+   * @return self
    * @public
    */
   public in(name: Room): Socket {
@@ -200,24 +205,22 @@ export class Socket extends EventEmitter {
   /**
    * Sends a `message` event.
    *
-   * @return {Socket} self
+   * @return self
    * @public
    */
-  public send(...args): Socket {
-    args.unshift("message");
-    this.emit.apply(this, args);
+  public send(...args: readonly any[]): Socket {
+    this.emit("message", ...args);
     return this;
   }
 
   /**
    * Sends a `message` event.
    *
-   * @return {Socket} self
+   * @return self
    * @public
    */
-  public write(...args): Socket {
-    args.unshift("message");
-    this.emit.apply(this, args);
+  public write(...args: readonly any[]): Socket {
+    this.emit("message", ...args);
     return this;
   }
 
@@ -353,7 +356,7 @@ export class Socket extends EventEmitter {
   private ack(id: number) {
     const self = this;
     let sent = false;
-    return function() {
+    return function () {
       // prevent double callbacks
       if (sent) return;
       const args = Array.prototype.slice.call(arguments);
@@ -362,7 +365,7 @@ export class Socket extends EventEmitter {
       self.packet({
         id: id,
         type: PacketType.ACK,
-        data: args
+        data: args,
       });
 
       sent = true;
@@ -417,7 +420,7 @@ export class Socket extends EventEmitter {
    *
    * @private
    */
-  _onclose(reason: string) {
+  _onclose(reason: string): Socket | undefined {
     if (!this.connected) return this;
     debug("closing socket - reason %s", reason);
     super.emit("disconnecting", reason);
@@ -427,6 +430,7 @@ export class Socket extends EventEmitter {
     this.connected = false;
     this.disconnected = true;
     super.emit("disconnect", reason);
+    return;
   }
 
   /**

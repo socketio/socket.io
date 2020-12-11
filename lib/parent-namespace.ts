@@ -1,20 +1,26 @@
 import { Namespace } from "./namespace";
+import type { Server } from "./index";
 
 export class ParentNamespace extends Namespace {
   private static count: number = 0;
   private children: Set<Namespace> = new Set();
 
-  constructor(server) {
+  constructor(server: Server) {
     super(server, "/_" + ParentNamespace.count++);
   }
 
-  _initAdapter() {}
+  /**
+   * @private
+   */
+  _initAdapter(): void {
+    /* no-op */
+  }
 
-  public emit(...args: any[]): boolean {
-    this.children.forEach(nsp => {
+  public emit(ev: string | Symbol, ...args: [...any]): true {
+    this.children.forEach((nsp) => {
       nsp._rooms = this._rooms;
       nsp._flags = this._flags;
-      nsp.emit.apply(nsp, args);
+      nsp.emit(ev, ...args);
     });
     this._rooms.clear();
     this._flags = {};
@@ -22,16 +28,14 @@ export class ParentNamespace extends Namespace {
     return true;
   }
 
-  createChild(name) {
+  createChild(name: string): Namespace {
     const namespace = new Namespace(this.server, name);
     namespace._fns = this._fns.slice(0);
-    this.listeners("connect").forEach(listener =>
-      // @ts-ignore
-      namespace.on("connect", listener)
+    this.listeners("connect").forEach((listener) =>
+      namespace.on("connect", listener as (...args: any[]) => void)
     );
-    this.listeners("connection").forEach(listener =>
-      // @ts-ignore
-      namespace.on("connection", listener)
+    this.listeners("connection").forEach((listener) =>
+      namespace.on("connection", listener as (...args: any[]) => void)
     );
     this.children.add(namespace);
     this.server._nsps.set(name, namespace);

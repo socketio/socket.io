@@ -1,10 +1,10 @@
 import { Socket, RESERVED_EVENTS } from "./socket";
-import { Server } from "./index";
-import { Client } from "./client";
+import type { Server } from "./index";
+import type { Client } from "./client";
 import { EventEmitter } from "events";
 import { PacketType } from "socket.io-parser";
 import debugModule from "debug";
-import { Adapter, Room, SocketId } from "socket.io-adapter";
+import type { Adapter, Room, SocketId } from "socket.io-adapter";
 
 const debug = debugModule("socket.io:namespace");
 
@@ -23,7 +23,7 @@ export class Namespace extends EventEmitter {
 
   /** @private */
   _fns: Array<
-    (socket: Socket, next: (err: ExtendedError) => void) => void
+    (socket: Socket, next: (err?: ExtendedError) => void) => void
   > = [];
 
   /** @private */
@@ -38,8 +38,8 @@ export class Namespace extends EventEmitter {
   /**
    * Namespace constructor.
    *
-   * @param {Server} server instance
-   * @param {string} name
+   * @param server instance
+   * @param name
    */
   constructor(server: Server, name: string) {
     super();
@@ -56,13 +56,13 @@ export class Namespace extends EventEmitter {
    * @private
    */
   _initAdapter(): void {
-    this.adapter = new (this.server.adapter())(this);
+    this.adapter = new (this.server.adapter()!)(this);
   }
 
   /**
    * Sets up namespace middleware.
    *
-   * @return {Namespace} self
+   * @return self
    * @public
    */
   public use(
@@ -75,16 +75,16 @@ export class Namespace extends EventEmitter {
   /**
    * Executes the middleware for an incoming client.
    *
-   * @param {Socket} socket - the socket that will get added
-   * @param {Function} fn - last fn call in the middleware
+   * @param socket - the socket that will get added
+   * @param fn - last fn call in the middleware
    * @private
    */
-  private run(socket: Socket, fn: (err: ExtendedError) => void) {
+  private run(socket: Socket, fn: (err: ExtendedError | null) => void) {
     const fns = this._fns.slice(0);
     if (!fns.length) return fn(null);
 
-    function run(i) {
-      fns[i](socket, function(err) {
+    function run(i: number) {
+      fns[i](socket, function (err) {
         // upon error, short-circuit
         if (err) return fn(err);
 
@@ -102,8 +102,8 @@ export class Namespace extends EventEmitter {
   /**
    * Targets a room when emitting.
    *
-   * @param {String} name
-   * @return {Namespace} self
+   * @param name
+   * @return self
    * @public
    */
   public to(name: Room): Namespace {
@@ -114,8 +114,8 @@ export class Namespace extends EventEmitter {
   /**
    * Targets a room when emitting.
    *
-   * @param {String} name
-   * @return {Namespace} self
+   * @param name
+   * @return self
    * @public
    */
   public in(name: Room): Namespace {
@@ -132,13 +132,13 @@ export class Namespace extends EventEmitter {
   _add(client: Client, query, fn?: () => void): Socket {
     debug("adding socket to nsp %s", this.name);
     const socket = new Socket(this, client, query);
-    this.run(socket, err => {
+    this.run(socket, (err) => {
       process.nextTick(() => {
         if ("open" == client.conn.readyState) {
           if (err)
             return socket._error({
               message: err.message,
-              data: err.data
+              data: err.data,
             });
 
           // track socket
@@ -178,10 +178,10 @@ export class Namespace extends EventEmitter {
   /**
    * Emits to all clients.
    *
-   * @return {Boolean} Always true
+   * @return Always true
    * @public
    */
-  public emit(ev: string, ...args: any[]): boolean {
+  public emit(ev: string | Symbol, ...args: any[]): true {
     if (RESERVED_EVENTS.has(ev)) {
       throw new Error(`"${ev}" is a reserved event name`);
     }
@@ -189,7 +189,7 @@ export class Namespace extends EventEmitter {
     args.unshift(ev);
     const packet = {
       type: PacketType.EVENT,
-      data: args
+      data: args,
     };
 
     if ("function" == typeof args[args.length - 1]) {
@@ -205,7 +205,7 @@ export class Namespace extends EventEmitter {
 
     this.adapter.broadcast(packet, {
       rooms: rooms,
-      flags: flags
+      flags: flags,
     });
 
     return true;
@@ -214,31 +214,29 @@ export class Namespace extends EventEmitter {
   /**
    * Sends a `message` event to all clients.
    *
-   * @return {Namespace} self
+   * @return self
    * @public
    */
-  public send(...args): Namespace {
-    args.unshift("message");
-    this.emit.apply(this, args);
+  public send(...args: readonly any[]): Namespace {
+    this.emit("message", ...args);
     return this;
   }
 
   /**
    * Sends a `message` event to all clients.
    *
-   * @return {Namespace} self
+   * @return self
    * @public
    */
-  public write(...args): Namespace {
-    args.unshift("message");
-    this.emit.apply(this, args);
+  public write(...args: readonly any[]): Namespace {
+    this.emit("message", ...args);
     return this;
   }
 
   /**
    * Gets a list of clients.
    *
-   * @return {Namespace} self
+   * @return self
    * @public
    */
   public allSockets(): Promise<Set<SocketId>> {
@@ -255,8 +253,8 @@ export class Namespace extends EventEmitter {
   /**
    * Sets the compress flag.
    *
-   * @param {Boolean} compress - if `true`, compresses the sending data
-   * @return {Namespace} self
+   * @param compress - if `true`, compresses the sending data
+   * @return self
    * @public
    */
   public compress(compress: boolean): Namespace {
@@ -269,7 +267,7 @@ export class Namespace extends EventEmitter {
    * receive messages (because of network slowness or other issues, or because they’re connected through long polling
    * and is in the middle of a request-response cycle).
    *
-   * @return {Namespace} self
+   * @return self
    * @public
    */
   public get volatile(): Namespace {
@@ -280,7 +278,7 @@ export class Namespace extends EventEmitter {
   /**
    * Sets a modifier for a subsequent event emission that the event data will only be broadcast to the current node.
    *
-   * @return {Namespace} self
+   * @return self
    * @public
    */
   public get local(): Namespace {
