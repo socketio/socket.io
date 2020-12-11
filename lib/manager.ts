@@ -4,7 +4,6 @@ import Emitter = require("component-emitter");
 import * as parser from "socket.io-parser";
 import { Decoder, Encoder, Packet } from "socket.io-parser";
 import { on } from "./on";
-import * as bind from "component-bind";
 import * as Backoff from "backo2";
 
 const debug = require("debug")("socket.io-client:manager");
@@ -468,7 +467,7 @@ export class Manager extends Emitter {
     this.skipReconnect = false;
 
     // emit `open`
-    const openSub = on(socket, "open", function () {
+    const openSubDestroy = on(socket, "open", function () {
       self.onopen();
       fn && fn();
     });
@@ -492,25 +491,23 @@ export class Manager extends Emitter {
       debug("connect attempt will timeout after %d", timeout);
 
       if (timeout === 0) {
-        openSub.destroy(); // prevents a race condition with the 'open' event
+        openSubDestroy(); // prevents a race condition with the 'open' event
       }
 
       // set timer
       const timer = setTimeout(() => {
         debug("connect attempt timed out after %d", timeout);
-        openSub.destroy();
+        openSubDestroy();
         socket.close();
         socket.emit("error", new Error("timeout"));
       }, timeout);
 
-      this.subs.push({
-        destroy: function () {
-          clearTimeout(timer);
-        },
+      this.subs.push(function subDestroy(): void {
+        clearTimeout(timer);
       });
     }
 
-    this.subs.push(openSub);
+    this.subs.push(openSubDestroy);
     this.subs.push(errorSub);
 
     return this;
@@ -519,7 +516,7 @@ export class Manager extends Emitter {
   /**
    * Alias for open()
    *
-   * @return {Manager} self
+   * @return self
    * @public
    */
   public connect(fn?: (err?: Error) => void): Manager {
@@ -544,11 +541,11 @@ export class Manager extends Emitter {
     // add new subs
     const socket = this.engine;
     this.subs.push(
-      on(socket, "data", bind(this, "ondata")),
-      on(socket, "ping", bind(this, "onping")),
-      on(socket, "error", bind(this, "onerror")),
-      on(socket, "close", bind(this, "onclose")),
-      on(this.decoder, "decoded", bind(this, "ondecoded"))
+      on(socket, "ping", this.onping.bind(this)),
+      on(socket, "data", this.ondata.bind(this)),
+      on(socket, "error", this.onerror.bind(this)),
+      on(socket, "close", this.onclose.bind(this)),
+      on(this.decoder, "decoded", this.ondecoded.bind(this))
     );
   }
 
@@ -650,11 +647,8 @@ export class Manager extends Emitter {
   private cleanup() {
     debug("cleanup");
 
-    const subsLength = this.subs.length;
-    for (let i = 0; i < subsLength; i++) {
-      const sub = this.subs.shift();
-      sub.destroy();
-    }
+    this.subs.forEach((subDestroy) => subDestroy());
+    this.subs.length = 0;
 
     this.decoder.destroy();
   }
@@ -747,10 +741,8 @@ export class Manager extends Emitter {
         });
       }, delay);
 
-      this.subs.push({
-        destroy: function () {
-          clearTimeout(timer);
-        },
+      this.subs.push(function subDestroy() {
+        clearTimeout(timer);
       });
     }
   }

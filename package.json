@@ -28,8 +28,7 @@
   "types": "./build/index.d.ts",
   "dependencies": {
     "@types/component-emitter": "^1.2.10",
-    "backo2": "1.0.2",
-    "component-bind": "1.0.0",
+    "backo2": "~1.0.2",
     "component-emitter": "~1.3.0",
     "debug": "~4.1.0",
     "engine.io-client": "~4.0.0",

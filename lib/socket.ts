@@ -1,7 +1,6 @@
 import { Packet, PacketType } from "socket.io-parser";
 import Emitter = require("component-emitter");
 import { on } from "./on";
-import * as bind from "component-bind";
 import { Manager } from "./manager";
 
 const debug = require("debug")("socket.io-client:socket");
@@ -47,7 +46,7 @@ export class Socket extends Emitter {
   private receiveBuffer: Array<ReadonlyArray<any>> = [];
   private sendBuffer: Array<Packet> = [];
   private flags: Flags = {};
-  private subs: Array<any>;
+  private subs?: Array<VoidFunction>;
   private _anyListeners: Array<(...args: any[]) => void>;
 
   /**
@@ -82,9 +81,9 @@ export class Socket extends Emitter {
 
     const io = this.io;
     this.subs = [
-      on(io, "open", bind(this, "onopen")),
-      on(io, "packet", bind(this, "onpacket")),
-      on(io, "close", bind(this, "onclose")),
+      on(io, "open", this.onopen.bind(this)),
+      on(io, "packet", this.onpacket.bind(this)),
+      on(io, "close", this.onclose.bind(this)),
     ];
   }
 
@@ -392,12 +391,9 @@ export class Socket extends Emitter {
   private destroy() {
     if (this.subs) {
       // clean subscriptions to avoid reconnections
-      for (let i = 0; i < this.subs.length; i++) {
-        this.subs[i].destroy();
-      }
-      this.subs = null;
+      this.subs.forEach((subDestroy) => subDestroy());
+      this.subs = undefined;
     }
-
     this.io["_destroy"](this);
   }
 

@@ -1,10 +1,12 @@
-import Emitter = require("component-emitter");
+import type * as Emitter from "component-emitter";
 
-export function on(obj: Emitter, ev: string, fn: (err?: any) => any) {
+export function on(
+  obj: Emitter,
+  ev: string,
+  fn: (err?: any) => any
+): VoidFunction {
   obj.on(ev, fn);
-  return {
-    destroy: function () {
-      obj.off(ev, fn);
-    },
+  return function subDestroy(): void {
+    obj.off(ev, fn);
   };
 }
