@@ -25,6 +25,11 @@ describe("engine", () => {
       expect(engine).to.be.an(eio.Server);
       expect(engine.ws).to.be.ok();
     });
+
+    it("should pass options correctly to the Server", () => {
+      const engine = eio({ cors: true });
+      expect(engine.opts).to.have.property("cors", true);
+    });
   });
 
   describe("listen", () => {
