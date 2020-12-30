@@ -1,7 +1,6 @@
-import { Manager } from "socket.io-client";
+import { io } from "socket.io-client";
 
-const manager = new Manager("ws://localhost:8080");
-const socket = manager.socket("/");
+const socket = io("ws://localhost:8080/", {});
 
 socket.on("connect", () => {
     console.log(`connect ${socket.id}`);

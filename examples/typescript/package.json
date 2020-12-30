@@ -11,8 +11,8 @@
   "author": "Damien Arrachequesne",
   "license": "MIT",
   "dependencies": {
-    "socket.io": "^3.0.1",
-    "socket.io-client": "^3.0.1",
+    "socket.io": "^3.0.4",
+    "socket.io-client": "^3.0.4",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.5"
   }
