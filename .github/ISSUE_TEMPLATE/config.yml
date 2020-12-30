@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a Question
+    url: https://github.com/socketio/socket.io/discussions/new?category=q-a
+    about: Ask the community for help
