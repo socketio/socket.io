@@ -67,7 +67,7 @@ describe("connection", function() {
     it("should work in a worker", function(done) {
       var worker = new Worker("/test/support/worker.js");
       var msg = 0;
-      var utf8yay = "пойду сать всем мпокойной ночи";
+      var utf8yay = "пойду спать всем спокойной ночи";
       worker.onmessage = function(e) {
         msg++;
         if (msg === 1) {
