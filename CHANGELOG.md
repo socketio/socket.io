@@ -1,3 +1,12 @@
+# [3.5.0](https://github.com/socketio/engine.io-client/compare/3.4.4...3.5.0) (2020-12-30)
+
+
+### Bug Fixes
+
+* check the type of the initial packet ([8750356](https://github.com/socketio/engine.io-client/commit/8750356dba5409ba0e1d3a27da6d214118702b3e))
+
+
+
 ## [4.0.5](https://github.com/socketio/engine.io-client/compare/4.0.4...4.0.5) (2020-12-07)
 
 
