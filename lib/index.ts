@@ -50,10 +50,11 @@ export class Adapter extends EventEmitter {
    * @public
    */
   public addAll(id: SocketId, rooms: Set<Room>): Promise<void> | void {
+    if (!this.sids.has(id)) {
+      this.sids.set(id, new Set());
+    }
+
     for (const room of rooms) {
-      if (!this.sids.has(id)) {
-        this.sids.set(id, new Set());
-      }
       this.sids.get(id).add(room);
 
       if (!this.rooms.has(room)) {
