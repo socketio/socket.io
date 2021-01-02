@@ -477,7 +477,7 @@ Details:
 GET /socket.io/?EIO=4&transport=polling&t=N8hyd7H&sid=lv_VI97HAXpY6yYWAAAC
 < HTTP/1.1 200 OK
 < Content-Type: text/plain; charset=UTF-8
-4O{"sid":"wZX3oN0bSVIhsaknAAAI"}
+40{"sid":"wZX3oN0bSVIhsaknAAAI"}
 ```
 
 - Request n°4
