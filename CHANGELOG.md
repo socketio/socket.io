@@ -1,3 +1,12 @@
+## [4.0.6](https://github.com/socketio/engine.io/compare/4.0.5...4.0.6) (2021-01-04)
+
+
+### Bug Fixes
+
+* correctly pass the options when using the Server constructor ([#610](https://github.com/socketio/engine.io/issues/610)) ([cec2750](https://github.com/socketio/engine.io/commit/cec27502f5b55c8a2ff289db34019629bf6a97ca))
+
+
+
 # [3.5.0](https://github.com/socketio/engine.io/compare/3.4.2...3.5.0) (2020-12-30)
 
 
