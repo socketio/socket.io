@@ -1,3 +1,6 @@
+## [4.0.6](https://github.com/socketio/engine.io-client/compare/4.0.5...4.0.6) (2021-01-04)
+
+
 # [3.5.0](https://github.com/socketio/engine.io-client/compare/3.4.4...3.5.0) (2020-12-30)
 
 
