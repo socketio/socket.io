@@ -73,7 +73,7 @@ describe('socket.io', function(){
     it('should be able to set origins to engine.io', function() {
       var srv = io(http());
       srv.set('origins', 'http://hostname.com:*');
-      expect(srv.origins()).to.be('http://hostname.com:*');
+      expect(srv.origins()).to.eql(['http://hostname.com:*']);
     });
 
     it('should be able to set authorization and send error packet', function(done) {
@@ -262,17 +262,6 @@ describe('socket.io', function(){
        });
     });
 
-    it('should allow request when origin defined an the same is specified', function(done) {
-      var sockets = io({ origins: 'http://foo.example:*' }).listen('54015');
-      request.get('http://localhost:54015/socket.io/default/')
-       .set('origin', 'http://foo.example')
-       .query({ transport: 'polling' })
-       .end(function (err, res) {
-          expect(res.status).to.be(200);
-          done();
-        });
-    });
-
     it('should allow request when origin defined as function and same is supplied', function(done) {
       var sockets = io({ origins: function(origin,callback){
         if (origin == 'http://foo.example') {
@@ -307,7 +296,7 @@ describe('socket.io', function(){
 
     it('should allow request when origin defined as function and no origin is supplied', function(done) {
       var sockets = io({ origins: function(origin,callback){
-        if (origin == '*') {
+        if (origin === undefined) {
           return callback(null, true);
         }
         return callback(null, false);
@@ -315,17 +304,6 @@ describe('socket.io', function(){
       request.get('http://localhost:54021/socket.io/default/')
        .query({ transport: 'polling' })
        .end(function (err, res) {
-          expect(res.status).to.be(200);
-          done();
-        });
-    });
-
-    it('should default to port 443 when protocol is https', function(done) {
-      var sockets = io({ origins: 'https://foo.example:443' }).listen('54036');
-      request.get('http://localhost:54036/socket.io/default/')
-        .set('origin', 'https://foo.example')
-        .query({ transport: 'polling' })
-        .end(function (err, res) {
           expect(res.status).to.be(200);
           done();
         });
@@ -364,6 +342,17 @@ describe('socket.io', function(){
         .query({ transport: 'polling' })
         .end(function (err, res) {
           expect(res.status).to.be(200);
+          done();
+        });
+    });
+
+    it('should disallow any origin by default', (done) => {
+      io().listen('54025');
+      request.get('http://localhost:54025/socket.io/default/')
+        .set('origin', 'https://foo.example')
+        .query({ transport: 'polling' })
+        .end((err, res) => {
+          expect(res.status).to.be(403);
           done();
         });
     });
