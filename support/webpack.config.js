@@ -11,18 +11,6 @@ module.exports = {
     filename: "socket.io.js",
     library: "io",
     libraryTarget: "umd",
-    // see https://github.com/webpack/webpack/issues/6525
-    globalObject: `(() => {
-      if (typeof self !== 'undefined') {
-          return self;
-      } else if (typeof window !== 'undefined') {
-          return window;
-      } else if (typeof global !== 'undefined') {
-          return global;
-      } else {
-          return Function('return this')();
-      }
-    })()`,
   },
   mode: "development",
   devtool: "source-map",
