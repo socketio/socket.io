@@ -272,7 +272,7 @@ describe("socket.io", () => {
   });
 
   describe("close", () => {
-    it("should be able to close sio sending a srv", () => {
+    it("should be able to close sio sending a srv", (done) => {
       const PORT = 54018;
       const srv = createServer().listen(PORT);
       const sio = new Server(srv);
@@ -282,12 +282,12 @@ describe("socket.io", () => {
       const clientSocket = client(srv, { reconnection: false });
 
       clientSocket.on("disconnect", () => {
-        expect(Object.keys(sio._nsps["/"].sockets).length).to.equal(0);
+        expect(sio.sockets.sockets.size).to.equal(0);
         server.listen(PORT);
       });
 
       clientSocket.on("connect", () => {
-        expect(Object.keys(sio._nsps["/"].sockets).length).to.equal(1);
+        expect(sio.sockets.sockets.size).to.equal(1);
         sio.close();
       });
 
@@ -295,6 +295,7 @@ describe("socket.io", () => {
         // PORT should be free
         server.close((error) => {
           expect(error).to.be(undefined);
+          done();
         });
       });
     });
@@ -856,7 +857,7 @@ describe("socket.io", () => {
       srv.listen(() => {
         const clientSocket = client(srv, {
           reconnectionAttempts: 3,
-          reconnectionDelay: 10,
+          reconnectionDelay: 100,
         });
         clientSocket.on("connect", () => {
           srv.close();
