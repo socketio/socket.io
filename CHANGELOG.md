@@ -1,3 +1,12 @@
+## [3.0.5](https://github.com/socketio/socket.io-client/compare/3.0.4...3.0.5) (2021-01-05)
+
+
+### Bug Fixes
+
+* emit a connect_error event upon connection failure ([53c7374](https://github.com/socketio/socket.io-client/commit/53c73749a829b2c98d9a5e45c48f0ae5a22c056c))
+* **typings:** make sendBuffer and receiveBuffer public ([b83f89c](https://github.com/socketio/socket.io-client/commit/b83f89c901e82e06f66cbda4124cf739d2bb01c3))
+
+
 ## [3.0.4](https://github.com/socketio/socket.io-client/compare/3.0.3...3.0.4) (2020-12-07)
 
 
