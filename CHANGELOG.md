@@ -1,3 +1,16 @@
+## [3.0.5](https://github.com/socketio/socket.io/compare/3.0.4...3.0.5) (2021-01-05)
+
+
+### Bug Fixes
+
+* properly clear timeout on connection failure ([170b739](https://github.com/socketio/socket.io/commit/170b739f147cb6c92b423729b877e242e376927d))
+
+
+### Reverts
+
+* restore the socket middleware functionality ([bf54327](https://github.com/socketio/socket.io/commit/bf5432742158e4d5ba2722cff4a614967dffa5b9))
+
+
 ## [3.0.4](https://github.com/socketio/socket.io/compare/3.0.3...3.0.4) (2020-12-07)
 
 
