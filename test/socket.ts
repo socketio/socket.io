@@ -50,6 +50,31 @@ describe("socket", function () {
     }, 300);
   });
 
+  it("fire a connect_error event when the connection cannot be established", (done) => {
+    const socket = io("http://localhost:9823", {
+      forceNew: true,
+      timeout: 100,
+    });
+    socket.on("connect_error", () => {
+      socket.close();
+      done();
+    });
+  });
+
+  it("doesn't fire a connect_error event when the connection is already established", (done) => {
+    const socket = io({ forceNew: true });
+    socket.on("connect", () => {
+      socket.io.engine.close(true);
+    });
+    socket.on("connect_error", () => {
+      done(new Error("should not happen"));
+    });
+    setTimeout(() => {
+      socket.close();
+      done();
+    }, 300);
+  });
+
   it("should change socket.id upon reconnection", (done) => {
     const socket = io({ forceNew: true });
     socket.on("connect", () => {

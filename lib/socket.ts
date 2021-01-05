@@ -84,6 +84,7 @@ export class Socket extends Emitter {
     this.subs = [
       on(io, "open", this.onopen.bind(this)),
       on(io, "packet", this.onpacket.bind(this)),
+      on(io, "error", this.onerror.bind(this)),
       on(io, "close", this.onclose.bind(this)),
     ];
   }
@@ -201,6 +202,18 @@ export class Socket extends Emitter {
       });
     } else {
       this.packet({ type: PacketType.CONNECT, data: this.auth });
+    }
+  }
+
+  /**
+   * Called upon engine or manager `error`.
+   *
+   * @param err
+   * @private
+   */
+  private onerror(err: Error) {
+    if (!this.connected) {
+      super.emit("connect_error", err);
     }
   }
 
