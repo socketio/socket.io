@@ -344,7 +344,7 @@ export class Socket extends EventEmitter {
         listener.apply(this, args);
       }
     }
-    super.emit.apply(this, args);
+    this.dispatch(args);
   }
 
   /**
@@ -509,6 +509,65 @@ export class Socket extends EventEmitter {
   public get local(): Socket {
     this.flags.local = true;
     return this;
+  }
+
+  /**
+   * Dispatch incoming event to socket listeners.
+   *
+   * @param {Array} event - event that will get emitted
+   * @private
+   */
+  private dispatch(event): void {
+    debug("dispatching an event %j", event);
+    this.run(event, (err) => {
+      process.nextTick(() => {
+        if (err) {
+          return this._onerror(err);
+        }
+        super.emit.apply(this, event);
+      });
+    });
+  }
+
+  /**
+   * Sets up socket middleware.
+   *
+   * @param {Function} fn - middleware function (event, next)
+   * @return {Socket} self
+   * @public
+   */
+  public use(
+    fn: (event: Array<any>, next: (err: Error) => void) => void
+  ): Socket {
+    this.fns.push(fn);
+    return this;
+  }
+
+  /**
+   * Executes the middleware for an incoming event.
+   *
+   * @param {Array} event - event that will get emitted
+   * @param {Function} fn - last fn call in the middleware
+   * @private
+   */
+  private run(event: Array<any>, fn: (err: Error | null) => void) {
+    const fns = this.fns.slice(0);
+    if (!fns.length) return fn(null);
+
+    function run(i) {
+      fns[i](event, function (err) {
+        // upon error, short-circuit
+        if (err) return fn(err);
+
+        // if no middleware left, summon callback
+        if (!fns[i + 1]) return fn(null);
+
+        // go on to next
+        run(i + 1);
+      });
+    }
+
+    run(0);
   }
 
   /**

@@ -12,6 +12,7 @@ import type { AddressInfo } from "net";
 const ioc = require("socket.io-client");
 
 import "./support/util";
+import exp = require("constants");
 
 // Creates a socket.io client for the given server
 function client(srv, nsp?: string | object, opts?: object) {
@@ -2356,6 +2357,76 @@ describe("socket.io", () => {
       });
       client(srv, "/chat").on("connect", () => {
         if (++count === 2) done();
+      });
+    });
+  });
+
+  describe("socket middleware", () => {
+    const { Socket } = require("../dist/socket");
+
+    it("should call functions", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv);
+      let run = 0;
+
+      srv.listen(() => {
+        const socket = client(srv, { multiplex: false });
+
+        socket.emit("join", "woot");
+
+        sio.on("connection", (socket) => {
+          socket.use((event, next) => {
+            expect(event).to.eql(["join", "woot"]);
+            event.unshift("wrap");
+            run++;
+            next();
+          });
+          socket.use((event, next) => {
+            expect(event).to.eql(["wrap", "join", "woot"]);
+            run++;
+            next();
+          });
+          socket.on("wrap", (data1, data2) => {
+            expect(data1).to.be("join");
+            expect(data2).to.be("woot");
+            expect(run).to.be(2);
+            done();
+          });
+        });
+      });
+    });
+
+    it("should pass errors", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv);
+
+      srv.listen(() => {
+        const socket = client(srv, { multiplex: false });
+
+        socket.emit("join", "woot");
+
+        const success = () => {
+          socket.close();
+          sio.close();
+          done();
+        };
+
+        sio.on("connection", (socket) => {
+          socket.use((event, next) => {
+            next(new Error("Authentication error"));
+          });
+          socket.use((event, next) => {
+            done(new Error("should not happen"));
+          });
+          socket.on("join", () => {
+            done(new Error("should not happen"));
+          });
+          socket.on("error", (err) => {
+            expect(err).to.be.an(Error);
+            expect(err.message).to.eql("Authentication error");
+            success();
+          });
+        });
       });
     });
   });
