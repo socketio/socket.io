@@ -113,15 +113,16 @@ export class Client {
    * @private
    */
   private doConnect(name: string, auth: object) {
-    if (this.connectTimeout) {
-      clearTimeout(this.connectTimeout);
-      this.connectTimeout = undefined;
-    }
     const nsp = this.server.of(name);
 
     const socket = nsp._add(this, auth, () => {
       this.sockets.set(socket.id, socket);
       this.nsps.set(nsp.name, socket);
+
+      if (this.connectTimeout) {
+        clearTimeout(this.connectTimeout);
+        this.connectTimeout = undefined;
+      }
     });
   }
 
@@ -277,5 +278,10 @@ export class Client {
     this.conn.removeListener("close", this.onclose);
     // @ts-ignore
     this.decoder.removeListener("decoded", this.ondecoded);
+
+    if (this.connectTimeout) {
+      clearTimeout(this.connectTimeout);
+      this.connectTimeout = undefined;
+    }
   }
 }

@@ -774,6 +774,29 @@ describe("socket.io", () => {
       });
     });
 
+    it("should close a client without namespace", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv, {
+        connectTimeout: 100,
+      });
+
+      sio.use((_, next) => {
+        next(new Error("nope"));
+      });
+
+      srv.listen(() => {
+        const socket = client(srv);
+
+        const success = () => {
+          socket.close();
+          sio.close();
+          done();
+        };
+
+        socket.on("disconnect", success);
+      });
+    });
+
     describe("dynamic namespaces", () => {
       it("should allow connections to dynamic namespaces with a regex", (done) => {
         const srv = createServer();
