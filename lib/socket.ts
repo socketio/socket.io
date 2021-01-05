@@ -38,13 +38,14 @@ export class Socket extends Emitter {
   public connected: boolean;
   public disconnected: boolean;
 
+  public receiveBuffer: Array<ReadonlyArray<any>> = [];
+  public sendBuffer: Array<Packet> = [];
+
   private readonly nsp: string;
   private readonly auth: object | ((cb: (data: object) => void) => void);
 
   private ids: number = 0;
   private acks: object = {};
-  private receiveBuffer: Array<ReadonlyArray<any>> = [];
-  private sendBuffer: Array<Packet> = [];
   private flags: Flags = {};
   private subs?: Array<VoidFunction>;
   private _anyListeners: Array<(...args: any[]) => void>;
