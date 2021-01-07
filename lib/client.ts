@@ -160,7 +160,7 @@ export class Client {
    * @private
    */
   private close() {
-    if ("open" == this.conn.readyState) {
+    if ("open" === this.conn.readyState) {
       debug("forcing transport close");
       this.conn.close();
       this.onclose("forced server close");
@@ -186,7 +186,7 @@ export class Client {
       }
     }
 
-    if ("open" == this.conn.readyState) {
+    if ("open" === this.conn.readyState) {
       debug("writing packet %j", packet);
       if (!opts.preEncoded) {
         // not broadcasting, need to encode
@@ -220,7 +220,7 @@ export class Client {
    * @private
    */
   private ondecoded(packet: Packet) {
-    if (PacketType.CONNECT == packet.type) {
+    if (PacketType.CONNECT === packet.type) {
       this.connect(packet.nsp, packet.data);
     } else {
       const socket = this.nsps.get(packet.nsp);
