@@ -1,3 +1,11 @@
+## [2.4.1](https://github.com/socketio/socket.io/compare/2.4.0...2.4.1) (2021-01-07)
+
+
+### Reverts
+
+* fix(security): do not allow all origins by default ([a169050](https://github.com/socketio/socket.io/commit/a1690509470e9dd5559cec4e60908ca6c23e9ba0))
+
+
 # [2.4.0](https://github.com/socketio/socket.io/compare/2.3.0...2.4.0) (2021-01-04)
 
 
