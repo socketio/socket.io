@@ -1,4 +1,2 @@
 
-## Table of Contents
-
-  - [API](API.md)
+The documentation has been moved to the website [here](https://socket.io/docs/).
