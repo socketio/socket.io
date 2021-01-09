@@ -1,4 +1,4 @@
-const eioc = require("engine.io-client");
+const eioc = require("../common").eioc;
 const listen = require("../common").listen;
 
 const engine = listen(port => {

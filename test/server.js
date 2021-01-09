@@ -7,7 +7,7 @@ const path = require("path");
 const exec = require("child_process").exec;
 const zlib = require("zlib");
 const eio = require("..");
-const eioc = require("engine.io-client");
+const eioc = require("./common").eioc;
 const listen = require("./common").listen;
 const expect = require("expect.js");
 const request = require("superagent");
@@ -485,6 +485,26 @@ describe("server", () => {
             });
         }
       );
+    });
+
+    it("should disallow unsupported protocol versions", done => {
+      const httpServer = http.createServer();
+      const engine = eio({ allowEIO3: false });
+      engine.attach(httpServer);
+      httpServer.listen(() => {
+        const port = httpServer.address().port;
+        request
+          .get("http://localhost:%d/engine.io/".s(port))
+          .query({ transport: "polling", EIO: 3 })
+          .end((err, res) => {
+            expect(err).to.be.an(Error);
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(5);
+            expect(res.body.message).to.be("Unsupported protocol version");
+            engine.close();
+            done();
+          });
+      });
     });
 
     it("should send a packet along with the handshake", done => {
@@ -997,43 +1017,83 @@ describe("server", () => {
       }
     );
 
-    it(
-      "should trigger with connection `ping timeout` " +
-        "after `pingInterval + pingTimeout`",
-      done => {
-        const opts = {
-          allowUpgrades: false,
-          pingInterval: 300,
-          pingTimeout: 100
-        };
-        const engine = listen(opts, port => {
-          const socket = new eioc.Socket("ws://localhost:%d".s(port));
-          let clientCloseReason = null;
+    if (process.env.EIO_CLIENT === "3") {
+      it(
+        "should trigger with connection `ping timeout` " +
+          "after `pingInterval + pingTimeout`",
+        done => {
+          const opts = {
+            allowUpgrades: false,
+            pingInterval: 300,
+            pingTimeout: 100
+          };
+          const engine = listen(opts, port => {
+            const socket = new eioc.Socket("ws://localhost:%d".s(port));
+            let clientCloseReason = null;
 
-          socket.on("open", () => {
-            socket.on("close", reason => {
-              clientCloseReason = reason;
+            socket.on("open", () => {
+              socket.on("close", reason => {
+                clientCloseReason = reason;
+              });
+            });
+
+            engine.on("connection", conn => {
+              conn.once("heartbeat", () => {
+                setTimeout(() => {
+                  socket.onPacket = () => {};
+                  expect(clientCloseReason).to.be(null);
+                }, 150);
+                setTimeout(() => {
+                  expect(clientCloseReason).to.be(null);
+                }, 350);
+                setTimeout(() => {
+                  expect(clientCloseReason).to.be("ping timeout");
+                  done();
+                }, 500);
+              });
             });
           });
+        }
+      );
+    } else {
+      it(
+        "should trigger with connection `ping timeout` " +
+          "after `pingInterval + pingTimeout`",
+        done => {
+          const opts = {
+            allowUpgrades: false,
+            pingInterval: 300,
+            pingTimeout: 100
+          };
+          const engine = listen(opts, port => {
+            const socket = new eioc.Socket("ws://localhost:%d".s(port));
+            let clientCloseReason = null;
 
-          engine.on("connection", conn => {
-            conn.once("heartbeat", () => {
-              socket.onPacket = () => {};
-              setTimeout(() => {
-                expect(clientCloseReason).to.be(null);
-              }, 150);
-              setTimeout(() => {
-                expect(clientCloseReason).to.be(null);
-              }, 350);
-              setTimeout(() => {
-                expect(clientCloseReason).to.be("ping timeout");
-                done();
-              }, 500);
+            socket.on("open", () => {
+              socket.on("close", reason => {
+                clientCloseReason = reason;
+              });
+            });
+
+            engine.on("connection", conn => {
+              conn.once("heartbeat", () => {
+                socket.onPacket = () => {};
+                setTimeout(() => {
+                  expect(clientCloseReason).to.be(null);
+                }, 150);
+                setTimeout(() => {
+                  expect(clientCloseReason).to.be(null);
+                }, 350);
+                setTimeout(() => {
+                  expect(clientCloseReason).to.be("ping timeout");
+                  done();
+                }, 500);
+              });
             });
           });
-        });
-      }
-    );
+        }
+      );
+    }
 
     it(
       "should abort the polling data request if it is " + "in progress",
@@ -1796,7 +1856,11 @@ describe("server", () => {
         res.end("hello world\n");
       });
 
-      const engine = eio({ transports: ["polling"], allowUpgrades: false });
+      const engine = eio({
+        transports: ["polling"],
+        allowUpgrades: false,
+        allowEIO3: true
+      });
       engine.attach(srv);
       srv.listen(() => {
         const port = srv.address().port;
@@ -1834,7 +1898,11 @@ describe("server", () => {
         res.end("hello world\n");
       });
 
-      const engine = eio({ transports: ["polling"], allowUpgrades: false });
+      const engine = eio({
+        transports: ["polling"],
+        allowUpgrades: false,
+        allowEIO3: true
+      });
       engine.attach(srv);
       srv.listen(() => {
         const port = srv.address().port;
@@ -1874,7 +1942,11 @@ describe("server", () => {
         res.end("hello world\n");
       });
 
-      const engine = eio({ transports: ["websocket"], allowUpgrades: false });
+      const engine = eio({
+        transports: ["websocket"],
+        allowUpgrades: false,
+        allowEIO3: true
+      });
       engine.attach(srv);
       srv.listen(() => {
         const port = srv.address().port;
@@ -1913,7 +1985,11 @@ describe("server", () => {
         res.end("hello world\n");
       });
 
-      const engine = eio({ transports: ["polling"], allowUpgrades: false });
+      const engine = eio({
+        transports: ["polling"],
+        allowUpgrades: false,
+        allowEIO3: true
+      });
       engine.attach(srv);
       srv.listen(() => {
         const port = srv.address().port;
@@ -1952,7 +2028,11 @@ describe("server", () => {
         res.end("hello world\n");
       });
 
-      const engine = eio({ transports: ["websocket"], allowUpgrades: false });
+      const engine = eio({
+        transports: ["websocket"],
+        allowUpgrades: false,
+        allowEIO3: true
+      });
       engine.attach(srv);
       srv.listen(() => {
         const port = srv.address().port;
@@ -2409,7 +2489,11 @@ describe("server", () => {
         engine.on("connection", conn => {
           conn.on("packet", packet => {
             conn.close();
-            expect(packet.type).to.be("pong");
+            if (process.env.EIO_CLIENT === "3") {
+              expect(packet.type).to.be("ping");
+            } else {
+              expect(packet.type).to.be("pong");
+            }
             done();
           });
         });
@@ -2438,7 +2522,11 @@ describe("server", () => {
         engine.on("connection", conn => {
           conn.on("packetCreate", packet => {
             conn.close();
-            expect(packet.type).to.be("ping");
+            if (process.env.EIO_CLIENT === "3") {
+              expect(packet.type).to.be("pong");
+            } else {
+              expect(packet.type).to.be("ping");
+            }
             done();
           });
         });

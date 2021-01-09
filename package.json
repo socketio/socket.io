@@ -37,6 +37,7 @@
     "babel-eslint": "^8.0.2",
     "eiows": "^3.3.0",
     "engine.io-client": "4.0.6",
+    "engine.io-client-v3": "npm:engine.io-client@3.5.0",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^6.9.0",
     "expect.js": "^0.3.1",
@@ -47,7 +48,7 @@
   },
   "scripts": {
     "lint": "eslint lib/ test/ *.js",
-    "test": "npm run lint && npm run format:check && mocha && EIO_WS_ENGINE=eiows mocha",
+    "test": "npm run lint && npm run format:check && mocha && EIO_CLIENT=3 mocha && EIO_WS_ENGINE=eiows mocha",
     "format:check": "prettier --check 'lib/**/*.js' 'test/**/*.js'",
     "format:fix": "prettier --write 'lib/**/*.js' 'test/**/*.js'"
   },

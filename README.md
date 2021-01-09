@@ -252,6 +252,7 @@ to a single process.
       - `wsEngine` (`String`): what WebSocket server implementation to use. Specified module must conform to the `ws` interface (see [ws module api docs](https://github.com/websockets/ws/blob/master/doc/ws.md)). Default value is `ws`. An alternative c++ addon is also available by installing `uws` module.
       - `cors` (`Object`): the options that will be forwarded to the cors module. See [there](https://github.com/expressjs/cors#configuration-options) for all available options. Defaults to no CORS allowed.
       - `initialPacket` (`Object`): an optional packet which will be concatenated to the handshake packet emitted by Engine.IO.
+      - `allowEIO3` (`Boolean`): whether to support v3 Engine.IO clients (defaults to `false`)
 - `close`
     - Closes all clients
     - **Returns** `Server` for chaining
