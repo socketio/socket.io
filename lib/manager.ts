@@ -279,7 +279,7 @@ export class Manager extends Emitter {
   _reconnecting: boolean;
 
   private readonly uri: string;
-  private readonly opts: Partial<ManagerOptions>;
+  public opts: Partial<ManagerOptions>;
 
   private nsps: Record<string, Socket> = {};
   private subs: Array<ReturnType<typeof on>> = [];
