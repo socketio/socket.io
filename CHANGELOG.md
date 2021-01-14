@@ -1,3 +1,11 @@
+# [4.1.0](https://github.com/socketio/engine.io/compare/4.0.6...4.1.0) (2021-01-14)
+
+
+### Features
+
+* add support for v3.x clients ([663d326](https://github.com/socketio/engine.io/commit/663d326d18de598318bd2120b2b70cd51adf8955))
+
+
 ## [4.0.6](https://github.com/socketio/engine.io/compare/4.0.5...4.0.6) (2021-01-04)
 
 
