@@ -135,11 +135,16 @@ export class Namespace extends EventEmitter {
     this.run(socket, (err) => {
       process.nextTick(() => {
         if ("open" == client.conn.readyState) {
-          if (err)
-            return socket._error({
-              message: err.message,
-              data: err.data,
-            });
+          if (err) {
+            if (client.conn.protocol === 3) {
+              return socket._error(err.data || err.message);
+            } else {
+              return socket._error({
+                message: err.message,
+                data: err.data,
+              });
+            }
+          }
 
           // track socket
           this.sockets.set(socket.id, socket);

@@ -105,7 +105,12 @@ export class Socket extends EventEmitter {
     super();
     this.server = nsp.server;
     this.adapter = this.nsp.adapter;
-    this.id = base64id.generateId(); // don't reuse the Engine.IO id because it's sensitive information
+    if (client.conn.protocol === 3) {
+      // @ts-ignore
+      this.id = nsp.name !== "/" ? nsp.name + "#" + client.id : client.id;
+    } else {
+      this.id = base64id.generateId(); // don't reuse the Engine.IO id because it's sensitive information
+    }
     this.connected = true;
     this.disconnected = false;
     this.handshake = this.buildHandshake(auth);
@@ -286,7 +291,11 @@ export class Socket extends EventEmitter {
   _onconnect(): void {
     debug("socket connected - writing packet");
     this.join(this.id);
-    this.packet({ type: PacketType.CONNECT, data: { sid: this.id } });
+    if (this.conn.protocol === 3) {
+      this.packet({ type: PacketType.CONNECT });
+    } else {
+      this.packet({ type: PacketType.CONNECT, data: { sid: this.id } });
+    }
   }
 
   /**

@@ -100,6 +100,11 @@ interface EngineOptions {
    * the options that will be forwarded to the cors module
    */
   cors: CorsOptions;
+  /**
+   * whether to enable compatibility with Socket.IO v2 clients
+   * @default false
+   */
+  allowEIO3: boolean;
 }
 
 interface AttachOptions {
@@ -522,7 +527,11 @@ export class Server extends EventEmitter {
    */
   private onconnection(conn): Server {
     debug("incoming connection with id %s", conn.id);
-    new Client(this, conn);
+    const client = new Client(this, conn);
+    if (conn.protocol === 3) {
+      // @ts-ignore
+      client.connect("/");
+    }
     return this;
   }
 

@@ -8,11 +8,11 @@ import { exec } from "child_process";
 import request from "supertest";
 import expect from "expect.js";
 import type { AddressInfo } from "net";
+import * as io_v2 from "socket.io-client-v2";
 
 const ioc = require("socket.io-client");
 
 import "./support/util";
-import exp = require("constants");
 
 // Creates a socket.io client for the given server
 function client(srv, nsp?: string | object, opts?: object) {
@@ -25,6 +25,18 @@ function client(srv, nsp?: string | object, opts?: object) {
   const url = "ws://localhost:" + addr.port + (nsp || "");
   return ioc(url, opts);
 }
+
+const success = (sio, clientSocket, done) => {
+  sio.close();
+  clientSocket.close();
+  done();
+};
+
+const waitFor = (emitter, event) => {
+  return new Promise((resolve) => {
+    emitter.once(event, resolve);
+  });
+};
 
 describe("socket.io", () => {
   it("should be the same version as client", () => {
@@ -2426,6 +2438,50 @@ describe("socket.io", () => {
             expect(err.message).to.eql("Authentication error");
             success();
           });
+        });
+      });
+    });
+  });
+
+  describe("v2 compatibility", () => {
+    it("should connect if `allowEIO3` is true", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv, {
+        allowEIO3: true,
+      });
+
+      srv.listen(async () => {
+        const port = (srv.address() as AddressInfo).port;
+        const clientSocket = io_v2.connect(`http://localhost:${port}`, {
+          multiplex: false,
+        });
+
+        const [socket]: Array<any> = await Promise.all([
+          waitFor(sio, "connection"),
+          waitFor(clientSocket, "connect"),
+        ]);
+
+        expect(socket.id).to.eql(clientSocket.id);
+        success(sio, clientSocket, done);
+      });
+    });
+
+    it("should not connect if `allowEIO3` is false (default)", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv);
+
+      srv.listen(() => {
+        const port = (srv.address() as AddressInfo).port;
+        const clientSocket = io_v2.connect(`http://localhost:${port}`, {
+          multiplex: false,
+        });
+
+        clientSocket.on("connect", () => {
+          done(new Error("should not happen"));
+        });
+
+        clientSocket.on("connect_error", () => {
+          success(sio, clientSocket, done);
         });
       });
     });
