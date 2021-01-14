@@ -1,3 +1,11 @@
+# [4.1.0](https://github.com/socketio/engine.io-client/compare/4.0.6...4.1.0) (2021-01-14)
+
+
+### Features
+
+* add missing ws options ([d134fee](https://github.com/socketio/engine.io-client/commit/d134feeaa615afc4cbe0aa45aa4344c899b65df0))
+
+
 ## [4.0.6](https://github.com/socketio/engine.io-client/compare/4.0.5...4.0.6) (2021-01-04)
 
 
