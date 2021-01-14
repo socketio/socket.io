@@ -18,8 +18,8 @@ export interface BroadcastOptions {
 }
 
 export class Adapter extends EventEmitter {
-  protected rooms: Map<Room, Set<SocketId>> = new Map();
-  protected sids: Map<SocketId, Set<Room>> = new Map();
+  public rooms: Map<Room, Set<SocketId>> = new Map();
+  public sids: Map<SocketId, Set<Room>> = new Map();
   private readonly encoder;
 
   /**
