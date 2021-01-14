@@ -1,4 +1,3 @@
-
 # socket.io
 [![Run on Repl.it](https://repl.it/badge/github/socketio/socket.io)](https://repl.it/github/socketio/socket.io)
 [![Backers on Open Collective](https://opencollective.com/socketio/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/socketio/sponsors/badge.svg)](#sponsors)
@@ -22,6 +21,8 @@ Some implementations in other languages are also available:
 - [C++](https://github.com/socketio/socket.io-client-cpp)
 - [Swift](https://github.com/socketio/socket.io-client-swift)
 - [Dart](https://github.com/rikulo/socket.io-client-dart)
+- [Python](https://github.com/miguelgrinberg/python-socketio)
+- [.Net](https://github.com/Quobject/SocketIoClientDotNet)
 
 Its main features are:
 
