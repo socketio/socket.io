@@ -85,7 +85,11 @@ This is a useful feature to send notifications to a group of users, or to a give
 ## Installation
 
 ```bash
+// with npm
 npm install socket.io
+
+// with yarn
+yarn add socket.io
 ```
 
 ## How to use
