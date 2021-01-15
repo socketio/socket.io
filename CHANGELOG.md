@@ -1,3 +1,11 @@
+## [4.0.4](https://github.com/socketio/socket.io-parser/compare/4.0.3...4.0.4) (2021-01-15)
+
+
+### Bug Fixes
+
+* allow integers as event names ([1c220dd](https://github.com/socketio/socket.io-parser/commit/1c220ddbf45ea4b44bc8dbf6f9ae245f672ba1b9))
+
+
 ## [4.0.3](https://github.com/socketio/socket.io-parser/compare/4.0.2...4.0.3) (2021-01-05)
 
 
