@@ -1,3 +1,12 @@
+# [2.1.0](https://github.com/socketio/socket.io-adapter/compare/2.0.3...2.1.0) (2021-01-15)
+
+
+### Features
+
+* add room events ([155fa63](https://github.com/socketio/socket.io-adapter/commit/155fa6333a504036e99a33667dc0397f6aede25e))
+* make rooms and sids public ([313c5a9](https://github.com/socketio/socket.io-adapter/commit/313c5a9fb60d913cd3a866001d67516399d8ee2f))
+
+
 ## [2.0.3](https://github.com/socketio/socket.io-adapter/compare/1.1.2...2.0.3) (2020-11-05)
 
 ### Features
