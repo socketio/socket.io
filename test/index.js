@@ -57,4 +57,88 @@ describe("socket.io-adapter", () => {
     expect(rooms.size).to.be(2);
     expect(adapter.socketRooms("s4")).to.be(undefined);
   });
+
+  describe("events", () => {
+    it("should emit a 'create-room' event", done => {
+      const adapter = new Adapter({ server: { encoder: null } });
+      adapter.on("create-room", room => {
+        expect(room).to.eql("r1");
+        done();
+      });
+      adapter.addAll("s1", new Set(["r1"]));
+    });
+
+    it("should not emit a 'create-room' event if the room already exists", done => {
+      const adapter = new Adapter({ server: { encoder: null } });
+      adapter.addAll("s1", new Set(["r1"]));
+      adapter.on("create-room", room => {
+        done(new Error("should not happen"));
+      });
+      adapter.addAll("s2", new Set(["r1"]));
+      done();
+    });
+
+    it("should emit a 'join-room' event", done => {
+      const adapter = new Adapter({ server: { encoder: null } });
+      adapter.on("join-room", (room, sid) => {
+        expect(room).to.eql("r1");
+        expect(sid).to.eql("s1");
+        done();
+      });
+      adapter.addAll("s1", new Set(["r1"]));
+    });
+
+    it("should not emit a 'join-room' event if the sid is already in the room", done => {
+      const adapter = new Adapter({ server: { encoder: null } });
+      adapter.addAll("s1", new Set(["r1", "r2"]));
+      adapter.on("join-room", () => {
+        done(new Error("should not happen"));
+      });
+      adapter.addAll("s1", new Set(["r1"]));
+      done();
+    });
+
+    it("should emit a 'leave-room' event with del method", done => {
+      const adapter = new Adapter({ server: { encoder: null } });
+      adapter.on("leave-room", (room, sid) => {
+        expect(room).to.eql("r1");
+        expect(sid).to.eql("s1");
+        done();
+      });
+      adapter.addAll("s1", new Set(["r1"]));
+      adapter.del("s1", "r1");
+    });
+
+    it("should emit a 'leave-room' event with delAll method", done => {
+      const adapter = new Adapter({ server: { encoder: null } });
+      adapter.on("leave-room", (room, sid) => {
+        expect(room).to.eql("r1");
+        expect(sid).to.eql("s1");
+        done();
+      });
+      adapter.addAll("s1", new Set(["r1"]));
+      adapter.delAll("s1");
+    });
+
+    it("should emit a 'delete-room' event", done => {
+      const adapter = new Adapter({ server: { encoder: null } });
+      adapter.on("delete-room", room => {
+        expect(room).to.eql("r1");
+        done();
+      });
+      adapter.addAll("s1", new Set(["r1"]));
+      adapter.delAll("s1");
+    });
+
+    it("should not emit a 'delete-room' event if there is another sid in the room", done => {
+      const adapter = new Adapter({ server: { encoder: null } });
+      adapter.on("delete-room", room => {
+        done(new Error("should not happen"));
+      });
+      adapter.addAll("s1", new Set(["r1"]));
+      adapter.addAll("s2", new Set(["r1", "r2"]));
+      adapter.delAll("s1");
+      done();
+    });
+  });
 });

@@ -59,8 +59,12 @@ export class Adapter extends EventEmitter {
 
       if (!this.rooms.has(room)) {
         this.rooms.set(room, new Set());
+        this.emit("create-room", room);
       }
-      this.rooms.get(room).add(id);
+      if (!this.rooms.get(room).has(id)) {
+        this.rooms.get(room).add(id);
+        this.emit("join-room", room, id);
+      }
     }
   }
 
@@ -75,9 +79,19 @@ export class Adapter extends EventEmitter {
       this.sids.get(id).delete(room);
     }
 
+    this._del(room, id);
+  }
+
+  private _del(room, id) {
     if (this.rooms.has(room)) {
-      this.rooms.get(room).delete(id);
-      if (this.rooms.get(room).size === 0) this.rooms.delete(room);
+      const deleted = this.rooms.get(room).delete(id);
+      if (deleted) {
+        this.emit("leave-room", room, id);
+      }
+      if (this.rooms.get(room).size === 0) {
+        this.rooms.delete(room);
+        this.emit("delete-room", room);
+      }
     }
   }
 
@@ -92,10 +106,7 @@ export class Adapter extends EventEmitter {
     }
 
     for (const room of this.sids.get(id)) {
-      if (this.rooms.has(room)) {
-        this.rooms.get(room).delete(id);
-        if (this.rooms.get(room).size === 0) this.rooms.delete(room);
-      }
+      this._del(room, id);
     }
 
     this.sids.delete(id);
