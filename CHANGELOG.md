@@ -1,3 +1,19 @@
+# [3.1.0](https://github.com/socketio/socket.io/compare/3.0.5...3.1.0) (2021-01-15)
+
+
+### Features
+
+* confirm a weak but matching ETag ([#3485](https://github.com/socketio/socket.io/issues/3485)) ([161091d](https://github.com/socketio/socket.io/commit/161091dd4c9e1b1610ac3d45d964195e63d92b94))
+* **esm:** export the Namespace and Socket class ([#3699](https://github.com/socketio/socket.io/issues/3699)) ([233650c](https://github.com/socketio/socket.io/commit/233650c22209708b5fccc4349c38d2fa1b465d8f))
+* add support for Socket.IO v2 clients ([9925746](https://github.com/socketio/socket.io/commit/9925746c8ee3a6522bd640b5d586c83f04f2f1ba))
+* add room events ([155fa63](https://github.com/socketio/socket.io-adapter/commit/155fa6333a504036e99a33667dc0397f6aede25e))
+
+
+### Bug Fixes
+
+* allow integers as event names ([1c220dd](https://github.com/socketio/socket.io-parser/commit/1c220ddbf45ea4b44bc8dbf6f9ae245f672ba1b9))
+
+
 ## [3.0.5](https://github.com/socketio/socket.io/compare/3.0.4...3.0.5) (2021-01-05)
 
 
