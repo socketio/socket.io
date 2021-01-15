@@ -47,6 +47,17 @@ describe("parser", () => {
     );
   });
 
+  it("encodes an event (with an integer as event name)", (done) => {
+    helpers.test(
+      {
+        type: PacketType.EVENT,
+        data: [1, "a", {}],
+        nsp: "/",
+      },
+      done
+    );
+  });
+
   it("encodes an event (with ack)", (done) => {
     helpers.test(
       {
