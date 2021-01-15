@@ -1,3 +1,12 @@
+# [3.1.0](https://github.com/socketio/socket.io-client/compare/3.0.5...3.1.0) (2021-01-15)
+
+
+### Bug Fixes
+
+* **typings:** make Manager#opts public ([#1437](https://github.com/socketio/socket.io-client/issues/1437)) ([fe97243](https://github.com/socketio/socket.io-client/commit/fe97243fab02cd80fc1116e8f4aeca02951dac75))
+* allow integers as event names ([1c220dd](https://github.com/socketio/socket.io-parser/commit/1c220ddbf45ea4b44bc8dbf6f9ae245f672ba1b9))
+
+
 ## [3.0.5](https://github.com/socketio/socket.io-client/compare/3.0.4...3.0.5) (2021-01-05)
 
 
