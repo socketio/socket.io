@@ -36,7 +36,7 @@ For this purpose, it relies on [Engine.IO](https://github.com/socketio/engine.io
 
 #### Auto-reconnection support
 
-Unless instructed otherwise a disconnected client will try to reconnect forever, until the server is available again. Please see the available reconnection options [here](https://github.com/socketio/socket.io-client/blob/master/docs/API.md#new-managerurl-options).
+Unless instructed otherwise a disconnected client will try to reconnect forever, until the server is available again. Please see the available reconnection options [here](https://socket.io/docs/v3/client-api/#new-Manager-url-options).
 
 #### Disconnection detection
 
