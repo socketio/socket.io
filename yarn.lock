@@ -1294,7 +1294,7 @@ make-dir@^3.0.0, make-dir@^3.0.2:
   dependencies:
     semver "^6.0.0"
 
-methods@1.1.2, methods@^1.1.2:
+methods@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/methods/-/methods-1.1.2.tgz#5529a4d67654134edcc5266656835b0f851afcee"
   integrity sha1-VSmk1nZUE07cxSZmVoNbD4Ua/O4=
@@ -1835,7 +1835,7 @@ strip-json-comments@3.1.1, strip-json-comments@^3.1.0, strip-json-comments@^3.1.
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-3.1.1.tgz#31f1281b3832630434831c310c01cccda8cbe006"
   integrity sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==
 
-superagent@6.1.0, superagent@^6.0.0:
+superagent@^6.0.0, superagent@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/superagent/-/superagent-6.1.0.tgz#09f08807bc41108ef164cfb4be293cebd480f4a6"
   integrity sha512-OUDHEssirmplo3F+1HWKUrUjvnQuA+nZI6i/JJBdXb5eq9IyEQwPyPpqND+SSsxf6TygpBEkUjISVRN4/VOpeg==
@@ -1853,12 +1853,12 @@ superagent@6.1.0, superagent@^6.0.0:
     semver "^7.3.2"
 
 supertest@^6.0.0:
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/supertest/-/supertest-6.0.1.tgz#f6b54370de85c45d6557192c8d7df604ca2c9e18"
-  integrity sha512-8yDNdm+bbAN/jeDdXsRipbq9qMpVF7wRsbwLgsANHqdjPsCoecmlTuqEcLQMGpmojFBhxayZ0ckXmLXYq7e+0g==
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/supertest/-/supertest-6.1.1.tgz#4fe6ddfdad4ef3eb72926046c6c625217771d9ae"
+  integrity sha512-3WDAWfqdNifCURjGUHZFv3u5nMg5tFtFRCTJOcSZXdlYZ0gqVF3UMhA7IJDP8nDXnR3gocbQ6s0bpiPnsoFeQw==
   dependencies:
-    methods "1.1.2"
-    superagent "6.1.0"
+    methods "^1.1.2"
+    superagent "^6.1.0"
 
 supports-color@7.2.0, supports-color@^7.1.0:
   version "7.2.0"
