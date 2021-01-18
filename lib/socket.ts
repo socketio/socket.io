@@ -120,9 +120,8 @@ export class Socket extends EventEmitter {
    * Generate an ID for the client.
    *
    * @return {any}
-   * @private
    */
-  private generateId(): any {
+  generateId(): any {
     return base64id.generateId();
   }
 
