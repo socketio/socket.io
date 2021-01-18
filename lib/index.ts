@@ -257,7 +257,8 @@ export class Server extends EventEmitter {
         if (err || !allow) {
           run();
         } else {
-          fn(this.parentNsps.get(nextFn.value)!.createChild(name));
+          let nsp = this.parentNsps.get(nextFn.value)!.createChild(name);
+          process.nextTick(() => fn(nsp));
         }
       });
     };
