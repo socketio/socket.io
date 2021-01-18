@@ -257,8 +257,11 @@ export class Server extends EventEmitter {
         if (err || !allow) {
           run();
         } else {
-          let nsp = this.parentNsps.get(nextFn.value)!.createChild(name);
-          process.nextTick(() => fn(nsp));
+          let nsp = this._nsps.get(name);
+          if (!nsp) {
+            nsp = this.parentNsps.get(nextFn.value)!.createChild(name);
+          }
+          process.nextTick(() => fn(nsp as Namespace));
         }
       });
     };
