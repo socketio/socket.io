@@ -109,11 +109,21 @@ export class Socket extends EventEmitter {
       // @ts-ignore
       this.id = nsp.name !== "/" ? nsp.name + "#" + client.id : client.id;
     } else {
-      this.id = base64id.generateId(); // don't reuse the Engine.IO id because it's sensitive information
+      this.id = this.generateId(); // don't reuse the Engine.IO id because it's sensitive information
     }
     this.connected = true;
     this.disconnected = false;
     this.handshake = this.buildHandshake(auth);
+  }
+
+  /**
+   * Generate an ID for the client.
+   *
+   * @return {any}
+   * @private
+   */
+  private generateId(): any {
+    return base64id.generateId();
   }
 
   /**
