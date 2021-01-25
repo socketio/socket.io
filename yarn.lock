@@ -1853,9 +1853,9 @@ superagent@^6.0.0, superagent@^6.1.0:
     semver "^7.3.2"
 
 supertest@^6.0.0:
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/supertest/-/supertest-6.1.1.tgz#4fe6ddfdad4ef3eb72926046c6c625217771d9ae"
-  integrity sha512-3WDAWfqdNifCURjGUHZFv3u5nMg5tFtFRCTJOcSZXdlYZ0gqVF3UMhA7IJDP8nDXnR3gocbQ6s0bpiPnsoFeQw==
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/supertest/-/supertest-6.1.2.tgz#1679c234b139eed93911c185b67f689348fc2453"
+  integrity sha512-hZ8bu3TebxCYQ40mF6/2ou58EEG5jxo1AbsE1vprqXo3emkmqbQMcQrF7acsQteOjYlkExSvYOAQ/feTE9n7uA==
   dependencies:
     methods "^1.1.2"
     superagent "^6.1.0"
