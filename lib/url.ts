@@ -18,7 +18,7 @@ type ParsedUrl = {
   query: string;
   anchor: string;
   pathNames: Array<string>;
-  queryKey: Record<string, string>;
+  queryKey: { [key: string]: string };
 
   // Custom properties (not native to parseuri):
   id: string;

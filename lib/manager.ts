@@ -32,7 +32,7 @@ interface EngineOptions {
   /**
    * Any query parameters in our uri. Set from the URI passed when connecting
    */
-  query: Object;
+  query: { [key: string]: string };
 
   /**
    * `http.Agent` to use, defaults to `false` (NodeJS only)
