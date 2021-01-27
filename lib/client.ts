@@ -174,7 +174,7 @@ export class Client {
    * @param {Object} opts
    * @private
    */
-  _packet(packet: Packet, opts?: any) {
+  _packet(packet: Packet, opts?: any): void {
     opts = opts || {};
     const self = this;
 

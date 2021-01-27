@@ -193,6 +193,10 @@ export class Server extends EventEmitter {
   constructor(srv?: http.Server | number, opts?: Partial<ServerOptions>);
   constructor(
     srv: undefined | Partial<ServerOptions> | http.Server | number,
+    opts?: Partial<ServerOptions>
+  );
+  constructor(
+    srv: undefined | Partial<ServerOptions> | http.Server | number,
     opts: Partial<ServerOptions> = {}
   ) {
     super();
@@ -224,6 +228,7 @@ export class Server extends EventEmitter {
    */
   public serveClient(v: boolean): this;
   public serveClient(): boolean;
+  public serveClient(v?: boolean): this | boolean;
   public serveClient(v?: boolean): this | boolean {
     if (!arguments.length) return this._serveClient;
     this._serveClient = v!;
@@ -274,6 +279,7 @@ export class Server extends EventEmitter {
    */
   public path(v: string): this;
   public path(): string;
+  public path(v?: string): this | string;
   public path(v?: string): this | string {
     if (!arguments.length) return this._path;
 
@@ -295,6 +301,7 @@ export class Server extends EventEmitter {
    */
   public connectTimeout(v: number): this;
   public connectTimeout(): number;
+  public connectTimeout(v?: number): this | number;
   public connectTimeout(v?: number): this | number {
     if (v === undefined) return this._connectTimeout;
     this._connectTimeout = v;
@@ -310,6 +317,7 @@ export class Server extends EventEmitter {
    */
   public adapter(): typeof Adapter | undefined;
   public adapter(v: typeof Adapter): this;
+  public adapter(v?: typeof Adapter): typeof Adapter | undefined | this
   public adapter(v?: typeof Adapter): typeof Adapter | undefined | this {
     if (!arguments.length) return this._adapter;
     this._adapter = v;
