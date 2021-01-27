@@ -307,6 +307,10 @@ export class Manager extends Emitter {
   constructor(
     uri?: string | Partial<ManagerOptions>,
     opts?: Partial<ManagerOptions>
+  );
+  constructor(
+    uri?: string | Partial<ManagerOptions>,
+    opts?: Partial<ManagerOptions>
   ) {
     super();
     if (uri && "object" === typeof uri) {
@@ -344,9 +348,10 @@ export class Manager extends Emitter {
    * @return {Manager} self or value
    * @public
    */
-  public reconnection(v: boolean): Manager;
+  public reconnection(v: boolean): this;
   public reconnection(): boolean;
-  public reconnection(v?: boolean): Manager | boolean {
+  public reconnection(v?: boolean): this | boolean;
+  public reconnection(v?: boolean): this | boolean {
     if (!arguments.length) return this._reconnection;
     this._reconnection = !!v;
     return this;
@@ -359,9 +364,10 @@ export class Manager extends Emitter {
    * @return {Manager} self or value
    * @public
    */
-  public reconnectionAttempts(v: number): Manager;
+  public reconnectionAttempts(v: number): this;
   public reconnectionAttempts(): number;
-  public reconnectionAttempts(v?: number): Manager | number {
+  public reconnectionAttempts(v?: number): this | number;
+  public reconnectionAttempts(v?: number): this | number {
     if (v === undefined) return this._reconnectionAttempts;
     this._reconnectionAttempts = v;
     return this;
@@ -374,9 +380,10 @@ export class Manager extends Emitter {
    * @return {Manager} self or value
    * @public
    */
-  public reconnectionDelay(v: number): Manager;
+  public reconnectionDelay(v: number): this;
   public reconnectionDelay(): number;
-  public reconnectionDelay(v?: number): Manager | number {
+  public reconnectionDelay(v?: number): this | number;
+  public reconnectionDelay(v?: number): this | number {
     if (v === undefined) return this._reconnectionDelay;
     this._reconnectionDelay = v;
     this.backoff?.setMin(v);
@@ -390,9 +397,10 @@ export class Manager extends Emitter {
    * @return self or value
    * @public
    */
-  public randomizationFactor(v: number): Manager;
+  public randomizationFactor(v: number): this;
   public randomizationFactor(): number;
-  public randomizationFactor(v?: number): Manager | number {
+  public randomizationFactor(v?: number): this | number;
+  public randomizationFactor(v?: number): this | number {
     if (v === undefined) return this._randomizationFactor;
     this._randomizationFactor = v;
     this.backoff?.setJitter(v);
@@ -406,9 +414,10 @@ export class Manager extends Emitter {
    * @return self or value
    * @public
    */
-  public reconnectionDelayMax(v: number): Manager;
+  public reconnectionDelayMax(v: number): this;
   public reconnectionDelayMax(): number;
-  public reconnectionDelayMax(v?: number): Manager | number {
+  public reconnectionDelayMax(v?: number): this | number;
+  public reconnectionDelayMax(v?: number): this | number {
     if (v === undefined) return this._reconnectionDelayMax;
     this._reconnectionDelayMax = v;
     this.backoff?.setMax(v);
@@ -422,9 +431,10 @@ export class Manager extends Emitter {
    * @return self or value
    * @public
    */
-  public timeout(v: number | boolean): Manager;
+  public timeout(v: number | boolean): this;
   public timeout(): number | boolean;
-  public timeout(v?: number | boolean): Manager | number | boolean {
+  public timeout(v?: number | boolean): this | number | boolean;
+  public timeout(v?: number | boolean): this | number | boolean {
     if (!arguments.length) return this._timeout;
     this._timeout = v;
     return this;
@@ -455,7 +465,7 @@ export class Manager extends Emitter {
    * @return self
    * @public
    */
-  public open(fn?: (err?: Error) => void): Manager {
+  public open(fn?: (err?: Error) => void): this {
     debug("readyState %s", this._readyState);
     if (~this._readyState.indexOf("open")) return this;
 
@@ -519,7 +529,7 @@ export class Manager extends Emitter {
    * @return self
    * @public
    */
-  public connect(fn?: (err?: Error) => void): Manager {
+  public connect(fn?: (err?: Error) => void): this {
     return this.open(fn);
   }
 
@@ -528,7 +538,7 @@ export class Manager extends Emitter {
    *
    * @private
    */
-  private onopen() {
+  private onopen(): void {
     debug("open");
 
     // clear old subs
@@ -554,7 +564,7 @@ export class Manager extends Emitter {
    *
    * @private
    */
-  private onping() {
+  private onping(): void {
     super.emit("ping");
   }
 
@@ -563,7 +573,7 @@ export class Manager extends Emitter {
    *
    * @private
    */
-  private ondata(data) {
+  private ondata(data): void {
     this.decoder.add(data);
   }
 
@@ -572,7 +582,7 @@ export class Manager extends Emitter {
    *
    * @private
    */
-  private ondecoded(packet) {
+  private ondecoded(packet): void {
     super.emit("packet", packet);
   }
 
@@ -581,7 +591,7 @@ export class Manager extends Emitter {
    *
    * @private
    */
-  private onerror(err) {
+  private onerror(err): void {
     debug("error", err);
     super.emit("error", err);
   }
@@ -608,7 +618,7 @@ export class Manager extends Emitter {
    * @param socket
    * @private
    */
-  _destroy(socket: Socket) {
+  _destroy(socket: Socket): void {
     const nsps = Object.keys(this.nsps);
 
     for (const nsp of nsps) {
@@ -629,7 +639,7 @@ export class Manager extends Emitter {
    * @param packet
    * @private
    */
-  _packet(packet: Partial<Packet & { query: string; options: any }>) {
+  _packet(packet: Partial<Packet & { query: string; options: any }>): void {
     debug("writing packet %j", packet);
 
     const encodedPackets = this.encoder.encode(packet as Packet);
@@ -643,7 +653,7 @@ export class Manager extends Emitter {
    *
    * @private
    */
-  private cleanup() {
+  private cleanup(): void {
     debug("cleanup");
 
     this.subs.forEach((subDestroy) => subDestroy());
@@ -657,7 +667,7 @@ export class Manager extends Emitter {
    *
    * @private
    */
-  _close() {
+  _close(): void {
     debug("disconnect");
     this.skipReconnect = true;
     this._reconnecting = false;
@@ -676,7 +686,7 @@ export class Manager extends Emitter {
    *
    * @private
    */
-  private disconnect() {
+  private disconnect(): void {
     return this._close();
   }
 
@@ -685,7 +695,7 @@ export class Manager extends Emitter {
    *
    * @private
    */
-  private onclose(reason: string) {
+  private onclose(reason: string): void {
     debug("onclose");
 
     this.cleanup();
@@ -703,7 +713,7 @@ export class Manager extends Emitter {
    *
    * @private
    */
-  private reconnect() {
+  private reconnect(): this | void {
     if (this._reconnecting || this.skipReconnect) return this;
 
     const self = this;
@@ -751,7 +761,7 @@ export class Manager extends Emitter {
    *
    * @private
    */
-  private onreconnect() {
+  private onreconnect(): void {
     const attempt = this.backoff.attempts;
     this._reconnecting = false;
     this.backoff.reset();
