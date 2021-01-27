@@ -67,7 +67,7 @@ export class Namespace extends EventEmitter {
    */
   public use(
     fn: (socket: Socket, next: (err?: ExtendedError) => void) => void
-  ): Namespace {
+  ): this {
     this._fns.push(fn);
     return this;
   }
@@ -106,7 +106,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public to(name: Room): Namespace {
+  public to(name: Room): this {
     this._rooms.add(name);
     return this;
   }
@@ -118,7 +118,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public in(name: Room): Namespace {
+  public in(name: Room): this {
     this._rooms.add(name);
     return this;
   }
@@ -222,7 +222,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public send(...args: readonly any[]): Namespace {
+  public send(...args: readonly any[]): this {
     this.emit("message", ...args);
     return this;
   }
@@ -233,7 +233,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public write(...args: readonly any[]): Namespace {
+  public write(...args: readonly any[]): this {
     this.emit("message", ...args);
     return this;
   }
@@ -262,7 +262,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public compress(compress: boolean): Namespace {
+  public compress(compress: boolean): this {
     this._flags.compress = compress;
     return this;
   }
@@ -275,7 +275,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public get volatile(): Namespace {
+  public get volatile(): this {
     this._flags.volatile = true;
     return this;
   }
@@ -286,7 +286,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public get local(): Namespace {
+  public get local(): this {
     this._flags.local = true;
     return this;
   }

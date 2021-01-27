@@ -222,9 +222,9 @@ export class Server extends EventEmitter {
    * @return self when setting or value when getting
    * @public
    */
-  public serveClient(v: boolean): Server;
+  public serveClient(v: boolean): this;
   public serveClient(): boolean;
-  public serveClient(v?: boolean): Server | boolean {
+  public serveClient(v?: boolean): this | boolean {
     if (!arguments.length) return this._serveClient;
     this._serveClient = v!;
     return this;
@@ -234,7 +234,7 @@ export class Server extends EventEmitter {
    * Executes the middleware for an incoming namespace not already created on the server.
    *
    * @param name - name of incoming namespace
-   * @param {Object} auth - the auth parameters
+   * @param auth - the auth parameters
    * @param fn - callback
    *
    * @private
@@ -243,7 +243,7 @@ export class Server extends EventEmitter {
     name: string,
     auth: object,
     fn: (nsp: Namespace | false) => void
-  ) {
+  ): void {
     if (this.parentNsps.size === 0) return fn(false);
 
     const keysIterator = this.parentNsps.keys();
@@ -272,9 +272,9 @@ export class Server extends EventEmitter {
    * @return {Server|String} self when setting or value when getting
    * @public
    */
-  public path(v: string): Server;
+  public path(v: string): this;
   public path(): string;
-  public path(v?: string): Server | string {
+  public path(v?: string): this | string {
     if (!arguments.length) return this._path;
 
     this._path = v!.replace(/\/$/, "");
@@ -293,9 +293,9 @@ export class Server extends EventEmitter {
    * @param v
    * @public
    */
-  public connectTimeout(v: number): Server;
+  public connectTimeout(v: number): this;
   public connectTimeout(): number;
-  public connectTimeout(v?: number): Server | number {
+  public connectTimeout(v?: number): this | number {
     if (v === undefined) return this._connectTimeout;
     this._connectTimeout = v;
     return this;
@@ -309,8 +309,8 @@ export class Server extends EventEmitter {
    * @public
    */
   public adapter(): typeof Adapter | undefined;
-  public adapter(v: typeof Adapter): Server;
-  public adapter(v?: typeof Adapter): typeof Adapter | undefined | Server {
+  public adapter(v: typeof Adapter): this;
+  public adapter(v?: typeof Adapter): typeof Adapter | undefined | this {
     if (!arguments.length) return this._adapter;
     this._adapter = v;
     for (const nsp of this._nsps.values()) {
@@ -330,7 +330,7 @@ export class Server extends EventEmitter {
   public listen(
     srv: http.Server | number,
     opts: Partial<ServerOptions> = {}
-  ): Server {
+  ): this {
     return this.attach(srv, opts);
   }
 
@@ -345,7 +345,7 @@ export class Server extends EventEmitter {
   public attach(
     srv: http.Server | number,
     opts: Partial<ServerOptions> = {}
-  ): Server {
+  ): this {
     if ("function" == typeof srv) {
       const msg =
         "You are trying to attach socket.io to an express " +
@@ -385,7 +385,7 @@ export class Server extends EventEmitter {
    * @param opts - options passed to engine.io
    * @private
    */
-  private initEngine(srv: http.Server, opts: Partial<EngineAttachOptions>) {
+  private initEngine(srv: http.Server, opts: Partial<EngineAttachOptions>): void {
     // initialize engine
     debug("creating engine.io instance with opts %j", opts);
     this.eio = engine.attach(srv, opts);
@@ -406,7 +406,7 @@ export class Server extends EventEmitter {
    * @param srv http server
    * @private
    */
-  private attachServe(srv: http.Server) {
+  private attachServe(srv: http.Server): void {
     debug("attaching client serving req handler");
 
     const evs = srv.listeners("request").slice(0);
@@ -429,7 +429,7 @@ export class Server extends EventEmitter {
    * @param res
    * @private
    */
-  private serve(req: http.IncomingMessage, res: http.ServerResponse) {
+  private serve(req: http.IncomingMessage, res: http.ServerResponse): void {
     const filename = req.url!.replace(this._path, "");
     const isMap = dotMapRegex.test(filename);
     const type = isMap ? "map" : "source";
@@ -474,7 +474,7 @@ export class Server extends EventEmitter {
     filename: string,
     req: http.IncomingMessage,
     res: http.ServerResponse
-  ) {
+  ): void {
     const readStream = createReadStream(
       path.join(__dirname, "../client-dist/", filename)
     );
@@ -513,7 +513,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public bind(engine): Server {
+  public bind(engine): this {
     this.engine = engine;
     this.engine.on("connection", this.onconnection.bind(this));
     return this;
@@ -526,7 +526,7 @@ export class Server extends EventEmitter {
    * @return self
    * @private
    */
-  private onconnection(conn): Server {
+  private onconnection(conn): this {
     debug("incoming connection with id %s", conn.id);
     const client = new Client(this, conn);
     if (conn.protocol === 3) {
@@ -540,13 +540,13 @@ export class Server extends EventEmitter {
    * Looks up a namespace.
    *
    * @param {String|RegExp|Function} name nsp name
-   * @param [fn] optional, nsp `connection` ev handler
+   * @param fn optional, nsp `connection` ev handler
    * @public
    */
   public of(
     name: string | RegExp | ParentNspNameMatchFn,
     fn?: (socket: Socket) => void
-  ) {
+  ): Namespace {
     if (typeof name === "function" || name instanceof RegExp) {
       const parentNsp = new ParentNamespace(this);
       debug("initializing parent namespace %s", parentNsp.name);
@@ -605,7 +605,7 @@ export class Server extends EventEmitter {
    */
   public use(
     fn: (socket: Socket, next: (err?: ExtendedError) => void) => void
-  ): Server {
+  ): this {
     this.sockets.use(fn);
     return this;
   }
@@ -617,7 +617,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public to(name: Room): Server {
+  public to(name: Room): this {
     this.sockets.to(name);
     return this;
   }
@@ -629,7 +629,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public in(name: Room): Server {
+  public in(name: Room): this {
     this.sockets.in(name);
     return this;
   }
@@ -640,7 +640,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public send(...args: readonly any[]): Server {
+  public send(...args: readonly any[]): this {
     this.sockets.emit("message", ...args);
     return this;
   }
@@ -651,7 +651,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public write(...args: readonly any[]): Server {
+  public write(...args: readonly any[]): this {
     this.sockets.emit("message", ...args);
     return this;
   }
@@ -672,7 +672,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public compress(compress: boolean): Server {
+  public compress(compress: boolean): this {
     this.sockets.compress(compress);
     return this;
   }
@@ -685,7 +685,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public get volatile(): Server {
+  public get volatile(): this {
     this.sockets.volatile;
     return this;
   }
@@ -696,7 +696,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public get local(): Server {
+  public get local(): this {
     this.sockets.local;
     return this;
   }
