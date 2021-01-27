@@ -77,7 +77,7 @@ export class Client {
    * @param {Object} auth - the auth parameters
    * @private
    */
-  private connect(name: string, auth: object = {}) {
+  private connect(name: string, auth: object = {}): void {
     if (this.server._nsps.has(name)) {
       debug("connecting to namespace %s", name);
       return this.doConnect(name, auth);
@@ -112,7 +112,7 @@ export class Client {
    *
    * @private
    */
-  private doConnect(name: string, auth: object) {
+  private doConnect(name: string, auth: object): void {
     const nsp = this.server.of(name);
 
     const socket = nsp._add(this, auth, () => {
@@ -131,7 +131,7 @@ export class Client {
    *
    * @private
    */
-  _disconnect() {
+  _disconnect(): void {
     for (const socket of this.sockets.values()) {
       socket.disconnect();
     }
@@ -144,7 +144,7 @@ export class Client {
    *
    * @private
    */
-  _remove(socket: Socket) {
+  _remove(socket: Socket): void {
     if (this.sockets.has(socket.id)) {
       const nsp = this.sockets.get(socket.id)!.nsp.name;
       this.sockets.delete(socket.id);
@@ -159,7 +159,7 @@ export class Client {
    *
    * @private
    */
-  private close() {
+  private close(): void {
     if ("open" === this.conn.readyState) {
       debug("forcing transport close");
       this.conn.close();
@@ -174,12 +174,13 @@ export class Client {
    * @param {Object} opts
    * @private
    */
-  _packet(packet, opts?) {
+  _packet(packet: Packet, opts?: any): void {
     opts = opts || {};
     const self = this;
 
     // this writes to the actual connection
-    function writeToEngine(encodedPackets) {
+    function writeToEngine(encodedPackets: any) {
+      // TODO clarify this.
       if (opts.volatile && !self.conn.transport.writable) return;
       for (let i = 0; i < encodedPackets.length; i++) {
         self.conn.write(encodedPackets[i], { compress: opts.compress });
@@ -205,7 +206,7 @@ export class Client {
    *
    * @private
    */
-  private ondata(data) {
+  private ondata(data): void {
     // try/catch is needed for protocol violations (GH-1880)
     try {
       this.decoder.add(data);
@@ -219,7 +220,7 @@ export class Client {
    *
    * @private
    */
-  private ondecoded(packet: Packet) {
+  private ondecoded(packet: Packet): void {
     if (PacketType.CONNECT === packet.type) {
       this.connect(packet.nsp, packet.data);
     } else {
@@ -240,7 +241,7 @@ export class Client {
    * @param {Object} err object
    * @private
    */
-  private onerror(err) {
+  private onerror(err): void {
     for (const socket of this.sockets.values()) {
       socket._onerror(err);
     }
@@ -253,7 +254,7 @@ export class Client {
    * @param reason
    * @private
    */
-  private onclose(reason: string) {
+  private onclose(reason: string): void {
     debug("client close with reason %s", reason);
 
     // ignore a potential subsequent `close` event
@@ -272,7 +273,7 @@ export class Client {
    * Cleans up event listeners.
    * @private
    */
-  private destroy() {
+  private destroy(): void {
     this.conn.removeListener("data", this.ondata);
     this.conn.removeListener("error", this.onerror);
     this.conn.removeListener("close", this.onclose);

@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { PacketType } from "socket.io-parser";
+import { Packet, PacketType } from "socket.io-parser";
 import url = require("url");
 import debugModule from "debug";
 import type { Server } from "./index";
@@ -190,7 +190,7 @@ export class Socket extends EventEmitter {
    * @return self
    * @public
    */
-  public to(name: Room): Socket {
+  public to(name: Room): this {
     this._rooms.add(name);
     return this;
   }
@@ -202,7 +202,7 @@ export class Socket extends EventEmitter {
    * @return self
    * @public
    */
-  public in(name: Room): Socket {
+  public in(name: Room): this {
     this._rooms.add(name);
     return this;
   }
@@ -213,7 +213,7 @@ export class Socket extends EventEmitter {
    * @return self
    * @public
    */
-  public send(...args: readonly any[]): Socket {
+  public send(...args: readonly any[]): this {
     this.emit("message", ...args);
     return this;
   }
@@ -224,7 +224,7 @@ export class Socket extends EventEmitter {
    * @return self
    * @public
    */
-  public write(...args: readonly any[]): Socket {
+  public write(...args: readonly any[]): this {
     this.emit("message", ...args);
     return this;
   }
@@ -236,10 +236,13 @@ export class Socket extends EventEmitter {
    * @param {Object} opts - options
    * @private
    */
-  private packet(packet, opts: any = {}) {
+  private packet(
+    packet: Omit<Packet, "nsp"> & Partial<Pick<Packet, "nsp">>,
+    opts: any = {}
+  ): void {
     packet.nsp = this.nsp.name;
     opts.compress = false !== opts.compress;
-    this.client._packet(packet, opts);
+    this.client._packet(packet as Packet, opts);
   }
 
   /**
@@ -304,7 +307,7 @@ export class Socket extends EventEmitter {
    * @param {Object} packet
    * @private
    */
-  _onpacket(packet) {
+  _onpacket(packet: Packet): void {
     debug("got packet %j", packet);
     switch (packet.type) {
       case PacketType.EVENT:
@@ -335,10 +338,10 @@ export class Socket extends EventEmitter {
   /**
    * Called upon event packet.
    *
-   * @param {Object} packet - packet object
+   * @param {Packet} packet - packet object
    * @private
    */
-  private onevent(packet): void {
+  private onevent(packet: Packet): void {
     const args = packet.data || [];
     debug("emitting event %j", args);
 
@@ -362,7 +365,7 @@ export class Socket extends EventEmitter {
    * @param {Number} id - packet id
    * @private
    */
-  private ack(id: number) {
+  private ack(id: number): () => void {
     const self = this;
     let sent = false;
     return function () {
@@ -386,12 +389,12 @@ export class Socket extends EventEmitter {
    *
    * @private
    */
-  private onack(packet): void {
-    const ack = this.acks.get(packet.id);
+  private onack(packet: Packet): void {
+    const ack = this.acks.get(packet.id!);
     if ("function" == typeof ack) {
       debug("calling ack %s with %j", packet.id, packet.data);
       ack.apply(this, packet.data);
-      this.acks.delete(packet.id);
+      this.acks.delete(packet.id!);
     } else {
       debug("bad ack %s", packet.id);
     }
@@ -429,7 +432,7 @@ export class Socket extends EventEmitter {
    *
    * @private
    */
-  _onclose(reason: string): Socket | undefined {
+  _onclose(reason: string): this | undefined {
     if (!this.connected) return this;
     debug("closing socket - reason %s", reason);
     super.emit("disconnecting", reason);
@@ -449,7 +452,7 @@ export class Socket extends EventEmitter {
    *
    * @private
    */
-  _error(err) {
+  _error(err): void {
     this.packet({ type: PacketType.CONNECT_ERROR, data: err });
   }
 
@@ -461,7 +464,7 @@ export class Socket extends EventEmitter {
    *
    * @public
    */
-  public disconnect(close = false): Socket {
+  public disconnect(close = false): this {
     if (!this.connected) return this;
     if (close) {
       this.client._disconnect();
@@ -479,7 +482,7 @@ export class Socket extends EventEmitter {
    * @return {Socket} self
    * @public
    */
-  public compress(compress: boolean): Socket {
+  public compress(compress: boolean): this {
     this.flags.compress = compress;
     return this;
   }
@@ -492,7 +495,7 @@ export class Socket extends EventEmitter {
    * @return {Socket} self
    * @public
    */
-  public get volatile(): Socket {
+  public get volatile(): this {
     this.flags.volatile = true;
     return this;
   }
@@ -504,7 +507,7 @@ export class Socket extends EventEmitter {
    * @return {Socket} self
    * @public
    */
-  public get broadcast(): Socket {
+  public get broadcast(): this {
     this.flags.broadcast = true;
     return this;
   }
@@ -515,7 +518,7 @@ export class Socket extends EventEmitter {
    * @return {Socket} self
    * @public
    */
-  public get local(): Socket {
+  public get local(): this {
     this.flags.local = true;
     return this;
   }
@@ -526,7 +529,7 @@ export class Socket extends EventEmitter {
    * @param {Array} event - event that will get emitted
    * @private
    */
-  private dispatch(event): void {
+  private dispatch(event: [eventName: string, ...args: any[]]): void {
     debug("dispatching an event %j", event);
     this.run(event, (err) => {
       process.nextTick(() => {
@@ -547,7 +550,7 @@ export class Socket extends EventEmitter {
    */
   public use(
     fn: (event: Array<any>, next: (err: Error) => void) => void
-  ): Socket {
+  ): this {
     this.fns.push(fn);
     return this;
   }
@@ -559,11 +562,14 @@ export class Socket extends EventEmitter {
    * @param {Function} fn - last fn call in the middleware
    * @private
    */
-  private run(event: Array<any>, fn: (err: Error | null) => void) {
+  private run(
+    event: [eventName: string, ...args: any[]],
+    fn: (err: Error | null) => void
+  ): void {
     const fns = this.fns.slice(0);
     if (!fns.length) return fn(null);
 
-    function run(i) {
+    function run(i: number) {
       fns[i](event, function (err) {
         // upon error, short-circuit
         if (err) return fn(err);
@@ -611,7 +617,7 @@ export class Socket extends EventEmitter {
    * @param listener
    * @public
    */
-  public onAny(listener: (...args: any[]) => void): Socket {
+  public onAny(listener: (...args: any[]) => void): this {
     this._anyListeners = this._anyListeners || [];
     this._anyListeners.push(listener);
     return this;
@@ -624,7 +630,7 @@ export class Socket extends EventEmitter {
    * @param listener
    * @public
    */
-  public prependAny(listener: (...args: any[]) => void): Socket {
+  public prependAny(listener: (...args: any[]) => void): this {
     this._anyListeners = this._anyListeners || [];
     this._anyListeners.unshift(listener);
     return this;
@@ -636,7 +642,7 @@ export class Socket extends EventEmitter {
    * @param listener
    * @public
    */
-  public offAny(listener?: (...args: any[]) => void): Socket {
+  public offAny(listener?: (...args: any[]) => void): this {
     if (!this._anyListeners) {
       return this;
     }
