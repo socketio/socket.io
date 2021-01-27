@@ -45,6 +45,11 @@ server-ringo:
   environment:
     - NAME=Ringo
 
+client:
+  build: ./client
+  links:
+    - nginx
+
 redis:
   image: redis:alpine
   expose:

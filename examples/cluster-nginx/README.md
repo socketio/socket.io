@@ -22,6 +22,16 @@ Each node connects to the redis backend, which will enable to broadcast to every
 $ docker-compose stop server-george
 ```
 
+A `client` container is included in the `docker-compose.yml` file, in order to test the routing.
+
+You can create additional `client` containers with:
+
+```
+$ docker-compose up -d --scale=client=10 client
+# and then
+$ docker-compose logs client
+```
+
 ## Features
 
 - Multiple users can join a chat room by each entering a unique username
