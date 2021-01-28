@@ -631,7 +631,6 @@ export class Manager extends Emitter {
    */
   _packet(packet: Partial<Packet & { query: string; options: any }>) {
     debug("writing packet %j", packet);
-    if (packet.query && packet.type === 0) packet.nsp += "?" + packet.query;
 
     const encodedPackets = this.encoder.encode(packet as Packet);
     for (let i = 0; i < encodedPackets.length; i++) {
