@@ -30,6 +30,9 @@ export class Namespace extends EventEmitter {
   _rooms: Set<Room> = new Set();
 
   /** @private */
+  _except: Set<Room> = new Set();
+
+  /** @private */
   _flags: any = {};
 
   /** @private */
@@ -124,6 +127,18 @@ export class Namespace extends EventEmitter {
   }
 
   /**
+   * Excludes a room when emitting.
+   *
+   * @param name
+   * @return self
+   * @public
+   */
+  public except(name: Room): Namespace {
+    this._except.add(name);
+    return this;
+  }
+
+  /**
    * Adds a new client.
    *
    * @return {Socket}
@@ -203,14 +218,17 @@ export class Namespace extends EventEmitter {
 
     const rooms = new Set(this._rooms);
     const flags = Object.assign({}, this._flags);
+    const except = new Set(this._except);
 
     // reset flags
     this._rooms.clear();
     this._flags = {};
+    this._except.clear();
 
     this.adapter.broadcast(packet, {
       rooms: rooms,
       flags: flags,
+      except: except,
     });
 
     return true;

@@ -646,6 +646,18 @@ export class Server extends EventEmitter {
   }
 
   /**
+   * Excludes a room when emitting.
+   *
+   * @param name
+   * @return self
+   * @public
+   */
+  public except(name: Room): Server {
+    this.sockets.except(name);
+    return this;
+  }
+
+  /**
    * Sends a `message` event to all clients.
    *
    * @return self

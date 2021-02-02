@@ -92,6 +92,7 @@ export class Socket extends EventEmitter {
   > = [];
   private flags: BroadcastFlags = {};
   private _rooms: Set<Room> = new Set();
+  private _except: Set<Room> = new Set();
   private _anyListeners?: Array<(...args: any[]) => void>;
 
   /**
@@ -166,14 +167,16 @@ export class Socket extends EventEmitter {
 
     const rooms = new Set(this._rooms);
     const flags = Object.assign({}, this.flags);
+    const except = new Set(this._except);
 
     // reset flags
     this._rooms.clear();
     this.flags = {};
+    this._except.clear();
 
     if (rooms.size || flags.broadcast) {
       this.adapter.broadcast(packet, {
-        except: new Set([this.id]),
+        except: new Set([this.id, ...except]),
         rooms: rooms,
         flags: flags,
       });
@@ -205,6 +208,18 @@ export class Socket extends EventEmitter {
    */
   public in(name: Room): this {
     this._rooms.add(name);
+    return this;
+  }
+
+  /**
+   * Excludes a room when broadcasting.
+   *
+   * @param name
+   * @return self
+   * @public
+   */
+  public except(name: Room): Socket {
+    this._except.add(name);
     return this;
   }
 
