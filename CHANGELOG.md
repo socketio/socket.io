@@ -1,3 +1,11 @@
+## [4.1.1](https://github.com/socketio/engine.io-client/compare/4.1.0...4.1.1) (2021-02-02)
+
+
+### Bug Fixes
+
+* remove polyfill for process in the bundle ([c95fdea](https://github.com/socketio/engine.io-client/commit/c95fdea83329b264964641bb48e3be2a8772f7a1))
+
+
 # [4.1.0](https://github.com/socketio/engine.io-client/compare/4.0.6...4.1.0) (2021-01-14)
 
 
