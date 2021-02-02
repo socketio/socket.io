@@ -25,7 +25,7 @@ const dotMapRegex = /\.map/;
 type Transport = "polling" | "websocket";
 type ParentNspNameMatchFn = (
   name: string,
-  query: object,
+  auth: { [key: string]: any },
   fn: (err: Error | null, success: boolean) => void
 ) => void;
 
@@ -246,7 +246,7 @@ export class Server extends EventEmitter {
    */
   _checkNamespace(
     name: string,
-    auth: object,
+    auth: { [key: string]: any },
     fn: (nsp: Namespace | false) => void
   ): void {
     if (this.parentNsps.size === 0) return fn(false);

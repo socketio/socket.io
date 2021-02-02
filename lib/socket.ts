@@ -5,7 +5,7 @@ import debugModule from "debug";
 import type { Server } from "./index";
 import type { Client } from "./client";
 import type { Namespace } from "./namespace";
-import type { IncomingMessage } from "http";
+import type { IncomingMessage, IncomingHttpHeaders } from "http";
 import type {
   Adapter,
   BroadcastFlags,
@@ -13,6 +13,7 @@ import type {
   SocketId,
 } from "socket.io-adapter";
 import base64id from "base64id";
+import type { ParsedUrlQuery } from "querystring";
 
 const debug = debugModule("socket.io:socket");
 
@@ -33,7 +34,7 @@ export interface Handshake {
   /**
    * The headers sent as part of the handshake
    */
-  headers: object;
+  headers: IncomingHttpHeaders;
 
   /**
    * The date of creation (as string)
@@ -68,12 +69,12 @@ export interface Handshake {
   /**
    * The query object
    */
-  query: object;
+  query: ParsedUrlQuery;
 
   /**
    * The auth object
    */
-  auth: object;
+  auth: { [key: string]: any };
 }
 
 export class Socket extends EventEmitter {
