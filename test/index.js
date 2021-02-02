@@ -1,8 +1,8 @@
-require("./support/env");
+const { browser } = require("./support/env");
 
 // whitelist some globals to avoid warnings
-if (global.mocha) {
-  global.mocha.globals(["___eio", "eio_iframe_*"]);
+if (browser) {
+  window.mocha.globals(["___eio", "eio_iframe_*"]);
 }
 
 require("./url.ts");
