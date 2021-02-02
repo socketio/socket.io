@@ -1,3 +1,11 @@
+## [4.1.1](https://github.com/socketio/engine.io/compare/4.1.0...4.1.1) (2021-02-02)
+
+
+### Bug Fixes
+
+* do not reset the ping timer after upgrade ([ff2b8ab](https://github.com/socketio/engine.io/commit/ff2b8aba48ebcb0de5626d3b76fddc94c398395f)), closes [/github.com/socketio/socket.io-client-swift/pull/1309#issuecomment-768475704](https://github.com//github.com/socketio/socket.io-client-swift/pull/1309/issues/issuecomment-768475704)
+
+
 # [4.1.0](https://github.com/socketio/engine.io/compare/4.0.6...4.1.0) (2021-01-14)
 
 
