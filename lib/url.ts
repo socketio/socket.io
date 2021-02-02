@@ -29,12 +29,17 @@ type ParsedUrl = {
  * URL parser.
  *
  * @param uri - url
+ * @param path - the request path of the connection
  * @param loc - An object meant to mimic window.location.
  *        Defaults to window.location.
  * @public
  */
 
-export function url(uri: string | ParsedUrl, loc?: Location): ParsedUrl {
+export function url(
+  uri: string | ParsedUrl,
+  path: string = "",
+  loc?: Location
+): ParsedUrl {
   let obj = uri as ParsedUrl;
 
   // default to window.location
@@ -80,7 +85,7 @@ export function url(uri: string | ParsedUrl, loc?: Location): ParsedUrl {
   const host = ipv6 ? "[" + obj.host + "]" : obj.host;
 
   // define unique id
-  obj.id = obj.protocol + "://" + host + ":" + obj.port;
+  obj.id = obj.protocol + "://" + host + ":" + obj.port + path;
   // define href
   obj.href =
     obj.protocol +

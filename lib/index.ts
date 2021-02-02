@@ -47,7 +47,7 @@ function lookup(
 
   opts = opts || {};
 
-  const parsed = url(uri as string);
+  const parsed = url(uri as string, opts.path);
   const source = parsed.source;
   const id = parsed.id;
   const path = parsed.path;
