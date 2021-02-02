@@ -823,6 +823,35 @@ describe("socket.io", () => {
       });
     });
 
+    it("should exclude a specific socket when emitting", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv);
+
+      const nsp = sio.of("/nsp");
+
+      srv.listen(() => {
+        const socket1 = client(srv, "/nsp");
+        const socket2 = client(srv, "/nsp");
+
+        socket2.on("a", () => {
+          done(new Error("not"));
+        });
+        socket1.on("a", () => {
+          done();
+        });
+
+        nsp.on("connection", (socket) => {
+          socket.on("id", (cb) => {
+            cb(socket.id);
+          });
+        });
+
+        socket2.emit("id", (id) => {
+          nsp.except(id).emit("a");
+        });
+      });
+    });
+
     describe("dynamic namespaces", () => {
       it("should allow connections to dynamic namespaces with a regex", (done) => {
         const srv = createServer();
@@ -2192,6 +2221,40 @@ describe("socket.io", () => {
           s.join(["a", "b", "c"]);
           expect(s.rooms).to.contain(s.id, "a", "b", "c");
           done();
+        });
+      });
+    });
+
+    it("should exclude specific sockets when broadcasting", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv);
+
+      srv.listen(() => {
+        const socket1 = client(srv, { multiplex: false });
+        const socket2 = client(srv, { multiplex: false });
+        const socket3 = client(srv, { multiplex: false });
+
+        socket2.on("a", () => {
+          done(new Error("not"));
+        });
+        socket3.on("a", () => {
+          done(new Error("not"));
+        });
+        socket1.on("a", () => {
+          done();
+        });
+
+        sio.on("connection", (socket) => {
+          socket.on("id", (cb) => {
+            cb(socket.id);
+          });
+          socket.on("exclude", (id) => {
+            socket.broadcast.except(id).emit("a");
+          });
+        });
+
+        socket2.emit("id", (id) => {
+          socket3.emit("exclude", id);
         });
       });
     });
