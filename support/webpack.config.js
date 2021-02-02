@@ -25,9 +25,7 @@ module.exports = {
     })()`
   },
   mode: "development",
-  node: {
-    Buffer: false
-  },
+  node: false,
   module: {
     rules: [
       {
