@@ -1,3 +1,13 @@
+## [3.1.1](https://github.com/socketio/socket.io/compare/3.1.0...3.1.1) (2021-02-03)
+
+
+### Bug Fixes
+
+* properly parse the CONNECT packet in v2 compatibility mode ([6f4bd7f](https://github.com/socketio/socket.io/commit/6f4bd7f8e7c41a075a8014565330a77c38b03a8d))
+* **typings:** add return types and general-case overload signatures ([#3776](https://github.com/socketio/socket.io/issues/3776)) ([9e8f288](https://github.com/socketio/socket.io/commit/9e8f288ca9f14f91064b8d3cce5946f7d23d407c))
+* **typings:** update the types of "query", "auth" and "headers" ([4f2e9a7](https://github.com/socketio/socket.io/commit/4f2e9a716d9835b550c8fd9a9b429ebf069c2895))
+
+
 # [3.1.0](https://github.com/socketio/socket.io/compare/3.0.5...3.1.0) (2021-01-15)
 
 
