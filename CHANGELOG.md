@@ -1,3 +1,14 @@
+## [3.1.1](https://github.com/socketio/socket.io-client/compare/3.1.0...3.1.1) (2021-02-03)
+
+
+### Bug Fixes
+
+* include the path in the manager ID ([7a0c2b5](https://github.com/socketio/socket.io-client/commit/7a0c2b504f5f3bac64d423684fb1bb44229c7a70))
+* remove polyfill for process in the bundle ([61afc5d](https://github.com/socketio/socket.io-client/commit/61afc5d8cb9f10985930b2f01758089c49f84686))
+* **typings:** add return types and general-case overload signatures ([#1440](https://github.com/socketio/socket.io-client/issues/1440)) ([47f917a](https://github.com/socketio/socket.io-client/commit/47f917afdd1821079723542f081c726596f2aaf3))
+* **typings:** fix the type of the "query" option ([#1439](https://github.com/socketio/socket.io-client/issues/1439)) ([f02ab3b](https://github.com/socketio/socket.io-client/commit/f02ab3bc9626133dd35aad0916325f0c7fc4da5d))
+
+
 # [3.1.0](https://github.com/socketio/socket.io-client/compare/3.0.5...3.1.0) (2021-01-15)
 
 
