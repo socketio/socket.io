@@ -2479,6 +2479,32 @@ describe("socket.io", () => {
       });
     });
 
+    it("should be able to connect to a namespace with a query", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv, {
+        allowEIO3: true,
+      });
+
+      srv.listen(async () => {
+        const port = (srv.address() as AddressInfo).port;
+        const clientSocket = io_v2.connect(
+          `http://localhost:${port}/the-namespace`,
+          {
+            multiplex: false,
+          }
+        );
+        clientSocket.query = { test: "123" };
+
+        const [socket]: Array<any> = await Promise.all([
+          waitFor(sio.of("/the-namespace"), "connection"),
+          waitFor(clientSocket, "connect"),
+        ]);
+
+        expect(socket.handshake.auth).to.eql({ test: "123" });
+        success(sio, clientSocket, done);
+      });
+    });
+
     it("should not connect if `allowEIO3` is false (default)", (done) => {
       const srv = createServer();
       const sio = new Server(srv);

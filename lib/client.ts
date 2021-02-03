@@ -1,5 +1,6 @@
 import { Decoder, Encoder, Packet, PacketType } from "socket.io-parser";
 import debugModule = require("debug");
+import url = require("url");
 import type { IncomingMessage } from "http";
 import type { Namespace, Server } from "./index";
 import type { Socket } from "./socket";
@@ -222,7 +223,12 @@ export class Client {
    */
   private ondecoded(packet: Packet): void {
     if (PacketType.CONNECT === packet.type) {
-      this.connect(packet.nsp, packet.data);
+      if (this.conn.protocol === 3) {
+        const parsed = url.parse(packet.nsp, true);
+        this.connect(parsed.pathname!, parsed.query);
+      } else {
+        this.connect(packet.nsp, packet.data);
+      }
     } else {
       const socket = this.nsps.get(packet.nsp);
       if (socket) {
