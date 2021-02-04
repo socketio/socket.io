@@ -12,4 +12,4 @@ updates:
       - dependency-name: "engine.io"
         versions: ["4.x"]
     reviewers:
-      - "kr-project/sre"
+      - "coda-hq/sre"
