@@ -168,7 +168,7 @@ export class Server extends EventEmitter {
    */
   _nsps: Map<string, Namespace> = new Map();
   private parentNsps: Map<ParentNspNameMatchFn, ParentNamespace> = new Map();
-  private _adapter?: typeof Adapter;
+  private _adapter?: Adapter;
   private _serveClient: boolean;
   private opts: Partial<EngineOptions>;
   private eio;
@@ -315,10 +315,10 @@ export class Server extends EventEmitter {
    * @return self when setting or value when getting
    * @public
    */
-  public adapter(): typeof Adapter | undefined;
-  public adapter(v: typeof Adapter): this;
-  public adapter(v?: typeof Adapter): typeof Adapter | undefined | this;
-  public adapter(v?: typeof Adapter): typeof Adapter | undefined | this {
+  public adapter(): Adapter | undefined;
+  public adapter(v: Adapter): this;
+  public adapter(v?: Adapter): Adapter | undefined | this;
+  public adapter(v?: Adapter): Adapter | undefined | this {
     if (!arguments.length) return this._adapter;
     this._adapter = v;
     for (const nsp of this._nsps.values()) {
