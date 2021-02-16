@@ -4,11 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node cluster.js"
   },
   "author": "Damien Arrachequesne <damien.arrachequesne@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "socket.io": "^3.1.1"
+    "@socket.io/sticky": "^1.0.0",
+    "ioredis": "^4.22.0",
+    "socket.io": "^3.1.1",
+    "socket.io-redis": "^6.0.1"
   }
 }
