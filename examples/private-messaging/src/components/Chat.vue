@@ -68,16 +68,19 @@ export default {
     });
 
     const initReactiveProperties = (user) => {
-      user.messages = [];
       user.hasNewMessages = false;
     };
 
     socket.on("users", (users) => {
       users.forEach((user) => {
+        user.messages.forEach((message) => {
+          message.fromSelf = message.from === socket.userID;
+        });
         for (let i = 0; i < this.users.length; i++) {
           const existingUser = this.users[i];
           if (existingUser.userID === user.userID) {
             existingUser.connected = user.connected;
+            existingUser.messages = user.messages;
             return;
           }
         }
