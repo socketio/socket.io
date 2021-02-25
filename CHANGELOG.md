@@ -1,3 +1,11 @@
+## [4.1.2](https://github.com/socketio/engine.io-client/compare/4.1.1...4.1.2) (2021-02-25)
+
+
+### Bug Fixes
+
+* silently close the transport in the beforeunload hook ([ed48b5d](https://github.com/socketio/engine.io-client/commit/ed48b5dc3407e5ded45072606b3bb0eafa49c01f))
+
+
 ## [4.1.1](https://github.com/socketio/engine.io-client/compare/4.1.0...4.1.1) (2021-02-02)
 
 
