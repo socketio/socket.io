@@ -537,7 +537,11 @@ export class Socket extends EventEmitter {
         if (err) {
           return this._onerror(err);
         }
-        super.emit.apply(this, event);
+        if (this.connected) {
+          super.emit.apply(this, event);
+        } else {
+          debug("ignore packet received after disconnection");
+        }
       });
     });
   }

@@ -1787,6 +1787,33 @@ describe("socket.io", () => {
       });
     });
 
+    it("should ignore a packet received after disconnection", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv);
+
+      srv.listen(() => {
+        const clientSocket = client(srv);
+
+        const success = () => {
+          clientSocket.close();
+          sio.close();
+          done();
+        };
+
+        sio.on("connection", (socket) => {
+          socket.on("test", () => {
+            done(new Error("should not happen"));
+          });
+          socket.on("disconnect", success);
+        });
+
+        clientSocket.on("connect", () => {
+          clientSocket.emit("test", Buffer.alloc(10));
+          clientSocket.disconnect();
+        });
+      });
+    });
+
     describe("onAny", () => {
       it("should call listener", (done) => {
         const srv = createServer();
