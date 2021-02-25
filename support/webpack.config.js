@@ -11,6 +11,7 @@ module.exports = {
     filename: "socket.io.js",
     library: "io",
     libraryTarget: "umd",
+    globalObject: "this",
   },
   mode: "development",
   devtool: "source-map",
