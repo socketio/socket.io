@@ -58,6 +58,72 @@ describe("socket.io-adapter", () => {
     expect(adapter.socketRooms("s4")).to.be(undefined);
   });
 
+  it("should exclude sockets in specific rooms when broadcasting", () => {
+    let ids = [];
+    function socket(id) {
+      return [
+        id,
+        {
+          id,
+          packet() {
+            ids.push(id);
+          }
+        }
+      ];
+    }
+    const nsp = {
+      server: {
+        encoder: {
+          encode() {}
+        }
+      },
+      sockets: new Map([socket("s1"), socket("s2"), socket("s3")])
+    };
+    const adapter = new Adapter(nsp);
+    adapter.addAll("s1", new Set(["r1"]));
+    adapter.addAll("s2", new Set());
+    adapter.addAll("s3", new Set(["r1"]));
+
+    adapter.broadcast([], {
+      rooms: new Set(),
+      except: new Set(["r1"])
+    });
+    expect(ids).to.eql(["s2"]);
+  });
+
+  it("should exclude sockets in specific rooms when broadcasting to rooms", () => {
+    let ids = [];
+    function socket(id) {
+      return [
+        id,
+        {
+          id,
+          packet() {
+            ids.push(id);
+          }
+        }
+      ];
+    }
+    const nsp = {
+      server: {
+        encoder: {
+          encode() {}
+        }
+      },
+      sockets: new Map([socket("s1"), socket("s2"), socket("s3")])
+    };
+    const adapter = new Adapter(nsp);
+    adapter.addAll("s1", new Set(["r1", "r2"]));
+    adapter.addAll("s2", new Set(["r2"]));
+    adapter.addAll("s3", new Set(["r1"]));
+
+    adapter.broadcast([], {
+      rooms: new Set(["r1"]),
+      except: new Set(["r2"])
+    });
+    expect(ids).to.eql(["s3"]);
+  });
+
   describe("events", () => {
     it("should emit a 'create-room' event", done => {
       const adapter = new Adapter({ server: { encoder: null } });

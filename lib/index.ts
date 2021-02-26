@@ -126,7 +126,6 @@ export class Adapter extends EventEmitter {
    */
   public broadcast(packet: any, opts: BroadcastOptions): void {
     const rooms = opts.rooms;
-    const except = opts.except || new Set();
     const flags = opts.flags || {};
     const packetOpts = {
       preEncoded: true,
@@ -134,9 +133,24 @@ export class Adapter extends EventEmitter {
       compress: flags.compress
     };
     const ids = new Set();
+    let except = opts.except || new Set();
 
     packet.nsp = this.nsp.name;
     const encodedPackets = this.encoder.encode(packet);
+
+    // Allow ids in `except` to be room ids.
+    if (except.size > 0) {
+      const exclude = except;
+      except = new Set(except);
+      for (const id of exclude) {
+        if (!this.rooms.has(id)) continue;
+        for (const sid of this.rooms.get(id)) {
+          if (sid !== id) {
+            except.add(sid);
+          }
+        }
+      }
+    }
 
     if (rooms.size) {
       for (const room of rooms) {
