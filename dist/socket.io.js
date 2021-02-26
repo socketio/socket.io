@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v3.1.1
+ * Socket.IO v3.1.2
  * (c) 2014-2021 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -12,7 +12,7 @@
 		exports["io"] = factory();
 	else
 		root["io"] = factory();
-})(window, function() {
+})(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -2433,6 +2433,17 @@ var Socket = /*#__PURE__*/function (_Emitter) {
 
     _this.pingTimeoutTimer = null;
 
+    if (typeof addEventListener === "function") {
+      addEventListener("beforeunload", function () {
+        if (_this.transport) {
+          // silently close the transport
+          _this.transport.removeAllListeners();
+
+          _this.transport.close();
+        }
+      }, false);
+    }
+
     _this.open();
 
     return _this;
@@ -3280,11 +3291,6 @@ var rEscapedNewline = /\\n/g;
  */
 
 var callbacks;
-/**
- * Noop.
- */
-
-function empty() {}
 
 var JSONPPolling = /*#__PURE__*/function (_Polling) {
   _inherits(JSONPPolling, _Polling);
@@ -3320,14 +3326,7 @@ var JSONPPolling = /*#__PURE__*/function (_Polling) {
       self.onData(msg);
     }); // append to query string
 
-    _this.query.j = _this.index; // prevent spurious errors from being emitted when the window is unloaded
-
-    if (typeof addEventListener === "function") {
-      addEventListener("beforeunload", function () {
-        if (self.script) self.script.onerror = empty;
-      }, false);
-    }
-
+    _this.query.j = _this.index;
     return _this;
   }
   /**
@@ -3345,6 +3344,9 @@ var JSONPPolling = /*#__PURE__*/function (_Polling) {
      */
     value: function doClose() {
       if (this.script) {
+        // prevent spurious errors from being emitted when the window is unloaded
+        this.script.onerror = function () {};
+
         this.script.parentNode.removeChild(this.script);
         this.script = null;
       }
@@ -4426,6 +4428,7 @@ var WS = /*#__PURE__*/function (_Transport) {
     value: function doClose() {
       if (typeof this.ws !== "undefined") {
         this.ws.close();
+        this.ws = null;
       }
     }
     /**

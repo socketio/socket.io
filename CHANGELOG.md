@@ -1,3 +1,12 @@
+## [3.1.2](https://github.com/socketio/socket.io-client/compare/3.1.1...3.1.2) (2021-02-26)
+
+
+### Bug Fixes
+
+* restore support for web workers ([13b32b3](https://github.com/socketio/socket.io-client/commit/13b32b39a4c1cf4829144fb0a95c4d0506000fb3))
+* silently close the transport in the beforeunload hook ([ed48b5d](https://github.com/socketio/engine.io-client/commit/ed48b5dc3407e5ded45072606b3bb0eafa49c01f), from `engine.io-client`)
+
+
 ## [3.1.1](https://github.com/socketio/socket.io-client/compare/3.1.0...3.1.1) (2021-02-03)
 
 
