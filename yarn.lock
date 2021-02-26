@@ -1701,10 +1701,10 @@ socket.io-adapter@coda-hq/socket.io-adapter:
   uid "9eb55482bf759f349b19fbc805ef44505f4b90e4"
   resolved "https://codeload.github.com/coda-hq/socket.io-adapter/tar.gz/9eb55482bf759f349b19fbc805ef44505f4b90e4"
 
-socket.io-client@3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/socket.io-client/-/socket.io-client-3.1.1.tgz#43dfc3feddbb675b274a724f685d6b6af319b3e3"
-  integrity sha512-BLgIuCjI7Sf3mDHunKddX9zKR/pbkP7IACM3sJS3jha+zJ6/pGKRV6Fz5XSBHCfUs9YzT8kYIqNwOOuFNLtnYA==
+socket.io-client@3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/socket.io-client/-/socket.io-client-3.1.2.tgz#77be8c180cef29121970856e8f48e5463631020a"
+  integrity sha512-fXhF8plHrd7U14A7K0JPOmZzpmGkLpIS6623DzrBZqYzI/yvlP4fA3LnxwthEVgiHmn2uJ4KjdnQD8A03PuBWQ==
   dependencies:
     "@types/component-emitter" "^1.2.10"
     backo2 "~1.0.2"
