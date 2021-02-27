@@ -30,9 +30,9 @@ describe("socket.io-adapter", () => {
     const adapter = new Adapter({
       server: { encoder: null },
       sockets: new Map([
-        ["s1", true],
-        ["s2", true],
-        ["s3", true]
+        ["s1", { id: "s1" }],
+        ["s2", { id: "s2" }],
+        ["s3", { id: "s3" }]
       ])
     });
     adapter.addAll("s1", new Set(["r1", "r2"]));
@@ -122,6 +122,47 @@ describe("socket.io-adapter", () => {
       except: new Set(["r2"])
     });
     expect(ids).to.eql(["s3"]);
+  });
+
+  describe("utility methods", () => {
+    let adapter;
+
+    before(() => {
+      adapter = new Adapter({
+        server: { encoder: null },
+        sockets: new Map([
+          ["s1", { id: "s1" }],
+          ["s2", { id: "s2" }],
+          ["s3", { id: "s3" }]
+        ])
+      });
+    });
+
+    describe("fetchSockets", () => {
+      it("returns the matching socket instances", async () => {
+        adapter.addAll("s1", new Set(["s1"]));
+        adapter.addAll("s2", new Set(["s2"]));
+        adapter.addAll("s3", new Set(["s3"]));
+        const matchingSockets = await adapter.fetchSockets({
+          rooms: new Set()
+        });
+        expect(matchingSockets).to.be.an(Array);
+        expect(matchingSockets.length).to.be(3);
+      });
+
+      it("returns the matching socket instances within room", async () => {
+        adapter.addAll("s1", new Set(["r1", "r2"]));
+        adapter.addAll("s2", new Set(["r1"]));
+        adapter.addAll("s3", new Set(["r2"]));
+        const matchingSockets = await adapter.fetchSockets({
+          rooms: new Set(["r1"]),
+          except: new Set(["r2"])
+        });
+        expect(matchingSockets).to.be.an(Array);
+        expect(matchingSockets.length).to.be(1);
+        expect(matchingSockets[0].id).to.be("s2");
+      });
+    });
   });
 
   describe("events", () => {

@@ -125,53 +125,19 @@ export class Adapter extends EventEmitter {
    * @public
    */
   public broadcast(packet: any, opts: BroadcastOptions): void {
-    const rooms = opts.rooms;
     const flags = opts.flags || {};
     const packetOpts = {
       preEncoded: true,
       volatile: flags.volatile,
       compress: flags.compress
     };
-    const ids = new Set();
-    let except = opts.except || new Set();
 
     packet.nsp = this.nsp.name;
     const encodedPackets = this.encoder.encode(packet);
 
-    // Allow ids in `except` to be room ids.
-    if (except.size > 0) {
-      const exclude = except;
-      except = new Set(except);
-      for (const id of exclude) {
-        if (!this.rooms.has(id)) continue;
-        for (const sid of this.rooms.get(id)) {
-          if (sid !== id) {
-            except.add(sid);
-          }
-        }
-      }
-    }
-
-    if (rooms.size) {
-      for (const room of rooms) {
-        if (!this.rooms.has(room)) continue;
-
-        for (const id of this.rooms.get(room)) {
-          if (ids.has(id) || except.has(id)) continue;
-          const socket = this.nsp.sockets.get(id);
-          if (socket) {
-            socket.packet(encodedPackets, packetOpts);
-            ids.add(id);
-          }
-        }
-      }
-    } else {
-      for (const [id] of this.sids) {
-        if (except.has(id)) continue;
-        const socket = this.nsp.sockets.get(id);
-        if (socket) socket.packet(encodedPackets, packetOpts);
-      }
-    }
+    this.apply(opts, socket => {
+      socket.packet(encodedPackets, packetOpts);
+    });
   }
 
   /**
@@ -182,21 +148,9 @@ export class Adapter extends EventEmitter {
   public sockets(rooms: Set<Room>): Promise<Set<SocketId>> {
     const sids = new Set<SocketId>();
 
-    if (rooms.size) {
-      for (const room of rooms) {
-        if (!this.rooms.has(room)) continue;
-
-        for (const id of this.rooms.get(room)) {
-          if (this.nsp.sockets.has(id)) {
-            sids.add(id);
-          }
-        }
-      }
-    } else {
-      for (const [id] of this.sids) {
-        if (this.nsp.sockets.has(id)) sids.add(id);
-      }
-    }
+    this.apply({ rooms }, socket => {
+      sids.add(socket.id);
+    });
 
     return Promise.resolve(sids);
   }
@@ -208,5 +162,95 @@ export class Adapter extends EventEmitter {
    */
   public socketRooms(id: SocketId): Set<Room> | undefined {
     return this.sids.get(id);
+  }
+
+  /**
+   * Returns the matching socket instances
+   *
+   * @param opts - the filters to apply
+   */
+  public fetchSockets(opts: BroadcastOptions): Promise<any[]> {
+    const sockets = [];
+
+    this.apply(opts, socket => {
+      sockets.push(socket);
+    });
+
+    return Promise.resolve(sockets);
+  }
+
+  /**
+   * Makes the matching socket instances join the specified rooms
+   *
+   * @param opts - the filters to apply
+   * @param rooms - the rooms to join
+   */
+  public addSockets(opts: BroadcastOptions, rooms: Room[]): void {
+    this.apply(opts, socket => {
+      socket.join(rooms);
+    });
+  }
+
+  /**
+   * Makes the matching socket instances leave the specified rooms
+   *
+   * @param opts - the filters to apply
+   * @param rooms - the rooms to leave
+   */
+  public delSockets(opts: BroadcastOptions, rooms: Room[]): void {
+    this.apply(opts, socket => {
+      rooms.forEach(room => socket.leave(room));
+    });
+  }
+
+  /**
+   * Makes the matching socket instances disconnect
+   *
+   * @param opts - the filters to apply
+   * @param close - whether to close the underlying connection
+   */
+  public disconnectSockets(opts: BroadcastOptions, close: boolean): void {
+    this.apply(opts, socket => {
+      socket.disconnect(close);
+    });
+  }
+
+  private apply(opts: BroadcastOptions, callback: (socket) => void): void {
+    const rooms = opts.rooms;
+    const except = this.computeExceptSids(opts.except);
+
+    if (rooms.size) {
+      const ids = new Set();
+      for (const room of rooms) {
+        if (!this.rooms.has(room)) continue;
+
+        for (const id of this.rooms.get(room)) {
+          if (ids.has(id) || except.has(id)) continue;
+          const socket = this.nsp.sockets.get(id);
+          if (socket) {
+            callback(socket);
+            ids.add(id);
+          }
+        }
+      }
+    } else {
+      for (const [id] of this.sids) {
+        if (except.has(id)) continue;
+        const socket = this.nsp.sockets.get(id);
+        if (socket) callback(socket);
+      }
+    }
+  }
+
+  private computeExceptSids(exceptRooms?: Set<Room>) {
+    const exceptSids = new Set();
+    if (exceptRooms && exceptRooms.size > 0) {
+      for (const room of exceptRooms) {
+        if (this.rooms.has(room)) {
+          this.rooms.get(room).forEach(sid => exceptSids.add(sid));
+        }
+      }
+    }
+    return exceptSids;
   }
 }
