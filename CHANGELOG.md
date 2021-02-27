@@ -1,3 +1,12 @@
+# [2.2.0](https://github.com/socketio/socket.io-adapter/compare/2.1.0...2.2.0) (2021-02-27)
+
+
+### Features
+
+* add some utility methods ([1c9827e](https://github.com/socketio/socket.io-adapter/commit/1c9827ec1136e24094295907efaf4d4e6c2fef2f))
+* allow excluding all sockets in a room ([#66](https://github.com/socketio/socket.io-adapter/issues/66)) ([985bb41](https://github.com/socketio/socket.io-adapter/commit/985bb41fa2c04f17f1cf3a17c14ab9acde8947f7))
+
+
 # [2.1.0](https://github.com/socketio/socket.io-adapter/compare/2.0.3...2.1.0) (2021-01-15)
 
 
