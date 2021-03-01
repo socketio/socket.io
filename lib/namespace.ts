@@ -1,7 +1,13 @@
 import { Socket } from "./socket";
 import type { Server } from "./index";
+import {
+  EventParams,
+  EventNames,
+  EventsMap,
+  StrictEventEmitter,
+  DefaultEventsMap,
+} from "./typed-events";
 import type { Client } from "./client";
-import { EventEmitter } from "events";
 import debugModule from "debug";
 import type { Adapter, Room, SocketId } from "socket.io-adapter";
 import { BroadcastOperator, RemoteSocket } from "./broadcast-operator";
@@ -12,18 +18,39 @@ export interface ExtendedError extends Error {
   data?: any;
 }
 
-export class Namespace extends EventEmitter {
+export interface NamespaceReservedEventsMap<
+  ListenEvents extends EventsMap,
+  EmitEvents extends EventsMap
+> {
+  connect: (socket: Socket<ListenEvents, EmitEvents>) => void;
+  connection: (socket: Socket<ListenEvents, EmitEvents>) => void;
+}
+
+export class Namespace<
+  ListenEvents extends EventsMap = DefaultEventsMap,
+  EmitEvents extends EventsMap = ListenEvents
+> extends StrictEventEmitter<
+  {},
+  EmitEvents,
+  NamespaceReservedEventsMap<ListenEvents, EmitEvents>
+> {
   public readonly name: string;
-  public readonly sockets: Map<SocketId, Socket> = new Map();
+  public readonly sockets: Map<
+    SocketId,
+    Socket<ListenEvents, EmitEvents>
+  > = new Map();
 
   public adapter: Adapter;
 
   /** @private */
-  readonly server: Server;
+  readonly server: Server<ListenEvents, EmitEvents>;
 
   /** @private */
   _fns: Array<
-    (socket: Socket, next: (err?: ExtendedError) => void) => void
+    (
+      socket: Socket<ListenEvents, EmitEvents>,
+      next: (err?: ExtendedError) => void
+    ) => void
   > = [];
 
   /** @private */
@@ -35,7 +62,7 @@ export class Namespace extends EventEmitter {
    * @param server instance
    * @param name
    */
-  constructor(server: Server, name: string) {
+  constructor(server: Server<ListenEvents, EmitEvents>, name: string) {
     super();
     this.server = server;
     this.name = name;
@@ -60,7 +87,10 @@ export class Namespace extends EventEmitter {
    * @public
    */
   public use(
-    fn: (socket: Socket, next: (err?: ExtendedError) => void) => void
+    fn: (
+      socket: Socket<ListenEvents, EmitEvents>,
+      next: (err?: ExtendedError) => void
+    ) => void
   ): this {
     this._fns.push(fn);
     return this;
@@ -73,7 +103,10 @@ export class Namespace extends EventEmitter {
    * @param fn - last fn call in the middleware
    * @private
    */
-  private run(socket: Socket, fn: (err: ExtendedError | null) => void) {
+  private run(
+    socket: Socket<ListenEvents, EmitEvents>,
+    fn: (err: ExtendedError | null) => void
+  ) {
     const fns = this._fns.slice(0);
     if (!fns.length) return fn(null);
 
@@ -100,7 +133,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public to(room: Room | Room[]): BroadcastOperator {
+  public to(room: Room | Room[]): BroadcastOperator<EmitEvents> {
     return new BroadcastOperator(this.adapter).to(room);
   }
 
@@ -111,7 +144,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public in(room: Room | Room[]): BroadcastOperator {
+  public in(room: Room | Room[]): BroadcastOperator<EmitEvents> {
     return new BroadcastOperator(this.adapter).in(room);
   }
 
@@ -122,7 +155,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public except(room: Room | Room[]): BroadcastOperator {
+  public except(room: Room | Room[]): BroadcastOperator<EmitEvents> {
     return new BroadcastOperator(this.adapter).except(room);
   }
 
@@ -132,7 +165,11 @@ export class Namespace extends EventEmitter {
    * @return {Socket}
    * @private
    */
-  _add(client: Client, query, fn?: () => void): Socket {
+  _add(
+    client: Client<ListenEvents, EmitEvents>,
+    query,
+    fn?: () => void
+  ): Socket<ListenEvents, EmitEvents> {
     debug("adding socket to nsp %s", this.name);
     const socket = new Socket(this, client, query);
     this.run(socket, (err) => {
@@ -160,8 +197,8 @@ export class Namespace extends EventEmitter {
           if (fn) fn();
 
           // fire user-set events
-          super.emit("connect", socket);
-          super.emit("connection", socket);
+          this.emitReserved("connect", socket);
+          this.emitReserved("connection", socket);
         } else {
           debug("next called after client was closed - ignoring socket");
         }
@@ -175,7 +212,7 @@ export class Namespace extends EventEmitter {
    *
    * @private
    */
-  _remove(socket: Socket): void {
+  _remove(socket: Socket<ListenEvents, EmitEvents>): void {
     if (this.sockets.has(socket.id)) {
       this.sockets.delete(socket.id);
     } else {
@@ -189,8 +226,11 @@ export class Namespace extends EventEmitter {
    * @return Always true
    * @public
    */
-  public emit(ev: string | Symbol, ...args: any[]): true {
-    return new BroadcastOperator(this.adapter).emit(ev, ...args);
+  public emit<Ev extends EventNames<EmitEvents>>(
+    ev: Ev,
+    ...args: EventParams<EmitEvents, Ev>
+  ): true {
+    return new BroadcastOperator<EmitEvents>(this.adapter).emit(ev, ...args);
   }
 
   /**
@@ -199,7 +239,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public send(...args: readonly any[]): this {
+  public send(...args: EventParams<EmitEvents, "message">): this {
     this.emit("message", ...args);
     return this;
   }
@@ -210,7 +250,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public write(...args: readonly any[]): this {
+  public write(...args: EventParams<EmitEvents, "message">): this {
     this.emit("message", ...args);
     return this;
   }
@@ -232,7 +272,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public compress(compress: boolean): BroadcastOperator {
+  public compress(compress: boolean): BroadcastOperator<EmitEvents> {
     return new BroadcastOperator(this.adapter).compress(compress);
   }
 
@@ -244,7 +284,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public get volatile(): BroadcastOperator {
+  public get volatile(): BroadcastOperator<EmitEvents> {
     return new BroadcastOperator(this.adapter).volatile;
   }
 
@@ -254,7 +294,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public get local(): BroadcastOperator {
+  public get local(): BroadcastOperator<EmitEvents> {
     return new BroadcastOperator(this.adapter).local;
   }
 
@@ -263,7 +303,7 @@ export class Namespace extends EventEmitter {
    *
    * @public
    */
-  public fetchSockets(): Promise<RemoteSocket[]> {
+  public fetchSockets(): Promise<RemoteSocket<EmitEvents>[]> {
     return new BroadcastOperator(this.adapter).fetchSockets();
   }
 

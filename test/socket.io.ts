@@ -9,14 +9,14 @@ import request from "supertest";
 import expect from "expect.js";
 import type { AddressInfo } from "net";
 import * as io_v2 from "socket.io-client-v2";
-
-const ioc = require("socket.io-client");
+import type { SocketId } from "socket.io-adapter";
+import { io as ioc, Socket as ClientSocket } from "socket.io-client";
 
 import "./support/util";
 import "./utility-methods";
 
 // Creates a socket.io client for the given server
-function client(srv, nsp?: string | object, opts?: object) {
+function client(srv, nsp?: string | object, opts?: object): ClientSocket {
   if ("object" == typeof nsp) {
     opts = nsp;
     nsp = undefined;
@@ -333,7 +333,9 @@ describe("socket.io", () => {
       const net = require("net");
       const server = net.createServer();
 
-      const clientSocket = ioc("ws://0.0.0.0:" + PORT, { reconnection: false });
+      const clientSocket = ioc("ws://0.0.0.0:" + PORT, {
+        reconnection: false,
+      });
 
       clientSocket.on("disconnect", () => {
         expect(Object.keys(sio._nsps["/"].sockets).length).to.equal(0);
@@ -605,7 +607,7 @@ describe("socket.io", () => {
       const srv = createServer();
       const sio = new Server(srv);
       const chatSids: string[] = [];
-      let otherSid = null;
+      let otherSid: SocketId | null = null;
       srv.listen(() => {
         const c1 = client(srv, "/chat");
         const c2 = client(srv, "/chat", { forceNew: true });
@@ -632,9 +634,9 @@ describe("socket.io", () => {
     it("should find all clients in a namespace room", (done) => {
       const srv = createServer();
       const sio = new Server(srv);
-      let chatFooSid = null;
-      let chatBarSid = null;
-      let otherSid = null;
+      let chatFooSid: SocketId | null = null;
+      let chatBarSid: SocketId | null = null;
+      let otherSid: SocketId | null = null;
       srv.listen(() => {
         const c1 = client(srv, "/chat");
         const c2 = client(srv, "/chat", { forceNew: true });
@@ -671,9 +673,9 @@ describe("socket.io", () => {
     it("should find all clients across namespace rooms", (done) => {
       const srv = createServer();
       const sio = new Server(srv);
-      let chatFooSid = null;
-      let chatBarSid = null;
-      let otherSid = null;
+      let chatFooSid: SocketId | null = null;
+      let chatBarSid: SocketId | null = null;
+      let otherSid: SocketId | null = null;
       srv.listen(() => {
         const c1 = client(srv, "/chat");
         const c2 = client(srv, "/chat", { forceNew: true });
@@ -953,7 +955,7 @@ describe("socket.io", () => {
       srv.listen(() => {
         const clientSocket = client(srv, { reconnection: false });
         clientSocket.on("connect", function init() {
-          clientSocket.removeListener("connect", init);
+          clientSocket.off("connect", init);
           clientSocket.io.engine.close();
 
           clientSocket.connect();
@@ -1042,7 +1044,7 @@ describe("socket.io", () => {
               done();
             });
           });
-          s.client.ondata(null);
+          (s as any).client.ondata(null);
         });
       });
     });
@@ -2230,7 +2232,7 @@ describe("socket.io", () => {
           expect(s.rooms).to.contain(s.id, "a", "b", "c");
           s.leave("b");
           expect(s.rooms).to.contain(s.id, "a", "c");
-          s.leaveAll();
+          (s as any).leaveAll();
           expect(s.rooms.size).to.eql(0);
           done();
         });
@@ -2266,7 +2268,7 @@ describe("socket.io", () => {
           expect(s.rooms).to.contain(s.id, "a", "b");
           s.leave("unknown");
           expect(s.rooms).to.contain(s.id, "a", "b");
-          s.leaveAll();
+          (s as any).leaveAll();
           expect(s.rooms.size).to.eql(0);
           done();
         });
@@ -2469,7 +2471,7 @@ describe("socket.io", () => {
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", (socket) => {
-          expect(socket.name).to.be("guillermo");
+          expect((socket as any).name).to.be("guillermo");
           done();
         });
       });

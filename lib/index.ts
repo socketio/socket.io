@@ -7,7 +7,11 @@ import path = require("path");
 import engine = require("engine.io");
 import { Client } from "./client";
 import { EventEmitter } from "events";
-import { ExtendedError, Namespace } from "./namespace";
+import {
+  ExtendedError,
+  Namespace,
+  NamespaceReservedEventsMap,
+} from "./namespace";
 import { ParentNamespace } from "./parent-namespace";
 import { Adapter, Room, SocketId } from "socket.io-adapter";
 import * as parser from "socket.io-parser";
@@ -17,6 +21,12 @@ import { Socket } from "./socket";
 import type { CookieSerializeOptions } from "cookie";
 import type { CorsOptions } from "cors";
 import type { BroadcastOperator, RemoteSocket } from "./broadcast-operator";
+import {
+  EventsMap,
+  DefaultEventsMap,
+  EventParams,
+  StrictEventEmitter,
+} from "./typed-events";
 
 const debug = debugModule("socket.io:server");
 
@@ -156,8 +166,15 @@ interface ServerOptions extends EngineAttachOptions {
   connectTimeout: number;
 }
 
-export class Server extends EventEmitter {
-  public readonly sockets: Namespace;
+export class Server<
+  ListenEvents extends EventsMap = DefaultEventsMap,
+  EmitEvents extends EventsMap = ListenEvents
+> extends StrictEventEmitter<
+  {},
+  EmitEvents,
+  NamespaceReservedEventsMap<ListenEvents, EmitEvents>
+> {
+  public readonly sockets: Namespace<ListenEvents, EmitEvents>;
 
   /** @private */
   readonly _parser: typeof parser;
@@ -167,8 +184,11 @@ export class Server extends EventEmitter {
   /**
    * @private
    */
-  _nsps: Map<string, Namespace> = new Map();
-  private parentNsps: Map<ParentNspNameMatchFn, ParentNamespace> = new Map();
+  _nsps: Map<string, Namespace<ListenEvents, EmitEvents>> = new Map();
+  private parentNsps: Map<
+    ParentNspNameMatchFn,
+    ParentNamespace<ListenEvents, EmitEvents>
+  > = new Map();
   private _adapter?: typeof Adapter;
   private _serveClient: boolean;
   private opts: Partial<EngineOptions>;
@@ -248,7 +268,7 @@ export class Server extends EventEmitter {
   _checkNamespace(
     name: string,
     auth: { [key: string]: any },
-    fn: (nsp: Namespace | false) => void
+    fn: (nsp: Namespace<ListenEvents, EmitEvents> | false) => void
   ): void {
     if (this.parentNsps.size === 0) return fn(false);
 
@@ -557,8 +577,8 @@ export class Server extends EventEmitter {
    */
   public of(
     name: string | RegExp | ParentNspNameMatchFn,
-    fn?: (socket: Socket) => void
-  ): Namespace {
+    fn?: (socket: Socket<ListenEvents, EmitEvents>) => void
+  ): Namespace<ListenEvents, EmitEvents> {
     if (typeof name === "function" || name instanceof RegExp) {
       const parentNsp = new ParentNamespace(this);
       debug("initializing parent namespace %s", parentNsp.name);
@@ -616,7 +636,10 @@ export class Server extends EventEmitter {
    * @public
    */
   public use(
-    fn: (socket: Socket, next: (err?: ExtendedError) => void) => void
+    fn: (
+      socket: Socket<ListenEvents, EmitEvents>,
+      next: (err?: ExtendedError) => void
+    ) => void
   ): this {
     this.sockets.use(fn);
     return this;
@@ -629,7 +652,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public to(room: Room | Room[]): BroadcastOperator {
+  public to(room: Room | Room[]): BroadcastOperator<EmitEvents> {
     return this.sockets.to(room);
   }
 
@@ -640,7 +663,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public in(room: Room | Room[]): BroadcastOperator {
+  public in(room: Room | Room[]): BroadcastOperator<EmitEvents> {
     return this.sockets.in(room);
   }
 
@@ -651,7 +674,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public except(name: Room | Room[]): Server {
+  public except(name: Room | Room[]): Server<ListenEvents, EmitEvents> {
     this.sockets.except(name);
     return this;
   }
@@ -662,7 +685,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public send(...args: readonly any[]): this {
+  public send(...args: EventParams<EmitEvents, "message">): this {
     this.sockets.emit("message", ...args);
     return this;
   }
@@ -673,7 +696,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public write(...args: readonly any[]): this {
+  public write(...args: EventParams<EmitEvents, "message">): this {
     this.sockets.emit("message", ...args);
     return this;
   }
@@ -694,7 +717,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public compress(compress: boolean): BroadcastOperator {
+  public compress(compress: boolean): BroadcastOperator<EmitEvents> {
     return this.sockets.compress(compress);
   }
 
@@ -706,7 +729,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public get volatile(): BroadcastOperator {
+  public get volatile(): BroadcastOperator<EmitEvents> {
     return this.sockets.volatile;
   }
 
@@ -716,7 +739,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public get local(): BroadcastOperator {
+  public get local(): BroadcastOperator<EmitEvents> {
     return this.sockets.local;
   }
 
@@ -725,7 +748,7 @@ export class Server extends EventEmitter {
    *
    * @public
    */
-  public fetchSockets(): Promise<RemoteSocket[]> {
+  public fetchSockets(): Promise<RemoteSocket<EmitEvents>[]> {
     return this.sockets.fetchSockets();
   }
 

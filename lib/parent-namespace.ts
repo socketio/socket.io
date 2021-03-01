@@ -1,12 +1,21 @@
 import { Namespace } from "./namespace";
 import type { Server } from "./index";
+import type {
+  EventParams,
+  EventNames,
+  EventsMap,
+  DefaultEventsMap,
+} from "./typed-events";
 import type { BroadcastOptions } from "socket.io-adapter";
 
-export class ParentNamespace extends Namespace {
+export class ParentNamespace<
+  ListenEvents extends EventsMap = DefaultEventsMap,
+  EmitEvents extends EventsMap = ListenEvents
+> extends Namespace<ListenEvents, EmitEvents> {
   private static count: number = 0;
-  private children: Set<Namespace> = new Set();
+  private children: Set<Namespace<ListenEvents, EmitEvents>> = new Set();
 
-  constructor(server: Server) {
+  constructor(server: Server<ListenEvents, EmitEvents>) {
     super(server, "/_" + ParentNamespace.count++);
   }
 
@@ -23,7 +32,10 @@ export class ParentNamespace extends Namespace {
     this.adapter = { broadcast };
   }
 
-  public emit(ev: string | Symbol, ...args: [...any]): true {
+  public emit<Ev extends EventNames<EmitEvents>>(
+    ev: Ev,
+    ...args: EventParams<EmitEvents, Ev>
+  ): true {
     this.children.forEach((nsp) => {
       nsp.emit(ev, ...args);
     });
@@ -31,14 +43,14 @@ export class ParentNamespace extends Namespace {
     return true;
   }
 
-  createChild(name: string): Namespace {
+  createChild(name: string): Namespace<ListenEvents, EmitEvents> {
     const namespace = new Namespace(this.server, name);
     namespace._fns = this._fns.slice(0);
     this.listeners("connect").forEach((listener) =>
-      namespace.on("connect", listener as (...args: any[]) => void)
+      namespace.on("connect", listener)
     );
     this.listeners("connection").forEach((listener) =>
-      namespace.on("connection", listener as (...args: any[]) => void)
+      namespace.on("connection", listener)
     );
     this.children.add(namespace);
     this.server._nsps.set(name, namespace);

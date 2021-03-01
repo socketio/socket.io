@@ -3,20 +3,24 @@ import debugModule = require("debug");
 import url = require("url");
 import type { IncomingMessage } from "http";
 import type { Namespace, Server } from "./index";
+import type { EventsMap } from "./typed-events";
 import type { Socket } from "./socket";
 import type { SocketId } from "socket.io-adapter";
 
 const debug = debugModule("socket.io:client");
 
-export class Client {
+export class Client<
+  ListenEvents extends EventsMap,
+  EmitEvents extends EventsMap
+> {
   public readonly conn;
 
   private readonly id: string;
-  private readonly server: Server;
+  private readonly server: Server<ListenEvents, EmitEvents>;
   private readonly encoder: Encoder;
   private readonly decoder: Decoder;
-  private sockets: Map<SocketId, Socket> = new Map();
-  private nsps: Map<string, Socket> = new Map();
+  private sockets: Map<SocketId, Socket<ListenEvents, EmitEvents>> = new Map();
+  private nsps: Map<string, Socket<ListenEvents, EmitEvents>> = new Map();
   private connectTimeout?: NodeJS.Timeout;
 
   /**
@@ -26,7 +30,7 @@ export class Client {
    * @param conn
    * @package
    */
-  constructor(server: Server, conn: Socket) {
+  constructor(server: Server<ListenEvents, EmitEvents>, conn: any) {
     this.server = server;
     this.conn = conn;
     this.encoder = server.encoder;
@@ -87,7 +91,7 @@ export class Client {
     this.server._checkNamespace(
       name,
       auth,
-      (dynamicNspName: Namespace | false) => {
+      (dynamicNspName: Namespace<ListenEvents, EmitEvents> | false) => {
         if (dynamicNspName) {
           debug("dynamic namespace %s was created", dynamicNspName);
           this.doConnect(name, auth);
@@ -145,7 +149,7 @@ export class Client {
    *
    * @private
    */
-  _remove(socket: Socket): void {
+  _remove(socket: Socket<ListenEvents, EmitEvents>): void {
     if (this.sockets.has(socket.id)) {
       const nsp = this.sockets.get(socket.id)!.nsp.name;
       this.sockets.delete(socket.id);

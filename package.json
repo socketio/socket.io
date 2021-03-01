@@ -37,7 +37,9 @@
   },
   "scripts": {
     "compile": "rimraf ./dist && tsc",
-    "test": "npm run format:check && npm run compile && nyc mocha --require ts-node/register --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.ts",
+    "test": "npm run format:check && npm run compile && npm run test:types && npm run test:unit",
+    "test:types": "tsd",
+    "test:unit": "nyc mocha --require ts-node/register --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.ts",
     "format:check": "prettier --check \"lib/**/*.ts\" \"test/**/*.ts\"",
     "format:fix": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\"",
     "prepack": "npm run compile"
@@ -68,6 +70,7 @@
     "superagent": "^6.1.0",
     "supertest": "^6.0.1",
     "ts-node": "^9.0.0",
+    "tsd": "^0.14.0",
     "typescript": "^4.1.2"
   },
   "contributors": [
@@ -90,5 +93,8 @@
   ],
   "engines": {
     "node": ">=10.0.0"
+  },
+  "tsd": {
+    "directory": "test"
   }
 }
