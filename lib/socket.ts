@@ -2,7 +2,14 @@ import { EventEmitter } from "events";
 import { Packet, PacketType } from "socket.io-parser";
 import url = require("url");
 import debugModule from "debug";
-import type { Server } from "./index";
+import type {
+  DefaultEventsMap,
+  EventParams,
+  EventNames,
+  EventsMap,
+  Listener,
+  Server,
+} from "./index";
 import type { Client } from "./client";
 import type { Namespace } from "./namespace";
 import type { IncomingMessage, IncomingHttpHeaders } from "http";
@@ -18,15 +25,46 @@ import { BroadcastOperator } from "./broadcast-operator";
 
 const debug = debugModule("socket.io:socket");
 
-export const RESERVED_EVENTS = new Set(<const>[
+type ClientReservedEvents = "connect_error";
+
+export interface ServerReservedEventsMap<
+  UserEvents extends EventsMap,
+  UserEmitEvents extends EventsMap
+> {
+  connect: (socket: Socket<UserEvents, UserEmitEvents>) => void;
+  connection: (socket: Socket<UserEvents, UserEmitEvents>) => void;
+}
+
+export interface SocketReservedEventsMap {
+  disconnect: (reason: string) => void;
+  disconnecting: (reason: string) => void;
+}
+
+// EventEmitter reserved events: https://nodejs.org/api/events.html#events_event_newlistener
+export interface EventEmitterReservedEventsMap {
+  newListener: (
+    eventName: string | Symbol,
+    listener: (...args: any[]) => void
+  ) => void;
+  removeListener: (
+    eventName: string | Symbol,
+    listener: (...args: any[]) => void
+  ) => void;
+}
+
+export const RESERVED_EVENTS: ReadonlySet<string | Symbol> = new Set<
+  | ClientReservedEvents
+  | keyof ServerReservedEventsMap<never, never>
+  | keyof SocketReservedEventsMap
+  | keyof EventEmitterReservedEventsMap
+>(<const>[
   "connect",
   "connect_error",
   "disconnect",
   "disconnecting",
-  // EventEmitter reserved events: https://nodejs.org/api/events.html#events_event_newlistener
   "newListener",
   "removeListener",
-]) as ReadonlySet<string | Symbol>;
+]);
 
 /**
  * The handshake details
@@ -78,7 +116,10 @@ export interface Handshake {
   auth: { [key: string]: any };
 }
 
-export class Socket extends EventEmitter {
+export class Socket<
+  UserEvents extends EventsMap = EventsMap,
+  UserEmitEvents extends EventsMap = UserEvents
+> extends EventEmitter {
   public readonly id: SocketId;
   public readonly handshake: Handshake;
   /**
@@ -89,7 +130,7 @@ export class Socket extends EventEmitter {
   public connected: boolean;
   public disconnected: boolean;
 
-  private readonly server: Server;
+  private readonly server: Server<UserEvents, UserEmitEvents>;
   private readonly adapter: Adapter;
   private acks: Map<number, () => void> = new Map();
   private fns: Array<
@@ -106,7 +147,11 @@ export class Socket extends EventEmitter {
    * @param {Object} auth
    * @package
    */
-  constructor(readonly nsp: Namespace, readonly client: Client, auth: object) {
+  constructor(
+    readonly nsp: Namespace<UserEvents, UserEmitEvents>,
+    readonly client: Client<UserEvents, UserEmitEvents>,
+    auth: object
+  ) {
     super();
     this.server = nsp.server;
     this.adapter = this.nsp.adapter;
@@ -147,20 +192,23 @@ export class Socket extends EventEmitter {
    * @return Always returns `true`.
    * @public
    */
-  public emit(ev: string, ...args: any[]): boolean {
+  public emit<Ev extends EventNames<UserEmitEvents>>(
+    ev: Ev,
+    ...args: EventParams<UserEmitEvents, Ev>
+  ): boolean {
     if (RESERVED_EVENTS.has(ev)) {
       throw new Error(`"${ev}" is a reserved event name`);
     }
-    args.unshift(ev);
+    const data: any[] = [ev, ...args];
     const packet: any = {
       type: PacketType.EVENT,
-      data: args,
+      data: data,
     };
 
     // access last argument to see if it's an ACK callback
-    if (typeof args[args.length - 1] === "function") {
+    if (typeof data[data.length - 1] === "function") {
       debug("emitting packet with ack id %d", this.nsp._ids);
-      this.acks.set(this.nsp._ids, args.pop());
+      this.acks.set(this.nsp._ids, data.pop());
       packet.id = this.nsp._ids++;
     }
 
@@ -172,6 +220,13 @@ export class Socket extends EventEmitter {
     return true;
   }
 
+  public on<Ev extends EventNames<UserEvents & SocketReservedEventsMap>>(
+    ev: Ev,
+    listener: Listener<UserEvents & SocketReservedEventsMap, Ev>
+  ): this {
+    return super.on(ev, listener);
+  }
+
   /**
    * Targets a room when broadcasting.
    *
@@ -179,7 +234,9 @@ export class Socket extends EventEmitter {
    * @return self
    * @public
    */
-  public to(room: Room | Room[]): BroadcastOperator {
+  public to(
+    room: Room | Room[]
+  ): BroadcastOperator<UserEvents, UserEmitEvents> {
     return this.newBroadcastOperator().to(room);
   }
 
@@ -190,7 +247,9 @@ export class Socket extends EventEmitter {
    * @return self
    * @public
    */
-  public in(room: Room | Room[]): BroadcastOperator {
+  public in(
+    room: Room | Room[]
+  ): BroadcastOperator<UserEvents, UserEmitEvents> {
     return this.newBroadcastOperator().in(room);
   }
 
@@ -201,7 +260,9 @@ export class Socket extends EventEmitter {
    * @return self
    * @public
    */
-  public except(room: Room | Room[]): BroadcastOperator {
+  public except(
+    room: Room | Room[]
+  ): BroadcastOperator<UserEvents, UserEmitEvents> {
     return this.newBroadcastOperator().except(room);
   }
 
@@ -211,7 +272,7 @@ export class Socket extends EventEmitter {
    * @return self
    * @public
    */
-  public send(...args: readonly any[]): this {
+  public send(...args: EventParams<UserEmitEvents, "message">): this {
     this.emit("message", ...args);
     return this;
   }
@@ -222,7 +283,7 @@ export class Socket extends EventEmitter {
    * @return self
    * @public
    */
-  public write(...args: readonly any[]): this {
+  public write(...args: EventParams<UserEmitEvents, "message">): this {
     this.emit("message", ...args);
     return this;
   }
@@ -505,7 +566,7 @@ export class Socket extends EventEmitter {
    * @return {Socket} self
    * @public
    */
-  public get broadcast(): BroadcastOperator {
+  public get broadcast(): BroadcastOperator<UserEvents, UserEmitEvents> {
     return this.newBroadcastOperator();
   }
 
@@ -515,7 +576,7 @@ export class Socket extends EventEmitter {
    * @return {Socket} self
    * @public
    */
-  public get local(): BroadcastOperator {
+  public get local(): BroadcastOperator<UserEvents, UserEmitEvents> {
     return this.newBroadcastOperator().local;
   }
 
@@ -670,7 +731,10 @@ export class Socket extends EventEmitter {
     return this._anyListeners || [];
   }
 
-  private newBroadcastOperator(): BroadcastOperator {
+  private newBroadcastOperator(): BroadcastOperator<
+    UserEvents,
+    UserEmitEvents
+  > {
     const flags = Object.assign({}, this.flags);
     this.flags = {};
     return new BroadcastOperator(

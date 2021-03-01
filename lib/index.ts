@@ -13,7 +13,7 @@ import { Adapter, Room, SocketId } from "socket.io-adapter";
 import * as parser from "socket.io-parser";
 import type { Encoder } from "socket.io-parser";
 import debugModule from "debug";
-import { Socket } from "./socket";
+import { ServerReservedEventsMap, Socket } from "./socket";
 import type { CookieSerializeOptions } from "cookie";
 import type { CorsOptions } from "cors";
 import type { BroadcastOperator, RemoteSocket } from "./broadcast-operator";
@@ -156,8 +156,58 @@ interface ServerOptions extends EngineAttachOptions {
   connectTimeout: number;
 }
 
-export class Server extends EventEmitter {
-  public readonly sockets: Namespace;
+/**
+ * An events map is an interface that maps event names to their values. Values
+ * can be either:
+ *
+ * - `void`, indicating that the `on` listener takes no parameters
+ * - a function type, representing the the type of the `on` listener
+ * - any other type, representing the type of the first parameter of the `on` listener
+ */
+export interface EventsMap {
+  [event: string]: any;
+}
+
+/**
+ * The default events map, used if no EventsMap is given. Using this EventsMap
+ * is equivalent to accepting all event names, and any data.
+ */
+export interface DefaultEventsMap {
+  [event: string]: (...args: any[]) => void;
+}
+
+/**
+ * Returns a union type containing all the keys of an event map.
+ */
+export type EventNames<Map extends EventsMap> = keyof Map & (string | symbol);
+
+/** The tuple type representing the parameters of an event listener */
+export type EventParams<
+  Map extends EventsMap,
+  Ev extends keyof Map
+> = Map[Ev] extends (...args: any[]) => void
+  ? Parameters<Map[Ev]>
+  : Map[Ev] extends void
+  ? []
+  : [Map[Ev]];
+
+/**
+ * The type of listener callback that listens to the `Ev` event, as defined in `Map`
+ */
+export type Listener<
+  Map extends EventsMap,
+  Ev extends keyof Map
+> = Map[Ev] extends (...args: any[]) => void
+  ? Map[Ev]
+  : Map[Ev] extends void
+  ? (...args: []) => void
+  : (...args: [Map[Ev]]) => void;
+
+export class Server<
+  UserEvents extends EventsMap = DefaultEventsMap,
+  UserEmitEvents extends EventsMap = UserEvents
+> extends EventEmitter {
+  public readonly sockets: Namespace<UserEvents, UserEmitEvents>;
 
   /** @private */
   readonly _parser: typeof parser;
@@ -167,8 +217,11 @@ export class Server extends EventEmitter {
   /**
    * @private
    */
-  _nsps: Map<string, Namespace> = new Map();
-  private parentNsps: Map<ParentNspNameMatchFn, ParentNamespace> = new Map();
+  _nsps: Map<string, Namespace<UserEvents, UserEmitEvents>> = new Map();
+  private parentNsps: Map<
+    ParentNspNameMatchFn,
+    ParentNamespace<UserEvents, UserEmitEvents>
+  > = new Map();
   private _adapter?: typeof Adapter;
   private _serveClient: boolean;
   private opts: Partial<EngineOptions>;
@@ -248,7 +301,7 @@ export class Server extends EventEmitter {
   _checkNamespace(
     name: string,
     auth: { [key: string]: any },
-    fn: (nsp: Namespace | false) => void
+    fn: (nsp: Namespace<UserEvents, UserEmitEvents> | false) => void
   ): void {
     if (this.parentNsps.size === 0) return fn(false);
 
@@ -558,7 +611,7 @@ export class Server extends EventEmitter {
   public of(
     name: string | RegExp | ParentNspNameMatchFn,
     fn?: (socket: Socket) => void
-  ): Namespace {
+  ): Namespace<UserEvents, UserEmitEvents> {
     if (typeof name === "function" || name instanceof RegExp) {
       const parentNsp = new ParentNamespace(this);
       debug("initializing parent namespace %s", parentNsp.name);
@@ -629,7 +682,9 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public to(room: Room | Room[]): BroadcastOperator {
+  public to(
+    room: Room | Room[]
+  ): BroadcastOperator<UserEvents, UserEmitEvents> {
     return this.sockets.to(room);
   }
 
@@ -640,8 +695,24 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public in(room: Room | Room[]): BroadcastOperator {
+  public in(
+    room: Room | Room[]
+  ): BroadcastOperator<UserEvents, UserEmitEvents> {
     return this.sockets.in(room);
+  }
+
+  public on<
+    Ev extends EventNames<
+      UserEvents & ServerReservedEventsMap<UserEvents, UserEmitEvents>
+    >
+  >(
+    ev: Ev,
+    listener: Listener<
+      UserEvents & ServerReservedEventsMap<UserEvents, UserEmitEvents>,
+      Ev
+    >
+  ): this {
+    return super.on(ev, listener);
   }
 
   /**
@@ -651,7 +722,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public except(name: Room | Room[]): Server {
+  public except(name: Room | Room[]): Server<UserEvents, UserEmitEvents> {
     this.sockets.except(name);
     return this;
   }
@@ -662,7 +733,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public send(...args: readonly any[]): this {
+  public send(...args: EventParams<UserEmitEvents, "message">): this {
     this.sockets.emit("message", ...args);
     return this;
   }
@@ -673,7 +744,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public write(...args: readonly any[]): this {
+  public write(...args: EventParams<UserEmitEvents, "message">): this {
     this.sockets.emit("message", ...args);
     return this;
   }
@@ -694,7 +765,9 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public compress(compress: boolean): BroadcastOperator {
+  public compress(
+    compress: boolean
+  ): BroadcastOperator<UserEvents, UserEmitEvents> {
     return this.sockets.compress(compress);
   }
 
@@ -706,7 +779,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public get volatile(): BroadcastOperator {
+  public get volatile(): BroadcastOperator<UserEvents, UserEmitEvents> {
     return this.sockets.volatile;
   }
 
@@ -716,7 +789,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public get local(): BroadcastOperator {
+  public get local(): BroadcastOperator<UserEvents, UserEmitEvents> {
     return this.sockets.local;
   }
 

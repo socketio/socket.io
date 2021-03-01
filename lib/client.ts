@@ -2,17 +2,20 @@ import { Decoder, Encoder, Packet, PacketType } from "socket.io-parser";
 import debugModule = require("debug");
 import url = require("url");
 import type { IncomingMessage } from "http";
-import type { Namespace, Server } from "./index";
+import type { DefaultEventsMap, EventsMap, Namespace, Server } from "./index";
 import type { Socket } from "./socket";
 import type { SocketId } from "socket.io-adapter";
 
 const debug = debugModule("socket.io:client");
 
-export class Client {
+export class Client<
+  UserEvents extends EventsMap = DefaultEventsMap,
+  UserEmitEvents extends EventsMap = UserEvents
+> {
   public readonly conn;
 
   private readonly id: string;
-  private readonly server: Server;
+  private readonly server: Server<UserEvents, UserEmitEvents>;
   private readonly encoder: Encoder;
   private readonly decoder: Decoder;
   private sockets: Map<SocketId, Socket> = new Map();
@@ -26,7 +29,7 @@ export class Client {
    * @param conn
    * @package
    */
-  constructor(server: Server, conn: Socket) {
+  constructor(server: Server<UserEvents, UserEmitEvents>, conn: Socket) {
     this.server = server;
     this.conn = conn;
     this.encoder = server.encoder;
@@ -87,7 +90,7 @@ export class Client {
     this.server._checkNamespace(
       name,
       auth,
-      (dynamicNspName: Namespace | false) => {
+      (dynamicNspName: Namespace<UserEvents, UserEmitEvents> | false) => {
         if (dynamicNspName) {
           debug("dynamic namespace %s was created", dynamicNspName);
           this.doConnect(name, auth);

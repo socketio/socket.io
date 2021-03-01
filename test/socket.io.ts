@@ -1042,7 +1042,7 @@ describe("socket.io", () => {
               done();
             });
           });
-          s.client.ondata(null);
+          (s as any).client.ondata(null);
         });
       });
     });
@@ -2230,7 +2230,7 @@ describe("socket.io", () => {
           expect(s.rooms).to.contain(s.id, "a", "b", "c");
           s.leave("b");
           expect(s.rooms).to.contain(s.id, "a", "c");
-          s.leaveAll();
+          (s as any).leaveAll();
           expect(s.rooms.size).to.eql(0);
           done();
         });
@@ -2266,7 +2266,7 @@ describe("socket.io", () => {
           expect(s.rooms).to.contain(s.id, "a", "b");
           s.leave("unknown");
           expect(s.rooms).to.contain(s.id, "a", "b");
-          s.leaveAll();
+          (s as any).leaveAll();
           expect(s.rooms.size).to.eql(0);
           done();
         });
@@ -2469,7 +2469,7 @@ describe("socket.io", () => {
       srv.listen(() => {
         const socket = client(srv);
         sio.on("connection", (socket) => {
-          expect(socket.name).to.be("guillermo");
+          expect((socket as any).name).to.be("guillermo");
           done();
         });
       });
@@ -2591,13 +2591,13 @@ describe("socket.io", () => {
         socket.emit("join", "woot");
 
         sio.on("connection", (socket) => {
-          socket.use((event, next) => {
+          (socket as any).use((event, next) => {
             expect(event).to.eql(["join", "woot"]);
             event.unshift("wrap");
             run++;
             next();
           });
-          socket.use((event, next) => {
+          (socket as any).use((event, next) => {
             expect(event).to.eql(["wrap", "join", "woot"]);
             run++;
             next();

@@ -1,12 +1,21 @@
 import { Namespace } from "./namespace";
-import type { Server } from "./index";
+import type {
+  DefaultEventsMap,
+  EventParams,
+  EventNames,
+  EventsMap,
+  Server,
+} from "./index";
 import type { BroadcastOptions } from "socket.io-adapter";
 
-export class ParentNamespace extends Namespace {
+export class ParentNamespace<
+  UserEvents extends EventsMap = DefaultEventsMap,
+  UserEmitEvents extends EventsMap = UserEvents
+> extends Namespace<UserEvents, UserEmitEvents> {
   private static count: number = 0;
-  private children: Set<Namespace> = new Set();
+  private children: Set<Namespace<UserEvents, UserEmitEvents>> = new Set();
 
-  constructor(server: Server) {
+  constructor(server: Server<UserEvents, UserEmitEvents>) {
     super(server, "/_" + ParentNamespace.count++);
   }
 
@@ -23,7 +32,10 @@ export class ParentNamespace extends Namespace {
     this.adapter = { broadcast };
   }
 
-  public emit(ev: string | Symbol, ...args: [...any]): true {
+  public emit<Ev extends EventNames<UserEmitEvents>>(
+    ev: Ev,
+    ...args: EventParams<UserEmitEvents, Ev>
+  ): true {
     this.children.forEach((nsp) => {
       nsp.emit(ev, ...args);
     });
@@ -31,7 +43,7 @@ export class ParentNamespace extends Namespace {
     return true;
   }
 
-  createChild(name: string): Namespace {
+  createChild(name: string): Namespace<UserEvents, UserEmitEvents> {
     const namespace = new Namespace(this.server, name);
     namespace._fns = this._fns.slice(0);
     this.listeners("connect").forEach((listener) =>

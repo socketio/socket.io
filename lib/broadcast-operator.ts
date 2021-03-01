@@ -2,8 +2,17 @@ import type { BroadcastFlags, Room, SocketId } from "socket.io-adapter";
 import { Handshake, RESERVED_EVENTS, Socket } from "./socket";
 import { PacketType } from "socket.io-parser";
 import type { Adapter } from "socket.io-adapter";
+import type {
+  EventParams,
+  EventNames,
+  EventsMap,
+  DefaultEventsMap,
+} from "./index";
 
-export class BroadcastOperator {
+export class BroadcastOperator<
+  UserEvents extends EventsMap,
+  UserEmitEvents extends EventsMap = UserEvents
+> {
   constructor(
     private readonly adapter: Adapter,
     private readonly rooms: Set<Room> = new Set<Room>(),
@@ -18,7 +27,9 @@ export class BroadcastOperator {
    * @return a new BroadcastOperator instance
    * @public
    */
-  public to(room: Room | Room[]): BroadcastOperator {
+  public to(
+    room: Room | Room[]
+  ): BroadcastOperator<UserEvents, UserEmitEvents> {
     const rooms = new Set(this.rooms);
     if (Array.isArray(room)) {
       room.forEach((r) => rooms.add(r));
@@ -40,7 +51,9 @@ export class BroadcastOperator {
    * @return a new BroadcastOperator instance
    * @public
    */
-  public in(room: Room | Room[]): BroadcastOperator {
+  public in(
+    room: Room | Room[]
+  ): BroadcastOperator<UserEvents, UserEmitEvents> {
     return this.to(room);
   }
 
@@ -51,7 +64,9 @@ export class BroadcastOperator {
    * @return a new BroadcastOperator instance
    * @public
    */
-  public except(room: Room | Room[]): BroadcastOperator {
+  public except(
+    room: Room | Room[]
+  ): BroadcastOperator<UserEvents, UserEmitEvents> {
     const exceptRooms = new Set(this.exceptRooms);
     if (Array.isArray(room)) {
       room.forEach((r) => exceptRooms.add(r));
@@ -73,7 +88,9 @@ export class BroadcastOperator {
    * @return a new BroadcastOperator instance
    * @public
    */
-  public compress(compress: boolean): BroadcastOperator {
+  public compress(
+    compress: boolean
+  ): BroadcastOperator<UserEvents, UserEmitEvents> {
     const flags = Object.assign({}, this.flags, { compress });
     return new BroadcastOperator(
       this.adapter,
@@ -91,7 +108,7 @@ export class BroadcastOperator {
    * @return a new BroadcastOperator instance
    * @public
    */
-  public get volatile(): BroadcastOperator {
+  public get volatile(): BroadcastOperator<UserEvents, UserEmitEvents> {
     const flags = Object.assign({}, this.flags, { volatile: true });
     return new BroadcastOperator(
       this.adapter,
@@ -107,7 +124,7 @@ export class BroadcastOperator {
    * @return a new BroadcastOperator instance
    * @public
    */
-  public get local(): BroadcastOperator {
+  public get local(): BroadcastOperator<UserEvents, UserEmitEvents> {
     const flags = Object.assign({}, this.flags, { local: true });
     return new BroadcastOperator(
       this.adapter,
@@ -123,18 +140,21 @@ export class BroadcastOperator {
    * @return Always true
    * @public
    */
-  public emit(ev: string | Symbol, ...args: any[]): true {
+  public emit<Ev extends EventNames<UserEmitEvents>>(
+    ev: Ev,
+    ...args: EventParams<UserEmitEvents, Ev>
+  ): true {
     if (RESERVED_EVENTS.has(ev)) {
       throw new Error(`"${ev}" is a reserved event name`);
     }
     // set up packet object
-    args.unshift(ev);
+    const data = [ev, ...args];
     const packet = {
       type: PacketType.EVENT,
-      data: args,
+      data: data,
     };
 
-    if ("function" == typeof args[args.length - 1]) {
+    if ("function" == typeof data[data.length - 1]) {
       throw new Error("Callbacks are not supported when broadcasting");
     }
 
@@ -246,13 +266,16 @@ interface SocketDetails {
 /**
  * Expose of subset of the attributes and methods of the Socket class
  */
-export class RemoteSocket {
+export class RemoteSocket<
+  UserEvents extends EventsMap = DefaultEventsMap,
+  UserEmitEvents extends EventsMap = UserEvents
+> {
   public readonly id: SocketId;
   public readonly handshake: Handshake;
   public readonly rooms: Set<Room>;
   public readonly data: any;
 
-  private readonly operator: BroadcastOperator;
+  private readonly operator: BroadcastOperator<UserEvents, UserEmitEvents>;
 
   constructor(adapter: Adapter, details: SocketDetails) {
     this.id = details.id;
@@ -262,7 +285,10 @@ export class RemoteSocket {
     this.operator = new BroadcastOperator(adapter, new Set([this.id]));
   }
 
-  public emit(ev: string, ...args: any[]): boolean {
+  public emit<Ev extends EventNames<UserEmitEvents>>(
+    ev: Ev,
+    ...args: EventParams<UserEmitEvents, Ev>
+  ): true {
     return this.operator.emit(ev, ...args);
   }
 

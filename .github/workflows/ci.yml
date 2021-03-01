@@ -24,3 +24,4 @@ jobs:
       - run: npm test
         env:
           CI: true
+      - run: npm run test:types
