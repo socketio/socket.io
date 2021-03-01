@@ -388,10 +388,22 @@ describe("socket.io", () => {
       expect(sio.write).to.be.a("function");
       expect(sio.allSockets).to.be.a("function");
       expect(sio.compress).to.be.a("function");
-      expect(sio.volatile).to.be(sio);
-      expect(sio.local).to.be(sio);
-      expect(sio.sockets._flags).to.eql({ volatile: true, local: true });
-      delete sio.sockets._flags;
+    });
+
+    it("should return an immutable broadcast operator", () => {
+      const sio = new Server();
+      const operator = sio.local.to("room1").to("room2").except("room3");
+      operator.compress(true).emit("hello");
+      operator.volatile.emit("hello");
+      operator.to("room4").emit("hello");
+      operator.except("room5").emit("hello");
+      sio.to("room6").emit("hello");
+      // @ts-ignore
+      expect(operator.rooms).to.contain("room1", "room2");
+      // @ts-ignore
+      expect(operator.exceptRooms).to.contain("room3");
+      // @ts-ignore
+      expect(operator.flags).to.eql({ local: true });
     });
 
     it("should automatically connect", (done) => {
@@ -2336,6 +2348,41 @@ describe("socket.io", () => {
 
         socket2.emit("join", "room1", () => {
           socket3.emit("broadcast");
+        });
+      });
+    });
+
+    it("should return an immutable broadcast operator", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv);
+
+      srv.listen(() => {
+        const clientSocket = client(srv, { multiplex: false });
+
+        sio.on("connection", (socket: Socket) => {
+          const operator = socket.local
+            .compress(false)
+            .to("room1")
+            .to("room2")
+            .except("room3");
+          operator.compress(true).emit("hello");
+          operator.volatile.emit("hello");
+          operator.to("room4").emit("hello");
+          operator.except("room5").emit("hello");
+          socket.emit("hello");
+          socket.to("room6").emit("hello");
+          // @ts-ignore
+          expect(operator.rooms).to.contain("room1", "room2");
+          // @ts-ignore
+          expect(operator.rooms).to.not.contain("room4", "room5", "room6");
+          // @ts-ignore
+          expect(operator.exceptRooms).to.contain("room3");
+          // @ts-ignore
+          expect(operator.flags).to.eql({ local: true, compress: false });
+
+          clientSocket.close();
+          sio.close();
+          done();
         });
       });
     });

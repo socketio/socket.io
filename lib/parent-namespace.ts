@@ -1,5 +1,6 @@
 import { Namespace } from "./namespace";
 import type { Server } from "./index";
+import type { BroadcastOptions } from "socket.io-adapter";
 
 export class ParentNamespace extends Namespace {
   private static count: number = 0;
@@ -13,17 +14,19 @@ export class ParentNamespace extends Namespace {
    * @private
    */
   _initAdapter(): void {
-    /* no-op */
+    const broadcast = (packet: any, opts: BroadcastOptions) => {
+      this.children.forEach((nsp) => {
+        nsp.adapter.broadcast(packet, opts);
+      });
+    };
+    // @ts-ignore FIXME is there a way to declare an inner class in TypeScript?
+    this.adapter = { broadcast };
   }
 
   public emit(ev: string | Symbol, ...args: [...any]): true {
     this.children.forEach((nsp) => {
-      nsp._rooms = this._rooms;
-      nsp._flags = this._flags;
       nsp.emit(ev, ...args);
     });
-    this._rooms.clear();
-    this._flags = {};
 
     return true;
   }

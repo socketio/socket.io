@@ -16,6 +16,7 @@ import debugModule from "debug";
 import { Socket } from "./socket";
 import type { CookieSerializeOptions } from "cookie";
 import type { CorsOptions } from "cors";
+import type { BroadcastOperator } from "./broadcast-operator";
 
 const debug = debugModule("socket.io:server");
 
@@ -624,25 +625,23 @@ export class Server extends EventEmitter {
   /**
    * Targets a room when emitting.
    *
-   * @param name
+   * @param room
    * @return self
    * @public
    */
-  public to(name: Room): this {
-    this.sockets.to(name);
-    return this;
+  public to(room: Room): BroadcastOperator {
+    return this.sockets.to(room);
   }
 
   /**
    * Targets a room when emitting.
    *
-   * @param name
+   * @param room
    * @return self
    * @public
    */
-  public in(name: Room): this {
-    this.sockets.in(name);
-    return this;
+  public in(room: Room): BroadcastOperator {
+    return this.sockets.in(room);
   }
 
   /**
@@ -695,9 +694,8 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public compress(compress: boolean): this {
-    this.sockets.compress(compress);
-    return this;
+  public compress(compress: boolean): BroadcastOperator {
+    return this.sockets.compress(compress);
   }
 
   /**
@@ -708,9 +706,8 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public get volatile(): this {
-    this.sockets.volatile;
-    return this;
+  public get volatile(): BroadcastOperator {
+    return this.sockets.volatile;
   }
 
   /**
@@ -719,9 +716,8 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public get local(): this {
-    this.sockets.local;
-    return this;
+  public get local(): BroadcastOperator {
+    return this.sockets.local;
   }
 }
 

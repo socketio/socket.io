@@ -14,6 +14,7 @@ import type {
 } from "socket.io-adapter";
 import base64id from "base64id";
 import type { ParsedUrlQuery } from "querystring";
+import { BroadcastOperator } from "./broadcast-operator";
 
 const debug = debugModule("socket.io:socket");
 
@@ -91,8 +92,6 @@ export class Socket extends EventEmitter {
     (event: Array<any>, next: (err: Error) => void) => void
   > = [];
   private flags: BroadcastFlags = {};
-  private _rooms: Set<Room> = new Set();
-  private _except: Set<Room> = new Set();
   private _anyListeners?: Array<(...args: any[]) => void>;
 
   /**
@@ -156,71 +155,50 @@ export class Socket extends EventEmitter {
 
     // access last argument to see if it's an ACK callback
     if (typeof args[args.length - 1] === "function") {
-      if (this._rooms.size || this.flags.broadcast) {
-        throw new Error("Callbacks are not supported when broadcasting");
-      }
-
       debug("emitting packet with ack id %d", this.nsp._ids);
       this.acks.set(this.nsp._ids, args.pop());
       packet.id = this.nsp._ids++;
     }
 
-    const rooms = new Set(this._rooms);
     const flags = Object.assign({}, this.flags);
-    const except = new Set(this._except);
-
-    // reset flags
-    this._rooms.clear();
     this.flags = {};
-    this._except.clear();
 
-    if (rooms.size || flags.broadcast) {
-      this.adapter.broadcast(packet, {
-        except: new Set([this.id, ...except]),
-        rooms: rooms,
-        flags: flags,
-      });
-    } else {
-      // dispatch packet
-      this.packet(packet, flags);
-    }
+    this.packet(packet, flags);
+
     return true;
   }
 
   /**
    * Targets a room when broadcasting.
    *
-   * @param name
+   * @param room
    * @return self
    * @public
    */
-  public to(name: Room): this {
-    this._rooms.add(name);
-    return this;
+  public to(room: Room): BroadcastOperator {
+    return this.newBroadcastOperator().to(room);
   }
 
   /**
    * Targets a room when broadcasting.
    *
-   * @param name
+   * @param room
    * @return self
    * @public
    */
-  public in(name: Room): this {
-    this._rooms.add(name);
-    return this;
+  public in(room: Room): BroadcastOperator {
+    return this.newBroadcastOperator().in(room);
   }
 
   /**
    * Excludes a room when broadcasting.
    *
-   * @param name
+   * @param room
    * @return self
    * @public
    */
-  public except(name: Room): Socket {
-    this._except.add(name);
-    return this;
+  public except(room: Room): BroadcastOperator {
+    return this.newBroadcastOperator().except(room);
   }
 
   /**
@@ -523,9 +501,8 @@ export class Socket extends EventEmitter {
    * @return {Socket} self
    * @public
    */
-  public get broadcast(): this {
-    this.flags.broadcast = true;
-    return this;
+  public get broadcast(): BroadcastOperator {
+    return this.newBroadcastOperator();
   }
 
   /**
@@ -534,9 +511,8 @@ export class Socket extends EventEmitter {
    * @return {Socket} self
    * @public
    */
-  public get local(): this {
-    this.flags.local = true;
-    return this;
+  public get local(): BroadcastOperator {
+    return this.newBroadcastOperator().local;
   }
 
   /**
@@ -688,5 +664,16 @@ export class Socket extends EventEmitter {
    */
   public listenersAny() {
     return this._anyListeners || [];
+  }
+
+  private newBroadcastOperator(): BroadcastOperator {
+    const flags = Object.assign({}, this.flags);
+    this.flags = {};
+    return new BroadcastOperator(
+      this.adapter,
+      new Set<Room>(),
+      new Set<Room>([this.id]),
+      flags
+    );
   }
 }

@@ -1,10 +1,10 @@
-import { Socket, RESERVED_EVENTS } from "./socket";
+import { Socket } from "./socket";
 import type { Server } from "./index";
 import type { Client } from "./client";
 import { EventEmitter } from "events";
-import { PacketType } from "socket.io-parser";
 import debugModule from "debug";
 import type { Adapter, Room, SocketId } from "socket.io-adapter";
+import { BroadcastOperator } from "./broadcast-operator";
 
 const debug = debugModule("socket.io:namespace");
 
@@ -25,15 +25,6 @@ export class Namespace extends EventEmitter {
   _fns: Array<
     (socket: Socket, next: (err?: ExtendedError) => void) => void
   > = [];
-
-  /** @private */
-  _rooms: Set<Room> = new Set();
-
-  /** @private */
-  _except: Set<Room> = new Set();
-
-  /** @private */
-  _flags: any = {};
 
   /** @private */
   _ids: number = 0;
@@ -105,37 +96,34 @@ export class Namespace extends EventEmitter {
   /**
    * Targets a room when emitting.
    *
-   * @param name
+   * @param room
    * @return self
    * @public
    */
-  public to(name: Room): this {
-    this._rooms.add(name);
-    return this;
+  public to(room: Room): BroadcastOperator {
+    return new BroadcastOperator(this.adapter).to(room);
   }
 
   /**
    * Targets a room when emitting.
    *
-   * @param name
+   * @param room
    * @return self
    * @public
    */
-  public in(name: Room): this {
-    this._rooms.add(name);
-    return this;
+  public in(room: Room): BroadcastOperator {
+    return new BroadcastOperator(this.adapter).in(room);
   }
 
   /**
    * Excludes a room when emitting.
    *
-   * @param name
+   * @param room
    * @return self
    * @public
    */
-  public except(name: Room): Namespace {
-    this._except.add(name);
-    return this;
+  public except(room: Room): BroadcastOperator {
+    return new BroadcastOperator(this.adapter).except(room);
   }
 
   /**
@@ -202,36 +190,7 @@ export class Namespace extends EventEmitter {
    * @public
    */
   public emit(ev: string | Symbol, ...args: any[]): true {
-    if (RESERVED_EVENTS.has(ev)) {
-      throw new Error(`"${ev}" is a reserved event name`);
-    }
-    // set up packet object
-    args.unshift(ev);
-    const packet = {
-      type: PacketType.EVENT,
-      data: args,
-    };
-
-    if ("function" == typeof args[args.length - 1]) {
-      throw new Error("Callbacks are not supported when broadcasting");
-    }
-
-    const rooms = new Set(this._rooms);
-    const flags = Object.assign({}, this._flags);
-    const except = new Set(this._except);
-
-    // reset flags
-    this._rooms.clear();
-    this._flags = {};
-    this._except.clear();
-
-    this.adapter.broadcast(packet, {
-      rooms: rooms,
-      flags: flags,
-      except: except,
-    });
-
-    return true;
+    return new BroadcastOperator(this.adapter).emit(ev, ...args);
   }
 
   /**
@@ -263,14 +222,7 @@ export class Namespace extends EventEmitter {
    * @public
    */
   public allSockets(): Promise<Set<SocketId>> {
-    if (!this.adapter) {
-      throw new Error(
-        "No adapter for this namespace, are you trying to get the list of clients of a dynamic namespace?"
-      );
-    }
-    const rooms = new Set(this._rooms);
-    this._rooms.clear();
-    return this.adapter.sockets(rooms);
+    return new BroadcastOperator(this.adapter).allSockets();
   }
 
   /**
@@ -280,9 +232,8 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public compress(compress: boolean): this {
-    this._flags.compress = compress;
-    return this;
+  public compress(compress: boolean): BroadcastOperator {
+    return new BroadcastOperator(this.adapter).compress(compress);
   }
 
   /**
@@ -293,9 +244,8 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public get volatile(): this {
-    this._flags.volatile = true;
-    return this;
+  public get volatile(): BroadcastOperator {
+    return new BroadcastOperator(this.adapter).volatile;
   }
 
   /**
@@ -304,8 +254,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public get local(): this {
-    this._flags.local = true;
-    return this;
+  public get local(): BroadcastOperator {
+    return new BroadcastOperator(this.adapter).local;
   }
 }
