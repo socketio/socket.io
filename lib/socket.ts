@@ -175,7 +175,7 @@ export class Socket extends EventEmitter {
    * @return self
    * @public
    */
-  public to(room: Room): BroadcastOperator {
+  public to(room: Room | Room[]): BroadcastOperator {
     return this.newBroadcastOperator().to(room);
   }
 
@@ -186,7 +186,7 @@ export class Socket extends EventEmitter {
    * @return self
    * @public
    */
-  public in(room: Room): BroadcastOperator {
+  public in(room: Room | Room[]): BroadcastOperator {
     return this.newBroadcastOperator().in(room);
   }
 
@@ -197,7 +197,7 @@ export class Socket extends EventEmitter {
    * @return self
    * @public
    */
-  public except(room: Room): BroadcastOperator {
+  public except(room: Room | Room[]): BroadcastOperator {
     return this.newBroadcastOperator().except(room);
   }
 

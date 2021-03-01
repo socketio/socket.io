@@ -629,7 +629,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public to(room: Room): BroadcastOperator {
+  public to(room: Room | Room[]): BroadcastOperator {
     return this.sockets.to(room);
   }
 
@@ -640,7 +640,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public in(room: Room): BroadcastOperator {
+  public in(room: Room | Room[]): BroadcastOperator {
     return this.sockets.in(room);
   }
 
@@ -651,7 +651,7 @@ export class Server extends EventEmitter {
    * @return self
    * @public
    */
-  public except(name: Room): Server {
+  public except(name: Room | Room[]): Server {
     this.sockets.except(name);
     return this;
   }

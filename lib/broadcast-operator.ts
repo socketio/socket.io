@@ -18,10 +18,16 @@ export class BroadcastOperator {
    * @return a new BroadcastOperator instance
    * @public
    */
-  public to(room: Room): BroadcastOperator {
+  public to(room: Room | Room[]): BroadcastOperator {
+    const rooms = new Set(this.rooms);
+    if (Array.isArray(room)) {
+      room.forEach((r) => rooms.add(r));
+    } else {
+      rooms.add(room);
+    }
     return new BroadcastOperator(
       this.adapter,
-      new Set([...this.rooms, room]),
+      rooms,
       this.exceptRooms,
       this.flags
     );
@@ -34,7 +40,7 @@ export class BroadcastOperator {
    * @return a new BroadcastOperator instance
    * @public
    */
-  public in(room: Room): BroadcastOperator {
+  public in(room: Room | Room[]): BroadcastOperator {
     return this.to(room);
   }
 
@@ -45,11 +51,17 @@ export class BroadcastOperator {
    * @return a new BroadcastOperator instance
    * @public
    */
-  public except(room: Room): BroadcastOperator {
+  public except(room: Room | Room[]): BroadcastOperator {
+    const exceptRooms = new Set(this.exceptRooms);
+    if (Array.isArray(room)) {
+      room.forEach((r) => exceptRooms.add(r));
+    } else {
+      exceptRooms.add(room);
+    }
     return new BroadcastOperator(
       this.adapter,
       this.rooms,
-      new Set([...this.exceptRooms, room]),
+      exceptRooms,
       this.flags
     );
   }

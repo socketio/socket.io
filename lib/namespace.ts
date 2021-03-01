@@ -100,7 +100,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public to(room: Room): BroadcastOperator {
+  public to(room: Room | Room[]): BroadcastOperator {
     return new BroadcastOperator(this.adapter).to(room);
   }
 
@@ -111,7 +111,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public in(room: Room): BroadcastOperator {
+  public in(room: Room | Room[]): BroadcastOperator {
     return new BroadcastOperator(this.adapter).in(room);
   }
 
@@ -122,7 +122,7 @@ export class Namespace extends EventEmitter {
    * @return self
    * @public
    */
-  public except(room: Room): BroadcastOperator {
+  public except(room: Room | Room[]): BroadcastOperator {
     return new BroadcastOperator(this.adapter).except(room);
   }
 

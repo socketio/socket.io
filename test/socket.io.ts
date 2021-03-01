@@ -392,7 +392,7 @@ describe("socket.io", () => {
 
     it("should return an immutable broadcast operator", () => {
       const sio = new Server();
-      const operator = sio.local.to("room1").to("room2").except("room3");
+      const operator = sio.local.to(["room1", "room2"]).except("room3");
       operator.compress(true).emit("hello");
       operator.volatile.emit("hello");
       operator.to("room4").emit("hello");
@@ -2362,8 +2362,7 @@ describe("socket.io", () => {
         sio.on("connection", (socket: Socket) => {
           const operator = socket.local
             .compress(false)
-            .to("room1")
-            .to("room2")
+            .to(["room1", "room2"])
             .except("room3");
           operator.compress(true).emit("hello");
           operator.volatile.emit("hello");
