@@ -44,7 +44,7 @@ The revision 3 can be found here: https://github.com/socketio/engine.io-protocol
 
 ## Anatomy of an Engine.IO session
 
-1. Transport establishes a connection to the Engine.IO URL .
+1. Transport establishes a connection to the Engine.IO URL.
 2. Server responds with an `open` packet with JSON-encoded handshake data:
   - `sid` session id (`String`)
   - `upgrades` possible transport upgrades (`Array` of `String`)
@@ -124,7 +124,7 @@ world       => the 2nd message
 - Request n°4 (WebSocket upgrade)
 
 ```
-GET /engine.io/?EIO=3&transport=websocket&sid=lv_VI97HAXpY6yYWAAAC
+GET /engine.io/?EIO=4&transport=websocket&sid=lv_VI97HAXpY6yYWAAAC
 < HTTP/1.1 101 Switching Protocols
 ```
 
