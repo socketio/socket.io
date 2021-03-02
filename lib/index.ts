@@ -610,7 +610,7 @@ export class Server<
    */
   public of(
     name: string | RegExp | ParentNspNameMatchFn,
-    fn?: (socket: Socket) => void
+    fn?: (socket: Socket<UserEvents, UserEmitEvents>) => void
   ): Namespace<UserEvents, UserEmitEvents> {
     if (typeof name === "function" || name instanceof RegExp) {
       const parentNsp = new ParentNamespace(this);
@@ -669,7 +669,10 @@ export class Server<
    * @public
    */
   public use(
-    fn: (socket: Socket, next: (err?: ExtendedError) => void) => void
+    fn: (
+      socket: Socket<UserEvents, UserEmitEvents>,
+      next: (err?: ExtendedError) => void
+    ) => void
   ): this {
     this.sockets.use(fn);
     return this;

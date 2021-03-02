@@ -29,7 +29,10 @@ export class Client<
    * @param conn
    * @package
    */
-  constructor(server: Server<UserEvents, UserEmitEvents>, conn: Socket) {
+  constructor(
+    server: Server<UserEvents, UserEmitEvents>,
+    conn: Socket<UserEvents, UserEmitEvents>
+  ) {
     this.server = server;
     this.conn = conn;
     this.encoder = server.encoder;

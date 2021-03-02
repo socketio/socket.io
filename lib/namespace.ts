@@ -32,7 +32,10 @@ export class Namespace<
 
   /** @private */
   _fns: Array<
-    (socket: Socket, next: (err?: ExtendedError) => void) => void
+    (
+      socket: Socket<UserEvents, UserEmitEvents>,
+      next: (err?: ExtendedError) => void
+    ) => void
   > = [];
 
   /** @private */
@@ -69,7 +72,10 @@ export class Namespace<
    * @public
    */
   public use(
-    fn: (socket: Socket, next: (err?: ExtendedError) => void) => void
+    fn: (
+      socket: Socket<UserEvents, UserEmitEvents>,
+      next: (err?: ExtendedError) => void
+    ) => void
   ): this {
     this._fns.push(fn);
     return this;
@@ -82,7 +88,10 @@ export class Namespace<
    * @param fn - last fn call in the middleware
    * @private
    */
-  private run(socket: Socket, fn: (err: ExtendedError | null) => void) {
+  private run(
+    socket: Socket<UserEvents, UserEmitEvents>,
+    fn: (err: ExtendedError | null) => void
+  ) {
     const fns = this._fns.slice(0);
     if (!fns.length) return fn(null);
 
@@ -151,7 +160,7 @@ export class Namespace<
     client: Client<UserEvents, UserEmitEvents>,
     query,
     fn?: () => void
-  ): Socket {
+  ): Socket<UserEvents, UserEmitEvents> {
     debug("adding socket to nsp %s", this.name);
     const socket = new Socket(this, client, query);
     this.run(socket, (err) => {
@@ -194,7 +203,7 @@ export class Namespace<
    *
    * @private
    */
-  _remove(socket: Socket): void {
+  _remove(socket: Socket<UserEvents, UserEmitEvents>): void {
     if (this.sockets.has(socket.id)) {
       this.sockets.delete(socket.id);
     } else {
