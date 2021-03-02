@@ -4,7 +4,7 @@ import type { Client } from "./client";
 import { EventEmitter } from "events";
 import debugModule from "debug";
 import type { Adapter, Room, SocketId } from "socket.io-adapter";
-import { BroadcastOperator } from "./broadcast-operator";
+import { BroadcastOperator, RemoteSocket } from "./broadcast-operator";
 
 const debug = debugModule("socket.io:namespace");
 
@@ -256,5 +256,44 @@ export class Namespace extends EventEmitter {
    */
   public get local(): BroadcastOperator {
     return new BroadcastOperator(this.adapter).local;
+  }
+
+  /**
+   * Returns the matching socket instances
+   *
+   * @public
+   */
+  public fetchSockets(): Promise<RemoteSocket[]> {
+    return new BroadcastOperator(this.adapter).fetchSockets();
+  }
+
+  /**
+   * Makes the matching socket instances join the specified rooms
+   *
+   * @param room
+   * @public
+   */
+  public socketsJoin(room: Room | Room[]): void {
+    return new BroadcastOperator(this.adapter).socketsJoin(room);
+  }
+
+  /**
+   * Makes the matching socket instances leave the specified rooms
+   *
+   * @param room
+   * @public
+   */
+  public socketsLeave(room: Room | Room[]): void {
+    return new BroadcastOperator(this.adapter).socketsLeave(room);
+  }
+
+  /**
+   * Makes the matching socket instances disconnect
+   *
+   * @param close - whether to close the underlying connection
+   * @public
+   */
+  public disconnectSockets(close: boolean = false): void {
+    return new BroadcastOperator(this.adapter).disconnectSockets(close);
   }
 }

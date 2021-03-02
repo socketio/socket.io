@@ -81,6 +81,10 @@ export interface Handshake {
 export class Socket extends EventEmitter {
   public readonly id: SocketId;
   public readonly handshake: Handshake;
+  /**
+   * Additional information that can be attached to the Socket instance and which will be used in the fetchSockets method
+   */
+  public data: any = {};
 
   public connected: boolean;
   public disconnected: boolean;

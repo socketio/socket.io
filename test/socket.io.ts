@@ -13,6 +13,7 @@ import * as io_v2 from "socket.io-client-v2";
 const ioc = require("socket.io-client");
 
 import "./support/util";
+import "./utility-methods";
 
 // Creates a socket.io client for the given server
 function client(srv, nsp?: string | object, opts?: object) {

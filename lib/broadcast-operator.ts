@@ -1,5 +1,5 @@
 import type { BroadcastFlags, Room, SocketId } from "socket.io-adapter";
-import { RESERVED_EVENTS } from "./socket";
+import { Handshake, RESERVED_EVENTS, Socket } from "./socket";
 import { PacketType } from "socket.io-parser";
 import type { Adapter } from "socket.io-adapter";
 
@@ -159,5 +159,143 @@ export class BroadcastOperator {
       );
     }
     return this.adapter.sockets(this.rooms);
+  }
+
+  /**
+   * Returns the matching socket instances
+   *
+   * @public
+   */
+  public fetchSockets(): Promise<RemoteSocket[]> {
+    return this.adapter
+      .fetchSockets({
+        rooms: this.rooms,
+        except: this.exceptRooms,
+      })
+      .then((sockets) => {
+        return sockets.map((socket) => {
+          if (socket instanceof Socket) {
+            // FIXME the TypeScript compiler complains about missing private properties
+            return (socket as unknown) as RemoteSocket;
+          } else {
+            return new RemoteSocket(this.adapter, socket as SocketDetails);
+          }
+        });
+      });
+  }
+
+  /**
+   * Makes the matching socket instances join the specified rooms
+   *
+   * @param room
+   * @public
+   */
+  public socketsJoin(room: Room | Room[]): void {
+    this.adapter.addSockets(
+      {
+        rooms: this.rooms,
+        except: this.exceptRooms,
+      },
+      Array.isArray(room) ? room : [room]
+    );
+  }
+
+  /**
+   * Makes the matching socket instances leave the specified rooms
+   *
+   * @param room
+   * @public
+   */
+  public socketsLeave(room: Room | Room[]): void {
+    this.adapter.delSockets(
+      {
+        rooms: this.rooms,
+        except: this.exceptRooms,
+      },
+      Array.isArray(room) ? room : [room]
+    );
+  }
+
+  /**
+   * Makes the matching socket instances disconnect
+   *
+   * @param close - whether to close the underlying connection
+   * @public
+   */
+  public disconnectSockets(close: boolean = false): void {
+    this.adapter.disconnectSockets(
+      {
+        rooms: this.rooms,
+        except: this.exceptRooms,
+      },
+      close
+    );
+  }
+}
+
+/**
+ * Format of the data when the Socket instance exists on another Socket.IO server
+ */
+interface SocketDetails {
+  id: SocketId;
+  handshake: Handshake;
+  rooms: Room[];
+  data: any;
+}
+
+/**
+ * Expose of subset of the attributes and methods of the Socket class
+ */
+export class RemoteSocket {
+  public readonly id: SocketId;
+  public readonly handshake: Handshake;
+  public readonly rooms: Set<Room>;
+  public readonly data: any;
+
+  private readonly operator: BroadcastOperator;
+
+  constructor(adapter: Adapter, details: SocketDetails) {
+    this.id = details.id;
+    this.handshake = details.handshake;
+    this.rooms = new Set(details.rooms);
+    this.data = details.data;
+    this.operator = new BroadcastOperator(adapter, new Set([this.id]));
+  }
+
+  public emit(ev: string, ...args: any[]): boolean {
+    return this.operator.emit(ev, ...args);
+  }
+
+  /**
+   * Joins a room.
+   *
+   * @param {String|Array} room - room or array of rooms
+   * @public
+   */
+  public join(room: Room | Room[]): void {
+    return this.operator.socketsJoin(room);
+  }
+
+  /**
+   * Leaves a room.
+   *
+   * @param {String} room
+   * @public
+   */
+  public leave(room: Room): void {
+    return this.operator.socketsLeave(room);
+  }
+
+  /**
+   * Disconnects this client.
+   *
+   * @param {Boolean} close - if `true`, closes the underlying connection
+   * @return {Socket} self
+   *
+   * @public
+   */
+  public disconnect(close = false): this {
+    this.operator.disconnectSockets(close);
+    return this;
   }
 }

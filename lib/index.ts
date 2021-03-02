@@ -16,7 +16,7 @@ import debugModule from "debug";
 import { Socket } from "./socket";
 import type { CookieSerializeOptions } from "cookie";
 import type { CorsOptions } from "cors";
-import type { BroadcastOperator } from "./broadcast-operator";
+import type { BroadcastOperator, RemoteSocket } from "./broadcast-operator";
 
 const debug = debugModule("socket.io:server");
 
@@ -719,6 +719,45 @@ export class Server extends EventEmitter {
   public get local(): BroadcastOperator {
     return this.sockets.local;
   }
+
+  /**
+   * Returns the matching socket instances
+   *
+   * @public
+   */
+  public fetchSockets(): Promise<RemoteSocket[]> {
+    return this.sockets.fetchSockets();
+  }
+
+  /**
+   * Makes the matching socket instances join the specified rooms
+   *
+   * @param room
+   * @public
+   */
+  public socketsJoin(room: Room | Room[]): void {
+    return this.sockets.socketsJoin(room);
+  }
+
+  /**
+   * Makes the matching socket instances leave the specified rooms
+   *
+   * @param room
+   * @public
+   */
+  public socketsLeave(room: Room | Room[]): void {
+    return this.sockets.socketsLeave(room);
+  }
+
+  /**
+   * Makes the matching socket instances disconnect
+   *
+   * @param close - whether to close the underlying connection
+   * @public
+   */
+  public disconnectSockets(close: boolean = false): void {
+    return this.sockets.disconnectSockets(close);
+  }
 }
 
 /**
@@ -740,4 +779,4 @@ emitterMethods.forEach(function (fn) {
 module.exports = (srv?, opts?) => new Server(srv, opts);
 module.exports.Server = Server;
 
-export { Socket, ServerOptions, Namespace };
+export { Socket, ServerOptions, Namespace, BroadcastOperator, RemoteSocket };
