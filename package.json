@@ -32,7 +32,6 @@
     "parseqs": "0.0.6",
     "parseuri": "0.0.6",
     "ws": "~7.4.2",
-    "xmlhttprequest-ssl": "~1.5.4",
     "yeast": "0.1.2"
   },
   "devDependencies": {
@@ -68,7 +67,8 @@
   },
   "browser": {
     "ws": false,
-    "xmlhttprequest-ssl": "./lib/xmlhttprequest.js",
+    "./contrib/xmlhttprequest-ssl/XMLHttpRequest.js": "./lib/xmlhttprequest.js",
+    "./test/node.js": false,
     "./lib/transports/websocket-constructor.js": "./lib/transports/websocket-constructor.browser.js",
     "./lib/globalThis.js": "./lib/globalThis.browser.js"
   },

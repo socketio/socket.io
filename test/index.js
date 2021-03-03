@@ -1,8 +1,10 @@
-require("./support/env");
+const env = require("./support/env");
 
 // whitelist some globals to avoid warnings
-if (typeof window !== "undefined") {
+if (env.browser) {
   window.___eio = null;
+} else {
+  require("./node");
 }
 
 var Blob = require("blob");
