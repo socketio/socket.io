@@ -5,6 +5,8 @@ import { createServer } from "http";
 import { expectError, expectType } from "tsd";
 import "./support/util";
 
+// This file is run by tsd, not mocha.
+
 describe("server", () => {
   describe("no event map", () => {
     describe("on", () => {
