@@ -2,7 +2,8 @@ import { Decoder, Encoder, Packet, PacketType } from "socket.io-parser";
 import debugModule = require("debug");
 import url = require("url");
 import type { IncomingMessage } from "http";
-import type { DefaultEventsMap, EventsMap, Namespace, Server } from "./index";
+import type { Namespace, Server } from "./index";
+import type { DefaultEventsMap, EventsMap } from "./typed-events";
 import type { Socket } from "./socket";
 import type { SocketId } from "socket.io-adapter";
 

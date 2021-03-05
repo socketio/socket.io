@@ -7,12 +7,13 @@ import type {
   EventNames,
   EventsMap,
   DefaultEventsMap,
-} from "./index";
+  TypedEventBroadcaster,
+} from "./typed-events";
 
 export class BroadcastOperator<
   UserEvents extends EventsMap,
   UserEmitEvents extends EventsMap = UserEvents
-> {
+> implements TypedEventBroadcaster<UserEmitEvents> {
   constructor(
     private readonly adapter: Adapter,
     private readonly rooms: Set<Room> = new Set<Room>(),
@@ -269,7 +270,7 @@ interface SocketDetails {
 export class RemoteSocket<
   UserEvents extends EventsMap = DefaultEventsMap,
   UserEmitEvents extends EventsMap = UserEvents
-> {
+> implements TypedEventBroadcaster<UserEmitEvents> {
   public readonly id: SocketId;
   public readonly handshake: Handshake;
   public readonly rooms: Set<Room>;

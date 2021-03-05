@@ -1,15 +1,13 @@
-import { EventEmitter } from "events";
 import { Packet, PacketType } from "socket.io-parser";
 import url = require("url");
 import debugModule from "debug";
-import type {
-  DefaultEventsMap,
+import type { Server } from "./index";
+import {
   EventParams,
   EventNames,
   EventsMap,
-  Listener,
-  Server,
-} from "./index";
+  StrictEventEmitter,
+} from "./typed-events";
 import type { Client } from "./client";
 import type { Namespace } from "./namespace";
 import type { IncomingMessage, IncomingHttpHeaders } from "http";
@@ -38,6 +36,7 @@ export interface ServerReservedEventsMap<
 export interface SocketReservedEventsMap {
   disconnect: (reason: string) => void;
   disconnecting: (reason: string) => void;
+  error: Error;
 }
 
 // EventEmitter reserved events: https://nodejs.org/api/events.html#events_event_newlistener
@@ -119,7 +118,11 @@ export interface Handshake {
 export class Socket<
   UserEvents extends EventsMap = EventsMap,
   UserEmitEvents extends EventsMap = UserEvents
-> extends EventEmitter {
+> extends StrictEventEmitter<
+  UserEvents,
+  UserEmitEvents,
+  SocketReservedEventsMap
+> {
   public readonly id: SocketId;
   public readonly handshake: Handshake;
   /**
@@ -218,13 +221,6 @@ export class Socket<
     this.packet(packet, flags);
 
     return true;
-  }
-
-  public on<Ev extends EventNames<UserEvents & SocketReservedEventsMap>>(
-    ev: Ev,
-    listener: Listener<UserEvents & SocketReservedEventsMap, Ev>
-  ): this {
-    return super.on(ev, listener);
   }
 
   /**
@@ -474,9 +470,9 @@ export class Socket<
    *
    * @private
    */
-  _onerror(err): void {
+  _onerror(err: Error): void {
     if (this.listeners("error").length) {
-      super.emit("error", err);
+      this.emitReserved("error", err);
     } else {
       console.error("Missing error handler on `socket`.");
       console.error(err.stack);
@@ -494,13 +490,13 @@ export class Socket<
   _onclose(reason: string): this | undefined {
     if (!this.connected) return this;
     debug("closing socket - reason %s", reason);
-    super.emit("disconnecting", reason);
+    this.emitReserved("disconnecting", reason);
     this.leaveAll();
     this.nsp._remove(this);
     this.client._remove(this);
     this.connected = false;
     this.disconnected = true;
-    super.emit("disconnect", reason);
+    this.emitReserved("disconnect", reason);
     return;
   }
 
@@ -594,7 +590,7 @@ export class Socket<
           return this._onerror(err);
         }
         if (this.connected) {
-          super.emit.apply(this, event);
+          this.untypedEventEmitter.emit.apply(this, event);
         } else {
           debug("ignore packet received after disconnection");
         }

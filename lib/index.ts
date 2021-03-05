@@ -17,6 +17,12 @@ import { ServerReservedEventsMap, Socket } from "./socket";
 import type { CookieSerializeOptions } from "cookie";
 import type { CorsOptions } from "cors";
 import type { BroadcastOperator, RemoteSocket } from "./broadcast-operator";
+import {
+  EventsMap,
+  DefaultEventsMap,
+  EventParams,
+  StrictEventEmitter,
+} from "./typed-events";
 
 const debug = debugModule("socket.io:server");
 
@@ -156,57 +162,14 @@ interface ServerOptions extends EngineAttachOptions {
   connectTimeout: number;
 }
 
-/**
- * An events map is an interface that maps event names to their values. Values
- * can be either:
- *
- * - `void`, indicating that the `on` listener takes no parameters
- * - a function type, representing the the type of the `on` listener
- * - any other type, representing the type of the first parameter of the `on` listener
- */
-export interface EventsMap {
-  [event: string]: any;
-}
-
-/**
- * The default events map, used if no EventsMap is given. Using this EventsMap
- * is equivalent to accepting all event names, and any data.
- */
-export interface DefaultEventsMap {
-  [event: string]: (...args: any[]) => void;
-}
-
-/**
- * Returns a union type containing all the keys of an event map.
- */
-export type EventNames<Map extends EventsMap> = keyof Map & (string | symbol);
-
-/** The tuple type representing the parameters of an event listener */
-export type EventParams<
-  Map extends EventsMap,
-  Ev extends keyof Map
-> = Map[Ev] extends (...args: any[]) => void
-  ? Parameters<Map[Ev]>
-  : Map[Ev] extends void
-  ? []
-  : [Map[Ev]];
-
-/**
- * The type of listener callback that listens to the `Ev` event, as defined in `Map`
- */
-export type Listener<
-  Map extends EventsMap,
-  Ev extends keyof Map
-> = Map[Ev] extends (...args: any[]) => void
-  ? Map[Ev]
-  : Map[Ev] extends void
-  ? (...args: []) => void
-  : (...args: [Map[Ev]]) => void;
-
 export class Server<
   UserEvents extends EventsMap = DefaultEventsMap,
   UserEmitEvents extends EventsMap = UserEvents
-> extends EventEmitter {
+> extends StrictEventEmitter<
+  UserEvents,
+  UserEmitEvents,
+  ServerReservedEventsMap<UserEvents, UserEmitEvents>
+> {
   public readonly sockets: Namespace<UserEvents, UserEmitEvents>;
 
   /** @private */
@@ -702,20 +665,6 @@ export class Server<
     room: Room | Room[]
   ): BroadcastOperator<UserEvents, UserEmitEvents> {
     return this.sockets.in(room);
-  }
-
-  public on<
-    Ev extends EventNames<
-      UserEvents & ServerReservedEventsMap<UserEvents, UserEmitEvents>
-    >
-  >(
-    ev: Ev,
-    listener: Listener<
-      UserEvents & ServerReservedEventsMap<UserEvents, UserEmitEvents>,
-      Ev
-    >
-  ): this {
-    return super.on(ev, listener);
   }
 
   /**

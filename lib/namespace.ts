@@ -1,13 +1,13 @@
-import { Socket } from "./socket";
-import type {
+import { ServerReservedEventsMap, Socket } from "./socket";
+import type { Server } from "./index";
+import {
   DefaultEventsMap,
   EventParams,
   EventNames,
   EventsMap,
-  Server,
-} from "./index";
+  StrictEventEmitter,
+} from "./typed-events";
 import type { Client } from "./client";
-import { EventEmitter } from "events";
 import debugModule from "debug";
 import type { Adapter, Room, SocketId } from "socket.io-adapter";
 import { BroadcastOperator, RemoteSocket } from "./broadcast-operator";
@@ -21,7 +21,11 @@ export interface ExtendedError extends Error {
 export class Namespace<
   UserEvents extends EventsMap = DefaultEventsMap,
   UserEmitEvents extends EventsMap = UserEvents
-> extends EventEmitter {
+> extends StrictEventEmitter<
+  UserEvents,
+  UserEmitEvents,
+  ServerReservedEventsMap<UserEvents, UserEmitEvents>
+> {
   public readonly name: string;
   public readonly sockets: Map<SocketId, Socket> = new Map();
 
@@ -188,8 +192,8 @@ export class Namespace<
           if (fn) fn();
 
           // fire user-set events
-          super.emit("connect", socket);
-          super.emit("connection", socket);
+          super.emitReserved("connect", socket);
+          super.emitReserved("connection", socket);
         } else {
           debug("next called after client was closed - ignoring socket");
         }

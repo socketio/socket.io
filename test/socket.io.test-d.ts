@@ -1,5 +1,6 @@
 "use strict";
-import { DefaultEventsMap, Server, Socket } from "..";
+import { Server, Socket } from "..";
+import type { DefaultEventsMap } from "../dist/typed-events";
 import { createServer } from "http";
 import { expectError, expectType } from "tsd";
 import "./support/util";

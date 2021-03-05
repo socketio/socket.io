@@ -14,6 +14,7 @@ const ioc = require("socket.io-client");
 
 import "./support/util";
 import "./utility-methods";
+import type { SocketId } from "socket.io-adapter";
 
 // Creates a socket.io client for the given server
 function client(srv, nsp?: string | object, opts?: object) {
@@ -605,7 +606,7 @@ describe("socket.io", () => {
       const srv = createServer();
       const sio = new Server(srv);
       const chatSids: string[] = [];
-      let otherSid = null;
+      let otherSid: SocketId | null = null;
       srv.listen(() => {
         const c1 = client(srv, "/chat");
         const c2 = client(srv, "/chat", { forceNew: true });
@@ -632,9 +633,9 @@ describe("socket.io", () => {
     it("should find all clients in a namespace room", (done) => {
       const srv = createServer();
       const sio = new Server(srv);
-      let chatFooSid = null;
-      let chatBarSid = null;
-      let otherSid = null;
+      let chatFooSid: SocketId | null = null;
+      let chatBarSid: SocketId | null = null;
+      let otherSid: SocketId | null = null;
       srv.listen(() => {
         const c1 = client(srv, "/chat");
         const c2 = client(srv, "/chat", { forceNew: true });
@@ -671,9 +672,9 @@ describe("socket.io", () => {
     it("should find all clients across namespace rooms", (done) => {
       const srv = createServer();
       const sio = new Server(srv);
-      let chatFooSid = null;
-      let chatBarSid = null;
-      let otherSid = null;
+      let chatFooSid: SocketId | null = null;
+      let chatBarSid: SocketId | null = null;
+      let otherSid: SocketId | null = null;
       srv.listen(() => {
         const c1 = client(srv, "/chat");
         const c2 = client(srv, "/chat", { forceNew: true });

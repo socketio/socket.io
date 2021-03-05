@@ -1,11 +1,11 @@
 import { Namespace } from "./namespace";
+import type { Server } from "./index";
 import type {
   DefaultEventsMap,
   EventParams,
   EventNames,
   EventsMap,
-  Server,
-} from "./index";
+} from "./typed-events";
 import type { BroadcastOptions } from "socket.io-adapter";
 
 export class ParentNamespace<
@@ -47,10 +47,10 @@ export class ParentNamespace<
     const namespace = new Namespace(this.server, name);
     namespace._fns = this._fns.slice(0);
     this.listeners("connect").forEach((listener) =>
-      namespace.on("connect", listener as (...args: any[]) => void)
+      namespace.on("connect", listener)
     );
     this.listeners("connection").forEach((listener) =>
-      namespace.on("connection", listener as (...args: any[]) => void)
+      namespace.on("connection", listener)
     );
     this.children.add(namespace);
     this.server._nsps.set(name, namespace);
