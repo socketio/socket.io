@@ -10,14 +10,14 @@ import expect from "expect.js";
 import type { AddressInfo } from "net";
 import * as io_v2 from "socket.io-client-v2";
 
-const ioc = require("socket.io-client");
+import * as ioc from "socket.io-client";
 
 import "./support/util";
 import "./utility-methods";
 import type { SocketId } from "socket.io-adapter";
 
 // Creates a socket.io client for the given server
-function client(srv, nsp?: string | object, opts?: object) {
+function client(srv, nsp?: string | object, opts?: object): ioc.Socket {
   if ("object" == typeof nsp) {
     opts = nsp;
     nsp = undefined;
@@ -25,7 +25,7 @@ function client(srv, nsp?: string | object, opts?: object) {
   let addr = srv.address();
   if (!addr) addr = srv.listen().address();
   const url = "ws://localhost:" + addr.port + (nsp || "");
-  return ioc(url, opts);
+  return ioc.io(url, opts);
 }
 
 const success = (sio, clientSocket, done) => {
@@ -334,7 +334,9 @@ describe("socket.io", () => {
       const net = require("net");
       const server = net.createServer();
 
-      const clientSocket = ioc("ws://0.0.0.0:" + PORT, { reconnection: false });
+      const clientSocket = ioc.io("ws://0.0.0.0:" + PORT, {
+        reconnection: false,
+      });
 
       clientSocket.on("disconnect", () => {
         expect(Object.keys(sio._nsps["/"].sockets).length).to.equal(0);
