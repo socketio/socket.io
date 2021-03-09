@@ -142,8 +142,8 @@ export abstract class StrictEventEmitter<
   /**
    * Emits a reserved event.
    *
-   * This method is `protected`, so that only a class extending `TypedEmitter`
-   * can emit its own reserved events.
+   * This method is `protected`, so that only a class extending
+   * `StrictEventEmitter` can emit its own reserved events.
    *
    * @param ev Reserved event name
    * @param args Arguments to emit along with the event
