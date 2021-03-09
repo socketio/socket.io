@@ -590,7 +590,7 @@ export class Socket<
           return this._onerror(err);
         }
         if (this.connected) {
-          this.untypedEventEmitter.emit.apply(this, event);
+          super.emitUntyped.apply(this, event);
         } else {
           debug("ignore packet received after disconnection");
         }

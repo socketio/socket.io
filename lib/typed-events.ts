@@ -100,9 +100,6 @@ export abstract class StrictEventEmitter<
   >
   extends EventEmitter
   implements TypedEventBroadcaster<EmitEvents> {
-  /** An non-strictly typed version of this event emitter. */
-  protected untypedEventEmitter: EventEmitter = this;
-
   /**
    * Adds the `listener` function as an event listener for `ev`.
    *
@@ -155,6 +152,20 @@ export abstract class StrictEventEmitter<
     ev: Ev,
     ...args: EventParams<ReservedEvents, Ev>
   ): boolean {
+    return super.emit(ev, ...args);
+  }
+
+  /**
+   * Emits an event.
+   *
+   * This method is `protected`, so that only a class extending
+   * `StrictEventEmitter` can get around the strict typing. This is useful for
+   * calling `emit.apply`, which can be called as `emitUntyped.apply`.
+   *
+   * @param ev Event name
+   * @param args Arguments to emit along with the event
+   */
+  protected emitUntyped(ev: string, ...args: any[]): boolean {
     return super.emit(ev, ...args);
   }
 
