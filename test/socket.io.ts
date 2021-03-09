@@ -955,8 +955,7 @@ describe("socket.io", () => {
       const sio = new Server(srv);
       srv.listen(() => {
         const clientSocket = client(srv, { reconnection: false });
-        clientSocket.on("connect", function init() {
-          clientSocket.removeListener("connect", init);
+        clientSocket.once("connect", () => {
           clientSocket.io.engine.close();
 
           clientSocket.connect();
