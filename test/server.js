@@ -3121,7 +3121,7 @@ describe("server", () => {
   describe("wsEngine option", () => {
     it("should allow loading of other websocket server implementation like eiows", done => {
       const engine = listen(
-        { allowUpgrades: false, wsEngine: "eiows" },
+        { allowUpgrades: false, wsEngine: require("eiows").Server },
         port => {
           expect(engine.ws instanceof require("eiows").Server).to.be.ok();
           const socket = new eioc.Socket("ws://localhost:%d".s(port));

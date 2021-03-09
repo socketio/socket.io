@@ -16,6 +16,10 @@ exports.listen = (opts, fn) => {
 
   opts.allowEIO3 = true;
 
+  if (process.env.EIO_WS_ENGINE) {
+    opts.wsEngine = require(process.env.EIO_WS_ENGINE).Server;
+  }
+
   const e = eio.listen(0, opts, () => {
     fn(e.httpServer.address().port);
   });
