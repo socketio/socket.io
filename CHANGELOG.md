@@ -1,3 +1,38 @@
+# [5.0.0](https://github.com/socketio/engine.io/compare/4.1.1...5.0.0) (2021-03-10)
+
+
+### Bug Fixes
+
+* set default protocol version to 3 ([#616](https://github.com/socketio/engine.io/issues/616)) ([868d891](https://github.com/socketio/engine.io/commit/868d89111de0ab5bd0e147ecaff7983afbf5d087))
+
+
+### Features
+
+* increase the default value of pingTimeout ([5a7fa13](https://github.com/socketio/engine.io/commit/5a7fa132c442bc1e7eefa1cf38168ee951575ded))
+* remove dynamic require() with wsEngine ([edb7343](https://github.com/socketio/engine.io/commit/edb734316f143bf0f1bbc344e966d18e2676b934))
+
+
+### BREAKING CHANGES
+
+* the syntax of the "wsEngine" option is updated
+
+Before:
+
+```js
+const eioServer = require("engine.io")(httpServer, {
+  wsEngine: "eiows"
+});
+```
+
+After:
+
+```js
+const eioServer = require("engine.io")(httpServer, {
+  wsEngine: require("eiows").Server
+});
+```
+
+
 ## [4.1.1](https://github.com/socketio/engine.io/compare/4.1.0...4.1.1) (2021-02-02)
 
 
