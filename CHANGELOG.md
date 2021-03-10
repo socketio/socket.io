@@ -1,3 +1,18 @@
+# [4.0.0](https://github.com/socketio/socket.io-client/compare/3.1.2...4.0.0) (2021-03-10)
+
+The major bump is due to some breaking changes on the server side.
+
+### Bug Fixes
+
+* **bundle:** restore support for JS modules ([43613d1](https://github.com/socketio/socket.io-client/commit/43613d1b2c3c04e89d572750656012f54d44467c))
+
+
+### Features
+
+* add autoUnref option ([6abfa1f](https://github.com/socketio/socket.io-client/commit/6abfa1fa4c7fea0d69c69b254d2e1ca18f19c4bc))
+* add support for typed events ([5902365](https://github.com/socketio/socket.io-client/commit/59023657a02cf78f90522e0d7797749707ed5ed2))
+
+
 ## [3.1.2](https://github.com/socketio/socket.io-client/compare/3.1.1...3.1.2) (2021-02-26)
 
 
