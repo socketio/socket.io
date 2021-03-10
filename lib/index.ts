@@ -43,7 +43,7 @@ type ParentNspNameMatchFn = (
 interface EngineOptions {
   /**
    * how many ms without a pong packet to consider the connection closed
-   * @default 5000
+   * @default 20000
    */
   pingTimeout: number;
   /**
@@ -93,10 +93,12 @@ interface EngineOptions {
   httpCompression: boolean | object;
   /**
    * what WebSocket server implementation to use. Specified module must
-   * conform to the ws interface (see ws module api docs). Default value is ws.
-   * An alternative c++ addon is also available by installing uws module.
+   * conform to the ws interface (see ws module api docs).
+   * An alternative c++ addon is also available by installing eiows module.
+   *
+   * @default `require("ws").Server`
    */
-  wsEngine: string;
+  wsEngine: Function;
   /**
    * an optional packet which will be concatenated to the handshake packet emitted by Engine.IO.
    */

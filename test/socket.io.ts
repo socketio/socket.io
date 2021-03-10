@@ -228,7 +228,7 @@ describe("socket.io", () => {
       });
       request
         .options("http://localhost:54013/socket.io/default/")
-        .query({ transport: "polling" })
+        .query({ transport: "polling", EIO: 4 })
         .set("Origin", "http://localhost:54023")
         .end((err, res) => {
           expect(res.status).to.be(204);
@@ -256,7 +256,7 @@ describe("socket.io", () => {
       });
       request
         .get("http://localhost:54014/socket.io/default/")
-        .query({ transport: "polling" })
+        .query({ transport: "polling", EIO: 4 })
         .set("Origin", "http://localhost:54024")
         .end((err, res) => {
           expect(res.status).to.be(200);
@@ -276,7 +276,7 @@ describe("socket.io", () => {
 
       request
         .get("http://localhost:54022/socket.io/default/")
-        .query({ transport: "polling" })
+        .query({ transport: "polling", EIO: 4 })
         .end((err, res) => {
           expect(res.status).to.be(200);
           done();
@@ -290,7 +290,7 @@ describe("socket.io", () => {
       request
         .get("http://localhost:54023/socket.io/default/")
         .set("origin", "http://foo.example")
-        .query({ transport: "polling" })
+        .query({ transport: "polling", EIO: 4 })
         .end((err, res) => {
           expect(res.status).to.be(403);
           done();
