@@ -7,7 +7,7 @@ io.on("connect", (socket: Socket) => {
 
     socket.on("ping", (cb) => {
         console.log("ping");
-        cb();
+//         cb();
     });
 
     socket.on("disconnect", () => {
