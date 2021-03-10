@@ -11,7 +11,7 @@ module.exports = {
     filename: "engine.io.js",
     library: "eio",
     libraryTarget: "umd",
-    globalObject: "this"
+    globalObject: "self"
   },
   mode: "development",
   node: false,
