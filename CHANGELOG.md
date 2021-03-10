@@ -1,3 +1,13 @@
+# [5.0.0](https://github.com/socketio/engine.io-client/compare/4.1.2...5.0.0) (2021-03-10)
+
+The major bump is due to a breaking change on the server side.
+
+### Features
+
+* add autoUnref option ([6551683](https://github.com/socketio/engine.io-client/commit/65516836b2b6fe28d80e9a5918f9e10baa7451d8))
+* listen to the "offline" event ([c361bc6](https://github.com/socketio/engine.io-client/commit/c361bc691f510b96f8909c5e6c62a4635d50275c))
+
+
 ## [3.5.1](https://github.com/socketio/engine.io-client/compare/3.5.0...3.5.1) (2021-03-02)
 
 
