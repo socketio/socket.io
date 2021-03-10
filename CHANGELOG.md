@@ -1,3 +1,19 @@
+# [4.0.0](https://github.com/socketio/socket.io/compare/3.1.2...4.0.0) (2021-03-10)
+
+
+### Bug Fixes
+
+* make io.to(...) immutable ([ac9e8ca](https://github.com/socketio/socket.io/commit/ac9e8ca6c71e00d4af45ee03f590fe56f3951186))
+
+
+### Features
+
+* add some utility methods ([b25495c](https://github.com/socketio/socket.io/commit/b25495c069031674da08e19aed68922c7c7a0e28))
+* add support for typed events ([#3822](https://github.com/socketio/socket.io/issues/3822)) ([0107510](https://github.com/socketio/socket.io/commit/0107510ba8a0f148c78029d8be8919b350feb633))
+* allow to exclude specific rooms when broadcasting ([#3789](https://github.com/socketio/socket.io/issues/3789)) ([7de2e87](https://github.com/socketio/socket.io/commit/7de2e87e888d849eb2dfc5e362af4c9e86044701))
+* allow to pass an array to io.to(...) ([085d1de](https://github.com/socketio/socket.io/commit/085d1de9df909651de8b313cc6f9f253374b702e))
+
+
 ## [3.1.2](https://github.com/socketio/socket.io/compare/3.1.1...3.1.2) (2021-02-26)
 
 

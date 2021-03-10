@@ -2455,6 +2455,7 @@ describe("socket.io", () => {
         socket.on("connect_error", (err) => {
           expect(err).to.be.an(Error);
           expect(err.message).to.eql("Authentication error");
+          // @ts-ignore
           expect(err.data).to.eql({ a: "b", c: 3 });
           done();
         });
