@@ -1,7 +1,13 @@
 import { Packet, PacketType } from "socket.io-parser";
-import Emitter = require("component-emitter");
 import { on } from "./on";
 import { Manager } from "./manager";
+import {
+  DefaultEventsMap,
+  EventNames,
+  EventParams,
+  EventsMap,
+  StrictEventEmitter,
+} from "./typed-events";
 
 const debug = require("debug")("socket.io-client:socket");
 
@@ -31,8 +37,17 @@ interface Flags {
   volatile?: boolean;
 }
 
-export class Socket extends Emitter {
-  public readonly io: Manager;
+interface SocketReservedEvents {
+  connect: () => void;
+  connect_error: (err: Error) => void;
+  disconnect: (reason: Socket.DisconnectReason) => void;
+}
+
+export class Socket<
+  ListenEvents extends EventsMap = DefaultEventsMap,
+  EmitEvents extends EventsMap = ListenEvents
+> extends StrictEventEmitter<ListenEvents, EmitEvents, SocketReservedEvents> {
+  public readonly io: Manager<ListenEvents, EmitEvents>;
 
   public id: string;
   public connected: boolean;
@@ -133,11 +148,13 @@ export class Socket extends Emitter {
    * Override `emit`.
    * If the event is in `events`, it's emitted normally.
    *
-   * @param ev - event name
    * @return self
    * @public
    */
-  public emit(ev: string, ...args: any[]): this {
+  public emit<Ev extends EventNames<EmitEvents>>(
+    ev: Ev,
+    ...args: EventParams<EmitEvents, Ev>
+  ): this {
     if (RESERVED_EVENTS.hasOwnProperty(ev)) {
       throw new Error('"' + ev + '" is a reserved event name');
     }
@@ -213,7 +230,7 @@ export class Socket extends Emitter {
    */
   private onerror(err: Error): void {
     if (!this.connected) {
-      super.emit("connect_error", err);
+      this.emitReserved("connect_error", err);
     }
   }
 
@@ -228,7 +245,7 @@ export class Socket extends Emitter {
     this.connected = false;
     this.disconnected = true;
     delete this.id;
-    super.emit("disconnect", reason);
+    this.emitReserved("disconnect", reason);
   }
 
   /**
@@ -248,7 +265,7 @@ export class Socket extends Emitter {
           const id = packet.data.sid;
           this.onconnect(id);
         } else {
-          super.emit(
+          this.emitReserved(
             "connect_error",
             new Error(
               "It seems you are trying to reach a Socket.IO server in v2.x with a v3.x client, but they are not compatible (more information here: https://socket.io/docs/v3/migrating-from-2-x-to-3-0/)"
@@ -281,7 +298,7 @@ export class Socket extends Emitter {
         const err = new Error(packet.data.message);
         // @ts-ignore
         err.data = packet.data.data;
-        super.emit("connect_error", err);
+        this.emitReserved("connect_error", err);
         break;
     }
   }
@@ -367,7 +384,7 @@ export class Socket extends Emitter {
     this.id = id;
     this.connected = true;
     this.disconnected = false;
-    super.emit("connect");
+    this.emitReserved("connect");
     this.emitBuffered();
   }
 

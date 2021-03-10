@@ -1,10 +1,14 @@
 import * as eio from "engine.io-client";
 import { Socket, SocketOptions } from "./socket";
-import Emitter = require("component-emitter");
 import * as parser from "socket.io-parser";
 import { Decoder, Encoder, Packet } from "socket.io-parser";
 import { on } from "./on";
 import * as Backoff from "backo2";
+import {
+  DefaultEventsMap,
+  EventsMap,
+  StrictEventEmitter,
+} from "./typed-events";
 
 const debug = require("debug")("socket.io-client:manager");
 
@@ -258,7 +262,22 @@ export interface ManagerOptions extends EngineOptions {
   parser: any;
 }
 
-export class Manager extends Emitter {
+interface ManagerReservedEvents {
+  open: () => void;
+  error: (err: Error) => void;
+  ping: () => void;
+  packet: (packet: Packet) => void;
+  close: (reason: string) => void;
+  reconnect_failed: () => void;
+  reconnect_attempt: (attempt: number) => void;
+  reconnect_error: (err: Error) => void;
+  reconnect: (attempt: number) => void;
+}
+
+export class Manager<
+  ListenEvents extends EventsMap = DefaultEventsMap,
+  EmitEvents extends EventsMap = ListenEvents
+> extends StrictEventEmitter<{}, {}, ManagerReservedEvents> {
   /**
    * The Engine.IO client instance
    *
@@ -487,7 +506,7 @@ export class Manager extends Emitter {
       debug("error");
       self.cleanup();
       self._readyState = "closed";
-      super.emit("error", err);
+      this.emitReserved("error", err);
       if (fn) {
         fn(err);
       } else {
@@ -546,7 +565,7 @@ export class Manager extends Emitter {
 
     // mark as open
     this._readyState = "open";
-    super.emit("open");
+    this.emitReserved("open");
 
     // add new subs
     const socket = this.engine;
@@ -565,7 +584,7 @@ export class Manager extends Emitter {
    * @private
    */
   private onping(): void {
-    super.emit("ping");
+    this.emitReserved("ping");
   }
 
   /**
@@ -583,7 +602,7 @@ export class Manager extends Emitter {
    * @private
    */
   private ondecoded(packet): void {
-    super.emit("packet", packet);
+    this.emitReserved("packet", packet);
   }
 
   /**
@@ -593,7 +612,7 @@ export class Manager extends Emitter {
    */
   private onerror(err): void {
     debug("error", err);
-    super.emit("error", err);
+    this.emitReserved("error", err);
   }
 
   /**
@@ -701,7 +720,7 @@ export class Manager extends Emitter {
     this.cleanup();
     this.backoff.reset();
     this._readyState = "closed";
-    super.emit("close", reason);
+    this.emitReserved("close", reason);
 
     if (this._reconnection && !this.skipReconnect) {
       this.reconnect();
@@ -721,7 +740,7 @@ export class Manager extends Emitter {
     if (this.backoff.attempts >= this._reconnectionAttempts) {
       debug("reconnect failed");
       this.backoff.reset();
-      super.emit("reconnect_failed");
+      this.emitReserved("reconnect_failed");
       this._reconnecting = false;
     } else {
       const delay = this.backoff.duration();
@@ -732,7 +751,7 @@ export class Manager extends Emitter {
         if (self.skipReconnect) return;
 
         debug("attempting reconnect");
-        super.emit("reconnect_attempt", self.backoff.attempts);
+        this.emitReserved("reconnect_attempt", self.backoff.attempts);
 
         // check again for the case socket closed in above events
         if (self.skipReconnect) return;
@@ -742,7 +761,7 @@ export class Manager extends Emitter {
             debug("reconnect attempt error");
             self._reconnecting = false;
             self.reconnect();
-            super.emit("reconnect_error", err);
+            this.emitReserved("reconnect_error", err);
           } else {
             debug("reconnect success");
             self.onreconnect();
@@ -765,6 +784,6 @@ export class Manager extends Emitter {
     const attempt = this.backoff.attempts;
     this._reconnecting = false;
     this.backoff.reset();
-    super.emit("reconnect", attempt);
+    this.emitReserved("reconnect", attempt);
   }
 }

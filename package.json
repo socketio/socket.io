@@ -60,6 +60,7 @@
     "text-blob-builder": "0.0.1",
     "ts-loader": "^8.0.5",
     "ts-node": "^9.0.0",
+    "tsd": "^0.14.0",
     "typescript": "^4.0.3",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",
@@ -73,6 +74,7 @@
     "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
     "test:node": "mocha --require ts-node/register --reporter dot --require test/support/server.js test/index.js",
     "test:browser": "zuul test/index.js",
+    "test:types": "tsd",
     "build": "npm run compile && webpack --config ./support/webpack.config.js --config ./support/prod.config.js --config ./support/msgpack-parser.config.js",
     "format:check": "prettier --check \"lib/**/*.ts\" \"test/**/*.js\" \"test/**/*.ts\" \"support/**/*.js\"",
     "format:fix": "prettier --write \"lib/**/*.ts\" \"test/**/*.js\" \"test/**/*.ts\" \"support/**/*.js\"",
@@ -103,5 +105,8 @@
   "license": "MIT",
   "engines": {
     "node": ">=10.0.0"
+  },
+  "tsd": {
+    "directory": "test"
   }
 }
