@@ -133,7 +133,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
   public emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
     ...args: EventParams<EmitEvents, Ev>
-  ): true {
+  ): boolean {
     if (RESERVED_EVENTS.has(ev)) {
       throw new Error(`"${ev}" is a reserved event name`);
     }
@@ -276,7 +276,7 @@ export class RemoteSocket<EmitEvents extends EventsMap>
   public emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
     ...args: EventParams<EmitEvents, Ev>
-  ): true {
+  ): boolean {
     return this.operator.emit(ev, ...args);
   }
 

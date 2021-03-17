@@ -35,7 +35,7 @@ export class ParentNamespace<
   public emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
     ...args: EventParams<EmitEvents, Ev>
-  ): true {
+  ): boolean {
     this.children.forEach((nsp) => {
       nsp.emit(ev, ...args);
     });

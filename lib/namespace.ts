@@ -229,7 +229,7 @@ export class Namespace<
   public emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
     ...args: EventParams<EmitEvents, Ev>
-  ): true {
+  ): boolean {
     return new BroadcastOperator<EmitEvents>(this.adapter).emit(ev, ...args);
   }
 
