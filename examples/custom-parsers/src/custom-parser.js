@@ -40,12 +40,12 @@ const errorPacket = {
 };
 
 class Encoder {
-  encode (packet, callback) {
+  encode (packet) {
     switch (packet.type) {
       case TYPES.EVENT:
-        return callback([ this.pack(packet) ]);
+        return [ this.pack(packet) ];
       default:
-        return callback([ JSON.stringify(packet) ]);
+        return [ JSON.stringify(packet) ];
     }
   }
   pack (packet) {

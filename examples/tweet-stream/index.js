@@ -7,7 +7,11 @@ const twitter = new Twitter({
   token_secret: process.env.TWITTER_TOKEN_SECRET
 });
 
-const io = require('socket.io')(process.env.PORT || 3000);
+const io = require('socket.io')(process.env.PORT || 3000, {
+  cors: {
+    origin: true
+  }
+});
 
 twitter.track('socket.io');
 twitter.track('javascript');

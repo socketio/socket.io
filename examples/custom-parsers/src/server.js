@@ -14,15 +14,22 @@ const msgpackParser = require('socket.io-msgpack-parser');
 const jsonParser = require('socket.io-json-parser');
 const customParser = require('./custom-parser');
 
-let server1 = io(3001, {});
+const cors = {
+  origin: ["http://localhost:3000"]
+}
+
+let server1 = io(3001, { cors });
 let server2 = io(3002, {
-  parser: msgpackParser
+  parser: msgpackParser,
+  cors
 });
 let server3 = io(3003, {
-  parser: jsonParser
+  parser: jsonParser,
+  cors
 });
 let server4 = io(3004, {
-  parser: customParser
+  parser: customParser,
+  cors
 });
 
 let string = [];

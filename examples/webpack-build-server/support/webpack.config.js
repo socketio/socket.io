@@ -5,5 +5,6 @@ module.exports = {
   output: {
     path: require('path').join(__dirname, '../dist'),
     filename: 'server.js'
-  }
+  },
+  mode: 'production'
 };

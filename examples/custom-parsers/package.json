@@ -12,10 +12,10 @@
     "component-emitter": "^1.2.1",
     "express": "^4.15.2",
     "schemapack": "^1.4.2",
-    "socket.io": "socketio/socket.io",
-    "socket.io-client": "socketio/socket.io-client",
-    "socket.io-json-parser": "^1.0.0",
-    "socket.io-msgpack-parser": "^1.0.0",
+    "socket.io": "^4.0.0",
+    "socket.io-client": "^4.0.0",
+    "socket.io-json-parser": "^3.0.0",
+    "socket.io-msgpack-parser": "^3.0.1",
     "webpack": "^2.4.1"
   }
 }

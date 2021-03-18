@@ -9,7 +9,7 @@
   "author": "Damien Arrachequesne",
   "license": "MIT",
   "devDependencies": {
-    "socket.io": "~2.3.0",
+    "socket.io": "^4.0.0",
     "webpack": "~4.43.0",
     "webpack-cli": "~3.3.11"
   }

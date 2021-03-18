@@ -51,9 +51,9 @@ app.post(
 app.post("/logout", (req, res) => {
   console.log(`logout ${req.session.id}`);
   const socketId = req.session.socketId;
-  if (socketId && io.of("/").connected[socketId]) {
+  if (socketId && io.of("/").sockets.get(socketId)) {
     console.log(`forcefully closing socket ${socketId}`);
-    io.sockets.connected[socketId].disconnect(true);
+    io.of("/").sockets.get(socketId).disconnect(true);
   }
   req.logout();
   res.cookie("connect.sid", "", { expires: new Date() });

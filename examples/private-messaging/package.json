@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "socket.io-client": "^3.1.1",
+    "socket.io-client": "^4.0.0",
     "vue": "^2.6.11"
   },
   "devDependencies": {
