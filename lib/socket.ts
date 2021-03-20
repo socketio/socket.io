@@ -15,7 +15,7 @@ export interface SocketOptions {
   /**
    * the authentication payload sent when connecting to the Namespace
    */
-  auth: object | ((cb: (data: object) => void) => void);
+  auth: { [key: string]: any } | ((cb: (data: object) => void) => void);
 }
 
 /**
@@ -53,11 +53,11 @@ export class Socket<
   public connected: boolean;
   public disconnected: boolean;
 
+  public auth: { [key: string]: any } | ((cb: (data: object) => void) => void);
   public receiveBuffer: Array<ReadonlyArray<any>> = [];
   public sendBuffer: Array<Packet> = [];
 
   private readonly nsp: string;
-  private readonly auth: object | ((cb: (data: object) => void) => void);
 
   private ids: number = 0;
   private acks: object = {};
