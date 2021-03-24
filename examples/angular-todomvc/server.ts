@@ -1,4 +1,4 @@
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 
 const io = new Server(8080, {
   cors: {
@@ -15,7 +15,7 @@ interface Todo {
 
 let todos: Array<Todo> = [];
 
-io.on("connect", (socket: Socket) => {
+io.on("connect", (socket) => {
     socket.emit("todos", todos);
 
     // note: we could also create a CRUD (create/read/update/delete) service for the todo list
