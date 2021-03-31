@@ -188,4 +188,34 @@ describe("connection", function() {
       });
     });
   }
+
+  if (env.browser && typeof addEventListener === "function") {
+    it("should close the socket when receiving a beforeunload event", done => {
+      const socket = new Socket();
+
+      const createEvent = name => {
+        if (typeof Event === "function") {
+          return new Event(name);
+        } else {
+          // polyfill for IE
+          const event = document.createEvent("Event");
+          event.initEvent(name, true, true);
+          return event;
+        }
+      };
+
+      socket.on("open", () => {
+        const handler = () => {
+          expect(socket.transport.readyState).to.eql("closed");
+          expect(() => socket.write("ignored")).to.not.throwException();
+
+          removeEventListener("beforeunload", handler, false);
+          done();
+        };
+
+        addEventListener("beforeunload", handler, false);
+        dispatchEvent(createEvent("beforeunload"));
+      });
+    });
+  }
 });
