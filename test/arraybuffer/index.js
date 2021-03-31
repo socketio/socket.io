@@ -1,4 +1,4 @@
-var env = require("../support/env");
+const env = require("../support/env");
 
 require("./polling.js");
 if (env.wsSupport && !env.isOldSimulator && !env.isAndroid && !env.isIE11) {

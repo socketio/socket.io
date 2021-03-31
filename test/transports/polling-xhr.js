@@ -1,13 +1,13 @@
-var expect = require("expect.js");
-var XHR = require("../../lib/transports/polling-xhr");
-var env = require("../support/env");
+const expect = require("expect.js");
+const XHR = require("../../lib/transports/polling-xhr");
+const env = require("../support/env");
 
-describe("XHR", function() {
-  describe("Request", function() {
-    describe("hasXDR", function() {
+describe("XHR", () => {
+  describe("Request", () => {
+    describe("hasXDR", () => {
       if (env.isIE8) {
-        it("should return true when xscheme is false and enablesXDR is true", function() {
-          var request = new XHR.Request({
+        it("should return true when xscheme is false and enablesXDR is true", () => {
+          const request = new XHR.Request({
             uri: "http://localhost/engine.io?sid=test",
             xd: true,
             xs: false,
@@ -16,8 +16,8 @@ describe("XHR", function() {
           expect(request.hasXDR()).to.be(true);
         });
 
-        it("should return false when xscheme is true", function() {
-          var request;
+        it("should return false when xscheme is true", () => {
+          let request;
           request = new XHR.Request({
             uri: "http://localhost/engine.io?sid=test",
             xd: true,
@@ -35,8 +35,8 @@ describe("XHR", function() {
           expect(request.hasXDR()).to.be(false);
         });
 
-        it("should return false when enablesXDR is false", function() {
-          var request;
+        it("should return false when enablesXDR is false", () => {
+          let request;
           request = new XHR.Request({
             uri: "http://localhost/engine.io?sid=test",
             xd: true,

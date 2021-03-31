@@ -1,15 +1,15 @@
-var expect = require("expect.js");
-var eio = require("../");
+const expect = require("expect.js");
+const eio = require("../");
 
 describe("binary fallback", function() {
   this.timeout(10000);
 
-  it("should be able to receive binary data when ArrayBuffer not available (polling)", function(done) {
-    var socket = new eio.Socket({ forceBase64: true });
-    socket.on("open", function() {
+  it("should be able to receive binary data when ArrayBuffer not available (polling)", done => {
+    const socket = new eio.Socket({ forceBase64: true });
+    socket.on("open", () => {
       socket.send("give binary");
-      var firstPacket = true;
-      socket.on("message", function(data) {
+      let firstPacket = true;
+      socket.on("message", data => {
         if (firstPacket) {
           firstPacket = false;
           return;

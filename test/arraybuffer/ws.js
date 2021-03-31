@@ -1,20 +1,20 @@
-var expect = require("expect.js");
-var eio = require("../../");
+const expect = require("expect.js");
+const eio = require("../../");
 
 describe("arraybuffer", function() {
   this.timeout(30000);
 
-  it("should be able to receive binary data when bouncing it back (ws)", function(done) {
-    var binaryData = new Int8Array(5);
-    for (var i = 0; i < 5; i++) {
+  it("should be able to receive binary data when bouncing it back (ws)", done => {
+    const binaryData = new Int8Array(5);
+    for (let i = 0; i < 5; i++) {
       binaryData[i] = i;
     }
-    var socket = new eio.Socket();
+    const socket = new eio.Socket();
     socket.binaryType = "arraybuffer";
-    socket.on("open", function() {
-      socket.on("upgrade", function() {
+    socket.on("open", () => {
+      socket.on("upgrade", () => {
         socket.send(binaryData);
-        socket.on("message", function(data) {
+        socket.on("message", data => {
           if (typeof data === "string") return;
 
           expect(data).to.be.an(ArrayBuffer);
@@ -27,20 +27,20 @@ describe("arraybuffer", function() {
     });
   });
 
-  it("should be able to receive binary data and a multibyte utf-8 string (ws)", function(done) {
-    var binaryData = new Int8Array(5);
-    for (var i = 0; i < 5; i++) {
+  it("should be able to receive binary data and a multibyte utf-8 string (ws)", done => {
+    const binaryData = new Int8Array(5);
+    for (let i = 0; i < 5; i++) {
       binaryData[i] = i;
     }
 
-    var msg = 0;
-    var socket = new eio.Socket();
+    let msg = 0;
+    const socket = new eio.Socket();
     socket.binaryType = "arraybuffer";
-    socket.on("open", function() {
-      socket.on("upgrade", function() {
+    socket.on("open", () => {
+      socket.on("upgrade", () => {
         socket.send(binaryData);
         socket.send("cash money €€€");
-        socket.on("message", function(data) {
+        socket.on("message", data => {
           if (data === "hi") return;
 
           if (msg === 0) {
@@ -57,17 +57,17 @@ describe("arraybuffer", function() {
     });
   });
 
-  it("should be able to receive binary data when bouncing it back and forcing base64 (ws)", function(done) {
-    var binaryData = new Int8Array(5);
-    for (var i = 0; i < 5; i++) {
+  it("should be able to receive binary data when bouncing it back and forcing base64 (ws)", done => {
+    const binaryData = new Int8Array(5);
+    for (let i = 0; i < 5; i++) {
       binaryData[i] = i;
     }
-    var socket = new eio.Socket({ forceBase64: true });
+    const socket = new eio.Socket({ forceBase64: true });
     socket.binaryType = "arraybuffer";
-    socket.on("open", function() {
-      socket.on("upgrade", function() {
+    socket.on("open", () => {
+      socket.on("upgrade", () => {
         socket.send(binaryData);
-        socket.on("message", function(data) {
+        socket.on("message", data => {
           if (typeof data === "string") return;
 
           expect(data).to.be.an(ArrayBuffer);

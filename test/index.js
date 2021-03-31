@@ -7,7 +7,7 @@ if (env.browser) {
   require("./node");
 }
 
-var Blob = require("blob");
+const Blob = require("blob");
 
 require("./engine.io-client");
 require("./socket");

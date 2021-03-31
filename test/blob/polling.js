@@ -1,28 +1,28 @@
-var expect = require("expect.js");
-var eio = require("../../");
+const expect = require("expect.js");
+const eio = require("../../");
 
-var Blob = require("blob");
+const Blob = require("blob");
 
 describe("blob", function() {
   this.timeout(30000);
 
-  it("should be able to receive binary data as blob when bouncing it back (polling)", function(done) {
-    var binaryData = new Int8Array(5);
-    for (var i = 0; i < 5; i++) {
+  it("should be able to receive binary data as blob when bouncing it back (polling)", done => {
+    const binaryData = new Int8Array(5);
+    for (let i = 0; i < 5; i++) {
       binaryData[i] = i;
     }
-    var socket = new eio.Socket();
+    const socket = new eio.Socket();
     socket.binaryType = "blob";
-    socket.on("open", function() {
+    socket.on("open", () => {
       socket.send(binaryData);
-      socket.on("message", function(data) {
+      socket.on("message", data => {
         if (typeof data === "string") return;
 
         expect(data).to.be.a(Blob);
-        var fr = new FileReader();
+        const fr = new FileReader();
         fr.onload = function() {
-          var ab = this.result;
-          var ia = new Int8Array(ab);
+          const ab = this.result;
+          const ia = new Int8Array(ab);
           expect(ia).to.eql(binaryData);
           socket.close();
           done();
@@ -32,15 +32,15 @@ describe("blob", function() {
     });
   });
 
-  it("should be able to send data as a blob when bouncing it back (polling)", function(done) {
-    var binaryData = new Int8Array(5);
-    for (var i = 0; i < 5; i++) {
+  it("should be able to send data as a blob when bouncing it back (polling)", done => {
+    const binaryData = new Int8Array(5);
+    for (let i = 0; i < 5; i++) {
       binaryData[i] = i;
     }
-    var socket = new eio.Socket();
-    socket.on("open", function() {
+    const socket = new eio.Socket();
+    socket.on("open", () => {
       socket.send(new Blob([binaryData.buffer]));
-      socket.on("message", function(data) {
+      socket.on("message", data => {
         if (typeof data === "string") return;
 
         expect(data).to.be.an(ArrayBuffer);

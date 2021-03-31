@@ -1,52 +1,52 @@
-var expect = require("expect.js");
-var eio = require("../");
-var env = require("./support/env");
+const expect = require("expect.js");
+const eio = require("../");
+const env = require("./support/env");
 
 // Disables eslint to capitalise constructor names
 /* eslint-disable new-cap */
 
-describe("Transport", function() {
-  describe("rememberUpgrade", function() {
-    it("should remember websocket connection", function(done) {
-      var socket = new eio.Socket();
+describe("Transport", () => {
+  describe("rememberUpgrade", () => {
+    it("should remember websocket connection", done => {
+      const socket = new eio.Socket();
       expect(socket.transport.name).to.be("polling");
 
-      var timedout = false;
-      var timeout = setTimeout(function() {
+      let timedout = false;
+      const timeout = setTimeout(() => {
         timedout = true;
         socket.close();
         done();
       }, 300);
 
-      socket.on("upgrade", function(transport) {
+      socket.on("upgrade", transport => {
         if (timedout) return;
         clearTimeout(timeout);
         socket.close();
         if (transport.name === "websocket") {
-          var socket2 = new eio.Socket({ rememberUpgrade: true });
+          const socket2 = new eio.Socket({ rememberUpgrade: true });
           expect(socket2.transport.name).to.be("websocket");
         }
         done();
       });
     });
 
-    it("should not remember websocket connection", function(done) {
-      var socket = new eio.Socket();
+    it("should not remember websocket connection", done => {
+      const socket = new eio.Socket();
       expect(socket.transport.name).to.be("polling");
 
-      var timedout = false;
-      var timeout = setTimeout(function() {
+      let timedout = false;
+      const timeout = setTimeout(() => {
         timedout = true;
         socket.close();
         done();
       }, 300);
 
-      socket.on("upgrade", function(transport) {
+      socket.on("upgrade", transport => {
         if (timedout) return;
         clearTimeout(timeout);
         socket.close();
         if (transport.name === "websocket") {
-          var socket2 = new eio.Socket({ rememberUpgrade: false });
+          const socket2 = new eio.Socket({ rememberUpgrade: false });
           expect(socket2.transport.name).to.not.be("websocket");
         }
         done();
@@ -54,21 +54,21 @@ describe("Transport", function() {
     });
   });
 
-  describe("public constructors", function() {
-    it("should include Transport", function() {
+  describe("public constructors", () => {
+    it("should include Transport", () => {
       expect(eio.Transport).to.be.a("function");
     });
 
-    it("should include Polling and WebSocket", function() {
+    it("should include Polling and WebSocket", () => {
       expect(eio.transports).to.be.an("object");
       expect(eio.transports.polling).to.be.a("function");
       expect(eio.transports.websocket).to.be.a("function");
     });
   });
 
-  describe("transport uris", function() {
-    it("should generate an http uri", function() {
-      var polling = new eio.transports.polling({
+  describe("transport uris", () => {
+    it("should generate an http uri", () => {
+      const polling = new eio.transports.polling({
         path: "/engine.io",
         hostname: "localhost",
         secure: false,
@@ -78,8 +78,8 @@ describe("Transport", function() {
       expect(polling.uri()).to.contain("http://localhost/engine.io?sid=test");
     });
 
-    it("should generate an http uri w/o a port", function() {
-      var polling = new eio.transports.polling({
+    it("should generate an http uri w/o a port", () => {
+      const polling = new eio.transports.polling({
         path: "/engine.io",
         hostname: "localhost",
         secure: false,
@@ -90,8 +90,8 @@ describe("Transport", function() {
       expect(polling.uri()).to.contain("http://localhost/engine.io?sid=test");
     });
 
-    it("should generate an http uri with a port", function() {
-      var polling = new eio.transports.polling({
+    it("should generate an http uri with a port", () => {
+      const polling = new eio.transports.polling({
         path: "/engine.io",
         hostname: "localhost",
         secure: false,
@@ -104,8 +104,8 @@ describe("Transport", function() {
       );
     });
 
-    it("should generate an https uri w/o a port", function() {
-      var polling = new eio.transports.polling({
+    it("should generate an https uri w/o a port", () => {
+      const polling = new eio.transports.polling({
         path: "/engine.io",
         hostname: "localhost",
         secure: true,
@@ -116,8 +116,8 @@ describe("Transport", function() {
       expect(polling.uri()).to.contain("https://localhost/engine.io?sid=test");
     });
 
-    it("should generate a timestamped uri", function() {
-      var polling = new eio.transports.polling({
+    it("should generate a timestamped uri", () => {
+      const polling = new eio.transports.polling({
         path: "/engine.io",
         hostname: "localhost",
         timestampParam: "t",
@@ -128,8 +128,8 @@ describe("Transport", function() {
       );
     });
 
-    it("should generate an ipv6 uri", function() {
-      var polling = new eio.transports.polling({
+    it("should generate an ipv6 uri", () => {
+      const polling = new eio.transports.polling({
         path: "/engine.io",
         hostname: "::1",
         secure: false,
@@ -139,8 +139,8 @@ describe("Transport", function() {
       expect(polling.uri()).to.contain("http://[::1]/engine.io");
     });
 
-    it("should generate an ipv6 uri with port", function() {
-      var polling = new eio.transports.polling({
+    it("should generate an ipv6 uri with port", () => {
+      const polling = new eio.transports.polling({
         path: "/engine.io",
         hostname: "::1",
         secure: false,
@@ -150,8 +150,8 @@ describe("Transport", function() {
       expect(polling.uri()).to.contain("http://[::1]:8080/engine.io");
     });
 
-    it("should generate a ws uri", function() {
-      var ws = new eio.transports.websocket({
+    it("should generate a ws uri", () => {
+      const ws = new eio.transports.websocket({
         path: "/engine.io",
         hostname: "test",
         secure: false,
@@ -161,8 +161,8 @@ describe("Transport", function() {
       expect(ws.uri()).to.be("ws://test/engine.io?transport=websocket");
     });
 
-    it("should generate a wss uri", function() {
-      var ws = new eio.transports.websocket({
+    it("should generate a wss uri", () => {
+      const ws = new eio.transports.websocket({
         path: "/engine.io",
         hostname: "test",
         secure: true,
@@ -172,8 +172,8 @@ describe("Transport", function() {
       expect(ws.uri()).to.be("wss://test/engine.io");
     });
 
-    it("should timestamp ws uris", function() {
-      var ws = new eio.transports.websocket({
+    it("should timestamp ws uris", () => {
+      const ws = new eio.transports.websocket({
         path: "/engine.io",
         hostname: "localhost",
         timestampParam: "woot",
@@ -184,8 +184,8 @@ describe("Transport", function() {
       );
     });
 
-    it("should generate a ws ipv6 uri", function() {
-      var ws = new eio.transports.websocket({
+    it("should generate a ws ipv6 uri", () => {
+      const ws = new eio.transports.websocket({
         path: "/engine.io",
         hostname: "::1",
         secure: false,
@@ -195,8 +195,8 @@ describe("Transport", function() {
       expect(ws.uri()).to.be("ws://[::1]/engine.io");
     });
 
-    it("should generate a ws ipv6 uri with port", function() {
-      var ws = new eio.transports.websocket({
+    it("should generate a ws ipv6 uri with port", () => {
+      const ws = new eio.transports.websocket({
         path: "/engine.io",
         hostname: "::1",
         secure: false,
@@ -209,25 +209,25 @@ describe("Transport", function() {
 
   // these are server only
   if (!env.browser) {
-    describe("options", function() {
-      it("should accept an `agent` option for WebSockets", function(done) {
-        var polling = new eio.transports.websocket({
+    describe("options", () => {
+      it("should accept an `agent` option for WebSockets", done => {
+        const polling = new eio.transports.websocket({
           path: "/engine.io",
           hostname: "localhost",
           agent: {
-            addRequest: function() {
+            addRequest: () => {
               done();
             }
           }
         });
         polling.doOpen();
       });
-      it("should accept an `agent` option for XMLHttpRequest", function(done) {
-        var polling = new eio.transports.polling({
+      it("should accept an `agent` option for XMLHttpRequest", done => {
+        const polling = new eio.transports.polling({
           path: "/engine.io",
           hostname: "localhost",
           agent: {
-            addRequest: function() {
+            addRequest: () => {
               done();
             }
           }
@@ -235,27 +235,27 @@ describe("Transport", function() {
         polling.doOpen();
       });
 
-      describe("for extraHeaders", function() {
-        it("should correctly set them for WebSockets", function() {
-          var headers = {
+      describe("for extraHeaders", () => {
+        it("should correctly set them for WebSockets", () => {
+          const headers = {
             "X-Custom-Header-For-My-Project": "my-secret-access-token",
             Cookie:
               "user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly"
           };
-          var polling = new eio.transports.websocket({
+          const polling = new eio.transports.websocket({
             path: "/engine.io",
             hostname: "localhost",
             extraHeaders: headers
           });
           expect(polling.opts.extraHeaders).to.equal(headers);
         });
-        it("should correctly set them for XMLHttpRequest", function() {
-          var headers = {
+        it("should correctly set them for XMLHttpRequest", () => {
+          const headers = {
             "X-Custom-Header-For-My-Project": "my-secret-access-token",
             Cookie:
               "user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly"
           };
-          var polling = new eio.transports.polling({
+          const polling = new eio.transports.polling({
             path: "/engine.io",
             hostname: "localhost",
             extraHeaders: headers
@@ -264,16 +264,16 @@ describe("Transport", function() {
         });
       });
 
-      describe("perMessageDeflate", function() {
-        it("should set threshold", function(done) {
-          var socket = new eio.Socket({
+      describe("perMessageDeflate", () => {
+        it("should set threshold", done => {
+          const socket = new eio.Socket({
             transports: ["websocket"],
             perMessageDeflate: { threshold: 0 }
           });
-          socket.on("open", function() {
-            var ws = socket.transport.ws;
-            var send = ws.send;
-            ws.send = function(data, opts, callback) {
+          socket.on("open", () => {
+            const ws = socket.transport.ws;
+            const send = ws.send;
+            ws.send = (data, opts, callback) => {
               ws.send = send;
               ws.send(data, opts, callback);
 
@@ -285,12 +285,12 @@ describe("Transport", function() {
           });
         });
 
-        it("should not compress when the byte size is below threshold", function(done) {
-          var socket = new eio.Socket({ transports: ["websocket"] });
-          socket.on("open", function() {
-            var ws = socket.transport.ws;
-            var send = ws.send;
-            ws.send = function(data, opts, callback) {
+        it("should not compress when the byte size is below threshold", done => {
+          const socket = new eio.Socket({ transports: ["websocket"] });
+          socket.on("open", () => {
+            const ws = socket.transport.ws;
+            const send = ws.send;
+            ws.send = (data, opts, callback) => {
               ws.send = send;
               ws.send(data, opts, callback);
 
@@ -305,14 +305,14 @@ describe("Transport", function() {
     });
   }
 
-  describe("options", function() {
-    it("should accept an `extraHeaders` option for XMLHttpRequest in browser", function() {
-      var headers = {
+  describe("options", () => {
+    it("should accept an `extraHeaders` option for XMLHttpRequest in browser", () => {
+      const headers = {
         "X-Custom-Header-For-My-Project": "my-secret-access-token",
         Cookie:
           "user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly"
       };
-      var socket = new eio.Socket({
+      const socket = new eio.Socket({
         transportOptions: {
           polling: {
             extraHeaders: headers

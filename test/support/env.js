@@ -11,7 +11,7 @@ exports.wsSupport = !!(
   window.MozWebSocket
 );
 
-var userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "";
+const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "";
 exports.isOldSimulator =
   ~userAgent.indexOf("iPhone OS 4") || ~userAgent.indexOf("iPhone OS 5");
 exports.isIE8 = /MSIE 8/.test(userAgent);
