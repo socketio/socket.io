@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.0.0
+ * Socket.IO v4.0.1
  * (c) 2014-2021 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -215,6 +215,7 @@ Object.defineProperty(exports, "Manager", {
     return manager_2.Manager;
   }
 });
+exports["default"] = lookup;
 
 /***/ }),
 
@@ -3216,6 +3217,8 @@ var parser = __webpack_require__(/*! engine.io-parser */ "./node_modules/engine.
 
 var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/component-emitter/index.js");
 
+var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.js")("engine.io-client:transport");
+
 var Transport = /*#__PURE__*/function (_Emitter) {
   _inherits(Transport, _Emitter);
 
@@ -3302,7 +3305,8 @@ var Transport = /*#__PURE__*/function (_Emitter) {
       if ("open" === this.readyState) {
         this.write(packets);
       } else {
-        throw new Error("Transport not open");
+        // this might happen if the transport was silently closed in the beforeunload event handler
+        debug("transport is not open, discarding packets");
       }
     }
     /**

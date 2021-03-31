@@ -1,3 +1,12 @@
+## [4.0.1](https://github.com/socketio/socket.io-client/compare/4.0.0...4.0.1) (2021-03-31)
+
+
+### Bug Fixes
+
+* **typings:** make `auth` property public ([#1455](https://github.com/socketio/socket.io-client/issues/1455)) ([c150223](https://github.com/socketio/socket.io-client/commit/c15022347c662dc31ee0a3d89cde23641f029783))
+* **typings:** update definition to match wrapper.mjs ([#1456](https://github.com/socketio/socket.io-client/issues/1456)) ([48f573f](https://github.com/socketio/socket.io-client/commit/48f573f6f6c4d542e6a098e7f4ae472b888b5664))
+
+
 # [4.0.0](https://github.com/socketio/socket.io-client/compare/3.1.2...4.0.0) (2021-03-10)
 
 The major bump is due to some breaking changes on the server side.
