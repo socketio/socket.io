@@ -26,6 +26,8 @@ jobs:
           CI: true
 
   build-examples:
+    runs-on: ubuntu-latest
+
     strategy:
       matrix:
         node-version: [14.x] # only use latest LTS to avoid overloading CI
