@@ -1,3 +1,11 @@
+## [5.0.1](https://github.com/socketio/engine.io-client/compare/5.0.0...5.0.1) (2021-03-31)
+
+
+### Bug Fixes
+
+* ignore packets when the transport is silently closed ([d291a4c](https://github.com/socketio/engine.io-client/commit/d291a4c9f6accfc86fcd96683a5d493a87e3644c))
+
+
 # [5.0.0](https://github.com/socketio/engine.io-client/compare/4.1.2...5.0.0) (2021-03-10)
 
 The major bump is due to a breaking change on the server side.
