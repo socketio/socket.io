@@ -44,6 +44,38 @@ describe("server", () => {
           });
         });
       });
+
+      it("infers 'any' for listener parameters of other events using enums", () => {
+        const srv = createServer();
+        const sio = new Server(srv);
+        srv.listen(() => {
+          sio.on("connection", (socket) => {
+            expectType<Socket<DefaultEventsMap, DefaultEventsMap>>(socket);
+          });
+
+          enum Events {
+            CONNECTION = "connection",
+            TEST = "test",
+          }
+
+          sio.on(Events.CONNECTION, (socket) => {
+            // TODO(#3833): Make this expect `Socket<DefaultEventsMap, DefaultEventsMap>`
+            expectType<any>(socket);
+
+            socket.on("test", (a, b, c) => {
+              expectType<any>(a);
+              expectType<any>(b);
+              expectType<any>(c);
+            });
+
+            socket.on(Events.TEST, (a, b, c) => {
+              expectType<any>(a);
+              expectType<any>(b);
+              expectType<any>(c);
+            });
+          });
+        });
+      });
     });
 
     describe("emit", () => {
