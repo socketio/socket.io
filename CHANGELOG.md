@@ -1,3 +1,12 @@
+## [4.0.1](https://github.com/socketio/socket.io/compare/4.0.0...4.0.1) (2021-03-31)
+
+
+### Bug Fixes
+
+* **typings:** add fallback to untyped event listener ([#3834](https://github.com/socketio/socket.io/issues/3834)) ([a11152f](https://github.com/socketio/socket.io/commit/a11152f42b281df83409313962f60f230239c79e))
+* **typings:** update return type from emit ([#3843](https://github.com/socketio/socket.io/issues/3843)) ([1a72ae4](https://github.com/socketio/socket.io/commit/1a72ae4fe27a14cf60916f991a2c94da91d9e54a))
+
+
 # [4.0.0](https://github.com/socketio/socket.io/compare/3.1.2...4.0.0) (2021-03-10)
 
 
