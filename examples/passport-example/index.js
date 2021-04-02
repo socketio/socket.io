@@ -70,7 +70,19 @@ passport.deserializeUser((id, cb) => {
   cb(null, DUMMY_USER);
 });
 
-const io = require('socket.io')(server);
+const io = require('socket.io').Server(server, {
+  /**
+   * We don't strictly need CORS configuration for this example because the socket.io server and the client are 
+   * on the same host:port, but this is a sample configuration when you do need it.
+   * See "Handling CORS" in documentation for full documentation of options.
+   **/
+  cors: {
+    origin: [`http://localhost:${port}`],
+    methods: ['GET', 'POST'],
+    // include this to accept cookies, used by express-session for the session-identifying cookie
+    credentials: true
+  },
+});
 
 // convert a connect middleware to a Socket.IO middleware
 const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
