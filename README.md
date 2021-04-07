@@ -12,7 +12,7 @@
 
 ## Documentation
 
-Please see the documentation [here](https://socket.io/docs/v3/client-initialization/).
+Please see the documentation [here](https://socket.io/docs/v4/client-initialization/).
 
 The source code of the website can be found [here](https://github.com/socketio/socket.io-website). Contributions are welcome!
 
@@ -24,7 +24,7 @@ In order to see all the client debug output, run the following command on the br
 localStorage.debug = '*';
 ```
 
-And then, filter by the scopes you're interested in. See also: https://socket.io/docs/v3/logging-and-debugging/
+And then, filter by the scopes you're interested in. See also: https://socket.io/docs/v4/logging-and-debugging/
 
 ## License
 
