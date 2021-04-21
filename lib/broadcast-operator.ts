@@ -257,7 +257,7 @@ interface SocketDetails {
  * Expose of subset of the attributes and methods of the Socket class
  */
 export class RemoteSocket<EmitEvents extends EventsMap>
-implements TypedEventBroadcaster<EmitEvents> {
+  implements TypedEventBroadcaster<EmitEvents> {
   public readonly adapter: Adapter;
   public readonly id: SocketId;
   public readonly handshake: Handshake;
