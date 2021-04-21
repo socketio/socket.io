@@ -290,7 +290,7 @@ export class RemoteSocket<EmitEvents extends EventsMap>
    * @return self
    * @public
    */
-   public to(room: Room | Room[]): BroadcastOperator<EmitEvents> {
+  public to(room: Room | Room[]): BroadcastOperator<EmitEvents> {
     return this.newBroadcastOperator().to(room);
   }
 
@@ -345,7 +345,7 @@ export class RemoteSocket<EmitEvents extends EventsMap>
    * @return {Socket} self
    * @public
    */
-   public compress(compress: boolean): this {
+  public compress(compress: boolean): this {
     this.flags.compress = compress;
     return this;
   }
@@ -358,7 +358,7 @@ export class RemoteSocket<EmitEvents extends EventsMap>
    * @return {Socket} self
    * @public
    */
-   public get volatile(): this {
+  public get volatile(): this {
     this.flags.volatile = true;
     return this;
   }
