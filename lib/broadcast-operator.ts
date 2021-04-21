@@ -257,20 +257,23 @@ interface SocketDetails {
  * Expose of subset of the attributes and methods of the Socket class
  */
 export class RemoteSocket<EmitEvents extends EventsMap>
-  implements TypedEventBroadcaster<EmitEvents> {
+implements TypedEventBroadcaster<EmitEvents> {
+  public readonly adapter: Adapter;
   public readonly id: SocketId;
   public readonly handshake: Handshake;
   public readonly rooms: Set<Room>;
   public readonly data: any;
 
   private readonly operator: BroadcastOperator<EmitEvents>;
+  private flags: BroadcastFlags = {};
 
   constructor(adapter: Adapter, details: SocketDetails) {
+    this.adapter = adapter;
     this.id = details.id;
     this.handshake = details.handshake;
     this.rooms = new Set(details.rooms);
     this.data = details.data;
-    this.operator = new BroadcastOperator(adapter, new Set([this.id]));
+    this.operator = new BroadcastOperator(adapter, new Set(details.rooms));
   }
 
   public emit<Ev extends EventNames<EmitEvents>>(
@@ -278,6 +281,28 @@ export class RemoteSocket<EmitEvents extends EventsMap>
     ...args: EventParams<EmitEvents, Ev>
   ): boolean {
     return this.operator.emit(ev, ...args);
+  }
+
+  /**
+   * Targets a room when broadcasting.
+   *
+   * @param room
+   * @return self
+   * @public
+   */
+   public to(room: Room | Room[]): BroadcastOperator<EmitEvents> {
+    return this.newBroadcastOperator().to(room);
+  }
+
+  /**
+   * Targets a room when broadcasting.
+   *
+   * @param room
+   * @return self
+   * @public
+   */
+  public in(room: Room | Room[]): BroadcastOperator<EmitEvents> {
+    return this.newBroadcastOperator().in(room);
   }
 
   /**
@@ -311,5 +336,42 @@ export class RemoteSocket<EmitEvents extends EventsMap>
   public disconnect(close = false): this {
     this.operator.disconnectSockets(close);
     return this;
+  }
+
+  /**
+   * Sets the compress flag.
+   *
+   * @param {Boolean} compress - if `true`, compresses the sending data
+   * @return {Socket} self
+   * @public
+   */
+   public compress(compress: boolean): this {
+    this.flags.compress = compress;
+    return this;
+  }
+
+  /**
+   * Sets a modifier for a subsequent event emission that the event data may be lost if the client is not ready to
+   * receive messages (because of network slowness or other issues, or because they’re connected through long polling
+   * and is in the middle of a request-response cycle).
+   *
+   * @return {Socket} self
+   * @public
+   */
+   public get volatile(): this {
+    this.flags.volatile = true;
+    return this;
+  }
+
+  private newBroadcastOperator(): BroadcastOperator<EmitEvents> {
+    const flags = Object.assign({}, this.flags);
+    this.flags = {};
+
+    return new BroadcastOperator(
+      this.adapter,
+      new Set<Room>(),
+      new Set<Room>([this.id]),
+      flags
+    );
   }
 }
