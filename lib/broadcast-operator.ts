@@ -273,7 +273,7 @@ export class RemoteSocket<EmitEvents extends EventsMap>
     this.handshake = details.handshake;
     this.rooms = new Set(details.rooms);
     this.data = details.data;
-    this.operator = new BroadcastOperator(adapter, new Set(details.rooms));
+    this.operator = new BroadcastOperator(adapter, new Set([this.id]));
   }
 
   public emit<Ev extends EventNames<EmitEvents>>(
