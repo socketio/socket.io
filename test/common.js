@@ -34,3 +34,14 @@ exports.eioc = eioc;
  */
 
 require("s").extend();
+
+exports.createPartialDone = (done, count) => {
+  let i = 0;
+  return () => {
+    if (++i === count) {
+      done();
+    } else if (i > count) {
+      done(new Error(`partialDone() called too many times: ${i} > ${count}`));
+    }
+  };
+};

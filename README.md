@@ -204,6 +204,24 @@ The main server/manager. _Inherits from EventEmitter_.
     - Fired when a new connection is established.
     - **Arguments**
       - `Socket`: a Socket object
+- `connection_error`
+    - Fired when an error occurs when establishing the connection.
+    - **Arguments**
+      - `error`: an object with following properties:
+        - `req` (`http.IncomingMessage`): the request that was dropped
+        - `code` (`Number`): one of `Server.errors`
+        - `message` (`string`): one of `Server.errorMessages`
+        - `context` (`Object`): extra info about the error
+
+| Code | Message |
+| ---- | ------- |
+| 0 | "Transport unknown"
+| 1 | "Session ID unknown"
+| 2 | "Bad handshake method"
+| 3 | "Bad request"
+| 4 | "Forbidden"
+| 5 | "Unsupported protocol version"
+
 
 ##### Properties
 

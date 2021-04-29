@@ -7,8 +7,7 @@ const path = require("path");
 const exec = require("child_process").exec;
 const zlib = require("zlib");
 const eio = require("..");
-const eioc = require("./common").eioc;
-const listen = require("./common").listen;
+const { eioc, listen, createPartialDone } = require("./common");
 const expect = require("expect.js");
 const request = require("superagent");
 const cookieMod = require("cookie");
@@ -18,9 +17,30 @@ const cookieMod = require("cookie");
  */
 
 describe("server", () => {
+  let engine, client;
+
+  afterEach(() => {
+    if (engine) {
+      engine.httpServer.close();
+    }
+    if (client) {
+      client.close();
+    }
+  });
+
   describe("verification", () => {
     it("should disallow non-existent transports", done => {
-      listen(port => {
+      const partialDone = createPartialDone(done, 2);
+
+      engine = listen(port => {
+        engine.on("connection_error", err => {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(0);
+          expect(err.message).to.be("Transport unknown");
+          expect(err.context.transport).to.be("tobi");
+          partialDone();
+        });
+
         request
           .get("http://localhost:%d/engine.io/default/".s(port))
           .query({ transport: "tobi" }) // no tobi transport - outrageous
@@ -29,14 +49,24 @@ describe("server", () => {
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(0);
             expect(res.body.message).to.be("Transport unknown");
-            done();
+            partialDone();
           });
       });
     });
 
     it("should disallow `constructor` as transports", done => {
+      const partialDone = createPartialDone(done, 2);
+
       // make sure we check for actual properties - not those present on every {}
-      listen(port => {
+      engine = listen(port => {
+        engine.on("connection_error", err => {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(0);
+          expect(err.message).to.be("Transport unknown");
+          expect(err.context.transport).to.be("constructor");
+          partialDone();
+        });
+
         request
           .get("http://localhost:%d/engine.io/default/".s(port))
           .set("Origin", "http://engine.io")
@@ -46,13 +76,23 @@ describe("server", () => {
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(0);
             expect(res.body.message).to.be("Transport unknown");
-            done();
+            partialDone();
           });
       });
     });
 
     it("should disallow non-existent sids", done => {
-      listen(port => {
+      const partialDone = createPartialDone(done, 2);
+
+      engine = listen(port => {
+        engine.on("connection_error", err => {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(1);
+          expect(err.message).to.be("Session ID unknown");
+          expect(err.context.sid).to.be("test");
+          partialDone();
+        });
+
         request
           .get("http://localhost:%d/engine.io/default/".s(port))
           .set("Origin", "http://engine.io")
@@ -62,19 +102,29 @@ describe("server", () => {
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(1);
             expect(res.body.message).to.be("Session ID unknown");
-            done();
+            partialDone();
           });
       });
     });
 
     it("should disallow requests that are rejected by `allowRequest`", done => {
-      listen(
+      const partialDone = createPartialDone(done, 2);
+
+      engine = listen(
         {
           allowRequest: (req, fn) => {
             fn("Thou shall not pass", false);
           }
         },
         port => {
+          engine.on("connection_error", err => {
+            expect(err.req).to.be.an(http.IncomingMessage);
+            expect(err.code).to.be(4);
+            expect(err.message).to.be("Forbidden");
+            expect(err.context.message).to.be("Thou shall not pass");
+            partialDone();
+          });
+
           request
             .get("http://localhost:%d/engine.io/default/".s(port))
             .set("Origin", "http://engine.io")
@@ -84,7 +134,7 @@ describe("server", () => {
               expect(res.status).to.be(403);
               expect(res.body.code).to.be(4);
               expect(res.body.message).to.be("Thou shall not pass");
-              done();
+              partialDone();
             });
         }
       );
@@ -302,14 +352,24 @@ describe("server", () => {
     });
 
     it("should disallow connection that are rejected by `generateId`", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+      const partialDone = createPartialDone(done, 2);
+
+      engine = listen({ allowUpgrades: false }, port => {
         engine.generateId = () => {
           return Promise.reject(new Error("nope"));
         };
 
+        engine.on("connection_error", err => {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(3);
+          expect(err.message).to.be("Bad request");
+          expect(err.context.name).to.be("ID_GENERATION_ERROR");
+          partialDone();
+        });
+
         const socket = new eioc.Socket("ws://localhost:%d".s(port));
         socket.on("error", () => {
-          done();
+          partialDone();
         });
       });
     });
@@ -410,11 +470,23 @@ describe("server", () => {
     });
 
     it("default to polling when proxy doesn't support websocket", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+      const partialDone = createPartialDone(done, 2);
+
+      engine = listen({ allowUpgrades: false }, port => {
         engine.on("connection", socket => {
           socket.on("message", msg => {
             if ("echo" === msg) socket.send(msg);
           });
+        });
+
+        engine.on("connection_error", err => {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(3);
+          expect(err.message).to.be("Bad request");
+          expect(err.context.name).to.be("TRANSPORT_MISMATCH");
+          expect(err.context.transport).to.be("websocket");
+          expect(err.context.previousTransport).to.be("polling");
+          partialDone();
         });
 
         var socket = new eioc.Socket("ws://localhost:%d".s(port));
@@ -430,7 +502,7 @@ describe("server", () => {
               socket.send("echo");
               socket.on("message", msg => {
                 expect(msg).to.be("echo");
-                done();
+                partialDone();
               });
             });
         });
@@ -460,12 +532,24 @@ describe("server", () => {
       });
     });
 
-    it("should disallow bad requests", done => {
-      listen(
+    it("should disallow bad requests (handshake error)", done => {
+      const partialDone = createPartialDone(done, 2);
+
+      engine = listen(
         {
           cors: { credentials: true, origin: "http://engine.io" }
         },
         port => {
+          engine.on("connection_error", err => {
+            expect(err.req).to.be.an(http.IncomingMessage);
+            expect(err.code).to.be(3);
+            expect(err.message).to.be("Bad request");
+            expect(err.context.name).to.be("TRANSPORT_HANDSHAKE_ERROR");
+            expect(err.context.error).to.be.an(Error);
+            expect(err.context.error.name).to.be("TypeError");
+            partialDone();
+          });
+
           request
             .get("http://localhost:%d/engine.io/default/".s(port))
             .set("Origin", "http://engine.io")
@@ -481,18 +565,90 @@ describe("server", () => {
               expect(res.header["access-control-allow-origin"]).to.be(
                 "http://engine.io"
               );
-              done();
+              partialDone();
             });
         }
       );
     });
 
+    it("should disallow invalid origin header", done => {
+      const partialDone = createPartialDone(done, 2);
+
+      engine = listen(port => {
+        // we can't send an invalid header through request.get
+        // so add an invalid char here
+        engine.prepare = function(req) {
+          eio.Server.prototype.prepare.call(engine, req);
+          req.headers.origin += "\n";
+        };
+
+        engine.on("connection_error", err => {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(3);
+          expect(err.message).to.be("Bad request");
+          expect(err.context.name).to.be("INVALID_ORIGIN");
+          expect(err.context.origin).to.be("http://engine.io/\n");
+          partialDone();
+        });
+
+        request
+          .get("http://localhost:%d/engine.io/default/".s(port))
+          .set("Origin", "http://engine.io/")
+          .query({ transport: "websocket" })
+          .end((err, res) => {
+            expect(err).to.be.an(Error);
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(3);
+            expect(res.body.message).to.be("Bad request");
+            partialDone();
+          });
+      });
+    });
+
+    it("should disallow invalid handshake method", done => {
+      const partialDone = createPartialDone(done, 2);
+
+      engine = listen(port => {
+        engine.on("connection_error", err => {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(2);
+          expect(err.message).to.be("Bad handshake method");
+          expect(err.context.method).to.be("OPTIONS");
+          partialDone();
+        });
+
+        request
+          .options("http://localhost:%d/engine.io/default/".s(port))
+          .query({ transport: "polling" })
+          .end((err, res) => {
+            expect(err).to.be.an(Error);
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(2);
+            expect(res.body.message).to.be("Bad handshake method");
+            partialDone();
+          });
+      });
+    });
+
     it("should disallow unsupported protocol versions", done => {
+      const partialDone = createPartialDone(done, 2);
+
       const httpServer = http.createServer();
       const engine = eio({ allowEIO3: false });
       engine.attach(httpServer);
       httpServer.listen(() => {
         const port = httpServer.address().port;
+
+        engine.on("connection_error", err => {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(5);
+          expect(err.message).to.be("Unsupported protocol version");
+          expect(err.context.protocol).to.be(3);
+
+          httpServer.close();
+          partialDone();
+        });
+
         request
           .get("http://localhost:%d/engine.io/".s(port))
           .query({ transport: "polling", EIO: 3 })
@@ -501,8 +657,7 @@ describe("server", () => {
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(5);
             expect(res.body.message).to.be("Unsupported protocol version");
-            engine.close();
-            done();
+            partialDone();
           });
       });
     });
