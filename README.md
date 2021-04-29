@@ -267,6 +267,7 @@ Exposed as `eio` in the browser standalone build.
       - `requestTimeout` (`Number`): Timeout for xhr-polling requests in milliseconds (`0`)
     - **Websocket-only options**
       - `protocols` (`Array`): a list of subprotocols (see [MDN reference](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers#Subprotocols))
+      - `closeOnBeforeunload` (`Boolean`): whether to silently close the connection when the [`beforeunload`](https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event) event is emitted in the browser (defaults to `true`)
 - `send`
     - Sends a message to the server
     - **Parameters**
