@@ -204,6 +204,19 @@ The main server/manager. _Inherits from EventEmitter_.
     - Fired when a new connection is established.
     - **Arguments**
       - `Socket`: a Socket object
+
+- `initial_headers`
+    - Fired on the first request of the connection, before writing the response headers
+    - **Arguments**
+      - `headers` (`Object`): a hash of headers
+      - `req` (`http.IncomingMessage`): the request
+
+- `headers`
+    - Fired on the all requests of the connection, before writing the response headers
+    - **Arguments**
+      - `headers` (`Object`): a hash of headers
+      - `req` (`http.IncomingMessage`): the request
+
 - `connection_error`
     - Fired when an error occurs when establishing the connection.
     - **Arguments**

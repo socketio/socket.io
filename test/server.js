@@ -3137,6 +3137,143 @@ describe("server", () => {
       };
       testForHeaders(headers, done);
     });
+
+    it("should emit a 'initial_headers' event (polling)", done => {
+      const partialDone = createPartialDone(done, 2);
+
+      engine = listen({ cookie: true }, port => {
+        engine.on("initial_headers", (headers, req) => {
+          expect(req.method).to.be("GET");
+          headers["test"] = "123";
+          headers["set-cookie"] = "mycookie=456";
+          partialDone();
+        });
+
+        request
+          .get("http://localhost:%d/engine.io/".s(port))
+          .query({ transport: "polling" })
+          .end((err, res) => {
+            expect(err).to.be(null);
+            expect(res.status).to.be(200);
+            expect(res.headers["test"]).to.be("123");
+            expect(res.headers["set-cookie"].length).to.be(2);
+            expect(res.headers["set-cookie"][1]).to.be("mycookie=456");
+
+            const sid = JSON.parse(res.text.substring(4)).sid;
+
+            request
+              .post("http://localhost:%d/engine.io/".s(port))
+              .query({ transport: "polling", sid })
+              .send("1:6")
+              .end((err, res) => {
+                expect(err).to.be(null);
+                expect(res.status).to.be(200);
+                expect(res.headers["test"]).to.be(undefined);
+                expect(res.headers["set-cookie"]).to.be(undefined);
+                partialDone();
+              });
+          });
+      });
+    });
+
+    it("should emit a 'headers' event (polling)", done => {
+      const partialDone = createPartialDone(done, 3);
+
+      engine = listen({ cookie: true }, port => {
+        engine.on("headers", headers => {
+          headers["test"] = "123";
+          headers["set-cookie"] = "mycookie=456";
+          partialDone();
+        });
+
+        request
+          .get("http://localhost:%d/engine.io/".s(port))
+          .query({ transport: "polling" })
+          .end((err, res) => {
+            expect(err).to.be(null);
+            expect(res.status).to.be(200);
+            expect(res.headers["test"]).to.be("123");
+            expect(res.headers["set-cookie"].length).to.be(2);
+            expect(res.headers["set-cookie"][1]).to.be("mycookie=456");
+
+            const sid = JSON.parse(res.text.substring(4)).sid;
+
+            request
+              .post("http://localhost:%d/engine.io/".s(port))
+              .query({ transport: "polling", sid })
+              .send("1:6")
+              .end((err, res) => {
+                expect(err).to.be(null);
+                expect(res.status).to.be(200);
+                expect(res.headers["set-cookie"].length).to.be(1);
+                expect(res.headers["set-cookie"][0]).to.be("mycookie=456");
+                partialDone();
+              });
+          });
+      });
+    });
+
+    it("should emit a 'initial_headers' event (websocket)", function(done) {
+      if (process.env.EIO_WS_ENGINE === "eiows") {
+        this.skip();
+      }
+      const partialDone = createPartialDone(done, 2);
+
+      engine = listen({ cookie: true }, port => {
+        engine.on("initial_headers", (headers, req) => {
+          expect(req.method).to.be("GET");
+          headers["test"] = "123";
+          headers["set-cookie"] = "mycookie=456";
+          partialDone();
+        });
+
+        client = eioc("ws://localhost:%d".s(port), {
+          transports: ["websocket"]
+        });
+
+        client.transport.ws.on("upgrade", res => {
+          expect(res.headers["test"]).to.be("123");
+          expect(res.headers["set-cookie"].length).to.be(1);
+          expect(res.headers["set-cookie"][0]).to.be("mycookie=456");
+          partialDone();
+        });
+      });
+    });
+
+    it("should emit a single 'initial_headers' event per connection", done => {
+      const partialDone = createPartialDone(done, 2);
+
+      engine = listen(port => {
+        engine.on("initial_headers", () => {
+          partialDone();
+        });
+
+        client = eioc("ws://localhost:%d".s(port));
+
+        client.on("upgrade", () => {
+          partialDone();
+        });
+      });
+    });
+
+    it("should emit several 'headers' events per connection", function(done) {
+      if (process.env.EIO_WS_ENGINE === "eiows") {
+        this.skip();
+      }
+      const partialDone = createPartialDone(done, 4);
+
+      engine = listen(port => {
+        engine.on("headers", () => {
+          partialDone();
+        });
+
+        client = eioc("ws://localhost:%d".s(port));
+
+        client.on("upgrade", () => {
+          partialDone();
+        });
+      });
+    });
   });
 
   describe("cors", () => {
