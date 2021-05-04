@@ -1,3 +1,18 @@
+# [5.1.0](https://github.com/socketio/engine.io/compare/5.0.0...5.1.0) (2021-05-04)
+
+
+### Features
+
+* add a "connection_error" event ([7096e98](https://github.com/socketio/engine.io/commit/7096e98a02295a62c8ea2aa56461d4875887092d))
+* add the "initial_headers" and "headers" events ([2527543](https://github.com/socketio/engine.io/commit/252754353a0e88eb036ebb3082e9d6a9a5f497db))
+
+
+### Performance Improvements
+
+* **websocket:** add a "wsPreEncoded" writing option ([7706b12](https://github.com/socketio/engine.io/commit/7706b123df914777d19c8179b45ab6932f82916c))
+* **websocket:** fix write back-pressure ([#618](https://github.com/socketio/engine.io/issues/618)) ([ad5306a](https://github.com/socketio/engine.io/commit/ad5306aeaedf06ac7a49f791e1b76e55c35a564e))
+
+
 # [5.0.0](https://github.com/socketio/engine.io/compare/4.1.1...5.0.0) (2021-03-10)
 
 

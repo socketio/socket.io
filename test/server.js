@@ -740,7 +740,8 @@ describe("server", () => {
             done();
           });
           // client abruptly disconnects, no polling request on this tick since we've just connected
-          socket.sendPacket = socket.onPacket = () => {};
+          socket.sendPacket = () => {};
+          socket.transport.removeListener("packet");
           socket.close();
           // then server app tries to close the socket, since client disappeared
           conn.close();
@@ -754,8 +755,8 @@ describe("server", () => {
         const socket = new eioc.Socket("ws://localhost:%d".s(port));
         socket.on("open", () => {
           // override onPacket and Transport#onClose to simulate an inactive server after handshake
-          socket.onPacket = () => {};
-          socket.transport.onClose = () => {};
+          socket.transport.removeListener("packet");
+          socket.transport.removeListener("close");
           socket.on("close", (reason, err) => {
             expect(reason).to.be("ping timeout");
             done();
@@ -781,8 +782,9 @@ describe("server", () => {
 
         socket.on("open", () => {
           // override onPacket and Transport#onClose to simulate an inactive server after handshake
-          socket.onPacket = socket.sendPacket = () => {};
-          socket.transport.onClose = () => {};
+          socket.sendPacket = () => {};
+          socket.transport.removeListener("packet");
+          socket.transport.removeListener("close");
           socket.on("close", onClose);
         });
       });
@@ -1085,7 +1087,7 @@ describe("server", () => {
           let clientCloseReason = null;
 
           socket.on("handshake", () => {
-            socket.onPacket = () => {};
+            socket.transport.removeListener("packet");
           });
           socket.on("open", () => {
             socket.on("close", reason => {
@@ -1195,7 +1197,7 @@ describe("server", () => {
             engine.on("connection", conn => {
               conn.once("heartbeat", () => {
                 setTimeout(() => {
-                  socket.onPacket = () => {};
+                  socket.transport.removeListener("packet");
                   expect(clientCloseReason).to.be(null);
                 }, 150);
                 setTimeout(() => {
@@ -1232,7 +1234,7 @@ describe("server", () => {
 
             engine.on("connection", conn => {
               conn.once("heartbeat", () => {
-                socket.onPacket = () => {};
+                socket.transport.removeListener("packet");
                 setTimeout(() => {
                   expect(clientCloseReason).to.be(null);
                 }, 150);
