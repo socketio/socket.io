@@ -1,3 +1,11 @@
+# [5.1.0](https://github.com/socketio/engine.io-client/compare/5.0.1...5.1.0) (2021-05-04)
+
+
+### Features
+
+* add the "closeOnBeforeunload" option ([dcb85e9](https://github.com/socketio/engine.io-client/commit/dcb85e902d129b2d1a94943b4f6d471532f70dc9))
+
+
 ## [5.0.1](https://github.com/socketio/engine.io-client/compare/5.0.0...5.0.1) (2021-03-31)
 
 
