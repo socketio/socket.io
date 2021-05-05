@@ -133,7 +133,7 @@ WebSocket frames:
 ```
 < 2probe    => probe request
 > 3probe    => probe response
-> 5         => "upgrade" packet type
+< 5         => "upgrade" packet type
 > 4hello    => message (not concatenated)
 > 4world
 > 2         => "ping" packet type
@@ -412,7 +412,7 @@ and `send()` them in succession.
 
 A connection always starts with polling (either XHR or JSONP). WebSocket
 gets tested on the side by sending a probe. If the probe is responded
-from the server, an upgrade packet is sent.
+from the server, an upgrade packet is sent by the client.
 
 To ensure no messages are lost, the upgrade packet will only be sent
 once all the buffers of the existing transport are flushed and the
