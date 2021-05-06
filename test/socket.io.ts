@@ -1,6 +1,6 @@
 "use strict";
 
-import { Server, Socket } from "..";
+import { Server, Socket, Namespace } from "..";
 import { createServer } from "http";
 import fs = require("fs");
 import { join } from "path";
@@ -373,9 +373,6 @@ describe("socket.io", () => {
   });
 
   describe("namespaces", () => {
-    const { Socket } = require("../dist/socket");
-    const { Namespace } = require("../dist/namespace");
-
     it("should be accessible through .sockets", () => {
       const sio = new Server();
       expect(sio.sockets).to.be.a(Namespace);
@@ -2391,8 +2388,6 @@ describe("socket.io", () => {
   });
 
   describe("middleware", () => {
-    const { Socket } = require("../dist/socket");
-
     it("should call functions", (done) => {
       const srv = createServer();
       const sio = new Server(srv);
@@ -2581,8 +2576,6 @@ describe("socket.io", () => {
   });
 
   describe("socket middleware", () => {
-    const { Socket } = require("../dist/socket");
-
     it("should call functions", (done) => {
       const srv = createServer();
       const sio = new Server(srv);

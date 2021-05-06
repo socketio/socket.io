@@ -803,5 +803,7 @@ emitterMethods.forEach(function (fn) {
 
 module.exports = (srv?, opts?) => new Server(srv, opts);
 module.exports.Server = Server;
+module.exports.Namespace = Namespace;
+module.exports.Socket = Socket;
 
 export { Socket, ServerOptions, Namespace, BroadcastOperator, RemoteSocket };
