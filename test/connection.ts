@@ -40,6 +40,25 @@ describe("connection", function () {
     s2.disconnect();
   });
 
+  it("should start two connections with different paths", () => {
+    const s1 = io("/", { path: "/foo" });
+    const s2 = io("/", { path: "/bar" });
+
+    expect(s1.io).to.not.be(s2.io);
+    s1.disconnect();
+    s2.disconnect();
+  });
+
+  it("should start a single connection with different namespaces", () => {
+    const opts = {};
+    const s1 = io("/foo", opts);
+    const s2 = io("/bar", opts);
+
+    expect(s1.io).to.be(s2.io);
+    s1.disconnect();
+    s2.disconnect();
+  });
+
   it("should work with acks", (done) => {
     const socket = io({ forceNew: true });
     socket.emit("ack");
