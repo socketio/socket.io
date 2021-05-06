@@ -177,6 +177,17 @@ export class Server<
   NamespaceReservedEventsMap<ListenEvents, EmitEvents>
 > {
   public readonly sockets: Namespace<ListenEvents, EmitEvents>;
+  /**
+   * A reference to the underlying Engine.IO server.
+   *
+   * Example:
+   *
+   * <code>
+   *   const clientsCount = io.engine.clientsCount;
+   * </code>
+   *
+   */
+  public engine: any;
 
   /** @private */
   readonly _parser: typeof parser;
@@ -195,7 +206,6 @@ export class Server<
   private _serveClient: boolean;
   private opts: Partial<EngineOptions>;
   private eio;
-  private engine;
   private _path: string;
   private clientPathRegex: RegExp;
 
