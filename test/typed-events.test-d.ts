@@ -31,6 +31,26 @@ describe("typed events", () => {
           expectType<any>(c);
         });
       });
+
+      it("infers 'any' for listener parameters of other events using enums", () => {
+        const socket = io();
+
+        enum Events {
+          TEST = "test",
+        }
+
+        socket.on("test", (a, b, c) => {
+          expectType<any>(a);
+          expectType<any>(b);
+          expectType<any>(c);
+        });
+
+        socket.on(Events.TEST, (a, b, c) => {
+          expectType<any>(a);
+          expectType<any>(b);
+          expectType<any>(c);
+        });
+      });
     });
 
     describe("emit", () => {
