@@ -1,3 +1,12 @@
+## [4.0.2](https://github.com/socketio/socket.io/compare/4.0.1...4.0.2) (2021-05-06)
+
+
+### Bug Fixes
+
+* **typings:** make "engine" attribute public ([b81ce4c](https://github.com/socketio/socket.io/commit/b81ce4c9d0b00666361498e2ba5e0d007d5860b8))
+* properly export the Socket class ([d65b6ee](https://github.com/socketio/socket.io/commit/d65b6ee84c8e91deb61c3c1385eb19afa196a909))
+
+
 ## [4.0.1](https://github.com/socketio/socket.io/compare/4.0.0...4.0.1) (2021-03-31)
 
 
