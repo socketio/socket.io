@@ -1,3 +1,14 @@
+## [4.0.2](https://github.com/socketio/socket.io-client/compare/4.0.1...4.0.2) (2021-05-06)
+
+
+### Bug Fixes
+
+* **typings:** add fallback to untyped event listener ([5394669](https://github.com/socketio/socket.io-client/commit/53946694882114957ef2187c532eb798fa811b60))
+* ensure buffered events are sent in order ([34f822f](https://github.com/socketio/socket.io-client/commit/34f822f783c6985039c0733a96d1fab8f01b1edf))
+* ensure connections are properly multiplexed ([dd2a8fc](https://github.com/socketio/socket.io-client/commit/dd2a8fce000a9b5b5d741489fc44eafd4ff6c75b))
+* properly export the Socket class ([e20d487](https://github.com/socketio/socket.io-client/commit/e20d487ac080910c90e7b766f8509f5e40c9ecfe))
+
+
 ## [4.0.1](https://github.com/socketio/socket.io-client/compare/4.0.0...4.0.1) (2021-03-31)
 
 

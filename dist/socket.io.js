@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.0.1
+ * Socket.IO v4.0.2
  * (c) 2014-2021 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -116,20 +116,11 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Socket = exports.io = exports.Manager = exports.protocol = void 0;
+exports.io = exports.Socket = exports.Manager = exports.protocol = void 0;
 
 var url_1 = __webpack_require__(/*! ./url */ "./build/url.js");
 
 var manager_1 = __webpack_require__(/*! ./manager */ "./build/manager.js");
-
-var socket_1 = __webpack_require__(/*! ./socket */ "./build/socket.js");
-
-Object.defineProperty(exports, "Socket", {
-  enumerable: true,
-  get: function get() {
-    return socket_1.Socket;
-  }
-});
 
 var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.js")("socket.io-client");
 /**
@@ -151,7 +142,7 @@ function lookup(uri, opts) {
   }
 
   opts = opts || {};
-  var parsed = url_1.url(uri, opts.path);
+  var parsed = url_1.url(uri, opts.path || "/socket.io");
   var source = parsed.source;
   var id = parsed.id;
   var path = parsed.path;
@@ -213,6 +204,15 @@ Object.defineProperty(exports, "Manager", {
   enumerable: true,
   get: function get() {
     return manager_2.Manager;
+  }
+});
+
+var socket_1 = __webpack_require__(/*! ./socket */ "./build/socket.js");
+
+Object.defineProperty(exports, "Socket", {
+  enumerable: true,
+  get: function get() {
+    return socket_1.Socket;
   }
 });
 exports["default"] = lookup;
@@ -1216,8 +1216,8 @@ var Socket = /*#__PURE__*/function (_typed_events_1$Stric) {
       this.id = id;
       this.connected = true;
       this.disconnected = false;
-      this.emitReserved("connect");
       this.emitBuffered();
+      this.emitReserved("connect");
     }
     /**
      * Emit buffered events (received and emitted).
