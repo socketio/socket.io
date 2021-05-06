@@ -384,8 +384,8 @@ export class Socket<
     this.id = id;
     this.connected = true;
     this.disconnected = false;
-    this.emitReserved("connect");
     this.emitBuffered();
+    this.emitReserved("connect");
   }
 
   /**

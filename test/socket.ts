@@ -217,6 +217,26 @@ describe("socket", function () {
     );
   });
 
+  it("should emit events in order", (done) => {
+    const socket = io("/", { autoConnect: false });
+    let i = 0;
+
+    socket.on("connect", () => {
+      socket.emit("echo", "second", () => {
+        expect(++i).to.eql(2);
+
+        socket.disconnect();
+        done();
+      });
+    });
+
+    socket.emit("echo", "first", () => {
+      expect(++i).to.eql(1);
+    });
+
+    socket.connect();
+  });
+
   describe("volatile packets", () => {
     it("should discard a volatile packet when the socket is not connected", (done) => {
       const socket = io({ forceNew: true, autoConnect: false });
