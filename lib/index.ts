@@ -100,5 +100,6 @@ exports.connect = lookup;
  */
 
 export { Manager, ManagerOptions } from "./manager";
-export { lookup as io, Socket, SocketOptions };
+export { Socket } from "./socket";
+export { lookup as io, SocketOptions };
 export default lookup;
