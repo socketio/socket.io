@@ -2385,6 +2385,28 @@ describe("socket.io", () => {
         });
       });
     });
+
+    it("should pre encode a broadcast packet", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv);
+
+      srv.listen(() => {
+        const clientSocket = client(srv, { multiplex: false });
+
+        sio.on("connection", (socket) => {
+          socket.conn.on("packetCreate", (packet) => {
+            expect(packet.data).to.eql('2["hello","world"]');
+            expect(packet.options.wsPreEncoded).to.eql('42["hello","world"]');
+
+            clientSocket.close();
+            sio.close();
+            done();
+          });
+
+          sio.emit("hello", "world");
+        });
+      });
+    });
   });
 
   describe("middleware", () => {

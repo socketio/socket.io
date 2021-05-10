@@ -10,6 +10,12 @@ import type { SocketId } from "socket.io-adapter";
 
 const debug = debugModule("socket.io:client");
 
+interface WriteOptions {
+  compress?: boolean;
+  volatile?: boolean;
+  wsPreEncoded?: string;
+}
+
 export class Client<
   ListenEvents extends EventsMap,
   EmitEvents extends EventsMap
@@ -180,31 +186,28 @@ export class Client<
    * @param {Object} opts
    * @private
    */
-  _packet(packet: Packet, opts?: any): void {
-    opts = opts || {};
-    const self = this;
-
-    // this writes to the actual connection
-    function writeToEngine(encodedPackets: any) {
-      // TODO clarify this.
-      if (opts.volatile && !self.conn.transport.writable) return;
-      for (let i = 0; i < encodedPackets.length; i++) {
-        self.conn.write(encodedPackets[i], { compress: opts.compress });
-      }
-    }
-
-    if ("open" === this.conn.readyState) {
-      debug("writing packet %j", packet);
-      if (!opts.preEncoded) {
-        // not broadcasting, need to encode
-        writeToEngine(this.encoder.encode(packet)); // encode, then write results to engine
-      } else {
-        // a broadcast pre-encodes a packet
-        writeToEngine(packet);
-      }
-    } else {
+  _packet(packet: Packet, opts: WriteOptions = {}): void {
+    if (this.conn.readyState !== "open") {
       debug("ignoring packet write %j", packet);
+      return;
     }
+    const encodedPackets = this.encoder.encode(packet);
+    for (const encodedPacket of encodedPackets) {
+      this.writeToEngine(encodedPacket, opts);
+    }
+  }
+
+  private writeToEngine(
+    encodedPacket: String | Buffer,
+    opts: WriteOptions
+  ): void {
+    if (opts.volatile && !this.conn.transport.writable) {
+      debug(
+        "volatile packet is discarded since the transport is not currently writable"
+      );
+      return;
+    }
+    this.conn.write(encodedPacket, opts);
   }
 
   /**
