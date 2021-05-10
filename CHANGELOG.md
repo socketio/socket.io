@@ -1,3 +1,12 @@
+# [2.3.0](https://github.com/socketio/socket.io-adapter/compare/2.2.0...2.3.0) (2021-05-10)
+
+
+### Features
+
+* add a serverSideEmit empty function ([c4cbd4b](https://github.com/socketio/socket.io-adapter/commit/c4cbd4ba2d8997f9ab8e06cfb631c8f9a43d16f1))
+* add support for the "wsPreEncoded" writing option ([5579d40](https://github.com/socketio/socket.io-adapter/commit/5579d40c24d15f69e44246f788fb93beb367f994))
+
+
 # [2.2.0](https://github.com/socketio/socket.io-adapter/compare/2.1.0...2.2.0) (2021-02-27)
 
 
