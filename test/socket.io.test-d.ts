@@ -229,4 +229,48 @@ describe("server", () => {
       });
     });
   });
+
+  describe("listen and emit event maps", () => {
+    interface ClientToServerEvents {
+      helloFromClient: (message: string) => void;
+    }
+
+    interface ServerToClientEvents {
+      helloFromServer: (message: string, x: number) => void;
+    }
+
+    interface InterServerEvents {
+      helloFromServerToServer: (message: string, x: number) => void;
+    }
+
+    describe("on", () => {
+      it("infers correct types for listener parameters", () => {
+        const srv = createServer();
+        const sio = new Server<
+          ClientToServerEvents,
+          ServerToClientEvents,
+          InterServerEvents
+        >(srv);
+
+        expectType<
+          Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents>
+        >(sio);
+        srv.listen(() => {
+          sio.serverSideEmit("helloFromServerToServer", "hello", 10);
+          sio
+            .of("/test")
+            .serverSideEmit("helloFromServerToServer", "hello", 10);
+
+          sio.on("helloFromServerToServer", (message, x) => {
+            expectType<string>(message);
+            expectType<number>(x);
+          });
+          sio.of("/test").on("helloFromServerToServer", (message, x) => {
+            expectType<string>(message);
+            expectType<number>(x);
+          });
+        });
+      });
+    });
+  });
 });

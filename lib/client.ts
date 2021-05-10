@@ -18,16 +18,23 @@ interface WriteOptions {
 
 export class Client<
   ListenEvents extends EventsMap,
-  EmitEvents extends EventsMap
+  EmitEvents extends EventsMap,
+  ServerSideEvents extends EventsMap
 > {
   public readonly conn;
 
   private readonly id: string;
-  private readonly server: Server<ListenEvents, EmitEvents>;
+  private readonly server: Server<ListenEvents, EmitEvents, ServerSideEvents>;
   private readonly encoder: Encoder;
   private readonly decoder: Decoder;
-  private sockets: Map<SocketId, Socket<ListenEvents, EmitEvents>> = new Map();
-  private nsps: Map<string, Socket<ListenEvents, EmitEvents>> = new Map();
+  private sockets: Map<
+    SocketId,
+    Socket<ListenEvents, EmitEvents, ServerSideEvents>
+  > = new Map();
+  private nsps: Map<
+    string,
+    Socket<ListenEvents, EmitEvents, ServerSideEvents>
+  > = new Map();
   private connectTimeout?: NodeJS.Timeout;
 
   /**
@@ -37,7 +44,10 @@ export class Client<
    * @param conn
    * @package
    */
-  constructor(server: Server<ListenEvents, EmitEvents>, conn: any) {
+  constructor(
+    server: Server<ListenEvents, EmitEvents, ServerSideEvents>,
+    conn: any
+  ) {
     this.server = server;
     this.conn = conn;
     this.encoder = server.encoder;
@@ -98,7 +108,11 @@ export class Client<
     this.server._checkNamespace(
       name,
       auth,
-      (dynamicNspName: Namespace<ListenEvents, EmitEvents> | false) => {
+      (
+        dynamicNspName:
+          | Namespace<ListenEvents, EmitEvents, ServerSideEvents>
+          | false
+      ) => {
         if (dynamicNspName) {
           debug("dynamic namespace %s was created", dynamicNspName);
           this.doConnect(name, auth);
@@ -156,7 +170,7 @@ export class Client<
    *
    * @private
    */
-  _remove(socket: Socket<ListenEvents, EmitEvents>): void {
+  _remove(socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>): void {
     if (this.sockets.has(socket.id)) {
       const nsp = this.sockets.get(socket.id)!.nsp.name;
       this.sockets.delete(socket.id);

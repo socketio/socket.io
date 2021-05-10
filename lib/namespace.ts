@@ -20,35 +20,43 @@ export interface ExtendedError extends Error {
 
 export interface NamespaceReservedEventsMap<
   ListenEvents extends EventsMap,
-  EmitEvents extends EventsMap
+  EmitEvents extends EventsMap,
+  ServerSideEvents extends EventsMap
 > {
-  connect: (socket: Socket<ListenEvents, EmitEvents>) => void;
-  connection: (socket: Socket<ListenEvents, EmitEvents>) => void;
+  connect: (socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>) => void;
+  connection: (
+    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>
+  ) => void;
 }
+
+export const RESERVED_EVENTS: ReadonlySet<string | Symbol> = new Set<
+  keyof NamespaceReservedEventsMap<never, never, never>
+>(<const>["connect", "connection"]);
 
 export class Namespace<
   ListenEvents extends EventsMap = DefaultEventsMap,
-  EmitEvents extends EventsMap = ListenEvents
+  EmitEvents extends EventsMap = ListenEvents,
+  ServerSideEvents extends EventsMap = {}
 > extends StrictEventEmitter<
-  {},
+  ServerSideEvents,
   EmitEvents,
-  NamespaceReservedEventsMap<ListenEvents, EmitEvents>
+  NamespaceReservedEventsMap<ListenEvents, EmitEvents, ServerSideEvents>
 > {
   public readonly name: string;
   public readonly sockets: Map<
     SocketId,
-    Socket<ListenEvents, EmitEvents>
+    Socket<ListenEvents, EmitEvents, ServerSideEvents>
   > = new Map();
 
   public adapter: Adapter;
 
   /** @private */
-  readonly server: Server<ListenEvents, EmitEvents>;
+  readonly server: Server<ListenEvents, EmitEvents, ServerSideEvents>;
 
   /** @private */
   _fns: Array<
     (
-      socket: Socket<ListenEvents, EmitEvents>,
+      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>,
       next: (err?: ExtendedError) => void
     ) => void
   > = [];
@@ -62,7 +70,10 @@ export class Namespace<
    * @param server instance
    * @param name
    */
-  constructor(server: Server<ListenEvents, EmitEvents>, name: string) {
+  constructor(
+    server: Server<ListenEvents, EmitEvents, ServerSideEvents>,
+    name: string
+  ) {
     super();
     this.server = server;
     this.name = name;
@@ -88,7 +99,7 @@ export class Namespace<
    */
   public use(
     fn: (
-      socket: Socket<ListenEvents, EmitEvents>,
+      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>,
       next: (err?: ExtendedError) => void
     ) => void
   ): this {
@@ -104,7 +115,7 @@ export class Namespace<
    * @private
    */
   private run(
-    socket: Socket<ListenEvents, EmitEvents>,
+    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>,
     fn: (err: ExtendedError | null) => void
   ) {
     const fns = this._fns.slice(0);
@@ -166,10 +177,10 @@ export class Namespace<
    * @private
    */
   _add(
-    client: Client<ListenEvents, EmitEvents>,
+    client: Client<ListenEvents, EmitEvents, ServerSideEvents>,
     query,
     fn?: () => void
-  ): Socket<ListenEvents, EmitEvents> {
+  ): Socket<ListenEvents, EmitEvents, ServerSideEvents> {
     debug("adding socket to nsp %s", this.name);
     const socket = new Socket(this, client, query);
     this.run(socket, (err) => {
@@ -212,7 +223,7 @@ export class Namespace<
    *
    * @private
    */
-  _remove(socket: Socket<ListenEvents, EmitEvents>): void {
+  _remove(socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>): void {
     if (this.sockets.has(socket.id)) {
       this.sockets.delete(socket.id);
     } else {
@@ -253,6 +264,37 @@ export class Namespace<
   public write(...args: EventParams<EmitEvents, "message">): this {
     this.emit("message", ...args);
     return this;
+  }
+
+  /**
+   * Emit a packet to other Socket.IO servers
+   *
+   * @param ev - the event name
+   * @param args - an array of arguments, which may include an acknowledgement callback at the end
+   * @public
+   */
+  public serverSideEmit<Ev extends EventNames<ServerSideEvents>>(
+    ev: Ev,
+    ...args: EventParams<ServerSideEvents, Ev>
+  ): boolean {
+    if (RESERVED_EVENTS.has(ev)) {
+      throw new Error(`"${ev}" is a reserved event name`);
+    }
+    args.unshift(ev);
+    this.adapter.serverSideEmit(args);
+    return true;
+  }
+
+  /**
+   * Called when a packet is received from another Socket.IO server
+   *
+   * @param args - an array of arguments, which may include an acknowledgement callback at the end
+   *
+   * @private
+   */
+  _onServerSideEmit(args: any[]) {
+    const event = args.shift();
+    this.emitUntyped(event, args);
   }
 
   /**

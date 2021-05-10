@@ -46,7 +46,7 @@ export interface EventEmitterReservedEventsMap {
 
 export const RESERVED_EVENTS: ReadonlySet<string | Symbol> = new Set<
   | ClientReservedEvents
-  | keyof NamespaceReservedEventsMap<never, never>
+  | keyof NamespaceReservedEventsMap<never, never, never>
   | keyof SocketReservedEventsMap
   | keyof EventEmitterReservedEventsMap
 >(<const>[
@@ -110,7 +110,8 @@ export interface Handshake {
 
 export class Socket<
   ListenEvents extends EventsMap = DefaultEventsMap,
-  EmitEvents extends EventsMap = ListenEvents
+  EmitEvents extends EventsMap = ListenEvents,
+  ServerSideEvents extends EventsMap = {}
 > extends StrictEventEmitter<
   ListenEvents,
   EmitEvents,
@@ -126,7 +127,7 @@ export class Socket<
   public connected: boolean;
   public disconnected: boolean;
 
-  private readonly server: Server<ListenEvents, EmitEvents>;
+  private readonly server: Server<ListenEvents, EmitEvents, ServerSideEvents>;
   private readonly adapter: Adapter;
   private acks: Map<number, () => void> = new Map();
   private fns: Array<
@@ -144,8 +145,8 @@ export class Socket<
    * @package
    */
   constructor(
-    readonly nsp: Namespace<ListenEvents, EmitEvents>,
-    readonly client: Client<ListenEvents, EmitEvents>,
+    readonly nsp: Namespace<ListenEvents, EmitEvents, ServerSideEvents>,
+    readonly client: Client<ListenEvents, EmitEvents, ServerSideEvents>,
     auth: object
   ) {
     super();

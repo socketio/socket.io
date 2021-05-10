@@ -26,6 +26,7 @@ import {
   DefaultEventsMap,
   EventParams,
   StrictEventEmitter,
+  EventNames,
 } from "./typed-events";
 
 const debug = debugModule("socket.io:server");
@@ -170,13 +171,18 @@ interface ServerOptions extends EngineAttachOptions {
 
 export class Server<
   ListenEvents extends EventsMap = DefaultEventsMap,
-  EmitEvents extends EventsMap = ListenEvents
+  EmitEvents extends EventsMap = ListenEvents,
+  ServerSideEvents extends EventsMap = {}
 > extends StrictEventEmitter<
-  {},
+  ServerSideEvents,
   EmitEvents,
-  NamespaceReservedEventsMap<ListenEvents, EmitEvents>
+  NamespaceReservedEventsMap<ListenEvents, EmitEvents, ServerSideEvents>
 > {
-  public readonly sockets: Namespace<ListenEvents, EmitEvents>;
+  public readonly sockets: Namespace<
+    ListenEvents,
+    EmitEvents,
+    ServerSideEvents
+  >;
   /**
    * A reference to the underlying Engine.IO server.
    *
@@ -197,10 +203,13 @@ export class Server<
   /**
    * @private
    */
-  _nsps: Map<string, Namespace<ListenEvents, EmitEvents>> = new Map();
+  _nsps: Map<
+    string,
+    Namespace<ListenEvents, EmitEvents, ServerSideEvents>
+  > = new Map();
   private parentNsps: Map<
     ParentNspNameMatchFn,
-    ParentNamespace<ListenEvents, EmitEvents>
+    ParentNamespace<ListenEvents, EmitEvents, ServerSideEvents>
   > = new Map();
   private _adapter?: typeof Adapter;
   private _serveClient: boolean;
@@ -280,7 +289,9 @@ export class Server<
   _checkNamespace(
     name: string,
     auth: { [key: string]: any },
-    fn: (nsp: Namespace<ListenEvents, EmitEvents> | false) => void
+    fn: (
+      nsp: Namespace<ListenEvents, EmitEvents, ServerSideEvents> | false
+    ) => void
   ): void {
     if (this.parentNsps.size === 0) return fn(false);
 
@@ -589,8 +600,8 @@ export class Server<
    */
   public of(
     name: string | RegExp | ParentNspNameMatchFn,
-    fn?: (socket: Socket<ListenEvents, EmitEvents>) => void
-  ): Namespace<ListenEvents, EmitEvents> {
+    fn?: (socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>) => void
+  ): Namespace<ListenEvents, EmitEvents, ServerSideEvents> {
     if (typeof name === "function" || name instanceof RegExp) {
       const parentNsp = new ParentNamespace(this);
       debug("initializing parent namespace %s", parentNsp.name);
@@ -649,7 +660,7 @@ export class Server<
    */
   public use(
     fn: (
-      socket: Socket<ListenEvents, EmitEvents>,
+      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>,
       next: (err?: ExtendedError) => void
     ) => void
   ): this {
@@ -686,7 +697,9 @@ export class Server<
    * @return self
    * @public
    */
-  public except(name: Room | Room[]): Server<ListenEvents, EmitEvents> {
+  public except(
+    name: Room | Room[]
+  ): Server<ListenEvents, EmitEvents, ServerSideEvents> {
     this.sockets.except(name);
     return this;
   }
@@ -711,6 +724,20 @@ export class Server<
   public write(...args: EventParams<EmitEvents, "message">): this {
     this.sockets.emit("message", ...args);
     return this;
+  }
+
+  /**
+   * Emit a packet to other Socket.IO servers
+   *
+   * @param ev - the event name
+   * @param args - an array of arguments, which may include an acknowledgement callback at the end
+   * @public
+   */
+  public serverSideEmit<Ev extends EventNames<ServerSideEvents>>(
+    ev: Ev,
+    ...args: EventParams<ServerSideEvents, Ev>
+  ): boolean {
+    return this.sockets.serverSideEmit(ev, ...args);
   }
 
   /**
