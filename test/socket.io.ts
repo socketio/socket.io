@@ -984,7 +984,9 @@ describe("socket.io", () => {
           clientSocket.off("connect", init);
           clientSocket.io.engine.close();
 
-          clientSocket.connect();
+          process.nextTick(() => {
+            clientSocket.connect();
+          });
           clientSocket.on("connect", () => {
             done();
           });
