@@ -261,4 +261,14 @@ export class Adapter extends EventEmitter {
     }
     return exceptSids;
   }
+
+  /**
+   * Send a packet to the other Socket.IO servers in the cluster
+   * @param packet - an array of arguments, which may include an acknowledgement callback at the end
+   */
+  public serverSideEmit(packet: any[]): void {
+    throw new Error(
+      "this adapter does not support the serverSideEmit() functionality"
+    );
+  }
 }
