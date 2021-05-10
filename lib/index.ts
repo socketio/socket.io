@@ -135,8 +135,16 @@ export class Adapter extends EventEmitter {
     packet.nsp = this.nsp.name;
     const encodedPackets = this.encoder.encode(packet);
 
+    const firstPacketOpts = {
+      wsPreEncoded: "4" + encodedPackets[0], // "4" being the "message" packet type in Engine.IO
+      ...packetOpts
+    };
+
     this.apply(opts, socket => {
-      socket.packet(encodedPackets, packetOpts);
+      socket.client.writeToEngine(encodedPackets[0], firstPacketOpts);
+      for (let i = 1; i < encodedPackets.length; i++) {
+        socket.client.writeToEngine(encodedPackets[i], packetOpts);
+      }
     });
   }
 

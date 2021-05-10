@@ -65,8 +65,10 @@ describe("socket.io-adapter", () => {
         id,
         {
           id,
-          packet() {
-            ids.push(id);
+          client: {
+            writeToEngine() {
+              ids.push(id);
+            }
           }
         }
       ];
@@ -74,7 +76,9 @@ describe("socket.io-adapter", () => {
     const nsp = {
       server: {
         encoder: {
-          encode() {}
+          encode() {
+            return [];
+          }
         }
       },
       sockets: new Map([socket("s1"), socket("s2"), socket("s3")])
@@ -98,8 +102,10 @@ describe("socket.io-adapter", () => {
         id,
         {
           id,
-          packet() {
-            ids.push(id);
+          client: {
+            writeToEngine() {
+              ids.push(id);
+            }
           }
         }
       ];
@@ -107,7 +113,9 @@ describe("socket.io-adapter", () => {
     const nsp = {
       server: {
         encoder: {
-          encode() {}
+          encode() {
+            return [];
+          }
         }
       },
       sockets: new Map([socket("s1"), socket("s2"), socket("s3")])
