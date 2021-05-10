@@ -812,7 +812,7 @@ describe("socket.io", () => {
       });
     });
 
-    it("should close a client without namespace", (done) => {
+    it("should close a client without namespace (2)", (done) => {
       const srv = createServer();
       const sio = new Server(srv, {
         connectTimeout: 100,
@@ -886,6 +886,17 @@ describe("socket.io", () => {
       });
     });
 
+    it("should emit an 'new_namespace' event", (done) => {
+      const sio = new Server();
+
+      sio.on("new_namespace", (namespace) => {
+        expect(namespace.name).to.eql("/nsp");
+        done();
+      });
+
+      sio.of("/nsp");
+    });
+
     describe("dynamic namespaces", () => {
       it("should allow connections to dynamic namespaces with a regex", (done) => {
         const srv = createServer();
@@ -940,6 +951,24 @@ describe("socket.io", () => {
             expect(err.message).to.be("Invalid namespace");
             done();
           });
+        });
+      });
+
+      it("should emit an 'new_namespace' event for a dynamic namespace", (done) => {
+        const srv = createServer();
+        const sio = new Server(srv);
+        srv.listen(() => {
+          sio.of(/^\/dynamic-\d+$/);
+
+          sio.on("new_namespace", (namespace) => {
+            expect(namespace.name).to.be("/dynamic-101");
+
+            socket.disconnect();
+            srv.close();
+            done();
+          });
+
+          const socket = client(srv, "/dynamic-101");
         });
       });
     });

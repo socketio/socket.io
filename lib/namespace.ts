@@ -29,9 +29,23 @@ export interface NamespaceReservedEventsMap<
   ) => void;
 }
 
+export interface ServerReservedEventsMap<
+  ListenEvents,
+  EmitEvents,
+  ServerSideEvents
+> extends NamespaceReservedEventsMap<
+    ListenEvents,
+    EmitEvents,
+    ServerSideEvents
+  > {
+  new_namespace: (
+    namespace: Namespace<ListenEvents, EmitEvents, ServerSideEvents>
+  ) => void;
+}
+
 export const RESERVED_EVENTS: ReadonlySet<string | Symbol> = new Set<
-  keyof NamespaceReservedEventsMap<never, never, never>
->(<const>["connect", "connection"]);
+  keyof ServerReservedEventsMap<never, never, never>
+>(<const>["connect", "connection", "new_namespace"]);
 
 export class Namespace<
   ListenEvents extends EventsMap = DefaultEventsMap,

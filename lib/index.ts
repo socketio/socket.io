@@ -7,11 +7,7 @@ import path = require("path");
 import engine = require("engine.io");
 import { Client } from "./client";
 import { EventEmitter } from "events";
-import {
-  ExtendedError,
-  Namespace,
-  NamespaceReservedEventsMap,
-} from "./namespace";
+import { ExtendedError, Namespace, ServerReservedEventsMap } from "./namespace";
 import { ParentNamespace } from "./parent-namespace";
 import { Adapter, Room, SocketId } from "socket.io-adapter";
 import * as parser from "socket.io-parser";
@@ -176,7 +172,7 @@ export class Server<
 > extends StrictEventEmitter<
   ServerSideEvents,
   EmitEvents,
-  NamespaceReservedEventsMap<ListenEvents, EmitEvents, ServerSideEvents>
+  ServerReservedEventsMap<ListenEvents, EmitEvents, ServerSideEvents>
 > {
   public readonly sockets: Namespace<
     ListenEvents,
@@ -306,7 +302,12 @@ export class Server<
         if (err || !allow) {
           run();
         } else {
-          fn(this.parentNsps.get(nextFn.value)!.createChild(name));
+          const namespace = this.parentNsps
+            .get(nextFn.value)!
+            .createChild(name);
+          // @ts-ignore
+          this.sockets.emitReserved("new_namespace", namespace);
+          fn(namespace);
         }
       });
     };
@@ -627,6 +628,10 @@ export class Server<
       debug("initializing namespace %s", name);
       nsp = new Namespace(this, name);
       this._nsps.set(name, nsp);
+      if (name !== "/") {
+        // @ts-ignore
+        this.sockets.emitReserved("new_namespace", nsp);
+      }
     }
     if (fn) nsp.on("connect", fn);
     return nsp;
