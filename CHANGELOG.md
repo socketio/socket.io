@@ -1,3 +1,8 @@
+## [4.1.1](https://github.com/socketio/socket.io-client/compare/4.1.0...4.1.1) (2021-05-11)
+
+There were some minor bug fixes on the server side, which mandate a client bump.
+
+
 # [4.1.0](https://github.com/socketio/socket.io-client/compare/4.0.2...4.1.0) (2021-05-11)
 
 ### Features
