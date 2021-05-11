@@ -1,8 +1,9 @@
 "use strict";
-import { Server, Socket } from "..";
+import { Namespace, Server, Socket } from "..";
 import type { DefaultEventsMap } from "../lib/typed-events";
 import { createServer } from "http";
 import { expectError, expectType } from "tsd";
+import { Adapter } from "socket.io-adapter";
 
 // This file is run by tsd, not mocha.
 
@@ -273,6 +274,27 @@ describe("server", () => {
           });
         });
       });
+    });
+  });
+
+  describe("adapter", () => {
+    it("accepts arguments of the correct types", () => {
+      const io = new Server({
+        adapter: (nsp) => new Adapter(nsp),
+      });
+      io.adapter(Adapter);
+
+      class MyCustomAdapter extends Adapter {
+        constructor(nsp, readonly opts) {
+          super(nsp);
+        }
+      }
+      io.adapter((nsp) => new MyCustomAdapter(nsp, { test: "123" }));
+    });
+
+    it("does not accept arguments of wrong types", () => {
+      const io = new Server();
+      expectError(io.adapter((nsp) => "nope"));
     });
   });
 });

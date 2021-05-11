@@ -37,6 +37,8 @@ type ParentNspNameMatchFn = (
   fn: (err: Error | null, success: boolean) => void
 ) => void;
 
+type AdapterConstructor = typeof Adapter | ((nsp: Namespace) => Adapter);
+
 interface EngineOptions {
   /**
    * how many ms without a pong packet to consider the connection closed
@@ -152,7 +154,7 @@ interface ServerOptions extends EngineAttachOptions {
    * the adapter to use
    * @default the in-memory adapter (https://github.com/socketio/socket.io-adapter)
    */
-  adapter: any;
+  adapter: AdapterConstructor;
   /**
    * the parser to use
    * @default the default parser (https://github.com/socketio/socket.io-parser)
@@ -207,7 +209,7 @@ export class Server<
     ParentNspNameMatchFn,
     ParentNamespace<ListenEvents, EmitEvents, ServerSideEvents>
   > = new Map();
-  private _adapter?: typeof Adapter;
+  private _adapter?: AdapterConstructor;
   private _serveClient: boolean;
   private opts: Partial<EngineOptions>;
   private eio;
@@ -360,10 +362,11 @@ export class Server<
    * @return self when setting or value when getting
    * @public
    */
-  public adapter(): typeof Adapter | undefined;
-  public adapter(v: typeof Adapter): this;
-  public adapter(v?: typeof Adapter): typeof Adapter | undefined | this;
-  public adapter(v?: typeof Adapter): typeof Adapter | undefined | this {
+  public adapter(): AdapterConstructor | undefined;
+  public adapter(v: AdapterConstructor): this;
+  public adapter(
+    v?: AdapterConstructor
+  ): AdapterConstructor | undefined | this {
     if (!arguments.length) return this._adapter;
     this._adapter = v;
     for (const nsp of this._nsps.values()) {
