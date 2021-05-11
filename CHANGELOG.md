@@ -1,3 +1,19 @@
+# [4.1.0](https://github.com/socketio/socket.io/compare/4.0.2...4.1.0) (2021-05-11)
+
+
+### Features
+
+* add support for inter-server communication ([93cce05](https://github.com/socketio/socket.io/commit/93cce05fb3faf91f21fa71212275c776aa161107))
+* notify upon namespace creation ([499c892](https://github.com/socketio/socket.io/commit/499c89250d2db1ab7725ab2b74840e188c267c46))
+* add a "connection_error" event ([7096e98](https://github.com/socketio/engine.io/commit/7096e98a02295a62c8ea2aa56461d4875887092d), from `engine.io`)
+* add the "initial_headers" and "headers" events ([2527543](https://github.com/socketio/engine.io/commit/252754353a0e88eb036ebb3082e9d6a9a5f497db), from `engine.io`)
+
+
+### Performance Improvements
+
+* add support for the "wsPreEncoded" writing option ([dc381b7](https://github.com/socketio/socket.io/commit/dc381b72c6b2f8172001dedd84116122e4cc95b3))
+
+
 ## [4.0.2](https://github.com/socketio/socket.io/compare/4.0.1...4.0.2) (2021-05-06)
 
 

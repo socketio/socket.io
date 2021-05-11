@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.0.2
+ * Socket.IO v4.1.0
  * (c) 2014-2021 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -2571,7 +2571,8 @@ var Socket = /*#__PURE__*/function (_Emitter) {
       perMessageDeflate: {
         threshold: 1024
       },
-      transportOptions: {}
+      transportOptions: {},
+      closeOnBeforeunload: true
     }, opts);
     _this.opts.path = _this.opts.path.replace(/\/$/, "") + "/";
 
@@ -2588,14 +2589,19 @@ var Socket = /*#__PURE__*/function (_Emitter) {
     _this.pingTimeoutTimer = null;
 
     if (typeof addEventListener === "function") {
-      addEventListener("beforeunload", function () {
-        if (_this.transport) {
-          // silently close the transport
-          _this.transport.removeAllListeners();
+      if (_this.opts.closeOnBeforeunload) {
+        // Firefox closes the connection when the "beforeunload" event is emitted but not Chrome. This event listener
+        // ensures every browser behaves the same (no "disconnect" event at the Socket.IO level when the page is
+        // closed/reloaded)
+        addEventListener("beforeunload", function () {
+          if (_this.transport) {
+            // silently close the transport
+            _this.transport.removeAllListeners();
 
-          _this.transport.close();
-        }
-      }, false);
+            _this.transport.close();
+          }
+        }, false);
+      }
 
       if (_this.hostname !== "localhost") {
         _this.offlineEventListener = function () {
@@ -2651,15 +2657,16 @@ var Socket = /*#__PURE__*/function (_Emitter) {
   }, {
     key: "open",
     value: function open() {
+      var _this2 = this;
+
       var transport;
 
       if (this.opts.rememberUpgrade && Socket.priorWebsocketSuccess && this.transports.indexOf("websocket") !== -1) {
         transport = "websocket";
       } else if (0 === this.transports.length) {
         // Emit error on next tick so it can be listened to
-        var self = this;
         setTimeout(function () {
-          self.emit("error", "No transports available");
+          _this2.emit("error", "No transports available");
         }, 0);
         return;
       } else {
@@ -2689,8 +2696,9 @@ var Socket = /*#__PURE__*/function (_Emitter) {
   }, {
     key: "setTransport",
     value: function setTransport(transport) {
+      var _this3 = this;
+
       debug("setting transport %s", transport.name);
-      var self = this;
 
       if (this.transport) {
         debug("clearing existing transport %s", this.transport.name);
@@ -2700,14 +2708,8 @@ var Socket = /*#__PURE__*/function (_Emitter) {
 
       this.transport = transport; // set up transport listeners
 
-      transport.on("drain", function () {
-        self.onDrain();
-      }).on("packet", function (packet) {
-        self.onPacket(packet);
-      }).on("error", function (e) {
-        self.onError(e);
-      }).on("close", function () {
-        self.onClose("transport close");
+      transport.on("drain", this.onDrain.bind(this)).on("packet", this.onPacket.bind(this)).on("error", this.onError.bind(this)).on("close", function () {
+        _this3.onClose("transport close");
       });
     }
     /**
@@ -2720,20 +2722,16 @@ var Socket = /*#__PURE__*/function (_Emitter) {
   }, {
     key: "probe",
     value: function probe(name) {
+      var _this4 = this;
+
       debug('probing transport "%s"', name);
       var transport = this.createTransport(name, {
         probe: 1
       });
       var failed = false;
-      var self = this;
       Socket.priorWebsocketSuccess = false;
 
-      function onTransportOpen() {
-        if (self.onlyBinaryUpgrades) {
-          var upgradeLosesBinary = !this.supportsBinary && self.transport.supportsBinary;
-          failed = failed || upgradeLosesBinary;
-        }
-
+      var onTransportOpen = function onTransportOpen() {
         if (failed) return;
         debug('probe transport "%s" opened', name);
         transport.send([{
@@ -2745,33 +2743,42 @@ var Socket = /*#__PURE__*/function (_Emitter) {
 
           if ("pong" === msg.type && "probe" === msg.data) {
             debug('probe transport "%s" pong', name);
-            self.upgrading = true;
-            self.emit("upgrading", transport);
+            _this4.upgrading = true;
+
+            _this4.emit("upgrading", transport);
+
             if (!transport) return;
             Socket.priorWebsocketSuccess = "websocket" === transport.name;
-            debug('pausing current transport "%s"', self.transport.name);
-            self.transport.pause(function () {
+            debug('pausing current transport "%s"', _this4.transport.name);
+
+            _this4.transport.pause(function () {
               if (failed) return;
-              if ("closed" === self.readyState) return;
+              if ("closed" === _this4.readyState) return;
               debug("changing transport and sending upgrade packet");
               cleanup();
-              self.setTransport(transport);
+
+              _this4.setTransport(transport);
+
               transport.send([{
                 type: "upgrade"
               }]);
-              self.emit("upgrade", transport);
+
+              _this4.emit("upgrade", transport);
+
               transport = null;
-              self.upgrading = false;
-              self.flush();
+              _this4.upgrading = false;
+
+              _this4.flush();
             });
           } else {
             debug('probe transport "%s" failed', name);
             var err = new Error("probe error");
             err.transport = transport.name;
-            self.emit("upgradeError", err);
+
+            _this4.emit("upgradeError", err);
           }
         });
-      }
+      };
 
       function freezeTransport() {
         if (failed) return; // Any callback called by transport should be ignored since now
@@ -2783,13 +2790,14 @@ var Socket = /*#__PURE__*/function (_Emitter) {
       } // Handle any error that happens while probing
 
 
-      function onerror(err) {
+      var onerror = function onerror(err) {
         var error = new Error("probe error: " + err);
         error.transport = transport.name;
         freezeTransport();
         debug('probe transport "%s" failed because of error: %s', name, err);
-        self.emit("upgradeError", error);
-      }
+
+        _this4.emit("upgradeError", error);
+      };
 
       function onTransportClose() {
         onerror("transport closed");
@@ -2809,13 +2817,15 @@ var Socket = /*#__PURE__*/function (_Emitter) {
       } // Remove all listeners on the transport and on self
 
 
-      function cleanup() {
+      var cleanup = function cleanup() {
         transport.removeListener("open", onTransportOpen);
         transport.removeListener("error", onerror);
         transport.removeListener("close", onTransportClose);
-        self.removeListener("close", onclose);
-        self.removeListener("upgrading", onupgrade);
-      }
+
+        _this4.removeListener("close", onclose);
+
+        _this4.removeListener("upgrading", onupgrade);
+      };
 
       transport.once("open", onTransportOpen);
       transport.once("error", onerror);
@@ -2921,11 +2931,11 @@ var Socket = /*#__PURE__*/function (_Emitter) {
   }, {
     key: "resetPingTimeout",
     value: function resetPingTimeout() {
-      var _this2 = this;
+      var _this5 = this;
 
       clearTimeout(this.pingTimeoutTimer);
       this.pingTimeoutTimer = setTimeout(function () {
-        _this2.onClose("ping timeout");
+        _this5.onClose("ping timeout");
       }, this.pingInterval + this.pingTimeout);
 
       if (this.opts.autoUnref) {
@@ -3041,14 +3051,37 @@ var Socket = /*#__PURE__*/function (_Emitter) {
   }, {
     key: "close",
     value: function close() {
-      var self = this;
+      var _this6 = this;
+
+      var close = function close() {
+        _this6.onClose("forced close");
+
+        debug("socket closing - telling transport to close");
+
+        _this6.transport.close();
+      };
+
+      var cleanupAndClose = function cleanupAndClose() {
+        _this6.removeListener("upgrade", cleanupAndClose);
+
+        _this6.removeListener("upgradeError", cleanupAndClose);
+
+        close();
+      };
+
+      var waitForUpgrade = function waitForUpgrade() {
+        // wait for upgrade to finish since we can't send packets while pausing a transport
+        _this6.once("upgrade", cleanupAndClose);
+
+        _this6.once("upgradeError", cleanupAndClose);
+      };
 
       if ("opening" === this.readyState || "open" === this.readyState) {
         this.readyState = "closing";
 
         if (this.writeBuffer.length) {
           this.once("drain", function () {
-            if (this.upgrading) {
+            if (_this6.upgrading) {
               waitForUpgrade();
             } else {
               close();
@@ -3059,24 +3092,6 @@ var Socket = /*#__PURE__*/function (_Emitter) {
         } else {
           close();
         }
-      }
-
-      function close() {
-        self.onClose("forced close");
-        debug("socket closing - telling transport to close");
-        self.transport.close();
-      }
-
-      function cleanupAndClose() {
-        self.removeListener("upgrade", cleanupAndClose);
-        self.removeListener("upgradeError", cleanupAndClose);
-        close();
-      }
-
-      function waitForUpgrade() {
-        // wait for upgrade to finish since we can't send packets while pausing a transport
-        self.once("upgrade", cleanupAndClose);
-        self.once("upgradeError", cleanupAndClose);
       }
 
       return this;
@@ -3105,8 +3120,7 @@ var Socket = /*#__PURE__*/function (_Emitter) {
     key: "onClose",
     value: function onClose(reason, desc) {
       if ("opening" === this.readyState || "open" === this.readyState || "closing" === this.readyState) {
-        debug('socket close with reason: "%s"', reason);
-        var self = this; // clear timers
+        debug('socket close with reason: "%s"', reason); // clear timers
 
         clearTimeout(this.pingIntervalTimer);
         clearTimeout(this.pingTimeoutTimer); // stop event from firing again for transport
@@ -3129,8 +3143,8 @@ var Socket = /*#__PURE__*/function (_Emitter) {
         this.emit("close", reason, desc); // clean buffers after, so users can still
         // grab the buffers on `close` event
 
-        self.writeBuffer = [];
-        self.prevBufferLen = 0;
+        this.writeBuffer = [];
+        this.prevBufferLen = 0;
       }
     }
     /**
@@ -3494,11 +3508,7 @@ var JSONPPolling = /*#__PURE__*/function (_Polling) {
 
     _this.index = callbacks.length; // add callback to jsonp global
 
-    var self = _assertThisInitialized(_this);
-
-    callbacks.push(function (msg) {
-      self.onData(msg);
-    }); // append to query string
+    callbacks.push(_this.onData.bind(_assertThisInitialized(_this))); // append to query string
 
     _this.query.j = _this.index;
     return _this;
@@ -3542,7 +3552,8 @@ var JSONPPolling = /*#__PURE__*/function (_Polling) {
   }, {
     key: "doPoll",
     value: function doPoll() {
-      var self = this;
+      var _this2 = this;
+
       var script = document.createElement("script");
 
       if (this.script) {
@@ -3554,7 +3565,7 @@ var JSONPPolling = /*#__PURE__*/function (_Polling) {
       script.src = this.uri();
 
       script.onerror = function (e) {
-        self.onError("jsonp poll error", e);
+        _this2.onError("jsonp poll error", e);
       };
 
       var insertAt = document.getElementsByTagName("script")[0];
@@ -3587,7 +3598,8 @@ var JSONPPolling = /*#__PURE__*/function (_Polling) {
   }, {
     key: "doWrite",
     value: function doWrite(data, fn) {
-      var self = this;
+      var _this3 = this;
+
       var iframe;
 
       if (!this.form) {
@@ -3615,29 +3627,31 @@ var JSONPPolling = /*#__PURE__*/function (_Polling) {
         fn();
       }
 
-      function initIframe() {
-        if (self.iframe) {
+      var initIframe = function initIframe() {
+        if (_this3.iframe) {
           try {
-            self.form.removeChild(self.iframe);
+            _this3.form.removeChild(_this3.iframe);
           } catch (e) {
-            self.onError("jsonp polling iframe removal error", e);
+            _this3.onError("jsonp polling iframe removal error", e);
           }
         }
 
         try {
           // ie6 dynamic iframes with target="" support (thanks Chris Lambacher)
-          var html = '<iframe src="javascript:0" name="' + self.iframeId + '">';
+          var html = '<iframe src="javascript:0" name="' + _this3.iframeId + '">';
           iframe = document.createElement(html);
         } catch (e) {
           iframe = document.createElement("iframe");
-          iframe.name = self.iframeId;
+          iframe.name = _this3.iframeId;
           iframe.src = "javascript:0";
         }
 
-        iframe.id = self.iframeId;
-        self.form.appendChild(iframe);
-        self.iframe = iframe;
-      }
+        iframe.id = _this3.iframeId;
+
+        _this3.form.appendChild(iframe);
+
+        _this3.iframe = iframe;
+      };
 
       initIframe(); // escape \n to prevent it from being converted into \r\n by some UAs
       // double escaping is required for escaped new lines because unescaping of new lines can be done safely on server-side
@@ -3651,7 +3665,7 @@ var JSONPPolling = /*#__PURE__*/function (_Polling) {
 
       if (this.iframe.attachEvent) {
         this.iframe.onreadystatechange = function () {
-          if (self.iframe.readyState === "complete") {
+          if (_this3.iframe.readyState === "complete") {
             complete();
           }
         };
@@ -3800,14 +3814,15 @@ var XHR = /*#__PURE__*/function (_Polling) {
   }, {
     key: "doWrite",
     value: function doWrite(data, fn) {
+      var _this2 = this;
+
       var req = this.request({
         method: "POST",
         data: data
       });
-      var self = this;
       req.on("success", fn);
       req.on("error", function (err) {
-        self.onError("xhr post error", err);
+        _this2.onError("xhr post error", err);
       });
     }
     /**
@@ -3819,14 +3834,13 @@ var XHR = /*#__PURE__*/function (_Polling) {
   }, {
     key: "doPoll",
     value: function doPoll() {
+      var _this3 = this;
+
       debug("xhr poll");
       var req = this.request();
-      var self = this;
-      req.on("data", function (data) {
-        self.onData(data);
-      });
+      req.on("data", this.onData.bind(this));
       req.on("error", function (err) {
-        self.onError("xhr poll error", err);
+        _this3.onError("xhr poll error", err);
       });
       this.pollXhr = req;
     }
@@ -3847,20 +3861,20 @@ var Request = /*#__PURE__*/function (_Emitter) {
    * @api public
    */
   function Request(uri, opts) {
-    var _this2;
+    var _this4;
 
     _classCallCheck(this, Request);
 
-    _this2 = _super2.call(this);
-    _this2.opts = opts;
-    _this2.method = opts.method || "GET";
-    _this2.uri = uri;
-    _this2.async = false !== opts.async;
-    _this2.data = undefined !== opts.data ? opts.data : null;
+    _this4 = _super2.call(this);
+    _this4.opts = opts;
+    _this4.method = opts.method || "GET";
+    _this4.uri = uri;
+    _this4.async = false !== opts.async;
+    _this4.data = undefined !== opts.data ? opts.data : null;
 
-    _this2.create();
+    _this4.create();
 
-    return _this2;
+    return _this4;
   }
   /**
    * Creates the XHR object and sends the request.
@@ -3872,11 +3886,12 @@ var Request = /*#__PURE__*/function (_Emitter) {
   _createClass(Request, [{
     key: "create",
     value: function create() {
+      var _this5 = this;
+
       var opts = pick(this.opts, "agent", "enablesXDR", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized", "autoUnref");
       opts.xdomain = !!this.opts.xd;
       opts.xscheme = !!this.opts.xs;
       var xhr = this.xhr = new XMLHttpRequest(opts);
-      var self = this;
 
       try {
         debug("xhr open %s: %s", this.method, this.uri);
@@ -3915,23 +3930,23 @@ var Request = /*#__PURE__*/function (_Emitter) {
 
         if (this.hasXDR()) {
           xhr.onload = function () {
-            self.onLoad();
+            _this5.onLoad();
           };
 
           xhr.onerror = function () {
-            self.onError(xhr.responseText);
+            _this5.onError(xhr.responseText);
           };
         } else {
           xhr.onreadystatechange = function () {
             if (4 !== xhr.readyState) return;
 
             if (200 === xhr.status || 1223 === xhr.status) {
-              self.onLoad();
+              _this5.onLoad();
             } else {
               // make sure the `error` event handler that's user-set
               // does not throw in the same tick and gets caught here
               setTimeout(function () {
-                self.onError(typeof xhr.status === "number" ? xhr.status : 0);
+                _this5.onError(typeof xhr.status === "number" ? xhr.status : 0);
               }, 0);
             }
           };
@@ -3944,7 +3959,7 @@ var Request = /*#__PURE__*/function (_Emitter) {
         // and thus the 'error' event can only be only bound *after* this exception
         // occurs.  Therefore, also, we cannot throw here at all.
         setTimeout(function () {
-          self.onError(e);
+          _this5.onError(e);
         }, 0);
         return;
       }
@@ -4167,14 +4182,15 @@ var Polling = /*#__PURE__*/function (_Transport) {
   }, {
     key: "pause",
     value: function pause(onPause) {
-      var self = this;
+      var _this = this;
+
       this.readyState = "pausing";
 
-      function pause() {
+      var pause = function pause() {
         debug("paused");
-        self.readyState = "paused";
+        _this.readyState = "paused";
         onPause();
-      }
+      };
 
       if (this.polling || !this.writable) {
         var total = 0;
@@ -4223,23 +4239,25 @@ var Polling = /*#__PURE__*/function (_Transport) {
   }, {
     key: "onData",
     value: function onData(data) {
-      var self = this;
+      var _this2 = this;
+
       debug("polling got data %s", data);
 
-      var callback = function callback(packet, index, total) {
+      var callback = function callback(packet) {
         // if its the first message we consider the transport open
-        if ("opening" === self.readyState && packet.type === "open") {
-          self.onOpen();
+        if ("opening" === _this2.readyState && packet.type === "open") {
+          _this2.onOpen();
         } // if its a close packet, we close the ongoing requests
 
 
         if ("close" === packet.type) {
-          self.onClose();
+          _this2.onClose();
+
           return false;
         } // otherwise bypass onData and handle the message
 
 
-        self.onPacket(packet);
+        _this2.onPacket(packet);
       }; // decode payload
 
 
@@ -4266,14 +4284,15 @@ var Polling = /*#__PURE__*/function (_Transport) {
   }, {
     key: "doClose",
     value: function doClose() {
-      var self = this;
+      var _this3 = this;
 
-      function close() {
+      var close = function close() {
         debug("writing close packet");
-        self.write([{
+
+        _this3.write([{
           type: "close"
         }]);
-      }
+      };
 
       if ("open" === this.readyState) {
         debug("transport open - closing");
@@ -4296,14 +4315,14 @@ var Polling = /*#__PURE__*/function (_Transport) {
   }, {
     key: "write",
     value: function write(packets) {
-      var _this = this;
+      var _this4 = this;
 
       this.writable = false;
       parser.encodePayload(packets, function (data) {
-        _this.doWrite(data, function () {
-          _this.writable = true;
+        _this4.doWrite(data, function () {
+          _this4.writable = true;
 
-          _this.emit("drain");
+          _this4.emit("drain");
         });
       });
     }
@@ -4525,61 +4544,60 @@ var WS = /*#__PURE__*/function (_Transport) {
   }, {
     key: "write",
     value: function write(packets) {
-      var self = this;
+      var _this3 = this;
+
       this.writable = false; // encodePacket efficient as it uses WS framing
       // no need for encodePayload
 
-      var total = packets.length;
-      var i = 0;
-      var l = total;
+      var _loop = function _loop(i) {
+        var packet = packets[i];
+        var lastPacket = i === packets.length - 1;
+        parser.encodePacket(packet, _this3.supportsBinary, function (data) {
+          // always create a new object (GH-437)
+          var opts = {};
 
-      for (; i < l; i++) {
-        (function (packet) {
-          parser.encodePacket(packet, self.supportsBinary, function (data) {
-            // always create a new object (GH-437)
-            var opts = {};
-
-            if (!usingBrowserWebSocket) {
-              if (packet.options) {
-                opts.compress = packet.options.compress;
-              }
-
-              if (self.opts.perMessageDeflate) {
-                var len = "string" === typeof data ? Buffer.byteLength(data) : data.length;
-
-                if (len < self.opts.perMessageDeflate.threshold) {
-                  opts.compress = false;
-                }
-              }
-            } // Sometimes the websocket has already been closed but the browser didn't
-            // have a chance of informing us about it yet, in that case send will
-            // throw an error
-
-
-            try {
-              if (usingBrowserWebSocket) {
-                // TypeError is thrown when passing the second argument on Safari
-                self.ws.send(data);
-              } else {
-                self.ws.send(data, opts);
-              }
-            } catch (e) {
-              debug("websocket closed before onclose event");
+          if (!usingBrowserWebSocket) {
+            if (packet.options) {
+              opts.compress = packet.options.compress;
             }
 
-            --total || done();
-          });
-        })(packets[i]);
-      }
+            if (_this3.opts.perMessageDeflate) {
+              var len = "string" === typeof data ? Buffer.byteLength(data) : data.length;
 
-      function done() {
-        self.emit("flush"); // fake drain
-        // defer to next tick to allow Socket to clear writeBuffer
+              if (len < _this3.opts.perMessageDeflate.threshold) {
+                opts.compress = false;
+              }
+            }
+          } // Sometimes the websocket has already been closed but the browser didn't
+          // have a chance of informing us about it yet, in that case send will
+          // throw an error
 
-        setTimeout(function () {
-          self.writable = true;
-          self.emit("drain");
-        }, 0);
+
+          try {
+            if (usingBrowserWebSocket) {
+              // TypeError is thrown when passing the second argument on Safari
+              _this3.ws.send(data);
+            } else {
+              _this3.ws.send(data, opts);
+            }
+          } catch (e) {
+            debug("websocket closed before onclose event");
+          }
+
+          if (lastPacket) {
+            // fake drain
+            // defer to next tick to allow Socket to clear writeBuffer
+            setTimeout(function () {
+              _this3.writable = true;
+
+              _this3.emit("drain");
+            }, 0);
+          }
+        });
+      };
+
+      for (var i = 0; i < packets.length; i++) {
+        _loop(i);
       }
     }
     /**
