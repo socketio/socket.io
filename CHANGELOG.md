@@ -1,3 +1,12 @@
+## [4.1.1](https://github.com/socketio/socket.io/compare/4.1.0...4.1.1) (2021-05-11)
+
+
+### Bug Fixes
+
+* **typings:** properly type server-side events ([b84ed1e](https://github.com/socketio/socket.io/commit/b84ed1e41c9053792caf58974c5de9395bfd509f))
+* **typings:** properly type the adapter attribute ([891b187](https://github.com/socketio/socket.io/commit/891b1870e92d1ec38910f03bb839817e2d6be65a))
+
+
 # [4.1.0](https://github.com/socketio/socket.io/compare/4.0.2...4.1.0) (2021-05-11)
 
 
