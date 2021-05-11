@@ -1,3 +1,11 @@
+## [5.1.1](https://github.com/socketio/engine.io-client/compare/5.1.0...5.1.1) (2021-05-11)
+
+
+### Bug Fixes
+
+* fix JSONP transport on IE9 ([bddd992](https://github.com/socketio/engine.io-client/commit/bddd9928fcdb33c79e0289bcafef337359dee12b))
+
+
 ## [4.1.4](https://github.com/socketio/engine.io-client/compare/4.1.3...4.1.4) (2021-05-05)
 
 This release only contains a bump of `xmlhttprequest-ssl`, in order to fix the following vulnerability: https://www.npmjs.com/advisories/1665.
