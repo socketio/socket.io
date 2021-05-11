@@ -11,7 +11,7 @@ import type { BroadcastOptions } from "socket.io-adapter";
 export class ParentNamespace<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
-  ServerSideEvents extends EventsMap = {}
+  ServerSideEvents extends EventsMap = DefaultEventsMap
 > extends Namespace<ListenEvents, EmitEvents, ServerSideEvents> {
   private static count: number = 0;
   private children: Set<

@@ -117,7 +117,9 @@ describe("server", () => {
 
       it("does not accept arguments of wrong types", (done) => {
         const srv = createServer();
-        const sio = new Server<BidirectionalEvents>(srv);
+        const sio = new Server<BidirectionalEvents, BidirectionalEvents, {}>(
+          srv
+        );
         expectError(sio.on("random", (a, b, c) => {}));
         srv.listen(() => {
           expectError(sio.on("wrong name", (s) => {}));

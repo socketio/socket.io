@@ -168,7 +168,7 @@ interface ServerOptions extends EngineAttachOptions {
 export class Server<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
-  ServerSideEvents extends EventsMap = {}
+  ServerSideEvents extends EventsMap = DefaultEventsMap
 > extends StrictEventEmitter<
   ServerSideEvents,
   EmitEvents,

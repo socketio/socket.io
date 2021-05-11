@@ -50,7 +50,7 @@ export const RESERVED_EVENTS: ReadonlySet<string | Symbol> = new Set<
 export class Namespace<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
-  ServerSideEvents extends EventsMap = {}
+  ServerSideEvents extends EventsMap = DefaultEventsMap
 > extends StrictEventEmitter<
   ServerSideEvents,
   EmitEvents,
@@ -306,9 +306,8 @@ export class Namespace<
    *
    * @private
    */
-  _onServerSideEmit(args: any[]) {
-    const event = args.shift();
-    this.emitUntyped(event, args);
+  _onServerSideEmit(args: [eventName: string, ...args: any[]]) {
+    super.emitUntyped.apply(this, args);
   }
 
   /**

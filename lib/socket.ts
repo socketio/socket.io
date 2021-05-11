@@ -111,7 +111,7 @@ export interface Handshake {
 export class Socket<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
-  ServerSideEvents extends EventsMap = {}
+  ServerSideEvents extends EventsMap = DefaultEventsMap
 > extends StrictEventEmitter<
   ListenEvents,
   EmitEvents,
