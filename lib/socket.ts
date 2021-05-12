@@ -1,5 +1,5 @@
 import { Packet, PacketType } from "socket.io-parser";
-import url = require("url");
+import { parse as urlParse } from "url";
 import debugModule from "debug";
 import type { Server } from "./index";
 import {
@@ -178,7 +178,7 @@ export class Socket<
       secure: !!this.request.connection.encrypted,
       issued: +new Date(),
       url: this.request.url!,
-      query: url.parse(this.request.url!, true).query,
+      query: urlParse(this.request.url!, true).query,
       auth,
     };
   }
