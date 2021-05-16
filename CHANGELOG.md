@@ -1,3 +1,11 @@
+## [5.1.1](https://github.com/socketio/engine.io/compare/5.1.0...5.1.1) (2021-05-16)
+
+
+### Bug Fixes
+
+* properly close the websocket connection upon handshake error ([4360686](https://github.com/socketio/engine.io/commit/43606865e5299747cbb31f3ed9baf4567502a879))
+
+
 # [5.1.0](https://github.com/socketio/engine.io/compare/5.0.0...5.1.0) (2021-05-04)
 
 
