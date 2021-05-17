@@ -123,10 +123,10 @@ interface EngineOptions {
    * Are we only interested in transports that support binary?
    */
   onlyBinaryUpgrades: boolean;
-  
+
   /**
    * Timeout for xhr-polling requests in milliseconds (0) (only for polling transport)
-   */  
+   */
   requestTimeout: number;
 
   /**
@@ -197,6 +197,12 @@ interface EngineOptions {
    * @default false
    */
   withCredentials: boolean;
+
+  /**
+   * Whether to automatically close the connection whenever the beforeunload event is received.
+   * @default true
+   */
+  closeOnBeforeunload: boolean;
 }
 
 export interface ManagerOptions extends EngineOptions {
