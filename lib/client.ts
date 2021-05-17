@@ -13,6 +13,7 @@ const debug = debugModule("socket.io:client");
 interface WriteOptions {
   compress?: boolean;
   volatile?: boolean;
+  preEncoded?: boolean;
   wsPreEncoded?: string;
 }
 
@@ -200,12 +201,14 @@ export class Client<
    * @param {Object} opts
    * @private
    */
-  _packet(packet: Packet, opts: WriteOptions = {}): void {
+  _packet(packet: Packet | any[], opts: WriteOptions = {}): void {
     if (this.conn.readyState !== "open") {
       debug("ignoring packet write %j", packet);
       return;
     }
-    const encodedPackets = this.encoder.encode(packet);
+    const encodedPackets = opts.preEncoded
+      ? (packet as any[]) // previous versions of the adapter incorrectly used socket.packet() instead of writeToEngine()
+      : this.encoder.encode(packet as Packet);
     for (const encodedPacket of encodedPackets) {
       this.writeToEngine(encodedPacket, opts);
     }
