@@ -307,7 +307,7 @@ export class Namespace<
    *
    * @private
    */
-  _onServerSideEmit(args: [eventName: string, ...args: any[]]) {
+  _onServerSideEmit(args: [string, ...any[]]) {
     super.emitUntyped.apply(this, args);
   }
 
