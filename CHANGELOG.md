@@ -1,3 +1,12 @@
+## [4.1.2](https://github.com/socketio/socket.io/compare/4.1.1...4.1.2) (2021-05-17)
+
+
+### Bug Fixes
+
+* **typings:** ensure compatibility with TypeScript 3.x ([0cb6ac9](https://github.com/socketio/socket.io/commit/0cb6ac95b49a27483b6f1b6402fa54b35f82e36f))
+* ensure compatibility with previous versions of the adapter ([a2cf248](https://github.com/socketio/socket.io/commit/a2cf2486c366cb62293101c10520c57f6984a3fc))
+
+
 ## [4.1.1](https://github.com/socketio/socket.io/compare/4.1.0...4.1.1) (2021-05-11)
 
 
