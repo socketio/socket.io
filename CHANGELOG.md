@@ -1,3 +1,12 @@
+## [4.1.2](https://github.com/socketio/socket.io-client/compare/4.1.1...4.1.2) (2021-05-17)
+
+
+### Bug Fixes
+
+* **typings:** add missing closeOnBeforeunload option ([#1469](https://github.com/socketio/socket.io-client/issues/1469)) ([35d27df](https://github.com/socketio/socket.io-client/commit/35d27df2ae48046bfe3ae2e11f82004200095aae))
+* **typings:** add missing requestTimeout option ([#1467](https://github.com/socketio/socket.io-client/issues/1467)) ([c8dfbb1](https://github.com/socketio/socket.io-client/commit/c8dfbb1c1d10aff16bc19cc1f1bab6b3a9240d81))
+
+
 ## [4.1.1](https://github.com/socketio/socket.io-client/compare/4.1.0...4.1.1) (2021-05-11)
 
 There were some minor bug fixes on the server side, which mandate a client bump.
