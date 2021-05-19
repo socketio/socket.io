@@ -1,3 +1,11 @@
+## [2.3.1](https://github.com/socketio/socket.io-adapter/compare/2.3.0...2.3.1) (2021-05-19)
+
+
+### Bug Fixes
+
+* restore compatibility with binary parsers ([a33e42b](https://github.com/socketio/socket.io-adapter/commit/a33e42bb7b935ccdd3688b4c305714b791ade0db))
+
+
 # [2.3.0](https://github.com/socketio/socket.io-adapter/compare/2.2.0...2.3.0) (2021-05-10)
 
 
