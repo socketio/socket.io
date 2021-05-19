@@ -66,7 +66,10 @@ describe("socket.io-adapter", () => {
         {
           id,
           client: {
-            writeToEngine() {
+            writeToEngine(payload, opts) {
+              expect(payload).to.eql("123");
+              expect(opts.preEncoded).to.eql(true);
+              expect(opts.wsPreEncoded).to.eql("4123");
               ids.push(id);
             }
           }
@@ -77,7 +80,7 @@ describe("socket.io-adapter", () => {
       server: {
         encoder: {
           encode() {
-            return [];
+            return ["123"];
           }
         }
       },
@@ -103,7 +106,10 @@ describe("socket.io-adapter", () => {
         {
           id,
           client: {
-            writeToEngine() {
+            writeToEngine(payload, opts) {
+              expect(payload).to.be.a(Buffer);
+              expect(opts.preEncoded).to.eql(true);
+              expect(opts.wsPreEncoded).to.be(undefined);
               ids.push(id);
             }
           }
@@ -114,7 +120,7 @@ describe("socket.io-adapter", () => {
       server: {
         encoder: {
           encode() {
-            return [];
+            return [Buffer.from([1, 2, 3])];
           }
         }
       },
