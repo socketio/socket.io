@@ -15,6 +15,14 @@ Supported features:
   - [`disconnectSockets`](https://socket.io/docs/v4/server-instance/#disconnectSockets)
   - [`serverSideEmit`](https://socket.io/docs/v4/server-instance/#serverSideEmit)
 
+Related packages:
+
+- Postgres adapter: https://github.com/socketio/socket.io-postgres-adapter/
+- Redis adapter: https://github.com/socketio/socket.io-redis-adapter/
+- Redis emitter: https://github.com/socketio/socket.io-redis-emitter/
+- MongoDB adapter: https://github.com/socketio/socket.io-mongo-adapter/
+- MongoDB emitter: https://github.com/socketio/socket.io-mongo-emitter/
+
 **Table of contents**
 
 - [Installation](#installation)
