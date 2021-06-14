@@ -1,0 +1,48 @@
+{
+  "name": "@socket.io/postgres-emitter",
+  "version": "0.0.1",
+  "description": "The Socket.IO Postgres emitter, allowing to communicate with a group of Socket.IO servers from another Node.js process",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/socketio/socket.io-postgres-emitter.git"
+  },
+  "files": [
+    "dist/"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "test": "npm run format:check && tsc && nyc mocha --require ts-node/register --timeout 5000 test/index.ts",
+    "format:check": "prettier --parser typescript --check 'lib/**/*.ts' 'test/**/*.ts'",
+    "format:fix": "prettier --parser typescript --write 'lib/**/*.ts' 'test/**/*.ts'",
+    "prepack": "tsc"
+  },
+  "dependencies": {
+    "@msgpack/msgpack": "^2.7.0",
+    "debug": "~4.3.1"
+  },
+  "devDependencies": {
+    "@socket.io/postgres-adapter": "^0.1.0",
+    "@types/debug": "^4.1.5",
+    "@types/expect.js": "^0.3.29",
+    "@types/mocha": "^8.2.1",
+    "@types/node": "^14.14.35",
+    "@types/pg": "^8.6.0",
+    "expect.js": "~0.3.1",
+    "mocha": "^8.3.2",
+    "nyc": "^15.1.0",
+    "pg": "^8.6.0",
+    "prettier": "^2.2.1",
+    "socket.io": "^4.1.1",
+    "socket.io-client": "^4.1.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
+  },
+  "keywords": [
+    "socket.io",
+    "postgres",
+    "postgresql",
+    "emitter"
+  ]
+}
