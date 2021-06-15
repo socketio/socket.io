@@ -4,13 +4,15 @@
   "description": "A sample Webpack build (for the server)",
   "scripts": {
     "start": "node dist/server.js",
-    "build": "webpack --config ./support/webpack.config.js"
+    "build": "webpack"
   },
   "author": "Damien Arrachequesne",
   "license": "MIT",
   "devDependencies": {
+    "bufferutil": "^4.0.3",
     "socket.io": "^4.0.0",
-    "webpack": "~4.43.0",
-    "webpack-cli": "~3.3.11"
+    "utf-8-validate": "^5.0.5",
+    "webpack": "^5.39.0",
+    "webpack-cli": "^4.7.2"
   }
 }
