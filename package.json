@@ -52,7 +52,7 @@
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",
     "webpack-remove-debug": "^0.1.0",
-    "zuul": "3.11.1",
+    "zuul": "^3.12.0",
     "zuul-builder-webpack": "^1.2.0",
     "zuul-ngrok": "4.0.0"
   },
