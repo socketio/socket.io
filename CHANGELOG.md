@@ -1,3 +1,12 @@
+## [5.1.2](https://github.com/socketio/engine.io-client/compare/5.1.1...5.1.2) (2021-06-24)
+
+
+### Bug Fixes
+
+* emit ping when receiving a ping from the server ([589d3ad](https://github.com/socketio/engine.io-client/commit/589d3ad63840329b5a61186603a415c534f8d4fc))
+* **websocket:** fix timer blocking writes ([#670](https://github.com/socketio/engine.io-client/issues/670)) ([f30a10b](https://github.com/socketio/engine.io-client/commit/f30a10b7f45517fcb3abd02511c58a89e0ef498f))
+
+
 ## [5.1.1](https://github.com/socketio/engine.io-client/compare/5.1.0...5.1.1) (2021-05-11)
 
 
