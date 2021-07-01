@@ -1,6 +1,7 @@
 import * as expect from "expect.js";
-import { io, Manager } from "..";
+import { io, Manager, ManagerOptions } from "..";
 import * as hasCORS from "has-cors";
+import * as FakeTimers from "@sinonjs/fake-timers";
 import * as textBlobBuilder from "text-blob-builder";
 import * as env from "./support/env";
 
@@ -551,6 +552,74 @@ describe("connection", function () {
       }, delay);
     });
   }
+
+  describe("reconnect timeout", () => {
+    const setupManagerCallbacks = (manager: Manager) => {
+      const socket = manager.socket("/foo");
+      manager.on("reconnect_attempt", () => {
+        reconnected = true;
+        socket.disconnect();
+      });
+    };
+    let options!: Partial<ManagerOptions>;
+    let reconnected!: boolean;
+    const realTimeout = setTimeout;
+    const wait = (delay: number) =>
+      new Promise((resolve) => {
+        realTimeout(resolve, delay);
+      });
+
+    beforeEach(() => {
+      options = {
+        timeout: 500,
+        reconnectionDelayMax: 100,
+        randomizationFactor: 0,
+      };
+      reconnected = false;
+    });
+
+    it("should use overridden setTimeout by default", async () => {
+      const clock = FakeTimers.install();
+      const manager = new Manager(options);
+      setupManagerCallbacks(manager);
+
+      // Wait real clock time for the socket to connect before disconnecting it.
+      await clock.tickAsync(options.timeout);
+      await wait(options.timeout);
+      manager.engine.close();
+
+      // Let the clock approach the reconnect delay.
+      await clock.tickAsync(options.reconnectionDelayMax - 1);
+      expect(reconnected).to.be(false);
+
+      await clock.tickAsync(1); // reconnect.
+      expect(reconnected).to.be(true);
+
+      clock.uninstall();
+    });
+
+    it("should use native setTimeout with useNativeSetTimers", async () => {
+      options.useNativeTimers = true;
+      const clock = FakeTimers.install();
+      const manager = new Manager(options);
+      setupManagerCallbacks(manager);
+
+      // Wait real clock time for the socket to connect before disconnecting it.
+      await clock.tickAsync(options.timeout);
+      await wait(options.timeout);
+      manager.engine.close();
+
+      // Since the client will not use the overridden timeout function,
+      // advancing the fake clock should not reconnect.
+      await clock.tickAsync(options.reconnectionDelayMax);
+      expect(reconnected).to.be(false);
+      clock.uninstall();
+
+      // Wait reconnectionDelayMax to trigger reconnect.
+      await wait(options.reconnectionDelayMax);
+      expect(reconnected).to.be(true);
+    });
+  });
 
   it("should emit date as string", (done) => {
     const socket = io({ forceNew: true });

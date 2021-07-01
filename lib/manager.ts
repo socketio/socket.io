@@ -1,4 +1,5 @@
 import * as eio from "engine.io-client";
+import { installTimerFunctions } from "engine.io-client/lib/util";
 import { Socket, SocketOptions } from "./socket";
 import * as parser from "socket.io-parser";
 import { Decoder, Encoder, Packet } from "socket.io-parser";
@@ -203,6 +204,14 @@ interface EngineOptions {
    * @default true
    */
   closeOnBeforeunload: boolean;
+
+  /**
+   * Whether to always use the native timeouts. This allows the client to
+   * reconnect when the native timeout functions are overridden, such as when
+   * mock clocks are installed.
+   * @default false
+   */
+  useNativeTimers: boolean;
 }
 
 export interface ManagerOptions extends EngineOptions {
@@ -321,6 +330,7 @@ export class Manager<
   private nsps: Record<string, Socket> = {};
   private subs: Array<ReturnType<typeof on>> = [];
   private backoff: Backoff;
+  private setTimeoutFn: typeof setTimeout;
   private _reconnection: boolean;
   private _reconnectionAttempts: number;
   private _reconnectionDelay: number;
@@ -358,6 +368,7 @@ export class Manager<
 
     opts.path = opts.path || "/socket.io";
     this.opts = opts;
+    installTimerFunctions(this, opts);
     this.reconnection(opts.reconnection !== false);
     this.reconnectionAttempts(opts.reconnectionAttempts || Infinity);
     this.reconnectionDelay(opts.reconnectionDelay || 1000);
@@ -542,7 +553,7 @@ export class Manager<
       }
 
       // set timer
-      const timer = setTimeout(() => {
+      const timer = this.setTimeoutFn(() => {
         debug("connect attempt timed out after %d", timeout);
         openSubDestroy();
         socket.close();
@@ -769,7 +780,7 @@ export class Manager<
       debug("will wait %dms before reconnect attempt", delay);
 
       this._reconnecting = true;
-      const timer = setTimeout(() => {
+      const timer = this.setTimeoutFn(() => {
         if (self.skipReconnect) return;
 
         debug("attempting reconnect");
