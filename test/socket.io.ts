@@ -59,7 +59,7 @@ describe("socket.io", () => {
             if (err) return done(err);
             expect(res.headers["content-type"]).to.be("application/javascript");
             expect(res.headers.etag).to.be('"' + clientVersion + '"');
-            expect(res.headers["x-sourcemap"]).to.be(filename + ".map");
+            expect(res.headers["x-sourcemap"]).to.be(undefined);
             expect(res.text).to.match(/engine\.io/);
             expect(res.status).to.be(200);
             done();

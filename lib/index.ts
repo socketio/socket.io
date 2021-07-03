@@ -515,9 +515,6 @@ export class Server<
     );
     res.setHeader("ETag", expectedEtag);
 
-    if (!isMap) {
-      res.setHeader("X-SourceMap", filename.substring(1) + ".map");
-    }
     Server.sendFile(filename, req, res);
   }
 
