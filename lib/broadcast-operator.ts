@@ -10,7 +10,8 @@ import type {
 } from "./typed-events";
 
 export class BroadcastOperator<EmitEvents extends EventsMap>
-  implements TypedEventBroadcaster<EmitEvents> {
+  implements TypedEventBroadcaster<EmitEvents>
+{
   constructor(
     private readonly adapter: Adapter,
     private readonly rooms: Set<Room> = new Set<Room>(),
@@ -186,7 +187,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
         return sockets.map((socket) => {
           if (socket instanceof Socket) {
             // FIXME the TypeScript compiler complains about missing private properties
-            return (socket as unknown) as RemoteSocket<EmitEvents>;
+            return socket as unknown as RemoteSocket<EmitEvents>;
           } else {
             return new RemoteSocket(this.adapter, socket as SocketDetails);
           }
@@ -257,7 +258,8 @@ interface SocketDetails {
  * Expose of subset of the attributes and methods of the Socket class
  */
 export class RemoteSocket<EmitEvents extends EventsMap>
-  implements TypedEventBroadcaster<EmitEvents> {
+  implements TypedEventBroadcaster<EmitEvents>
+{
   public readonly id: SocketId;
   public readonly handshake: Handshake;
   public readonly rooms: Set<Room>;

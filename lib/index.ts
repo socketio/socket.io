@@ -201,10 +201,8 @@ export class Server<
   /**
    * @private
    */
-  _nsps: Map<
-    string,
-    Namespace<ListenEvents, EmitEvents, ServerSideEvents>
-  > = new Map();
+  _nsps: Map<string, Namespace<ListenEvents, EmitEvents, ServerSideEvents>> =
+    new Map();
   private parentNsps: Map<
     ParentNspNameMatchFn,
     ParentNamespace<ListenEvents, EmitEvents, ServerSideEvents>

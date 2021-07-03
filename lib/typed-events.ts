@@ -91,7 +91,8 @@ export abstract class StrictEventEmitter<
     ReservedEvents extends EventsMap = {}
   >
   extends EventEmitter
-  implements TypedEventBroadcaster<EmitEvents> {
+  implements TypedEventBroadcaster<EmitEvents>
+{
   /**
    * Adds the `listener` function as an event listener for `ev`.
    *

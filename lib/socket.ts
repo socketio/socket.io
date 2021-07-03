@@ -130,9 +130,8 @@ export class Socket<
   private readonly server: Server<ListenEvents, EmitEvents, ServerSideEvents>;
   private readonly adapter: Adapter;
   private acks: Map<number, () => void> = new Map();
-  private fns: Array<
-    (event: Array<any>, next: (err?: Error) => void) => void
-  > = [];
+  private fns: Array<(event: Array<any>, next: (err?: Error) => void) => void> =
+    [];
   private flags: BroadcastFlags = {};
   private _anyListeners?: Array<(...args: any[]) => void>;
 

@@ -14,9 +14,8 @@ export class ParentNamespace<
   ServerSideEvents extends EventsMap = DefaultEventsMap
 > extends Namespace<ListenEvents, EmitEvents, ServerSideEvents> {
   private static count: number = 0;
-  private children: Set<
-    Namespace<ListenEvents, EmitEvents, ServerSideEvents>
-  > = new Set();
+  private children: Set<Namespace<ListenEvents, EmitEvents, ServerSideEvents>> =
+    new Set();
 
   constructor(server: Server<ListenEvents, EmitEvents, ServerSideEvents>) {
     super(server, "/_" + ParentNamespace.count++);
