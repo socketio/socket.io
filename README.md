@@ -263,6 +263,7 @@ Exposed as `eio` in the browser standalone build.
       - `forceNode` (`Boolean`): Uses NodeJS implementation for websockets - even if there is a native Browser-Websocket available, which is preferred by default over the NodeJS implementation. (This is useful when using hybrid platforms like nw.js or electron) (`false`, NodeJS only)
       - `localAddress` (`String`): the local IP address to connect to
       - `autoUnref` (`Boolean`): whether the transport should be `unref`'d upon creation. This calls `unref` on the underlying timers and sockets so that the program is allowed to exit if they are the only timers/sockets in the event system (Node.js only)
+      - `useNativeTimers` (`Boolean`): Whether to always use the native timeouts. This allows the client to reconnect when the native timeout functions are overridden, such as when mock clocks are installed with [`@sinonjs/fake-timers`](https://github.com/sinonjs/fake-timers).
     - **Polling-only options**
       - `requestTimeout` (`Number`): Timeout for xhr-polling requests in milliseconds (`0`)
     - **Websocket-only options**

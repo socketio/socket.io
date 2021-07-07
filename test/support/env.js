@@ -19,6 +19,8 @@ exports.isIE9 = /MSIE 9/.test(userAgent);
 exports.isIE10 = /MSIE 10/.test(userAgent);
 exports.isIE11 = !!userAgent.match(/Trident.*rv[ :]*11\./); // ws doesn't work at all in sauce labs
 exports.isAndroid = userAgent.match(/Android/i);
+exports.isEdge = /Edg/.test(userAgent);
+exports.isIPad = /iPad/.test(userAgent);
 
 if (typeof location === "undefined") {
   location = {

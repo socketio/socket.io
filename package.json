@@ -39,6 +39,8 @@
     "@babel/core": "^7.12.9",
     "@babel/plugin-transform-object-assign": "^7.12.1",
     "@babel/preset-env": "^7.12.7",
+    "@sinonjs/fake-timers": "^7.1.2",
+    "@types/sinonjs__fake-timers": "^6.0.3",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
     "blob": "0.0.5",
