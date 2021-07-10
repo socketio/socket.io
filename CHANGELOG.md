@@ -1,3 +1,6 @@
+## [4.1.3](https://github.com/socketio/socket.io-client/compare/4.1.2...4.1.3) (2021-07-10)
+
+
 ## [4.1.2](https://github.com/socketio/socket.io-client/compare/4.1.1...4.1.2) (2021-05-17)
 
 
