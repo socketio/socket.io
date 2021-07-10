@@ -1,3 +1,12 @@
+## [4.1.3](https://github.com/socketio/socket.io/compare/4.1.2...4.1.3) (2021-07-10)
+
+
+### Bug Fixes
+
+* fix io.except() method ([94e27cd](https://github.com/socketio/socket.io/commit/94e27cd072c8a4eeb9636f6ffbb7a21d382f36b0))
+* remove x-sourcemap header ([a4dffc6](https://github.com/socketio/socket.io/commit/a4dffc6527f412d51a786ae5bf2e9080fe1ca63c))
+
+
 ## [4.1.2](https://github.com/socketio/socket.io/compare/4.1.1...4.1.2) (2021-05-17)
 
 
