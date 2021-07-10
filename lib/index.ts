@@ -700,11 +700,8 @@ export class Server<
    * @return self
    * @public
    */
-  public except(
-    name: Room | Room[]
-  ): Server<ListenEvents, EmitEvents, ServerSideEvents> {
-    this.sockets.except(name);
-    return this;
+  public except(name: Room | Room[]): BroadcastOperator<EmitEvents> {
+    return this.sockets.except(name);
   }
 
   /**
