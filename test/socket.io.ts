@@ -83,6 +83,10 @@ describe("socket.io", () => {
       };
 
       it("should serve client", testSource("socket.io.js"));
+      it(
+        "should serve client with query string",
+        testSource("socket.io.js?buster=" + Date.now())
+      );
       it("should serve source map", testSourceMap("socket.io.js.map"));
       it("should serve client (min)", testSource("socket.io.min.js"));
 

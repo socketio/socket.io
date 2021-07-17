@@ -334,7 +334,7 @@ export class Server<
     this.clientPathRegex = new RegExp(
       "^" +
         escapedPath +
-        "/socket\\.io(\\.min|\\.msgpack\\.min)?\\.js(\\.map)?$"
+        "/socket\\.io(\\.min|\\.msgpack\\.min)?\\.js(\\.map)?(?:\\?|$)"
     );
     return this;
   }
@@ -487,7 +487,7 @@ export class Server<
    * @private
    */
   private serve(req: http.IncomingMessage, res: http.ServerResponse): void {
-    const filename = req.url!.replace(this._path, "");
+    const filename = req.url!.replace(this._path, "").replace(/\?.*$/, "");
     const isMap = dotMapRegex.test(filename);
     const type = isMap ? "map" : "source";
 
