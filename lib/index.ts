@@ -822,6 +822,14 @@ export class Server<
   }
 }
 
+export default function io<
+  ListenEvents extends EventsMap = DefaultEventsMap,
+  EmitEvents extends EventsMap = ListenEvents,
+  ServerSideEvents extends EventsMap = DefaultEventsMap
+>(srv?: http.Server | number, opts?: Partial<ServerOptions>) {
+  return new Server<ListenEvents, EmitEvents, ServerSideEvents>(srv, opts);
+}
+
 /**
  * Expose main namespace (/).
  */
@@ -838,7 +846,7 @@ emitterMethods.forEach(function (fn) {
   };
 });
 
-module.exports = (srv?, opts?) => new Server(srv, opts);
+module.exports = io;
 module.exports.Server = Server;
 module.exports.Namespace = Namespace;
 module.exports.Socket = Socket;
