@@ -230,6 +230,16 @@ describe("socket.io-adapter", () => {
       adapter.del("s1", "r1");
     });
 
+    it("should not throw when calling del twice", done => {
+      const adapter = new Adapter({ server: { encoder: null } });
+      adapter.on("leave-room", (room, sid) => {
+        adapter.del("s1", "r1");
+        process.nextTick(done);
+      });
+      adapter.addAll("s1", new Set(["r1"]));
+      adapter.del("s1", "r1");
+    });
+
     it("should emit a 'leave-room' event with delAll method", done => {
       const adapter = new Adapter({ server: { encoder: null } });
       adapter.on("leave-room", (room, sid) => {

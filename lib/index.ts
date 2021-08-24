@@ -82,14 +82,14 @@ export class Adapter extends EventEmitter {
     this._del(room, id);
   }
 
-  private _del(room, id) {
-    if (this.rooms.has(room)) {
-      const deleted = this.rooms.get(room).delete(id);
+  private _del(room: Room, id: SocketId) {
+    const _room = this.rooms.get(room);
+    if (_room != null) {
+      const deleted = _room.delete(id);
       if (deleted) {
         this.emit("leave-room", room, id);
       }
-      if (this.rooms.get(room).size === 0) {
-        this.rooms.delete(room);
+      if (_room.size === 0 && this.rooms.delete(room)) {
         this.emit("delete-room", room);
       }
     }
