@@ -855,11 +855,6 @@ var Socket = /*#__PURE__*/function (_typed_events_1$Stric) {
     _classCallCheck(this, Socket);
 
     _this = _super.call(this);
-    _this.receiveBuffer = [];
-    _this.sendBuffer = [];
-    _this.ids = 0;
-    _this.acks = {};
-    _this.flags = {};
     _this.io = io;
     _this.nsp = nsp;
     _this.ids = 0;
