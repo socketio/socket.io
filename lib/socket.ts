@@ -50,8 +50,8 @@ export class Socket<
   public readonly io: Manager<ListenEvents, EmitEvents>;
 
   public id: string;
-  public connected: boolean;
-  public disconnected: boolean;
+  public connected: boolean = false;
+  public disconnected: boolean = true;
 
   public auth: { [key: string]: any } | ((cb: (data: object) => void) => void);
   public receiveBuffer: Array<ReadonlyArray<any>> = [];
@@ -74,13 +74,6 @@ export class Socket<
     super();
     this.io = io;
     this.nsp = nsp;
-    this.ids = 0;
-    this.acks = {};
-    this.receiveBuffer = [];
-    this.sendBuffer = [];
-    this.connected = false;
-    this.disconnected = true;
-    this.flags = {};
     if (opts && opts.auth) {
       this.auth = opts.auth;
     }
