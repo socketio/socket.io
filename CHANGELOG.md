@@ -1,3 +1,11 @@
+## [2.3.2](https://github.com/socketio/socket.io-adapter/compare/2.3.1...2.3.2) (2021-08-28)
+
+
+### Bug Fixes
+
+* fix race condition when leaving rooms ([#74](https://github.com/socketio/socket.io-adapter/issues/74)) ([912e13a](https://github.com/socketio/socket.io-adapter/commit/912e13ad30bd584e2ece747be96a1ba0669dd874))
+
+
 ## [2.3.1](https://github.com/socketio/socket.io-adapter/compare/2.3.0...2.3.1) (2021-05-19)
 
 
