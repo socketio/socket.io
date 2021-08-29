@@ -60,12 +60,11 @@ describe("engine.io-parser (browser only)", () => {
         });
       });
 
-      it("should encode a typed array (with offset and length)", done => {
+      it.only("should encode a typed array (with offset and length)", done => {
         const buffer = createArrayBuffer([1, 2, 3, 4]);
         const data = new Int8Array(buffer, 1, 2);
         encodePacket({ type: "message", data }, true, encodedPacket => {
-          expect(encodedPacket).to.be.an(ArrayBuffer);
-          expect(encodedPacket).to.eql(createArrayBuffer([2, 4]));
+          expect(encodedPacket).to.eql(data); // unmodified typed array
           done();
         });
       });
