@@ -1,3 +1,8 @@
+# [5.2.0](https://github.com/socketio/engine.io/compare/5.1.1...5.2.0) (2021-08-29)
+
+No change on the server-side, this matches the client release.
+
+
 ## [5.1.1](https://github.com/socketio/engine.io/compare/5.1.0...5.1.1) (2021-05-16)
 
 
