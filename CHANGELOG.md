@@ -1,3 +1,11 @@
+# [5.2.0](https://github.com/socketio/engine.io-client/compare/5.1.2...5.2.0) (2021-08-29)
+
+
+### Features
+
+* add an option to use native timer functions ([#672](https://github.com/socketio/engine.io-client/issues/672)) ([5d1d5be](https://github.com/socketio/engine.io-client/commit/5d1d5bea11ab6854473ddc02a3391929ea4fc8f4))
+
+
 ## [5.1.2](https://github.com/socketio/engine.io-client/compare/5.1.1...5.1.2) (2021-06-24)
 
 
