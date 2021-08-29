@@ -43,24 +43,6 @@ describe("engine.io-parser (browser only)", () => {
       });
 
       it("should encode a typed array", done => {
-        const data = new Int16Array(4);
-        data[0] = 257;
-        data[1] = 258;
-        data[2] = 259;
-        data[3] = 260;
-        encodePacket({ type: "message", data }, true, encodedPacket => {
-          expect(encodedPacket).to.be.an(ArrayBuffer);
-          expect(
-            areArraysEqual(
-              encodedPacket,
-              createArrayBuffer([1, 1, 2, 1, 3, 1, 4, 1])
-            )
-          ).to.be.ok();
-          done();
-        });
-      });
-
-      it.only("should encode a typed array (with offset and length)", done => {
         const buffer = createArrayBuffer([1, 2, 3, 4]);
         const data = new Int8Array(buffer, 1, 2);
         encodePacket({ type: "message", data }, true, encodedPacket => {
