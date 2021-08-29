@@ -1,3 +1,11 @@
+## [4.0.3](https://github.com/socketio/engine.io-parser/compare/4.0.2...4.0.3) (2021-08-29)
+
+
+### Bug Fixes
+
+* respect the offset and length of TypedArray objects ([6d7dd76](https://github.com/socketio/engine.io-parser/commit/6d7dd76130690afda6c214d5c04305d2bbc4eb4d))
+
+
 ## [4.0.2](https://github.com/socketio/engine.io-parser/compare/4.0.1...4.0.2) (2020-12-07)
 
 

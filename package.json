@@ -2,7 +2,7 @@
   "name": "engine.io-parser",
   "description": "Parser for the client for the realtime Engine",
   "license": "MIT",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "main": "lib/index.js",
   "homepage": "https://github.com/socketio/engine.io-parser",
   "devDependencies": {
