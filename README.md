@@ -355,6 +355,8 @@ A representation of a client. _Inherits from EventEmitter_.
     - **Arguments**
       - `type`: packet type
       - `data`: packet data (if type is message)
+- `heartbeat`
+    - Called when `ping` or `pong` packed is received (depends of client version)
 
 ##### Properties
 
