@@ -1,3 +1,17 @@
+# [4.2.0](https://github.com/socketio/socket.io-client/compare/4.1.3...4.2.0) (2021-08-30)
+
+
+### Bug Fixes
+
+* **typings:** allow async listener in typed events ([66e00b7](https://github.com/socketio/socket.io-client/commit/66e00b7dd7c4a09072cfd84c78e6e15ec52039f5))
+* allow to set randomizationFactor to 0 ([#1447](https://github.com/socketio/socket.io-client/issues/1447)) ([dfb46b5](https://github.com/socketio/socket.io-client/commit/dfb46b55a55d9c5b0397f4bc0fab9cec99ff430e))
+
+
+### Features
+
+* add an option to use native timer functions ([#1479](https://github.com/socketio/socket.io-client/issues/1479)) ([4e1b656](https://github.com/socketio/socket.io-client/commit/4e1b65699d9967a7bb409bdc89c894c62562771b))
+
+
 ## [4.1.3](https://github.com/socketio/socket.io-client/compare/4.1.2...4.1.3) (2021-07-10)
 
 
