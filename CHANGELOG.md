@@ -1,3 +1,16 @@
+# [4.2.0](https://github.com/socketio/socket.io/compare/4.1.3...4.2.0) (2021-08-30)
+
+
+### Bug Fixes
+
+* **typings:** allow async listener in typed events ([ccfd8ca](https://github.com/socketio/socket.io/commit/ccfd8caba6d38b7ba6c5114bd8179346ed07671c))
+
+
+### Features
+
+* ignore the query string when serving client JavaScript ([#4024](https://github.com/socketio/socket.io/issues/4024)) ([24fee27](https://github.com/socketio/socket.io/commit/24fee27ba36485308f8e995879c10931532c814e))
+
+
 ## [4.1.3](https://github.com/socketio/socket.io/compare/4.1.2...4.1.3) (2021-07-10)
 
 

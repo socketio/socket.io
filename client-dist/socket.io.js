@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.1.3
+ * Socket.IO v4.2.0
  * (c) 2014-2021 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -142,7 +142,7 @@ function lookup(uri, opts) {
   }
 
   opts = opts || {};
-  var parsed = url_1.url(uri, opts.path || "/socket.io");
+  var parsed = (0, url_1.url)(uri, opts.path || "/socket.io");
   var source = parsed.source;
   var id = parsed.id;
   var path = parsed.path;
@@ -243,7 +243,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
@@ -257,6 +257,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.Manager = void 0;
 
 var eio = __webpack_require__(/*! engine.io-client */ "./node_modules/engine.io-client/lib/index.js");
+
+var util_1 = __webpack_require__(/*! engine.io-client/lib/util */ "./node_modules/engine.io-client/lib/util.js");
 
 var socket_1 = __webpack_require__(/*! ./socket */ "./build/socket.js");
 
@@ -280,6 +282,8 @@ var Manager = /*#__PURE__*/function (_typed_events_1$Stric) {
 
     _classCallCheck(this, Manager);
 
+    var _a;
+
     _this = _super.call(this);
     _this.nsps = {};
     _this.subs = [];
@@ -292,6 +296,7 @@ var Manager = /*#__PURE__*/function (_typed_events_1$Stric) {
     opts = opts || {};
     opts.path = opts.path || "/socket.io";
     _this.opts = opts;
+    (0, util_1.installTimerFunctions)(_assertThisInitialized(_this), opts);
 
     _this.reconnection(opts.reconnection !== false);
 
@@ -301,7 +306,7 @@ var Manager = /*#__PURE__*/function (_typed_events_1$Stric) {
 
     _this.reconnectionDelayMax(opts.reconnectionDelayMax || 5000);
 
-    _this.randomizationFactor(opts.randomizationFactor || 0.5);
+    _this.randomizationFactor((_a = opts.randomizationFactor) !== null && _a !== void 0 ? _a : 0.5);
 
     _this.backoff = new Backoff({
       min: _this.reconnectionDelay(),
@@ -412,12 +417,12 @@ var Manager = /*#__PURE__*/function (_typed_events_1$Stric) {
       this._readyState = "opening";
       this.skipReconnect = false; // emit `open`
 
-      var openSubDestroy = on_1.on(socket, "open", function () {
+      var openSubDestroy = (0, on_1.on)(socket, "open", function () {
         self.onopen();
         fn && fn();
       }); // emit `error`
 
-      var errorSub = on_1.on(socket, "error", function (err) {
+      var errorSub = (0, on_1.on)(socket, "error", function (err) {
         debug("error");
         self.cleanup();
         self._readyState = "closed";
@@ -441,7 +446,7 @@ var Manager = /*#__PURE__*/function (_typed_events_1$Stric) {
         } // set timer
 
 
-        var timer = setTimeout(function () {
+        var timer = this.setTimeoutFn(function () {
           debug("connect attempt timed out after %d", timeout);
           openSubDestroy();
           socket.close();
@@ -490,7 +495,7 @@ var Manager = /*#__PURE__*/function (_typed_events_1$Stric) {
       this.emitReserved("open"); // add new subs
 
       var socket = this.engine;
-      this.subs.push(on_1.on(socket, "ping", this.onping.bind(this)), on_1.on(socket, "data", this.ondata.bind(this)), on_1.on(socket, "error", this.onerror.bind(this)), on_1.on(socket, "close", this.onclose.bind(this)), on_1.on(this.decoder, "decoded", this.ondecoded.bind(this)));
+      this.subs.push((0, on_1.on)(socket, "ping", this.onping.bind(this)), (0, on_1.on)(socket, "data", this.ondata.bind(this)), (0, on_1.on)(socket, "error", this.onerror.bind(this)), (0, on_1.on)(socket, "close", this.onclose.bind(this)), (0, on_1.on)(this.decoder, "decoded", this.ondecoded.bind(this)));
     }
     /**
      * Called upon a ping.
@@ -689,7 +694,7 @@ var Manager = /*#__PURE__*/function (_typed_events_1$Stric) {
         var delay = this.backoff.duration();
         debug("will wait %dms before reconnect attempt", delay);
         this._reconnecting = true;
-        var timer = setTimeout(function () {
+        var timer = this.setTimeoutFn(function () {
           if (self.skipReconnect) return;
           debug("attempting reconnect");
 
@@ -803,7 +808,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
@@ -855,6 +860,8 @@ var Socket = /*#__PURE__*/function (_typed_events_1$Stric) {
     _classCallCheck(this, Socket);
 
     _this = _super.call(this);
+    _this.connected = false;
+    _this.disconnected = true;
     _this.receiveBuffer = [];
     _this.sendBuffer = [];
     _this.ids = 0;
@@ -862,13 +869,6 @@ var Socket = /*#__PURE__*/function (_typed_events_1$Stric) {
     _this.flags = {};
     _this.io = io;
     _this.nsp = nsp;
-    _this.ids = 0;
-    _this.acks = {};
-    _this.receiveBuffer = [];
-    _this.sendBuffer = [];
-    _this.connected = false;
-    _this.disconnected = true;
-    _this.flags = {};
 
     if (opts && opts.auth) {
       _this.auth = opts.auth;
@@ -889,7 +889,7 @@ var Socket = /*#__PURE__*/function (_typed_events_1$Stric) {
     value: function subEvents() {
       if (this.subs) return;
       var io = this.io;
-      this.subs = [on_1.on(io, "open", this.onopen.bind(this)), on_1.on(io, "packet", this.onpacket.bind(this)), on_1.on(io, "error", this.onerror.bind(this)), on_1.on(io, "close", this.onclose.bind(this))];
+      this.subs = [(0, on_1.on)(io, "open", this.onopen.bind(this)), (0, on_1.on)(io, "packet", this.onpacket.bind(this)), (0, on_1.on)(io, "error", this.onerror.bind(this)), (0, on_1.on)(io, "close", this.onclose.bind(this))];
     }
     /**
      * Whether the Socket will try to reconnect when its Manager connects or reconnects
@@ -1457,7 +1457,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
@@ -2003,11 +2003,7 @@ function useColors() {
   // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
 
 
-  return typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || // Is firebug? http://stackoverflow.com/a/398120/376773
-  typeof window !== 'undefined' && window.console && (window.console.firebug || window.console.exception && window.console.table) || // Is firefox >= v31?
-  // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-  typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31 || // Double check webkit in userAgent just in case we are in a worker
-  typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
+  return typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || typeof window !== 'undefined' && window.console && (window.console.firebug || window.console.exception && window.console.table) || typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31 || typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
 }
 /**
  * Colorize log arguments if enabled.
@@ -2215,6 +2211,8 @@ function setup(env) {
   function createDebug(namespace) {
     var prevTime;
     var enableOverride = null;
+    var namespacesCache;
+    var enabledCache;
 
     function debug() {
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -2278,7 +2276,16 @@ function setup(env) {
       enumerable: true,
       configurable: false,
       get: function get() {
-        return enableOverride === null ? createDebug.enabled(namespace) : enableOverride;
+        if (enableOverride !== null) {
+          return enableOverride;
+        }
+
+        if (namespacesCache !== createDebug.namespaces) {
+          namespacesCache = createDebug.namespaces;
+          enabledCache = createDebug.enabled(namespace);
+        }
+
+        return enabledCache;
       },
       set: function set(v) {
         enableOverride = v;
@@ -2308,6 +2315,7 @@ function setup(env) {
 
   function enable(namespaces) {
     createDebug.save(namespaces);
+    createDebug.namespaces = namespaces;
     createDebug.names = [];
     createDebug.skips = [];
     var i;
@@ -2490,7 +2498,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
@@ -2509,6 +2517,9 @@ var parser = __webpack_require__(/*! engine.io-parser */ "./node_modules/engine.
 var parseuri = __webpack_require__(/*! parseuri */ "./node_modules/parseuri/index.js");
 
 var parseqs = __webpack_require__(/*! parseqs */ "./node_modules/parseqs/index.js");
+
+var _require = __webpack_require__(/*! ./util */ "./node_modules/engine.io-client/lib/util.js"),
+    installTimerFunctions = _require.installTimerFunctions;
 
 var Socket = /*#__PURE__*/function (_Emitter) {
   _inherits(Socket, _Emitter);
@@ -2546,6 +2557,7 @@ var Socket = /*#__PURE__*/function (_Emitter) {
       opts.hostname = parseuri(opts.host).host;
     }
 
+    installTimerFunctions(_assertThisInitialized(_this), opts);
     _this.secure = null != opts.secure ? opts.secure : typeof location !== "undefined" && "https:" === location.protocol;
 
     if (opts.hostname && !opts.port) {
@@ -2665,7 +2677,7 @@ var Socket = /*#__PURE__*/function (_Emitter) {
         transport = "websocket";
       } else if (0 === this.transports.length) {
         // Emit error on next tick so it can be listened to
-        setTimeout(function () {
+        this.setTimeoutFn(function () {
           _this2.emit("error", "No transports available");
         }, 0);
         return;
@@ -2934,8 +2946,8 @@ var Socket = /*#__PURE__*/function (_Emitter) {
     value: function resetPingTimeout() {
       var _this5 = this;
 
-      clearTimeout(this.pingTimeoutTimer);
-      this.pingTimeoutTimer = setTimeout(function () {
+      this.clearTimeoutFn(this.pingTimeoutTimer);
+      this.pingTimeoutTimer = this.setTimeoutFn(function () {
         _this5.onClose("ping timeout");
       }, this.pingInterval + this.pingTimeout);
 
@@ -3123,8 +3135,8 @@ var Socket = /*#__PURE__*/function (_Emitter) {
       if ("opening" === this.readyState || "open" === this.readyState || "closing" === this.readyState) {
         debug('socket close with reason: "%s"', reason); // clear timers
 
-        clearTimeout(this.pingIntervalTimer);
-        clearTimeout(this.pingTimeoutTimer); // stop event from firing again for transport
+        this.clearTimeoutFn(this.pingIntervalTimer);
+        this.clearTimeoutFn(this.pingTimeoutTimer); // stop event from firing again for transport
 
         this.transport.removeAllListeners("close"); // ensure transport won't stay open
 
@@ -3220,7 +3232,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
@@ -3231,6 +3243,9 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 var parser = __webpack_require__(/*! engine.io-parser */ "./node_modules/engine.io-parser/lib/index.js");
 
 var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/component-emitter/index.js");
+
+var _require = __webpack_require__(/*! ./util */ "./node_modules/engine.io-client/lib/util.js"),
+    installTimerFunctions = _require.installTimerFunctions;
 
 var debug = __webpack_require__(/*! debug */ "./node_modules/debug/src/browser.js")("engine.io-client:transport");
 
@@ -3251,6 +3266,7 @@ var Transport = /*#__PURE__*/function (_Emitter) {
     _classCallCheck(this, Transport);
 
     _this = _super.call(this);
+    installTimerFunctions(_assertThisInitialized(_this), opts);
     _this.opts = opts;
     _this.query = opts.query;
     _this.readyState = "";
@@ -3387,7 +3403,7 @@ module.exports = Transport;
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-var XMLHttpRequest = __webpack_require__(/*! ../../contrib/xmlhttprequest-ssl/XMLHttpRequest */ "./node_modules/engine.io-client/lib/xmlhttprequest.js");
+var XMLHttpRequest = __webpack_require__(/*! xmlhttprequest-ssl */ "./node_modules/engine.io-client/lib/xmlhttprequest.js");
 
 var XHR = __webpack_require__(/*! ./polling-xhr */ "./node_modules/engine.io-client/lib/transports/polling-xhr.js");
 
@@ -3461,7 +3477,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
@@ -3586,7 +3602,7 @@ var JSONPPolling = /*#__PURE__*/function (_Polling) {
       var isUAgecko = "undefined" !== typeof navigator && /gecko/i.test(navigator.userAgent);
 
       if (isUAgecko) {
-        setTimeout(function () {
+        this.setTimeoutFn(function () {
           var iframe = document.createElement("iframe");
           document.body.appendChild(iframe);
           document.body.removeChild(iframe);
@@ -3711,7 +3727,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
@@ -3720,14 +3736,15 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 /* global attachEvent */
-var XMLHttpRequest = __webpack_require__(/*! ../../contrib/xmlhttprequest-ssl/XMLHttpRequest */ "./node_modules/engine.io-client/lib/xmlhttprequest.js");
+var XMLHttpRequest = __webpack_require__(/*! xmlhttprequest-ssl */ "./node_modules/engine.io-client/lib/xmlhttprequest.js");
 
 var Polling = __webpack_require__(/*! ./polling */ "./node_modules/engine.io-client/lib/transports/polling.js");
 
 var Emitter = __webpack_require__(/*! component-emitter */ "./node_modules/component-emitter/index.js");
 
 var _require = __webpack_require__(/*! ../util */ "./node_modules/engine.io-client/lib/util.js"),
-    pick = _require.pick;
+    pick = _require.pick,
+    installTimerFunctions = _require.installTimerFunctions;
 
 var globalThis = __webpack_require__(/*! ../globalThis */ "./node_modules/engine.io-client/lib/globalThis.browser.js");
 
@@ -3867,6 +3884,7 @@ var Request = /*#__PURE__*/function (_Emitter) {
     _classCallCheck(this, Request);
 
     _this4 = _super2.call(this);
+    installTimerFunctions(_assertThisInitialized(_this4), opts);
     _this4.opts = opts;
     _this4.method = opts.method || "GET";
     _this4.uri = uri;
@@ -3946,7 +3964,7 @@ var Request = /*#__PURE__*/function (_Emitter) {
             } else {
               // make sure the `error` event handler that's user-set
               // does not throw in the same tick and gets caught here
-              setTimeout(function () {
+              _this5.setTimeoutFn(function () {
                 _this5.onError(typeof xhr.status === "number" ? xhr.status : 0);
               }, 0);
             }
@@ -3959,7 +3977,7 @@ var Request = /*#__PURE__*/function (_Emitter) {
         // Need to defer since .create() is called directly from the constructor
         // and thus the 'error' event can only be only bound *after* this exception
         // occurs.  Therefore, also, we cannot throw here at all.
-        setTimeout(function () {
+        this.setTimeoutFn(function () {
           _this5.onError(e);
         }, 0);
         return;
@@ -4132,7 +4150,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
@@ -4397,8 +4415,8 @@ var nextTick = function () {
       return Promise.resolve().then(cb);
     };
   } else {
-    return function (cb) {
-      return setTimeout(cb, 0);
+    return function (cb, setTimeoutFn) {
+      return setTimeoutFn(cb, 0);
     };
   }
 }();
@@ -4433,7 +4451,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
@@ -4613,7 +4631,7 @@ var WS = /*#__PURE__*/function (_Transport) {
               _this3.writable = true;
 
               _this3.emit("drain");
-            });
+            }, _this3.setTimeoutFn);
           }
         });
       };
@@ -4709,7 +4727,9 @@ module.exports = WS;
   !*** ./node_modules/engine.io-client/lib/util.js ***!
   \***************************************************/
 /*! no static exports found */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
+
+var globalThis = __webpack_require__(/*! ./globalThis */ "./node_modules/engine.io-client/lib/globalThis.browser.js");
 
 module.exports.pick = function (obj) {
   for (var _len = arguments.length, attr = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -4723,6 +4743,20 @@ module.exports.pick = function (obj) {
 
     return acc;
   }, {});
+}; // Keep a reference to the real timeout functions so they can be used when overridden
+
+
+var NATIVE_SET_TIMEOUT = setTimeout;
+var NATIVE_CLEAR_TIMEOUT = clearTimeout;
+
+module.exports.installTimerFunctions = function (obj, opts) {
+  if (opts.useNativeTimers) {
+    obj.setTimeoutFn = NATIVE_SET_TIMEOUT.bind(globalThis);
+    obj.clearTimeoutFn = NATIVE_CLEAR_TIMEOUT.bind(globalThis);
+  } else {
+    obj.setTimeoutFn = setTimeout.bind(globalThis);
+    obj.clearTimeoutFn = clearTimeout.bind(globalThis);
+  }
 };
 
 /***/ }),
@@ -5540,7 +5574,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
