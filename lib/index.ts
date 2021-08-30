@@ -469,7 +469,7 @@ export class Server<
     const evs = srv.listeners("request").slice(0);
     srv.removeAllListeners("request");
     srv.on("request", (req, res) => {
-      if (this.clientPathRegex.test(req.url)) {
+      if (this.clientPathRegex.test(req.url!)) {
         this.serve(req, res);
       } else {
         for (let i = 0; i < evs.length; i++) {

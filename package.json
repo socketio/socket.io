@@ -45,18 +45,18 @@
     "prepack": "npm run compile"
   },
   "dependencies": {
-    "@types/cookie": "^0.4.0",
-    "@types/cors": "^2.8.10",
+    "@types/cookie": "^0.4.1",
+    "@types/cors": "^2.8.12",
     "@types/node": ">=10.0.0",
     "accepts": "~1.3.4",
     "base64id": "~2.0.0",
-    "debug": "~4.3.1",
-    "engine.io": "~5.1.1",
-    "socket.io-adapter": "~2.3.1",
+    "debug": "~4.3.2",
+    "engine.io": "~5.2.0",
+    "socket.io-adapter": "~2.3.2",
     "socket.io-parser": "~4.0.4"
   },
   "devDependencies": {
-    "@types/mocha": "^8.2.2",
+    "@types/mocha": "^9.0.0",
     "expect.js": "0.3.1",
     "mocha": "^3.5.3",
     "nyc": "^15.1.0",
@@ -65,10 +65,10 @@
     "socket.io-client": "4.1.3",
     "socket.io-client-v2": "npm:socket.io-client@^2.4.0",
     "superagent": "^6.1.0",
-    "supertest": "^6.1.3",
-    "ts-node": "^10.0.0",
+    "supertest": "^6.1.6",
+    "ts-node": "^10.2.1",
     "tsd": "^0.17.0",
-    "typescript": "^4.3.5"
+    "typescript": "^4.4.2"
   },
   "contributors": [
     {
