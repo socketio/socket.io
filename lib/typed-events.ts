@@ -58,7 +58,7 @@ export type ReservedOrUserListener<
  * Needed because of https://github.com/microsoft/TypeScript/issues/41778
  */
 type FallbackToUntypedListener<T> = [T] extends [never]
-  ? (...args: any[]) => void
+  ? (...args: any[]) => void | Promise<void>
   : T;
 
 /**
