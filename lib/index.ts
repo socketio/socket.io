@@ -254,7 +254,9 @@ export class Server<
     this.adapter(opts.adapter || Adapter);
     this.sockets = this.of("/");
     this.opts = opts;
-    if (srv) this.attach(srv as http.Server);
+    if (srv instanceof http.Server || typeof srv === "number") {
+      this.attach(srv);
+    }
   }
 
   /**

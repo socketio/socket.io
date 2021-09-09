@@ -39,6 +39,11 @@ const waitFor = (emitter, event) => {
   });
 };
 
+const getPort = (io: Server): number => {
+  // @ts-ignore
+  return io.httpServer.address().port;
+};
+
 describe("socket.io", () => {
   it("should be the same version as client", () => {
     const version = require("../package").version;
@@ -189,29 +194,17 @@ describe("socket.io", () => {
 
     describe("port", () => {
       it("should be bound", (done) => {
-        const sockets = new Server(54010);
-        request("http://localhost:54010")
-          .get("/socket.io/socket.io.js")
-          .expect(200, done);
-      });
+        const io = new Server(0);
 
-      it("should be bound as a string", (done) => {
-        const sockets = new Server(54020);
-        request("http://localhost:54020")
+        request(`http://localhost:${getPort(io)}`)
           .get("/socket.io/socket.io.js")
           .expect(200, done);
       });
 
       it("with listen", (done) => {
-        const sockets = new Server().listen(54011);
-        request("http://localhost:54011")
-          .get("/socket.io/socket.io.js")
-          .expect(200, done);
-      });
+        const io = new Server().listen(0);
 
-      it("as a string", (done) => {
-        const sockets = new Server().listen(54012);
-        request("http://localhost:54012")
+        request(`http://localhost:${getPort(io)}`)
           .get("/socket.io/socket.io.js")
           .expect(200, done);
       });
@@ -222,7 +215,7 @@ describe("socket.io", () => {
     const request = require("superagent");
 
     it("should send the Access-Control-Allow-xxx headers on OPTIONS request", (done) => {
-      const sockets = new Server(54013, {
+      const io = new Server(0, {
         cors: {
           origin: "http://localhost:54023",
           methods: ["GET", "POST"],
@@ -231,7 +224,7 @@ describe("socket.io", () => {
         },
       });
       request
-        .options("http://localhost:54013/socket.io/default/")
+        .options(`http://localhost:${getPort(io)}/socket.io/default/`)
         .query({ transport: "polling", EIO: 4 })
         .set("Origin", "http://localhost:54023")
         .end((err, res) => {
@@ -250,7 +243,7 @@ describe("socket.io", () => {
     });
 
     it("should send the Access-Control-Allow-xxx headers on GET request", (done) => {
-      const sockets = new Server(54014, {
+      const io = new Server(0, {
         cors: {
           origin: "http://localhost:54024",
           methods: ["GET", "POST"],
@@ -259,7 +252,7 @@ describe("socket.io", () => {
         },
       });
       request
-        .get("http://localhost:54014/socket.io/default/")
+        .get(`http://localhost:${getPort(io)}/socket.io/default/`)
         .query({ transport: "polling", EIO: 4 })
         .set("Origin", "http://localhost:54024")
         .end((err, res) => {
@@ -274,12 +267,12 @@ describe("socket.io", () => {
     });
 
     it("should allow request if custom function in opts.allowRequest returns true", (done) => {
-      const sockets = new Server(createServer().listen(54022), {
+      const io = new Server(0, {
         allowRequest: (req, callback) => callback(null, true),
       });
 
       request
-        .get("http://localhost:54022/socket.io/default/")
+        .get(`http://localhost:${getPort(io)}/socket.io/default/`)
         .query({ transport: "polling", EIO: 4 })
         .end((err, res) => {
           expect(res.status).to.be(200);
@@ -288,11 +281,11 @@ describe("socket.io", () => {
     });
 
     it("should disallow request if custom function in opts.allowRequest returns false", (done) => {
-      const sockets = new Server(createServer().listen(54023), {
+      const io = new Server(0, {
         allowRequest: (req, callback) => callback(null, false),
       });
       request
-        .get("http://localhost:54023/socket.io/default/")
+        .get(`http://localhost:${getPort(io)}/socket.io/default/`)
         .set("origin", "http://foo.example")
         .query({ transport: "polling", EIO: 4 })
         .end((err, res) => {
@@ -304,22 +297,22 @@ describe("socket.io", () => {
 
   describe("close", () => {
     it("should be able to close sio sending a srv", (done) => {
-      const PORT = 54018;
-      const srv = createServer().listen(PORT);
-      const sio = new Server(srv);
+      const httpServer = createServer().listen(0);
+      const io = new Server(httpServer);
+      const port = getPort(io);
       const net = require("net");
       const server = net.createServer();
 
-      const clientSocket = client(srv, { reconnection: false });
+      const clientSocket = client(httpServer, { reconnection: false });
 
       clientSocket.on("disconnect", () => {
-        expect(sio.sockets.sockets.size).to.equal(0);
-        server.listen(PORT);
+        expect(io.sockets.sockets.size).to.equal(0);
+        server.listen(port);
       });
 
       clientSocket.on("connect", () => {
-        expect(sio.sockets.sockets.size).to.equal(1);
-        sio.close();
+        expect(io.sockets.sockets.size).to.equal(1);
+        io.close();
       });
 
       server.once("listening", () => {
@@ -331,30 +324,31 @@ describe("socket.io", () => {
       });
     });
 
-    it("should be able to close sio sending a port", () => {
-      const PORT = 54019;
-      const sio = new Server(PORT);
+    it("should be able to close sio sending a srv", (done) => {
+      const io = new Server(0);
+      const port = getPort(io);
       const net = require("net");
       const server = net.createServer();
 
-      const clientSocket = ioc("ws://0.0.0.0:" + PORT, {
+      const clientSocket = ioc("ws://0.0.0.0:" + port, {
         reconnection: false,
       });
 
       clientSocket.on("disconnect", () => {
-        expect(Object.keys(sio._nsps["/"].sockets).length).to.equal(0);
-        server.listen(PORT);
+        expect(io.sockets.sockets.size).to.equal(0);
+        server.listen(port);
       });
 
       clientSocket.on("connect", () => {
-        expect(Object.keys(sio._nsps["/"].sockets).length).to.equal(1);
-        sio.close();
+        expect(io.sockets.sockets.size).to.equal(1);
+        io.close();
       });
 
       server.once("listening", () => {
         // PORT should be free
         server.close((error) => {
           expect(error).to.be(undefined);
+          done();
         });
       });
     });
