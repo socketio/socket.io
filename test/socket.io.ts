@@ -1382,6 +1382,32 @@ describe("socket.io", () => {
       }, 200);
     });
 
+    it("should emit only one consecutive volatile event with binary (ws)", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv, { transports: ["websocket"] });
+
+      let counter = 0;
+      srv.listen(() => {
+        sio.on("connection", (s) => {
+          // Wait to make sure there are no packets being sent for opening the connection
+          setTimeout(() => {
+            s.volatile.emit("ev", Buffer.from([1, 2, 3]));
+            s.volatile.emit("ev", Buffer.from([4, 5, 6]));
+          }, 20);
+        });
+
+        const socket = client(srv, { transports: ["websocket"] });
+        socket.on("ev", () => {
+          counter++;
+        });
+      });
+
+      setTimeout(() => {
+        expect(counter).to.be(1);
+        done();
+      }, 200);
+    });
+
     it("should emit regular events after trying a failed volatile event (polling)", (done) => {
       const srv = createServer();
       const sio = new Server(srv, { transports: ["polling"] });

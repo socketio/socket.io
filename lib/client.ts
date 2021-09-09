@@ -209,13 +209,11 @@ export class Client<
     const encodedPackets = opts.preEncoded
       ? (packet as any[]) // previous versions of the adapter incorrectly used socket.packet() instead of writeToEngine()
       : this.encoder.encode(packet as Packet);
-    for (const encodedPacket of encodedPackets) {
-      this.writeToEngine(encodedPacket, opts);
-    }
+    this.writeToEngine(encodedPackets, opts);
   }
 
   private writeToEngine(
-    encodedPacket: String | Buffer,
+    encodedPackets: Array<String | Buffer>,
     opts: WriteOptions
   ): void {
     if (opts.volatile && !this.conn.transport.writable) {
@@ -224,7 +222,12 @@ export class Client<
       );
       return;
     }
-    this.conn.write(encodedPacket, opts);
+    const packets = Array.isArray(encodedPackets)
+      ? encodedPackets
+      : [encodedPackets];
+    for (const encodedPacket of packets) {
+      this.conn.write(encodedPacket, opts);
+    }
   }
 
   /**
