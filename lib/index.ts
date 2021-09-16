@@ -107,7 +107,7 @@ interface EngineOptions {
    * might be used for sticky-session. Defaults to not sending any cookie.
    * @default false
    */
-  cookie: CookieSerializeOptions | boolean;
+  cookie: (CookieSerializeOptions & { name: string }) | boolean;
   /**
    * the options that will be forwarded to the cors module
    */
