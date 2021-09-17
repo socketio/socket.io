@@ -42,7 +42,7 @@
     "test:unit": "nyc mocha --require ts-node/register --reporter spec --slow 200 --bail --timeout 10000 test/socket.io.ts",
     "format:check": "prettier --check \"lib/**/*.ts\" \"test/**/*.ts\"",
     "format:fix": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\"",
-    "prepack": "npm run compile"
+    "prepare": "npm run compile"
   },
   "dependencies": {
     "@types/cookie": "^0.4.1",
