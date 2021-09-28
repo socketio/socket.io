@@ -1,5 +1,6 @@
 const expect = require("expect.js");
-const eio = require("../");
+const eio = require("../").default;
+const { Socket, protocol } = require("..");
 
 const expectedPort =
   typeof location !== "undefined" && "https:" === location.protocol
@@ -10,17 +11,17 @@ describe("engine.io-client", () => {
   let open;
 
   before(() => {
-    open = eio.Socket.prototype.open;
+    open = Socket.prototype.open;
     // override Socket#open to not connect
-    eio.Socket.prototype.open = () => {};
+    Socket.prototype.open = () => {};
   });
 
   after(() => {
-    eio.Socket.prototype.open = open;
+    Socket.prototype.open = open;
   });
 
   it("should expose protocol number", () => {
-    expect(eio.protocol).to.be.a("number");
+    expect(protocol).to.be.a("number");
   });
 
   it("should properly parse http uri without port", () => {

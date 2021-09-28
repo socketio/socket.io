@@ -1,10 +1,9 @@
-const XMLHttpRequest = require("xmlhttprequest-ssl");
-const XHR = require("./polling-xhr");
-const JSONP = require("./polling-jsonp");
-const websocket = require("./websocket");
+import * as XMLHttpRequestModule from "xmlhttprequest-ssl";
+import { XHR } from "./polling-xhr.js";
+import { JSONP } from "./polling-jsonp.js";
+import { WS } from "./websocket.js";
 
-exports.polling = polling;
-exports.websocket = websocket;
+const XMLHttpRequest = XMLHttpRequestModule.default || XMLHttpRequestModule;
 
 /**
  * Polling transport polymorphic constructor.
@@ -25,7 +24,7 @@ function polling(opts) {
 
     // some user agents have empty `location.port`
     if (!port) {
-      port = isSSL ? 443 : 80;
+      port = isSSL ? "443" : "80";
     }
 
     xd = opts.hostname !== location.hostname || port !== opts.port;
@@ -43,3 +42,8 @@ function polling(opts) {
     return new JSONP(opts);
   }
 }
+
+export const transports = {
+  websocket: WS,
+  polling
+};

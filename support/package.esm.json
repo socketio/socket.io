@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "browser": {
+    "ws": false,
+    "xmlhttprequest-ssl": "./xmlhttprequest.js",
+    "./transports/websocket-constructor.js": "./transports/websocket-constructor.browser.js",
+    "./globalThis.js": "./globalThis.browser.js"
+  }
+}

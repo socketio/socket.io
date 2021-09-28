@@ -1,4 +1,4 @@
-module.exports = (() => {
+export default (() => {
   if (typeof self !== "undefined") {
     return self;
   } else if (typeof window !== "undefined") {

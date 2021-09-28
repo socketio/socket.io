@@ -1,11 +1,14 @@
-const Transport = require("../transport");
-const parseqs = require("parseqs");
-const parser = require("engine.io-parser");
-const yeast = require("yeast");
+import { Transport } from "../transport.js";
+import debugModule from "debug"; // debug()
+import yeast from "yeast";
+import parseqs from "parseqs";
+import { encodePayload, decodePayload } from "engine.io-parser";
 
-const debug = require("debug")("engine.io-client:polling");
+const debug = debugModule("engine.io-client:polling"); // debug()
 
-class Polling extends Transport {
+export abstract class Polling extends Transport {
+  private polling: boolean = false;
+
   /**
    * Transport name.
    */
@@ -99,7 +102,7 @@ class Polling extends Transport {
     };
 
     // decode payload
-    parser.decodePayload(data, this.socket.binaryType).forEach(callback);
+    decodePayload(data, this.socket.binaryType).forEach(callback);
 
     // if an event did not trigger closing
     if ("closed" !== this.readyState) {
@@ -147,7 +150,7 @@ class Polling extends Transport {
   write(packets) {
     this.writable = false;
 
-    parser.encodePayload(packets, data => {
+    encodePayload(packets, data => {
       this.doWrite(data, () => {
         this.writable = true;
         this.emit("drain");
@@ -161,7 +164,7 @@ class Polling extends Transport {
    * @api private
    */
   uri() {
-    let query = this.query || {};
+    let query: { b64?: number; sid?: string } = this.query || {};
     const schema = this.opts.secure ? "https" : "http";
     let port = "";
 
@@ -174,8 +177,6 @@ class Polling extends Transport {
       query.b64 = 1;
     }
 
-    query = parseqs.encode(query);
-
     // avoid port if default for schema
     if (
       this.opts.port &&
@@ -185,21 +186,19 @@ class Polling extends Transport {
       port = ":" + this.opts.port;
     }
 
-    // prepend ? to query
-    if (query.length) {
-      query = "?" + query;
-    }
-
+    const encodedQuery = parseqs.encode(query);
     const ipv6 = this.opts.hostname.indexOf(":") !== -1;
+
     return (
       schema +
       "://" +
       (ipv6 ? "[" + this.opts.hostname + "]" : this.opts.hostname) +
       port +
       this.opts.path +
-      query
+      (encodedQuery.length ? "?" + encodedQuery : "")
     );
   }
-}
 
-module.exports = Polling;
+  abstract doPoll();
+  abstract doWrite(data, callback);
+}

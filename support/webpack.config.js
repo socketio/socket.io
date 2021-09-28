@@ -6,7 +6,7 @@ const banner = `Engine.IO v${version}
 Released under the MIT License.`;
 
 module.exports = {
-  entry: "./lib/index.js",
+  entry: "./build/esm/index.js",
   output: {
     filename: "engine.io.js",
     library: "eio",

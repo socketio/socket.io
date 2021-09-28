@@ -1,5 +1,6 @@
-const globalThis = require("../globalThis");
-const nextTick = (() => {
+import globalThis from "../globalThis.js";
+
+export const nextTick = (() => {
   const isPromiseAvailable =
     typeof Promise === "function" && typeof Promise.resolve === "function";
   if (isPromiseAvailable) {
@@ -9,9 +10,6 @@ const nextTick = (() => {
   }
 })();
 
-module.exports = {
-  WebSocket: globalThis.WebSocket || globalThis.MozWebSocket,
-  usingBrowserWebSocket: true,
-  defaultBinaryType: "arraybuffer",
-  nextTick
-};
+export const WebSocket = globalThis.WebSocket || globalThis.MozWebSocket;
+export const usingBrowserWebSocket = true;
+export const defaultBinaryType = "arraybuffer";

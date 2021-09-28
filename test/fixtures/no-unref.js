@@ -1,4 +1,4 @@
-const eio = require("../..");
+const eio = require("../..").default;
 const socket = eio("http://localhost:3000", {
   autoUnref: false
 });

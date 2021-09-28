@@ -1,9 +1,9 @@
 // browser shim for xmlhttprequest module
 
-const hasCORS = require("has-cors");
-const globalThis = require("./globalThis");
+import hasCORS from "has-cors";
+import globalThis from "./globalThis.js";
 
-module.exports = function(opts) {
+export default function(opts) {
   const xdomain = opts.xdomain;
 
   // scheme must be same when usign XDomainRequest
@@ -25,7 +25,9 @@ module.exports = function(opts) {
   // because loading bar keeps flashing when using jsonp-polling
   // https://github.com/yujiosaka/socke.io-ie8-loading-example
   try {
+    // @ts-ignore
     if ("undefined" !== typeof XDomainRequest && !xscheme && enablesXDR) {
+      // @ts-ignore
       return new XDomainRequest();
     }
   } catch (e) {}
@@ -37,4 +39,4 @@ module.exports = function(opts) {
       );
     } catch (e) {}
   }
-};
+}

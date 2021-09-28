@@ -3,7 +3,13 @@
   "description": "Client for the realtime Engine",
   "license": "MIT",
   "version": "5.2.0",
-  "main": "lib/index.js",
+  "main": "./build/cjs/index.js",
+  "module": "./build/esm/index.js",
+  "exports": {
+    "import": "./build/esm/index.js",
+    "require": "./build/cjs/index.js"
+  },
+  "types": "build/esm/index.d.ts",
   "homepage": "https://github.com/socketio/engine.io-client",
   "contributors": [
     {
@@ -24,10 +30,9 @@
     }
   ],
   "dependencies": {
-    "base64-arraybuffer": "0.1.4",
-    "component-emitter": "~1.3.0",
+    "@socket.io/component-emitter": "~2.0.0",
     "debug": "~4.3.1",
-    "engine.io-parser": "~4.0.1",
+    "engine.io-parser": "^5.0.0",
     "has-cors": "1.1.0",
     "parseqs": "0.0.6",
     "parseuri": "0.0.6",
@@ -40,18 +45,18 @@
     "@babel/plugin-transform-object-assign": "^7.12.1",
     "@babel/preset-env": "^7.12.7",
     "@sinonjs/fake-timers": "^7.1.2",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.10.1",
     "@types/sinonjs__fake-timers": "^6.0.3",
-    "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
     "blob": "0.0.5",
     "engine.io": "4.0.2",
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.15.0",
     "expect.js": "^0.3.1",
     "express": "^4.17.1",
     "mocha": "^3.2.0",
     "prettier": "^1.19.1",
     "socket.io-browsers": "~1.0.4",
+    "typescript": "^4.4.3",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",
     "webpack-remove-debug": "^0.1.0",
@@ -60,29 +65,23 @@
     "zuul-ngrok": "4.0.0"
   },
   "scripts": {
-    "test": "npm run lint && npm run format:check && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
-    "test:node": "mocha --reporter dot --require test/support/server.js test/index.js",
+    "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && cp ./support/package.cjs.json ./build/cjs/package.json && cp ./support/package.esm.json ./build/esm/package.json",
+    "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
+    "test:node": "mocha --bail --reporter dot --require test/support/server.js test/index.js",
     "test:browser": "zuul test/index.js",
     "build": "webpack --config ./support/webpack.config.js --config ./support/prod.config.js",
-    "format:check": "prettier --check 'lib/**/*.js' 'test/**/*.js' 'support/**/*.js'",
-    "format:fix": "prettier --write 'lib/**/*.js' 'test/**/*.js' 'support/**/*.js'",
-    "lint": "eslint lib/**/*.js test/**/*.js"
+    "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'",
+    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'"
   },
   "browser": {
-    "ws": false,
-    "xmlhttprequest-ssl": "./lib/xmlhttprequest.js",
-    "./test/node.js": false,
-    "./lib/transports/websocket-constructor.js": "./lib/transports/websocket-constructor.browser.js",
-    "./lib/globalThis.js": "./lib/globalThis.browser.js"
+    "./test/node.js": false
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/socketio/engine.io-client.git"
   },
   "files": [
-    "index.js",
-    "lib/",
-    "dist/",
-    "contrib/"
+    "build/",
+    "dist/"
   ]
 }

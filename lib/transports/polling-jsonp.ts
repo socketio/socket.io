@@ -1,5 +1,5 @@
-const Polling = require("./polling");
-const globalThis = require("../globalThis");
+import { Polling } from "./polling.js";
+import globalThis from "../globalThis.js";
 
 const rNewline = /\n/g;
 const rEscapedNewline = /\\n/g;
@@ -10,7 +10,14 @@ const rEscapedNewline = /\\n/g;
 
 let callbacks;
 
-class JSONPPolling extends Polling {
+export class JSONP extends Polling {
+  private index: number;
+  private script: any;
+  private form: any;
+  private area: any;
+  private iframe: any;
+  private iframeId: any;
+
   /**
    * JSONP Polling constructor.
    *
@@ -36,14 +43,11 @@ class JSONPPolling extends Polling {
     callbacks.push(this.onData.bind(this));
 
     // append to query string
+    // @ts-ignore
     this.query.j = this.index;
-  }
 
-  /**
-   * JSONP only supports binary as base64 encoded strings
-   */
-  get supportsBinary() {
-    return false;
+    // JSONP only supports binary as base64 encoded strings
+    this.supportsBinary = false;
   }
 
   /**
@@ -191,5 +195,3 @@ class JSONPPolling extends Polling {
     }
   }
 }
-
-module.exports = JSONPPolling;

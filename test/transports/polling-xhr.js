@@ -1,5 +1,5 @@
 const expect = require("expect.js");
-const XHR = require("../../lib/transports/polling-xhr");
+const XHR = require("../../build/cjs/transports/polling-xhr");
 const env = require("../support/env");
 
 describe("XHR", () => {

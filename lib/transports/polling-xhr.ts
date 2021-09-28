@@ -1,12 +1,16 @@
 /* global attachEvent */
 
-const XMLHttpRequest = require("xmlhttprequest-ssl");
-const Polling = require("./polling");
-const Emitter = require("component-emitter");
-const { pick, installTimerFunctions } = require("../util");
-const globalThis = require("../globalThis");
+import * as XMLHttpRequestModule from "xmlhttprequest-ssl";
+import debugModule from "debug"; // debug()
+import globalThis from "../globalThis.js";
+import { installTimerFunctions, pick } from "../util.js";
+import Emitter from "@socket.io/component-emitter";
+import { Polling } from "./polling.js";
+import { SocketOptions } from "../socket.js";
 
-const debug = require("debug")("engine.io-client:polling-xhr");
+const debug = debugModule("engine.io-client:polling-xhr"); // debug()
+
+const XMLHttpRequest = XMLHttpRequestModule.default || XMLHttpRequestModule;
 
 /**
  * Empty function
@@ -15,11 +19,17 @@ const debug = require("debug")("engine.io-client:polling-xhr");
 function empty() {}
 
 const hasXHR2 = (function() {
-  const xhr = new XMLHttpRequest({ xdomain: false });
+  const xhr = new XMLHttpRequest({
+    xdomain: false
+  });
   return null != xhr.responseType;
 })();
 
-class XHR extends Polling {
+export class XHR extends Polling {
+  private readonly xd: boolean;
+  private readonly xs: boolean;
+  private pollXhr: any;
+
   /**
    * XHR Polling constructor.
    *
@@ -35,7 +45,7 @@ class XHR extends Polling {
 
       // some user agents have empty `location.port`
       if (!port) {
-        port = isSSL ? 443 : 80;
+        port = isSSL ? "443" : "80";
       }
 
       this.xd =
@@ -96,7 +106,20 @@ class XHR extends Polling {
   }
 }
 
-class Request extends Emitter {
+export class Request extends Emitter {
+  private readonly opts: { xd; xs } & SocketOptions;
+  private readonly method: string;
+  private readonly uri: string;
+  private readonly async: boolean;
+  private readonly data: string | ArrayBuffer;
+
+  private xhr: any;
+  private setTimeoutFn: typeof setTimeout;
+  private index: number;
+
+  static requestsCount = 0;
+  static requests = {};
+
   /**
    * Request constructor
    *
@@ -248,7 +271,7 @@ class Request extends Emitter {
    *
    * @api private
    */
-  cleanup(fromError) {
+  cleanup(fromError?) {
     if ("undefined" === typeof this.xhr || null === this.xhr) {
       return;
     }
@@ -290,6 +313,7 @@ class Request extends Emitter {
    * @api private
    */
   hasXDR() {
+    // @ts-ignore
     return typeof XDomainRequest !== "undefined" && !this.xs && this.enablesXDR;
   }
 
@@ -309,11 +333,10 @@ class Request extends Emitter {
  * emitted.
  */
 
-Request.requestsCount = 0;
-Request.requests = {};
-
 if (typeof document !== "undefined") {
+  // @ts-ignore
   if (typeof attachEvent === "function") {
+    // @ts-ignore
     attachEvent("onunload", unloadHandler);
   } else if (typeof addEventListener === "function") {
     const terminationEvent = "onpagehide" in globalThis ? "pagehide" : "unload";
@@ -328,6 +351,3 @@ function unloadHandler() {
     }
   }
 }
-
-module.exports = XHR;
-module.exports.Request = Request;

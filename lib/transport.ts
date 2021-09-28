@@ -1,9 +1,20 @@
-const parser = require("engine.io-parser");
-const Emitter = require("component-emitter");
-const { installTimerFunctions } = require("./util");
-const debug = require("debug")("engine.io-client:transport");
+import { decodePacket } from "engine.io-parser";
+import Emitter from "@socket.io/component-emitter";
+import { installTimerFunctions } from "./util.js";
+import debugModule from "debug"; // debug()
+import { SocketOptions } from "./socket.js";
 
-class Transport extends Emitter {
+const debug = debugModule("engine.io-client:transport"); // debug()
+
+export abstract class Transport extends Emitter {
+  protected opts: SocketOptions;
+  protected supportsBinary: boolean;
+  protected query: object;
+  protected readyState: string;
+  protected writable: boolean = false;
+  protected socket: any;
+  protected setTimeoutFn: typeof setTimeout;
+
   /**
    * Transport abstract constructor.
    *
@@ -25,13 +36,15 @@ class Transport extends Emitter {
    *
    * @param {String} str
    * @return {Transport} for chaining
-   * @api public
+   * @api protected
    */
-  onError(msg, desc) {
+  protected onError(msg, desc) {
     const err = new Error(msg);
+    // @ts-ignore
     err.type = "TransportError";
+    // @ts-ignore
     err.description = desc;
-    this.emit("error", err);
+    super.emit("error", err);
     return this;
   }
 
@@ -40,7 +53,7 @@ class Transport extends Emitter {
    *
    * @api public
    */
-  open() {
+  private open() {
     if ("closed" === this.readyState || "" === this.readyState) {
       this.readyState = "opening";
       this.doOpen();
@@ -52,9 +65,9 @@ class Transport extends Emitter {
   /**
    * Closes the transport.
    *
-   * @api private
+   * @api public
    */
-  close() {
+  public close() {
     if ("opening" === this.readyState || "open" === this.readyState) {
       this.doClose();
       this.onClose();
@@ -67,9 +80,9 @@ class Transport extends Emitter {
    * Sends multiple packets.
    *
    * @param {Array} packets
-   * @api private
+   * @api public
    */
-  send(packets) {
+  public send(packets) {
     if ("open" === this.readyState) {
       this.write(packets);
     } else {
@@ -81,41 +94,45 @@ class Transport extends Emitter {
   /**
    * Called upon open
    *
-   * @api private
+   * @api protected
    */
-  onOpen() {
+  protected onOpen() {
     this.readyState = "open";
     this.writable = true;
-    this.emit("open");
+    super.emit("open");
   }
 
   /**
    * Called with data.
    *
    * @param {String} data
-   * @api private
+   * @api protected
    */
-  onData(data) {
-    const packet = parser.decodePacket(data, this.socket.binaryType);
+  protected onData(data) {
+    const packet = decodePacket(data, this.socket.binaryType);
     this.onPacket(packet);
   }
 
   /**
    * Called with a decoded packet.
+   *
+   * @api protected
    */
-  onPacket(packet) {
-    this.emit("packet", packet);
+  protected onPacket(packet) {
+    super.emit("packet", packet);
   }
 
   /**
    * Called upon close.
    *
-   * @api private
+   * @api protected
    */
-  onClose() {
+  protected onClose() {
     this.readyState = "closed";
-    this.emit("close");
+    super.emit("close");
   }
-}
 
-module.exports = Transport;
+  protected abstract doOpen();
+  protected abstract doClose();
+  protected abstract write(packets);
+}

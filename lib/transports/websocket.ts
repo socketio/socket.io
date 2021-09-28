@@ -1,16 +1,17 @@
-const Transport = require("../transport");
-const parser = require("engine.io-parser");
-const parseqs = require("parseqs");
-const yeast = require("yeast");
-const { pick } = require("../util");
-const {
-  WebSocket,
-  usingBrowserWebSocket,
+import { Transport } from "../transport.js";
+import parseqs from "parseqs";
+import yeast from "yeast";
+import { pick } from "../util.js";
+import {
   defaultBinaryType,
-  nextTick
-} = require("./websocket-constructor");
+  nextTick,
+  usingBrowserWebSocket,
+  WebSocket
+} from "./websocket-constructor.js";
+import debugModule from "debug"; // debug()
+import { encodePacket } from "engine.io-parser";
 
-const debug = require("debug")("engine.io-client:websocket");
+const debug = debugModule("engine.io-client:websocket"); // debug()
 
 // detect ReactNative environment
 const isReactNative =
@@ -18,7 +19,9 @@ const isReactNative =
   typeof navigator.product === "string" &&
   navigator.product.toLowerCase() === "reactnative";
 
-class WS extends Transport {
+export class WS extends Transport {
+  private ws: any;
+
   /**
    * WebSocket transport constructor.
    *
@@ -128,9 +131,9 @@ class WS extends Transport {
       const packet = packets[i];
       const lastPacket = i === packets.length - 1;
 
-      parser.encodePacket(packet, this.supportsBinary, data => {
+      encodePacket(packet, this.supportsBinary, data => {
         // always create a new object (GH-437)
-        const opts = {};
+        const opts: { compress?: boolean } = {};
         if (!usingBrowserWebSocket) {
           if (packet.options) {
             opts.compress = packet.options.compress;
@@ -172,15 +175,6 @@ class WS extends Transport {
   }
 
   /**
-   * Called upon close
-   *
-   * @api private
-   */
-  onClose() {
-    Transport.prototype.onClose.call(this);
-  }
-
-  /**
    * Closes socket.
    *
    * @api private
@@ -198,7 +192,7 @@ class WS extends Transport {
    * @api private
    */
   uri() {
-    let query = this.query || {};
+    let query: { b64?: number } = this.query || {};
     const schema = this.opts.secure ? "wss" : "ws";
     let port = "";
 
@@ -221,21 +215,16 @@ class WS extends Transport {
       query.b64 = 1;
     }
 
-    query = parseqs.encode(query);
-
-    // prepend ? to query
-    if (query.length) {
-      query = "?" + query;
-    }
-
+    const encodedQuery = parseqs.encode(query);
     const ipv6 = this.opts.hostname.indexOf(":") !== -1;
+
     return (
       schema +
       "://" +
       (ipv6 ? "[" + this.opts.hostname + "]" : this.opts.hostname) +
       port +
       this.opts.path +
-      query
+      (encodedQuery.length ? "?" + encodedQuery : "")
     );
   }
 
@@ -252,5 +241,3 @@ class WS extends Transport {
     );
   }
 }
-
-module.exports = WS;

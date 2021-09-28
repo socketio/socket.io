@@ -7,6 +7,7 @@ const zuulConfig = module.exports = {
 
   // test on localhost by default
   local: true,
+  open: true,
 
   concurrency: 2, // ngrok only accepts two tunnels by default
   // if browser does not sends output in 120s since last output:
