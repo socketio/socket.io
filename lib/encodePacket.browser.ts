@@ -1,4 +1,4 @@
-const { PACKET_TYPES } = require("./commons");
+import { PACKET_TYPES } from "./commons.js";
 
 const withNativeBlob =
   typeof Blob === "function" ||
@@ -37,10 +37,10 @@ const encodePacket = ({ type, data }, supportsBinary, callback) => {
 const encodeBlobAsBase64 = (data, callback) => {
   const fileReader = new FileReader();
   fileReader.onload = function() {
-    const content = fileReader.result.split(",")[1];
+    const content = (fileReader.result as string).split(",")[1];
     callback("b" + content);
   };
   return fileReader.readAsDataURL(data);
 };
 
-module.exports = encodePacket;
+export default encodePacket;

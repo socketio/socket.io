@@ -18,7 +18,4 @@ const createArrayBuffer = array => {
   return arrayBuffer;
 };
 
-module.exports = {
-  areArraysEqual,
-  createArrayBuffer
-};
+export { areArraysEqual, createArrayBuffer };

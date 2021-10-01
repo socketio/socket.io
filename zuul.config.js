@@ -1,9 +1,9 @@
-'use strict';
+"use strict";
 
-var browsers = require('socket.io-browsers');
+const browsers = require("socket.io-browsers");
 
-var zuulConfig = module.exports = {
-  ui: 'mocha-bdd',
+const zuulConfig = (module.exports = {
+  ui: "mocha-bdd",
 
   // test on localhost by default
   local: true,
@@ -16,23 +16,29 @@ var zuulConfig = module.exports = {
   browser_open_timeout: 60 * 4 * 1000,
   // we want to be notified something is wrong asap, so no retry
   browser_retries: 1,
-};
 
-if (process.env.CI === 'true') {
-  zuulConfig.local = false;
-  zuulConfig.tunnel = {
-    type: 'ngrok',
-    bind_tls: true
-  };
-  zuulConfig.browserify = [
+  browserify: [
     {
+      plugin: ["tsify", {
+        target: "es5"
+      }],
       transform: {
         name: "babelify",
         presets: ["@babel/preset-env"]
       }
     }
   ]
+});
+
+if (process.env.CI === "true") {
+  zuulConfig.local = false;
+  zuulConfig.tunnel = {
+    type: "ngrok",
+    bind_tls: true
+  };
 }
 
-var isPullRequest = process.env.TRAVIS_PULL_REQUEST && process.env.TRAVIS_PULL_REQUEST !== 'false';
+const isPullRequest =
+  process.env.TRAVIS_PULL_REQUEST &&
+  process.env.TRAVIS_PULL_REQUEST !== "false";
 zuulConfig.browsers = isPullRequest ? browsers.pullRequest : browsers.all;

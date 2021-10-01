@@ -1,5 +1,5 @@
-const encodePacket = require("./encodePacket");
-const decodePacket = require("./decodePacket");
+import encodePacket from "./encodePacket.js";
+import decodePacket from "./decodePacket.js";
 
 const SEPARATOR = String.fromCharCode(30); // see https://en.wikipedia.org/wiki/Delimiter#ASCII_delimited_text
 
@@ -20,7 +20,7 @@ const encodePayload = (packets, callback) => {
   });
 };
 
-const decodePayload = (encodedPayload, binaryType) => {
+const decodePayload = (encodedPayload, binaryType?) => {
   const encodedPackets = encodedPayload.split(SEPARATOR);
   const packets = [];
   for (let i = 0; i < encodedPackets.length; i++) {
@@ -33,10 +33,5 @@ const decodePayload = (encodedPayload, binaryType) => {
   return packets;
 };
 
-module.exports = {
-  protocol: 4,
-  encodePacket,
-  encodePayload,
-  decodePacket,
-  decodePayload
-};
+export const protocol = 5;
+export { encodePacket, encodePayload, decodePacket, decodePayload };

@@ -1,11 +1,6 @@
-const {
-  encodePacket,
-  encodePayload,
-  decodePacket,
-  decodePayload
-} = require("..");
-const expect = require("expect.js");
-const { areArraysEqual } = require("./util");
+import { decodePacket, decodePayload, encodePacket, encodePayload } from "..";
+import * as expect from "expect.js";
+import { areArraysEqual } from "./util";
 
 describe("engine.io-parser (node.js only)", () => {
   describe("single packet", () => {

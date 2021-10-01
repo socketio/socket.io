@@ -1,10 +1,6 @@
-const {
-  encodePacket,
-  encodePayload,
-  decodePacket,
-  decodePayload
-} = require("..");
-const expect = require("expect.js");
+import { decodePacket, decodePayload, encodePacket, encodePayload } from "..";
+import * as expect from "expect.js";
+import "./node";
 
 describe("engine.io-parser", () => {
   describe("single packet", () => {
@@ -58,9 +54,3 @@ describe("engine.io-parser", () => {
     });
   });
 });
-
-if (typeof window !== "undefined") {
-  require("./browser");
-} else {
-  require("./node");
-}

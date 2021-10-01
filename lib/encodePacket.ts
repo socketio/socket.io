@@ -1,4 +1,4 @@
-const { PACKET_TYPES } = require("./commons");
+import { PACKET_TYPES } from "./commons.js";
 
 const encodePacket = ({ type, data }, supportsBinary, callback) => {
   if (data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
@@ -24,4 +24,4 @@ const encodeBuffer = (data, supportsBinary) => {
   return supportsBinary ? data : "b" + data.toString("base64");
 };
 
-module.exports = encodePacket;
+export default encodePacket;

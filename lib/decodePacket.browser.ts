@@ -1,11 +1,7 @@
-const { PACKET_TYPES_REVERSE, ERROR_PACKET } = require("./commons");
+import { ERROR_PACKET, PACKET_TYPES_REVERSE } from "./commons.js";
+import { decode } from "base64-arraybuffer";
 
 const withNativeArrayBuffer = typeof ArrayBuffer === "function";
-
-let base64decoder;
-if (withNativeArrayBuffer) {
-  base64decoder = require("base64-arraybuffer");
-}
 
 const decodePacket = (encodedPacket, binaryType) => {
   if (typeof encodedPacket !== "string") {
@@ -36,8 +32,8 @@ const decodePacket = (encodedPacket, binaryType) => {
 };
 
 const decodeBase64Packet = (data, binaryType) => {
-  if (base64decoder) {
-    const decoded = base64decoder.decode(data);
+  if (withNativeArrayBuffer) {
+    const decoded = decode(data);
     return mapBinary(decoded, binaryType);
   } else {
     return { base64: true, data }; // fallback for old browsers
@@ -54,4 +50,4 @@ const mapBinary = (data, binaryType) => {
   }
 };
 
-module.exports = decodePacket;
+export default decodePacket;

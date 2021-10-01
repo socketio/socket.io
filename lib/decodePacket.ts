@@ -1,6 +1,6 @@
-const { PACKET_TYPES_REVERSE, ERROR_PACKET } = require("./commons");
+import { ERROR_PACKET, PACKET_TYPES_REVERSE } from "./commons.js";
 
-const decodePacket = (encodedPacket, binaryType) => {
+const decodePacket = (encodedPacket, binaryType?) => {
   if (typeof encodedPacket !== "string") {
     return {
       type: "message",
@@ -48,4 +48,4 @@ const toArrayBuffer = buffer => {
   return arrayBuffer;
 };
 
-module.exports = decodePacket;
+export default decodePacket;

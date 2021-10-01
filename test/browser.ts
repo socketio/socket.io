@@ -1,11 +1,6 @@
-const {
-  encodePacket,
-  encodePayload,
-  decodePacket,
-  decodePayload
-} = require("..");
-const expect = require("expect.js");
-const { areArraysEqual, createArrayBuffer } = require("./util");
+import { decodePacket, decodePayload, encodePacket, encodePayload } from "..";
+import * as expect from "expect.js";
+import { areArraysEqual, createArrayBuffer } from "./util";
 
 const withNativeArrayBuffer = typeof ArrayBuffer === "function";
 

@@ -14,8 +14,4 @@ Object.keys(PACKET_TYPES).forEach(key => {
 
 const ERROR_PACKET = { type: "error", data: "parser error" };
 
-module.exports = {
-  PACKET_TYPES,
-  PACKET_TYPES_REVERSE,
-  ERROR_PACKET
-};
+export { PACKET_TYPES, PACKET_TYPES_REVERSE, ERROR_PACKET };
