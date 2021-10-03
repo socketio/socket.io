@@ -158,7 +158,7 @@ app.listen(3000);
 
 ## Documentation
 
-Please see the documentation [here](https://socket.io/docs/).
+Please see the documentation [here](https://socket.io/docs/v4/).
 
 The source code of the website can be found [here](https://github.com/socketio/socket.io-website). Contributions are welcome!
 
