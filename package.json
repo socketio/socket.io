@@ -13,6 +13,7 @@
     }
   },
   "main": "index.js",
+  "types": "index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/component/emitter.git"
@@ -22,6 +23,7 @@
   },
   "files": [
     "index.js",
+    "index.d.ts",
     "LICENSE"
   ]
 }
