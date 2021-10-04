@@ -15,4 +15,4 @@ declare const Emitter: {
     new (obj?: object): Emitter;
 };
 
-export = Emitter;
+export default Emitter;

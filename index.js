@@ -17,6 +17,9 @@ function Emitter(obj) {
   if (obj) return mixin(obj);
 };
 
+// allow default import
+Emitter.default = Emitter;
+
 /**
  * Mixin the emitter properties.
  *
