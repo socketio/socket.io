@@ -33,5 +33,5 @@ const decodePayload = (encodedPayload, binaryType?) => {
   return packets;
 };
 
-export const protocol = 5;
+export const protocol = 4;
 export { encodePacket, encodePayload, decodePacket, decodePayload };

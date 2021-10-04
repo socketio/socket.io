@@ -1,3 +1,9 @@
+# [5.0.0](https://github.com/socketio/engine.io-parser/compare/4.0.3...5.0.0) (2021-10-04)
+
+This release includes the migration to TypeScript. The major bump is due to the new "exports" field in the package.json file.
+
+See also: https://nodejs.org/api/packages.html#packages_package_entry_points
+
 ## [4.0.3](https://github.com/socketio/engine.io-parser/compare/4.0.2...4.0.3) (2021-08-29)
 
 
