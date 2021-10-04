@@ -36,7 +36,7 @@
     "has-cors": "1.1.0",
     "parseqs": "0.0.6",
     "parseuri": "0.0.6",
-    "ws": "~7.4.2",
+    "ws": "~8.2.3",
     "xmlhttprequest-ssl": "~2.0.0",
     "yeast": "0.1.2"
   },
