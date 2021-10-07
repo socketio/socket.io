@@ -22,7 +22,7 @@ Some implementations in other languages are also available:
 - [Swift](https://github.com/socketio/socket.io-client-swift)
 - [Dart](https://github.com/rikulo/socket.io-client-dart)
 - [Python](https://github.com/miguelgrinberg/python-socketio)
-- [.Net](https://github.com/Quobject/SocketIoClientDotNet)
+- [.NET](https://github.com/doghappy/socket.io-client-csharp)
 
 Its main features are:
 
