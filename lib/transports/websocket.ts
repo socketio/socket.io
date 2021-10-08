@@ -16,7 +16,11 @@ export class WebSocket extends Transport {
   constructor(req) {
     super(req);
     this.socket = req.websocket;
-    this.socket.on("message", this.onData.bind(this));
+    this.socket.on("message", (data, isBinary) => {
+      const message = isBinary ? data : data.toString();
+      debug('received "%s"', message);
+      super.onData(message);
+    });
     this.socket.once("close", this.onClose.bind(this));
     this.socket.on("error", this.onError.bind(this));
     this.writable = true;
@@ -48,17 +52,6 @@ export class WebSocket extends Transport {
    */
   get supportsFraming() {
     return true;
-  }
-
-  /**
-   * Processes the incoming data.
-   *
-   * @param {String} encoded packet
-   * @api private
-   */
-  onData(data) {
-    debug('received "%s"', data);
-    super.onData(data);
   }
 
   /**
