@@ -2,7 +2,7 @@
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
   "license": "MIT",
-  "version": "5.2.0",
+  "version": "6.0.0",
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",
   "exports": {
@@ -35,7 +35,7 @@
   "dependencies": {
     "@socket.io/component-emitter": "~2.0.0",
     "debug": "~4.3.1",
-    "engine.io-parser": "^5.0.0",
+    "engine.io-parser": "~5.0.0",
     "has-cors": "1.1.0",
     "parseqs": "0.0.6",
     "parseuri": "0.0.6",
@@ -79,7 +79,8 @@
     "test:browser": "zuul test/index.js",
     "build": "rollup -c support/rollup.config.umd.js && rollup -c support/rollup.config.esm.js",
     "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'",
-    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'"
+    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'",
+    "prepack": "npm run compile"
   },
   "browser": {
     "./test/node.js": false
@@ -91,8 +92,5 @@
   "files": [
     "build/",
     "dist/"
-  ],
-  "browserslist": [
-    "IE 9"
   ]
 }

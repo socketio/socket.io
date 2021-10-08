@@ -3,6 +3,13 @@ const commonjs = require("@rollup/plugin-commonjs");
 const { babel } = require("@rollup/plugin-babel");
 const { terser } = require("rollup-plugin-terser");
 
+const version = require("../package.json").version;
+const banner = `/*!
+ * Engine.IO v${version}
+ * (c) 2014-${new Date().getFullYear()} Guillermo Rauch
+ * Released under the MIT License.
+ */`;
+
 module.exports = {
   input: "./build/esm/browser-entrypoint.js",
   output: [
@@ -10,14 +17,16 @@ module.exports = {
       file: "./dist/engine.io.js",
       format: "umd",
       name: "eio",
-      sourcemap: true
+      sourcemap: true,
+      banner
     },
     {
       file: "./dist/engine.io.min.js",
       format: "umd",
       name: "eio",
       sourcemap: true,
-      plugins: [terser()]
+      plugins: [terser()],
+      banner
     }
   ],
   plugins: [

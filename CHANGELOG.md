@@ -1,3 +1,38 @@
+# [6.0.0](https://github.com/socketio/engine.io-client/compare/5.2.0...6.0.0) (2021-10-08)
+
+This major release contains three important changes:
+
+- the codebase was migrated to TypeScript ([7245b80](https://github.com/socketio/engine.io-client/commit/7245b803e0c8d57cfc1f1cd8b8c8d598e8397967))
+- rollup is now used instead of webpack to create the bundles ([27de300](https://github.com/socketio/engine.io-client/commit/27de300de42420ab59a02ec7a3445e636cbcc78e))
+- code that provided support for ancient browsers (think IE8) was removed ([c656192](https://github.com/socketio/engine.io-client/commit/c6561928be628084fd2f5e7a70943c8e5c582873) and [b2c7381](https://github.com/socketio/engine.io-client/commit/b2c73812e978489b5dfbe516a26b6b8fd628856d))
+
+There is now three distinct builds (in the build/ directory):
+
+- CommonJS
+- ESM with debug
+- ESM without debug (rationale here: [00d7e7d](https://github.com/socketio/engine.io-client/commit/00d7e7d7ee85b4cfa6f9f547203cc692083ac61c))
+
+And three bundles (in the dist/ directory) :
+
+- `engine.io.js`: unminified UMD bundle
+- `engine.io.min.js`: minified UMD bundle
+- `engine.io.esm.min.js`: ESM bundle
+
+Please note that the communication protocol was not updated, so a v5 client will be able to reach a v6 server (and vice-versa).
+
+Reference: https://github.com/socketio/engine.io-protocol
+
+### Features
+
+* provide an ESM build without debug ([00d7e7d](https://github.com/socketio/engine.io-client/commit/00d7e7d7ee85b4cfa6f9f547203cc692083ac61c))
+
+### BREAKING CHANGES
+
+* the enableXDR option is removed ([c656192](https://github.com/socketio/engine.io-client/commit/c6561928be628084fd2f5e7a70943c8e5c582873))
+* the jsonp and forceJSONP options are removed ([b2c7381](https://github.com/socketio/engine.io-client/commit/b2c73812e978489b5dfbe516a26b6b8fd628856d))
+
+`ws` version: `~8.2.3`
+
 # [5.2.0](https://github.com/socketio/engine.io-client/compare/5.1.2...5.2.0) (2021-08-29)
 
 
