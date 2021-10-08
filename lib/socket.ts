@@ -1,7 +1,33 @@
-const EventEmitter = require("events");
-const debug = require("debug")("engine:socket");
+import { EventEmitter } from "events";
+import debugModule from "debug";
+import { IncomingMessage } from "http";
+import { Transport } from "./transport";
+import { Server } from "./server";
 
-class Socket extends EventEmitter {
+const debug = debugModule("engine:socket");
+
+export class Socket extends EventEmitter {
+  public readonly protocol: number;
+  public readonly request: IncomingMessage;
+  public readonly remoteAddress: string;
+
+  public readyState: string;
+  public transport: Transport;
+
+  private server: Server;
+  private upgrading: boolean;
+  private upgraded: boolean;
+  private writeBuffer: any[];
+  private packetsFn: any[];
+  private sentCallbackFn: any[];
+  private cleanupFn: any[];
+  private checkIntervalTimer;
+  private upgradeTimeoutTimer;
+  private pingTimeoutTimer;
+  private pingIntervalTimer;
+
+  private readonly id: string;
+
   /**
    * Client class (abstract).
    *
@@ -42,7 +68,7 @@ class Socket extends EventEmitter {
    *
    * @api private
    */
-  onOpen() {
+  private onOpen() {
     this.readyState = "open";
 
     // sends an `open` packet
@@ -80,7 +106,7 @@ class Socket extends EventEmitter {
    * @param {Object} packet
    * @api private
    */
-  onPacket(packet) {
+  private onPacket(packet) {
     if ("open" !== this.readyState) {
       return debug("packet received with closed socket");
     }
@@ -132,7 +158,7 @@ class Socket extends EventEmitter {
    * @param {Error} error object
    * @api private
    */
-  onError(err) {
+  private onError(err) {
     debug("transport error");
     this.onClose("transport error", err);
   }
@@ -143,7 +169,7 @@ class Socket extends EventEmitter {
    *
    * @api private
    */
-  schedulePing() {
+  private schedulePing() {
     clearTimeout(this.pingIntervalTimer);
     this.pingIntervalTimer = setTimeout(() => {
       debug(
@@ -160,7 +186,7 @@ class Socket extends EventEmitter {
    *
    * @api private
    */
-  resetPingTimeout(timeout) {
+  private resetPingTimeout(timeout) {
     clearTimeout(this.pingTimeoutTimer);
     this.pingTimeoutTimer = setTimeout(() => {
       if (this.readyState === "closed") return;
@@ -174,7 +200,7 @@ class Socket extends EventEmitter {
    * @param {Transport} transport
    * @api private
    */
-  setTransport(transport) {
+  private setTransport(transport) {
     const onError = this.onError.bind(this);
     const onPacket = this.onPacket.bind(this);
     const flush = this.flush.bind(this);
@@ -202,7 +228,7 @@ class Socket extends EventEmitter {
    * @param {Transport} transport
    * @api private
    */
-  maybeUpgrade(transport) {
+  private maybeUpgrade(transport) {
     debug(
       'might upgrade socket transport from "%s" to "%s"',
       this.transport.name,
@@ -296,7 +322,7 @@ class Socket extends EventEmitter {
    *
    * @api private
    */
-  clearTransport() {
+  private clearTransport() {
     let cleanup;
 
     const toCleanUp = this.cleanupFn.length;
@@ -322,7 +348,7 @@ class Socket extends EventEmitter {
    * Possible reasons: `ping timeout`, `client error`, `parse error`,
    * `transport error`, `server close`, `transport close`
    */
-  onClose(reason, description) {
+  private onClose(reason: string, description?) {
     if ("closed" !== this.readyState) {
       this.readyState = "closed";
 
@@ -350,7 +376,7 @@ class Socket extends EventEmitter {
    *
    * @api private
    */
-  setupSendCallback() {
+  private setupSendCallback() {
     // the message was sent successfully, execute the callback
     const onDrain = () => {
       if (this.sentCallbackFn.length > 0) {
@@ -387,12 +413,12 @@ class Socket extends EventEmitter {
    * @return {Socket} for chaining
    * @api public
    */
-  send(data, options, callback) {
+  public send(data, options, callback?) {
     this.sendPacket("message", data, options, callback);
     return this;
   }
 
-  write(data, options, callback) {
+  public write(data, options, callback?) {
     this.sendPacket("message", data, options, callback);
     return this;
   }
@@ -405,7 +431,7 @@ class Socket extends EventEmitter {
    * @param {Object} options
    * @api private
    */
-  sendPacket(type, data, options, callback) {
+  private sendPacket(type, data?, options?, callback?) {
     if ("function" === typeof options) {
       callback = options;
       options = null;
@@ -417,7 +443,7 @@ class Socket extends EventEmitter {
     if ("closing" !== this.readyState && "closed" !== this.readyState) {
       debug('sending packet "%s" (%s)', type, data);
 
-      const packet = {
+      const packet: any = {
         type: type,
         options: options
       };
@@ -440,7 +466,7 @@ class Socket extends EventEmitter {
    *
    * @api private
    */
-  flush() {
+  private flush() {
     if (
       "closed" !== this.readyState &&
       this.transport.writable &&
@@ -468,7 +494,7 @@ class Socket extends EventEmitter {
    *
    * @api private
    */
-  getAvailableUpgrades() {
+  private getAvailableUpgrades() {
     const availableUpgrades = [];
     const allUpgrades = this.server.upgrades(this.transport.name);
     let i = 0;
@@ -485,11 +511,11 @@ class Socket extends EventEmitter {
   /**
    * Closes the socket and underlying transport.
    *
-   * @param {Boolean} optional, discard
+   * @param {Boolean} discard - optional, discard the transport
    * @return {Socket} for chaining
    * @api public
    */
-  close(discard) {
+  public close(discard?: boolean) {
     if ("open" !== this.readyState) return;
 
     this.readyState = "closing";
@@ -508,10 +534,8 @@ class Socket extends EventEmitter {
    * @param {Boolean} discard
    * @api private
    */
-  closeTransport(discard) {
+  private closeTransport(discard) {
     if (discard) this.transport.discard();
     this.transport.close(this.onClose.bind(this, "forced close"));
   }
 }
-
-module.exports = Socket;

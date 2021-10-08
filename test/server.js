@@ -6,7 +6,7 @@ const fs = require("fs");
 const path = require("path");
 const exec = require("child_process").exec;
 const zlib = require("zlib");
-const eio = require("..");
+const { Server, Socket, attach } = require("..");
 const { eioc, listen, createPartialDone } = require("./common");
 const expect = require("expect.js");
 const request = require("superagent");
@@ -163,8 +163,8 @@ describe("server", () => {
     it("should send the io cookie", done => {
       listen({ cookie: true }, port => {
         request
-          .get("http://localhost:%d/engine.io/default/".s(port))
-          .query({ transport: "polling", b64: 1 })
+          .get("http://localhost:%d/engine.io/".s(port))
+          .query({ transport: "polling", EIO: 4 })
           .end((err, res) => {
             expect(err).to.be(null);
             // hack-obtain sid
@@ -428,7 +428,7 @@ describe("server", () => {
       const engine = listen({ allowUpgrades: false }, port => {
         eioc("ws://localhost:%d".s(port));
         engine.on("connection", socket => {
-          expect(socket).to.be.an(eio.Socket);
+          expect(socket).to.be.an(Socket);
           done();
         });
       });
@@ -606,7 +606,7 @@ describe("server", () => {
         // we can't send an invalid header through request.get
         // so add an invalid char here
         engine.prepare = function(req) {
-          eio.Server.prototype.prepare.call(engine, req);
+          Server.prototype.prepare.call(engine, req);
           req.headers.origin += "\n";
         };
 
@@ -662,7 +662,7 @@ describe("server", () => {
       const partialDone = createPartialDone(done, 2);
 
       const httpServer = http.createServer();
-      const engine = eio({ allowEIO3: false });
+      const engine = new Server({ allowEIO3: false });
       engine.attach(httpServer);
       httpServer.listen(() => {
         const port = httpServer.address().port;
@@ -2061,7 +2061,7 @@ describe("server", () => {
         res.end("hello world\n");
       });
 
-      const engine = eio({
+      const engine = new Server({
         transports: ["polling"],
         allowUpgrades: false,
         allowEIO3: true
@@ -2103,7 +2103,7 @@ describe("server", () => {
         res.end("hello world\n");
       });
 
-      const engine = eio({
+      const engine = new Server({
         transports: ["polling"],
         allowUpgrades: false,
         allowEIO3: true
@@ -2147,7 +2147,7 @@ describe("server", () => {
         res.end("hello world\n");
       });
 
-      const engine = eio({
+      const engine = new Server({
         transports: ["websocket"],
         allowUpgrades: false,
         allowEIO3: true
@@ -2190,7 +2190,7 @@ describe("server", () => {
         res.end("hello world\n");
       });
 
-      const engine = eio({
+      const engine = new Server({
         transports: ["polling"],
         allowUpgrades: false,
         allowEIO3: true
@@ -2233,7 +2233,7 @@ describe("server", () => {
         res.end("hello world\n");
       });
 
-      const engine = eio({
+      const engine = new Server({
         transports: ["websocket"],
         allowUpgrades: false,
         allowEIO3: true
@@ -2856,7 +2856,7 @@ describe("server", () => {
       });
 
       // attach another engine to make sure it doesn't break upgrades
-      eio.attach(engine.httpServer, { path: "/foo" });
+      attach(engine.httpServer, { path: "/foo" });
     });
   });
 

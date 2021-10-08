@@ -1,5 +1,5 @@
 const net = require("net");
-const eio = require("..");
+const { Server, protocol, attach } = require("..");
 const listen = require("./common").listen;
 const expect = require("expect.js");
 const request = require("superagent");
@@ -11,7 +11,7 @@ const http = require("http");
 
 describe("engine", () => {
   it("should expose protocol number", () => {
-    expect(eio.protocol).to.be.a("number");
+    expect(protocol).to.be.a("number");
   });
 
   it("should be the same version as client", () => {
@@ -21,13 +21,13 @@ describe("engine", () => {
 
   describe("engine()", () => {
     it("should create a Server when require called with no arguments", () => {
-      const engine = eio();
-      expect(engine).to.be.an(eio.Server);
+      const engine = new Server();
+      expect(engine).to.be.an(Server);
       expect(engine.ws).to.be.ok();
     });
 
     it("should pass options correctly to the Server", () => {
-      const engine = eio({ cors: true });
+      const engine = new Server({ cors: true });
       expect(engine.opts).to.have.property("cors", true);
     });
   });
@@ -47,21 +47,21 @@ describe("engine", () => {
   describe("attach()", () => {
     it("should work from require()", () => {
       const server = http.createServer();
-      const engine = eio(server);
+      const engine = new Server(server);
 
-      expect(engine).to.be.an(eio.Server);
+      expect(engine).to.be.an(Server);
     });
 
     it("should return an engine.Server", () => {
       const server = http.createServer();
-      const engine = eio.attach(server);
+      const engine = attach(server);
 
-      expect(engine).to.be.an(eio.Server);
+      expect(engine).to.be.an(Server);
     });
 
     it("should attach engine to an http server", done => {
       const server = http.createServer();
-      eio.attach(server);
+      attach(server);
 
       server.listen(() => {
         const uri = "http://localhost:%d/engine.io/default/".s(
@@ -80,7 +80,7 @@ describe("engine", () => {
 
     it("should destroy upgrades not handled by engine", done => {
       const server = http.createServer();
-      eio.attach(server, { destroyUpgradeTimeout: 50 });
+      attach(server, { destroyUpgradeTimeout: 50 });
 
       server.listen(() => {
         const client = net.createConnection(server.address().port);
@@ -108,7 +108,7 @@ describe("engine", () => {
 
     it("should not destroy unhandled upgrades with destroyUpgrade:false", done => {
       const server = http.createServer();
-      eio.attach(server, { destroyUpgrade: false, destroyUpgradeTimeout: 50 });
+      attach(server, { destroyUpgrade: false, destroyUpgradeTimeout: 50 });
 
       server.listen(() => {
         const client = net.createConnection(server.address().port);
@@ -140,7 +140,7 @@ describe("engine", () => {
 
     it("should destroy unhandled upgrades with after a timeout", done => {
       const server = http.createServer();
-      eio.attach(server, { destroyUpgradeTimeout: 200 });
+      attach(server, { destroyUpgradeTimeout: 200 });
 
       server.listen(() => {
         const client = net.createConnection(server.address().port);
@@ -174,7 +174,7 @@ describe("engine", () => {
 
     it("should not destroy handled upgrades with after a timeout", done => {
       const server = http.createServer();
-      eio.attach(server, { destroyUpgradeTimeout: 100 });
+      attach(server, { destroyUpgradeTimeout: 100 });
 
       // write to the socket to keep engine.io from closing it by writing before the timeout
       server.on("upgrade", (req, socket) => {
@@ -226,7 +226,7 @@ describe("engine", () => {
         listeners++;
       });
 
-      eio.attach(server);
+      attach(server);
 
       server.listen(() => {
         const port = server.address().port;

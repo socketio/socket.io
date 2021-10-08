@@ -1,4 +1,4 @@
-const eio = require("..");
+const { listen } = require("..");
 const eioc =
   process.env.EIO_CLIENT === "3"
     ? require("engine.io-client-v3")
@@ -20,7 +20,7 @@ exports.listen = (opts, fn) => {
     opts.wsEngine = require(process.env.EIO_WS_ENGINE).Server;
   }
 
-  const e = eio.listen(0, opts, () => {
+  const e = listen(0, opts, () => {
     fn(e.httpServer.address().port);
   });
 

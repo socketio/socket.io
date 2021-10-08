@@ -1,14 +1,27 @@
-const Transport = require("../transport");
-const zlib = require("zlib");
-const accepts = require("accepts");
-const debug = require("debug")("engine:polling");
+import { Transport } from "../transport";
+import { createGzip, createDeflate } from "zlib";
+import * as accepts from "accepts";
+import debugModule from "debug";
+import { IncomingMessage, ServerResponse } from "http";
+
+const debug = debugModule("engine:polling");
 
 const compressionMethods = {
-  gzip: zlib.createGzip,
-  deflate: zlib.createDeflate
+  gzip: createGzip,
+  deflate: createDeflate
 };
 
-class Polling extends Transport {
+export class Polling extends Transport {
+  public maxHttpBufferSize: number;
+  public httpCompression: any;
+
+  private res: ServerResponse;
+  private dataReq: IncomingMessage;
+  private dataRes: ServerResponse;
+  private shouldClose: Function;
+
+  private readonly closeTimeout: number;
+
   /**
    * HTTP polling constructor.
    *
@@ -18,8 +31,6 @@ class Polling extends Transport {
     super(req);
 
     this.closeTimeout = 30 * 1000;
-    this.maxHttpBufferSize = null;
-    this.httpCompression = null;
   }
 
   /**
@@ -29,6 +40,10 @@ class Polling extends Transport {
    */
   get name() {
     return "polling";
+  }
+
+  get supportsFraming() {
+    return false;
   }
 
   /**
@@ -381,5 +396,3 @@ class Polling extends Transport {
     return headers;
   }
 }
-
-module.exports = Polling;

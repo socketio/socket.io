@@ -1,7 +1,12 @@
-const Transport = require("../transport");
-const debug = require("debug")("engine:ws");
+import { Transport } from "../transport";
+import debugModule from "debug";
 
-class WebSocket extends Transport {
+const debug = debugModule("engine:ws");
+
+export class WebSocket extends Transport {
+  protected perMessageDeflate: any;
+  private socket: any;
+
   /**
    * WebSocket transport
    *
@@ -71,7 +76,7 @@ class WebSocket extends Transport {
     }
 
     // always creates a new object since ws modifies it
-    const opts = {};
+    const opts: { compress?: boolean } = {};
     if (packet.options) {
       opts.compress = packet.options.compress;
     }
@@ -111,5 +116,3 @@ class WebSocket extends Transport {
     fn && fn();
   }
 }
-
-module.exports = WebSocket;

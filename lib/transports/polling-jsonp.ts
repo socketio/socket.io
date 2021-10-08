@@ -1,9 +1,13 @@
-const Polling = require("./polling");
-const qs = require("querystring");
+import { Polling } from "./polling";
+import * as qs from "querystring";
+
 const rDoubleSlashes = /\\\\n/g;
 const rSlashes = /(\\)?\\n/g;
 
-class JSONP extends Polling {
+export class JSONP extends Polling {
+  private readonly head: string;
+  private readonly foot: string;
+
   /**
    * JSON-P polling transport.
    *
@@ -54,5 +58,3 @@ class JSONP extends Polling {
     super.doWrite(data, options, callback);
   }
 }
-
-module.exports = JSONP;
