@@ -2,8 +2,13 @@
   "name": "engine.io",
   "version": "5.2.0",
   "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server",
+  "type": "commonjs",
   "main": "./build/engine.io.js",
   "types": "./build/engine.io.d.ts",
+  "exports": {
+    "import": "./wrapper.mjs",
+    "require": "./build/engine.io.js"
+  },
   "author": "Guillermo Rauch <guillermo@learnboost.com>",
   "homepage": "https://github.com/socketio/engine.io",
   "contributors": [
@@ -62,7 +67,8 @@
     "url": "git@github.com:socketio/engine.io.git"
   },
   "files": [
-    "build/"
+    "build/",
+    "wrapper.mjs"
   ],
   "engines": {
     "node": ">=10.0.0"
