@@ -6,7 +6,10 @@
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",
   "exports": {
-    "import": "./build/esm/index.js",
+    "import": {
+      "node": "./build/esm-debug/index.js",
+      "default": "./build/esm/index.js"
+    },
     "require": "./build/cjs/index.js"
   },
   "types": "build/esm/index.d.ts",
@@ -70,7 +73,7 @@
     "zuul-ngrok": "4.0.0"
   },
   "scripts": {
-    "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && cp ./support/package.cjs.json ./build/cjs/package.json && cp ./support/package.esm.json ./build/esm/package.json",
+    "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && ./postcompile.sh",
     "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
     "test:node": "mocha --bail --reporter dot --require test/support/server.js test/index.js",
     "test:browser": "zuul test/index.js",
