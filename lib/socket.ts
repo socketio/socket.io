@@ -47,21 +47,6 @@ export interface SocketOptions {
   upgrade: boolean;
 
   /**
-   * Forces JSONP for polling transport.
-   */
-  forceJSONP: boolean;
-
-  /**
-   * Determines whether to use JSONP when necessary for polling. If
-   * disabled (by settings to false) an error will be emitted (saying
-   * "No transports available") if no other transports are available.
-   * If another transport is available for opening a connection (e.g.
-   * WebSocket) that transport will be used instead.
-   * @default true
-   */
-  jsonp: boolean;
-
-  /**
    * Forces base 64 encoding for polling transport even when XHR2
    * responseType is available and WebSocket even if the used standard
    * supports binary.
@@ -322,7 +307,6 @@ export class Socket extends Emitter {
         agent: false,
         withCredentials: false,
         upgrade: true,
-        jsonp: true,
         timestampParam: "t",
         rememberUpgrade: false,
         rejectUnauthorized: true,

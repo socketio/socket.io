@@ -226,13 +226,6 @@ Exposed as `eio` in the browser standalone build.
       - `agent` (`http.Agent`): `http.Agent` to use, defaults to `false` (NodeJS only)
       - `upgrade` (`Boolean`): defaults to true, whether the client should try
       to upgrade the transport from long-polling to something better.
-      - `forceJSONP` (`Boolean`): forces JSONP for polling transport.
-      - `jsonp` (`Boolean`): determines whether to use JSONP when
-        necessary for polling. If disabled (by settings to false) an error will
-        be emitted (saying "No transports available") if no other transports
-        are available. If another transport is available for opening a
-        connection (e.g. WebSocket) that transport
-        will be used instead.
       - `forceBase64` (`Boolean`): forces base 64 encoding for polling transport even when XHR2 responseType is available and WebSocket even if the used standard supports binary.
       - `enablesXDR` (`Boolean`): enables XDomainRequest for IE8 to avoid loading bar flashing with click sound. default to `false` because XDomainRequest has a flaw of not sending cookie.
       - `withCredentials` (`Boolean`): defaults to `false`, whether to include credentials (cookies, authorization headers, TLS client certificates, etc.) with cross-origin XHR polling requests.

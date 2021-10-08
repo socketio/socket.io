@@ -91,33 +91,7 @@ describe("connection", function() {
     });
   }
 
-  it("should not connect at all when JSONP forced and disabled", done => {
-    const socket = new Socket({
-      transports: ["polling"],
-      forceJSONP: true,
-      jsonp: false
-    });
-    socket.on("error", msg => {
-      expect(msg).to.be("No transports available");
-      done();
-    });
-  });
-
   if (env.wsSupport && !env.isOldSimulator && !env.isAndroid && !env.isIE11) {
-    it("should connect with ws when JSONP forced and disabled", done => {
-      const socket = new Socket({
-        transports: ["polling", "websocket"],
-        forceJSONP: true,
-        jsonp: false
-      });
-
-      socket.on("open", () => {
-        expect(socket.transport.name).to.be("websocket");
-        socket.close();
-        done();
-      });
-    });
-
     it("should defer close when upgrading", done => {
       const socket = new Socket();
       socket.on("open", () => {
