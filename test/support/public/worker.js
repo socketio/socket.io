@@ -2,7 +2,7 @@
 
 importScripts("/test/support/engine.io.min.js");
 
-var socket = new eio.Socket();
+var socket = eio();
 
 var count = 0;
 socket.on("message", function(msg) {

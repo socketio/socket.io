@@ -44,6 +44,9 @@
     "@babel/core": "^7.12.9",
     "@babel/plugin-transform-object-assign": "^7.12.1",
     "@babel/preset-env": "^7.12.7",
+    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-commonjs": "^21.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.5",
     "@sinonjs/fake-timers": "^7.1.2",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.10.1",
@@ -55,6 +58,8 @@
     "express": "^4.17.1",
     "mocha": "^3.2.0",
     "prettier": "^1.19.1",
+    "rollup": "^2.58.0",
+    "rollup-plugin-terser": "^7.0.2",
     "socket.io-browsers": "~1.0.4",
     "typescript": "^4.4.3",
     "webpack": "^4.44.2",
@@ -69,7 +74,7 @@
     "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
     "test:node": "mocha --bail --reporter dot --require test/support/server.js test/index.js",
     "test:browser": "zuul test/index.js",
-    "build": "webpack --config ./support/webpack.config.js --config ./support/prod.config.js",
+    "build": "rollup -c support/rollup.config.umd.js && rollup -c support/rollup.config.esm.js",
     "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'",
     "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js' 'support/**/*.js'"
   },
@@ -83,5 +88,8 @@
   "files": [
     "build/",
     "dist/"
+  ],
+  "browserslist": [
+    "IE 9"
   ]
 }

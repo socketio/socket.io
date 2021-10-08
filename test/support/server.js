@@ -5,15 +5,18 @@ const app = express();
 const join = require("path").join;
 const http = require("http").Server(app);
 const server = require("engine.io").attach(http, { pingInterval: 500 });
-const webpack = require("webpack");
-const path = require("path");
+const { rollup } = require("rollup");
 
-const webpackConfig = require("../../support/prod.config.js");
+const rollupConfig = require("../../support/rollup.config.umd.js");
 
-webpackConfig.output.path = path.resolve(__dirname, "public");
+rollup(rollupConfig).then(async bundle => {
+  await bundle.write({
+    ...rollupConfig.output[1],
+    file: "./test/support/public/engine.io.min.js",
+    sourcemap: false
+  });
 
-webpack(webpackConfig, (err, stats) => {
-  if (err) console.log(err);
+  await bundle.close();
 });
 
 http.listen(process.env.ZUUL_PORT || 3000);

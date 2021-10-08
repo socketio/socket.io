@@ -41,7 +41,8 @@ Engine.IO is a commonjs module, which means you can include it by using
 1. write your app code
 
     ```js
-    const socket = require('engine.io-client')('ws://localhost');
+    const { Socket } = require('engine.io-client');
+    const socket = new Socket('ws://localhost');
     socket.on('open', () => {
       socket.on('message', (data) => {});
       socket.on('close', () => {});
@@ -65,7 +66,7 @@ Engine.IO is a commonjs module, which means you can include it by using
 ```html
 <script src="/path/to/engine.io.js"></script>
 <script>
-  const socket = new eio.Socket('ws://localhost/');
+  const socket = eio('ws://localhost/');
   socket.binaryType = 'blob';
   socket.on('open', () => {
     socket.send(new Int8Array(5));
@@ -80,7 +81,8 @@ Engine.IO is a commonjs module, which means you can include it by using
 Add `engine.io-client` to your `package.json` and then:
 
 ```js
-const socket = require('engine.io-client')('ws://localhost');
+const { Socket } = require('engine.io-client');
+const socket = new Socket('ws://localhost');
 socket.on('open', () => {
   socket.on('message', (data) => {});
   socket.on('close', () => {});
@@ -95,7 +97,8 @@ const opts = {
   ca: fs.readFileSync('test/fixtures/ca.crt')
 };
 
-const socket = require('engine.io-client')('ws://localhost', opts);
+const { Socket } = require('engine.io-client');
+const socket = new Socket('ws://localhost', opts);
 socket.on('open', () => {
   socket.on('message', (data) => {});
   socket.on('close', () => {});
@@ -111,7 +114,8 @@ const opts = {
   }
 };
 
-const socket = require('engine.io-client')('ws://localhost', opts);
+const { Socket } = require('engine.io-client');
+const socket = new Socket('ws://localhost', opts);
 socket.on('open', () => {
   socket.on('message', (data) => {});
   socket.on('close', () => {});
@@ -124,13 +128,13 @@ Please note that in this case the headers won't be sent in the WebSocket upgrade
 
 ```js
 // WILL NOT WORK in the browser
-require('engine.io-client')('http://localhost', {
+const socket = new Socket('http://localhost', {
   extraHeaders: {
     'X-Custom-Header-For-My-Project': 'will not be sent'
   }
 });
 // WILL NOT WORK
-require('engine.io-client')('http://localhost', {
+const socket = new Socket('http://localhost', {
   transports: ['websocket'], // polling is disabled
   transportOptions: {
     polling: {
@@ -141,7 +145,7 @@ require('engine.io-client')('http://localhost', {
   }
 });
 // WILL WORK
-require('engine.io-client')('http://localhost', {
+const socket = new Socket('http://localhost', {
   transports: ['polling', 'websocket'],
   transportOptions: {
     polling: {

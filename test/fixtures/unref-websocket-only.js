@@ -1,5 +1,5 @@
-const eio = require("../..").default;
-const socket = eio("http://localhost:3000", {
+const { Socket } = require("../..");
+const socket = new Socket("http://localhost:3000", {
   autoUnref: true,
   transports: ["websocket"]
 });
