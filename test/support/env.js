@@ -14,7 +14,6 @@ exports.wsSupport = !!(
 const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "";
 exports.isOldSimulator =
   ~userAgent.indexOf("iPhone OS 4") || ~userAgent.indexOf("iPhone OS 5");
-exports.isIE8 = /MSIE 8/.test(userAgent);
 exports.isIE9 = /MSIE 9/.test(userAgent);
 exports.isIE10 = /MSIE 10/.test(userAgent);
 exports.isIE11 = !!userAgent.match(/Trident.*rv[ :]*11\./); // ws doesn't work at all in sauce labs

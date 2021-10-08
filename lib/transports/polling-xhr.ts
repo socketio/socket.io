@@ -148,7 +148,6 @@ export class Request extends Emitter {
     const opts = pick(
       this.opts,
       "agent",
-      "enablesXDR",
       "pfx",
       "key",
       "passphrase",
@@ -196,27 +195,18 @@ export class Request extends Emitter {
         xhr.timeout = this.opts.requestTimeout;
       }
 
-      if (this.hasXDR()) {
-        xhr.onload = () => {
+      xhr.onreadystatechange = () => {
+        if (4 !== xhr.readyState) return;
+        if (200 === xhr.status || 1223 === xhr.status) {
           this.onLoad();
-        };
-        xhr.onerror = () => {
-          this.onError(xhr.responseText);
-        };
-      } else {
-        xhr.onreadystatechange = () => {
-          if (4 !== xhr.readyState) return;
-          if (200 === xhr.status || 1223 === xhr.status) {
-            this.onLoad();
-          } else {
-            // make sure the `error` event handler that's user-set
-            // does not throw in the same tick and gets caught here
-            this.setTimeoutFn(() => {
-              this.onError(typeof xhr.status === "number" ? xhr.status : 0);
-            }, 0);
-          }
-        };
-      }
+        } else {
+          // make sure the `error` event handler that's user-set
+          // does not throw in the same tick and gets caught here
+          this.setTimeoutFn(() => {
+            this.onError(typeof xhr.status === "number" ? xhr.status : 0);
+          }, 0);
+        }
+      };
 
       debug("xhr data %s", this.data);
       xhr.send(this.data);
@@ -275,12 +265,7 @@ export class Request extends Emitter {
     if ("undefined" === typeof this.xhr || null === this.xhr) {
       return;
     }
-    // xmlhttprequest
-    if (this.hasXDR()) {
-      this.xhr.onload = this.xhr.onerror = empty;
-    } else {
-      this.xhr.onreadystatechange = empty;
-    }
+    this.xhr.onreadystatechange = empty;
 
     if (fromError) {
       try {
@@ -305,16 +290,6 @@ export class Request extends Emitter {
     if (data !== null) {
       this.onData(data);
     }
-  }
-
-  /**
-   * Check if it has XDomainRequest.
-   *
-   * @api private
-   */
-  hasXDR() {
-    // @ts-ignore
-    return typeof XDomainRequest !== "undefined" && !this.xs && this.enablesXDR;
   }
 
   /**

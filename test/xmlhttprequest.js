@@ -3,7 +3,7 @@ const XMLHttpRequest = require("../build/cjs/xmlhttprequest").default;
 const env = require("./support/env");
 
 describe("XMLHttpRequest", () => {
-  if (env.isIE8 || env.isIE9) {
+  if (env.isIE9) {
     describe("IE8_9", () => {
       context("when xdomain is false", () => {
         it("should have same properties as XMLHttpRequest does", () => {

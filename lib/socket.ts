@@ -54,14 +54,6 @@ export interface SocketOptions {
   forceBase64: boolean;
 
   /**
-   * Enables XDomainRequest for IE8 to avoid loading bar flashing with
-   * click sound. default to `false` because XDomainRequest has a flaw
-   * of not sending cookie.
-   * @default false
-   */
-  enablesXDR: boolean;
-
-  /**
    * The param name to use as our timestamp key
    * @default 't'
    */
