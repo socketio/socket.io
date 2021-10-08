@@ -1,5 +1,5 @@
 const { listen } = require("..");
-const eioc =
+const { Socket } =
   process.env.EIO_CLIENT === "3"
     ? require("engine.io-client-v3")
     : require("engine.io-client");
@@ -27,7 +27,7 @@ exports.listen = (opts, fn) => {
   return e;
 };
 
-exports.eioc = eioc;
+exports.ClientSocket = Socket;
 
 /**
  * Sprintf util.

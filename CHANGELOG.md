@@ -1,3 +1,32 @@
+# [6.0.0](https://github.com/socketio/engine.io/compare/5.2.0...6.0.0) (2021-10-08)
+
+The codebase was migrated to TypeScript ([c0d6eaa](https://github.com/socketio/engine.io/commit/c0d6eaa1ba1291946dc8425d5f533d5f721862dd))
+
+An ES module wrapper was also added ([401f4b6](https://github.com/socketio/engine.io/commit/401f4b60693fb6702c942692ce42e5bb701d81d7)).
+
+Please note that the communication protocol was not updated, so a v5 client will be able to reach a v6 server (and vice-versa).
+
+Reference: https://github.com/socketio/engine.io-protocol
+
+### BREAKING CHANGES
+
+- the default export was removed, so the following code won't work anymore:
+
+```js
+const eioServer = require("engine.io")(httpServer);
+```
+
+Please use this instead:
+
+```js
+const { Server } = require("engine.io");
+const eioServer = new Server(httpServer);
+```
+
+### Dependencies
+
+`ws` version: `~8.2.3` (bumped from `~7.4.2`)
+
 # [5.2.0](https://github.com/socketio/engine.io/compare/5.1.1...5.2.0) (2021-08-29)
 
 No change on the server-side, this matches the client release.
