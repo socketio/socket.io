@@ -1,4 +1,4 @@
-import Emitter = require("component-emitter");
+import Emitter from "@socket.io/component-emitter";
 
 /**
  * An events map is an interface that maps event names to their value, which

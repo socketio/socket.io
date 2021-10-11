@@ -1,5 +1,8 @@
-import * as eio from "engine.io-client";
-import { installTimerFunctions } from "engine.io-client/lib/util";
+import {
+  Socket as Engine,
+  SocketOptions as EngineOptions,
+  installTimerFunctions,
+} from "engine.io-client";
 import { Socket, SocketOptions } from "./socket";
 import * as parser from "socket.io-parser";
 import { Decoder, Encoder, Packet } from "socket.io-parser";
@@ -12,207 +15,6 @@ import {
 } from "./typed-events";
 
 const debug = require("debug")("socket.io-client:manager");
-
-interface EngineOptions {
-  /**
-   * The host that we're connecting to. Set from the URI passed when connecting
-   */
-  host: string;
-
-  /**
-   * The hostname for our connection. Set from the URI passed when connecting
-   */
-  hostname: string;
-
-  /**
-   * If this is a secure connection. Set from the URI passed when connecting
-   */
-  secure: boolean;
-
-  /**
-   * The port for our connection. Set from the URI passed when connecting
-   */
-  port: string;
-
-  /**
-   * Any query parameters in our uri. Set from the URI passed when connecting
-   */
-  query: { [key: string]: string };
-
-  /**
-   * `http.Agent` to use, defaults to `false` (NodeJS only)
-   */
-  agent: string | boolean;
-
-  /**
-   * Whether the client should try to upgrade the transport from
-   * long-polling to something better.
-   * @default true
-   */
-  upgrade: boolean;
-
-  /**
-   * Forces JSONP for polling transport.
-   */
-  forceJSONP: boolean;
-
-  /**
-   * Determines whether to use JSONP when necessary for polling. If
-   * disabled (by settings to false) an error will be emitted (saying
-   * "No transports available") if no other transports are available.
-   * If another transport is available for opening a connection (e.g.
-   * WebSocket) that transport will be used instead.
-   * @default true
-   */
-  jsonp: boolean;
-
-  /**
-   * Forces base 64 encoding for polling transport even when XHR2
-   * responseType is available and WebSocket even if the used standard
-   * supports binary.
-   */
-  forceBase64: boolean;
-
-  /**
-   * Enables XDomainRequest for IE8 to avoid loading bar flashing with
-   * click sound. default to `false` because XDomainRequest has a flaw
-   * of not sending cookie.
-   * @default false
-   */
-  enablesXDR: boolean;
-
-  /**
-   * The param name to use as our timestamp key
-   * @default 't'
-   */
-  timestampParam: string;
-
-  /**
-   * Whether to add the timestamp with each transport request. Note: this
-   * is ignored if the browser is IE or Android, in which case requests
-   * are always stamped
-   * @default false
-   */
-  timestampRequests: boolean;
-
-  /**
-   * A list of transports to try (in order). Engine.io always attempts to
-   * connect directly with the first one, provided the feature detection test
-   * for it passes.
-   * @default ['polling','websocket']
-   */
-  transports: string[];
-
-  /**
-   * The port the policy server listens on
-   * @default 843
-   */
-  policyPost: number;
-
-  /**
-   * If true and if the previous websocket connection to the server succeeded,
-   * the connection attempt will bypass the normal upgrade process and will
-   * initially try websocket. A connection attempt following a transport error
-   * will use the normal upgrade process. It is recommended you turn this on
-   * only when using SSL/TLS connections, or if you know that your network does
-   * not block websockets.
-   * @default false
-   */
-  rememberUpgrade: boolean;
-
-  /**
-   * Are we only interested in transports that support binary?
-   */
-  onlyBinaryUpgrades: boolean;
-
-  /**
-   * Timeout for xhr-polling requests in milliseconds (0) (only for polling transport)
-   */
-  requestTimeout: number;
-
-  /**
-   * Transport options for Node.js client (headers etc)
-   */
-  transportOptions: Object;
-
-  /**
-   * (SSL) Certificate, Private key and CA certificates to use for SSL.
-   * Can be used in Node.js client environment to manually specify
-   * certificate information.
-   */
-  pfx: string;
-
-  /**
-   * (SSL) Private key to use for SSL. Can be used in Node.js client
-   * environment to manually specify certificate information.
-   */
-  key: string;
-
-  /**
-   * (SSL) A string or passphrase for the private key or pfx. Can be
-   * used in Node.js client environment to manually specify certificate
-   * information.
-   */
-  passphrase: string;
-
-  /**
-   * (SSL) Public x509 certificate to use. Can be used in Node.js client
-   * environment to manually specify certificate information.
-   */
-  cert: string;
-
-  /**
-   * (SSL) An authority certificate or array of authority certificates to
-   * check the remote host against.. Can be used in Node.js client
-   * environment to manually specify certificate information.
-   */
-  ca: string | string[];
-
-  /**
-   * (SSL) A string describing the ciphers to use or exclude. Consult the
-   * [cipher format list]
-   * (http://www.openssl.org/docs/apps/ciphers.html#CIPHER_LIST_FORMAT) for
-   * details on the format.. Can be used in Node.js client environment to
-   * manually specify certificate information.
-   */
-  ciphers: string;
-
-  /**
-   * (SSL) If true, the server certificate is verified against the list of
-   * supplied CAs. An 'error' event is emitted if verification fails.
-   * Verification happens at the connection level, before the HTTP request
-   * is sent. Can be used in Node.js client environment to manually specify
-   * certificate information.
-   */
-  rejectUnauthorized: boolean;
-
-  /**
-   * Headers that will be passed for each request to the server (via xhr-polling and via websockets).
-   * These values then can be used during handshake or for special proxies.
-   */
-  extraHeaders?: { [header: string]: string };
-
-  /**
-   * Whether to include credentials (cookies, authorization headers, TLS
-   * client certificates, etc.) with cross-origin XHR polling requests
-   * @default false
-   */
-  withCredentials: boolean;
-
-  /**
-   * Whether to automatically close the connection whenever the beforeunload event is received.
-   * @default true
-   */
-  closeOnBeforeunload: boolean;
-
-  /**
-   * Whether to always use the native timeouts. This allows the client to
-   * reconnect when the native timeout functions are overridden, such as when
-   * mock clocks are installed.
-   * @default false
-   */
-  useNativeTimers: boolean;
-}
 
 export interface ManagerOptions extends EngineOptions {
   /**
@@ -277,13 +79,6 @@ export interface ManagerOptions extends EngineOptions {
   autoConnect: boolean;
 
   /**
-   * weather we should unref the reconnect timer when it is
-   * create automatically
-   * @default false
-   */
-  autoUnref: boolean;
-
-  /**
    * the parser to use. Defaults to an instance of the Parser that ships with socket.io.
    */
   parser: any;
@@ -310,7 +105,7 @@ export class Manager<
    *
    * @public
    */
-  public engine: any;
+  public engine: Engine;
   /**
    * @private
    */
@@ -518,7 +313,7 @@ export class Manager<
     if (~this._readyState.indexOf("open")) return this;
 
     debug("opening %s", this.uri);
-    this.engine = eio(this.uri, this.opts);
+    this.engine = new Engine(this.uri, this.opts);
     const socket = this.engine;
     const self = this;
     this._readyState = "opening";

@@ -64,7 +64,7 @@ describe("socket", function () {
   it("doesn't fire a connect_error event when the connection is already established", (done) => {
     const socket = io({ forceNew: true });
     socket.on("connect", () => {
-      socket.io.engine.close(true);
+      socket.io.engine.close();
     });
     socket.on("connect_error", () => {
       done(new Error("should not happen"));
