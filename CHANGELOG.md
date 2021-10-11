@@ -1,3 +1,11 @@
+# [4.1.0](https://github.com/socketio/socket.io-parser/compare/4.0.4...4.1.0) (2021-10-11)
+
+
+### Features
+
+* provide an ESM build with and without debug ([388c616](https://github.com/socketio/socket.io-parser/commit/388c616a9221e4341945f8487e729e93a81d2da5))
+
+
 ## [4.0.4](https://github.com/socketio/socket.io-parser/compare/4.0.3...4.0.4) (2021-01-15)
 
 
