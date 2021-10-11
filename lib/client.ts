@@ -7,6 +7,7 @@ import type { Namespace } from "./namespace";
 import type { EventsMap } from "./typed-events";
 import type { Socket } from "./socket";
 import type { SocketId } from "socket.io-adapter";
+import type { Socket as RawSocket } from "engine.io";
 
 const debug = debugModule("socket.io:client");
 
@@ -22,7 +23,7 @@ export class Client<
   EmitEvents extends EventsMap,
   ServerSideEvents extends EventsMap
 > {
-  public readonly conn;
+  public readonly conn: RawSocket;
 
   private readonly id: string;
   private readonly server: Server<ListenEvents, EmitEvents, ServerSideEvents>;

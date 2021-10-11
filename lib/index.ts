@@ -4,7 +4,12 @@ import { createDeflate, createGzip, createBrotliCompress } from "zlib";
 import accepts = require("accepts");
 import { pipeline } from "stream";
 import path = require("path");
-import engine = require("engine.io");
+import {
+  attach,
+  Server as Engine,
+  ServerOptions as EngineOptions,
+  AttachOptions,
+} from "engine.io";
 import { Client } from "./client";
 import { EventEmitter } from "events";
 import { ExtendedError, Namespace, ServerReservedEventsMap } from "./namespace";
@@ -14,8 +19,6 @@ import * as parser from "socket.io-parser";
 import type { Encoder } from "socket.io-parser";
 import debugModule from "debug";
 import { Socket } from "./socket";
-import type { CookieSerializeOptions } from "cookie";
-import type { CorsOptions } from "cors";
 import type { BroadcastOperator, RemoteSocket } from "./broadcast-operator";
 import {
   EventsMap,
@@ -30,7 +33,6 @@ const debug = debugModule("socket.io:server");
 const clientVersion = require("../package.json").version;
 const dotMapRegex = /\.map/;
 
-type Transport = "polling" | "websocket";
 type ParentNspNameMatchFn = (
   name: string,
   auth: { [key: string]: any },
@@ -39,107 +41,7 @@ type ParentNspNameMatchFn = (
 
 type AdapterConstructor = typeof Adapter | ((nsp: Namespace) => Adapter);
 
-interface EngineOptions {
-  /**
-   * how many ms without a pong packet to consider the connection closed
-   * @default 20000
-   */
-  pingTimeout: number;
-  /**
-   * how many ms before sending a new ping packet
-   * @default 25000
-   */
-  pingInterval: number;
-  /**
-   * how many ms before an uncompleted transport upgrade is cancelled
-   * @default 10000
-   */
-  upgradeTimeout: number;
-  /**
-   * how many bytes or characters a message can be, before closing the session (to avoid DoS).
-   * @default 1e5 (100 KB)
-   */
-  maxHttpBufferSize: number;
-  /**
-   * A function that receives a given handshake or upgrade request as its first parameter,
-   * and can decide whether to continue or not. The second argument is a function that needs
-   * to be called with the decided information: fn(err, success), where success is a boolean
-   * value where false means that the request is rejected, and err is an error code.
-   */
-  allowRequest: (
-    req: http.IncomingMessage,
-    fn: (err: string | null | undefined, success: boolean) => void
-  ) => void;
-  /**
-   * the low-level transports that are enabled
-   * @default ["polling", "websocket"]
-   */
-  transports: Transport[];
-  /**
-   * whether to allow transport upgrades
-   * @default true
-   */
-  allowUpgrades: boolean;
-  /**
-   * parameters of the WebSocket permessage-deflate extension (see ws module api docs). Set to false to disable.
-   * @default false
-   */
-  perMessageDeflate: boolean | object;
-  /**
-   * parameters of the http compression for the polling transports (see zlib api docs). Set to false to disable.
-   * @default true
-   */
-  httpCompression: boolean | object;
-  /**
-   * what WebSocket server implementation to use. Specified module must
-   * conform to the ws interface (see ws module api docs).
-   * An alternative c++ addon is also available by installing eiows module.
-   *
-   * @default `require("ws").Server`
-   */
-  wsEngine: Function;
-  /**
-   * an optional packet which will be concatenated to the handshake packet emitted by Engine.IO.
-   */
-  initialPacket: any;
-  /**
-   * configuration of the cookie that contains the client sid to send as part of handshake response headers. This cookie
-   * might be used for sticky-session. Defaults to not sending any cookie.
-   * @default false
-   */
-  cookie: (CookieSerializeOptions & { name: string }) | boolean;
-  /**
-   * the options that will be forwarded to the cors module
-   */
-  cors: CorsOptions;
-  /**
-   * whether to enable compatibility with Socket.IO v2 clients
-   * @default false
-   */
-  allowEIO3: boolean;
-}
-
-interface AttachOptions {
-  /**
-   * name of the path to capture
-   * @default "/engine.io"
-   */
-  path: string;
-  /**
-   * destroy unhandled upgrade requests
-   * @default true
-   */
-  destroyUpgrade: boolean;
-  /**
-   * milliseconds after which unhandled requests are ended
-   * @default 1000
-   */
-  destroyUpgradeTimeout: number;
-}
-
-interface EngineAttachOptions extends EngineOptions, AttachOptions {}
-
-interface ServerOptions extends EngineAttachOptions {
+interface ServerOptions extends EngineOptions, AttachOptions {
   /**
    * name of the path to capture
    * @default "/socket.io"
@@ -210,7 +112,7 @@ export class Server<
   private _adapter?: AdapterConstructor;
   private _serveClient: boolean;
   private opts: Partial<EngineOptions>;
-  private eio;
+  private eio: Engine;
   private _path: string;
   private clientPathRegex: RegExp;
 
@@ -443,11 +345,11 @@ export class Server<
    */
   private initEngine(
     srv: http.Server,
-    opts: Partial<EngineAttachOptions>
+    opts: EngineOptions & AttachOptions
   ): void {
     // initialize engine
     debug("creating engine.io instance with opts %j", opts);
-    this.eio = engine.attach(srv, opts);
+    this.eio = attach(srv, opts);
 
     // attach static file serving
     if (this._serveClient) this.attachServe(srv);
