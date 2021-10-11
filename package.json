@@ -11,21 +11,24 @@
   ],
   "files": [
     "dist/",
-    "build/",
-    "wrapper.mjs"
+    "build/"
   ],
   "type": "commonjs",
-  "main": "./build/index.js",
+  "main": "./build/cjs/index.js",
+  "module": "./build/esm/index.js",
   "exports": {
     "./package.json": "./package.json",
     "./dist/socket.io.js": "./dist/socket.io.js",
     "./dist/socket.io.js.map": "./dist/socket.io.js.map",
     ".": {
-      "import": "./wrapper.mjs",
-      "require": "./build/index.js"
+      "import": {
+        "node": "./build/esm-debug/index.js",
+        "default": "./build/esm/index.js"
+      },
+      "require": "./build/cjs/index.js"
     }
   },
-  "types": "./build/index.d.ts",
+  "types": "./build/esm/index.d.ts",
   "dependencies": {
     "@socket.io/component-emitter": "~2.0.0",
     "backo2": "~1.0.2",
@@ -68,7 +71,7 @@
     "zuul-ngrok": "4.0.0"
   },
   "scripts": {
-    "compile": "rimraf ./build && tsc",
+    "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && ./postcompile.sh",
     "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
     "test:node": "mocha --require ts-node/register --reporter dot --require test/support/server.js test/index.js",
     "test:browser": "zuul test/index.js",

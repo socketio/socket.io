@@ -3,18 +3,19 @@ import {
   SocketOptions as EngineOptions,
   installTimerFunctions,
 } from "engine.io-client";
-import { Socket, SocketOptions } from "./socket";
+import { Socket, SocketOptions } from "./socket.js";
 import * as parser from "socket.io-parser";
 import { Decoder, Encoder, Packet } from "socket.io-parser";
-import { on } from "./on";
-import * as Backoff from "backo2";
+import { on } from "./on.js";
+import Backoff from "backo2";
 import {
   DefaultEventsMap,
   EventsMap,
   StrictEventEmitter,
-} from "./typed-events";
+} from "./typed-events.js";
+import debugModule from "debug"; // debug()
 
-const debug = require("debug")("socket.io-client:manager");
+const debug = debugModule("socket.io-client:manager"); // debug()
 
 export interface ManagerOptions extends EngineOptions {
   /**

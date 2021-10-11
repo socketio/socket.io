@@ -1,19 +1,14 @@
-import { url } from "./url";
-import { Manager, ManagerOptions } from "./manager";
-import { Socket, SocketOptions } from "./socket";
+import { url } from "./url.js";
+import { Manager, ManagerOptions } from "./manager.js";
+import { Socket, SocketOptions } from "./socket.js";
+import debugModule from "debug"; // debug()
 
-const debug = require("debug")("socket.io-client");
-
-/**
- * Module exports.
- */
-
-module.exports = exports = lookup;
+const debug = debugModule("socket.io-client"); // debug()
 
 /**
  * Managers cache.
  */
-const cache: Record<string, Manager> = (exports.managers = {});
+const cache: Record<string, Manager> = {};
 
 /**
  * Looks up an existing `Manager` for multiplexing.
@@ -85,21 +80,16 @@ function lookup(
 export { protocol } from "socket.io-parser";
 
 /**
- * `connect`.
- *
- * @param {String} uri
- * @public
- */
-
-exports.connect = lookup;
-
-/**
  * Expose constructors for standalone build.
  *
  * @public
  */
 
-export { Manager, ManagerOptions } from "./manager";
-export { Socket } from "./socket";
-export { lookup as io, SocketOptions };
-export default lookup;
+export {
+  Manager,
+  ManagerOptions,
+  Socket,
+  SocketOptions,
+  lookup as io,
+  lookup as connect,
+};

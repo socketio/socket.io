@@ -1,4 +1,4 @@
-const io = require("../..");
+const { io } = require("../..");
 const socket = io("http://localhost:3210", {
   autoUnref: true,
   transports: ["polling"],

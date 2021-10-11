@@ -1,5 +1,5 @@
 import type * as Emitter from "component-emitter";
-import { StrictEventEmitter } from "./typed-events";
+import { StrictEventEmitter } from "./typed-events.js";
 
 export function on(
   obj: Emitter | StrictEventEmitter<any, any>,

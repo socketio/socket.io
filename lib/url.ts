@@ -1,6 +1,7 @@
-import * as parseuri from "parseuri";
+import parseuri from "parseuri";
+import debugModule from "debug"; // debug()
 
-const debug = require("debug")("socket.io-client:url");
+const debug = debugModule("socket.io-client:url"); // debug()
 
 type ParsedUrl = {
   source: string;

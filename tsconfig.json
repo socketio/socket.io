@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "outDir": "./build",
-    "allowJs": false,
-    "target": "es2017",
+    "outDir": "build/cjs/",
+    "target": "es2018", // Node.js 10 (https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping)
     "module": "commonjs",
-    "declaration": true
+    "declaration": false,
+    "esModuleInterop": true
   },
   "include": [
     "./lib/**/*"

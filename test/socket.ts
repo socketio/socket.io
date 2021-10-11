@@ -1,4 +1,4 @@
-import * as expect from "expect.js";
+import expect from "expect.js";
 import { io } from "..";
 
 describe("socket", function () {

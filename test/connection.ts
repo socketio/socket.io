@@ -1,9 +1,9 @@
-import * as expect from "expect.js";
+import expect from "expect.js";
 import { io, Manager, ManagerOptions } from "..";
-import * as hasCORS from "has-cors";
-import * as FakeTimers from "@sinonjs/fake-timers";
-import * as textBlobBuilder from "text-blob-builder";
-import * as env from "./support/env";
+import hasCORS from "has-cors";
+import FakeTimers from "@sinonjs/fake-timers";
+import textBlobBuilder from "text-blob-builder";
+import env from "./support/env";
 
 describe("connection", function () {
   this.timeout(70000);

@@ -1,15 +1,16 @@
 import { Packet, PacketType } from "socket.io-parser";
-import { on } from "./on";
-import { Manager } from "./manager";
+import { on } from "./on.js";
+import { Manager } from "./manager.js";
 import {
   DefaultEventsMap,
   EventNames,
   EventParams,
   EventsMap,
   StrictEventEmitter,
-} from "./typed-events";
+} from "./typed-events.js";
+import debugModule from "debug"; // debug()
 
-const debug = require("debug")("socket.io-client:socket");
+const debug = debugModule("socket.io-client:socket"); // debug()
 
 export interface SocketOptions {
   /**

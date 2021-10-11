@@ -1,5 +1,5 @@
-import { url } from "../build/url";
-import * as expect from "expect.js";
+import { url } from "../build/cjs/url";
+import expect from "expect.js";
 
 const loc: any = {};
 
