@@ -32,7 +32,7 @@
     "debug": "~4.3.2",
     "engine.io-client": "~6.0.0",
     "parseuri": "0.0.6",
-    "socket.io-parser": "~4.0.4"
+    "socket.io-parser": "~4.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
