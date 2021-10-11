@@ -1,8 +1,9 @@
-import Emitter = require("component-emitter");
-import { deconstructPacket, reconstructPacket } from "./binary";
-import { isBinary, hasBinary } from "./is-binary";
+import Emitter from "@socket.io/component-emitter";
+import { deconstructPacket, reconstructPacket } from "./binary.js";
+import { isBinary, hasBinary } from "./is-binary.js";
+import debugModule from "debug"; // debug()
 
-const debug = require("debug")("socket.io-parser");
+const debug = debugModule("socket.io-parser"); // debug()
 
 /**
  * Protocol version.

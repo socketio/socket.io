@@ -1,4 +1,4 @@
-import { isBinary } from "./is-binary";
+import { isBinary } from "./is-binary.js";
 
 /**
  * Replaces every Buffer | ArrayBuffer | Blob | File in packet with a numbered placeholder.
