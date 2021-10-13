@@ -238,7 +238,7 @@ export class Server<
     this.clientPathRegex = new RegExp(
       "^" +
         escapedPath +
-        "/socket\\.io(\\.min|\\.msgpack\\.min)?\\.js(\\.map)?(?:\\?|$)"
+        "/socket\\.io(\\.msgpack|\\.esm)?(\\.min)?\\.js(\\.map)?(?:\\?|$)"
     );
     return this;
   }

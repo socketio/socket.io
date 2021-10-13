@@ -125,6 +125,13 @@ describe("socket.io", () => {
         testSourceMap("socket.io.msgpack.min.js.map")
       );
 
+      it("should serve the ESM bundle", testSource("socket.io.esm.min.js"));
+
+      it(
+        "should serve the source map for the ESM bundle",
+        testSourceMap("socket.io.esm.min.js.map")
+      );
+
       it("should handle 304", (done) => {
         const srv = createServer();
         new Server(srv);
