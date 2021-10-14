@@ -1,6 +1,6 @@
 /* global attachEvent */
 
-import * as XMLHttpRequestModule from "xmlhttprequest-ssl";
+import XMLHttpRequest from "./xmlhttprequest.js";
 import debugModule from "debug"; // debug()
 import globalThis from "../globalThis.js";
 import { installTimerFunctions, pick } from "../util.js";
@@ -9,8 +9,6 @@ import { Polling } from "./polling.js";
 import { SocketOptions } from "../socket.js";
 
 const debug = debugModule("engine.io-client:polling-xhr"); // debug()
-
-const XMLHttpRequest = XMLHttpRequestModule.default || XMLHttpRequestModule;
 
 /**
  * Empty function

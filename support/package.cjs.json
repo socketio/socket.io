@@ -2,7 +2,7 @@
   "type": "commonjs",
   "browser": {
     "ws": false,
-    "xmlhttprequest-ssl": "./xmlhttprequest.js",
+    "./transports/xmlhttprequest.js": "./transports/xmlhttprequest.browser.js",
     "./transports/websocket-constructor.js": "./transports/websocket-constructor.browser.js",
     "./globalThis.js": "./globalThis.browser.js"
   }
