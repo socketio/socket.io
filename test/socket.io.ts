@@ -807,6 +807,7 @@ describe("socket.io", () => {
       srv.listen(() => {
         const socket = client(srv);
 
+        // @ts-ignore
         socket.io.engine.write = () => {}; // prevent the client from sending a CONNECT packet
 
         socket.on("disconnect", () => {
@@ -1833,6 +1834,7 @@ describe("socket.io", () => {
             console.log(
               "\u001b[96mNote: warning expected and normal in test.\u001b[39m"
             );
+            // @ts-ignore
             socket.io.engine.write("5woooot");
             setTimeout(() => {
               done();
@@ -1852,6 +1854,7 @@ describe("socket.io", () => {
             console.log(
               "\u001b[96mNote: warning expected and normal in test.\u001b[39m"
             );
+            // @ts-ignore
             socket.io.engine.write('44["handle me please"]');
             setTimeout(() => {
               done();
@@ -1872,6 +1875,7 @@ describe("socket.io", () => {
             done();
           });
           s.conn.on("upgrade", () => {
+            // @ts-ignore
             socket.io.engine.write("5woooot");
           });
         });
@@ -1889,6 +1893,7 @@ describe("socket.io", () => {
             done();
           });
           s.conn.on("upgrade", () => {
+            // @ts-ignore
             socket.io.engine.write("5");
           });
         });

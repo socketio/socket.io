@@ -1,3 +1,17 @@
+# [4.3.0](https://github.com/socketio/socket.io/compare/4.2.0...4.3.0) (2021-10-14)
+
+
+### Bug Fixes
+
+* **typings:** add name field to cookie option ([#4099](https://github.com/socketio/socket.io/issues/4099)) ([033c5d3](https://github.com/socketio/socket.io/commit/033c5d399a2b985afad32c1e4b0c16d764e248cd))
+* send volatile packets with binary attachments ([dc81fcf](https://github.com/socketio/socket.io/commit/dc81fcf461cfdbb5b34b1a5a96b84373754047d5))
+
+
+### Features
+
+* serve ESM bundle ([60edecb](https://github.com/socketio/socket.io/commit/60edecb3bd33801803cdcba0aefbafa381a2abb3))
+
+
 # [4.2.0](https://github.com/socketio/socket.io/compare/4.1.3...4.2.0) (2021-08-30)
 
 
