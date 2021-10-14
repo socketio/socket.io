@@ -1,3 +1,11 @@
+## [6.0.1](https://github.com/socketio/engine.io-client/compare/6.0.0...6.0.1) (2021-10-14)
+
+
+### Bug Fixes
+
+* fix usage with vite ([4971914](https://github.com/socketio/engine.io-client/commit/49719142f65e23efa65fca4f66765ded5d955972))
+
+
 # [6.0.0](https://github.com/socketio/engine.io-client/compare/5.2.0...6.0.0) (2021-10-08)
 
 This major release contains three important changes:

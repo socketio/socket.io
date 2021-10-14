@@ -1,5 +1,5 @@
 /*!
- * Engine.IO v6.0.0
+ * Engine.IO v6.0.1
  * (c) 2014-2021 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -205,7 +205,7 @@
   })();
 
   // browser shim for xmlhttprequest module
-  function xmlhttprequest (opts) {
+  function XMLHttpRequest$1 (opts) {
     var xdomain = opts.xdomain; // XMLHttpRequest can be disabled on IE
 
     try {
@@ -220,11 +220,6 @@
       } catch (e) {}
     }
   }
-
-  var XMLHttpRequestModule = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    'default': xmlhttprequest
-  });
 
   function pick(obj) {
     for (var _len = arguments.length, attr = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -252,182 +247,175 @@
     }
   }
 
-  var componentEmitter = {exports: {}};
+  /**
+   * Expose `Emitter`.
+   */
 
-  (function (module) {
-    /**
-     * Expose `Emitter`.
-     */
-    {
-      module.exports = Emitter;
+  var Emitter_1 = Emitter;
+  /**
+   * Initialize a new `Emitter`.
+   *
+   * @api public
+   */
+
+  function Emitter(obj) {
+    if (obj) return mixin(obj);
+  }
+  /**
+   * Mixin the emitter properties.
+   *
+   * @param {Object} obj
+   * @return {Object}
+   * @api private
+   */
+
+
+  function mixin(obj) {
+    for (var key in Emitter.prototype) {
+      obj[key] = Emitter.prototype[key];
     }
-    /**
-     * Initialize a new `Emitter`.
-     *
-     * @api public
-     */
+
+    return obj;
+  }
+  /**
+   * Listen on the given `event` with `fn`.
+   *
+   * @param {String} event
+   * @param {Function} fn
+   * @return {Emitter}
+   * @api public
+   */
 
 
-    function Emitter(obj) {
-      if (obj) return mixin(obj);
+  Emitter.prototype.on = Emitter.prototype.addEventListener = function (event, fn) {
+    this._callbacks = this._callbacks || {};
+    (this._callbacks['$' + event] = this._callbacks['$' + event] || []).push(fn);
+    return this;
+  };
+  /**
+   * Adds an `event` listener that will be invoked a single
+   * time then automatically removed.
+   *
+   * @param {String} event
+   * @param {Function} fn
+   * @return {Emitter}
+   * @api public
+   */
+
+
+  Emitter.prototype.once = function (event, fn) {
+    function on() {
+      this.off(event, on);
+      fn.apply(this, arguments);
     }
 
-    Emitter["default"] = Emitter;
-    /**
-     * Mixin the emitter properties.
-     *
-     * @param {Object} obj
-     * @return {Object}
-     * @api private
-     */
+    on.fn = fn;
+    this.on(event, on);
+    return this;
+  };
+  /**
+   * Remove the given callback for `event` or all
+   * registered callbacks.
+   *
+   * @param {String} event
+   * @param {Function} fn
+   * @return {Emitter}
+   * @api public
+   */
 
-    function mixin(obj) {
-      for (var key in Emitter.prototype) {
-        obj[key] = Emitter.prototype[key];
+
+  Emitter.prototype.off = Emitter.prototype.removeListener = Emitter.prototype.removeAllListeners = Emitter.prototype.removeEventListener = function (event, fn) {
+    this._callbacks = this._callbacks || {}; // all
+
+    if (0 == arguments.length) {
+      this._callbacks = {};
+      return this;
+    } // specific event
+
+
+    var callbacks = this._callbacks['$' + event];
+    if (!callbacks) return this; // remove all handlers
+
+    if (1 == arguments.length) {
+      delete this._callbacks['$' + event];
+      return this;
+    } // remove specific handler
+
+
+    var cb;
+
+    for (var i = 0; i < callbacks.length; i++) {
+      cb = callbacks[i];
+
+      if (cb === fn || cb.fn === fn) {
+        callbacks.splice(i, 1);
+        break;
       }
+    } // Remove event specific arrays for event types that no
+    // one is subscribed for to avoid memory leak.
 
-      return obj;
+
+    if (callbacks.length === 0) {
+      delete this._callbacks['$' + event];
     }
-    /**
-     * Listen on the given `event` with `fn`.
-     *
-     * @param {String} event
-     * @param {Function} fn
-     * @return {Emitter}
-     * @api public
-     */
+
+    return this;
+  };
+  /**
+   * Emit `event` with the given args.
+   *
+   * @param {String} event
+   * @param {Mixed} ...
+   * @return {Emitter}
+   */
 
 
-    Emitter.prototype.on = Emitter.prototype.addEventListener = function (event, fn) {
-      this._callbacks = this._callbacks || {};
-      (this._callbacks['$' + event] = this._callbacks['$' + event] || []).push(fn);
-      return this;
-    };
-    /**
-     * Adds an `event` listener that will be invoked a single
-     * time then automatically removed.
-     *
-     * @param {String} event
-     * @param {Function} fn
-     * @return {Emitter}
-     * @api public
-     */
+  Emitter.prototype.emit = function (event) {
+    this._callbacks = this._callbacks || {};
+    var args = new Array(arguments.length - 1),
+        callbacks = this._callbacks['$' + event];
 
+    for (var i = 1; i < arguments.length; i++) {
+      args[i - 1] = arguments[i];
+    }
 
-    Emitter.prototype.once = function (event, fn) {
-      function on() {
-        this.off(event, on);
-        fn.apply(this, arguments);
+    if (callbacks) {
+      callbacks = callbacks.slice(0);
+
+      for (var i = 0, len = callbacks.length; i < len; ++i) {
+        callbacks[i].apply(this, args);
       }
+    }
 
-      on.fn = fn;
-      this.on(event, on);
-      return this;
-    };
-    /**
-     * Remove the given callback for `event` or all
-     * registered callbacks.
-     *
-     * @param {String} event
-     * @param {Function} fn
-     * @return {Emitter}
-     * @api public
-     */
+    return this;
+  }; // alias used for reserved events (protected method)
 
 
-    Emitter.prototype.off = Emitter.prototype.removeListener = Emitter.prototype.removeAllListeners = Emitter.prototype.removeEventListener = function (event, fn) {
-      this._callbacks = this._callbacks || {}; // all
+  Emitter.prototype.emitReserved = Emitter.prototype.emit;
+  /**
+   * Return array of callbacks for `event`.
+   *
+   * @param {String} event
+   * @return {Array}
+   * @api public
+   */
 
-      if (0 == arguments.length) {
-        this._callbacks = {};
-        return this;
-      } // specific event
-
-
-      var callbacks = this._callbacks['$' + event];
-      if (!callbacks) return this; // remove all handlers
-
-      if (1 == arguments.length) {
-        delete this._callbacks['$' + event];
-        return this;
-      } // remove specific handler
-
-
-      var cb;
-
-      for (var i = 0; i < callbacks.length; i++) {
-        cb = callbacks[i];
-
-        if (cb === fn || cb.fn === fn) {
-          callbacks.splice(i, 1);
-          break;
-        }
-      } // Remove event specific arrays for event types that no
-      // one is subscribed for to avoid memory leak.
+  Emitter.prototype.listeners = function (event) {
+    this._callbacks = this._callbacks || {};
+    return this._callbacks['$' + event] || [];
+  };
+  /**
+   * Check if this emitter has `event` handlers.
+   *
+   * @param {String} event
+   * @return {Boolean}
+   * @api public
+   */
 
 
-      if (callbacks.length === 0) {
-        delete this._callbacks['$' + event];
-      }
-
-      return this;
-    };
-    /**
-     * Emit `event` with the given args.
-     *
-     * @param {String} event
-     * @param {Mixed} ...
-     * @return {Emitter}
-     */
-
-
-    Emitter.prototype.emit = function (event) {
-      this._callbacks = this._callbacks || {};
-      var args = new Array(arguments.length - 1),
-          callbacks = this._callbacks['$' + event];
-
-      for (var i = 1; i < arguments.length; i++) {
-        args[i - 1] = arguments[i];
-      }
-
-      if (callbacks) {
-        callbacks = callbacks.slice(0);
-
-        for (var i = 0, len = callbacks.length; i < len; ++i) {
-          callbacks[i].apply(this, args);
-        }
-      }
-
-      return this;
-    };
-    /**
-     * Return array of callbacks for `event`.
-     *
-     * @param {String} event
-     * @return {Array}
-     * @api public
-     */
-
-
-    Emitter.prototype.listeners = function (event) {
-      this._callbacks = this._callbacks || {};
-      return this._callbacks['$' + event] || [];
-    };
-    /**
-     * Check if this emitter has `event` handlers.
-     *
-     * @param {String} event
-     * @return {Boolean}
-     * @api public
-     */
-
-
-    Emitter.prototype.hasListeners = function (event) {
-      return !!this.listeners(event).length;
-    };
-  })(componentEmitter);
-
-  var Emitter = componentEmitter.exports;
+  Emitter.prototype.hasListeners = function (event) {
+    return !!this.listeners(event).length;
+  };
 
   var PACKET_TYPES = Object.create(null); // no Map = no polyfill
 
@@ -775,7 +763,7 @@
     }]);
 
     return Transport;
-  }(Emitter);
+  }(Emitter_1);
 
   var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'.split(''),
       length = 64,
@@ -1100,7 +1088,6 @@
     return Polling;
   }(Transport);
 
-  var XMLHttpRequest$1 = xmlhttprequest || XMLHttpRequestModule;
   /**
    * Empty function
    */
@@ -1417,7 +1404,7 @@
     }]);
 
     return Request;
-  }(Emitter);
+  }(Emitter_1);
   Request.requestsCount = 0;
   Request.requests = {};
   /**
@@ -1888,7 +1875,7 @@
         } else if (0 === this.transports.length) {
           // Emit error on next tick so it can be listened to
           this.setTimeoutFn(function () {
-            _this2.emit("error", "No transports available");
+            _this2.emitReserved("error", "No transports available");
           }, 0);
           return;
         } else {
@@ -1958,7 +1945,7 @@
             if ("pong" === msg.type && "probe" === msg.data) {
               _this4.upgrading = true;
 
-              _this4.emit("upgrading", transport);
+              _this4.emitReserved("upgrading", transport);
 
               if (!transport) return;
               Socket.priorWebsocketSuccess = "websocket" === transport.name;
@@ -1974,7 +1961,7 @@
                   type: "upgrade"
                 }]);
 
-                _this4.emit("upgrade", transport);
+                _this4.emitReserved("upgrade", transport);
 
                 transport = null;
                 _this4.upgrading = false;
@@ -1986,7 +1973,7 @@
 
               err.transport = transport.name;
 
-              _this4.emit("upgradeError", err);
+              _this4.emitReserved("upgradeError", err);
             }
           });
         };
@@ -2007,7 +1994,7 @@
           error.transport = transport.name;
           freezeTransport();
 
-          _this4.emit("upgradeError", error);
+          _this4.emitReserved("upgradeError", error);
         };
 
         function onTransportClose() {
@@ -2055,7 +2042,7 @@
       value: function onOpen() {
         this.readyState = "open";
         Socket.priorWebsocketSuccess = "websocket" === this.transport.name;
-        this.emit("open");
+        this.emitReserved("open");
         this.flush(); // we check for `readyState` in case an `open`
         // listener already closed the socket
 
@@ -2078,9 +2065,9 @@
       key: "onPacket",
       value: function onPacket(packet) {
         if ("opening" === this.readyState || "open" === this.readyState || "closing" === this.readyState) {
-          this.emit("packet", packet); // Socket is live - any packet counts
+          this.emitReserved("packet", packet); // Socket is live - any packet counts
 
-          this.emit("heartbeat");
+          this.emitReserved("heartbeat");
 
           switch (packet.type) {
             case "open":
@@ -2090,8 +2077,8 @@
             case "ping":
               this.resetPingTimeout();
               this.sendPacket("pong");
-              this.emit("ping");
-              this.emit("pong");
+              this.emitReserved("ping");
+              this.emitReserved("pong");
               break;
 
             case "error":
@@ -2102,8 +2089,8 @@
               break;
 
             case "message":
-              this.emit("data", packet.data);
-              this.emit("message", packet.data);
+              this.emitReserved("data", packet.data);
+              this.emitReserved("message", packet.data);
               break;
           }
         }
@@ -2118,7 +2105,7 @@
     }, {
       key: "onHandshake",
       value: function onHandshake(data) {
-        this.emit("handshake", data);
+        this.emitReserved("handshake", data);
         this.id = data.sid;
         this.transport.query.sid = data.sid;
         this.upgrades = this.filterUpgrades(data.upgrades);
@@ -2165,7 +2152,7 @@
         this.prevBufferLen = 0;
 
         if (0 === this.writeBuffer.length) {
-          this.emit("drain");
+          this.emitReserved("drain");
         } else {
           this.flush();
         }
@@ -2184,7 +2171,7 @@
           // splice writeBuffer and callbackBuffer on `drain`
 
           this.prevBufferLen = this.writeBuffer.length;
-          this.emit("flush");
+          this.emitReserved("flush");
         }
       }
       /**
@@ -2243,7 +2230,7 @@
           data: data,
           options: options
         };
-        this.emit("packetCreate", packet);
+        this.emitReserved("packetCreate", packet);
         this.writeBuffer.push(packet);
         if (fn) this.once("flush", fn);
         this.flush();
@@ -2310,7 +2297,7 @@
       key: "onError",
       value: function onError(err) {
         Socket.priorWebsocketSuccess = false;
-        this.emit("error", err);
+        this.emitReserved("error", err);
         this.onClose("transport error", err);
       }
       /**
@@ -2341,7 +2328,7 @@
 
           this.id = null; // emit close event
 
-          this.emit("close", reason, desc); // clean buffers after, so users can still
+          this.emitReserved("close", reason, desc); // clean buffers after, so users can still
           // grab the buffers on `close` event
 
           this.writeBuffer = [];
@@ -2372,7 +2359,7 @@
     }]);
 
     return Socket;
-  }(Emitter);
+  }(Emitter_1);
   Socket.protocol = protocol;
 
   function clone(obj) {
