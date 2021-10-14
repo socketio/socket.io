@@ -3,9 +3,7 @@
  * Expose `Emitter`.
  */
 
-if (typeof module !== 'undefined') {
-  module.exports = Emitter;
-}
+exports.Emitter = Emitter;
 
 /**
  * Initialize a new `Emitter`.
@@ -15,10 +13,7 @@ if (typeof module !== 'undefined') {
 
 function Emitter(obj) {
   if (obj) return mixin(obj);
-};
-
-// allow default import
-Emitter.default = Emitter;
+}
 
 /**
  * Mixin the emitter properties.
@@ -151,6 +146,9 @@ Emitter.prototype.emit = function(event){
 
   return this;
 };
+
+// alias used for reserved events (protected method)
+Emitter.prototype.emitReserved = Emitter.prototype.emit;
 
 /**
  * Return array of callbacks for `event`.

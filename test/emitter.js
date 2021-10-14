@@ -1,5 +1,5 @@
 
-var Emitter = require('..');
+var { Emitter } = require('..');
 
 function Custom() {
   Emitter.call(this)
