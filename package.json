@@ -6,11 +6,14 @@
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",
   "exports": {
-    "import": {
-      "node": "./build/esm-debug/index.js",
-      "default": "./build/esm/index.js"
-    },
-    "require": "./build/cjs/index.js"
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "node": "./build/esm-debug/index.js",
+        "default": "./build/esm/index.js"
+      },
+      "require": "./build/cjs/index.js"
+    }
   },
   "types": "build/esm/index.d.ts",
   "homepage": "https://github.com/socketio/engine.io-client",
