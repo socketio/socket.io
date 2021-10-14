@@ -4,7 +4,7 @@ const { terser } = require("rollup-plugin-terser");
 
 const version = require("../package.json").version;
 const banner = `/*!
- * Engine.IO v${version}
+ * Socket.IO v${version}
  * (c) 2014-${new Date().getFullYear()} Guillermo Rauch
  * Released under the MIT License.
  */`;

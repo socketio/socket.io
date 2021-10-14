@@ -1,3 +1,25 @@
+# [4.3.0](https://github.com/socketio/socket.io-client/compare/4.2.0...4.3.0) (2021-10-14)
+
+An ESM bundle is now provided:
+
+```html
+<script type="module">
+  import { io } from "https://cdn.socket.io/4.3.0/socket.io.esm.min.js";
+
+  const socket = io();
+
+  socket.emit("hello", "world");
+</script>
+```
+
+### Features
+
+* **typings:** add missing types for some emitter methods ([#1502](https://github.com/socketio/socket.io-client/issues/1502)) ([a9e5b85](https://github.com/socketio/socket.io-client/commit/a9e5b85580e8edca0b0fd2850c3741d3d86a96e2))
+* provide an ESM build with and without debug ([16b6569](https://github.com/socketio/socket.io-client/commit/16b65698aed766e1e645c78847f2e91bfc5b6f56))
+* migrate to rollup ([0661564](https://github.com/socketio/socket.io-client/commit/0661564dc2005b95843ddb65621b7e89af702bc0))
+
+
+
 # [4.2.0](https://github.com/socketio/socket.io-client/compare/4.1.3...4.2.0) (2021-08-30)
 
 
