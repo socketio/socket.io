@@ -71,6 +71,15 @@ function lookup(
   return io.socket(parsed.path, opts);
 }
 
+// so that "lookup" can be used both as a function (e.g. `io(...)`) and as a
+// namespace (e.g. `io.connect(...)`), for backward compatibility
+Object.assign(lookup, {
+  Manager,
+  Socket,
+  io: lookup,
+  connect: lookup,
+});
+
 /**
  * Protocol version.
  *
