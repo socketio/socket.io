@@ -108,6 +108,20 @@ export abstract class StrictEventEmitter<
   }
 
   /**
+   * Removes the `listener` function as an event listener for `ev`.
+   *
+   * @param ev Name of the event
+   * @param listener Callback function
+   */
+  off<Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>>(
+    ev?: Ev,
+    listener?: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>
+  ): this {
+    super.off(ev as string, listener);
+    return this;
+  }
+
+  /**
    * Emits an event.
    *
    * @param ev Name of the event
@@ -152,5 +166,45 @@ export abstract class StrictEventEmitter<
       ListenEvents,
       Ev
     >[];
+  }
+
+  /**
+   * Returns true if there is a listener for this event.
+   *
+   * @param event Event name
+   * @returns boolean
+   */
+  hasListeners<
+    Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>
+  >(event: Ev): boolean {
+    return super.hasListeners(event as string);
+  }
+
+  /**
+   * Removes the `listener` function as an event listener for `ev`.
+   *
+   * @param ev Name of the event
+   * @param listener Callback function
+   */
+  removeListener<
+    Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>
+  >(
+    ev?: Ev,
+    listener?: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>
+  ): this {
+    super.removeListener(ev as string, listener);
+    return this;
+  }
+
+  /**
+   * Removes all `listener` function as an event listener for `ev`.
+   *
+   * @param ev Name of the event
+   */
+  removeAllListeners<
+    Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>
+  >(ev?: Ev): this {
+    super.removeAllListeners(ev as string);
+    return this;
   }
 }
