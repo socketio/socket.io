@@ -1,4 +1,4 @@
-import Emitter from "@socket.io/component-emitter";
+import { Emitter } from "@socket.io/component-emitter";
 import { deconstructPacket, reconstructPacket } from "./binary.js";
 import { isBinary, hasBinary } from "./is-binary.js";
 import debugModule from "debug"; // debug()
@@ -109,12 +109,16 @@ export class Encoder {
   }
 }
 
+interface DecoderReservedEvents {
+  decoded: (packet: Packet) => void;
+}
+
 /**
  * A socket.io Decoder instance
  *
  * @return {Object} decoder
  */
-export class Decoder extends Emitter {
+export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
   private reconstructor: BinaryReconstructor;
 
   constructor() {
@@ -140,11 +144,11 @@ export class Decoder extends Emitter {
 
         // no attachments, labeled binary but no binary data to follow
         if (packet.attachments === 0) {
-          super.emit("decoded", packet);
+          super.emitReserved("decoded", packet);
         }
       } else {
         // non-binary full packet
-        super.emit("decoded", packet);
+        super.emitReserved("decoded", packet);
       }
     } else if (isBinary(obj) || obj.base64) {
       // raw binary data
@@ -155,7 +159,7 @@ export class Decoder extends Emitter {
         if (packet) {
           // received final buffer
           this.reconstructor = null;
-          super.emit("decoded", packet);
+          super.emitReserved("decoded", packet);
         }
       }
     } else {
