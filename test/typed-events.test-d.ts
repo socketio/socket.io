@@ -1,5 +1,5 @@
 import { io, Socket } from "..";
-import type { DefaultEventsMap } from "../lib/typed-events";
+import type { DefaultEventsMap } from "@socket.io/component-emitter";
 import { expectError, expectType } from "tsd";
 
 // This file is run by tsd, not mocha.

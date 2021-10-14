@@ -11,8 +11,8 @@ import Backoff from "backo2";
 import {
   DefaultEventsMap,
   EventsMap,
-  StrictEventEmitter,
-} from "./typed-events.js";
+  Emitter,
+} from "@socket.io/component-emitter";
 import debugModule from "debug"; // debug()
 
 const debug = debugModule("socket.io-client:manager"); // debug()
@@ -100,7 +100,7 @@ interface ManagerReservedEvents {
 export class Manager<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents
-> extends StrictEventEmitter<{}, {}, ManagerReservedEvents> {
+> extends Emitter<{}, {}, ManagerReservedEvents> {
   /**
    * The Engine.IO client instance
    *
@@ -353,6 +353,7 @@ export class Manager<
         debug("connect attempt timed out after %d", timeout);
         openSubDestroy();
         socket.close();
+        // @ts-ignore
         socket.emit("error", new Error("timeout"));
       }, timeout);
 

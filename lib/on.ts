@@ -1,8 +1,7 @@
-import type * as Emitter from "component-emitter";
-import { StrictEventEmitter } from "./typed-events.js";
+import { Emitter } from "@socket.io/component-emitter";
 
 export function on(
-  obj: Emitter | StrictEventEmitter<any, any>,
+  obj: Emitter<any, any>,
   ev: string,
   fn: (err?: any) => any
 ): VoidFunction {

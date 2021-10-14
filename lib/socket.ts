@@ -6,8 +6,8 @@ import {
   EventNames,
   EventParams,
   EventsMap,
-  StrictEventEmitter,
-} from "./typed-events.js";
+  Emitter,
+} from "@socket.io/component-emitter";
 import debugModule from "debug"; // debug()
 
 const debug = debugModule("socket.io-client:socket"); // debug()
@@ -47,7 +47,7 @@ interface SocketReservedEvents {
 export class Socket<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents
-> extends StrictEventEmitter<ListenEvents, EmitEvents, SocketReservedEvents> {
+> extends Emitter<ListenEvents, EmitEvents, SocketReservedEvents> {
   public readonly io: Manager<ListenEvents, EmitEvents>;
 
   public id: string;
