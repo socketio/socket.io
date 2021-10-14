@@ -3,7 +3,7 @@ import { installTimerFunctions } from "./util.js";
 import parseqs from "parseqs";
 import parseuri from "parseuri";
 import debugModule from "debug"; // debug()
-import Emitter from "@socket.io/component-emitter";
+import { Emitter } from "@socket.io/component-emitter";
 import { protocol } from "engine.io-parser";
 
 const debug = debugModule("engine.io-client:socket"); // debug()
@@ -214,7 +214,26 @@ export interface SocketOptions {
   protocols: string | string[];
 }
 
-export class Socket extends Emitter {
+interface SocketReservedEvents {
+  open: () => void;
+  handshake: (data) => void;
+  packet: (packet) => void;
+  packetCreate: (packet) => void;
+  data: (data) => void;
+  message: (data) => void;
+  drain: () => void;
+  flush: () => void;
+  heartbeat: () => void;
+  ping: () => void;
+  pong: () => void;
+  error: (err: string | Error) => void;
+  upgrading: (transport) => void;
+  upgrade: (transport) => void;
+  upgradeError: (err: Error) => void;
+  close: (reason: string, desc?: Error) => void;
+}
+
+export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   public id: string;
   public transport: any;
   public binaryType: string;
@@ -408,7 +427,7 @@ export class Socket extends Emitter {
     } else if (0 === this.transports.length) {
       // Emit error on next tick so it can be listened to
       this.setTimeoutFn(() => {
-        this.emit("error", "No transports available");
+        this.emitReserved("error", "No transports available");
       }, 0);
       return;
     } else {
@@ -479,7 +498,7 @@ export class Socket extends Emitter {
         if ("pong" === msg.type && "probe" === msg.data) {
           debug('probe transport "%s" pong', name);
           this.upgrading = true;
-          this.emit("upgrading", transport);
+          this.emitReserved("upgrading", transport);
           if (!transport) return;
           Socket.priorWebsocketSuccess = "websocket" === transport.name;
 
@@ -493,7 +512,7 @@ export class Socket extends Emitter {
 
             this.setTransport(transport);
             transport.send([{ type: "upgrade" }]);
-            this.emit("upgrade", transport);
+            this.emitReserved("upgrade", transport);
             transport = null;
             this.upgrading = false;
             this.flush();
@@ -503,7 +522,7 @@ export class Socket extends Emitter {
           const err = new Error("probe error");
           // @ts-ignore
           err.transport = transport.name;
-          this.emit("upgradeError", err);
+          this.emitReserved("upgradeError", err);
         }
       });
     };
@@ -530,7 +549,7 @@ export class Socket extends Emitter {
 
       debug('probe transport "%s" failed because of error: %s', name, err);
 
-      this.emit("upgradeError", error);
+      this.emitReserved("upgradeError", error);
     };
 
     function onTransportClose() {
@@ -578,7 +597,7 @@ export class Socket extends Emitter {
     debug("socket open");
     this.readyState = "open";
     Socket.priorWebsocketSuccess = "websocket" === this.transport.name;
-    this.emit("open");
+    this.emitReserved("open");
     this.flush();
 
     // we check for `readyState` in case an `open`
@@ -610,10 +629,10 @@ export class Socket extends Emitter {
     ) {
       debug('socket receive: type "%s", data "%s"', packet.type, packet.data);
 
-      this.emit("packet", packet);
+      this.emitReserved("packet", packet);
 
       // Socket is live - any packet counts
-      this.emit("heartbeat");
+      this.emitReserved("heartbeat");
 
       switch (packet.type) {
         case "open":
@@ -623,8 +642,8 @@ export class Socket extends Emitter {
         case "ping":
           this.resetPingTimeout();
           this.sendPacket("pong");
-          this.emit("ping");
-          this.emit("pong");
+          this.emitReserved("ping");
+          this.emitReserved("pong");
           break;
 
         case "error":
@@ -635,8 +654,8 @@ export class Socket extends Emitter {
           break;
 
         case "message":
-          this.emit("data", packet.data);
-          this.emit("message", packet.data);
+          this.emitReserved("data", packet.data);
+          this.emitReserved("message", packet.data);
           break;
       }
     } else {
@@ -651,7 +670,7 @@ export class Socket extends Emitter {
    * @api private
    */
   private onHandshake(data) {
-    this.emit("handshake", data);
+    this.emitReserved("handshake", data);
     this.id = data.sid;
     this.transport.query.sid = data.sid;
     this.upgrades = this.filterUpgrades(data.upgrades);
@@ -692,7 +711,7 @@ export class Socket extends Emitter {
     this.prevBufferLen = 0;
 
     if (0 === this.writeBuffer.length) {
-      this.emit("drain");
+      this.emitReserved("drain");
     } else {
       this.flush();
     }
@@ -715,7 +734,7 @@ export class Socket extends Emitter {
       // keep track of current length of writeBuffer
       // splice writeBuffer and callbackBuffer on `drain`
       this.prevBufferLen = this.writeBuffer.length;
-      this.emit("flush");
+      this.emitReserved("flush");
     }
   }
 
@@ -770,7 +789,7 @@ export class Socket extends Emitter {
       data: data,
       options: options
     };
-    this.emit("packetCreate", packet);
+    this.emitReserved("packetCreate", packet);
     this.writeBuffer.push(packet);
     if (fn) this.once("flush", fn);
     this.flush();
@@ -829,7 +848,7 @@ export class Socket extends Emitter {
   private onError(err) {
     debug("socket error %j", err);
     Socket.priorWebsocketSuccess = false;
-    this.emit("error", err);
+    this.emitReserved("error", err);
     this.onClose("transport error", err);
   }
 
@@ -869,7 +888,7 @@ export class Socket extends Emitter {
       this.id = null;
 
       // emit close event
-      this.emit("close", reason, desc);
+      this.emitReserved("close", reason, desc);
 
       // clean buffers after, so users can still
       // grab the buffers on `close` event

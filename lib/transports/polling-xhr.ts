@@ -4,7 +4,7 @@ import * as XMLHttpRequestModule from "xmlhttprequest-ssl";
 import debugModule from "debug"; // debug()
 import globalThis from "../globalThis.js";
 import { installTimerFunctions, pick } from "../util.js";
-import Emitter from "@socket.io/component-emitter";
+import { DefaultEventsMap, Emitter } from "@socket.io/component-emitter";
 import { Polling } from "./polling.js";
 import { SocketOptions } from "../socket.js";
 
@@ -106,7 +106,7 @@ export class XHR extends Polling {
   }
 }
 
-export class Request extends Emitter {
+export class Request extends Emitter<DefaultEventsMap, DefaultEventsMap> {
   private readonly opts: { xd; xs } & SocketOptions;
   private readonly method: string;
   private readonly uri: string;

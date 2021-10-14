@@ -1,12 +1,15 @@
 import { decodePacket } from "engine.io-parser";
-import Emitter from "@socket.io/component-emitter";
+import { DefaultEventsMap, Emitter } from "@socket.io/component-emitter";
 import { installTimerFunctions } from "./util.js";
 import debugModule from "debug"; // debug()
 import { SocketOptions } from "./socket.js";
 
 const debug = debugModule("engine.io-client:transport"); // debug()
 
-export abstract class Transport extends Emitter {
+export abstract class Transport extends Emitter<
+  DefaultEventsMap,
+  DefaultEventsMap
+> {
   protected opts: SocketOptions;
   protected supportsBinary: boolean;
   protected query: object;
