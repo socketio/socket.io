@@ -1,3 +1,6 @@
+## [4.1.1](https://github.com/socketio/socket.io-parser/compare/4.1.0...4.1.1) (2021-10-14)
+
+
 # [4.1.0](https://github.com/socketio/socket.io-parser/compare/4.0.4...4.1.0) (2021-10-11)
 
 
