@@ -1,3 +1,12 @@
+## [5.0.1](https://github.com/socketio/engine.io-parser/compare/5.0.0...5.0.1) (2021-10-15)
+
+
+### Bug Fixes
+
+* fix vite build ([900346e](https://github.com/socketio/engine.io-parser/commit/900346ea34ddc178d80eaabc8ea516d929457855))
+
+
+
 # [5.0.0](https://github.com/socketio/engine.io-parser/compare/4.0.3...5.0.0) (2021-10-04)
 
 This release includes the migration to TypeScript. The major bump is due to the new "exports" field in the package.json file.
