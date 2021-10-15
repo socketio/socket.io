@@ -80,6 +80,10 @@ Object.assign(lookup, {
   connect: lookup,
 });
 
+if (typeof module !== "undefined") {
+  module.exports = lookup;
+}
+
 /**
  * Protocol version.
  *
@@ -101,4 +105,5 @@ export {
   SocketOptions,
   lookup as io,
   lookup as connect,
+  lookup as default,
 };
