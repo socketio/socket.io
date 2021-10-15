@@ -1,3 +1,12 @@
+## [6.0.2](https://github.com/socketio/engine.io-client/compare/6.0.1...6.0.2) (2021-10-15)
+
+
+### Bug Fixes
+
+* **bundle:** fix vite build ([faa9f31](https://github.com/socketio/engine.io-client/commit/faa9f318e70cd037af79bfa20e9d21b284ddf257))
+
+
+
 ## [6.0.1](https://github.com/socketio/engine.io-client/compare/6.0.0...6.0.1) (2021-10-14)
 
 
