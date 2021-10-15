@@ -49,7 +49,9 @@
     "build/"
   ],
   "browser": {
-    "./test/node": "./test/browser"
+    "./test/node": "./test/browser",
+    "./build/esm/encodePacket.js": "./build/esm/encodePacket.browser.js",
+    "./build/esm/decodePacket.js": "./build/esm/decodePacket.browser.js"
   },
   "engines": {
     "node": ">=10.0.0"
