@@ -1,3 +1,13 @@
+## [4.3.1](https://github.com/socketio/socket.io-client/compare/4.3.0...4.3.1) (2021-10-15)
+
+
+### Bug Fixes
+
+* restore the default export ([f0aae84](https://github.com/socketio/socket.io-client/commit/f0aae8457a8bdf7e2f2286b4b7d34d2798419456))
+* restore the namespace export ([8737d0a](https://github.com/socketio/socket.io-client/commit/8737d0ae6fb362455015e6dd435010c36d023663))
+
+
+
 # [4.3.0](https://github.com/socketio/socket.io-client/compare/4.2.0...4.3.0) (2021-10-14)
 
 An ESM bundle is now provided:
