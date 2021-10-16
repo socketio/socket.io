@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.3.1
+ * Socket.IO v4.3.2
  * (c) 2014-2021 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -4174,10 +4174,6 @@
     io: lookup,
     connect: lookup
   });
-
-  if (typeof module !== "undefined") {
-    module.exports = lookup;
-  }
 
   return lookup;
 

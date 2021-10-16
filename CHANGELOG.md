@@ -1,3 +1,12 @@
+## [4.3.2](https://github.com/socketio/socket.io-client/compare/4.3.1...4.3.2) (2021-10-16)
+
+
+### Bug Fixes
+
+* restore the default export (bis) ([6780f29](https://github.com/socketio/socket.io-client/commit/6780f29624372a76aafb0bbd6975864280239f26))
+
+
+
 ## [4.3.1](https://github.com/socketio/socket.io-client/compare/4.3.0...4.3.1) (2021-10-15)
 
 
