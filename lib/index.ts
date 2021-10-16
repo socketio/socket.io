@@ -156,7 +156,7 @@ export class Server<
     this.adapter(opts.adapter || Adapter);
     this.sockets = this.of("/");
     this.opts = opts;
-    if (srv) this.attach(srv as http.Server | number);
+    if (srv || typeof srv == "number") this.attach(srv as http.Server | number);
   }
 
   /**
