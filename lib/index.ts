@@ -1,4 +1,5 @@
 import http = require("http");
+import https = require("https");
 import { createReadStream } from "fs";
 import { createDeflate, createGzip, createBrotliCompress } from "zlib";
 import accepts = require("accepts");
@@ -156,7 +157,11 @@ export class Server<
     this.adapter(opts.adapter || Adapter);
     this.sockets = this.of("/");
     this.opts = opts;
-    if (srv instanceof http.Server || typeof srv === "number") {
+    if (
+      srv instanceof http.Server ||
+      srv instanceof https.Server ||
+      typeof srv === "number"
+    ) {
       this.attach(srv);
     }
   }
