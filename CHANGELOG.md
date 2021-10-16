@@ -1,3 +1,11 @@
+## [4.3.1](https://github.com/socketio/socket.io/compare/4.3.0...4.3.1) (2021-10-16)
+
+
+### Bug Fixes
+
+* fix server attachment ([#4127](https://github.com/socketio/socket.io/issues/4127)) ([0ef2a4d](https://github.com/socketio/socket.io/commit/0ef2a4d02c9350aff163df9cb61aece89c4dac0f))
+
+
 # [4.3.0](https://github.com/socketio/socket.io/compare/4.2.0...4.3.0) (2021-10-14)
 
 

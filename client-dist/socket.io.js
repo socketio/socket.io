@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.3.0
+ * Socket.IO v4.3.1
  * (c) 2014-2021 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -4164,6 +4164,19 @@
     }
 
     return io.socket(parsed.path, opts);
+  } // so that "lookup" can be used both as a function (e.g. `io(...)`) and as a
+  // namespace (e.g. `io.connect(...)`), for backward compatibility
+
+
+  _extends(lookup, {
+    Manager: Manager,
+    Socket: Socket,
+    io: lookup,
+    connect: lookup
+  });
+
+  if (typeof module !== "undefined") {
+    module.exports = lookup;
   }
 
   return lookup;
