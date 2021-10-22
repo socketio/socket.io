@@ -108,6 +108,8 @@ export interface Handshake {
   auth: { [key: string]: any };
 }
 
+type Event = [eventName: string, ...args: any[]];
+
 export class Socket<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
@@ -130,8 +132,7 @@ export class Socket<
   private readonly server: Server<ListenEvents, EmitEvents, ServerSideEvents>;
   private readonly adapter: Adapter;
   private acks: Map<number, () => void> = new Map();
-  private fns: Array<(event: Array<any>, next: (err?: Error) => void) => void> =
-    [];
+  private fns: Array<(event: Event, next: (err?: Error) => void) => void> = [];
   private flags: BroadcastFlags = {};
   private _anyListeners?: Array<(...args: any[]) => void>;
 
@@ -569,7 +570,7 @@ export class Socket<
    * @param {Array} event - event that will get emitted
    * @private
    */
-  private dispatch(event: [eventName: string, ...args: any[]]): void {
+  private dispatch(event: Event): void {
     debug("dispatching an event %j", event);
     this.run(event, (err) => {
       process.nextTick(() => {
@@ -592,9 +593,7 @@ export class Socket<
    * @return {Socket} self
    * @public
    */
-  public use(
-    fn: (event: Array<any>, next: (err?: Error) => void) => void
-  ): this {
+  public use(fn: (event: Event, next: (err?: Error) => void) => void): this {
     this.fns.push(fn);
     return this;
   }
@@ -606,10 +605,7 @@ export class Socket<
    * @param {Function} fn - last fn call in the middleware
    * @private
    */
-  private run(
-    event: [eventName: string, ...args: any[]],
-    fn: (err: Error | null) => void
-  ): void {
+  private run(event: Event, fn: (err: Error | null) => void): void {
     const fns = this.fns.slice(0);
     if (!fns.length) return fn(null);
 
