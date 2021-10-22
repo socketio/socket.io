@@ -998,6 +998,42 @@ describe("socket.io", () => {
           const socket = client(srv, "/dynamic-101");
         });
       });
+
+      it("should handle race conditions with dynamic namespaces (#4136)", (done) => {
+        const srv = createServer();
+        const sio = new Server(srv);
+        const counters = {
+          connected: 0,
+          created: 0,
+          events: 0,
+        };
+        sio.on("new_namespace", (namespace) => {
+          counters.created++;
+        });
+        srv.listen(() => {
+          const handler = () => {
+            if (++counters.events === 2) {
+              expect(counters.created).to.equal(1);
+              done();
+            }
+          };
+
+          sio
+            .of((name, query, next) => {
+              setTimeout(() => next(null, true), 50);
+            })
+            .on("connection", (socket) => {
+              if (++counters.connected === 2) {
+                sio.of("/dynamic-101").emit("message");
+              }
+            });
+
+          let one = client(srv, "/dynamic-101");
+          let two = client(srv, "/dynamic-101");
+          one.on("message", handler);
+          two.on("message", handler);
+        });
+      });
     });
   });
 

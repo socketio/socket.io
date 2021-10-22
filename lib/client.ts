@@ -113,10 +113,15 @@ export class Client<
       (
         dynamicNspName:
           | Namespace<ListenEvents, EmitEvents, ServerSideEvents>
-          | false
+          | false,
+        race: boolean = false
       ) => {
         if (dynamicNspName) {
-          debug("dynamic namespace %s was created", dynamicNspName);
+          if (race) {
+            debug("dynamic namespace %s already created", dynamicNspName);
+          } else {
+            debug("dynamic namespace %s was created", dynamicNspName);
+          }
           this.doConnect(name, auth);
         } else {
           debug("creation of namespace %s was denied", name);

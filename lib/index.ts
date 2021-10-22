@@ -188,7 +188,8 @@ export class Server<
     name: string,
     auth: { [key: string]: any },
     fn: (
-      nsp: Namespace<ListenEvents, EmitEvents, ServerSideEvents> | false
+      nsp: Namespace<ListenEvents, EmitEvents, ServerSideEvents> | false,
+      race?: boolean
     ) => void
   ): void {
     if (this.parentNsps.size === 0) return fn(false);
@@ -203,6 +204,10 @@ export class Server<
       nextFn.value(name, auth, (err, allow) => {
         if (err || !allow) {
           run();
+        } else if (this._nsps.has(name)) {
+          // See #4316. It's possible that in the meantime the namespace has
+          // already been created, so we'll have to handle this properly.
+          fn(this._nsps.get(name) as Namespace, true);
         } else {
           const namespace = this.parentNsps
             .get(nextFn.value)!
