@@ -202,15 +202,18 @@ export class Server<
       }
       nextFn.value(name, auth, (err, allow) => {
         if (err || !allow) {
-          run();
-        } else {
-          const namespace = this.parentNsps
-            .get(nextFn.value)!
-            .createChild(name);
-          // @ts-ignore
-          this.sockets.emitReserved("new_namespace", namespace);
-          fn(namespace);
+          return run();
         }
+        if (this._nsps.has(name)) {
+          // the namespace was created in the meantime
+          debug("dynamic namespace %s already exists", name);
+          return fn(this._nsps.get(name) as Namespace);
+        }
+        const namespace = this.parentNsps.get(nextFn.value)!.createChild(name);
+        debug("dynamic namespace %s was created", name);
+        // @ts-ignore
+        this.sockets.emitReserved("new_namespace", namespace);
+        fn(namespace);
       });
     };
 

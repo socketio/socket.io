@@ -116,7 +116,6 @@ export class Client<
           | false
       ) => {
         if (dynamicNspName) {
-          debug("dynamic namespace %s was created", dynamicNspName);
           this.doConnect(name, auth);
         } else {
           debug("creation of namespace %s was denied", name);

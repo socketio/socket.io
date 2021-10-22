@@ -15,6 +15,8 @@ import { io as ioc, Socket as ClientSocket } from "socket.io-client";
 import "./support/util";
 import "./utility-methods";
 
+type callback = (err: Error | null, success: boolean) => void;
+
 // Creates a socket.io client for the given server
 function client(srv, nsp?: string | object, opts?: object): ClientSocket {
   if ("object" == typeof nsp) {
@@ -996,6 +998,46 @@ describe("socket.io", () => {
           });
 
           const socket = client(srv, "/dynamic-101");
+        });
+      });
+
+      it("should handle race conditions with dynamic namespaces (#4136)", (done) => {
+        const srv = createServer();
+        const sio = new Server(srv);
+        const counters = {
+          connected: 0,
+          created: 0,
+          events: 0,
+        };
+        const buffer: callback[] = [];
+        sio.on("new_namespace", (namespace) => {
+          counters.created++;
+        });
+        srv.listen(() => {
+          const handler = () => {
+            if (++counters.events === 2) {
+              expect(counters.created).to.equal(1);
+              done();
+            }
+          };
+
+          sio
+            .of((name, query, next) => {
+              buffer.push(next);
+              if (buffer.length === 2) {
+                buffer.forEach((next) => next(null, true));
+              }
+            })
+            .on("connection", (socket) => {
+              if (++counters.connected === 2) {
+                sio.of("/dynamic-101").emit("message");
+              }
+            });
+
+          let one = client(srv, "/dynamic-101");
+          let two = client(srv, "/dynamic-101");
+          one.on("message", handler);
+          two.on("message", handler);
         });
       });
     });
