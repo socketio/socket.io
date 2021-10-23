@@ -15,6 +15,8 @@ import { io as ioc, Socket as ClientSocket } from "socket.io-client";
 import "./support/util";
 import "./utility-methods";
 
+type callback = (err: Error | null, success: boolean) => void;
+
 // Creates a socket.io client for the given server
 function client(srv, nsp?: string | object, opts?: object): ClientSocket {
   if ("object" == typeof nsp) {
@@ -1007,6 +1009,7 @@ describe("socket.io", () => {
           created: 0,
           events: 0,
         };
+        const buffer: callback[] = [];
         sio.on("new_namespace", (namespace) => {
           counters.created++;
         });
@@ -1020,7 +1023,10 @@ describe("socket.io", () => {
 
           sio
             .of((name, query, next) => {
-              setTimeout(() => next(null, true), 50);
+              buffer.push(next);
+              if (buffer.length === 2) {
+                buffer.forEach((next) => next(null, true));
+              }
             })
             .on("connection", (socket) => {
               if (++counters.connected === 2) {

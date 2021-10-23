@@ -205,7 +205,7 @@ export class Server<
         if (err || !allow) {
           run();
         } else if (this._nsps.has(name)) {
-          // See #4316. It's possible that in the meantime the namespace has
+          // See #4136. It's possible that in the meantime the namespace has
           // already been created, so we'll have to handle this properly.
           fn(this._nsps.get(name) as Namespace, true);
         } else {
