@@ -139,6 +139,10 @@ export class Socket<
   private fns: Array<(event: Event, next: (err?: Error) => void) => void> = [];
   private flags: BroadcastFlags & { timeout?: number } = {};
   private _anyListeners?: Array<(...args: any[]) => void>;
+  private emitHook: <Ev extends EventNames<EmitEvents>>(
+    ev: Ev,
+    ...args: EventParams<EmitEvents, Ev>
+  ) => void;
 
   /**
    * Interface to a `Client` for a given `Namespace`.
@@ -187,6 +191,23 @@ export class Socket<
   }
 
   /**
+   * Sets up an emit hook.
+   *
+   * @param {Function} fn - emit hook (event, next)
+   * @return {Socket} self
+   * @public
+   */
+  public useEmitHook(
+    fn: <Ev extends EventNames<EmitEvents>>(
+      ev: Ev,
+      ...args: Parameters<EmitEvents[Ev]>
+    ) => void
+  ): this {
+    this.emitHook = fn;
+    return this;
+  }
+
+  /**
    * Emits to this client.
    *
    * @return Always returns `true`.
@@ -217,7 +238,11 @@ export class Socket<
     const flags = Object.assign({}, this.flags);
     this.flags = {};
 
-    this.packet(packet, flags);
+    this.writePacket(packet, flags);
+
+    if (this.emitHook !== undefined) {
+      this.emitHook(ev, ...args);
+    }
 
     return true;
   }
@@ -306,7 +331,7 @@ export class Socket<
    * @param {Object} opts - options
    * @private
    */
-  private packet(
+  private writePacket(
     packet: Omit<Packet, "nsp"> & Partial<Pick<Packet, "nsp">>,
     opts: any = {}
   ): void {
@@ -366,9 +391,9 @@ export class Socket<
     this.connected = true;
     this.join(this.id);
     if (this.conn.protocol === 3) {
-      this.packet({ type: PacketType.CONNECT });
+      this.writePacket({ type: PacketType.CONNECT });
     } else {
-      this.packet({ type: PacketType.CONNECT, data: { sid: this.id } });
+      this.writePacket({ type: PacketType.CONNECT, data: { sid: this.id } });
     }
   }
 
@@ -445,7 +470,7 @@ export class Socket<
       const args = Array.prototype.slice.call(arguments);
       debug("sending ack %j", args);
 
-      self.packet({
+      self.writePacket({
         id: id,
         type: PacketType.ACK,
         data: args,
@@ -523,7 +548,7 @@ export class Socket<
    * @private
    */
   _error(err): void {
-    this.packet({ type: PacketType.CONNECT_ERROR, data: err });
+    this.writePacket({ type: PacketType.CONNECT_ERROR, data: err });
   }
 
   /**
@@ -539,7 +564,7 @@ export class Socket<
     if (close) {
       this.client._disconnect();
     } else {
-      this.packet({ type: PacketType.DISCONNECT });
+      this.writePacket({ type: PacketType.DISCONNECT });
       this._onclose("server namespace disconnect");
     }
     return this;

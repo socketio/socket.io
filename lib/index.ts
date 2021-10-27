@@ -216,7 +216,7 @@ export class Server<
         if (this._nsps.has(name)) {
           // the namespace was created in the meantime
           debug("dynamic namespace %s already exists", name);
-          return fn(this._nsps.get(name) as Namespace);
+          return fn(this._nsps.get(name) ?? false);
         }
         const namespace = this.parentNsps.get(nextFn.value)!.createChild(name);
         debug("dynamic namespace %s was created", name);
