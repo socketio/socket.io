@@ -33,7 +33,10 @@ describe("engine", () => {
   });
 
   describe("listen", () => {
-    it("should open a http server that returns 501", done => {
+    it("should open a http server that returns 501", function(done) {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        return this.skip();
+      }
       listen(port => {
         request.get("http://localhost:%d/".s(port), (err, res) => {
           expect(err).to.be.an(Error);

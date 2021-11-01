@@ -5,6 +5,7 @@ import * as parser from "engine.io-parser";
 
 export { Server, transports, listen, attach, parser };
 export { AttachOptions, ServerOptions } from "./server";
+export { uServer } from "./userver";
 export { Socket } from "./socket";
 export { Transport } from "./transport";
 export const protocol = parser.protocol;

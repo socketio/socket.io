@@ -19,11 +19,25 @@ export abstract class Transport extends EventEmitter {
   public writable: boolean;
   public protocol: number;
 
-  protected readyState: string;
+  protected _readyState: string;
   protected discarded: boolean;
   protected parser: any;
   protected req: IncomingMessage & { cleanup: Function };
   protected supportsBinary: boolean;
+
+  get readyState() {
+    return this._readyState;
+  }
+
+  set readyState(state) {
+    debug(
+      "readyState updated from %s to %s (%s)",
+      this._readyState,
+      state,
+      this.name
+    );
+    this._readyState = state;
+  }
 
   /**
    * Transport constructor.

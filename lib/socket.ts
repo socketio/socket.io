@@ -11,7 +11,7 @@ export class Socket extends EventEmitter {
   public readonly request: IncomingMessage;
   public readonly remoteAddress: string;
 
-  public readyState: string;
+  public _readyState: string;
   public transport: Transport;
 
   private server: Server;
@@ -27,6 +27,15 @@ export class Socket extends EventEmitter {
   private pingIntervalTimer;
 
   private readonly id: string;
+
+  get readyState() {
+    return this._readyState;
+  }
+
+  set readyState(state) {
+    debug("readyState updated from %s to %s", this._readyState, state);
+    this._readyState = state;
+  }
 
   /**
    * Client class (abstract).
@@ -247,6 +256,7 @@ export class Socket extends EventEmitter {
 
     const onPacket = packet => {
       if ("ping" === packet.type && "probe" === packet.data) {
+        debug("got probe ping packet, sending pong");
         transport.send([{ type: "pong", data: "probe" }]);
         this.emit("upgrading", transport);
         clearInterval(this.checkIntervalTimer);

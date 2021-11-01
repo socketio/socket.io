@@ -53,11 +53,16 @@
     "rimraf": "^3.0.2",
     "s": "0.1.1",
     "superagent": "^3.8.1",
-    "typescript": "^4.4.3"
+    "typescript": "^4.4.3",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.0.0"
   },
   "scripts": {
     "compile": "rimraf ./build && tsc",
-    "test": "npm run compile && npm run format:check && mocha --bail && EIO_CLIENT=3 mocha && EIO_WS_ENGINE=eiows mocha",
+    "test": "npm run compile && npm run format:check && npm run test:default && npm run test:compat-v3 && npm run test:eiows && npm run test:uws",
+    "test:default": "mocha --bail",
+    "test:compat-v3": "EIO_CLIENT=3 mocha",
+    "test:eiows": "EIO_WS_ENGINE=eiows mocha",
+    "test:uws": "EIO_WS_ENGINE=uws mocha",
     "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js'",
     "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js'",
     "prepack": "npm run compile"

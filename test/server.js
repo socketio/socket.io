@@ -20,7 +20,7 @@ describe("server", () => {
   let engine, client;
 
   afterEach(() => {
-    if (engine) {
+    if (engine && engine.httpServer) {
       engine.httpServer.close();
     }
     if (client) {
@@ -34,7 +34,7 @@ describe("server", () => {
 
       engine = listen(port => {
         engine.on("connection_error", err => {
-          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.req).to.be.ok();
           expect(err.code).to.be(0);
           expect(err.message).to.be("Transport unknown");
           expect(err.context.transport).to.be("tobi");
@@ -42,7 +42,7 @@ describe("server", () => {
         });
 
         request
-          .get("http://localhost:%d/engine.io/default/".s(port))
+          .get("http://localhost:%d/engine.io/".s(port))
           .query({ transport: "tobi" }) // no tobi transport - outrageous
           .end((err, res) => {
             expect(err).to.be.an(Error);
@@ -60,7 +60,7 @@ describe("server", () => {
       // make sure we check for actual properties - not those present on every {}
       engine = listen(port => {
         engine.on("connection_error", err => {
-          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.req).to.be.ok();
           expect(err.code).to.be(0);
           expect(err.message).to.be("Transport unknown");
           expect(err.context.transport).to.be("constructor");
@@ -68,7 +68,7 @@ describe("server", () => {
         });
 
         request
-          .get("http://localhost:%d/engine.io/default/".s(port))
+          .get("http://localhost:%d/engine.io/".s(port))
           .set("Origin", "http://engine.io")
           .query({ transport: "constructor" })
           .end((err, res) => {
@@ -86,7 +86,7 @@ describe("server", () => {
 
       engine = listen(port => {
         engine.on("connection_error", err => {
-          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.req).to.be.ok();
           expect(err.code).to.be(1);
           expect(err.message).to.be("Session ID unknown");
           expect(err.context.sid).to.be("test");
@@ -94,7 +94,7 @@ describe("server", () => {
         });
 
         request
-          .get("http://localhost:%d/engine.io/default/".s(port))
+          .get("http://localhost:%d/engine.io/".s(port))
           .set("Origin", "http://engine.io")
           .query({ transport: "polling", sid: "test" })
           .end((err, res) => {
@@ -118,7 +118,7 @@ describe("server", () => {
         },
         port => {
           engine.on("connection_error", err => {
-            expect(err.req).to.be.an(http.IncomingMessage);
+            expect(err.req).to.be.ok();
             expect(err.code).to.be(4);
             expect(err.message).to.be("Forbidden");
             expect(err.context.message).to.be("Thou shall not pass");
@@ -126,7 +126,7 @@ describe("server", () => {
           });
 
           request
-            .get("http://localhost:%d/engine.io/default/".s(port))
+            .get("http://localhost:%d/engine.io/".s(port))
             .set("Origin", "http://engine.io")
             .query({ transport: "polling" })
             .end((err, res) => {
@@ -140,7 +140,7 @@ describe("server", () => {
       );
     });
 
-    it("should disallow connection that are rejected by `allowRequest`", done => {
+    it("should disallow connection that are rejected by `allowRequest` (ws)", done => {
       listen(
         {
           allowRequest: (req, fn) => {
@@ -180,7 +180,7 @@ describe("server", () => {
     it("should send the io cookie custom name", done => {
       listen({ cookie: { name: "woot" } }, port => {
         request
-          .get("http://localhost:%d/engine.io/default/".s(port))
+          .get("http://localhost:%d/engine.io/".s(port))
           .query({ transport: "polling", b64: 1 })
           .end((err, res) => {
             expect(err).to.be(null);
@@ -196,7 +196,7 @@ describe("server", () => {
     it("should send the cookie with custom path", done => {
       listen({ cookie: { path: "/custom" } }, port => {
         request
-          .get("http://localhost:%d/engine.io/default/".s(port))
+          .get("http://localhost:%d/engine.io/".s(port))
           .query({ transport: "polling", b64: 1 })
           .end((err, res) => {
             expect(err).to.be(null);
@@ -212,7 +212,7 @@ describe("server", () => {
     it("should send the cookie with path=false", done => {
       listen({ cookie: { path: false } }, port => {
         request
-          .get("http://localhost:%d/engine.io/default/".s(port))
+          .get("http://localhost:%d/engine.io/".s(port))
           .query({ transport: "polling", b64: 1 })
           .end((err, res) => {
             expect(err).to.be(null);
@@ -228,7 +228,7 @@ describe("server", () => {
     it("should send the io cookie with httpOnly=true", done => {
       listen({ cookie: { httpOnly: true } }, port => {
         request
-          .get("http://localhost:%d/engine.io/default/".s(port))
+          .get("http://localhost:%d/engine.io/".s(port))
           .query({ transport: "polling", b64: 1 })
           .end((err, res) => {
             expect(err).to.be(null);
@@ -244,7 +244,7 @@ describe("server", () => {
     it("should send the io cookie with sameSite=strict", done => {
       listen({ cookie: { sameSite: "strict" } }, port => {
         request
-          .get("http://localhost:%d/engine.io/default/".s(port))
+          .get("http://localhost:%d/engine.io/".s(port))
           .query({ transport: "polling", b64: 1 })
           .end((err, res) => {
             expect(err).to.be(null);
@@ -260,7 +260,7 @@ describe("server", () => {
     it("should send the io cookie with httpOnly=false", done => {
       listen({ cookie: { httpOnly: false } }, port => {
         request
-          .get("http://localhost:%d/engine.io/default/".s(port))
+          .get("http://localhost:%d/engine.io/".s(port))
           .query({ transport: "polling", b64: 1 })
           .end((err, res) => {
             expect(err).to.be(null);
@@ -276,7 +276,7 @@ describe("server", () => {
     it("should send the io cookie with httpOnly not boolean", done => {
       listen({ cookie: { httpOnly: "no" } }, port => {
         request
-          .get("http://localhost:%d/engine.io/default/".s(port))
+          .get("http://localhost:%d/engine.io/".s(port))
           .query({ transport: "polling", b64: 1 })
           .end((err, res) => {
             expect(err).to.be(null);
@@ -292,7 +292,7 @@ describe("server", () => {
     it("should not send the io cookie", done => {
       listen({ cookie: false }, port => {
         request
-          .get("http://localhost:%d/engine.io/default/".s(port))
+          .get("http://localhost:%d/engine.io/".s(port))
           .query({ transport: "polling" })
           .end((err, res) => {
             expect(err).to.be(null);
@@ -360,7 +360,7 @@ describe("server", () => {
         };
 
         engine.on("connection_error", err => {
-          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.req).to.be.ok();
           expect(err.code).to.be(3);
           expect(err.message).to.be("Bad request");
           expect(err.context.name).to.be("ID_GENERATION_ERROR");
@@ -376,7 +376,7 @@ describe("server", () => {
 
     it("should disallow connection that are rejected by `generateId` (websocket only)", function(done) {
       if (process.env.EIO_WS_ENGINE === "eiows") {
-        this.skip();
+        return this.skip();
       }
       const partialDone = createPartialDone(done, 2);
 
@@ -386,7 +386,7 @@ describe("server", () => {
         };
 
         engine.on("connection_error", err => {
-          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.req).to.be.ok();
           expect(err.code).to.be(3);
           expect(err.message).to.be("Bad request");
           expect(err.context.name).to.be("ID_GENERATION_ERROR");
@@ -510,7 +510,7 @@ describe("server", () => {
         });
 
         engine.on("connection_error", err => {
-          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.req).to.be.ok();
           expect(err.code).to.be(3);
           expect(err.message).to.be("Bad request");
           expect(err.context.name).to.be("TRANSPORT_MISMATCH");
@@ -562,7 +562,10 @@ describe("server", () => {
       });
     });
 
-    it("should disallow bad requests (handshake error)", done => {
+    it("should disallow bad requests (handshake error)", function(done) {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        return this.skip();
+      }
       const partialDone = createPartialDone(done, 2);
 
       engine = listen(
@@ -571,7 +574,7 @@ describe("server", () => {
         },
         port => {
           engine.on("connection_error", err => {
-            expect(err.req).to.be.an(http.IncomingMessage);
+            expect(err.req).to.be.ok();
             expect(err.code).to.be(3);
             expect(err.message).to.be("Bad request");
             expect(err.context.name).to.be("TRANSPORT_HANDSHAKE_ERROR");
@@ -581,7 +584,7 @@ describe("server", () => {
           });
 
           request
-            .get("http://localhost:%d/engine.io/default/".s(port))
+            .get("http://localhost:%d/engine.io/".s(port))
             .set("Origin", "http://engine.io")
             .query({ transport: "websocket" })
             .end((err, res) => {
@@ -601,7 +604,10 @@ describe("server", () => {
       );
     });
 
-    it("should disallow invalid origin header", done => {
+    it("should disallow invalid origin header", function(done) {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        return this.skip();
+      }
       const partialDone = createPartialDone(done, 2);
 
       engine = listen(port => {
@@ -613,7 +619,7 @@ describe("server", () => {
         };
 
         engine.on("connection_error", err => {
-          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.req).to.be.ok();
           expect(err.code).to.be(3);
           expect(err.message).to.be("Bad request");
           expect(err.context.name).to.be("INVALID_ORIGIN");
@@ -622,7 +628,7 @@ describe("server", () => {
         });
 
         request
-          .get("http://localhost:%d/engine.io/default/".s(port))
+          .get("http://localhost:%d/engine.io/".s(port))
           .set("Origin", "http://engine.io/")
           .query({ transport: "websocket" })
           .end((err, res) => {
@@ -640,7 +646,7 @@ describe("server", () => {
 
       engine = listen(port => {
         engine.on("connection_error", err => {
-          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.req).to.be.ok();
           expect(err.code).to.be(2);
           expect(err.message).to.be("Bad handshake method");
           expect(err.context.method).to.be("OPTIONS");
@@ -648,7 +654,7 @@ describe("server", () => {
         });
 
         request
-          .options("http://localhost:%d/engine.io/default/".s(port))
+          .options("http://localhost:%d/engine.io/".s(port))
           .query({ transport: "polling" })
           .end((err, res) => {
             expect(err).to.be.an(Error);
@@ -670,7 +676,7 @@ describe("server", () => {
         const port = httpServer.address().port;
 
         engine.on("connection_error", err => {
-          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.req).to.be.ok();
           expect(err.code).to.be(5);
           expect(err.message).to.be("Unsupported protocol version");
           expect(err.context.protocol).to.be(3);
@@ -871,7 +877,10 @@ describe("server", () => {
       });
     });
 
-    it("should allow client reconnect after restarting (ws)", done => {
+    it("should allow client reconnect after restarting (ws)", function(done) {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        return this.skip();
+      }
       const opts = { transports: ["websocket"] };
       const engine = listen(opts, port => {
         engine.httpServer.close();
@@ -1284,7 +1293,10 @@ describe("server", () => {
 
     it(
       "should abort the polling data request if it is " + "in progress",
-      done => {
+      function(done) {
+        if (process.env.EIO_WS_ENGINE === "uws") {
+          return this.skip();
+        }
         const engine = listen({ transports: ["polling"] }, port => {
           const socket = new ClientSocket("http://localhost:%d".s(port));
 
@@ -1501,6 +1513,12 @@ describe("server", () => {
     });
 
     describe("graceful close", () => {
+      before(function() {
+        if (process.env.EIO_WS_ENGINE === "uws") {
+          this.skip();
+        }
+      });
+
       function fixture(filename) {
         return (
           process.execPath + " " + path.join(__dirname, "fixtures", filename)
@@ -1969,6 +1987,9 @@ describe("server", () => {
       "should interleave with pongs if many messages buffered " +
         "after connection open",
       function(done) {
+        if (process.env.EIO_WS_ENGINE === "uws") {
+          return this.skip();
+        }
         this.slow(4000);
         this.timeout(8000);
 
@@ -2042,7 +2063,10 @@ describe("server", () => {
       });
     });
 
-    it("should send and receive data with key and cert (polling)", done => {
+    it("should send and receive data with key and cert (polling)", function(done) {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        return this.skip();
+      }
       const srvOpts = {
         key: fs.readFileSync("test/fixtures/server.key"),
         cert: fs.readFileSync("test/fixtures/server.crt"),
@@ -2086,7 +2110,10 @@ describe("server", () => {
       });
     });
 
-    it("should send and receive data with ca when not requiring auth (polling)", done => {
+    it("should send and receive data with ca when not requiring auth (polling)", function(done) {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        return this.skip();
+      }
       const srvOpts = {
         key: fs.readFileSync("test/fixtures/server.key"),
         cert: fs.readFileSync("test/fixtures/server.crt"),
@@ -2128,7 +2155,10 @@ describe("server", () => {
       });
     });
 
-    it("should send and receive data with key and cert (ws)", done => {
+    it("should send and receive data with key and cert (ws)", function(done) {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        return this.skip();
+      }
       const srvOpts = {
         key: fs.readFileSync("test/fixtures/server.key"),
         cert: fs.readFileSync("test/fixtures/server.crt"),
@@ -2172,7 +2202,10 @@ describe("server", () => {
       });
     });
 
-    it("should send and receive data with pfx (polling)", done => {
+    it("should send and receive data with pfx (polling)", function(done) {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        return this.skip();
+      }
       const srvOpts = {
         key: fs.readFileSync("test/fixtures/server.key"),
         cert: fs.readFileSync("test/fixtures/server.crt"),
@@ -2215,7 +2248,10 @@ describe("server", () => {
       });
     });
 
-    it("should send and receive data with pfx (ws)", done => {
+    it("should send and receive data with pfx (ws)", function(done) {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        return this.skip();
+      }
       const srvOpts = {
         key: fs.readFileSync("test/fixtures/server.key"),
         cert: fs.readFileSync("test/fixtures/server.crt"),
@@ -2857,8 +2893,10 @@ describe("server", () => {
         });
       });
 
-      // attach another engine to make sure it doesn't break upgrades
-      attach(engine.httpServer, { path: "/foo" });
+      if (engine.httpServer) {
+        // attach another engine to make sure it doesn't break upgrades
+        attach(engine.httpServer, { path: "/foo" });
+      }
     });
   });
 
@@ -2879,14 +2917,14 @@ describe("server", () => {
         http.get(
           {
             port: port,
-            path: "/engine.io/default/?transport=polling"
+            path: "/engine.io/?transport=polling"
           },
           res => {
             const sid = getSidFromResponse(res);
             http.get(
               {
                 port: port,
-                path: "/engine.io/default/?transport=polling&sid=" + sid,
+                path: "/engine.io/?transport=polling&sid=" + sid,
                 headers: { "Accept-Encoding": "gzip, deflate" }
               },
               res => {
@@ -2914,14 +2952,14 @@ describe("server", () => {
         http.get(
           {
             port: port,
-            path: "/engine.io/default/?transport=polling"
+            path: "/engine.io/?transport=polling"
           },
           res => {
             const sid = getSidFromResponse(res);
             http.get(
               {
                 port: port,
-                path: "/engine.io/default/?transport=polling&sid=" + sid,
+                path: "/engine.io/?transport=polling&sid=" + sid,
                 headers: { "Accept-Encoding": "deflate" }
               },
               res => {
@@ -2955,14 +2993,14 @@ describe("server", () => {
           http.get(
             {
               port: port,
-              path: "/engine.io/default/?transport=polling"
+              path: "/engine.io/?transport=polling"
             },
             res => {
               const sid = getSidFromResponse(res);
               http.get(
                 {
                   port: port,
-                  path: "/engine.io/default/?transport=polling&sid=" + sid,
+                  path: "/engine.io/?transport=polling&sid=" + sid,
                   headers: { "Accept-Encoding": "gzip, deflate" }
                 },
                 res => {
@@ -2989,14 +3027,14 @@ describe("server", () => {
           http.get(
             {
               port: port,
-              path: "/engine.io/default/?transport=polling"
+              path: "/engine.io/?transport=polling"
             },
             res => {
               const sid = getSidFromResponse(res);
               http.get(
                 {
                   port: port,
-                  path: "/engine.io/default/?transport=polling&sid=" + sid,
+                  path: "/engine.io/?transport=polling&sid=" + sid,
                   headers: { "Accept-Encoding": "gzip, deflate" }
                 },
                 res => {
@@ -3021,14 +3059,14 @@ describe("server", () => {
         http.get(
           {
             port: port,
-            path: "/engine.io/default/?transport=polling"
+            path: "/engine.io/?transport=polling"
           },
           res => {
             const sid = getSidFromResponse(res);
             http.get(
               {
                 port: port,
-                path: "/engine.io/default/?transport=polling&sid=" + sid,
+                path: "/engine.io/?transport=polling&sid=" + sid,
                 headers: { "Accept-Encoding": "gzip, deflate" }
               },
               res => {
@@ -3052,14 +3090,14 @@ describe("server", () => {
         http.get(
           {
             port: port,
-            path: "/engine.io/default/?transport=polling"
+            path: "/engine.io/?transport=polling"
           },
           res => {
             const sid = getSidFromResponse(res);
             http.get(
               {
                 port: port,
-                path: "/engine.io/default/?transport=polling&sid=" + sid,
+                path: "/engine.io/?transport=polling&sid=" + sid,
                 headers: { "Accept-Encoding": "gzip, deflate" }
               },
               res => {
@@ -3074,7 +3112,10 @@ describe("server", () => {
   });
 
   describe("permessage-deflate", () => {
-    it("should set threshold", done => {
+    it("should set threshold", function(done) {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        return this.skip();
+      }
       const engine = listen(
         { transports: ["websocket"], perMessageDeflate: { threshold: 0 } },
         port => {
@@ -3101,7 +3142,10 @@ describe("server", () => {
       );
     });
 
-    it("should not compress when the byte size is below threshold", done => {
+    it("should not compress when the byte size is below threshold", function(done) {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        return this.skip();
+      }
       const engine = listen(
         { transports: ["websocket"], perMessageDeflate: true },
         port => {
@@ -3273,8 +3317,11 @@ describe("server", () => {
     });
 
     it("should emit a 'initial_headers' event (websocket)", function(done) {
-      if (process.env.EIO_WS_ENGINE === "eiows") {
-        this.skip();
+      if (
+        process.env.EIO_WS_ENGINE === "eiows" ||
+        process.env.EIO_WS_ENGINE === "uws"
+      ) {
+        return this.skip();
       }
       const partialDone = createPartialDone(done, 2);
 
@@ -3316,8 +3363,11 @@ describe("server", () => {
     });
 
     it("should emit several 'headers' events per connection", function(done) {
-      if (process.env.EIO_WS_ENGINE === "eiows") {
-        this.skip();
+      if (
+        process.env.EIO_WS_ENGINE === "eiows" ||
+        process.env.EIO_WS_ENGINE === "uws"
+      ) {
+        return this.skip();
       }
       const partialDone = createPartialDone(done, 4);
 
@@ -3341,7 +3391,7 @@ describe("server", () => {
         { cors: { origin: true, headers: ["my-header"], credentials: true } },
         port => {
           request
-            .options("http://localhost:%d/engine.io/default/".s(port))
+            .options("http://localhost:%d/engine.io/".s(port))
             .set("Origin", "http://engine.io")
             .query({ transport: "polling" })
             .end((err, res) => {
@@ -3371,7 +3421,7 @@ describe("server", () => {
         { cors: { origin: true, headers: ["my-header"], credentials: true } },
         port => {
           request
-            .get("http://localhost:%d/engine.io/default/".s(port))
+            .get("http://localhost:%d/engine.io/".s(port))
             .set("Origin", "http://engine.io")
             .query({ transport: "polling" })
             .end((err, res) => {
@@ -3405,7 +3455,7 @@ describe("server", () => {
         },
         port => {
           request
-            .options("http://localhost:%d/engine.io/default/".s(port))
+            .options("http://localhost:%d/engine.io/".s(port))
             .set("Origin", "http://bad-domain.com")
             .query({ transport: "polling" })
             .end((err, res) => {
@@ -3439,7 +3489,7 @@ describe("server", () => {
         },
         port => {
           request
-            .options("http://localhost:%d/engine.io/default/".s(port))
+            .options("http://localhost:%d/engine.io/".s(port))
             .set("Origin", "http://good-domain.com")
             .query({ transport: "polling" })
             .end((err, res) => {
@@ -3470,6 +3520,12 @@ describe("server", () => {
   });
 
   describe("wsEngine option", () => {
+    before(function() {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        this.skip();
+      }
+    });
+
     it("should allow loading of other websocket server implementation like eiows", done => {
       const engine = listen(
         { allowUpgrades: false, wsEngine: require("eiows").Server },
@@ -3497,7 +3553,13 @@ describe("server", () => {
           transports: ["polling"]
         });
         engine.on("connection", socket => {
-          expect(socket.remoteAddress).to.be("::ffff:127.0.0.1");
+          if (process.env.EIO_WS_ENGINE === "uws") {
+            expect(socket.remoteAddress).to.be(
+              "0000:0000:0000:0000:0000:ffff:7f00:0001"
+            );
+          } else {
+            expect(socket.remoteAddress).to.be("::ffff:127.0.0.1");
+          }
           done();
         });
       });
@@ -3509,7 +3571,13 @@ describe("server", () => {
           transports: ["websocket"]
         });
         engine.on("connection", socket => {
-          expect(socket.remoteAddress).to.be("::ffff:127.0.0.1");
+          if (process.env.EIO_WS_ENGINE === "uws") {
+            expect(socket.remoteAddress).to.be(
+              "0000:0000:0000:0000:0000:ffff:7f00:0001"
+            );
+          } else {
+            expect(socket.remoteAddress).to.be("::ffff:127.0.0.1");
+          }
           done();
         });
       });
