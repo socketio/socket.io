@@ -137,7 +137,7 @@ export class Socket extends EventEmitter {
           return;
         }
         debug("got pong");
-        this.schedulePing();
+        this.pingIntervalTimer.refresh();
         this.emit("heartbeat");
         break;
 
@@ -170,7 +170,6 @@ export class Socket extends EventEmitter {
    * @api private
    */
   private schedulePing() {
-    clearTimeout(this.pingIntervalTimer);
     this.pingIntervalTimer = setTimeout(() => {
       debug(
         "writing ping packet - expecting pong within %sms",
