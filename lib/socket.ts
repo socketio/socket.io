@@ -27,7 +27,7 @@ export interface SocketOptions {
   /**
    * The port for our connection. Set from the URI passed when connecting
    */
-  port: string;
+  port: string | number;
 
   /**
    * Any query parameters in our uri. Set from the URI passed when connecting
@@ -253,7 +253,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   private readonly opts: Partial<SocketOptions>;
   private readonly secure: boolean;
   private readonly hostname: string;
-  private readonly port: string;
+  private readonly port: string | number;
   private readonly transports: string[];
 
   static priorWebsocketSuccess: boolean;
