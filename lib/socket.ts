@@ -32,7 +32,7 @@ export interface SocketOptions {
   /**
    * Any query parameters in our uri. Set from the URI passed when connecting
    */
-  query: { [key: string]: string };
+  query: { [key: string]: any };
 
   /**
    * `http.Agent` to use, defaults to `false` (NodeJS only)
