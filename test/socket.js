@@ -52,7 +52,7 @@ describe("Socket", function() {
       done();
     });
 
-    it("uses custom timeout when provided", done => {
+    it.skip("uses custom timeout when provided", done => {
       const clock = FakeTimers.install();
       const socket = new eio.Socket({
         transports: [],
