@@ -66,7 +66,12 @@ export class Namespace<
   public adapter: Adapter;
 
   /** @private */
-  readonly server: Server<ListenEvents, EmitEvents, ServerSideEvents, SocketData>;
+  readonly server: Server<
+    ListenEvents,
+    EmitEvents,
+    ServerSideEvents,
+    SocketData
+  >;
 
   /** @private */
   _fns: Array<
@@ -239,7 +244,9 @@ export class Namespace<
    *
    * @private
    */
-  _remove(socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>): void {
+  _remove(
+    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+  ): void {
     if (this.sockets.has(socket.id)) {
       this.sockets.delete(socket.id);
     } else {

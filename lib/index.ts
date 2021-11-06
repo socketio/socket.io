@@ -506,7 +506,9 @@ export class Server<
    */
   public of(
     name: string | RegExp | ParentNspNameMatchFn,
-    fn?: (socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>) => void
+    fn?: (
+      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+    ) => void
   ): Namespace<ListenEvents, EmitEvents, ServerSideEvents> {
     if (typeof name === "function" || name instanceof RegExp) {
       const parentNsp = new ParentNamespace(this);
