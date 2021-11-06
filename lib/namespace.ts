@@ -50,7 +50,8 @@ export const RESERVED_EVENTS: ReadonlySet<string | Symbol> = new Set<
 export class Namespace<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
-  ServerSideEvents extends EventsMap = DefaultEventsMap
+  ServerSideEvents extends EventsMap = DefaultEventsMap,
+  SocketData = any
 > extends StrictEventEmitter<
   ServerSideEvents,
   EmitEvents,
@@ -59,18 +60,18 @@ export class Namespace<
   public readonly name: string;
   public readonly sockets: Map<
     SocketId,
-    Socket<ListenEvents, EmitEvents, ServerSideEvents>
+    Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
   > = new Map();
 
   public adapter: Adapter;
 
   /** @private */
-  readonly server: Server<ListenEvents, EmitEvents, ServerSideEvents>;
+  readonly server: Server<ListenEvents, EmitEvents, ServerSideEvents, SocketData>;
 
   /** @private */
   _fns: Array<
     (
-      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>,
+      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
       next: (err?: ExtendedError) => void
     ) => void
   > = [];
@@ -85,7 +86,7 @@ export class Namespace<
    * @param name
    */
   constructor(
-    server: Server<ListenEvents, EmitEvents, ServerSideEvents>,
+    server: Server<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
     name: string
   ) {
     super();
@@ -114,7 +115,7 @@ export class Namespace<
    */
   public use(
     fn: (
-      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>,
+      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
       next: (err?: ExtendedError) => void
     ) => void
   ): this {
@@ -130,7 +131,7 @@ export class Namespace<
    * @private
    */
   private run(
-    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>,
+    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
     fn: (err: ExtendedError | null) => void
   ) {
     const fns = this._fns.slice(0);
@@ -195,7 +196,7 @@ export class Namespace<
     client: Client<ListenEvents, EmitEvents, ServerSideEvents>,
     query,
     fn?: () => void
-  ): Socket<ListenEvents, EmitEvents, ServerSideEvents> {
+  ): Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData> {
     debug("adding socket to nsp %s", this.name);
     const socket = new Socket(this, client, query);
     this.run(socket, (err) => {
@@ -238,7 +239,7 @@ export class Namespace<
    *
    * @private
    */
-  _remove(socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>): void {
+  _remove(socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>): void {
     if (this.sockets.has(socket.id)) {
       this.sockets.delete(socket.id);
     } else {

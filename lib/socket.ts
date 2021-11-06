@@ -113,7 +113,8 @@ type Event = [eventName: string, ...args: any[]];
 export class Socket<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
-  ServerSideEvents extends EventsMap = DefaultEventsMap
+  ServerSideEvents extends EventsMap = DefaultEventsMap,
+  SocketData = any
 > extends StrictEventEmitter<
   ListenEvents,
   EmitEvents,
@@ -124,7 +125,7 @@ export class Socket<
   /**
    * Additional information that can be attached to the Socket instance and which will be used in the fetchSockets method
    */
-  public data: any = {};
+  public data: Partial<SocketData> = {};
 
   public connected: boolean;
   public disconnected: boolean;

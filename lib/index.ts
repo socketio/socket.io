@@ -72,7 +72,8 @@ interface ServerOptions extends EngineOptions, AttachOptions {
 export class Server<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
-  ServerSideEvents extends EventsMap = DefaultEventsMap
+  ServerSideEvents extends EventsMap = DefaultEventsMap,
+  SocketData = any
 > extends StrictEventEmitter<
   ServerSideEvents,
   EmitEvents,
@@ -81,7 +82,8 @@ export class Server<
   public readonly sockets: Namespace<
     ListenEvents,
     EmitEvents,
-    ServerSideEvents
+    ServerSideEvents,
+    SocketData
   >;
   /**
    * A reference to the underlying Engine.IO server.
@@ -504,7 +506,7 @@ export class Server<
    */
   public of(
     name: string | RegExp | ParentNspNameMatchFn,
-    fn?: (socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>) => void
+    fn?: (socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>) => void
   ): Namespace<ListenEvents, EmitEvents, ServerSideEvents> {
     if (typeof name === "function" || name instanceof RegExp) {
       const parentNsp = new ParentNamespace(this);
@@ -568,7 +570,7 @@ export class Server<
    */
   public use(
     fn: (
-      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>,
+      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
       next: (err?: ExtendedError) => void
     ) => void
   ): this {
