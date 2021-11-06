@@ -21,30 +21,35 @@ export interface ExtendedError extends Error {
 export interface NamespaceReservedEventsMap<
   ListenEvents extends EventsMap,
   EmitEvents extends EventsMap,
-  ServerSideEvents extends EventsMap
+  ServerSideEvents extends EventsMap,
+  SocketData
 > {
-  connect: (socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>) => void;
+  connect: (
+    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+  ) => void;
   connection: (
-    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>
+    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
   ) => void;
 }
 
 export interface ServerReservedEventsMap<
   ListenEvents,
   EmitEvents,
-  ServerSideEvents
+  ServerSideEvents,
+  SocketData
 > extends NamespaceReservedEventsMap<
     ListenEvents,
     EmitEvents,
-    ServerSideEvents
+    ServerSideEvents,
+    SocketData
   > {
   new_namespace: (
-    namespace: Namespace<ListenEvents, EmitEvents, ServerSideEvents>
+    namespace: Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
   ) => void;
 }
 
 export const RESERVED_EVENTS: ReadonlySet<string | Symbol> = new Set<
-  keyof ServerReservedEventsMap<never, never, never>
+  keyof ServerReservedEventsMap<never, never, never, never>
 >(<const>["connect", "connection", "new_namespace"]);
 
 export class Namespace<
@@ -55,7 +60,12 @@ export class Namespace<
 > extends StrictEventEmitter<
   ServerSideEvents,
   EmitEvents,
-  NamespaceReservedEventsMap<ListenEvents, EmitEvents, ServerSideEvents>
+  NamespaceReservedEventsMap<
+    ListenEvents,
+    EmitEvents,
+    ServerSideEvents,
+    SocketData
+  >
 > {
   public readonly name: string;
   public readonly sockets: Map<

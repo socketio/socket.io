@@ -77,7 +77,12 @@ export class Server<
 > extends StrictEventEmitter<
   ServerSideEvents,
   EmitEvents,
-  ServerReservedEventsMap<ListenEvents, EmitEvents, ServerSideEvents>
+  ServerReservedEventsMap<
+    ListenEvents,
+    EmitEvents,
+    ServerSideEvents,
+    SocketData
+  >
 > {
   public readonly sockets: Namespace<
     ListenEvents,

@@ -53,7 +53,7 @@ export class Client<
    * @package
    */
   constructor(
-    server: Server<ListenEvents, EmitEvents, ServerSideEvents>,
+    server: Server<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
     conn: any
   ) {
     this.server = server;
