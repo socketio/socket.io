@@ -1,3 +1,22 @@
+# [6.1.0](https://github.com/socketio/engine.io/compare/6.0.0...6.1.0) (2021-11-08)
+
+
+### Bug Fixes
+
+* fix payload encoding for v3 clients ([ed50fc3](https://github.com/socketio/engine.io/commit/ed50fc346b9c58459bf4e6fe5c45e8d34faac8da))
+
+
+### Features
+
+* add an implementation based on uWebSockets.js ([271e2df](https://github.com/socketio/engine.io/commit/271e2df94d39bbd13c33cab98cdd5915f9d28536))
+
+
+### Performance Improvements
+
+* refresh ping timer ([#628](https://github.com/socketio/engine.io/issues/628)) ([37474c7](https://github.com/socketio/engine.io/commit/37474c7e67be7c5f25f9ca2d4ea99f3a256bd2de))
+
+
+
 ## [6.0.1](https://github.com/socketio/engine.io/compare/6.0.0...6.0.1) (2021-11-06)
 
 

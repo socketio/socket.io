@@ -1,6 +1,6 @@
 {
   "name": "engine.io",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server",
   "type": "commonjs",
   "main": "./build/engine.io.js",
@@ -45,7 +45,7 @@
   "devDependencies": {
     "babel-eslint": "^8.0.2",
     "eiows": "^3.3.0",
-    "engine.io-client": "6.0.0",
+    "engine.io-client": "6.1.0",
     "engine.io-client-v3": "npm:engine.io-client@3.5.2",
     "expect.js": "^0.3.1",
     "mocha": "^9.1.3",
