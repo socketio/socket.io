@@ -1,3 +1,14 @@
+# [6.1.0](https://github.com/socketio/engine.io-client/compare/6.0.2...6.1.0) (2021-11-08)
+
+The minor bump is due to changes on the server side.
+
+### Bug Fixes
+
+* **typings:** allow any value in the query option ([018e1af](https://github.com/socketio/engine.io-client/commit/018e1afcc5ef5eac81e9e1629db053bda44120ee))
+* **typings:** allow port to be a number ([#680](https://github.com/socketio/engine.io-client/issues/680)) ([8f68f77](https://github.com/socketio/engine.io-client/commit/8f68f77825af069fe2c612a3200a025d4130ac0a))
+
+
+
 ## [6.0.2](https://github.com/socketio/engine.io-client/compare/6.0.1...6.0.2) (2021-10-15)
 
 
