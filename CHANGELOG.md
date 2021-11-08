@@ -1,3 +1,12 @@
+## [6.0.1](https://github.com/socketio/engine.io/compare/6.0.0...6.0.1) (2021-11-06)
+
+
+### Bug Fixes
+
+* fix payload encoding for v3 clients ([3f42262](https://github.com/socketio/engine.io/commit/3f42262fd27a77a7383cdbb44ede7c6211a9782b))
+
+
+
 # [6.0.0](https://github.com/socketio/engine.io/compare/5.2.0...6.0.0) (2021-10-08)
 
 The codebase was migrated to TypeScript ([c0d6eaa](https://github.com/socketio/engine.io/commit/c0d6eaa1ba1291946dc8425d5f533d5f721862dd))
