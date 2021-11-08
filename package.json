@@ -51,7 +51,6 @@
     "mocha": "^4.0.1",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.2",
-    "s": "0.1.1",
     "superagent": "^3.8.1",
     "typescript": "^4.4.3",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.0.0"

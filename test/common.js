@@ -45,12 +45,6 @@ exports.listen = (opts, fn) => {
 
 exports.ClientSocket = Socket;
 
-/**
- * Sprintf util.
- */
-
-require("s").extend();
-
 exports.createPartialDone = (done, count) => {
   let i = 0;
   return () => {

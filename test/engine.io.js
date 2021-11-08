@@ -38,7 +38,7 @@ describe("engine", () => {
         return this.skip();
       }
       listen(port => {
-        request.get("http://localhost:%d/".s(port), (err, res) => {
+        request.get(`http://localhost:${port}`, (err, res) => {
           expect(err).to.be.an(Error);
           expect(res.status).to.be(501);
           done();
@@ -67,9 +67,7 @@ describe("engine", () => {
       attach(server);
 
       server.listen(() => {
-        const uri = "http://localhost:%d/engine.io/default/".s(
-          server.address().port
-        );
+        const uri = `http://localhost:${server.address().port}/engine.io/`;
         request.get(uri, (err, res) => {
           expect(err).to.be.an(Error);
           expect(res.status).to.be(400);
@@ -234,13 +232,13 @@ describe("engine", () => {
       server.listen(() => {
         const port = server.address().port;
         request.get(
-          "http://localhost:%d/engine.io/default/".s(port),
+          `http://localhost:${port}/engine.io/default/`,
           (err, res) => {
             expect(err).to.be.an(Error);
             expect(res.status).to.be(400);
             expect(res.body.code).to.be(0);
             expect(res.body.message).to.be("Transport unknown");
-            request.get("http://localhost:%d/test".s(port), (err, res) => {
+            request.get(`http://localhost:${port}/test`, (err, res) => {
               expect(err).to.be(null);
               expect(res.status).to.be(200);
               expect(listeners).to.eql(2);
