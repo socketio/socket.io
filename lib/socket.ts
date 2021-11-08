@@ -46,7 +46,7 @@ export interface EventEmitterReservedEventsMap {
 
 export const RESERVED_EVENTS: ReadonlySet<string | Symbol> = new Set<
   | ClientReservedEvents
-  | keyof NamespaceReservedEventsMap<never, never, never>
+  | keyof NamespaceReservedEventsMap<never, never, never, never>
   | keyof SocketReservedEventsMap
   | keyof EventEmitterReservedEventsMap
 >(<const>[
@@ -113,7 +113,8 @@ type Event = [eventName: string, ...args: any[]];
 export class Socket<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
-  ServerSideEvents extends EventsMap = DefaultEventsMap
+  ServerSideEvents extends EventsMap = DefaultEventsMap,
+  SocketData = any
 > extends StrictEventEmitter<
   ListenEvents,
   EmitEvents,
@@ -124,12 +125,17 @@ export class Socket<
   /**
    * Additional information that can be attached to the Socket instance and which will be used in the fetchSockets method
    */
-  public data: any = {};
+  public data: Partial<SocketData> = {};
 
   public connected: boolean;
   public disconnected: boolean;
 
-  private readonly server: Server<ListenEvents, EmitEvents, ServerSideEvents>;
+  private readonly server: Server<
+    ListenEvents,
+    EmitEvents,
+    ServerSideEvents,
+    SocketData
+  >;
   private readonly adapter: Adapter;
   private acks: Map<number, () => void> = new Map();
   private fns: Array<(event: Event, next: (err?: Error) => void) => void> = [];

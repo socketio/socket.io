@@ -11,13 +11,17 @@ import type { BroadcastOptions } from "socket.io-adapter";
 export class ParentNamespace<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
-  ServerSideEvents extends EventsMap = DefaultEventsMap
-> extends Namespace<ListenEvents, EmitEvents, ServerSideEvents> {
+  ServerSideEvents extends EventsMap = DefaultEventsMap,
+  SocketData = any
+> extends Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData> {
   private static count: number = 0;
-  private children: Set<Namespace<ListenEvents, EmitEvents, ServerSideEvents>> =
-    new Set();
+  private children: Set<
+    Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+  > = new Set();
 
-  constructor(server: Server<ListenEvents, EmitEvents, ServerSideEvents>) {
+  constructor(
+    server: Server<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+  ) {
     super(server, "/_" + ParentNamespace.count++);
   }
 
@@ -47,7 +51,7 @@ export class ParentNamespace<
 
   createChild(
     name: string
-  ): Namespace<ListenEvents, EmitEvents, ServerSideEvents> {
+  ): Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData> {
     const namespace = new Namespace(this.server, name);
     namespace._fns = this._fns.slice(0);
     this.listeners("connect").forEach((listener) =>

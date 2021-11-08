@@ -21,21 +21,27 @@ interface WriteOptions {
 export class Client<
   ListenEvents extends EventsMap,
   EmitEvents extends EventsMap,
-  ServerSideEvents extends EventsMap
+  ServerSideEvents extends EventsMap,
+  SocketData = any
 > {
   public readonly conn: RawSocket;
 
   private readonly id: string;
-  private readonly server: Server<ListenEvents, EmitEvents, ServerSideEvents>;
+  private readonly server: Server<
+    ListenEvents,
+    EmitEvents,
+    ServerSideEvents,
+    SocketData
+  >;
   private readonly encoder: Encoder;
   private readonly decoder: Decoder;
   private sockets: Map<
     SocketId,
-    Socket<ListenEvents, EmitEvents, ServerSideEvents>
+    Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
   > = new Map();
   private nsps: Map<
     string,
-    Socket<ListenEvents, EmitEvents, ServerSideEvents>
+    Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
   > = new Map();
   private connectTimeout?: NodeJS.Timeout;
 
@@ -47,7 +53,7 @@ export class Client<
    * @package
    */
   constructor(
-    server: Server<ListenEvents, EmitEvents, ServerSideEvents>,
+    server: Server<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
     conn: any
   ) {
     this.server = server;
@@ -112,7 +118,7 @@ export class Client<
       auth,
       (
         dynamicNspName:
-          | Namespace<ListenEvents, EmitEvents, ServerSideEvents>
+          | Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
           | false
       ) => {
         if (dynamicNspName) {
@@ -171,7 +177,9 @@ export class Client<
    *
    * @private
    */
-  _remove(socket: Socket<ListenEvents, EmitEvents, ServerSideEvents>): void {
+  _remove(
+    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+  ): void {
     if (this.sockets.has(socket.id)) {
       const nsp = this.sockets.get(socket.id)!.nsp.name;
       this.sockets.delete(socket.id);
