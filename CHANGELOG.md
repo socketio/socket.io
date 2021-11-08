@@ -1,3 +1,11 @@
+## [4.3.2](https://github.com/socketio/socket.io/compare/4.3.1...4.3.2) (2021-11-08)
+
+
+### Bug Fixes
+
+* fix race condition in dynamic namespaces ([#4137](https://github.com/socketio/socket.io/issues/4137)) ([9d86397](https://github.com/socketio/socket.io/commit/9d86397243bcbb5775a29d96e5ef03e17148a8e7))
+
+
 ## [4.3.1](https://github.com/socketio/socket.io/compare/4.3.0...4.3.1) (2021-10-16)
 
 
