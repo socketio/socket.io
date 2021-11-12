@@ -1,0 +1,181 @@
+import { App, us_socket_local_port } from "uWebSockets.js";
+import { Server } from "..";
+import { io as ioc, Socket as ClientSocket } from "socket.io-client";
+import request from "supertest";
+import expect from "expect.js";
+
+const createPartialDone = (done: (err?: Error) => void, count: number) => {
+  let i = 0;
+  return () => {
+    if (++i === count) {
+      done();
+    } else if (i > count) {
+      done(new Error(`partialDone() called too many times: ${i} > ${count}`));
+    }
+  };
+};
+
+const shouldNotHappen = (done) => () => done(new Error("should not happen"));
+
+describe("socket.io with uWebSocket.js-based engine", () => {
+  let io: Server,
+    port: number,
+    client: ClientSocket,
+    clientWSOnly: ClientSocket,
+    clientPollingOnly: ClientSocket,
+    clientCustomNamespace: ClientSocket;
+
+  beforeEach((done) => {
+    const app = App();
+    io = new Server();
+    io.attachApp(app);
+
+    io.of("/custom");
+
+    app.listen(0, (listenSocket) => {
+      port = us_socket_local_port(listenSocket);
+
+      client = ioc(`http://localhost:${port}`);
+      clientWSOnly = ioc(`http://localhost:${port}`, {
+        transports: ["websocket"],
+      });
+      clientPollingOnly = ioc(`http://localhost:${port}`, {
+        transports: ["polling"],
+      });
+      clientCustomNamespace = ioc(`http://localhost:${port}/custom`);
+    });
+
+    const partialDone = createPartialDone(done, 4);
+    io.on("connection", partialDone);
+    io.of("/custom").on("connection", partialDone);
+  });
+
+  afterEach(() => {
+    io.close();
+    client.disconnect();
+    clientWSOnly.disconnect();
+    clientPollingOnly.disconnect();
+    clientCustomNamespace.disconnect();
+  });
+
+  it("should broadcast", (done) => {
+    const partialDone = createPartialDone(done, 3);
+
+    client.on("hello", partialDone);
+    clientWSOnly.on("hello", partialDone);
+    clientPollingOnly.on("hello", partialDone);
+    clientCustomNamespace.on("hello", shouldNotHappen(done));
+
+    io.emit("hello");
+  });
+
+  it("should broadcast in a namespace", (done) => {
+    client.on("hello", shouldNotHappen(done));
+    clientWSOnly.on("hello", shouldNotHappen(done));
+    clientPollingOnly.on("hello", shouldNotHappen(done));
+    clientCustomNamespace.on("hello", done);
+
+    io.of("/custom").emit("hello");
+  });
+
+  it("should broadcast in a dynamic namespace", (done) => {
+    const dynamicNamespace = io.of(/\/dynamic-\d+/);
+    const dynamicClient = clientWSOnly.io.socket("/dynamic-101");
+
+    dynamicClient.on("connect", () => {
+      dynamicNamespace.emit("hello");
+    });
+
+    dynamicClient.on("hello", () => {
+      dynamicClient.disconnect();
+      done();
+    });
+  });
+
+  it("should broadcast binary content", (done) => {
+    const partialDone = createPartialDone(done, 3);
+
+    client.on("hello", partialDone);
+    clientWSOnly.on("hello", partialDone);
+    clientPollingOnly.on("hello", partialDone);
+    clientCustomNamespace.on("hello", shouldNotHappen(done));
+
+    io.emit("hello", Buffer.from([1, 2, 3]));
+  });
+
+  it("should broadcast in a room", (done) => {
+    const partialDone = createPartialDone(done, 2);
+
+    client.on("hello", shouldNotHappen(done));
+    clientWSOnly.on("hello", partialDone);
+    clientPollingOnly.on("hello", partialDone);
+    clientCustomNamespace.on("hello", shouldNotHappen(done));
+
+    io.of("/").sockets.get(clientWSOnly.id)!.join("room1");
+    io.of("/").sockets.get(clientPollingOnly.id)!.join("room1");
+
+    io.to("room1").emit("hello");
+  });
+
+  it("should broadcast in multiple rooms", (done) => {
+    const partialDone = createPartialDone(done, 2);
+
+    client.on("hello", shouldNotHappen(done));
+    clientWSOnly.on("hello", partialDone);
+    clientPollingOnly.on("hello", partialDone);
+    clientCustomNamespace.on("hello", shouldNotHappen(done));
+
+    io.of("/").sockets.get(clientWSOnly.id)!.join("room1");
+    io.of("/").sockets.get(clientPollingOnly.id)!.join("room2");
+
+    io.to(["room1", "room2"]).emit("hello");
+  });
+
+  it("should broadcast in all but a given room", (done) => {
+    const partialDone = createPartialDone(done, 2);
+
+    client.on("hello", partialDone);
+    clientWSOnly.on("hello", partialDone);
+    clientPollingOnly.on("hello", shouldNotHappen(done));
+    clientCustomNamespace.on("hello", shouldNotHappen(done));
+
+    io.of("/").sockets.get(clientWSOnly.id)!.join("room1");
+    io.of("/").sockets.get(clientPollingOnly.id)!.join("room2");
+
+    io.except("room2").emit("hello");
+  });
+
+  it("should work even after leaving room", (done) => {
+    const partialDone = createPartialDone(done, 2);
+
+    client.on("hello", partialDone);
+    clientWSOnly.on("hello", shouldNotHappen(done));
+    clientPollingOnly.on("hello", partialDone);
+    clientCustomNamespace.on("hello", shouldNotHappen(done));
+
+    io.of("/").sockets.get(client.id)!.join("room1");
+    io.of("/").sockets.get(clientPollingOnly.id)!.join("room1");
+
+    io.of("/").sockets.get(clientWSOnly.id)!.join("room1");
+    io.of("/").sockets.get(clientWSOnly.id)!.leave("room1");
+
+    io.to("room1").emit("hello");
+  });
+
+  it("should serve static files", (done) => {
+    const clientVersion = require("socket.io-client/package.json").version;
+
+    request(`http://localhost:${port}`)
+      .get("/socket.io/socket.io.js")
+      .buffer(true)
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.headers["content-type"]).to.be("application/javascript");
+        expect(res.headers.etag).to.be('"' + clientVersion + '"');
+        expect(res.headers["x-sourcemap"]).to.be(undefined);
+        expect(res.text).to.match(/engine\.io/);
+        expect(res.status).to.be(200);
+        done();
+      });
+  });
+});

@@ -14,6 +14,7 @@ import { io as ioc, Socket as ClientSocket } from "socket.io-client";
 
 import "./support/util";
 import "./utility-methods";
+import "./uws";
 
 type callback = (err: Error | null, success: boolean) => void;
 

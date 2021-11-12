@@ -48,7 +48,7 @@
     "accepts": "~1.3.4",
     "base64id": "~2.0.0",
     "debug": "~4.3.2",
-    "engine.io": "~6.0.0",
+    "engine.io": "~6.1.0",
     "socket.io-adapter": "~2.3.2",
     "socket.io-parser": "~4.0.4"
   },
@@ -65,7 +65,8 @@
     "supertest": "^6.1.6",
     "ts-node": "^10.2.1",
     "tsd": "^0.17.0",
-    "typescript": "^4.4.2"
+    "typescript": "^4.4.2",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.0.0"
   },
   "contributors": [
     {

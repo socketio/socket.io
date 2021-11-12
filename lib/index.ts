@@ -9,6 +9,7 @@ import {
   Server as Engine,
   ServerOptions as EngineOptions,
   AttachOptions,
+  uServer,
 } from "engine.io";
 import { Client } from "./client";
 import { EventEmitter } from "events";
@@ -27,6 +28,7 @@ import {
   StrictEventEmitter,
   EventNames,
 } from "./typed-events";
+import { patchAdapter, restoreAdapter, serveFile } from "./uws.js";
 
 const debug = debugModule("socket.io:server");
 
@@ -344,6 +346,69 @@ export class Server<
     return this;
   }
 
+  public attachApp(app /*: TemplatedApp */, opts: Partial<ServerOptions> = {}) {
+    // merge the options passed to the Socket.IO server
+    Object.assign(opts, this.opts);
+    // set engine.io path to `/socket.io`
+    opts.path = opts.path || this._path;
+
+    // initialize engine
+    debug("creating uWebSockets.js-based engine with opts %j", opts);
+    const engine = new uServer(opts);
+
+    engine.attach(app, opts);
+
+    // bind to engine events
+    this.bind(engine);
+
+    if (this._serveClient) {
+      // attach static file serving
+      app.get(`${this._path}/*`, (res, req) => {
+        if (!this.clientPathRegex.test(req.getUrl())) {
+          req.setYield(true);
+          return;
+        }
+
+        const filename = req
+          .getUrl()
+          .replace(this._path, "")
+          .replace(/\?.*$/, "")
+          .replace(/^\//, "");
+        const isMap = dotMapRegex.test(filename);
+        const type = isMap ? "map" : "source";
+
+        // Per the standard, ETags must be quoted:
+        // https://tools.ietf.org/html/rfc7232#section-2.3
+        const expectedEtag = '"' + clientVersion + '"';
+        const weakEtag = "W/" + expectedEtag;
+
+        const etag = req.getHeader("if-none-match");
+        if (etag) {
+          if (expectedEtag === etag || weakEtag === etag) {
+            debug("serve client %s 304", type);
+            res.writeStatus("304 Not Modified");
+            res.end();
+            return;
+          }
+        }
+
+        debug("serve client %s", type);
+
+        res.writeHeader("cache-control", "public, max-age=0");
+        res.writeHeader(
+          "content-type",
+          "application/" + (isMap ? "json" : "javascript")
+        );
+        res.writeHeader("etag", expectedEtag);
+
+        const filepath = path.join(__dirname, "../client-dist/", filename);
+        serveFile(res, filepath);
+      });
+    }
+
+    patchAdapter(app);
+  }
+
   /**
    * Initialize engine
    *
@@ -561,6 +626,9 @@ export class Server<
     }
 
     this.engine.close();
+
+    // restore the Adapter prototype
+    restoreAdapter();
 
     if (this.httpServer) {
       this.httpServer.close(fn);
