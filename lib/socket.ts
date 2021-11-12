@@ -126,8 +126,7 @@ export class Socket<
    */
   public data: Partial<SocketData> = {};
 
-  public connected: boolean;
-  public disconnected: boolean;
+  public connected: boolean = false;
 
   private readonly server: Server<
     ListenEvents,
@@ -163,8 +162,6 @@ export class Socket<
     } else {
       this.id = base64id.generateId(); // don't reuse the Engine.IO id because it's sensitive information
     }
-    this.connected = true;
-    this.disconnected = false;
     this.handshake = this.buildHandshake(auth);
   }
 
@@ -342,6 +339,7 @@ export class Socket<
    */
   _onconnect(): void {
     debug("socket connected - writing packet");
+    this.connected = true;
     this.join(this.id);
     if (this.conn.protocol === 3) {
       this.packet({ type: PacketType.CONNECT });
@@ -489,7 +487,6 @@ export class Socket<
     this.nsp._remove(this);
     this.client._remove(this);
     this.connected = false;
-    this.disconnected = true;
     this.emitReserved("disconnect", reason);
     return;
   }
@@ -629,6 +626,13 @@ export class Socket<
     }
 
     run(0);
+  }
+
+  /**
+   * Whether the socket is currently disconnected
+   */
+  public get disconnected() {
+    return !this.connected;
   }
 
   /**

@@ -2726,6 +2726,25 @@ describe("socket.io", () => {
         if (++count === 2) done();
       });
     });
+
+    it("should only set `connected` to true after the middleware execution", (done) => {
+      const httpServer = createServer();
+      const io = new Server(httpServer);
+
+      const clientSocket = client(httpServer, "/");
+
+      io.use((socket, next) => {
+        expect(socket.connected).to.be(false);
+        expect(socket.disconnected).to.be(true);
+        next();
+      });
+
+      io.on("connection", (socket) => {
+        expect(socket.connected).to.be(true);
+        expect(socket.disconnected).to.be(false);
+        success(io, clientSocket, done);
+      });
+    });
   });
 
   describe("socket middleware", () => {
