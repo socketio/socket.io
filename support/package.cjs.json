@@ -1,4 +1,5 @@
 {
+  "name": "engine.io-parser",
   "type": "commonjs",
   "browser": {
     "./encodePacket.js": "./encodePacket.browser.js",
