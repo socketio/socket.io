@@ -1,3 +1,13 @@
+## [6.1.1](https://github.com/socketio/engine.io-client/compare/6.1.0...6.1.1) (2021-11-14)
+
+
+### Bug Fixes
+
+* add package name in nested package.json ([6e798fb](https://github.com/socketio/engine.io-client/commit/6e798fbb5b11a1cfec03ece3dfce03213b5f9a12))
+* fix vite build for CommonJS users ([c557707](https://github.com/socketio/engine.io-client/commit/c557707fb694bd10397b4cd8b4ec2fbe59128faa))
+
+
+
 # [6.1.0](https://github.com/socketio/engine.io-client/compare/6.0.2...6.1.0) (2021-11-08)
 
 The minor bump is due to changes on the server side.
