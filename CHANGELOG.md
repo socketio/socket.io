@@ -1,3 +1,14 @@
+## [6.0.3](https://github.com/socketio/engine.io-client/compare/6.0.2...6.0.3) (2021-11-14)
+
+Some bug fixes were backported from master, to be included by the latest `socket.io-client` version.
+
+### Bug Fixes
+
+* add package name in nested package.json ([32511ee](https://github.com/socketio/engine.io-client/commit/32511ee32a0a6122e99db35833ed948aa4e427ac))
+* fix vite build for CommonJS users ([9fcaf58](https://github.com/socketio/engine.io-client/commit/9fcaf58d18c013c0b92fdaf27481f0383efb3658))
+
+
+
 ## [6.1.1](https://github.com/socketio/engine.io-client/compare/6.1.0...6.1.1) (2021-11-14)
 
 
