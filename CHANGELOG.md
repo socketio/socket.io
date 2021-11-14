@@ -1,3 +1,13 @@
+## [5.0.2](https://github.com/socketio/engine.io-parser/compare/5.0.1...5.0.2) (2021-11-14)
+
+
+### Bug Fixes
+
+* add package name in nested package.json ([7e27159](https://github.com/socketio/engine.io-parser/commit/7e271596c3305fb4e4a9fbdcc7fd442e8ff71200))
+* fix vite build for CommonJS users ([5f22ed0](https://github.com/socketio/engine.io-parser/commit/5f22ed0527cc80aa0cac415dfd12db2f94f0a855))
+
+
+
 ## [5.0.1](https://github.com/socketio/engine.io-parser/compare/5.0.0...5.0.1) (2021-10-15)
 
 
