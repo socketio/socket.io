@@ -1,4 +1,5 @@
 {
+  "name": "engine.io-client",
   "type": "commonjs",
   "browser": {
     "ws": false,
