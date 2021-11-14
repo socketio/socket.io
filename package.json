@@ -92,7 +92,10 @@
     "./test/node.js": false,
     "./build/esm/transports/xmlhttprequest.js": "./build/esm/transports/xmlhttprequest.browser.js",
     "./build/esm/transports/websocket-constructor.js": "./build/esm/transports/websocket-constructor.browser.js",
-    "./build/esm/globalThis.js": "./build/esm/globalThis.browser.js"
+    "./build/esm/globalThis.js": "./build/esm/globalThis.browser.js",
+    "./build/cjs/transports/xmlhttprequest.js": "./build/cjs/transports/xmlhttprequest.browser.js",
+    "./build/cjs/transports/websocket-constructor.js": "./build/cjs/transports/websocket-constructor.browser.js",
+    "./build/cjs/globalThis.js": "./build/cjs/globalThis.browser.js"
   },
   "repository": {
     "type": "git",
