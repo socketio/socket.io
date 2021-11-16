@@ -1073,7 +1073,7 @@ describe("socket.io", () => {
           reconnectionDelay: 100,
         });
         clientSocket.on("connect", () => {
-          srv.close();
+          sio.close();
         });
 
         clientSocket.io.on("reconnect_failed", () => {
