@@ -214,6 +214,23 @@ describe("socket", function () {
     });
   });
 
+  it("should not try to reconnect after a middleware failure", (done) => {
+    const socket = io("/no", { forceNew: true, reconnectionDelay: 10 });
+
+    let count = 0;
+
+    socket.on("connect_error", () => {
+      count++;
+      // force reconnection
+      socket.io.engine.close();
+    });
+
+    setTimeout(() => {
+      expect(count).to.eql(1);
+      done();
+    }, 100);
+  });
+
   it("should throw on reserved event", () => {
     const socket = io("/no", { forceNew: true });
 

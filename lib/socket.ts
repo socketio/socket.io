@@ -322,6 +322,7 @@ export class Socket<
         break;
 
       case PacketType.CONNECT_ERROR:
+        this.destroy();
         const err = new Error(packet.data.message);
         // @ts-ignore
         err.data = packet.data.data;
