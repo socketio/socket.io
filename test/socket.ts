@@ -1,6 +1,11 @@
 import expect from "expect.js";
 import { io } from "..";
 
+const success = (done, socket) => {
+  socket.disconnect();
+  done();
+};
+
 describe("socket", function () {
   this.timeout(70000);
 
@@ -324,6 +329,39 @@ describe("socket", function () {
 
       socket.onAny(() => {
         done();
+      });
+    });
+  });
+
+  describe("timeout", () => {
+    it("should timeout after the given delay when socket is not connected", (done) => {
+      const socket = io("/", {
+        autoConnect: false,
+      });
+
+      socket.timeout(50).emit("event", (err) => {
+        expect(err).to.be.an(Error);
+        expect(socket.sendBuffer).to.be.empty();
+        done();
+      });
+    });
+
+    it("should timeout after the given delay when server does not acknowledge the event", (done) => {
+      const socket = io("/");
+
+      socket.timeout(50).emit("unknown", (err) => {
+        expect(err).to.be.an(Error);
+        success(done, socket);
+      });
+    });
+
+    it("should not timeout after the given delay when server does acknowledge", (done) => {
+      const socket = io("/");
+
+      socket.timeout(50).emit("echo", 42, (err, value) => {
+        expect(err).to.be(null);
+        expect(value).to.be(42);
+        success(done, socket);
       });
     });
   });
