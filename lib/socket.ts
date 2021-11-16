@@ -137,7 +137,7 @@ export class Socket<
   private readonly adapter: Adapter;
   private acks: Map<number, () => void> = new Map();
   private fns: Array<(event: Event, next: (err?: Error) => void) => void> = [];
-  private flags: BroadcastFlags = {};
+  private flags: BroadcastFlags & { timeout?: number } = {};
   private _anyListeners?: Array<(...args: any[]) => void>;
 
   /**
@@ -207,9 +207,11 @@ export class Socket<
 
     // access last argument to see if it's an ACK callback
     if (typeof data[data.length - 1] === "function") {
-      debug("emitting packet with ack id %d", this.nsp._ids);
-      this.acks.set(this.nsp._ids, data.pop());
-      packet.id = this.nsp._ids++;
+      const id = this.nsp._ids++;
+      debug("emitting packet with ack id %d", id);
+
+      this.registerAckCallback(id, data.pop());
+      packet.id = id;
     }
 
     const flags = Object.assign({}, this.flags);
@@ -218,6 +220,27 @@ export class Socket<
     this.packet(packet, flags);
 
     return true;
+  }
+
+  /**
+   * @private
+   */
+  private registerAckCallback(id: number, ack: (...args: any[]) => void): void {
+    const timeout = this.flags.timeout;
+    if (timeout === undefined) {
+      this.acks.set(id, ack);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      debug("event with ack id %d has timed out after %d ms", id, timeout);
+      ack.call(this, new Error("operation has timed out"));
+    }, timeout);
+
+    this.acks.set(id, (...args) => {
+      clearTimeout(timer);
+      ack.apply(this, [null, ...args]);
+    });
   }
 
   /**
@@ -565,6 +588,26 @@ export class Socket<
    */
   public get local(): BroadcastOperator<EmitEvents> {
     return this.newBroadcastOperator().local;
+  }
+
+  /**
+   * Sets a modifier for a subsequent event emission that the callback will be called with an error when the
+   * given number of milliseconds have elapsed without an acknowledgement from the client:
+   *
+   * ```
+   * socket.timeout(5000).emit("my-event", (err) => {
+   *   if (err) {
+   *     // the client did not acknowledge the event in the given delay
+   *   }
+   * });
+   * ```
+   *
+   * @returns self
+   * @public
+   */
+  public timeout(timeout: number): this {
+    this.flags.timeout = timeout;
+    return this;
   }
 
   /**

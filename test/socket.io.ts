@@ -2888,4 +2888,6 @@ describe("socket.io", () => {
       });
     });
   });
+
+  require("./socket-timeout");
 });
