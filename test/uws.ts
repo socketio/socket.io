@@ -103,6 +103,20 @@ describe("socket.io with uWebSocket.js-based engine", () => {
     io.emit("hello", Buffer.from([1, 2, 3]));
   });
 
+  it("should broadcast volatile packet with binary content", (done) => {
+    const partialDone = createPartialDone(done, 3);
+
+    client.on("hello", partialDone);
+    clientWSOnly.on("hello", partialDone);
+    clientPollingOnly.on("hello", partialDone);
+    clientCustomNamespace.on("hello", shouldNotHappen(done));
+
+    // wait to make sure there are no packets being sent for opening the connection
+    setTimeout(() => {
+      io.volatile.emit("hello", Buffer.from([1, 2, 3]));
+    }, 20);
+  });
+
   it("should broadcast in a room", (done) => {
     const partialDone = createPartialDone(done, 2);
 

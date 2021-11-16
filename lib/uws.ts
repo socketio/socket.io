@@ -81,9 +81,7 @@ export function patchAdapter(app /* : TemplatedApp */) {
     this.apply(opts, (socket) => {
       if (socket.conn.transport.name !== "websocket") {
         // classic publish for clients connected with HTTP long-polling
-        for (let i = 0; i < encodedPackets.length; i++) {
-          socket.client.writeToEngine(encodedPackets[i], basePacketOpts);
-        }
+        socket.client.writeToEngine(encodedPackets, basePacketOpts);
       }
     });
   };

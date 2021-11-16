@@ -1453,6 +1453,32 @@ describe("socket.io", () => {
       }, 200);
     });
 
+    it("should broadcast only one consecutive volatile event with binary (ws)", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv, { transports: ["websocket"] });
+
+      let counter = 0;
+      srv.listen(() => {
+        sio.on("connection", (s) => {
+          // Wait to make sure there are no packets being sent for opening the connection
+          setTimeout(() => {
+            sio.volatile.emit("ev", Buffer.from([1, 2, 3]));
+            sio.volatile.emit("ev", Buffer.from([4, 5, 6]));
+          }, 20);
+        });
+
+        const socket = client(srv, { transports: ["websocket"] });
+        socket.on("ev", () => {
+          counter++;
+        });
+      });
+
+      setTimeout(() => {
+        expect(counter).to.be(1);
+        done();
+      }, 200);
+    });
+
     it("should emit regular events after trying a failed volatile event (polling)", (done) => {
       const srv = createServer();
       const sio = new Server(srv, { transports: ["polling"] });
@@ -2513,28 +2539,6 @@ describe("socket.io", () => {
           clientSocket.close();
           sio.close();
           done();
-        });
-      });
-    });
-
-    it("should pre encode a broadcast packet", (done) => {
-      const srv = createServer();
-      const sio = new Server(srv);
-
-      srv.listen(() => {
-        const clientSocket = client(srv, { multiplex: false });
-
-        sio.on("connection", (socket) => {
-          socket.conn.on("packetCreate", (packet) => {
-            expect(packet.data).to.eql('2["hello","world"]');
-            expect(packet.options.wsPreEncoded).to.eql('42["hello","world"]');
-
-            clientSocket.close();
-            sio.close();
-            done();
-          });
-
-          sio.emit("hello", "world");
         });
       });
     });
