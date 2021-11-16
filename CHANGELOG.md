@@ -1,3 +1,12 @@
+## [2.3.3](https://github.com/socketio/socket.io-adapter/compare/2.3.2...2.3.3) (2021-11-16)
+
+
+### Bug Fixes
+
+* fix broadcasting volatile packets with binary attachments ([88eee59](https://github.com/socketio/socket.io-adapter/commit/88eee5948aba94f999405239025f29c754a002e2))
+
+
+
 ## [2.3.2](https://github.com/socketio/socket.io-adapter/compare/2.3.1...2.3.2) (2021-08-28)
 
 
