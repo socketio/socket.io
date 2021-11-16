@@ -126,7 +126,7 @@ export class Adapter extends EventEmitter {
    */
   public broadcast(packet: any, opts: BroadcastOptions): void {
     const flags = opts.flags || {};
-    const basePacketOpts = {
+    const packetOpts = {
       preEncoded: true,
       volatile: flags.volatile,
       compress: flags.compress
@@ -135,21 +135,8 @@ export class Adapter extends EventEmitter {
     packet.nsp = this.nsp.name;
     const encodedPackets = this.encoder.encode(packet);
 
-    const packetOpts = encodedPackets.map(encodedPacket => {
-      if (typeof encodedPacket === "string") {
-        return {
-          ...basePacketOpts,
-          wsPreEncoded: "4" + encodedPacket // "4" being the "message" packet type in Engine.IO
-        };
-      } else {
-        return basePacketOpts;
-      }
-    });
-
     this.apply(opts, socket => {
-      for (let i = 0; i < encodedPackets.length; i++) {
-        socket.client.writeToEngine(encodedPackets[i], packetOpts[i]);
-      }
+      socket.client.writeToEngine(encodedPackets, packetOpts);
     });
   }
 

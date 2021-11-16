@@ -67,9 +67,8 @@ describe("socket.io-adapter", () => {
           id,
           client: {
             writeToEngine(payload, opts) {
-              expect(payload).to.eql("123");
+              expect(payload).to.eql(["123"]);
               expect(opts.preEncoded).to.eql(true);
-              expect(opts.wsPreEncoded).to.eql("4123");
               ids.push(id);
             }
           }
@@ -107,7 +106,8 @@ describe("socket.io-adapter", () => {
           id,
           client: {
             writeToEngine(payload, opts) {
-              expect(payload).to.be.a(Buffer);
+              expect(payload).to.be.a(Array);
+              expect(payload[0]).to.be.a(Buffer);
               expect(opts.preEncoded).to.eql(true);
               expect(opts.wsPreEncoded).to.be(undefined);
               ids.push(id);
