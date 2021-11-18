@@ -15,6 +15,29 @@ describe("timeout", () => {
     });
   });
 
+  it("should timeout if the client does not acknowledge the event in time", (done) => {
+    const io = new Server(0);
+    const client = createClient(io, "/");
+
+    client.on("echo", (arg, cb) => {
+      cb(arg);
+    });
+
+    let count = 0;
+
+    io.on("connection", (socket) => {
+      socket.timeout(0).emit("echo", 42, (err) => {
+        expect(err).to.be.an(Error);
+        count++;
+      });
+    });
+
+    setTimeout(() => {
+      expect(count).to.eql(1);
+      success(done, io, client);
+    }, 200);
+  });
+
   it("should not timeout if the client does acknowledge the event", (done) => {
     const io = new Server(0);
     const client = createClient(io, "/");

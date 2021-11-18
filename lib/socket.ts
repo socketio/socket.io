@@ -234,6 +234,7 @@ export class Socket<
 
     const timer = setTimeout(() => {
       debug("event with ack id %d has timed out after %d ms", id, timeout);
+      this.acks.delete(id);
       ack.call(this, new Error("operation has timed out"));
     }, timeout);
 
