@@ -382,7 +382,7 @@ describe("socket", function () {
       });
     });
 
-    it("should timeout after the given delay when server does not acknowledge the event", (done) => {
+    it("should timeout when the server does not acknowledge the event", (done) => {
       const socket = io("/");
 
       socket.timeout(50).emit("unknown", (err) => {
@@ -391,7 +391,23 @@ describe("socket", function () {
       });
     });
 
-    it("should not timeout after the given delay when server does acknowledge", (done) => {
+    it("should timeout when the server does not acknowledge the event in time", (done) => {
+      const socket = io("/");
+
+      let count = 0;
+
+      socket.timeout(0).emit("echo", 42, (err) => {
+        expect(err).to.be.an(Error);
+        count++;
+      });
+
+      setTimeout(() => {
+        expect(count).to.eql(1);
+        success(done, socket);
+      }, 200);
+    });
+
+    it("should not timeout when the server does acknowledge the event", (done) => {
       const socket = io("/");
 
       socket.timeout(50).emit("echo", 42, (err, value) => {

@@ -205,6 +205,7 @@ export class Socket<
 
     // @ts-ignore
     const timer = this.io.setTimeoutFn(() => {
+      delete this.acks[id];
       for (let i = 0; i < this.sendBuffer.length; i++) {
         if (this.sendBuffer[i].id === id) {
           debug("removing packet with ack id %d from the buffer", id);
