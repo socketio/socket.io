@@ -1,3 +1,19 @@
+# [4.4.0](https://github.com/socketio/socket.io-client/compare/4.3.2...4.4.0) (2021-11-18)
+
+
+### Bug Fixes
+
+* add package name in nested package.json ([53d8fca](https://github.com/socketio/socket.io-client/commit/53d8fcafabbfddb5834012c9c98743bfe6e13347)), closes [socketio/socket.io-client#1513](https://github.com/socketio/socket.io-client/issues/1513)
+* fix `socket.disconnect().connect()` usage ([99c2cb8](https://github.com/socketio/socket.io-client/commit/99c2cb8421361487ed7c876edd8670bb69a5c5b5))
+* prevent socket from reconnecting after middleware failure ([d54d12c](https://github.com/socketio/socket.io-client/commit/d54d12ce634193d14b71894496ed57d35d922378))
+
+
+### Features
+
+* add timeout feature ([ccf7998](https://github.com/socketio/socket.io-client/commit/ccf7998cc5049d02022567aedfb263de875a06a5))
+
+
+
 ## [4.3.2](https://github.com/socketio/socket.io-client/compare/4.3.1...4.3.2) (2021-10-16)
 
 

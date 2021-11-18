@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.3.2
+ * Socket.IO v4.4.0
  * (c) 2014-2021 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -3148,8 +3148,12 @@
         packet.options.compress = this.flags.compress !== false; // event ack callback
 
         if ("function" === typeof args[args.length - 1]) {
-          this.acks[this.ids] = args.pop();
-          packet.id = this.ids++;
+          var id = this.ids++;
+          var ack = args.pop();
+
+          this._registerAckCallback(id, ack);
+
+          packet.id = id;
         }
 
         var isTransportWritable = this.io.engine && this.io.engine.transport && this.io.engine.transport.writable;
@@ -3163,6 +3167,46 @@
 
         this.flags = {};
         return this;
+      }
+      /**
+       * @private
+       */
+
+    }, {
+      key: "_registerAckCallback",
+      value: function _registerAckCallback(id, ack) {
+        var _this2 = this;
+
+        var timeout = this.flags.timeout;
+
+        if (timeout === undefined) {
+          this.acks[id] = ack;
+          return;
+        } // @ts-ignore
+
+
+        var timer = this.io.setTimeoutFn(function () {
+          delete _this2.acks[id];
+
+          for (var i = 0; i < _this2.sendBuffer.length; i++) {
+            if (_this2.sendBuffer[i].id === id) {
+              _this2.sendBuffer.splice(i, 1);
+            }
+          }
+
+          ack.call(_this2, new Error("operation has timed out"));
+        }, timeout);
+
+        this.acks[id] = function () {
+          // @ts-ignore
+          _this2.io.clearTimeoutFn(timer);
+
+          for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+            args[_key3] = arguments[_key3];
+          }
+
+          ack.apply(_this2, [null].concat(args));
+        };
       }
       /**
        * Sends a packet.
@@ -3187,11 +3231,11 @@
     }, {
       key: "onopen",
       value: function onopen() {
-        var _this2 = this;
+        var _this3 = this;
 
         if (typeof this.auth == "function") {
           this.auth(function (data) {
-            _this2.packet({
+            _this3.packet({
               type: PacketType.CONNECT,
               data: data
             });
@@ -3277,6 +3321,7 @@
             break;
 
           case PacketType.CONNECT_ERROR:
+            this.destroy();
             var err = new Error(packet.data.message); // @ts-ignore
 
             err.data = packet.data.data;
@@ -3345,8 +3390,8 @@
           if (sent) return;
           sent = true;
 
-          for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-            args[_key3] = arguments[_key3];
+          for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+            args[_key4] = arguments[_key4];
           }
 
           self.packet({
@@ -3397,14 +3442,14 @@
     }, {
       key: "emitBuffered",
       value: function emitBuffered() {
-        var _this3 = this;
+        var _this4 = this;
 
         this.receiveBuffer.forEach(function (args) {
-          return _this3.emitEvent(args);
+          return _this4.emitEvent(args);
         });
         this.receiveBuffer = [];
         this.sendBuffer.forEach(function (packet) {
-          return _this3.packet(packet);
+          return _this4.packet(packet);
         });
         this.sendBuffer = [];
       }
@@ -3505,6 +3550,28 @@
       key: "volatile",
       get: function get() {
         this.flags["volatile"] = true;
+        return this;
+      }
+      /**
+       * Sets a modifier for a subsequent event emission that the callback will be called with an error when the
+       * given number of milliseconds have elapsed without an acknowledgement from the server:
+       *
+       * ```
+       * socket.timeout(5000).emit("my-event", (err) => {
+       *   if (err) {
+       *     // the server did not acknowledge the event in the given delay
+       *   }
+       * });
+       * ```
+       *
+       * @returns self
+       * @public
+       */
+
+    }, {
+      key: "timeout",
+      value: function timeout(_timeout) {
+        this.flags.timeout = _timeout;
         return this;
       }
       /**
@@ -4020,15 +4087,7 @@
       value: function _close() {
         this.skipReconnect = true;
         this._reconnecting = false;
-
-        if ("opening" === this._readyState) {
-          // `onclose` will not fire because
-          // an open event never happened
-          this.cleanup();
-        }
-
-        this.backoff.reset();
-        this._readyState = "closed";
+        this.onclose("forced close");
         if (this.engine) this.engine.close();
       }
       /**
