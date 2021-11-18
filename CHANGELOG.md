@@ -1,3 +1,19 @@
+# [4.4.0](https://github.com/socketio/socket.io/compare/4.3.2...4.4.0) (2021-11-18)
+
+
+### Bug Fixes
+
+* only set 'connected' to true after middleware execution ([02b0f73](https://github.com/socketio/socket.io/commit/02b0f73e2c64b09c72c5fbf7dc5f059557bdbe50))
+
+
+### Features
+
+* add an implementation based on uWebSockets.js ([c0d8c5a](https://github.com/socketio/socket.io/commit/c0d8c5ab234d0d2bef0d0dec472973cc9662f647))
+* add timeout feature ([f0ed42f](https://github.com/socketio/socket.io/commit/f0ed42f18cabef20ad976aeec37077b6bf3837a5))
+* add type information to `socket.data` ([#4159](https://github.com/socketio/socket.io/issues/4159)) ([fe8730c](https://github.com/socketio/socket.io/commit/fe8730ca0f15bc92d5de81cf934c89c76d6af329))
+
+
+
 ## [4.3.2](https://github.com/socketio/socket.io/compare/4.3.1...4.3.2) (2021-11-08)
 
 

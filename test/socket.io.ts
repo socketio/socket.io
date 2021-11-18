@@ -821,29 +821,6 @@ describe("socket.io", () => {
       });
     });
 
-    it("should close a client without namespace (2)", (done) => {
-      const srv = createServer();
-      const sio = new Server(srv, {
-        connectTimeout: 100,
-      });
-
-      sio.use((_, next) => {
-        next(new Error("nope"));
-      });
-
-      srv.listen(() => {
-        const socket = client(srv);
-
-        const success = () => {
-          socket.close();
-          sio.close();
-          done();
-        };
-
-        socket.on("disconnect", success);
-      });
-    });
-
     it("should exclude a specific socket when emitting", (done) => {
       const srv = createServer();
       const io = new Server(srv);
