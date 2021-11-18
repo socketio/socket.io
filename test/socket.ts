@@ -231,6 +231,25 @@ describe("socket", function () {
     }, 100);
   });
 
+  it("should properly disconnect then reconnect", (done) => {
+    const socket = io("/", { forceNew: true, transports: ["websocket"] });
+
+    let count = 0;
+
+    socket.once("connect", () => {
+      socket.disconnect().connect();
+    });
+
+    socket.on("disconnect", () => {
+      count++;
+    });
+
+    setTimeout(() => {
+      expect(count).to.eql(1);
+      success(done, socket);
+    }, 200);
+  });
+
   it("should throw on reserved event", () => {
     const socket = io("/no", { forceNew: true });
 

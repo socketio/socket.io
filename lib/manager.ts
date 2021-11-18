@@ -520,13 +520,7 @@ export class Manager<
     debug("disconnect");
     this.skipReconnect = true;
     this._reconnecting = false;
-    if ("opening" === this._readyState) {
-      // `onclose` will not fire because
-      // an open event never happened
-      this.cleanup();
-    }
-    this.backoff.reset();
-    this._readyState = "closed";
+    this.onclose("forced close");
     if (this.engine) this.engine.close();
   }
 
@@ -545,7 +539,7 @@ export class Manager<
    * @private
    */
   private onclose(reason: string): void {
-    debug("onclose");
+    debug("closed due to %s", reason);
 
     this.cleanup();
     this.backoff.reset();
