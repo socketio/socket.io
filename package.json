@@ -34,7 +34,7 @@
     "@socket.io/component-emitter": "~3.0.0",
     "backo2": "~1.0.2",
     "debug": "~4.3.2",
-    "engine.io-client": "~6.0.1",
+    "engine.io-client": "~6.1.1",
     "parseuri": "0.0.6",
     "socket.io-parser": "~4.1.1"
   },
