@@ -1,6 +1,8 @@
 
 nginx:
-  build: ./nginx
+  image: nginx:alpine
+  volumes:
+    - ./nginx.conf:/etc/nginx/nginx.conf:ro
   links:
     - server-john
     - server-paul
