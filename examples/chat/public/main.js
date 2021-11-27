@@ -264,14 +264,14 @@ $(function() {
     log('you have been disconnected');
   });
 
-  socket.on('reconnect', () => {
+  socket.io.on('reconnect', () => {
     log('you have been reconnected');
     if (username) {
       socket.emit('add user', username);
     }
   });
 
-  socket.on('reconnect_error', () => {
+  socket.io.on('reconnect_error', () => {
     log('attempt to reconnect has failed');
   });
 
