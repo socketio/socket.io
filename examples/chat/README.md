@@ -6,7 +6,7 @@ A simple chat demo for Socket.IO
 ## How to use
 
 ```
-$ npm ci
+$ npm i
 $ npm start
 ```
 
