@@ -115,6 +115,14 @@ io.on('connection', client => { ... });
 io.listen(3000);
 ```
 
+### Module syntax 
+
+```js
+import { Server } from "socket.io";
+const io = new Server(server);
+io.listen(3000);
+```
+
 ### In conjunction with Express
 
 Starting with **3.0**, express applications have become request handler
