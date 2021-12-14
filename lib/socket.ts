@@ -3,6 +3,7 @@ import debugModule from "debug";
 import { IncomingMessage } from "http";
 import { Transport } from "./transport";
 import { Server } from "./server";
+import { setTimeout, clearTimeout } from "timers";
 
 const debug = debugModule("engine:socket");
 
