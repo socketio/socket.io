@@ -830,3 +830,4 @@ module.exports.Namespace = Namespace;
 module.exports.Socket = Socket;
 
 export { Socket, ServerOptions, Namespace, BroadcastOperator, RemoteSocket };
+export { Event } from "./socket";
