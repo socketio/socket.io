@@ -7,8 +7,8 @@ export enum Errors {
 
 const errorValues: string[] = Object.values(Errors);
 
-export function sanitizeErrorMessage(message: string) {
-  if (errorValues.includes(message)) {
+export function sanitizeErrorMessage(message: any) {
+  if (typeof message === "string" && errorValues.includes(message)) {
     return message;
   } else {
     return "an unknown error has occurred";
