@@ -27,7 +27,8 @@
   "main": "./dist/index.js",
   "exports": {
     "import": "./wrapper.mjs",
-    "require": "./dist/index.js"
+    "require": "./dist/index.js",
+    "types": "./dist/index.d.ts"
   },
   "types": "./dist/index.d.ts",
   "license": "MIT",
