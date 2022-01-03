@@ -177,7 +177,9 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
    *
    * @public
    */
-  public fetchSockets(): Promise<RemoteSocket<EmitEvents>[]> {
+  public fetchSockets<SocketData = any>(): Promise<
+    RemoteSocket<EmitEvents, SocketData>[]
+  > {
     return this.adapter
       .fetchSockets({
         rooms: this.rooms,
@@ -187,9 +189,12 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
         return sockets.map((socket) => {
           if (socket instanceof Socket) {
             // FIXME the TypeScript compiler complains about missing private properties
-            return socket as unknown as RemoteSocket<EmitEvents>;
+            return socket as unknown as RemoteSocket<EmitEvents, SocketData>;
           } else {
-            return new RemoteSocket(this.adapter, socket as SocketDetails);
+            return new RemoteSocket(
+              this.adapter,
+              socket as SocketDetails<SocketData>
+            );
           }
         });
       });
@@ -247,27 +252,27 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
 /**
  * Format of the data when the Socket instance exists on another Socket.IO server
  */
-interface SocketDetails {
+interface SocketDetails<SocketData> {
   id: SocketId;
   handshake: Handshake;
   rooms: Room[];
-  data: any;
+  data: SocketData;
 }
 
 /**
  * Expose of subset of the attributes and methods of the Socket class
  */
-export class RemoteSocket<EmitEvents extends EventsMap>
+export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
   implements TypedEventBroadcaster<EmitEvents>
 {
   public readonly id: SocketId;
   public readonly handshake: Handshake;
   public readonly rooms: Set<Room>;
-  public readonly data: any;
+  public readonly data: SocketData;
 
   private readonly operator: BroadcastOperator<EmitEvents>;
 
-  constructor(adapter: Adapter, details: SocketDetails) {
+  constructor(adapter: Adapter, details: SocketDetails<SocketData>) {
     this.id = details.id;
     this.handshake = details.handshake;
     this.rooms = new Set(details.rooms);

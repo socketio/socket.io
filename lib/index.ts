@@ -769,7 +769,7 @@ export class Server<
    *
    * @public
    */
-  public fetchSockets(): Promise<RemoteSocket<EmitEvents>[]> {
+  public fetchSockets(): Promise<RemoteSocket<EmitEvents, SocketData>[]> {
     return this.sockets.fetchSockets();
   }
 

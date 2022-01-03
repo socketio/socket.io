@@ -377,7 +377,7 @@ export class Namespace<
    *
    * @public
    */
-  public fetchSockets(): Promise<RemoteSocket<EmitEvents>[]> {
+  public fetchSockets(): Promise<RemoteSocket<EmitEvents, SocketData>[]> {
     return new BroadcastOperator(this.adapter).fetchSockets();
   }
 
