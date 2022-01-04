@@ -112,11 +112,13 @@ export class Server<
   /**
    * @private
    */
-  _nsps: Map<string, Namespace<ListenEvents, EmitEvents, ServerSideEvents>> =
-    new Map();
+  _nsps: Map<
+    string,
+    Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+  > = new Map();
   private parentNsps: Map<
     ParentNspNameMatchFn,
-    ParentNamespace<ListenEvents, EmitEvents, ServerSideEvents>
+    ParentNamespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
   > = new Map();
   private _adapter?: AdapterConstructor;
   private _serveClient: boolean;
@@ -197,7 +199,9 @@ export class Server<
     name: string,
     auth: { [key: string]: any },
     fn: (
-      nsp: Namespace<ListenEvents, EmitEvents, ServerSideEvents> | false
+      nsp:
+        | Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+        | false
     ) => void
   ): void {
     if (this.parentNsps.size === 0) return fn(false);
@@ -579,7 +583,7 @@ export class Server<
     fn?: (
       socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
     ) => void
-  ): Namespace<ListenEvents, EmitEvents, ServerSideEvents> {
+  ): Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData> {
     if (typeof name === "function" || name instanceof RegExp) {
       const parentNsp = new ParentNamespace(this);
       debug("initializing parent namespace %s", parentNsp.name);
