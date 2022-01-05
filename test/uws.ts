@@ -46,8 +46,10 @@ describe("socket.io with uWebSocket.js-based engine", () => {
     });
 
     const partialDone = createPartialDone(done, 4);
-    io.on("connection", partialDone);
-    io.of("/custom").on("connection", partialDone);
+    client.on("connect", partialDone);
+    clientWSOnly.on("connect", partialDone);
+    clientPollingOnly.on("connect", partialDone);
+    clientCustomNamespace.on("connect", partialDone);
   });
 
   afterEach(() => {

@@ -1,5 +1,5 @@
 import { Namespace } from "./namespace";
-import type { Server } from "./index";
+import type { Server, RemoteSocket } from "./index";
 import type {
   EventParams,
   EventNames,
@@ -63,5 +63,14 @@ export class ParentNamespace<
     this.children.add(namespace);
     this.server._nsps.set(name, namespace);
     return namespace;
+  }
+
+  fetchSockets(): Promise<RemoteSocket<EmitEvents>[]> {
+    // note: we could make the fetchSockets() method work for dynamic namespaces created with a regex (by sending the
+    // regex to the other Socket.IO servers, and returning the sockets of each matching namespace for example), but
+    // the behavior for namespaces created with a function is less clear
+    // note²: we cannot loop over each children namespace, because with multiple Socket.IO servers, a given namespace
+    // may exist on one node but not exist on another (since it is created upon client connection)
+    throw new Error("fetchSockets() is not supported on parent namespaces");
   }
 }
