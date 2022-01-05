@@ -1830,7 +1830,7 @@ describe("socket.io", () => {
           reconnectionDelay: 100,
         });
         clientSocket.once("connect", () => {
-          srv.close(() => {
+          sio.close(() => {
             clientSocket.io.on("reconnect", () => {
               clientSocket.emit("ev", "payload");
             });
