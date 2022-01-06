@@ -9,7 +9,7 @@ import type {
   TypedEventBroadcaster,
 } from "./typed-events";
 
-export class BroadcastOperator<EmitEvents extends EventsMap>
+export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
   implements TypedEventBroadcaster<EmitEvents>
 {
   constructor(
@@ -26,7 +26,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
    * @return a new BroadcastOperator instance
    * @public
    */
-  public to(room: Room | Room[]): BroadcastOperator<EmitEvents> {
+  public to(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
     const rooms = new Set(this.rooms);
     if (Array.isArray(room)) {
       room.forEach((r) => rooms.add(r));
@@ -48,7 +48,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
    * @return a new BroadcastOperator instance
    * @public
    */
-  public in(room: Room | Room[]): BroadcastOperator<EmitEvents> {
+  public in(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
     return this.to(room);
   }
 
@@ -59,7 +59,9 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
    * @return a new BroadcastOperator instance
    * @public
    */
-  public except(room: Room | Room[]): BroadcastOperator<EmitEvents> {
+  public except(
+    room: Room | Room[]
+  ): BroadcastOperator<EmitEvents, SocketData> {
     const exceptRooms = new Set(this.exceptRooms);
     if (Array.isArray(room)) {
       room.forEach((r) => exceptRooms.add(r));
@@ -81,7 +83,9 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
    * @return a new BroadcastOperator instance
    * @public
    */
-  public compress(compress: boolean): BroadcastOperator<EmitEvents> {
+  public compress(
+    compress: boolean
+  ): BroadcastOperator<EmitEvents, SocketData> {
     const flags = Object.assign({}, this.flags, { compress });
     return new BroadcastOperator(
       this.adapter,
@@ -99,7 +103,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
    * @return a new BroadcastOperator instance
    * @public
    */
-  public get volatile(): BroadcastOperator<EmitEvents> {
+  public get volatile(): BroadcastOperator<EmitEvents, SocketData> {
     const flags = Object.assign({}, this.flags, { volatile: true });
     return new BroadcastOperator(
       this.adapter,
@@ -115,7 +119,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
    * @return a new BroadcastOperator instance
    * @public
    */
-  public get local(): BroadcastOperator<EmitEvents> {
+  public get local(): BroadcastOperator<EmitEvents, SocketData> {
     const flags = Object.assign({}, this.flags, { local: true });
     return new BroadcastOperator(
       this.adapter,
@@ -177,7 +181,9 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
    *
    * @public
    */
-  public fetchSockets(): Promise<RemoteSocket<EmitEvents>[]> {
+  public fetchSockets<SocketData = any>(): Promise<
+    RemoteSocket<EmitEvents, SocketData>[]
+  > {
     return this.adapter
       .fetchSockets({
         rooms: this.rooms,
@@ -187,9 +193,12 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
         return sockets.map((socket) => {
           if (socket instanceof Socket) {
             // FIXME the TypeScript compiler complains about missing private properties
-            return socket as unknown as RemoteSocket<EmitEvents>;
+            return socket as unknown as RemoteSocket<EmitEvents, SocketData>;
           } else {
-            return new RemoteSocket(this.adapter, socket as SocketDetails);
+            return new RemoteSocket(
+              this.adapter,
+              socket as SocketDetails<SocketData>
+            );
           }
         });
       });
@@ -247,27 +256,27 @@ export class BroadcastOperator<EmitEvents extends EventsMap>
 /**
  * Format of the data when the Socket instance exists on another Socket.IO server
  */
-interface SocketDetails {
+interface SocketDetails<SocketData> {
   id: SocketId;
   handshake: Handshake;
   rooms: Room[];
-  data: any;
+  data: SocketData;
 }
 
 /**
  * Expose of subset of the attributes and methods of the Socket class
  */
-export class RemoteSocket<EmitEvents extends EventsMap>
+export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
   implements TypedEventBroadcaster<EmitEvents>
 {
   public readonly id: SocketId;
   public readonly handshake: Handshake;
   public readonly rooms: Set<Room>;
-  public readonly data: any;
+  public readonly data: SocketData;
 
-  private readonly operator: BroadcastOperator<EmitEvents>;
+  private readonly operator: BroadcastOperator<EmitEvents, SocketData>;
 
-  constructor(adapter: Adapter, details: SocketDetails) {
+  constructor(adapter: Adapter, details: SocketDetails<SocketData>) {
     this.id = details.id;
     this.handshake = details.handshake;
     this.rooms = new Set(details.rooms);

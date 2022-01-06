@@ -175,7 +175,7 @@ export class Namespace<
    * @return self
    * @public
    */
-  public to(room: Room | Room[]): BroadcastOperator<EmitEvents> {
+  public to(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
     return new BroadcastOperator(this.adapter).to(room);
   }
 
@@ -186,7 +186,7 @@ export class Namespace<
    * @return self
    * @public
    */
-  public in(room: Room | Room[]): BroadcastOperator<EmitEvents> {
+  public in(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
     return new BroadcastOperator(this.adapter).in(room);
   }
 
@@ -197,7 +197,9 @@ export class Namespace<
    * @return self
    * @public
    */
-  public except(room: Room | Room[]): BroadcastOperator<EmitEvents> {
+  public except(
+    room: Room | Room[]
+  ): BroadcastOperator<EmitEvents, SocketData> {
     return new BroadcastOperator(this.adapter).except(room);
   }
 
@@ -274,7 +276,10 @@ export class Namespace<
     ev: Ev,
     ...args: EventParams<EmitEvents, Ev>
   ): boolean {
-    return new BroadcastOperator<EmitEvents>(this.adapter).emit(ev, ...args);
+    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).emit(
+      ev,
+      ...args
+    );
   }
 
   /**
@@ -346,7 +351,9 @@ export class Namespace<
    * @return self
    * @public
    */
-  public compress(compress: boolean): BroadcastOperator<EmitEvents> {
+  public compress(
+    compress: boolean
+  ): BroadcastOperator<EmitEvents, SocketData> {
     return new BroadcastOperator(this.adapter).compress(compress);
   }
 
@@ -358,7 +365,7 @@ export class Namespace<
    * @return self
    * @public
    */
-  public get volatile(): BroadcastOperator<EmitEvents> {
+  public get volatile(): BroadcastOperator<EmitEvents, SocketData> {
     return new BroadcastOperator(this.adapter).volatile;
   }
 
@@ -368,7 +375,7 @@ export class Namespace<
    * @return self
    * @public
    */
-  public get local(): BroadcastOperator<EmitEvents> {
+  public get local(): BroadcastOperator<EmitEvents, SocketData> {
     return new BroadcastOperator(this.adapter).local;
   }
 
@@ -377,7 +384,7 @@ export class Namespace<
    *
    * @public
    */
-  public fetchSockets(): Promise<RemoteSocket<EmitEvents>[]> {
+  public fetchSockets(): Promise<RemoteSocket<EmitEvents, SocketData>[]> {
     return new BroadcastOperator(this.adapter).fetchSockets();
   }
 

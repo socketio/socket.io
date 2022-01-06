@@ -664,7 +664,7 @@ export class Server<
    * @return self
    * @public
    */
-  public to(room: Room | Room[]): BroadcastOperator<EmitEvents> {
+  public to(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
     return this.sockets.to(room);
   }
 
@@ -675,7 +675,7 @@ export class Server<
    * @return self
    * @public
    */
-  public in(room: Room | Room[]): BroadcastOperator<EmitEvents> {
+  public in(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
     return this.sockets.in(room);
   }
 
@@ -686,7 +686,9 @@ export class Server<
    * @return self
    * @public
    */
-  public except(name: Room | Room[]): BroadcastOperator<EmitEvents> {
+  public except(
+    name: Room | Room[]
+  ): BroadcastOperator<EmitEvents, SocketData> {
     return this.sockets.except(name);
   }
 
@@ -742,7 +744,9 @@ export class Server<
    * @return self
    * @public
    */
-  public compress(compress: boolean): BroadcastOperator<EmitEvents> {
+  public compress(
+    compress: boolean
+  ): BroadcastOperator<EmitEvents, SocketData> {
     return this.sockets.compress(compress);
   }
 
@@ -754,7 +758,7 @@ export class Server<
    * @return self
    * @public
    */
-  public get volatile(): BroadcastOperator<EmitEvents> {
+  public get volatile(): BroadcastOperator<EmitEvents, SocketData> {
     return this.sockets.volatile;
   }
 
@@ -764,7 +768,7 @@ export class Server<
    * @return self
    * @public
    */
-  public get local(): BroadcastOperator<EmitEvents> {
+  public get local(): BroadcastOperator<EmitEvents, SocketData> {
     return this.sockets.local;
   }
 
@@ -773,7 +777,7 @@ export class Server<
    *
    * @public
    */
-  public fetchSockets(): Promise<RemoteSocket<EmitEvents>[]> {
+  public fetchSockets(): Promise<RemoteSocket<EmitEvents, SocketData>[]> {
     return this.sockets.fetchSockets();
   }
 

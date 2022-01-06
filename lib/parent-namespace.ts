@@ -65,7 +65,7 @@ export class ParentNamespace<
     return namespace;
   }
 
-  fetchSockets(): Promise<RemoteSocket<EmitEvents>[]> {
+  fetchSockets(): Promise<RemoteSocket<EmitEvents, SocketData>[]> {
     // note: we could make the fetchSockets() method work for dynamic namespaces created with a regex (by sending the
     // regex to the other Socket.IO servers, and returning the sockets of each matching namespace for example), but
     // the behavior for namespaces created with a function is less clear
