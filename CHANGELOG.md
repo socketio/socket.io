@@ -1,3 +1,13 @@
+## [4.4.1](https://github.com/socketio/socket.io/compare/4.4.0...4.4.1) (2022-01-06)
+
+
+### Bug Fixes
+
+* **types:** make `RemoteSocket.data` type safe ([#4234](https://github.com/socketio/socket.io/issues/4234)) ([770ee59](https://github.com/socketio/socket.io/commit/770ee5949fb47c2556876c622f06c862573657d6))
+* **types:** pass `SocketData` type to custom namespaces ([#4233](https://github.com/socketio/socket.io/issues/4233)) ([f2b8de7](https://github.com/socketio/socket.io/commit/f2b8de71919e1b4d3e57f15a459972c1d1064787))
+
+
+
 # [4.4.0](https://github.com/socketio/socket.io/compare/4.3.2...4.4.0) (2021-11-18)
 
 
