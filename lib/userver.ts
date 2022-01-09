@@ -1,9 +1,27 @@
 import debugModule from "debug";
 import { AttachOptions, BaseServer, Server } from "./server";
-import { HttpRequest, HttpResponse } from "uWebSockets.js";
+import { HttpRequest, HttpResponse, TemplatedApp } from "uWebSockets.js";
 import transports from "./transports-uws";
 
 const debug = debugModule("engine:uws");
+
+export interface uOptions {
+  /**
+   * What permessage-deflate compression to use. uWS.DISABLED, uWS.SHARED_COMPRESSOR or any of the uWS.DEDICATED_COMPRESSOR_xxxKB.
+   * @default uWS.DISABLED
+   */
+  compression?: number;
+  /**
+   * Maximum amount of seconds that may pass without sending or getting a message. Connection is closed if this timeout passes. Resolution (granularity) for timeouts are typically 4 seconds, rounded to closest. Disable by using 0.
+   * @default 120
+   */
+  idleTimeout?: number;
+  /**
+   * Maximum length of allowed backpressure per socket when publishing or sending messages. Slow receivers with too high backpressure will be skipped until they catch up or timeout.
+   * @default 1024 * 1024
+   */
+  maxBackpressure?: number;
+}
 
 export class uServer extends BaseServer {
   protected init() {}
@@ -43,13 +61,18 @@ export class uServer extends BaseServer {
    * @param app
    * @param options
    */
-  public attach(app /* : TemplatedApp */, options: AttachOptions = {}) {
+  public attach(
+    app /* : TemplatedApp */,
+    options: AttachOptions & uOptions = {}
+  ) {
     const path = (options.path || "/engine.io").replace(/\/$/, "") + "/";
-
-    app
+    (app as TemplatedApp)
       .any(path, this.handleRequest.bind(this))
       //
       .ws(path, {
+        compression: options.compression,
+        idleTimeout: options.idleTimeout,
+        maxBackpressure: options.maxBackpressure,
         maxPayloadLength: this.opts.maxHttpBufferSize,
         upgrade: this.handleUpgrade.bind(this),
         open: ws => {
