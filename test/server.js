@@ -157,6 +157,46 @@ describe("server", () => {
         }
       );
     });
+
+    it("should not throw when the client sends invalid data during the handshake (ws only)", done => {
+      listen(port => {
+        // will throw "RangeError: Invalid WebSocket frame: RSV2 and RSV3 must be clear"
+        request
+          .get(`http://localhost:${port}/engine.io/`)
+          .set("connection", "upgrade")
+          .set("upgrade", "websocket")
+          .set("Sec-WebSocket-Version", "13")
+          .set("Sec-WebSocket-Key", "DXR4dX615eRds8nRmlhqtw==")
+          .query({ transport: "websocket", EIO: 4 })
+          .send("test")
+          .end(() => {});
+
+        setTimeout(done, 50);
+      });
+    });
+
+    it("should not throw when the client sends invalid data during the handshake (upgrade)", done => {
+      listen(port => {
+        request
+          .get(`http://localhost:${port}/engine.io/`)
+          .query({ transport: "polling", EIO: 4 })
+          .end((err, res) => {
+            const sid = JSON.parse(res.text.substring(1)).sid;
+
+            request
+              .get(`http://localhost:${port}/engine.io/`)
+              .set("connection", "upgrade")
+              .set("upgrade", "websocket")
+              .set("Sec-WebSocket-Version", "13")
+              .set("Sec-WebSocket-Key", "DXR4dX615eRds8nRmlhqtw==")
+              .query({ transport: "websocket", EIO: 4, sid })
+              .send("test")
+              .end(() => {});
+
+            setTimeout(done, 50);
+          });
+      });
+    });
   });
 
   describe("handshake", () => {

@@ -609,9 +609,6 @@ export class Server extends BaseServer {
         client.maybeUpgrade(transport);
       }
     } else {
-      // transport error handling takes over
-      websocket.removeListener("error", onUpgradeError);
-
       const closeConnection = (errorCode, errorContext) =>
         abortUpgrade(socket, errorCode, errorContext);
       this.handshake(req._query.transport, req, closeConnection);
