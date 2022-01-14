@@ -28,6 +28,10 @@ export class uServer extends BaseServer {
     req.connection = {
       remoteAddress: Buffer.from(res.getRemoteAddressAsText()).toString()
     };
+
+    res.onAborted(() => {
+      debug("response has been aborted");
+    });
   }
 
   protected createTransport(transportName, req) {

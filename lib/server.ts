@@ -245,6 +245,13 @@ export abstract class BaseServer extends EventEmitter {
         });
       }
 
+      if (transport === "websocket" && !upgrade) {
+        debug("invalid transport upgrade");
+        return fn(Server.errors.BAD_REQUEST, {
+          name: "TRANSPORT_HANDSHAKE_ERROR"
+        });
+      }
+
       if (!this.opts.allowRequest) return fn();
 
       return this.opts.allowRequest(req, (message, success) => {

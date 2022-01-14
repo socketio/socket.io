@@ -603,9 +603,6 @@ describe("server", () => {
     });
 
     it("should disallow bad requests (handshake error)", function(done) {
-      if (process.env.EIO_WS_ENGINE === "uws") {
-        return this.skip();
-      }
       const partialDone = createPartialDone(done, 2);
 
       engine = listen(
@@ -618,8 +615,6 @@ describe("server", () => {
             expect(err.code).to.be(3);
             expect(err.message).to.be("Bad request");
             expect(err.context.name).to.be("TRANSPORT_HANDSHAKE_ERROR");
-            expect(err.context.error).to.be.an(Error);
-            expect(err.context.error.name).to.be("TypeError");
             partialDone();
           });
 
