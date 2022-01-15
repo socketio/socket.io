@@ -62,7 +62,7 @@
     "@types/sinonjs__fake-timers": "^6.0.3",
     "babel-loader": "^8.2.2",
     "blob": "0.0.5",
-    "engine.io": "4.0.2",
+    "engine.io": "4.1.2",
     "expect.js": "^0.3.1",
     "express": "^4.17.1",
     "mocha": "^3.2.0",
