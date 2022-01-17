@@ -1,5 +1,5 @@
 import { ERROR_PACKET, PACKET_TYPES_REVERSE } from "./commons.js";
-import { decode } from "base64-arraybuffer";
+import { decode } from "@socket.io/base64-arraybuffer";
 
 const withNativeArrayBuffer = typeof ArrayBuffer === "function";
 

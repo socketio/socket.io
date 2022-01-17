@@ -31,7 +31,7 @@
     "zuul-ngrok": "4.0.0"
   },
   "dependencies": {
-    "base64-arraybuffer": "~1.0.1"
+    "@socket.io/base64-arraybuffer": "~1.0.2"
   },
   "scripts": {
     "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && ./postcompile.sh",
