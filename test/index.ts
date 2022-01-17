@@ -1,12 +1,18 @@
-import { decodePacket, decodePayload, encodePacket, encodePayload } from "..";
+import {
+  decodePacket,
+  decodePayload,
+  encodePacket,
+  encodePayload,
+  Packet
+} from "..";
 import * as expect from "expect.js";
 import "./node";
 
 describe("engine.io-parser", () => {
   describe("single packet", () => {
     it("should encode/decode a string", done => {
-      const packet = { type: "message", data: "test" };
-      encodePacket(packet, {}, encodedPacket => {
+      const packet: Packet = { type: "message", data: "test" };
+      encodePacket(packet, true, encodedPacket => {
         expect(encodedPacket).to.eql("4test");
         expect(decodePacket(encodedPacket)).to.eql(packet);
         done();
@@ -14,11 +20,11 @@ describe("engine.io-parser", () => {
     });
 
     it("should fail to decode a malformed packet", () => {
-      expect(decodePacket("", {})).to.eql({
+      expect(decodePacket("")).to.eql({
         type: "error",
         data: "parser error"
       });
-      expect(decodePacket("a123", {})).to.eql({
+      expect(decodePacket("a123")).to.eql({
         type: "error",
         data: "parser error"
       });
@@ -27,7 +33,7 @@ describe("engine.io-parser", () => {
 
   describe("payload", () => {
     it("should encode/decode all packet types", done => {
-      const packets = [
+      const packets: Packet[] = [
         { type: "open" },
         { type: "close" },
         { type: "ping", data: "probe" },

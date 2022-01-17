@@ -1,6 +1,15 @@
-import { ERROR_PACKET, PACKET_TYPES_REVERSE } from "./commons.js";
+import {
+  ERROR_PACKET,
+  PACKET_TYPES_REVERSE,
+  Packet,
+  BinaryType,
+  RawData
+} from "./commons.js";
 
-const decodePacket = (encodedPacket, binaryType?) => {
+const decodePacket = (
+  encodedPacket: RawData,
+  binaryType?: BinaryType
+): Packet => {
   if (typeof encodedPacket !== "string") {
     return {
       type: "message",
@@ -28,7 +37,7 @@ const decodePacket = (encodedPacket, binaryType?) => {
       };
 };
 
-const mapBinary = (data, binaryType) => {
+const mapBinary = (data: RawData, binaryType?: BinaryType) => {
   const isBuffer = Buffer.isBuffer(data);
   switch (binaryType) {
     case "arraybuffer":
@@ -39,7 +48,7 @@ const mapBinary = (data, binaryType) => {
   }
 };
 
-const toArrayBuffer = buffer => {
+const toArrayBuffer = (buffer: Buffer): ArrayBuffer => {
   const arrayBuffer = new ArrayBuffer(buffer.length);
   const view = new Uint8Array(arrayBuffer);
   for (let i = 0; i < buffer.length; i++) {

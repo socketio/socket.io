@@ -1,9 +1,13 @@
 import encodePacket from "./encodePacket.js";
 import decodePacket from "./decodePacket.js";
+import { Packet, PacketType, RawData, BinaryType } from "./commons";
 
 const SEPARATOR = String.fromCharCode(30); // see https://en.wikipedia.org/wiki/Delimiter#ASCII_delimited_text
 
-const encodePayload = (packets, callback) => {
+const encodePayload = (
+  packets: Packet[],
+  callback: (encodedPayload: string) => void
+) => {
   // some packets may be added to the array while encoding, so the initial length must be saved
   const length = packets.length;
   const encodedPackets = new Array(length);
@@ -20,7 +24,10 @@ const encodePayload = (packets, callback) => {
   });
 };
 
-const decodePayload = (encodedPayload, binaryType?) => {
+const decodePayload = (
+  encodedPayload: string,
+  binaryType?: BinaryType
+): Packet[] => {
   const encodedPackets = encodedPayload.split(SEPARATOR);
   const packets = [];
   for (let i = 0; i < encodedPackets.length; i++) {
@@ -34,4 +41,13 @@ const decodePayload = (encodedPayload, binaryType?) => {
 };
 
 export const protocol = 4;
-export { encodePacket, encodePayload, decodePacket, decodePayload };
+export {
+  encodePacket,
+  encodePayload,
+  decodePacket,
+  decodePayload,
+  Packet,
+  PacketType,
+  RawData,
+  BinaryType
+};

@@ -1,4 +1,4 @@
-import { PACKET_TYPES } from "./commons.js";
+import { PACKET_TYPES, Packet, RawData } from "./commons.js";
 
 const withNativeBlob =
   typeof Blob === "function" ||
@@ -13,7 +13,11 @@ const isView = obj => {
     : obj && obj.buffer instanceof ArrayBuffer;
 };
 
-const encodePacket = ({ type, data }, supportsBinary, callback) => {
+const encodePacket = (
+  { type, data }: Packet,
+  supportsBinary: boolean,
+  callback: (encodedPacket: RawData) => void
+) => {
   if (withNativeBlob && data instanceof Blob) {
     if (supportsBinary) {
       return callback(data);
@@ -34,7 +38,10 @@ const encodePacket = ({ type, data }, supportsBinary, callback) => {
   return callback(PACKET_TYPES[type] + (data || ""));
 };
 
-const encodeBlobAsBase64 = (data, callback) => {
+const encodeBlobAsBase64 = (
+  data: Blob,
+  callback: (encodedPacket: RawData) => void
+) => {
   const fileReader = new FileReader();
   fileReader.onload = function() {
     const content = (fileReader.result as string).split(",")[1];

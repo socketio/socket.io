@@ -1,29 +1,41 @@
-import { decodePacket, decodePayload, encodePacket, encodePayload } from "..";
+import {
+  decodePacket,
+  decodePayload,
+  encodePacket,
+  encodePayload,
+  Packet
+} from "..";
 import * as expect from "expect.js";
 import { areArraysEqual } from "./util";
 
 describe("engine.io-parser (node.js only)", () => {
   describe("single packet", () => {
     it("should encode/decode a Buffer", done => {
-      const packet = { type: "message", data: Buffer.from([1, 2, 3, 4]) };
+      const packet: Packet = {
+        type: "message",
+        data: Buffer.from([1, 2, 3, 4])
+      };
       encodePacket(packet, true, encodedPacket => {
         expect(encodedPacket).to.eql(packet.data); // noop
-        expect(decodePacket(encodedPacket, {})).to.eql(packet);
+        expect(decodePacket(encodedPacket)).to.eql(packet);
         done();
       });
     });
 
     it("should encode/decode a Buffer as base64", done => {
-      const packet = { type: "message", data: Buffer.from([1, 2, 3, 4]) };
+      const packet: Packet = {
+        type: "message",
+        data: Buffer.from([1, 2, 3, 4])
+      };
       encodePacket(packet, false, encodedPacket => {
         expect(encodedPacket).to.eql("bAQIDBA==");
-        expect(decodePacket(encodedPacket, "buffer")).to.eql(packet);
+        expect(decodePacket(encodedPacket, "nodebuffer")).to.eql(packet);
         done();
       });
     });
 
     it("should encode/decode an ArrayBuffer", done => {
-      const packet = {
+      const packet: Packet = {
         type: "message",
         data: Int8Array.from([1, 2, 3, 4]).buffer
       };
@@ -38,7 +50,7 @@ describe("engine.io-parser (node.js only)", () => {
     });
 
     it("should encode/decode an ArrayBuffer as base64", done => {
-      const packet = {
+      const packet: Packet = {
         type: "message",
         data: Int8Array.from([1, 2, 3, 4]).buffer
       };
@@ -83,13 +95,13 @@ describe("engine.io-parser (node.js only)", () => {
 
   describe("payload", () => {
     it("should encode/decode a string + Buffer payload", done => {
-      const packets = [
+      const packets: Packet[] = [
         { type: "message", data: "test" },
         { type: "message", data: Buffer.from([1, 2, 3, 4]) }
       ];
       encodePayload(packets, payload => {
         expect(payload).to.eql("4test\x1ebAQIDBA==");
-        expect(decodePayload(payload, "buffer")).to.eql(packets);
+        expect(decodePayload(payload, "nodebuffer")).to.eql(packets);
         done();
       });
     });

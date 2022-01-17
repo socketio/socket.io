@@ -1,4 +1,10 @@
-import { decodePacket, decodePayload, encodePacket, encodePayload } from "..";
+import {
+  decodePacket,
+  decodePayload,
+  encodePacket,
+  encodePayload,
+  Packet
+} from "..";
 import * as expect from "expect.js";
 import { areArraysEqual, createArrayBuffer } from "./util";
 
@@ -8,7 +14,7 @@ describe("engine.io-parser (browser only)", () => {
   describe("single packet", () => {
     if (withNativeArrayBuffer) {
       it("should encode/decode an ArrayBuffer", done => {
-        const packet = {
+        const packet: Packet = {
           type: "message",
           data: createArrayBuffer([1, 2, 3, 4])
         };
@@ -23,7 +29,7 @@ describe("engine.io-parser (browser only)", () => {
       });
 
       it("should encode/decode an ArrayBuffer as base64", done => {
-        const packet = {
+        const packet: Packet = {
           type: "message",
           data: createArrayBuffer([1, 2, 3, 4])
         };
@@ -49,7 +55,7 @@ describe("engine.io-parser (browser only)", () => {
 
     if (typeof Blob === "function") {
       it("should encode/decode a Blob", done => {
-        const packet = {
+        const packet: Packet = {
           type: "message",
           data: new Blob(["1234", createArrayBuffer([1, 2, 3, 4])])
         };
@@ -63,7 +69,7 @@ describe("engine.io-parser (browser only)", () => {
       });
 
       it("should encode/decode a Blob as base64", done => {
-        const packet = {
+        const packet: Packet = {
           type: "message",
           data: new Blob(["1234", createArrayBuffer([1, 2, 3, 4])])
         };
@@ -81,7 +87,7 @@ describe("engine.io-parser (browser only)", () => {
   describe("payload", () => {
     if (withNativeArrayBuffer) {
       it("should encode/decode a string + ArrayBuffer payload", done => {
-        const packets = [
+        const packets: Packet[] = [
           { type: "message", data: "test" },
           { type: "message", data: createArrayBuffer([1, 2, 3, 4]) }
         ];

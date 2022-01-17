@@ -1,9 +1,18 @@
-import { ERROR_PACKET, PACKET_TYPES_REVERSE } from "./commons.js";
+import {
+  ERROR_PACKET,
+  PACKET_TYPES_REVERSE,
+  Packet,
+  BinaryType,
+  RawData
+} from "./commons.js";
 import { decode } from "@socket.io/base64-arraybuffer";
 
 const withNativeArrayBuffer = typeof ArrayBuffer === "function";
 
-const decodePacket = (encodedPacket, binaryType) => {
+const decodePacket = (
+  encodedPacket: RawData,
+  binaryType?: BinaryType
+): Packet => {
   if (typeof encodedPacket !== "string") {
     return {
       type: "message",

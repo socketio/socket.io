@@ -1,6 +1,10 @@
-import { PACKET_TYPES } from "./commons.js";
+import { PACKET_TYPES, Packet, RawData } from "./commons.js";
 
-const encodePacket = ({ type, data }, supportsBinary, callback) => {
+const encodePacket = (
+  { type, data }: Packet,
+  supportsBinary: boolean,
+  callback: (encodedPacket: RawData) => void
+) => {
   if (data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
     const buffer = toBuffer(data);
     return callback(encodeBuffer(buffer, supportsBinary));
@@ -20,7 +24,7 @@ const toBuffer = data => {
 };
 
 // only 'message' packets can contain binary, so the type prefix is not needed
-const encodeBuffer = (data, supportsBinary) => {
+const encodeBuffer = (data: Buffer, supportsBinary: boolean): RawData => {
   return supportsBinary ? data : "b" + data.toString("base64");
 };
 
