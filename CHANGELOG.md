@@ -1,3 +1,14 @@
+## [6.1.2](https://github.com/socketio/engine.io/compare/6.1.1...6.1.2) (2022-01-18)
+
+
+### Bug Fixes
+
+* **uws:** expose additional uWebSockets.js options ([#634](https://github.com/socketio/engine.io/issues/634)) ([49bb7cf](https://github.com/socketio/engine.io/commit/49bb7cf66518d4b49baf883a16ee1fe1ed8aed28))
+* **uws:** fix HTTP long-polling with CORS ([45112a3](https://github.com/socketio/engine.io/commit/45112a30d1af4cc25b21a5d658a748583cb64ed4))
+* **uws:** handle invalid websocket upgrades ([8b4d6a8](https://github.com/socketio/engine.io/commit/8b4d6a8176db72f5c2420c5a45f0d97d33af049b))
+
+
+
 ## [6.1.1](https://github.com/socketio/engine.io/compare/6.1.0...6.1.1) (2022-01-11)
 
 :warning: This release contains an important security fix :warning:
