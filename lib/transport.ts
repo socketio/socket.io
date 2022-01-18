@@ -3,6 +3,7 @@ import * as parser_v4 from "engine.io-parser";
 import * as parser_v3 from "./parser-v3/index";
 import debugModule from "debug";
 import { IncomingMessage } from "http";
+import { Packet } from "engine.io-parser";
 
 const debug = debugModule("engine:transport");
 
@@ -111,7 +112,7 @@ export abstract class Transport extends EventEmitter {
    * @param {Object} packet
    * @api protected
    */
-  protected onPacket(packet) {
+  protected onPacket(packet: Packet) {
     this.emit("packet", packet);
   }
 

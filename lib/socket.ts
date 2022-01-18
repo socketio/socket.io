@@ -4,6 +4,7 @@ import { IncomingMessage } from "http";
 import { Transport } from "./transport";
 import { Server } from "./server";
 import { setTimeout, clearTimeout } from "timers";
+import { Packet, PacketType, RawData } from "engine.io-parser";
 
 const debug = debugModule("engine:socket");
 
@@ -18,7 +19,7 @@ export class Socket extends EventEmitter {
   private server: Server;
   private upgrading: boolean;
   private upgraded: boolean;
-  private writeBuffer: any[];
+  private writeBuffer: Packet[];
   private packetsFn: any[];
   private sentCallbackFn: any[];
   private cleanupFn: any[];
@@ -116,7 +117,7 @@ export class Socket extends EventEmitter {
    * @param {Object} packet
    * @api private
    */
-  private onPacket(packet) {
+  private onPacket(packet: Packet) {
     if ("open" !== this.readyState) {
       return debug("packet received with closed socket");
     }
@@ -417,7 +418,7 @@ export class Socket extends EventEmitter {
   /**
    * Sends a message packet.
    *
-   * @param {String} message
+   * @param {Object} data
    * @param {Object} options
    * @param {Function} callback
    * @return {Socket} for chaining
@@ -436,12 +437,14 @@ export class Socket extends EventEmitter {
   /**
    * Sends a packet.
    *
-   * @param {String} packet type
-   * @param {String} optional, data
+   * @param {String} type - packet type
+   * @param {String} data
    * @param {Object} options
+   * @param {Function} callback
+   *
    * @api private
    */
-  private sendPacket(type, data?, options?, callback?) {
+  private sendPacket(type: PacketType, data?: RawData, options?, callback?) {
     if ("function" === typeof options) {
       callback = options;
       options = null;
@@ -453,10 +456,11 @@ export class Socket extends EventEmitter {
     if ("closing" !== this.readyState && "closed" !== this.readyState) {
       debug('sending packet "%s" (%s)', type, data);
 
-      const packet: any = {
-        type: type,
-        options: options
+      const packet: Packet = {
+        type,
+        options
       };
+
       if (data) packet.data = data;
 
       // exports packetCreate event
