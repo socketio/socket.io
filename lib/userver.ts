@@ -275,6 +275,10 @@ class ResponseWrapper {
     this.res.end(data);
   }
 
+  public onData(fn) {
+    this.res.onData(fn);
+  }
+
   public onAborted(fn) {
     this.res.onAborted(fn);
   }

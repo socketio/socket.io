@@ -3552,6 +3552,31 @@ describe("server", () => {
         }
       );
     });
+
+    it("should work with CORS enabled", done => {
+      engine = listen(
+        { cors: { origin: true, headers: ["my-header"], credentials: true } },
+        port => {
+          const client = new ClientSocket(`ws://localhost:${port}`, {
+            transports: ["polling"]
+          });
+          engine.on("connection", socket => {
+            socket.on("message", msg => {
+              expect(msg).to.be("hey");
+              socket.send("holà");
+            });
+          });
+          client.on("open", () => {
+            client.send("hey");
+          });
+          client.on("message", msg => {
+            expect(msg).to.be("holà");
+            client.close();
+            done();
+          });
+        }
+      );
+    });
   });
 
   describe("wsEngine option", () => {
