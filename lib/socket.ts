@@ -107,7 +107,10 @@ export interface Handshake {
   auth: { [key: string]: any };
 }
 
-export type Event = [eventName: string, ...args: any[]];
+/**
+ * `[eventName, ...args]`
+ */
+export type Event = [string, ...any[]];
 
 export class Socket<
   ListenEvents extends EventsMap = DefaultEventsMap,
