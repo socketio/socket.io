@@ -22,6 +22,7 @@
 import socket from "../socket";
 import User from "./User";
 import MessagePanel from "./MessagePanel";
+import moment from 'moment'
 
 export default {
   name: "Chat",
@@ -69,6 +70,7 @@ export default {
 
     const initReactiveProperties = (user) => {
       user.hasNewMessages = false;
+      user.lastSeen = user.lastSeen ? moment.unix(parseInt(user.lastSeen)/1000) : undefined
     };
 
     socket.on("users", (users) => {
@@ -80,6 +82,7 @@ export default {
           const existingUser = this.users[i];
           if (existingUser.userID === user.userID) {
             existingUser.connected = user.connected;
+            existingUser.lastSeen = user.lastSeen
             existingUser.messages = user.messages;
             return;
           }
@@ -109,11 +112,13 @@ export default {
       this.users.push(user);
     });
 
-    socket.on("user disconnected", (id) => {
+    socket.on("user disconnected", (id, lastSeen) => {
       for (let i = 0; i < this.users.length; i++) {
         const user = this.users[i];
         if (user.userID === id) {
           user.connected = false;
+          user.lastSeen = lastSeen;
+          initReactiveProperties(user);
           break;
         }
       }

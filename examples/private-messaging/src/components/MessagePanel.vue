@@ -2,6 +2,7 @@
   <div>
     <div class="header">
       <status-icon :connected="user.connected" />{{ user.username }}
+      <last-seen :lastSeen="user.lastSeen" />
     </div>
 
     <ul class="messages">
@@ -26,11 +27,13 @@
 
 <script>
 import StatusIcon from "./StatusIcon";
+import LastSeen from "./LastSeen";
 
 export default {
   name: "MessagePanel",
   components: {
     StatusIcon,
+    LastSeen,
   },
   props: {
     user: Object,
