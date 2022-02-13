@@ -24,6 +24,10 @@ const sessionStore = new RedisSessionStore(redisClient);
 const { RedisMessageStore } = require("./messageStore");
 const messageStore = new RedisMessageStore(redisClient);
 
+
+const { RedisProfileStore } = require("./profileStore");
+const profileStore = new RedisProfileStore(redisClient);
+
 io.use(async (socket, next) => {
   const sessionID = socket.handshake.auth.sessionID;
   if (sessionID) {
@@ -46,12 +50,16 @@ io.use(async (socket, next) => {
 });
 
 io.on("connection", async (socket) => {
+  console.log("Accepting new connection...")
   // persist session
   sessionStore.saveSession(socket.sessionID, {
     userID: socket.userID,
     username: socket.username,
     connected: true,
   });
+
+  // clear lastSeen
+  profileStore.saveProfile(socket.userID, { lastSeen: undefined })
 
   // emit session details
   socket.emit("session", {
@@ -63,11 +71,13 @@ io.on("connection", async (socket) => {
   socket.join(socket.userID);
 
   // fetch existing users
-  const users = [];
-  const [messages, sessions] = await Promise.all([
+  const users = []
+  const [messages, sessions, profiles] = await Promise.all([
     messageStore.findMessagesForUser(socket.userID),
     sessionStore.findAllSessions(),
+    profileStore.findAllProfiles(),
   ]);
+  console.log("profiles:", profiles)
   const messagesPerUser = new Map();
   messages.forEach((message) => {
     const { from, to } = message;
@@ -80,13 +90,16 @@ io.on("connection", async (socket) => {
   });
 
   sessions.forEach((session) => {
+    const profile = profiles.filter(p => p.id === session.userID)[0];
     users.push({
       userID: session.userID,
       username: session.username,
       connected: session.connected,
+      lastSeen: profile ? profile.lastSeen : undefined,
       messages: messagesPerUser.get(session.userID) || [],
     });
   });
+  console.log("Sending users: ", users)
   socket.emit("users", users);
 
   // notify existing users
@@ -110,18 +123,25 @@ io.on("connection", async (socket) => {
 
   // notify users upon disconnection
   socket.on("disconnect", async () => {
+    console.log("Disconnecting socket...")
     const matchingSockets = await io.in(socket.userID).allSockets();
     const isDisconnected = matchingSockets.size === 0;
     if (isDisconnected) {
+      const lastSeen = Date.now();
       // notify other users
-      socket.broadcast.emit("user disconnected", socket.userID);
+      socket.broadcast.emit("user disconnected", socket.userID, lastSeen);
       // update the connection status of the session
       sessionStore.saveSession(socket.sessionID, {
         userID: socket.userID,
         username: socket.username,
         connected: false,
       });
+      // update lastSeen
+      console.log("Setting lastSeen to ", lastSeen)
+     profileStore.saveProfile(socket.userID, { lastSeen })
     }
+
+    console.log("Disconnecting completed.")
   });
 });
 
