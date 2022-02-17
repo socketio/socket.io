@@ -14,6 +14,21 @@ describe("parser", () => {
     helpers.test_bin(packet, done);
   });
 
+  it("encodes an ArrayBuffer into an object with a null prototype", (done) => {
+    const packet = {
+      type: PacketType.EVENT,
+      data: [
+        "a",
+        Object.create(null, {
+          array: { value: new ArrayBuffer(2), enumerable: true },
+        }),
+      ],
+      id: 0,
+      nsp: "/",
+    };
+    helpers.test_bin(packet, done);
+  });
+
   it("encodes a TypedArray", (done) => {
     const array = new Uint8Array(5);
     for (let i = 0; i < array.length; i++) array[i] = i;

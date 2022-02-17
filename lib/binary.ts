@@ -33,7 +33,7 @@ function _deconstructPacket(data, buffers) {
   } else if (typeof data === "object" && !(data instanceof Date)) {
     const newData = {};
     for (const key in data) {
-      if (data.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
         newData[key] = _deconstructPacket(data[key], buffers);
       }
     }
@@ -68,7 +68,7 @@ function _reconstructPacket(data, buffers) {
     }
   } else if (typeof data === "object") {
     for (const key in data) {
-      if (data.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
         data[key] = _reconstructPacket(data[key], buffers);
       }
     }
