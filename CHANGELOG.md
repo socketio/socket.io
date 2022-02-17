@@ -1,3 +1,12 @@
+## [4.1.2](https://github.com/socketio/socket.io-parser/compare/4.1.1...4.1.2) (2022-02-17)
+
+
+### Bug Fixes
+
+* allow objects with a null prototype in binary packets ([#114](https://github.com/socketio/socket.io-parser/issues/114)) ([7f6b262](https://github.com/socketio/socket.io-parser/commit/7f6b262ac83bdf43c53a7eb02417e56e0cf491c8))
+
+
+
 ## [4.1.1](https://github.com/socketio/socket.io-parser/compare/4.1.0...4.1.1) (2021-10-14)
 
 
