@@ -9,7 +9,7 @@ import { serialize } from "cookie";
 import { Server as DEFAULT_WS_ENGINE } from "ws";
 import { IncomingMessage, Server as HttpServer } from "http";
 import { CookieSerializeOptions } from "cookie";
-import { CorsOptions } from "cors";
+import { CorsOptions, CorsOptionsDelegate } from "cors";
 
 const debug = debugModule("engine");
 
@@ -105,7 +105,7 @@ export interface ServerOptions {
   /**
    * the options that will be forwarded to the cors module
    */
-  cors?: CorsOptions;
+  cors?: CorsOptions | CorsOptionsDelegate;
   /**
    * whether to enable compatibility with Socket.IO v2 clients
    * @default false
