@@ -122,6 +122,20 @@ export class Polling extends Transport {
       return;
     }
 
+    const expectedContentLength = Number(req.headers["content-length"]);
+
+    if (!expectedContentLength) {
+      this.onError("content-length header required");
+      res.writeStatus("411 Length Required").end();
+      return;
+    }
+
+    if (expectedContentLength > this.maxHttpBufferSize) {
+      this.onError("payload too large");
+      res.writeStatus("413 Payload Too Large").end();
+      return;
+    }
+
     const isBinary = "application/octet-stream" === req.headers["content-type"];
 
     if (isBinary && this.protocol === 4) {
@@ -131,11 +145,11 @@ export class Polling extends Transport {
     this.dataReq = req;
     this.dataRes = res;
 
-    let chunks = [];
-    let contentLength = 0;
+    let buffer;
+    let offset = 0;
 
     const cleanup = () => {
-      this.dataReq = this.dataRes = chunks = null;
+      this.dataReq = this.dataRes = null;
     };
 
     const onClose = () => {
@@ -154,8 +168,8 @@ export class Polling extends Transport {
       res.writeHeader(key, String(headers[key]));
     });
 
-    const onEnd = () => {
-      this.onData(Buffer.concat(chunks).toString());
+    const onEnd = buffer => {
+      this.onData(buffer.toString());
 
       if (this.readyState !== "closing") {
         res.end("ok");
@@ -165,18 +179,36 @@ export class Polling extends Transport {
 
     res.onAborted(onClose);
 
-    res.onData((chunk, isLast) => {
-      chunks.push(Buffer.from(chunk));
-      contentLength += Buffer.byteLength(chunk);
-      if (contentLength > this.maxHttpBufferSize) {
-        this.onError("payload too large");
-        res.writeStatus("413 Payload Too Large");
-        res.end();
+    res.onData((arrayBuffer, isLast) => {
+      const totalLength = offset + arrayBuffer.byteLength;
+      if (totalLength > expectedContentLength) {
+        this.onError("content-length mismatch");
+        res.close(); // calls onAborted
         return;
       }
-      if (isLast) {
-        onEnd();
+
+      if (!buffer) {
+        if (isLast) {
+          onEnd(Buffer.from(arrayBuffer));
+          return;
+        }
+        buffer = Buffer.allocUnsafe(expectedContentLength);
       }
+
+      Buffer.from(arrayBuffer).copy(buffer, offset);
+
+      if (isLast) {
+        if (totalLength != expectedContentLength) {
+          this.onError("content-length mismatch");
+          res.writeStatus("400 Content-Length Mismatch").end();
+          cleanup();
+          return;
+        }
+        onEnd(buffer);
+        return;
+      }
+
+      offset = totalLength;
     });
   }
 

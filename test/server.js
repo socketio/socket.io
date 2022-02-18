@@ -1955,6 +1955,65 @@ describe("server", () => {
       });
     });
 
+    it("should arrive when content is split in multiple chunks (polling)", done => {
+      const engine = listen(
+        {
+          maxHttpBufferSize: 1e10
+        },
+        port => {
+          const client = new ClientSocket(`ws://localhost:${port}`, {
+            transports: ["polling"]
+          });
+
+          engine.on("connection", socket => {
+            socket.on("message", data => {
+              client.close();
+              done();
+            });
+          });
+
+          client.on("open", () => {
+            client.send("a".repeat(1e6));
+          });
+        }
+      );
+    });
+
+    it("should arrive when content is sent with chunked transfer-encoding (polling)", function(done) {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        // µWebSockets.js does not currently support chunked encoding: https://github.com/uNetworking/uWebSockets.js/issues/669
+        return this.skip();
+      }
+      const engine = listen(port => {
+        const client = new ClientSocket(`ws://localhost:${port}`, {
+          transports: ["polling"]
+        });
+
+        engine.on("connection", socket => {
+          socket.on("message", data => {
+            expect(data).to.eql("123");
+
+            client.close();
+            done();
+          });
+        });
+
+        client.on("open", () => {
+          const req = http.request({
+            host: "localhost",
+            port,
+            path: `/engine.io/?EIO=4&transport=polling&sid=${client.id}`,
+            method: "POST"
+          });
+
+          req.write(process.env.EIO_CLIENT === "3" ? "4:41" : "41");
+          req.write("2");
+          req.write("3");
+          req.end();
+        });
+      });
+    });
+
     it("should arrive as ArrayBuffer if requested when binary data sent as Buffer (polling)", done => {
       const binaryData = Buffer.allocUnsafe(5);
       for (let i = 0; i < binaryData.length; i++) {
