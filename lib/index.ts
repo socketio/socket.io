@@ -578,7 +578,7 @@ export class Server<
    * @param fn optional, nsp `connection` ev handler
    * @public
    */
-  public of(
+  public of<ListenEvents, EmitEvents, ServerSideEvents, SocketData>(
     name: string | RegExp | ParentNspNameMatchFn,
     fn?: (
       socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
