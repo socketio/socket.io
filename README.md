@@ -33,6 +33,7 @@ Table of Contents:
 - [Timeouts](#timeouts)
 - [Difference between v3 and v4](#difference-between-v3-and-v4)
 - [Difference between v2 and v3](#difference-between-v2-and-v3)
+- [Test suite](#test-suite)
 
 ## Revision
 
@@ -471,3 +472,32 @@ The revision 4 of the protocol will be included in Socket.IO v3.
 - add support for binary data
 
 v2 is included in Socket.IO v0.9, while v3 is included in Socket.IO v1/v2.
+
+## Test suite
+
+The test suite in the `test-suite/` directory lets you check the compliance of a server implementation.
+
+Usage:
+
+- in Node.js: `npm ci && npm test`
+- in a browser: simply open the `index.html` file in your browser
+
+For reference, here is expected configuration for the JS server to pass all tests:
+
+```js
+import { listen } from "engine.io";
+
+const server = listen(3000, {
+  pingInterval: 300,
+  pingTimeout: 200,
+  cors: {
+    origin: "*"
+  }
+});
+
+server.on("connection", socket => {
+  socket.on("data", (...args) => {
+    socket.send(...args);
+  });
+});
+```
