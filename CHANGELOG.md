@@ -1,3 +1,13 @@
+## [6.1.3](https://github.com/socketio/engine.io/compare/6.1.2...6.1.3) (2022-02-23)
+
+
+### Bug Fixes
+
+* **typings:** allow CorsOptionsDelegate as cors options ([#641](https://github.com/socketio/engine.io/issues/641)) ([a463d26](https://github.com/socketio/engine.io/commit/a463d268ed90064e7863679bda423951de108c36))
+* **uws:** properly handle chunked content ([#642](https://github.com/socketio/engine.io/issues/642)) ([3367440](https://github.com/socketio/engine.io/commit/33674403084c329dc6ad026c4122333a6f8a9992))
+
+
+
 ## [6.1.2](https://github.com/socketio/engine.io/compare/6.1.1...6.1.2) (2022-01-18)
 
 
