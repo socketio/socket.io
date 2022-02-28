@@ -52,7 +52,7 @@ export class Polling extends Transport {
    * @param {http.IncomingMessage}
    * @api private
    */
-  onRequest(req) {
+  onRequest(req: IncomingMessage & { res: ServerResponse }) {
     const res = req.res;
 
     if ("GET" === req.method) {
@@ -112,7 +112,7 @@ export class Polling extends Transport {
    *
    * @api private
    */
-  onDataRequest(req, res) {
+  onDataRequest(req: IncomingMessage, res: ServerResponse) {
     if (this.dataReq) {
       // assert: this.dataRes, '.dataReq and .dataRes should be (un)set together'
       this.onError("data request overlap from client");
@@ -155,8 +155,8 @@ export class Polling extends Transport {
       }
 
       if (contentLength > this.maxHttpBufferSize) {
-        chunks = isBinary ? Buffer.concat([]) : "";
-        req.connection.destroy();
+        res.writeHead(413).end();
+        cleanup();
       }
     };
 
