@@ -33,6 +33,7 @@
   - [Difference between v3 and v2](#difference-between-v3-and-v2)
   - [Difference between v2 and v1](#difference-between-v2-and-v1)
   - [Initial revision](#initial-revision)
+- [Test suite](#test-suite)
 
 ## Protocol version
 
@@ -629,6 +630,46 @@ packets were encoded with [msgpack](https://msgpack.org/).
 This first revision was the result of the split between the Engine.IO protocol (low-level plumbing with WebSocket / HTTP
 long-polling, heartbeat) and the Socket.IO protocol. It was never included in a Socket.IO release, but paved the way for
 the next iterations.
+
+## Test suite
+
+The test suite in the `test-suite/` directory lets you check the compliance of a server implementation.
+
+Usage:
+
+- in Node.js: `npm ci && npm test`
+- in a browser: simply open the `index.html` file in your browser
+
+For reference, here is expected configuration for the JS server to pass all tests:
+
+```js
+import { Server } from "socket.io";
+
+const io = new Server(3000, {
+  pingInterval: 300,
+  pingTimeout: 200,
+  cors: {
+    origin: "*"
+  }
+});
+
+io.on("connection", (socket) => {
+  socket.emit("auth", socket.handshake.auth);
+
+  socket.on("message", (...args) => {
+    socket.emit.apply(socket, ["message-back", ...args]);
+  });
+
+  socket.on("message-with-ack", (...args) => {
+    const ack = args.pop();
+    ack(...args);
+  })
+});
+
+io.of("/custom").on("connection", (socket) => {
+  socket.emit("auth", socket.handshake.auth);
+});
+```
 
 ## License
 
