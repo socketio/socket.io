@@ -449,6 +449,7 @@ describe("server", () => {
           expect(obj.sid).to.be.a("string");
           expect(obj.pingTimeout).to.be.a("number");
           expect(obj.upgrades).to.be.an("array");
+          expect(obj.maxPayload).to.eql(1000000);
           done();
         });
       });
@@ -3356,7 +3357,7 @@ describe("server", () => {
             expect(res.headers["set-cookie"].length).to.be(2);
             expect(res.headers["set-cookie"][1]).to.be("mycookie=456");
 
-            const sid = JSON.parse(res.text.substring(4)).sid;
+            const sid = JSON.parse(res.text.substring(5)).sid;
 
             request
               .post(`http://localhost:${port}/engine.io/`)
@@ -3393,7 +3394,7 @@ describe("server", () => {
             expect(res.headers["set-cookie"].length).to.be(2);
             expect(res.headers["set-cookie"][1]).to.be("mycookie=456");
 
-            const sid = JSON.parse(res.text.substring(4)).sid;
+            const sid = JSON.parse(res.text.substring(5)).sid;
 
             request
               .post(`http://localhost:${port}/engine.io/`)

@@ -90,7 +90,8 @@ export class Socket extends EventEmitter {
         sid: this.id,
         upgrades: this.getAvailableUpgrades(),
         pingInterval: this.server.opts.pingInterval,
-        pingTimeout: this.server.opts.pingTimeout
+        pingTimeout: this.server.opts.pingTimeout,
+        maxPayload: this.server.opts.maxHttpBufferSize
       })
     );
 
