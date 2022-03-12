@@ -1,5 +1,5 @@
 import { transports } from "./transports/index.js";
-import { installTimerFunctions } from "./util.js";
+import { installTimerFunctions, byteLength } from "./util.js";
 import parseqs from "parseqs";
 import parseuri from "parseuri";
 import debugModule from "debug"; // debug()
@@ -249,6 +249,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   private clearTimeoutFn: typeof clearTimeout;
   private offlineEventListener;
   private upgrading: boolean;
+  private maxPayload?: number;
 
   private readonly opts: Partial<SocketOptions>;
   private readonly secure: boolean;
@@ -676,6 +677,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
     this.upgrades = this.filterUpgrades(data.upgrades);
     this.pingInterval = data.pingInterval;
     this.pingTimeout = data.pingTimeout;
+    this.maxPayload = data.maxPayload;
     this.onOpen();
     // In case open handler closes socket
     if ("closed" === this.readyState) return;
@@ -729,13 +731,44 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
       !this.upgrading &&
       this.writeBuffer.length
     ) {
-      debug("flushing %d packets in socket", this.writeBuffer.length);
-      this.transport.send(this.writeBuffer);
+      const packets = this.getWritablePackets();
+      debug("flushing %d packets in socket", packets.length);
+      this.transport.send(packets);
       // keep track of current length of writeBuffer
       // splice writeBuffer and callbackBuffer on `drain`
-      this.prevBufferLen = this.writeBuffer.length;
+      this.prevBufferLen = packets.length;
       this.emitReserved("flush");
     }
+  }
+
+  /**
+   * Ensure the encoded size of the writeBuffer is below the maxPayload value sent by the server (only for HTTP
+   * long-polling)
+   *
+   * @private
+   */
+  private getWritablePackets() {
+    const shouldCheckPayloadSize =
+      this.maxPayload &&
+      this.transport.name === "polling" &&
+      this.writeBuffer.length > 1;
+    if (!shouldCheckPayloadSize) {
+      return this.writeBuffer;
+    }
+    let payloadSize = 1; // first packet type
+    for (let i = 0; i < this.writeBuffer.length; i++) {
+      const data = this.writeBuffer[i].data;
+      if (data) {
+        payloadSize += byteLength(data);
+      }
+      if (i > 0 && payloadSize > this.maxPayload) {
+        debug("only send %d out of %d packets", i, this.writeBuffer.length);
+        return this.writeBuffer.slice(0, i);
+      }
+      payloadSize += 2; // separator + packet type
+    }
+    debug("payload size is %d (max: %d)", payloadSize, this.maxPayload);
+    return this.writeBuffer;
   }
 
   /**

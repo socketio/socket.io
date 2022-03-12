@@ -1,5 +1,6 @@
 const expect = require("expect.js");
-const eio = require("../../");
+const { Socket } = require("../../");
+const { repeat } = require("../util");
 
 describe("arraybuffer", function() {
   this.timeout(30000);
@@ -9,7 +10,7 @@ describe("arraybuffer", function() {
     for (let i = 0; i < 5; i++) {
       binaryData[i] = i;
     }
-    const socket = new eio.Socket({ transports: ["polling"] });
+    const socket = new Socket({ transports: ["polling"] });
     socket.binaryType = "arraybuffer";
     socket.on("open", () => {
       socket.send(binaryData);
@@ -31,7 +32,7 @@ describe("arraybuffer", function() {
     }
 
     let msg = 0;
-    const socket = new eio.Socket({ transports: ["polling"] });
+    const socket = new Socket({ transports: ["polling"] });
     socket.binaryType = "arraybuffer";
     socket.on("open", () => {
       socket.send(binaryData);
@@ -57,7 +58,7 @@ describe("arraybuffer", function() {
     for (let i = 0; i < 5; i++) {
       binaryData[i] = i;
     }
-    const socket = new eio.Socket({ forceBase64: true });
+    const socket = new Socket({ forceBase64: true });
     socket.binaryType = "arraybuffer";
     socket.on("open", () => {
       socket.send(binaryData);
@@ -69,6 +70,26 @@ describe("arraybuffer", function() {
         expect(ia).to.eql(binaryData);
         socket.close();
         done();
+      });
+    });
+  });
+
+  it("should merge binary packets according to maxPayload value", done => {
+    const socket = new Socket({ transports: ["polling"] });
+    socket.on("open", () => {
+      socket.send(new Uint8Array(72));
+      socket.send(new Uint8Array(20));
+      socket.send(repeat("a", 20));
+      socket.send(new Uint8Array(20).buffer);
+      socket.send(new Uint8Array(72));
+
+      let count = 0;
+      socket.on("message", () => {
+        count++;
+        if (count === 5) {
+          socket.close();
+          done();
+        }
       });
     });
   });

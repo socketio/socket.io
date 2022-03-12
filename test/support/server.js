@@ -4,7 +4,10 @@ const express = require("express");
 const app = express();
 const join = require("path").join;
 const http = require("http").Server(app);
-const server = require("engine.io").attach(http, { pingInterval: 500 });
+const server = require("engine.io").attach(http, {
+  pingInterval: 500,
+  maxHttpBufferSize: 100
+});
 const { rollup } = require("rollup");
 
 const rollupConfig = require("../../support/rollup.config.umd.js");

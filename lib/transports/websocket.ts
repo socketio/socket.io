@@ -141,6 +141,7 @@ export class WS extends Transport {
 
           if (this.opts.perMessageDeflate) {
             const len =
+              // @ts-ignore
               "string" === typeof data ? Buffer.byteLength(data) : data.length;
             if (len < this.opts.perMessageDeflate.threshold) {
               opts.compress = false;

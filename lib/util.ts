@@ -22,3 +22,34 @@ export function installTimerFunctions(obj, opts) {
     obj.clearTimeoutFn = clearTimeout.bind(globalThis);
   }
 }
+
+// base64 encoded buffers are about 33% bigger (https://en.wikipedia.org/wiki/Base64)
+const BASE64_OVERHEAD = 1.33;
+
+// we could also have used `new Blob([obj]).size`, but it isn't supported in IE9
+export function byteLength(obj) {
+  if (typeof obj === "string") {
+    return utf8Length(obj);
+  }
+  // arraybuffer or blob
+  return Math.ceil((obj.byteLength || obj.size) * BASE64_OVERHEAD);
+}
+
+function utf8Length(str) {
+  let c = 0,
+    length = 0;
+  for (let i = 0, l = str.length; i < l; i++) {
+    c = str.charCodeAt(i);
+    if (c < 0x80) {
+      length += 1;
+    } else if (c < 0x800) {
+      length += 2;
+    } else if (c < 0xd800 || c >= 0xe000) {
+      length += 3;
+    } else {
+      i++;
+      length += 4;
+    }
+  }
+  return length;
+}
