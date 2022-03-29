@@ -1,6 +1,8 @@
 import { EventEmitter } from "events";
 
 export type SocketId = string;
+// we could extend the Room type to "string | number", but that would be a breaking change
+// related: https://github.com/socketio/socket.io-redis-adapter/issues/418
 export type Room = string;
 
 export interface BroadcastFlags {
