@@ -9,6 +9,7 @@ export interface BroadcastFlags {
   local?: boolean;
   broadcast?: boolean;
   binary?: boolean;
+  timeout?: number;
 }
 
 export interface BroadcastOptions {
@@ -41,6 +42,15 @@ export class Adapter extends EventEmitter {
    * To be overridden
    */
   public close(): Promise<void> | void {}
+
+  /**
+   * Returns the number of Socket.IO servers in the cluster
+   *
+   * @public
+   */
+  public serverCount(): Promise<number> {
+    return Promise.resolve(1);
+  }
 
   /**
    * Adds a socket to a list of room.
@@ -138,6 +148,54 @@ export class Adapter extends EventEmitter {
     this.apply(opts, socket => {
       socket.client.writeToEngine(encodedPackets, packetOpts);
     });
+  }
+
+  /**
+   * Broadcasts a packet and expects multiple acknowledgements.
+   *
+   * Options:
+   *  - `flags` {Object} flags for this packet
+   *  - `except` {Array} sids that should be excluded
+   *  - `rooms` {Array} list of rooms to broadcast to
+   *
+   * @param {Object} packet   the packet object
+   * @param {Object} opts     the options
+   * @param clientCountCallback - the number of clients that received the packet
+   * @param ack                 - the callback that will be called for each client response
+   *
+   * @public
+   */
+  public broadcastWithAck(
+    packet: any,
+    opts: BroadcastOptions,
+    clientCountCallback: (clientCount: number) => void,
+    ack: (...args: any[]) => void
+  ) {
+    const flags = opts.flags || {};
+    const packetOpts = {
+      preEncoded: true,
+      volatile: flags.volatile,
+      compress: flags.compress
+    };
+
+    packet.nsp = this.nsp.name;
+    // we can use the same id for each packet, since the _ids counter is common (no duplicate)
+    packet.id = this.nsp._ids++;
+
+    const encodedPackets = this.encoder.encode(packet);
+
+    let clientCount = 0;
+
+    this.apply(opts, socket => {
+      // track the total number of acknowledgements that are expected
+      clientCount++;
+      // call the ack callback for each client response
+      socket.acks.set(packet.id, ack);
+
+      socket.client.writeToEngine(encodedPackets, packetOpts);
+    });
+
+    clientCountCallback(clientCount);
   }
 
   /**
