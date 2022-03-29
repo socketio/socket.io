@@ -146,6 +146,10 @@ export class Adapter extends EventEmitter {
     const encodedPackets = this.encoder.encode(packet);
 
     this.apply(opts, socket => {
+      if (typeof socket.notifyOutgoingListeners === "function") {
+        socket.notifyOutgoingListeners(packet);
+      }
+
       socket.client.writeToEngine(encodedPackets, packetOpts);
     });
   }
@@ -191,6 +195,10 @@ export class Adapter extends EventEmitter {
       clientCount++;
       // call the ack callback for each client response
       socket.acks.set(packet.id, ack);
+
+      if (typeof socket.notifyOutgoingListeners === "function") {
+        socket.notifyOutgoingListeners(packet);
+      }
 
       socket.client.writeToEngine(encodedPackets, packetOpts);
     });
