@@ -1,3 +1,13 @@
+# [2.4.0](https://github.com/socketio/socket.io-adapter/compare/2.3.3...2.4.0) (2022-03-30)
+
+
+### Features
+
+* broadcast and expect multiple acks ([a7f1c90](https://github.com/socketio/socket.io-adapter/commit/a7f1c90a322241ffaca96ddc42f204d79bc514b5))
+* notify listeners for each outgoing packet ([38ee887](https://github.com/socketio/socket.io-adapter/commit/38ee887fefa8288f3a3468292c17fe7d5ca57ffc))
+
+
+
 ## [2.3.3](https://github.com/socketio/socket.io-adapter/compare/2.3.2...2.3.3) (2021-11-16)
 
 
