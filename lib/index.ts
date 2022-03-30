@@ -327,7 +327,7 @@ export class Adapter extends EventEmitter {
    * @param packet - an array of arguments, which may include an acknowledgement callback at the end
    */
   public serverSideEmit(packet: any[]): void {
-    throw new Error(
+    console.warn(
       "this adapter does not support the serverSideEmit() functionality"
     );
   }
