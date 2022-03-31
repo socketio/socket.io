@@ -407,9 +407,6 @@ export class Socket<
       case PacketType.DISCONNECT:
         this.ondisconnect();
         break;
-
-      case PacketType.CONNECT_ERROR:
-        this._onerror(new Error(packet.data));
     }
   }
 

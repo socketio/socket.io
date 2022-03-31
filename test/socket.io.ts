@@ -47,6 +47,44 @@ const getPort = (io: Server): number => {
   return io.httpServer.address().port;
 };
 
+// TODO: update superagent as latest release now supports promises
+const eioHandshake = (httpServer): Promise<string> => {
+  return new Promise((resolve) => {
+    request(httpServer)
+      .get("/socket.io/")
+      .query({ transport: "polling", EIO: 4 })
+      .end((err, res) => {
+        const sid = JSON.parse(res.text.substring(1)).sid;
+        resolve(sid);
+      });
+  });
+};
+
+const eioPush = (httpServer, sid: string, body: string): Promise<void> => {
+  return new Promise((resolve) => {
+    request(httpServer)
+      .post("/socket.io/")
+      .send(body)
+      .query({ transport: "polling", EIO: 4, sid })
+      .expect(200)
+      .end(() => {
+        resolve();
+      });
+  });
+};
+
+const eioPoll = (httpServer, sid): Promise<string> => {
+  return new Promise((resolve) => {
+    request(httpServer)
+      .get("/socket.io/")
+      .query({ transport: "polling", EIO: 4, sid })
+      .expect(200)
+      .end((err, res) => {
+        resolve(res.text);
+      });
+  });
+};
+
 describe("socket.io", () => {
   it("should be the same version as client", () => {
     const version = require("../package").version;
@@ -376,6 +414,66 @@ describe("socket.io", () => {
 
       it("should stop socket and timers", (done) => {
         exec(fixture("server-close.ts"), done);
+      });
+    });
+
+    describe("protocol violations", () => {
+      it("should close the connection when receiving several CONNECT packets", async () => {
+        const httpServer = createServer();
+        const io = new Server(httpServer);
+
+        httpServer.listen(0);
+
+        const sid = await eioHandshake(httpServer);
+        // send a first CONNECT packet
+        await eioPush(httpServer, sid, "40");
+        // send another CONNECT packet
+        await eioPush(httpServer, sid, "40");
+        // session is cleanly closed (not discarded, see 'client.close()')
+        // first, we receive the Socket.IO handshake response
+        await eioPoll(httpServer, sid);
+        // then a close packet
+        const body = await eioPoll(httpServer, sid);
+        expect(body).to.be("6\u001e1");
+
+        io.close();
+      });
+
+      it("should close the connection when receiving an EVENT packet while not connected", async () => {
+        const httpServer = createServer();
+        const io = new Server(httpServer);
+
+        httpServer.listen(0);
+
+        const sid = await eioHandshake(httpServer);
+        // send an EVENT packet
+        await eioPush(httpServer, sid, '42["some event"]');
+        // session is cleanly closed, we receive a close packet
+        const body = await eioPoll(httpServer, sid);
+        expect(body).to.be("6\u001e1");
+
+        io.close();
+      });
+
+      it("should close the connection when receiving an invalid packet", async () => {
+        const httpServer = createServer();
+        const io = new Server(httpServer);
+
+        httpServer.listen(0);
+
+        const sid = await eioHandshake(httpServer);
+        // send a CONNECT packet
+        await eioPush(httpServer, sid, "40");
+        // send an invalid packet
+        await eioPush(httpServer, sid, "4abc");
+        // session is cleanly closed (not discarded, see 'client.close()')
+        // first, we receive the Socket.IO handshake response
+        await eioPoll(httpServer, sid);
+        // then a close packet
+        const body = await eioPoll(httpServer, sid);
+        expect(body).to.be("6\u001e1");
+
+        io.close();
       });
     });
   });

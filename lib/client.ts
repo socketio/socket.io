@@ -248,6 +248,7 @@ export class Client<
     try {
       this.decoder.add(data);
     } catch (e) {
+      debug("invalid packet format");
       this.onerror(e);
     }
   }
@@ -258,22 +259,31 @@ export class Client<
    * @private
    */
   private ondecoded(packet: Packet): void {
-    if (PacketType.CONNECT === packet.type) {
-      if (this.conn.protocol === 3) {
-        const parsed = url.parse(packet.nsp, true);
-        this.connect(parsed.pathname!, parsed.query);
-      } else {
-        this.connect(packet.nsp, packet.data);
-      }
+    let namespace: string;
+    let authPayload;
+    if (this.conn.protocol === 3) {
+      const parsed = url.parse(packet.nsp, true);
+      namespace = parsed.pathname!;
+      authPayload = parsed.query;
     } else {
-      const socket = this.nsps.get(packet.nsp);
-      if (socket) {
-        process.nextTick(function () {
-          socket._onpacket(packet);
-        });
-      } else {
-        debug("no socket for namespace %s", packet.nsp);
-      }
+      namespace = packet.nsp;
+      authPayload = packet.data;
+    }
+    const socket = this.nsps.get(namespace);
+
+    if (!socket && packet.type === PacketType.CONNECT) {
+      this.connect(namespace, authPayload);
+    } else if (
+      socket &&
+      packet.type !== PacketType.CONNECT &&
+      packet.type !== PacketType.CONNECT_ERROR
+    ) {
+      process.nextTick(function () {
+        socket._onpacket(packet);
+      });
+    } else {
+      debug("invalid state (packet type: %s)", packet.type);
+      this.close();
     }
   }
 
