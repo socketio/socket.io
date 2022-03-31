@@ -1,6 +1,6 @@
 "use strict";
 
-import { Server, Socket, Namespace } from "..";
+import { Server, Socket, Namespace } from "../lib";
 import { createServer } from "http";
 import fs = require("fs");
 import { join } from "path";
@@ -2078,6 +2078,100 @@ describe("socket.io", () => {
             socket.onAny(() => {
               done();
             });
+          });
+        });
+      });
+    });
+
+    describe("onAnyOutgoing", () => {
+      it("should call listener", (done) => {
+        const srv = createServer();
+        const sio = new Server(srv);
+
+        srv.listen(() => {
+          const clientSocket = client(srv, { multiplex: false });
+
+          sio.on("connection", (socket) => {
+            socket.onAnyOutgoing((event, arg1) => {
+              expect(event).to.be("my-event");
+              expect(arg1).to.be("123");
+
+              success(sio, clientSocket, done);
+            });
+
+            socket.emit("my-event", "123");
+          });
+        });
+      });
+
+      it("should call listener when broadcasting", (done) => {
+        const srv = createServer();
+        const sio = new Server(srv);
+
+        srv.listen(() => {
+          const clientSocket = client(srv, { multiplex: false });
+
+          sio.on("connection", (socket) => {
+            socket.onAnyOutgoing((event, arg1) => {
+              expect(event).to.be("my-event");
+              expect(arg1).to.be("123");
+
+              success(sio, clientSocket, done);
+            });
+
+            sio.emit("my-event", "123");
+          });
+        });
+      });
+
+      it("should prepend listener", (done) => {
+        const srv = createServer();
+        const sio = new Server(srv);
+
+        srv.listen(async () => {
+          const clientSocket = client(srv, { multiplex: false });
+
+          const socket = (await waitFor(sio, "connection")) as Socket;
+
+          let count = 0;
+
+          socket.onAnyOutgoing((event, arg1) => {
+            expect(count).to.be(2);
+
+            success(sio, clientSocket, done);
+          });
+
+          socket.prependAnyOutgoing(() => {
+            expect(count++).to.be(1);
+          });
+
+          socket.prependAnyOutgoing(() => {
+            expect(count++).to.be(0);
+          });
+
+          socket.emit("my-event", "123");
+        });
+      });
+
+      it("should remove listener", (done) => {
+        const srv = createServer();
+        const sio = new Server(srv);
+
+        srv.listen(() => {
+          const clientSocket = client(srv, { multiplex: false });
+
+          sio.on("connection", (socket) => {
+            const fail = () => done(new Error("fail"));
+
+            socket.onAnyOutgoing(fail);
+            socket.offAnyOutgoing(fail);
+            expect(socket.listenersAnyOutgoing.length).to.be(0);
+
+            socket.onAnyOutgoing(() => {
+              success(sio, clientSocket, done);
+            });
+
+            socket.emit("my-event", "123");
           });
         });
       });

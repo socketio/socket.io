@@ -28,7 +28,7 @@ import {
   StrictEventEmitter,
   EventNames,
 } from "./typed-events";
-import { patchAdapter, restoreAdapter, serveFile } from "./uws.js";
+import { patchAdapter, restoreAdapter, serveFile } from "./uws";
 
 const debug = debugModule("socket.io:server");
 
