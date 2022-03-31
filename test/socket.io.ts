@@ -2519,6 +2519,119 @@ describe("socket.io", () => {
         });
       });
     });
+
+    it("should broadcast and expect multiple acknowledgements", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv);
+
+      srv.listen(async () => {
+        const socket1 = client(srv, { multiplex: false });
+        const socket2 = client(srv, { multiplex: false });
+        const socket3 = client(srv, { multiplex: false });
+
+        await Promise.all([
+          waitFor(socket1, "connect"),
+          waitFor(socket2, "connect"),
+          waitFor(socket3, "connect"),
+        ]);
+
+        socket1.on("some event", (cb) => {
+          cb(1);
+        });
+
+        socket2.on("some event", (cb) => {
+          cb(2);
+        });
+
+        socket3.on("some event", (cb) => {
+          cb(3);
+        });
+
+        sio.timeout(2000).emit("some event", (err, responses) => {
+          expect(err).to.be(null);
+          expect(responses).to.have.length(3);
+          expect(responses).to.contain(1, 2, 3);
+
+          done();
+        });
+      });
+    });
+
+    it("should fail when a client does not acknowledge the event in the given delay", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv);
+
+      srv.listen(async () => {
+        const socket1 = client(srv, { multiplex: false });
+        const socket2 = client(srv, { multiplex: false });
+        const socket3 = client(srv, { multiplex: false });
+
+        await Promise.all([
+          waitFor(socket1, "connect"),
+          waitFor(socket2, "connect"),
+          waitFor(socket3, "connect"),
+        ]);
+
+        socket1.on("some event", (cb) => {
+          cb(1);
+        });
+
+        socket2.on("some event", (cb) => {
+          cb(2);
+        });
+
+        socket3.on("some event", (cb) => {
+          // timeout
+        });
+
+        sio.timeout(200).emit("some event", (err, responses) => {
+          expect(err).to.be.an(Error);
+          expect(responses).to.have.length(2);
+          expect(responses).to.contain(1, 2);
+
+          done();
+        });
+      });
+    });
+
+    it("should broadcast and return if the packet is sent to 0 client", (done) => {
+      const srv = createServer();
+      const sio = new Server(srv);
+
+      srv.listen(async () => {
+        const socket1 = client(srv, { multiplex: false });
+        const socket2 = client(srv, { multiplex: false });
+        const socket3 = client(srv, { multiplex: false });
+
+        await Promise.all([
+          waitFor(socket1, "connect"),
+          waitFor(socket2, "connect"),
+          waitFor(socket3, "connect"),
+        ]);
+
+        socket1.on("some event", () => {
+          done(new Error("should not happen"));
+        });
+
+        socket2.on("some event", () => {
+          done(new Error("should not happen"));
+        });
+
+        socket3.on("some event", () => {
+          done(new Error("should not happen"));
+        });
+
+        sio
+          .to("room123")
+          .timeout(200)
+          .emit("some event", (err, responses) => {
+            expect(err).to.be(null);
+            expect(responses).to.have.length(0);
+
+            done();
+          });
+      });
+    });
   });
 
   describe("middleware", () => {

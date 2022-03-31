@@ -12,7 +12,7 @@ const i = expect.stringify;
 // add support for Set/Map
 const contain = expect.Assertion.prototype.contain;
 expect.Assertion.prototype.contain = function (...args) {
-  if (typeof this.obj === "object") {
+  if (this.obj instanceof Set || this.obj instanceof Map) {
     args.forEach((obj) => {
       this.assert(
         this.obj.has(obj),

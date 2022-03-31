@@ -773,6 +773,23 @@ export class Server<
   }
 
   /**
+   * Adds a timeout in milliseconds for the next operation
+   *
+   * <pre><code>
+   *
+   * io.timeout(1000).emit("some-event", (err, responses) => {
+   *   // ...
+   * });
+   *
+   * </pre></code>
+   *
+   * @param timeout
+   */
+  public timeout(timeout: number) {
+    return this.sockets.timeout(timeout);
+  }
+
+  /**
    * Returns the matching socket instances
    *
    * @public

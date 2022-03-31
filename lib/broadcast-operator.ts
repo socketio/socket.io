@@ -130,6 +130,29 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
   }
 
   /**
+   * Adds a timeout in milliseconds for the next operation
+   *
+   * <pre><code>
+   *
+   * io.timeout(1000).emit("some-event", (err, responses) => {
+   *   // ...
+   * });
+   *
+   * </pre></code>
+   *
+   * @param timeout
+   */
+  public timeout(timeout: number) {
+    const flags = Object.assign({}, this.flags, { timeout });
+    return new BroadcastOperator(
+      this.adapter,
+      this.rooms,
+      this.exceptRooms,
+      flags
+    );
+  }
+
+  /**
    * Emits to all clients.
    *
    * @return Always true
@@ -149,14 +172,65 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
       data: data,
     };
 
-    if ("function" == typeof data[data.length - 1]) {
-      throw new Error("Callbacks are not supported when broadcasting");
+    const withAck = typeof data[data.length - 1] === "function";
+
+    if (!withAck) {
+      this.adapter.broadcast(packet, {
+        rooms: this.rooms,
+        except: this.exceptRooms,
+        flags: this.flags,
+      });
+
+      return true;
     }
 
-    this.adapter.broadcast(packet, {
-      rooms: this.rooms,
-      except: this.exceptRooms,
-      flags: this.flags,
+    const ack = data.pop() as (...args: any[]) => void;
+    let timedOut = false;
+    let responses: any[] = [];
+
+    const timer = setTimeout(() => {
+      timedOut = true;
+      ack.apply(this, [new Error("operation has timed out"), responses]);
+    }, this.flags.timeout);
+
+    let expectedServerCount = -1;
+    let actualServerCount = 0;
+    let expectedClientCount = 0;
+
+    const checkCompleteness = () => {
+      if (
+        !timedOut &&
+        expectedServerCount === actualServerCount &&
+        responses.length === expectedClientCount
+      ) {
+        clearTimeout(timer);
+        ack.apply(this, [null, responses]);
+      }
+    };
+
+    this.adapter.broadcastWithAck(
+      packet,
+      {
+        rooms: this.rooms,
+        except: this.exceptRooms,
+        flags: this.flags,
+      },
+      (clientCount) => {
+        // each Socket.IO server in the cluster sends the number of clients that were notified
+        expectedClientCount += clientCount;
+        actualServerCount++;
+        checkCompleteness();
+      },
+      (clientResponse) => {
+        // each client sends an acknowledgement
+        responses.push(clientResponse);
+        checkCompleteness();
+      }
+    );
+
+    this.adapter.serverCount().then((serverCount) => {
+      expectedServerCount = serverCount;
+      checkCompleteness();
     });
 
     return true;
