@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Example with express-session</title>
+  </head>
+  <body>
+    <button onclick="incrementWithFetch()">Increment with fetch()</button>
+    <button onclick="logout()">Logout</button>
+    <p>Count: <span id="httpCount">0</span></p>
+
+    <button onclick="incrementWithEmit()">
+      Increment with Socket.IO emit()
+    </button>
+    <p>Status: <span id="ioStatus">disconnected</span></p>
+    <p>Count: <span id="ioCount">0</span></p>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const httpCount = document.getElementById("httpCount");
+      const ioStatus = document.getElementById("ioStatus");
+      const ioCount = document.getElementById("ioCount");
+
+      const socket = io({
+        // with WebSocket only
+        // transports: ["websocket"],
+      });
+
+      async function incrementWithFetch() {
+        const response = await fetch("/incr", {
+          method: "post",
+        });
+        httpCount.innerText = await response.text();
+      }
+
+      function logout() {
+        fetch("/logout", {
+          method: "post",
+        });
+      }
+
+      async function incrementWithEmit() {
+        socket.emit("incr", (count) => {
+          ioCount.innerText = count;
+        });
+      }
+
+      socket.on("connect", () => {
+        ioStatus.innerText = "connected";
+      });
+
+      socket.on("disconnect", () => {
+        ioStatus.innerText = "disconnected";
+      });
+    </script>
+  </body>
+</html>
