@@ -1,0 +1,30 @@
+{
+  "name": "basic-crud-server",
+  "version": "0.0.1",
+  "description": "Server for the Basic CRUD Socket.IO example (with Postgres and multiple Socket.IO servers)",
+  "main": "lib/cluster.js",
+  "type": "module",
+  "scripts": {
+    "start": "node lib/cluster.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/socketio/socket.io.git"
+  },
+  "author": "Damien Arrachequesne <damien.arrachequesne@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/socketio/socket.io/issues"
+  },
+  "homepage": "https://github.com/socketio/socket.io#readme",
+  "dependencies": {
+    "@socket.io/postgres-adapter": "^0.2.0",
+    "@socket.io/sticky": "^1.0.1",
+    "joi": "^17.4.0",
+    "pg": "^8.7.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.18.0",
+    "socket.io": "^4.0.1",
+    "uuid": "^8.3.2"
+  }
+}
