@@ -91,7 +91,7 @@ export class WS extends Transport {
             : new WebSocket(uri)
           : new WebSocket(uri, protocols, opts);
     } catch (err) {
-      return this.emit("error", err);
+      return this.emitReserved("error", err);
     }
 
     this.ws.binaryType = this.socket.binaryType || defaultBinaryType;
@@ -111,7 +111,11 @@ export class WS extends Transport {
       }
       this.onOpen();
     };
-    this.ws.onclose = this.onClose.bind(this);
+    this.ws.onclose = closeEvent =>
+      this.onClose({
+        description: "websocket connection closed",
+        context: closeEvent
+      });
     this.ws.onmessage = ev => this.onData(ev.data);
     this.ws.onerror = e => this.onError("websocket error", e);
   }
@@ -168,7 +172,7 @@ export class WS extends Transport {
           // defer to next tick to allow Socket to clear writeBuffer
           nextTick(() => {
             this.writable = true;
-            this.emit("drain");
+            this.emitReserved("drain");
           }, this.setTimeoutFn);
         }
       });

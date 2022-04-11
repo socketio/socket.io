@@ -7,6 +7,8 @@ import { installTimerFunctions, pick } from "../util.js";
 import { DefaultEventsMap, Emitter } from "@socket.io/component-emitter";
 import { Polling } from "./polling.js";
 import { SocketOptions } from "../socket.js";
+import { RawData } from "engine.io-parser";
+import { CloseDetails } from "../transport";
 
 const debug = debugModule("engine.io-client:polling-xhr"); // debug()
 
@@ -83,8 +85,8 @@ export class XHR extends Polling {
       data: data
     });
     req.on("success", fn);
-    req.on("error", err => {
-      this.onError("xhr post error", err);
+    req.on("error", (xhrStatus, context) => {
+      this.onError("xhr post error", xhrStatus, context);
     });
   }
 
@@ -97,14 +99,20 @@ export class XHR extends Polling {
     debug("xhr poll");
     const req = this.request();
     req.on("data", this.onData.bind(this));
-    req.on("error", err => {
-      this.onError("xhr poll error", err);
+    req.on("error", (xhrStatus, context) => {
+      this.onError("xhr poll error", xhrStatus, context);
     });
     this.pollXhr = req;
   }
 }
 
-export class Request extends Emitter<DefaultEventsMap, DefaultEventsMap> {
+interface RequestReservedEvents {
+  success: () => void;
+  data: (data: RawData) => void;
+  error: (err: number | Error, context: XMLHttpRequest) => void;
+}
+
+export class Request extends Emitter<{}, {}, RequestReservedEvents> {
   private readonly opts: { xd; xs } & SocketOptions;
   private readonly method: string;
   private readonly uri: string;
@@ -230,7 +238,7 @@ export class Request extends Emitter<DefaultEventsMap, DefaultEventsMap> {
    * @api private
    */
   onSuccess() {
-    this.emit("success");
+    this.emitReserved("success");
     this.cleanup();
   }
 
@@ -240,7 +248,7 @@ export class Request extends Emitter<DefaultEventsMap, DefaultEventsMap> {
    * @api private
    */
   onData(data) {
-    this.emit("data", data);
+    this.emitReserved("data", data);
     this.onSuccess();
   }
 
@@ -249,8 +257,8 @@ export class Request extends Emitter<DefaultEventsMap, DefaultEventsMap> {
    *
    * @api private
    */
-  onError(err) {
-    this.emit("error", err);
+  onError(err: number | Error) {
+    this.emitReserved("error", err, this.xhr);
     this.cleanup(true);
   }
 

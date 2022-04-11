@@ -5,6 +5,7 @@ import parseuri from "parseuri";
 import debugModule from "debug"; // debug()
 import { Emitter } from "@socket.io/component-emitter";
 import { protocol } from "engine.io-parser";
+import { CloseDetails } from "./transport";
 
 const debug = debugModule("engine.io-client:socket"); // debug()
 
@@ -230,7 +231,7 @@ interface SocketReservedEvents {
   upgrading: (transport) => void;
   upgrade: (transport) => void;
   upgradeError: (err: Error) => void;
-  close: (reason: string, desc?: Error) => void;
+  close: (reason: string, description?: CloseDetails | Error) => void;
 }
 
 export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
@@ -365,7 +366,9 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
       }
       if (this.hostname !== "localhost") {
         this.offlineEventListener = () => {
-          this.onClose("transport close");
+          this.onClose("transport close", {
+            description: "network connection lost"
+          });
         };
         addEventListener("offline", this.offlineEventListener, false);
       }
@@ -471,9 +474,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
       .on("drain", this.onDrain.bind(this))
       .on("packet", this.onPacket.bind(this))
       .on("error", this.onError.bind(this))
-      .on("close", () => {
-        this.onClose("transport close");
-      });
+      .on("close", reason => this.onClose("transport close", reason));
   }
 
   /**
@@ -890,7 +891,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
    *
    * @api private
    */
-  private onClose(reason: string, desc?) {
+  private onClose(reason: string, description?: CloseDetails | Error) {
     if (
       "opening" === this.readyState ||
       "open" === this.readyState ||
@@ -921,7 +922,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
       this.id = null;
 
       // emit close event
-      this.emitReserved("close", reason, desc);
+      this.emitReserved("close", reason, description);
 
       // clean buffers after, so users can still
       // grab the buffers on `close` event

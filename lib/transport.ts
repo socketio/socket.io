@@ -1,14 +1,42 @@
-import { decodePacket } from "engine.io-parser";
-import { DefaultEventsMap, Emitter } from "@socket.io/component-emitter";
+import { decodePacket, Packet, RawData } from "engine.io-parser";
+import { Emitter } from "@socket.io/component-emitter";
 import { installTimerFunctions } from "./util.js";
 import debugModule from "debug"; // debug()
 import { SocketOptions } from "./socket.js";
 
 const debug = debugModule("engine.io-client:transport"); // debug()
 
+class TransportError extends Error {
+  public readonly type = "TransportError";
+
+  constructor(
+    reason: string,
+    readonly description: any,
+    readonly context: any
+  ) {
+    super(reason);
+  }
+}
+
+export interface CloseDetails {
+  description: string;
+  context?: CloseEvent | XMLHttpRequest;
+}
+
+interface TransportReservedEvents {
+  open: () => void;
+  error: (err: TransportError) => void;
+  packet: (packet: Packet) => void;
+  close: (details?: CloseDetails) => void;
+  poll: () => void;
+  pollComplete: () => void;
+  drain: () => void;
+}
+
 export abstract class Transport extends Emitter<
-  DefaultEventsMap,
-  DefaultEventsMap
+  {},
+  {},
+  TransportReservedEvents
 > {
   protected opts: SocketOptions;
   protected supportsBinary: boolean;
@@ -37,17 +65,17 @@ export abstract class Transport extends Emitter<
   /**
    * Emits an error.
    *
-   * @param {String} str
+   * @param {String} reason
+   * @param description
+   * @param context - the error context
    * @return {Transport} for chaining
    * @api protected
    */
-  protected onError(msg, desc) {
-    const err = new Error(msg);
-    // @ts-ignore
-    err.type = "TransportError";
-    // @ts-ignore
-    err.description = desc;
-    super.emit("error", err);
+  protected onError(reason: string, description: any, context?: any) {
+    super.emitReserved(
+      "error",
+      new TransportError(reason, description, context)
+    );
     return this;
   }
 
@@ -102,7 +130,7 @@ export abstract class Transport extends Emitter<
   protected onOpen() {
     this.readyState = "open";
     this.writable = true;
-    super.emit("open");
+    super.emitReserved("open");
   }
 
   /**
@@ -111,7 +139,7 @@ export abstract class Transport extends Emitter<
    * @param {String} data
    * @api protected
    */
-  protected onData(data) {
+  protected onData(data: RawData) {
     const packet = decodePacket(data, this.socket.binaryType);
     this.onPacket(packet);
   }
@@ -121,8 +149,8 @@ export abstract class Transport extends Emitter<
    *
    * @api protected
    */
-  protected onPacket(packet) {
-    super.emit("packet", packet);
+  protected onPacket(packet: Packet) {
+    super.emitReserved("packet", packet);
   }
 
   /**
@@ -130,9 +158,9 @@ export abstract class Transport extends Emitter<
    *
    * @api protected
    */
-  protected onClose() {
+  protected onClose(details?: CloseDetails) {
     this.readyState = "closed";
-    super.emit("close");
+    super.emitReserved("close", details);
   }
 
   protected abstract doOpen();

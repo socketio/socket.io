@@ -75,7 +75,7 @@ export abstract class Polling extends Transport {
     debug("polling");
     this.polling = true;
     this.doPoll();
-    this.emit("poll");
+    this.emitReserved("poll");
   }
 
   /**
@@ -93,7 +93,7 @@ export abstract class Polling extends Transport {
 
       // if its a close packet, we close the ongoing requests
       if ("close" === packet.type) {
-        this.onClose();
+        this.onClose({ description: "transport closed by the server" });
         return false;
       }
 
@@ -108,7 +108,7 @@ export abstract class Polling extends Transport {
     if ("closed" !== this.readyState) {
       // if we got data we're not polling
       this.polling = false;
-      this.emit("pollComplete");
+      this.emitReserved("pollComplete");
 
       if ("open" === this.readyState) {
         this.poll();
@@ -153,7 +153,7 @@ export abstract class Polling extends Transport {
     encodePayload(packets, data => {
       this.doWrite(data, () => {
         this.writable = true;
-        this.emit("drain");
+        this.emitReserved("drain");
       });
     });
   }
