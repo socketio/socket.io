@@ -1,6 +1,6 @@
 // browser shim for xmlhttprequest module
 
-import hasCORS from "has-cors";
+import { hasCORS } from "./contrib/has-cors.js";
 import globalThis from "./globalThis.js";
 
 export default function(opts) {

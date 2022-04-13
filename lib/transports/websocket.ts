@@ -1,6 +1,6 @@
 import { Transport } from "../transport.js";
-import parseqs from "parseqs";
-import yeast from "yeast";
+import { encode } from "../contrib/parseqs.js";
+import { yeast } from "../contrib/yeast.js";
 import { pick } from "../util.js";
 import {
   defaultBinaryType,
@@ -220,7 +220,7 @@ export class WS extends Transport {
       query.b64 = 1;
     }
 
-    const encodedQuery = parseqs.encode(query);
+    const encodedQuery = encode(query);
     const ipv6 = this.opts.hostname.indexOf(":") !== -1;
 
     return (

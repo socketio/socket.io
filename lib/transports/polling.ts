@@ -1,7 +1,7 @@
 import { Transport } from "../transport.js";
 import debugModule from "debug"; // debug()
-import yeast from "yeast";
-import parseqs from "parseqs";
+import { yeast } from "../contrib/yeast.js";
+import { encode } from "../contrib/parseqs.js";
 import { encodePayload, decodePayload, RawData } from "engine.io-parser";
 import XMLHttpRequest from "./xmlhttprequest.js";
 import { Emitter } from "@socket.io/component-emitter";
@@ -235,7 +235,7 @@ export class Polling extends Transport {
       port = ":" + this.opts.port;
     }
 
-    const encodedQuery = parseqs.encode(query);
+    const encodedQuery = encode(query);
     const ipv6 = this.opts.hostname.indexOf(":") !== -1;
 
     return (

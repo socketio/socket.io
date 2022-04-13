@@ -1,7 +1,7 @@
 import { transports } from "./transports/index.js";
 import { installTimerFunctions, byteLength } from "./util.js";
-import parseqs from "parseqs";
-import parseuri from "parseuri";
+import { decode } from "./contrib/parseqs.js";
+import { parse } from "./contrib/parseuri.js";
 import debugModule from "debug"; // debug()
 import { Emitter } from "@socket.io/component-emitter";
 import { protocol } from "engine.io-parser";
@@ -277,13 +277,13 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
     }
 
     if (uri) {
-      uri = parseuri(uri);
+      uri = parse(uri);
       opts.hostname = uri.host;
       opts.secure = uri.protocol === "https" || uri.protocol === "wss";
       opts.port = uri.port;
       if (uri.query) opts.query = uri.query;
     } else if (opts.host) {
-      opts.hostname = parseuri(opts.host).host;
+      opts.hostname = parse(opts.host).host;
     }
 
     installTimerFunctions(this, opts);
@@ -335,7 +335,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
     this.opts.path = this.opts.path.replace(/\/$/, "") + "/";
 
     if (typeof this.opts.query === "string") {
-      this.opts.query = parseqs.decode(this.opts.query);
+      this.opts.query = decode(this.opts.query);
     }
 
     // set on handshake
