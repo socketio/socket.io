@@ -1,3 +1,22 @@
+# [6.2.0](https://github.com/socketio/engine.io/compare/6.1.3...6.2.0) (2022-04-17)
+
+
+### Features
+
+* add the "maxPayload" field in the handshake details ([088dcb4](https://github.com/socketio/engine.io/commit/088dcb4dff60df39785df13d0a33d3ceaa1dff38))
+
+So that clients in HTTP long-polling can decide how many packets they have to send to stay under the maxHttpBufferSize
+value.
+
+This is a backward compatible change which should not mandate a new major revision of the protocol (we stay in v4), as
+we only add a field in the JSON-encoded handshake data:
+
+```
+0{"sid":"lv_VI97HAXpY6yYWAAAC","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":5000,"maxPayload":1000000}
+```
+
+
+
 ## [6.1.3](https://github.com/socketio/engine.io/compare/6.1.2...6.1.3) (2022-02-23)
 
 
