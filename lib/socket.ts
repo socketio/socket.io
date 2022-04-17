@@ -386,7 +386,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
    */
   private createTransport(name) {
     debug('creating transport "%s"', name);
-    const query: any = clone(this.opts.query);
+    const query: any = Object.assign({}, this.opts.query);
 
     // append engine.io protocol identifier
     query.EIO = protocol;
@@ -948,14 +948,4 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
     }
     return filteredUpgrades;
   }
-}
-
-function clone(obj) {
-  const o = {};
-  for (let i in obj) {
-    if (obj.hasOwnProperty(i)) {
-      o[i] = obj[i];
-    }
-  }
-  return o;
 }
