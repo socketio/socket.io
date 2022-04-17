@@ -37,6 +37,12 @@ export interface Packet {
 
 export class Encoder {
   /**
+   * Encoder constructor
+   *
+   * @param {function} replacer - custom replacer to pass down to JSON.parse
+   */
+  constructor(private replacer?: (this: any, key: string, value: any) => any) {}
+  /**
    * Encode a packet as a single string if non-binary, or as a
    * buffer sequence, depending on packet type.
    *
@@ -86,7 +92,7 @@ export class Encoder {
 
     // json data
     if (null != obj.data) {
-      str += JSON.stringify(obj.data);
+      str += JSON.stringify(obj.data, this.replacer);
     }
 
     debug("encoded %j as %s", obj, str);
@@ -121,7 +127,12 @@ interface DecoderReservedEvents {
 export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
   private reconstructor: BinaryReconstructor;
 
-  constructor() {
+  /**
+   * Decoder constructor
+   *
+   * @param {function} reviver - custom reviver to pass down to JSON.stringify
+   */
+  constructor(private reviver?: (this: any, key: string, value: any) => any) {
     super();
   }
 
@@ -228,7 +239,7 @@ export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
 
     // look up json data
     if (str.charAt(++i)) {
-      const payload = tryParse(str.substr(i));
+      const payload = this.tryParse(str.substr(i));
       if (Decoder.isPayloadValid(p.type, payload)) {
         p.data = payload;
       } else {
@@ -238,6 +249,14 @@ export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
 
     debug("decoded %s as %j", str, p);
     return p;
+  }
+
+  private tryParse(str) {
+    try {
+      return JSON.parse(str, this.reviver);
+    } catch (e) {
+      return false;
+    }
   }
 
   private static isPayloadValid(type: PacketType, payload: any): boolean {
@@ -264,14 +283,6 @@ export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
     if (this.reconstructor) {
       this.reconstructor.finishedReconstruction();
     }
-  }
-}
-
-function tryParse(str) {
-  try {
-    return JSON.parse(str);
-  } catch (e) {
-    return false;
   }
 }
 
