@@ -1,3 +1,7 @@
+## [6.2.1](https://github.com/socketio/engine.io-client/compare/6.2.0...6.2.1) (2022-04-17)
+
+
+
 # [6.2.0](https://github.com/socketio/engine.io-client/compare/6.1.1...6.2.0) (2022-04-17)
 
 
