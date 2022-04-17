@@ -1,3 +1,12 @@
+# [4.2.0](https://github.com/socketio/socket.io-parser/compare/4.1.2...4.2.0) (2022-04-17)
+
+
+### Features
+
+* allow the usage of custom replacer and reviver ([#112](https://github.com/socketio/socket.io-parser/issues/112)) ([b08bc1a](https://github.com/socketio/socket.io-parser/commit/b08bc1a93e8e3194b776c8a0bdedee1e29333680))
+
+
+
 ## [4.1.2](https://github.com/socketio/socket.io-parser/compare/4.1.1...4.1.2) (2022-02-17)
 
 
