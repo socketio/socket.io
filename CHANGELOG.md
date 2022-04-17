@@ -1,3 +1,37 @@
+# [6.2.0](https://github.com/socketio/engine.io-client/compare/6.1.1...6.2.0) (2022-04-17)
+
+
+### Features
+
+* add details to the "close" event ([b9252e2](https://github.com/socketio/engine.io-client/commit/b9252e207413a850db7e4f0f0ef7dd2ef0ed26da))
+
+The close event will now include additional details to help debugging if anything has gone wrong.
+
+Example when a payload is over the maxHttpBufferSize value in HTTP long-polling mode:
+
+```js
+socket.on("close", (reason, details) => {
+  console.log(reason); // "transport error"
+
+  // in that case, details is an error object
+  console.log(details.message); "xhr post error"
+  console.log(details.description); // 413 (the HTTP status of the response)
+
+  // details.context refers to the XMLHttpRequest object
+  console.log(details.context.status); // 413
+  console.log(details.context.responseText); // ""
+});
+```
+
+Note: the error object was already included before this commit and is kept for backward compatibility.
+
+* slice write buffer according to the maxPayload value ([46fdc2f](https://github.com/socketio/engine.io-client/commit/46fdc2f0ed352b454614247406689edc9d908927))
+
+The server will now include a "maxPayload" field in the handshake details, allowing the clients to decide how many
+packets they have to send to stay under the maxHttpBufferSize value.
+
+
+
 ## [6.0.3](https://github.com/socketio/engine.io-client/compare/6.0.2...6.0.3) (2021-11-14)
 
 Some bug fixes were backported from master, to be included by the latest `socket.io-client` version.

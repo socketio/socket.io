@@ -2,7 +2,7 @@
   "name": "engine.io-client",
   "description": "Client for the realtime Engine",
   "license": "MIT",
-  "version": "6.1.1",
+  "version": "6.2.0",
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",
   "exports": {
