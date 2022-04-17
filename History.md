@@ -1,3 +1,36 @@
+# [3.1.0](https://github.com/socketio/emitter/compare/3.0.0...3.1.0) (2022-04-17)
+
+
+### Features
+
+* add ESM version ([54468cf](https://github.com/socketio/emitter/commit/54468cf7a3753f4fde435b70f5df57974588ed68))
+
+
+
+# [3.0.0](https://github.com/socketio/emitter/compare/2.0.0...3.0.0) (2021-10-14)
+
+
+### Features
+
+* add support for typed events ([84397cb](https://github.com/socketio/emitter/commit/84397cb0cd6265e0ee79adbf1607beff12ca9f16))
+
+
+### BREAKING CHANGES
+
+* we now use a named export instead of a default export
+
+```js
+// before
+import Emitter from "@socket.io/component-emitter"
+
+// after
+import { Emitter } from "@socket.io/component-emitter"
+```
+
+[1]: https://github.com/socketio/socket.io-client/blob/a9e5b85580e8edca0b0fd2850c3741d3d86a96e2/lib/typed-events.ts
+
+
+
 
 1.3.0 / 2018-04-15
 ==================
