@@ -5,7 +5,7 @@ import { parse } from "./contrib/parseuri.js";
 import debugModule from "debug"; // debug()
 import { Emitter } from "@socket.io/component-emitter";
 import { protocol } from "engine.io-parser";
-import { CloseDetails } from "./transport";
+import { CloseDetails } from "./transport.js";
 
 const debug = debugModule("engine.io-client:socket"); // debug()
 
