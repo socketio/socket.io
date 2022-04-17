@@ -13,6 +13,7 @@
     }
   },
   "main": "index.js",
+  "module": "index.mjs",
   "types": "index.d.ts",
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
   },
   "files": [
     "index.js",
+    "index.mjs",
     "index.d.ts",
     "LICENSE"
   ]
