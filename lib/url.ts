@@ -1,4 +1,4 @@
-import parseuri from "parseuri";
+import { parse } from "engine.io-client";
 import debugModule from "debug"; // debug()
 
 const debug = debugModule("socket.io-client:url"); // debug()
@@ -68,7 +68,7 @@ export function url(
 
     // parse
     debug("parse %s", uri);
-    obj = parseuri(uri) as ParsedUrl;
+    obj = parse(uri) as ParsedUrl;
   }
 
   // make sure we treat `localhost:80` and `localhost` equally

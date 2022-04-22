@@ -39,10 +39,20 @@ interface Flags {
   timeout?: number;
 }
 
+export type DisconnectDescription =
+  | Error
+  | {
+      description: string;
+      context?: CloseEvent | XMLHttpRequest;
+    };
+
 interface SocketReservedEvents {
   connect: () => void;
   connect_error: (err: Error) => void;
-  disconnect: (reason: Socket.DisconnectReason) => void;
+  disconnect: (
+    reason: Socket.DisconnectReason,
+    description?: DisconnectDescription
+  ) => void;
 }
 
 export class Socket<
@@ -266,14 +276,18 @@ export class Socket<
    * Called upon engine `close`.
    *
    * @param reason
+   * @param description
    * @private
    */
-  private onclose(reason: Socket.DisconnectReason): void {
+  private onclose(
+    reason: Socket.DisconnectReason,
+    description?: DisconnectDescription
+  ): void {
     debug("close (%s)", reason);
     this.connected = false;
     this.disconnected = true;
     delete this.id;
-    this.emitReserved("disconnect", reason);
+    this.emitReserved("disconnect", reason, description);
   }
 
   /**

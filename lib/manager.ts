@@ -3,7 +3,7 @@ import {
   SocketOptions as EngineOptions,
   installTimerFunctions,
 } from "engine.io-client";
-import { Socket, SocketOptions } from "./socket.js";
+import { Socket, SocketOptions, DisconnectDescription } from "./socket.js";
 import * as parser from "socket.io-parser";
 import { Decoder, Encoder, Packet } from "socket.io-parser";
 import { on } from "./on.js";
@@ -90,7 +90,7 @@ interface ManagerReservedEvents {
   error: (err: Error) => void;
   ping: () => void;
   packet: (packet: Packet) => void;
-  close: (reason: string) => void;
+  close: (reason: string, description?: DisconnectDescription) => void;
   reconnect_failed: () => void;
   reconnect_attempt: (attempt: number) => void;
   reconnect_error: (err: Error) => void;
@@ -538,13 +538,13 @@ export class Manager<
    *
    * @private
    */
-  private onclose(reason: string): void {
+  private onclose(reason: string, description?: DisconnectDescription): void {
     debug("closed due to %s", reason);
 
     this.cleanup();
     this.backoff.reset();
     this._readyState = "closed";
-    this.emitReserved("close", reason);
+    this.emitReserved("close", reason, description);
 
     if (this._reconnection && !this.skipReconnect) {
       this.reconnect();
