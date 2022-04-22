@@ -2,20 +2,15 @@
   "name": "webpack-build",
   "version": "1.0.0",
   "description": "A sample Webpack build",
+  "type": "module",
   "scripts": {
-    "build": "webpack --config ./support/webpack.config.js",
-    "build-slim": "webpack --config ./support/webpack.config.slim.js",
-    "build-json-parser": "webpack --config ./support/webpack.config.json-parser.js",
-    "build-all": "npm run build && npm run build-slim && npm run build-json-parser"
+    "build": "webpack"
   },
   "author": "Damien Arrachequesne",
   "license": "MIT",
   "dependencies": {
-    "socket.io-client": "^2.0.2",
-    "socket.io-json-parser": "^2.1.0"
-  },
-  "devDependencies": {
-    "strip-loader": "^0.1.2",
-    "webpack": "^2.6.1"
+    "socket.io-client": "^4.4.1",
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2"
   }
 }
