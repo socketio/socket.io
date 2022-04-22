@@ -1,1 +1,1 @@
-export default global;
+export const globalThisShim = global;

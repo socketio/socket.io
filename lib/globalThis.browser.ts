@@ -1,4 +1,4 @@
-export default (() => {
+export const globalThisShim = (() => {
   if (typeof self !== "undefined") {
     return self;
   } else if (typeof window !== "undefined") {

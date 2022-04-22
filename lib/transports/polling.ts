@@ -7,7 +7,7 @@ import XMLHttpRequest from "./xmlhttprequest.js";
 import { Emitter } from "@socket.io/component-emitter";
 import { SocketOptions } from "../socket.js";
 import { installTimerFunctions, pick } from "../util.js";
-import globalThis from "../globalThis.js";
+import { globalThisShim as globalThis } from "../globalThis.js";
 
 const debug = debugModule("engine.io-client:polling"); // debug()
 
