@@ -1,3 +1,49 @@
+# [4.5.0](https://github.com/socketio/socket.io/compare/4.4.1...4.5.0) (2022-04-23)
+
+
+### Bug Fixes
+
+* **typings:** ensure compatibility with TypeScript 3.x ([#4259](https://github.com/socketio/socket.io/issues/4259)) ([02c87a8](https://github.com/socketio/socket.io/commit/02c87a85614e217b8e7b93753f315790ae9d99f6))
+
+
+### Features
+
+* add support for catch-all listeners for outgoing packets ([531104d](https://github.com/socketio/socket.io/commit/531104d332690138b7aab84d5583d6204132c8b4))
+
+This is similar to `onAny()`, but for outgoing packets.
+
+Syntax:
+
+```js
+socket.onAnyOutgoing((event, ...args) => {
+  console.log(event);
+});
+```
+
+* broadcast and expect multiple acks ([8b20457](https://github.com/socketio/socket.io/commit/8b204570a94979bbec307f23ca078f30f5cf07b0))
+
+Syntax:
+
+```js
+io.timeout(1000).emit("some-event", (err, responses) => {
+  // ...
+});
+```
+
+* add the "maxPayload" field in the handshake details ([088dcb4](https://github.com/socketio/engine.io/commit/088dcb4dff60df39785df13d0a33d3ceaa1dff38))
+
+So that clients in HTTP long-polling can decide how many packets they have to send to stay under the maxHttpBufferSize
+value.
+
+This is a backward compatible change which should not mandate a new major revision of the protocol (we stay in v4), as
+we only add a field in the JSON-encoded handshake data:
+
+```
+0{"sid":"lv_VI97HAXpY6yYWAAAC","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":5000,"maxPayload":1000000}
+```
+
+
+
 ## [4.4.1](https://github.com/socketio/socket.io/compare/4.4.0...4.4.1) (2022-01-06)
 
 
