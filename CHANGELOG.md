@@ -1,3 +1,46 @@
+# [4.5.0](https://github.com/socketio/socket.io-client/compare/4.4.1...4.5.0) (2022-04-23)
+
+
+### Features
+
+* add details to the disconnect event ([b862924](https://github.com/socketio/socket.io-client/commit/b862924b7f1720979e5db2f0154906b305d420e3))
+
+The "disconnect" event will now include additional details to help debugging if anything has gone wrong.
+
+Example when a payload is over the maxHttpBufferSize value in HTTP long-polling mode:
+
+```js
+socket.on("disconnect", (reason, details) => {
+  console.log(reason); // "transport error"
+
+  // in that case, details is an error object
+  console.log(details.message); "xhr post error"
+  console.log(details.description); // 413 (the HTTP status of the response)
+
+  // details.context refers to the XMLHttpRequest object
+  console.log(details.context.status); // 413
+  console.log(details.context.responseText); // ""
+});
+```
+
+* add support for catch-all listeners for outgoing packets ([74e3e60](https://github.com/socketio/socket.io-client/commit/74e3e601a43133b2c0ea43c3de2764cc55b57b5a))
+
+This is similar to `onAny()`, but for outgoing packets.
+
+Syntax:
+
+```js
+socket.onAnyOutgoing((event, ...args) => {
+  console.log(event);
+});
+```
+
+* slice write buffer according to the maxPayload value ([46fdc2f](https://github.com/socketio/engine.io-client/commit/46fdc2f0ed352b454614247406689edc9d908927))
+
+The server will now include a "maxPayload" field in the handshake details, allowing the clients to decide how many packets they have to send to stay under the maxHttpBufferSize value.
+
+
+
 ## [4.4.1](https://github.com/socketio/socket.io-client/compare/4.4.0...4.4.1) (2022-01-06)
 
 
