@@ -76,6 +76,7 @@ export class Socket<
   private flags: Flags = {};
   private subs?: Array<VoidFunction>;
   private _anyListeners: Array<(...args: any[]) => void>;
+  private _anyOutgoingListeners: Array<(...args: any[]) => void>;
 
   /**
    * `Socket` constructor.
@@ -193,6 +194,7 @@ export class Socket<
     if (discardPacket) {
       debug("discard packet as the transport is not currently writable");
     } else if (this.connected) {
+      this.notifyOutgoingListeners(packet);
       this.packet(packet);
     } else {
       this.sendBuffer.push(packet);
@@ -440,7 +442,10 @@ export class Socket<
     this.receiveBuffer.forEach((args) => this.emitEvent(args));
     this.receiveBuffer = [];
 
-    this.sendBuffer.forEach((packet) => this.packet(packet));
+    this.sendBuffer.forEach((packet) => {
+      this.notifyOutgoingListeners(packet);
+      this.packet(packet);
+    });
     this.sendBuffer = [];
   }
 
@@ -605,6 +610,114 @@ export class Socket<
    */
   public listenersAny() {
     return this._anyListeners || [];
+  }
+
+  /**
+   * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
+   * callback.
+   *
+   * @param listener
+   *
+   * <pre><code>
+   *
+   * socket.onAnyOutgoing((event, ...args) => {
+   *   console.log(event);
+   * });
+   *
+   * </pre></code>
+   *
+   * @public
+   */
+  public onAnyOutgoing(listener: (...args: any[]) => void): this {
+    this._anyOutgoingListeners = this._anyOutgoingListeners || [];
+    this._anyOutgoingListeners.push(listener);
+    return this;
+  }
+
+  /**
+   * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
+   * callback. The listener is added to the beginning of the listeners array.
+   *
+   * @param listener
+   *
+   * <pre><code>
+   *
+   * socket.prependAnyOutgoing((event, ...args) => {
+   *   console.log(event);
+   * });
+   *
+   * </pre></code>
+   *
+   * @public
+   */
+  public prependAnyOutgoing(listener: (...args: any[]) => void): this {
+    this._anyOutgoingListeners = this._anyOutgoingListeners || [];
+    this._anyOutgoingListeners.unshift(listener);
+    return this;
+  }
+
+  /**
+   * Removes the listener that will be fired when any event is emitted.
+   *
+   * @param listener
+   *
+   * <pre><code>
+   *
+   * const handler = (event, ...args) => {
+   *   console.log(event);
+   * }
+   *
+   * socket.onAnyOutgoing(handler);
+   *
+   * // then later
+   * socket.offAnyOutgoing(handler);
+   *
+   * </pre></code>
+   *
+   * @public
+   */
+  public offAnyOutgoing(listener?: (...args: any[]) => void): this {
+    if (!this._anyOutgoingListeners) {
+      return this;
+    }
+    if (listener) {
+      const listeners = this._anyOutgoingListeners;
+      for (let i = 0; i < listeners.length; i++) {
+        if (listener === listeners[i]) {
+          listeners.splice(i, 1);
+          return this;
+        }
+      }
+    } else {
+      this._anyOutgoingListeners = [];
+    }
+    return this;
+  }
+
+  /**
+   * Returns an array of listeners that are listening for any event that is specified. This array can be manipulated,
+   * e.g. to remove listeners.
+   *
+   * @public
+   */
+  public listenersAnyOutgoing() {
+    return this._anyOutgoingListeners || [];
+  }
+
+  /**
+   * Notify the listeners for each packet sent
+   *
+   * @param packet
+   *
+   * @private
+   */
+  private notifyOutgoingListeners(packet: Packet) {
+    if (this._anyOutgoingListeners && this._anyOutgoingListeners.length) {
+      const listeners = this._anyOutgoingListeners.slice();
+      for (const listener of listeners) {
+        listener.apply(this, packet.data);
+      }
+    }
   }
 }
 

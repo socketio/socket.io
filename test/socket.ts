@@ -369,6 +369,60 @@ describe("socket", function () {
     });
   });
 
+  describe("onAnyOutgoing", () => {
+    it("should call listener", (done) => {
+      const socket = io("/abc");
+
+      socket.on("connect", () => {
+        socket.onAnyOutgoing((event, arg1) => {
+          expect(event).to.be("my-event");
+          expect(arg1).to.be("123");
+
+          success(done, socket);
+        });
+
+        socket.emit("my-event", "123");
+      });
+    });
+
+    it("should prepend listener", (done) => {
+      const socket = io("/abc");
+
+      let count = 0;
+
+      socket.onAnyOutgoing(() => {
+        expect(count).to.be(2);
+
+        success(done, socket);
+      });
+
+      socket.prependAnyOutgoing(() => {
+        expect(count++).to.be(1);
+      });
+
+      socket.prependAnyOutgoing(() => {
+        expect(count++).to.be(0);
+      });
+
+      socket.emit("my-event", "123");
+    });
+
+    it("should remove listener", (done) => {
+      const socket = io("/abc");
+      const fail = () => done(new Error("fail"));
+
+      socket.onAnyOutgoing(fail);
+      socket.offAnyOutgoing(fail);
+      expect(socket.listenersAnyOutgoing.length).to.be(0);
+
+      socket.onAnyOutgoing(() => {
+        success(done, socket);
+      });
+
+      socket.emit("my-event", "123");
+    });
+  });
+
   describe("timeout", () => {
     it("should timeout after the given delay when socket is not connected", (done) => {
       const socket = io("/", {
