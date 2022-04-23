@@ -33,7 +33,6 @@
   "types": "./build/esm/index.d.ts",
   "dependencies": {
     "@socket.io/component-emitter": "~3.1.0",
-    "backo2": "~1.0.2",
     "debug": "~4.3.2",
     "engine.io-client": "~6.2.1",
     "socket.io-parser": "~4.2.0"

@@ -7,7 +7,7 @@ import { Socket, SocketOptions, DisconnectDescription } from "./socket.js";
 import * as parser from "socket.io-parser";
 import { Decoder, Encoder, Packet } from "socket.io-parser";
 import { on } from "./on.js";
-import Backoff from "backo2";
+import { Backoff } from "./contrib/backo2.js";
 import {
   DefaultEventsMap,
   EventsMap,
@@ -125,6 +125,7 @@ export class Manager<
 
   private nsps: Record<string, Socket> = {};
   private subs: Array<ReturnType<typeof on>> = [];
+  // @ts-ignore
   private backoff: Backoff;
   private setTimeoutFn: typeof setTimeout;
   private _reconnection: boolean;
