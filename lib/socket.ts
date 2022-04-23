@@ -63,7 +63,6 @@ export class Socket<
 
   public id: string;
   public connected: boolean = false;
-  public disconnected: boolean = true;
 
   public auth: { [key: string]: any } | ((cb: (data: object) => void) => void);
   public receiveBuffer: Array<ReadonlyArray<any>> = [];
@@ -91,6 +90,13 @@ export class Socket<
       this.auth = opts.auth;
     }
     if (this.io._autoConnect) this.open();
+  }
+
+  /**
+   * Whether the socket is currently disconnected
+   */
+  public get disconnected(): boolean {
+    return !this.connected;
   }
 
   /**
@@ -287,7 +293,6 @@ export class Socket<
   ): void {
     debug("close (%s)", reason);
     this.connected = false;
-    this.disconnected = true;
     delete this.id;
     this.emitReserved("disconnect", reason, description);
   }
@@ -319,17 +324,11 @@ export class Socket<
         break;
 
       case PacketType.EVENT:
-        this.onevent(packet);
-        break;
-
       case PacketType.BINARY_EVENT:
         this.onevent(packet);
         break;
 
       case PacketType.ACK:
-        this.onack(packet);
-        break;
-
       case PacketType.BINARY_ACK:
         this.onack(packet);
         break;
@@ -428,7 +427,6 @@ export class Socket<
     debug("socket connected with id %s", id);
     this.id = id;
     this.connected = true;
-    this.disconnected = false;
     this.emitBuffered();
     this.emitReserved("connect");
   }
