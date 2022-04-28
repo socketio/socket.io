@@ -43,6 +43,58 @@ process.on("message", async (msg) => {
       io.local.emit("test");
       break;
 
+    case "broadcasts with multiple acknowledgements": {
+      io.timeout(500).emit("test", (err, responses) => {
+        expect(err).to.be(null);
+        expect(responses).to.contain(1);
+        expect(responses).to.contain(2);
+        expect(responses).to.contain(3);
+
+        setTimeout(() => {
+          expect(io.of("/").adapter.ackRequests.size).to.eql(0);
+
+          process.send("ok");
+        }, 500);
+      });
+      break;
+    }
+
+    case "broadcasts with multiple acknowledgements (binary content)": {
+      io.timeout(500).emit("test", (err, responses) => {
+        expect(err).to.be(null);
+        responses.forEach((response) => {
+          expect(Buffer.isBuffer(response)).to.be(true);
+        });
+
+        process.send("ok");
+      });
+      break;
+    }
+
+    case "broadcasts with multiple acknowledgements (no client)": {
+      io
+        .to("abc")
+        .timeout(500)
+        .emit("test", (err, responses) => {
+          expect(err).to.be(null);
+          expect(responses).to.eql([]);
+
+          process.send("ok");
+        });
+      break;
+    }
+
+    case "broadcasts with multiple acknowledgements (timeout)": {
+      io.timeout(500).emit("test", (err, responses) => {
+        expect(err).to.be.an(Error);
+        expect(responses).to.contain(1);
+        expect(responses).to.contain(2);
+
+        process.send("ok");
+      });
+      break;
+    }
+
     case "get rooms":
       process.send(serverSocket.rooms);
       break;

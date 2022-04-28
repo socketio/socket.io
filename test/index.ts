@@ -144,6 +144,84 @@ describe("@socket.io/cluster-adapter", () => {
 
       workers[0].send("broadcasts to local clients only");
     });
+
+    it("broadcasts with multiple acknowledgements", (done) => {
+      clientSockets[0].on("test", (cb) => {
+        cb(1);
+      });
+
+      clientSockets[1].on("test", (cb) => {
+        cb(2);
+      });
+
+      clientSockets[2].on("test", (cb) => {
+        cb(3);
+      });
+
+      workers[0].send("broadcasts with multiple acknowledgements");
+
+      workers[0].on("message", (result) => {
+        if (result === "ok") {
+          done();
+        }
+      });
+    });
+
+    it("broadcasts with multiple acknowledgements (binary content)", (done) => {
+      clientSockets[0].on("test", (cb) => {
+        cb(Buffer.from([1]));
+      });
+
+      clientSockets[1].on("test", (cb) => {
+        cb(Buffer.from([2]));
+      });
+
+      clientSockets[2].on("test", (cb) => {
+        cb(Buffer.from([3]));
+      });
+
+      workers[0].send(
+        "broadcasts with multiple acknowledgements (binary content)"
+      );
+
+      workers[0].on("message", (result) => {
+        if (result === "ok") {
+          done();
+        }
+      });
+    });
+
+    it("broadcasts with multiple acknowledgements (no client)", (done) => {
+      workers[0].send("broadcasts with multiple acknowledgements (no client)");
+
+      workers[0].on("message", (result) => {
+        if (result === "ok") {
+          done();
+        }
+      });
+    });
+
+    it("broadcasts with multiple acknowledgements (timeout)", (done) => {
+      clientSockets[0].on("test", (cb) => {
+        cb(1);
+      });
+
+      clientSockets[1].on("test", (cb) => {
+        cb(2);
+      });
+
+      clientSockets[2].on("test", (cb) => {
+        // do nothing
+      });
+
+      workers[0].send("broadcasts with multiple acknowledgements (timeout)");
+
+      workers[0].on("message", (result) => {
+        if (result === "ok") {
+          done();
+        }
+      });
+    });
   });
 
   describe("socketsJoin", () => {

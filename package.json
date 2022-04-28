@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "debug": "~4.3.1",
-    "socket.io-adapter": "~2.3.0"
+    "socket.io-adapter": "~2.4.0"
   },
   "devDependencies": {
     "@types/expect.js": "^0.3.29",
@@ -30,7 +30,7 @@
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "prettier": "^2.1.2",
-    "socket.io": "^4.1.1",
+    "socket.io": "^4.5.0",
     "socket.io-client": "^4.1.1",
     "ts-node": "^9.1.1",
     "typescript": "^4.0.5"
