@@ -5,7 +5,7 @@ import {
   BinaryType,
   RawData
 } from "./commons.js";
-import { decode } from "@socket.io/base64-arraybuffer";
+import { decode } from "./contrib/base64-arraybuffer.js";
 
 const withNativeArrayBuffer = typeof ArrayBuffer === "function";
 
