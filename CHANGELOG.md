@@ -1,3 +1,13 @@
+## [5.0.4](https://github.com/socketio/engine.io-parser/compare/5.0.3...5.0.4) (2022-04-30)
+
+
+### Bug Fixes
+
+* add missing file extension for ESM import ([a421bbe](https://github.com/socketio/engine.io-parser/commit/a421bbec7bf43c567c49c608dee604872f6db823))
+* **typings:** update the type of RawData ([039b45c](https://github.com/socketio/engine.io-parser/commit/039b45cc65b50acc1f9da42ad605eaccb8ccbcde))
+
+
+
 ## [5.0.3](https://github.com/socketio/engine.io-parser/compare/5.0.2...5.0.3) (2022-01-17)
 
 
