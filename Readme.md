@@ -1,7 +1,7 @@
 
 # engine.io-parser
 
-[![Build Status](https://github.com/socketio/engine.io-parser/workflows/CI/badge.svg)](https://github.com/socketio/engine.io-parser/actions)
+[![Build Status](https://github.com/socketio/engine.io-parser/workflows/CI/badge.svg?branch=main)](https://github.com/socketio/engine.io-parser/actions)
 [![NPM version](https://badge.fury.io/js/engine.io-parser.svg)](https://npmjs.com/package/engine.io-parser)
 
 This is the JavaScript parser for the engine.io protocol encoding,
