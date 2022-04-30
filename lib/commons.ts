@@ -26,7 +26,9 @@ export type PacketType =
   | "noop"
   | "error";
 
-export type RawData = string | Buffer | ArrayBuffer | ArrayBufferView | Blob;
+// RawData should be "string | Buffer | ArrayBuffer | ArrayBufferView | Blob", but Blob does not exist in Node.js and
+// requires to add the dom lib in tsconfig.json
+export type RawData = any;
 
 export interface Packet {
   type: PacketType;
