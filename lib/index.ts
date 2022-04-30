@@ -1,6 +1,6 @@
 import encodePacket from "./encodePacket.js";
 import decodePacket from "./decodePacket.js";
-import { Packet, PacketType, RawData, BinaryType } from "./commons";
+import { Packet, PacketType, RawData, BinaryType } from "./commons.js";
 
 const SEPARATOR = String.fromCharCode(30); // see https://en.wikipedia.org/wiki/Delimiter#ASCII_delimited_text
 
