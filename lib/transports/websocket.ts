@@ -240,9 +240,6 @@ export class WS extends Transport {
    * @api public
    */
   check() {
-    return (
-      !!WebSocket &&
-      !("__initialize" in WebSocket && this.name === WS.prototype.name)
-    );
+    return !!WebSocket;
   }
 }
