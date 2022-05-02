@@ -1,5 +1,5 @@
 /*!
- * Engine.IO v6.2.0
+ * Engine.IO v6.2.2
  * (c) 2014-2022 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -591,7 +591,7 @@
     return !!this.listeners(event).length;
   };
 
-  var globalThis = (function () {
+  var globalThisShim = function () {
     if (typeof self !== "undefined") {
       return self;
     } else if (typeof window !== "undefined") {
@@ -599,7 +599,7 @@
     } else {
       return Function("return this")();
     }
-  })();
+  }();
 
   function pick(obj) {
     for (var _len = arguments.length, attr = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -619,11 +619,11 @@
   var NATIVE_CLEAR_TIMEOUT = clearTimeout;
   function installTimerFunctions(obj, opts) {
     if (opts.useNativeTimers) {
-      obj.setTimeoutFn = NATIVE_SET_TIMEOUT.bind(globalThis);
-      obj.clearTimeoutFn = NATIVE_CLEAR_TIMEOUT.bind(globalThis);
+      obj.setTimeoutFn = NATIVE_SET_TIMEOUT.bind(globalThisShim);
+      obj.clearTimeoutFn = NATIVE_CLEAR_TIMEOUT.bind(globalThisShim);
     } else {
-      obj.setTimeoutFn = setTimeout.bind(globalThis);
-      obj.clearTimeoutFn = clearTimeout.bind(globalThis);
+      obj.setTimeoutFn = setTimeout.bind(globalThisShim);
+      obj.clearTimeoutFn = clearTimeout.bind(globalThisShim);
     }
   } // base64 encoded buffers are about 33% bigger (https://en.wikipedia.org/wiki/Base64)
 
@@ -922,7 +922,7 @@
   var hasCORS = value;
 
   // browser shim for xmlhttprequest module
-  function XMLHttpRequest$1 (opts) {
+  function XHR(opts) {
     var xdomain = opts.xdomain; // XMLHttpRequest can be disabled on IE
 
     try {
@@ -933,7 +933,7 @@
 
     if (!xdomain) {
       try {
-        return new globalThis[["Active"].concat("Object").join("X")]("Microsoft.XMLHTTP");
+        return new globalThisShim[["Active"].concat("Object").join("X")]("Microsoft.XMLHTTP");
       } catch (e) {}
     }
   }
@@ -941,7 +941,7 @@
   function empty() {}
 
   var hasXHR2 = function () {
-    var xhr = new XMLHttpRequest$1({
+    var xhr = new XHR({
       xdomain: false
     });
     return null != xhr.responseType;
@@ -1286,7 +1286,7 @@
         var opts = pick(this.opts, "agent", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized", "autoUnref");
         opts.xdomain = !!this.opts.xd;
         opts.xscheme = !!this.opts.xs;
-        var xhr = this.xhr = new XMLHttpRequest$1(opts);
+        var xhr = this.xhr = new XHR(opts);
 
         try {
           xhr.open(this.method, this.uri, this.async);
@@ -1437,7 +1437,7 @@
       // @ts-ignore
       attachEvent("onunload", unloadHandler);
     } else if (typeof addEventListener === "function") {
-      var terminationEvent = "onpagehide" in globalThis ? "pagehide" : "unload";
+      var terminationEvent = "onpagehide" in globalThisShim ? "pagehide" : "unload";
       addEventListener(terminationEvent, unloadHandler, false);
     }
   }
@@ -1463,7 +1463,7 @@
       };
     }
   }();
-  var WebSocket = globalThis.WebSocket || globalThis.MozWebSocket;
+  var WebSocket = globalThisShim.WebSocket || globalThisShim.MozWebSocket;
   var usingBrowserWebSocket = true;
   var defaultBinaryType = "arraybuffer";
 
@@ -1664,7 +1664,7 @@
     }, {
       key: "check",
       value: function check() {
-        return !!WebSocket && !("__initialize" in WebSocket && this.name === WS.prototype.name);
+        return !!WebSocket;
       }
     }, {
       key: "name",

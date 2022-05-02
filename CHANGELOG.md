@@ -1,3 +1,18 @@
+## [6.2.2](https://github.com/socketio/engine.io-client/compare/6.2.1...6.2.2) (2022-05-02)
+
+
+### Bug Fixes
+
+* simplify the check for WebSocket availability ([f158c8e](https://github.com/socketio/engine.io-client/commit/f158c8e255be9e849313e53201adf1642c60345a))
+
+This check was added for the flashsocket transport, which has been deprecated for a while now ([1]). But it fails with latest webpack versions, as the expression `"__initialize" in WebSocket` gets evaluated to `true`.
+
+* use named export for globalThis shim ([#688](https://github.com/socketio/engine.io-client/issues/688)) ([32878ea](https://github.com/socketio/engine.io-client/commit/32878ea047c38e2b2f0444e828ac71f4d833971f))
+
+Default export of globalThis seems to have a problem in the "browser" field when the library is loaded asynchronously with webpack.
+
+
+
 ## [6.2.1](https://github.com/socketio/engine.io-client/compare/6.2.0...6.2.1) (2022-04-17)
 
 
