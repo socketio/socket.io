@@ -1,5 +1,3 @@
 import * as XMLHttpRequestModule from "xmlhttprequest-ssl";
 
-const XMLHttpRequest = XMLHttpRequestModule.default || XMLHttpRequestModule;
-
-export default XMLHttpRequest;
+export const XHR = XMLHttpRequestModule.default || XMLHttpRequestModule;

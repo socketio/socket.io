@@ -3,7 +3,7 @@ import debugModule from "debug"; // debug()
 import { yeast } from "../contrib/yeast.js";
 import { encode } from "../contrib/parseqs.js";
 import { encodePayload, decodePayload, RawData } from "engine.io-parser";
-import XMLHttpRequest from "./xmlhttprequest.js";
+import { XHR as XMLHttpRequest } from "./xmlhttprequest.js";
 import { Emitter } from "@socket.io/component-emitter";
 import { SocketOptions } from "../socket.js";
 import { installTimerFunctions, pick } from "../util.js";

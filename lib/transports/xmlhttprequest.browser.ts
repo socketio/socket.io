@@ -3,7 +3,7 @@
 import { hasCORS } from "../contrib/has-cors.js";
 import { globalThisShim as globalThis } from "../globalThis.js";
 
-export default function(opts) {
+export function XHR(opts) {
   const xdomain = opts.xdomain;
 
   // XMLHttpRequest can be disabled on IE

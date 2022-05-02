@@ -1,5 +1,5 @@
 const expect = require("expect.js");
-const XMLHttpRequest = require("../build/cjs/xmlhttprequest").default;
+const XMLHttpRequest = require("../build/cjs/transports/xmlhttprequest").XHR;
 const env = require("./support/env");
 
 describe("XMLHttpRequest", () => {
