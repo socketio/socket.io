@@ -262,6 +262,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
       .fetchSockets({
         rooms: this.rooms,
         except: this.exceptRooms,
+        flags: this.flags,
       })
       .then((sockets) => {
         return sockets.map((socket) => {
@@ -289,6 +290,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
       {
         rooms: this.rooms,
         except: this.exceptRooms,
+        flags: this.flags,
       },
       Array.isArray(room) ? room : [room]
     );
@@ -305,6 +307,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
       {
         rooms: this.rooms,
         except: this.exceptRooms,
+        flags: this.flags,
       },
       Array.isArray(room) ? room : [room]
     );
@@ -321,6 +324,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
       {
         rooms: this.rooms,
         except: this.exceptRooms,
+        flags: this.flags,
       },
       close
     );
