@@ -21,11 +21,22 @@ export interface DefaultEventsMap {
  */
 export type EventNames<Map extends EventsMap> = keyof Map & (string | symbol);
 
+/** Emit Callback  */
+export type EventEmitCallback<ResponseType> = [
+  callback?: (response: ResponseType | Error) => void
+];
+
 /** The tuple type representing the parameters of an event listener */
-export type EventParams<
+export type EventEmitArgs<
   Map extends EventsMap,
   Ev extends EventNames<Map>
-> = Parameters<Map[Ev]>;
+> = Merge<Parameters<Map[Ev]>, EventEmitCallback<ReturnType<Map[Ev]>>>;
+
+/** Utility to merge two named tuples */
+export type Merge<first extends unknown[], second extends unknown[]> = [
+  ...A: first,
+  ...B: second
+];
 
 /**
  * The event names that are either in ReservedEvents or in UserEvents
@@ -36,10 +47,10 @@ export type ReservedOrUserEventNames<
 > = EventNames<ReservedEventsMap> | EventNames<UserEvents>;
 
 /**
- * Type of a listener of a user event or a reserved event. If `Ev` is in
+ * Function type of a listener of a user event or a reserved event. If `Ev` is in
  * `ReservedEvents`, the reserved event listener is returned.
  */
-export type ReservedOrUserListener<
+export type ReservedOrUserListenerFunc<
   ReservedEvents extends EventsMap,
   UserEvents extends EventsMap,
   Ev extends ReservedOrUserEventNames<ReservedEvents, UserEvents>
@@ -50,6 +61,26 @@ export type ReservedOrUserListener<
     ? UserEvents[Ev]
     : never
 >;
+
+/**
+ * Type of a event listener with callback
+ */
+type FullListener<Listener extends (...args: any) => any> = (
+  ...args: Merge<
+    Parameters<Listener>,
+    [cb: (response: ReturnType<Listener>) => void]
+  >
+) => void;
+
+/**
+ * Type of a listener of a user event or a reserved event. If `Ev` is in
+ * `ReservedEvents`, the reserved event listener is returned.
+ */
+export type ReservedOrUserListener<
+  ReservedEvents extends EventsMap,
+  UserEvents extends EventsMap,
+  Ev extends ReservedOrUserEventNames<ReservedEvents, UserEvents>
+> = FullListener<ReservedOrUserListenerFunc<ReservedEvents, UserEvents, Ev>>;
 
 /**
  * Returns an untyped listener type if `T` is `never`; otherwise, returns `T`.
@@ -68,7 +99,7 @@ type FallbackToUntypedListener<T> = [T] extends [never]
 export interface TypedEventBroadcaster<EmitEvents extends EventsMap> {
   emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
-    ...args: EventParams<EmitEvents, Ev>
+    ...args: EventEmitArgs<EmitEvents, Ev>
   ): boolean;
 }
 
@@ -103,7 +134,7 @@ export abstract class StrictEventEmitter<
     ev: Ev,
     listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>
   ): this {
-    return super.on(ev, listener);
+    return super.on(ev, listener as (...args: any[]) => void);
   }
 
   /**
@@ -116,7 +147,7 @@ export abstract class StrictEventEmitter<
     ev: Ev,
     listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>
   ): this {
-    return super.once(ev, listener);
+    return super.once(ev, listener as (...args: any[]) => void);
   }
 
   /**
@@ -127,7 +158,7 @@ export abstract class StrictEventEmitter<
    */
   emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
-    ...args: EventParams<EmitEvents, Ev>
+    ...args: EventEmitArgs<EmitEvents, Ev>
   ): boolean {
     return super.emit(ev, ...args);
   }
@@ -143,7 +174,7 @@ export abstract class StrictEventEmitter<
    */
   protected emitReserved<Ev extends EventNames<ReservedEvents>>(
     ev: Ev,
-    ...args: EventParams<ReservedEvents, Ev>
+    ...args: EventEmitArgs<ReservedEvents, Ev>
   ): boolean {
     return super.emit(ev, ...args);
   }

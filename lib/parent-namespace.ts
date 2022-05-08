@@ -1,7 +1,7 @@
 import { Namespace } from "./namespace";
 import type { Server, RemoteSocket } from "./index";
 import type {
-  EventParams,
+  EventEmitArgs,
   EventNames,
   EventsMap,
   DefaultEventsMap,
@@ -40,7 +40,7 @@ export class ParentNamespace<
 
   public emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
-    ...args: EventParams<EmitEvents, Ev>
+    ...args: EventEmitArgs<EmitEvents, Ev>
   ): boolean {
     this.children.forEach((nsp) => {
       nsp.emit(ev, ...args);

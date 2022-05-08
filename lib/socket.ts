@@ -2,7 +2,7 @@ import { Packet, PacketType } from "socket.io-parser";
 import debugModule from "debug";
 import type { Server } from "./index";
 import {
-  EventParams,
+  EventEmitArgs,
   EventNames,
   EventsMap,
   StrictEventEmitter,
@@ -198,7 +198,7 @@ export class Socket<
    */
   public emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
-    ...args: EventParams<EmitEvents, Ev>
+    ...args: EventEmitArgs<EmitEvents, Ev>
   ): boolean {
     if (RESERVED_EVENTS.has(ev)) {
       throw new Error(`"${ev}" is a reserved event name`);
@@ -290,7 +290,7 @@ export class Socket<
    * @return self
    * @public
    */
-  public send(...args: EventParams<EmitEvents, "message">): this {
+  public send(...args: EventEmitArgs<EmitEvents, "message">): this {
     this.emit("message", ...args);
     return this;
   }
@@ -301,7 +301,7 @@ export class Socket<
    * @return self
    * @public
    */
-  public write(...args: EventParams<EmitEvents, "message">): this {
+  public write(...args: EventEmitArgs<EmitEvents, "message">): this {
     this.emit("message", ...args);
     return this;
   }

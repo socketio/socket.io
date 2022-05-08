@@ -24,7 +24,7 @@ import type { BroadcastOperator, RemoteSocket } from "./broadcast-operator";
 import {
   EventsMap,
   DefaultEventsMap,
-  EventParams,
+  EventEmitArgs,
   StrictEventEmitter,
   EventNames,
 } from "./typed-events";
@@ -698,7 +698,7 @@ export class Server<
    * @return self
    * @public
    */
-  public send(...args: EventParams<EmitEvents, "message">): this {
+  public send(...args: EventEmitArgs<EmitEvents, "message">): this {
     this.sockets.emit("message", ...args);
     return this;
   }
@@ -709,7 +709,7 @@ export class Server<
    * @return self
    * @public
    */
-  public write(...args: EventParams<EmitEvents, "message">): this {
+  public write(...args: EventEmitArgs<EmitEvents, "message">): this {
     this.sockets.emit("message", ...args);
     return this;
   }
@@ -723,7 +723,7 @@ export class Server<
    */
   public serverSideEmit<Ev extends EventNames<ServerSideEvents>>(
     ev: Ev,
-    ...args: EventParams<ServerSideEvents, Ev>
+    ...args: EventEmitArgs<ServerSideEvents, Ev>
   ): boolean {
     return this.sockets.serverSideEmit(ev, ...args);
   }

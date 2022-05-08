@@ -3,7 +3,7 @@ import { Handshake, RESERVED_EVENTS, Socket } from "./socket";
 import { PacketType } from "socket.io-parser";
 import type { Adapter } from "socket.io-adapter";
 import type {
-  EventParams,
+  EventEmitArgs,
   EventNames,
   EventsMap,
   TypedEventBroadcaster,
@@ -160,7 +160,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    */
   public emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
-    ...args: EventParams<EmitEvents, Ev>
+    ...args: EventEmitArgs<EmitEvents, Ev>
   ): boolean {
     if (RESERVED_EVENTS.has(ev)) {
       throw new Error(`"${ev}" is a reserved event name`);
@@ -360,7 +360,7 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
 
   public emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
-    ...args: EventParams<EmitEvents, Ev>
+    ...args: EventEmitArgs<EmitEvents, Ev>
   ): boolean {
     return this.operator.emit(ev, ...args);
   }

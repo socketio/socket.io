@@ -1,7 +1,7 @@
 import { Socket } from "./socket";
 import type { Server } from "./index";
 import {
-  EventParams,
+  EventEmitArgs,
   EventNames,
   EventsMap,
   StrictEventEmitter,
@@ -274,7 +274,7 @@ export class Namespace<
    */
   public emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
-    ...args: EventParams<EmitEvents, Ev>
+    ...args: EventEmitArgs<EmitEvents, Ev>
   ): boolean {
     return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).emit(
       ev,
@@ -288,7 +288,7 @@ export class Namespace<
    * @return self
    * @public
    */
-  public send(...args: EventParams<EmitEvents, "message">): this {
+  public send(...args: EventEmitArgs<EmitEvents, "message">): this {
     this.emit("message", ...args);
     return this;
   }
@@ -299,7 +299,7 @@ export class Namespace<
    * @return self
    * @public
    */
-  public write(...args: EventParams<EmitEvents, "message">): this {
+  public write(...args: EventEmitArgs<EmitEvents, "message">): this {
     this.emit("message", ...args);
     return this;
   }
@@ -313,7 +313,7 @@ export class Namespace<
    */
   public serverSideEmit<Ev extends EventNames<ServerSideEvents>>(
     ev: Ev,
-    ...args: EventParams<ServerSideEvents, Ev>
+    ...args: EventEmitArgs<ServerSideEvents, Ev>
   ): boolean {
     if (RESERVED_EVENTS.has(ev)) {
       throw new Error(`"${ev}" is a reserved event name`);
