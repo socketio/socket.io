@@ -1,6 +1,6 @@
 {
   "name": "socket.io",
-  "version": "4.5.0",
+  "version": "4.5.1",
   "description": "node.js realtime framework server",
   "keywords": [
     "realtime",
@@ -60,7 +60,7 @@
     "nyc": "^15.1.0",
     "prettier": "^2.3.2",
     "rimraf": "^3.0.2",
-    "socket.io-client": "4.5.0",
+    "socket.io-client": "4.5.1",
     "socket.io-client-v2": "npm:socket.io-client@^2.4.0",
     "superagent": "^6.1.0",
     "supertest": "^6.1.6",

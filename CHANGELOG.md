@@ -1,3 +1,13 @@
+## [4.5.1](https://github.com/socketio/socket.io/compare/4.5.0...4.5.1) (2022-05-17)
+
+
+### Bug Fixes
+
+* forward the local flag to the adapter when using fetchSockets() ([30430f0](https://github.com/socketio/socket.io/commit/30430f0985f8e7c49394543d4c84913b6a15df60))
+* **typings:** add HTTPS server to accepted types ([#4351](https://github.com/socketio/socket.io/issues/4351)) ([9b43c91](https://github.com/socketio/socket.io/commit/9b43c9167cff817c60fa29dbda2ef7cd938aff51))
+
+
+
 # [4.5.0](https://github.com/socketio/socket.io/compare/4.4.1...4.5.0) (2022-04-23)
 
 
