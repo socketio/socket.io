@@ -1,6 +1,6 @@
 "use strict";
 
-import { Server, Socket, Namespace } from "../lib";
+import { Server, Socket, Namespace } from "..";
 import { createServer } from "http";
 import fs = require("fs");
 import { join } from "path";
@@ -11,6 +11,7 @@ import type { AddressInfo } from "net";
 import * as io_v2 from "socket.io-client-v2";
 import type { SocketId } from "socket.io-adapter";
 import { io as ioc, Socket as ClientSocket } from "socket.io-client";
+import { createClient } from "./support/util";
 
 import "./support/util";
 import "./utility-methods";
@@ -2106,6 +2107,40 @@ describe("socket.io", () => {
           clientSocket.emit("test", Buffer.alloc(10));
           clientSocket.disconnect();
         });
+      });
+    });
+
+    it("should leave all rooms joined after a middleware failure", (done) => {
+      const io = new Server(0);
+      const client = createClient(io, "/");
+
+      io.use((socket, next) => {
+        socket.join("room1");
+        next(new Error("nope"));
+      });
+
+      client.on("connect_error", () => {
+        expect(io.of("/").adapter.rooms.size).to.eql(0);
+
+        io.close();
+        done();
+      });
+    });
+
+    it("should not join rooms after disconnection", (done) => {
+      const io = new Server(0);
+      const client = createClient(io, "/");
+
+      io.on("connection", (socket) => {
+        socket.disconnect();
+        socket.join("room1");
+      });
+
+      client.on("disconnect", () => {
+        expect(io.of("/").adapter.rooms.size).to.eql(0);
+
+        io.close();
+        done();
       });
     });
 

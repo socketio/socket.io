@@ -218,34 +218,38 @@ export class Namespace<
     const socket = new Socket(this, client, query);
     this.run(socket, (err) => {
       process.nextTick(() => {
-        if ("open" == client.conn.readyState) {
-          if (err) {
-            if (client.conn.protocol === 3) {
-              return socket._error(err.data || err.message);
-            } else {
-              return socket._error({
-                message: err.message,
-                data: err.data,
-              });
-            }
-          }
-
-          // track socket
-          this.sockets.set(socket.id, socket);
-
-          // it's paramount that the internal `onconnect` logic
-          // fires before user-set events to prevent state order
-          // violations (such as a disconnection before the connection
-          // logic is complete)
-          socket._onconnect();
-          if (fn) fn();
-
-          // fire user-set events
-          this.emitReserved("connect", socket);
-          this.emitReserved("connection", socket);
-        } else {
+        if ("open" !== client.conn.readyState) {
           debug("next called after client was closed - ignoring socket");
+          socket._cleanup();
+          return;
         }
+
+        if (err) {
+          debug("middleware error, sending CONNECT_ERROR packet to the client");
+          socket._cleanup();
+          if (client.conn.protocol === 3) {
+            return socket._error(err.data || err.message);
+          } else {
+            return socket._error({
+              message: err.message,
+              data: err.data,
+            });
+          }
+        }
+
+        // track socket
+        this.sockets.set(socket.id, socket);
+
+        // it's paramount that the internal `onconnect` logic
+        // fires before user-set events to prevent state order
+        // violations (such as a disconnection before the connection
+        // logic is complete)
+        socket._onconnect();
+        if (fn) fn();
+
+        // fire user-set events
+        this.emitReserved("connect", socket);
+        this.emitReserved("connection", socket);
       });
     });
     return socket;

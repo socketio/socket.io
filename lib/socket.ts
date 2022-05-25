@@ -112,6 +112,8 @@ export interface Handshake {
  */
 export type Event = [string, ...any[]];
 
+function noop() {}
+
 export class Socket<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
@@ -511,12 +513,22 @@ export class Socket<
     if (!this.connected) return this;
     debug("closing socket - reason %s", reason);
     this.emitReserved("disconnecting", reason);
-    this.leaveAll();
+    this._cleanup();
     this.nsp._remove(this);
     this.client._remove(this);
     this.connected = false;
     this.emitReserved("disconnect", reason);
     return;
+  }
+
+  /**
+   * Makes the socket leave all the rooms it was part of and prevents it from joining any other room
+   *
+   * @private
+   */
+  _cleanup() {
+    this.leaveAll();
+    this.join = noop;
   }
 
   /**
