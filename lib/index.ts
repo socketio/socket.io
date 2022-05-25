@@ -16,7 +16,7 @@ export interface BroadcastFlags {
 
 export interface BroadcastOptions {
   rooms: Set<Room>;
-  except?: Set<SocketId>;
+  except?: Set<Room>;
   flags?: BroadcastFlags;
 }
 
