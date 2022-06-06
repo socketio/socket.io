@@ -181,7 +181,7 @@ describe("server", () => {
           .get(`http://localhost:${port}/engine.io/`)
           .query({ transport: "polling", EIO: 4 })
           .end((err, res) => {
-            const sid = JSON.parse(res.text.substring(1)).sid;
+            const sid = JSON.parse(res.text.slice(1)).sid;
 
             request
               .get(`http://localhost:${port}/engine.io/`)
@@ -3357,7 +3357,7 @@ describe("server", () => {
             expect(res.headers["set-cookie"].length).to.be(2);
             expect(res.headers["set-cookie"][1]).to.be("mycookie=456");
 
-            const sid = JSON.parse(res.text.substring(5)).sid;
+            const sid = JSON.parse(res.text.slice(5)).sid;
 
             request
               .post(`http://localhost:${port}/engine.io/`)
@@ -3394,7 +3394,7 @@ describe("server", () => {
             expect(res.headers["set-cookie"].length).to.be(2);
             expect(res.headers["set-cookie"][1]).to.be("mycookie=456");
 
-            const sid = JSON.parse(res.text.substring(5)).sid;
+            const sid = JSON.parse(res.text.slice(5)).sid;
 
             request
               .post(`http://localhost:${port}/engine.io/`)

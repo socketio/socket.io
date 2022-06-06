@@ -555,7 +555,7 @@ export class Server extends BaseServer {
         return;
       }
 
-      const head = Buffer.from(upgradeHead); // eslint-disable-line node/no-deprecated-api
+      const head = Buffer.from(upgradeHead);
       upgradeHead = null;
 
       // delegate to ws
@@ -643,7 +643,7 @@ export class Server extends BaseServer {
     path += "/";
 
     function check(req) {
-      return path === req.url.substr(0, path.length);
+      return path === req.url.slice(0, path.length);
     }
 
     // cache and clean up listeners

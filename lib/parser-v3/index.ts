@@ -137,7 +137,7 @@ export function decodePacket (data, binaryType, utf8decode) {
     type = data.charAt(0);
 
     if (type === 'b') {
-      return decodeBase64Packet(data.substr(1), binaryType);
+      return decodeBase64Packet(data.slice(1), binaryType);
     }
 
     if (utf8decode) {
@@ -152,7 +152,7 @@ export function decodePacket (data, binaryType, utf8decode) {
     }
 
     if (data.length > 1) {
-      return { type: packetslist[type], data: data.substring(1) };
+      return { type: packetslist[type], data: data.slice(1) };
     } else {
       return { type: packetslist[type] };
     }
@@ -191,7 +191,7 @@ function tryDecode(data) {
 
 export function decodeBase64Packet (msg, binaryType) {
   var type = packetslist[msg.charAt(0)];
-  var data = Buffer.from(msg.substr(1), 'base64');
+  var data = Buffer.from(msg.slice(1), 'base64');
   if (binaryType === 'arraybuffer') {
     var abv = new Uint8Array(data.length);
     for (var i = 0; i < abv.length; i++){
@@ -305,7 +305,7 @@ export function decodePayload (data, binaryType, callback) {
       return callback(err, 0, 1);
     }
 
-    msg = data.substr(i + 1, n);
+    msg = data.slice(i + 1, i + 1 + n);
 
     if (length != msg.length) {
       // parser error - ignoring payload
