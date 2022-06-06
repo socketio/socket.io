@@ -1,3 +1,26 @@
+# [3.6.0](https://github.com/socketio/engine.io/compare/3.5.0...3.6.0) (2022-06-06)
+
+
+### Bug Fixes
+
+* add extension in the package.json main entry ([#608](https://github.com/socketio/engine.io/issues/608)) ([3ad0567](https://github.com/socketio/engine.io/commit/3ad0567dbd57cfb7c2ff4e8b7488d80f37022b4a))
+* do not reset the ping timer after upgrade ([1f5d469](https://github.com/socketio/engine.io/commit/1f5d4699862afee1e410fcb0e1f5e751ebcd2f9f)), closes [/github.com/socketio/socket.io-client-swift/pull/1309#issuecomment-768475704](https://github.com//github.com/socketio/socket.io-client-swift/pull/1309/issues/issuecomment-768475704)
+
+
+### Features
+
+* decrease the default value of maxHttpBufferSize ([58e274c](https://github.com/socketio/engine.io/commit/58e274c437e9cbcf69fd913c813aad8fbd253703))
+
+This change reduces the default value from 100 mb to a more sane 1 mb.
+
+This helps protect the server against denial of service attacks by malicious clients sending huge amounts of data.
+
+See also: https://github.com/advisories/GHSA-j4f2-536g-r55m
+
+* increase the default value of pingTimeout ([f55a79a](https://github.com/socketio/engine.io/commit/f55a79a28a5fbc6c9edae876dd11308b89cc979e))
+
+
+
 # [6.2.0](https://github.com/socketio/engine.io/compare/6.1.3...6.2.0) (2022-04-17)
 
 
