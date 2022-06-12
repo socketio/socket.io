@@ -90,12 +90,14 @@ describe("Engine.IO protocol", () => {
           "sid",
           "upgrades",
           "pingInterval",
-          "pingTimeout"
+          "pingTimeout",
+          "maxPayload"
         );
         expect(value.sid).to.be.a("string");
         expect(value.upgrades).to.eql(["websocket"]);
         expect(value.pingInterval).to.eql(PING_INTERVAL);
         expect(value.pingTimeout).to.eql(PING_TIMEOUT);
+        expect(value.maxPayload).to.eql(1000000);
       });
 
       it("should fail with an invalid 'EIO' query parameter", async () => {
@@ -157,12 +159,14 @@ describe("Engine.IO protocol", () => {
           "sid",
           "upgrades",
           "pingInterval",
-          "pingTimeout"
+          "pingTimeout",
+          "maxPayload"
         );
         expect(value.sid).to.be.a("string");
         expect(value.upgrades).to.eql([]);
         expect(value.pingInterval).to.eql(PING_INTERVAL);
         expect(value.pingTimeout).to.eql(PING_TIMEOUT);
+        expect(value.maxPayload).to.eql(1000000);
 
         socket.close();
       });

@@ -444,7 +444,7 @@ Here is an example of what is sent over the wire when combining both the Engine.
 GET /socket.io/?EIO=4&transport=polling&t=N8hyd6w
 < HTTP/1.1 200 OK
 < Content-Type: text/plain; charset=UTF-8
-0{"sid":"lv_VI97HAXpY6yYWAAAC","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":5000}
+0{"sid":"lv_VI97HAXpY6yYWAAAC","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":5000,"maxPayload":1000000}
 ```
 
 Details:
@@ -648,6 +648,7 @@ import { Server } from "socket.io";
 const io = new Server(3000, {
   pingInterval: 300,
   pingTimeout: 200,
+  maxPayload: 1000000,
   cors: {
     origin: "*"
   }
