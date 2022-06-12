@@ -53,6 +53,7 @@ The revision 3 can be found here: https://github.com/socketio/engine.io-protocol
     to detect that the server is unresponsive (`Number`)
   - `pingInterval` server configured ping interval, used for the client
     to detect that the server is unresponsive (`Number`)
+  - `maxPayload` server configured maximum number of bytes per chunk, used by the client to aggregate packets into [payloads](#payload) (`Number`)
 3. Client must respond to periodic `ping` packets sent by the server
 with `pong` packets.
 4. Client and server can exchange `message` packets at will.
@@ -67,7 +68,7 @@ they're expected to be "opening" and "closing" all the time.
 GET /engine.io/?EIO=4&transport=polling&t=N8hyd6w
 < HTTP/1.1 200 OK
 < Content-Type: text/plain; charset=UTF-8
-0{"sid":"lv_VI97HAXpY6yYWAAAC","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":5000}
+0{"sid":"lv_VI97HAXpY6yYWAAAC","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":5000,"maxPayload":1000000}
 ```
 
 Details:
@@ -154,7 +155,7 @@ GET /engine.io/?EIO=4&transport=websocket
 WebSocket frames:
 
 ```
-< 0{"sid":"lv_VI97HAXpY6yYWAAAC","pingInterval":25000,"pingTimeout":5000} => handshake
+< 0{"sid":"lv_VI97HAXpY6yYWAAAC","pingInterval":25000,"pingTimeout":5000,"maxPayload":1000000}} => handshake
 < 4hey
 > 4hello    => message (not concatenated)
 > 4world
@@ -490,6 +491,7 @@ import { listen } from "engine.io";
 const server = listen(3000, {
   pingInterval: 300,
   pingTimeout: 200,
+  maxPayload: 1e6,
   cors: {
     origin: "*"
   }
