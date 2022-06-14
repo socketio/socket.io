@@ -45,10 +45,10 @@ function pathNames(obj, path) {
     const regx = /\/{2,9}/g,
         names = path.replace(regx, "/").split("/");
 
-    if (path.substr(0, 1) == '/' || path.length === 0) {
+    if (path.slice(0, 1) == '/' || path.length === 0) {
         names.splice(0, 1);
     }
-    if (path.substr(path.length - 1, 1) == '/') {
+    if (path.slice(-1) == '/') {
         names.splice(names.length - 1, 1);
     }
 
