@@ -1838,6 +1838,33 @@ describe('socket.io', function(){
       });
     });
 
+    it("should ignore a packet received after disconnection", (done) => {
+      const srv = http();
+      const sio = io(srv);
+
+      srv.listen(() => {
+        const clientSocket = client(srv);
+
+        const success = () => {
+          clientSocket.close();
+          sio.close();
+          done();
+        };
+
+        sio.on("connection", (socket) => {
+          socket.on("test", () => {
+            done(new Error("should not happen"));
+          });
+          socket.on("disconnect", success);
+        });
+
+        clientSocket.on("connect", () => {
+          clientSocket.emit("test", Buffer.alloc(10));
+          clientSocket.disconnect();
+        });
+      });
+    });
+
     it('should always trigger the callback (if provided) when joining a room', function(done){
       var srv = http();
       var sio = io(srv);
