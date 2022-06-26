@@ -1901,6 +1901,43 @@ describe('socket.io', function(){
       });
     });
 
+    it("should leave all rooms joined after a middleware failure", (done) => {
+      const srv = http().listen(0);
+      const sio = io(srv);
+      const clientSocket = client(srv, "/");
+
+      sio.use((socket, next) => {
+        socket.join("room1");
+        next(new Error("nope"));
+      });
+
+      clientSocket.on("error", () => {
+        expect(sio.of("/").adapter.rooms).to.eql(0);
+
+        clientSocket.disconnect();
+        sio.close();
+        done();
+      });
+    });
+
+    it("should not join rooms after disconnection", (done) => {
+      const srv = http().listen(0);
+      const sio = io(srv);
+      const clientSocket = client(srv, "/");
+
+      sio.on("connection", (socket) => {
+        socket.disconnect();
+        socket.join("room1");
+      });
+
+      clientSocket.on("disconnect", () => {
+        expect(sio.of("/").adapter.rooms).to.eql(0);
+
+        sio.close();
+        done();
+      });
+    });
+
     it('should always trigger the callback (if provided) when joining a room', function(done){
       var srv = http();
       var sio = io(srv);
