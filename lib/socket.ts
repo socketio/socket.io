@@ -168,7 +168,7 @@ export class Socket<
     ...args: EventParams<EmitEvents, Ev>
   ): this {
     if (RESERVED_EVENTS.hasOwnProperty(ev)) {
-      throw new Error('"' + ev + '" is a reserved event name');
+      throw new Error('"' + ev.toString() + '" is a reserved event name');
     }
 
     args.unshift(ev);

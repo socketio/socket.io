@@ -118,5 +118,8 @@
   },
   "browser": {
     "./test/node.ts": false
+  },
+  "overrides": {
+    "@types/estree": "0.0.52"
   }
 }
