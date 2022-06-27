@@ -1,4 +1,8 @@
-import { App, us_socket_local_port } from "uWebSockets.js";
+import {
+  App,
+  us_socket_local_port,
+  us_listen_socket_close,
+} from "uWebSockets.js";
 import { Server } from "..";
 import { io as ioc, Socket as ClientSocket } from "socket.io-client";
 import request from "supertest";
@@ -19,6 +23,7 @@ const shouldNotHappen = (done) => () => done(new Error("should not happen"));
 
 describe("socket.io with uWebSocket.js-based engine", () => {
   let io: Server,
+    uwsSocket: any,
     port: number,
     client: ClientSocket,
     clientWSOnly: ClientSocket,
@@ -33,6 +38,7 @@ describe("socket.io with uWebSocket.js-based engine", () => {
     io.of("/custom");
 
     app.listen(0, (listenSocket) => {
+      uwsSocket = listenSocket;
       port = us_socket_local_port(listenSocket);
 
       client = ioc(`http://localhost:${port}`);
@@ -54,6 +60,8 @@ describe("socket.io with uWebSocket.js-based engine", () => {
 
   afterEach(() => {
     io.close();
+    us_listen_socket_close(uwsSocket);
+
     client.disconnect();
     clientWSOnly.disconnect();
     clientPollingOnly.disconnect();

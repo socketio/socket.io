@@ -31,16 +31,50 @@ expect.Assertion.prototype.contain = function (...args) {
 
 export function createClient(
   io: Server,
-  nsp: string,
-  opts?: ManagerOptions & SocketOptions
+  nsp: string = "/",
+  opts?: Partial<ManagerOptions & SocketOptions>
 ): ClientSocket {
   // @ts-ignore
   const port = io.httpServer.address().port;
   return ioc(`http://localhost:${port}${nsp}`, opts);
 }
 
-export function success(done: Function, io: Server, client: ClientSocket) {
+export function success(
+  done: Function,
+  io: Server,
+  ...clients: ClientSocket[]
+) {
   io.close();
-  client.disconnect();
+  clients.forEach((client) => client.disconnect());
   done();
+}
+
+export function successFn(
+  done: () => void,
+  sio: Server,
+  ...clientSockets: ClientSocket[]
+) {
+  return () => success(done, sio, ...clientSockets);
+}
+
+export function getPort(io: Server): number {
+  // @ts-ignore
+  return io.httpServer.address().port;
+}
+
+export function createPartialDone(count: number, done: (err?: Error) => void) {
+  let i = 0;
+  return () => {
+    if (++i === count) {
+      done();
+    } else if (i > count) {
+      done(new Error(`partialDone() called too many times: ${i} > ${count}`));
+    }
+  };
+}
+
+export function waitFor(emitter, event) {
+  return new Promise((resolve) => {
+    emitter.once(event, resolve);
+  });
 }
