@@ -146,5 +146,9 @@ describe("parser", () => {
     expect(() => new Decoder().add("999")).to.throwException(
       /^unknown packet type 9$/
     );
+
+    expect(() => new Decoder().add(999)).to.throwException(
+      /^Unknown type: 999$/
+    );
   });
 });
