@@ -1,6 +1,6 @@
 {
   "name": "socket.io-parser",
-  "version": "4.2.0",
+  "version": "4.2.1",
   "description": "socket.io protocol parser",
   "repository": {
     "type": "git",
