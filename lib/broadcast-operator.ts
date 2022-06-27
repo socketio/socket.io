@@ -163,7 +163,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
     ...args: EventParams<EmitEvents, Ev>
   ): boolean {
     if (RESERVED_EVENTS.has(ev)) {
-      throw new Error(`"${ev}" is a reserved event name`);
+      throw new Error(`"${String(ev)}" is a reserved event name`);
     }
     // set up packet object
     const data = [ev, ...args];

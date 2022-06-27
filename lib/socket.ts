@@ -203,7 +203,7 @@ export class Socket<
     ...args: EventParams<EmitEvents, Ev>
   ): boolean {
     if (RESERVED_EVENTS.has(ev)) {
-      throw new Error(`"${ev}" is a reserved event name`);
+      throw new Error(`"${String(ev)}" is a reserved event name`);
     }
     const data: any[] = [ev, ...args];
     const packet: any = {

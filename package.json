@@ -51,7 +51,7 @@
     "debug": "~4.3.2",
     "engine.io": "~6.2.0",
     "socket.io-adapter": "~2.4.0",
-    "socket.io-parser": "~4.0.4"
+    "socket.io-parser": "~4.2.0"
   },
   "devDependencies": {
     "@types/mocha": "^9.0.0",
@@ -62,10 +62,10 @@
     "rimraf": "^3.0.2",
     "socket.io-client": "4.5.1",
     "socket.io-client-v2": "npm:socket.io-client@^2.4.0",
-    "superagent": "^6.1.0",
+    "superagent": "^8.0.0",
     "supertest": "^6.1.6",
     "ts-node": "^10.2.1",
-    "tsd": "^0.17.0",
+    "tsd": "^0.21.0",
     "typescript": "^4.4.2",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.0.0"
   },

@@ -320,7 +320,7 @@ export class Namespace<
     ...args: EventParams<ServerSideEvents, Ev>
   ): boolean {
     if (RESERVED_EVENTS.has(ev)) {
-      throw new Error(`"${ev}" is a reserved event name`);
+      throw new Error(`"${String(ev)}" is a reserved event name`);
     }
     args.unshift(ev);
     this.adapter.serverSideEmit(args);
