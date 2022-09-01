@@ -33,9 +33,9 @@ export interface NamespaceReservedEventsMap<
 }
 
 export interface ServerReservedEventsMap<
-  ListenEvents,
-  EmitEvents,
-  ServerSideEvents,
+  ListenEvents extends EventsMap,
+  EmitEvents extends EventsMap,
+  ServerSideEvents extends EventsMap,
   SocketData
 > extends NamespaceReservedEventsMap<
     ListenEvents,
