@@ -424,7 +424,11 @@ export class Manager<
    * @private
    */
   private ondata(data): void {
-    this.decoder.add(data);
+    try {
+      this.decoder.add(data);
+    } catch (e) {
+      this.onclose("parse error");
+    }
   }
 
   /**
