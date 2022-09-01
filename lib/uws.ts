@@ -25,7 +25,9 @@ export function patchAdapter(app /* : TemplatedApp */) {
     if (isNew) {
       socket.conn.on("upgrade", () => {
         const rooms = this.sids.get(id);
-        subscribe(this.nsp.name, socket, isNew, rooms);
+        if (rooms) {
+          subscribe(this.nsp.name, socket, isNew, rooms);
+        }
       });
     }
   };

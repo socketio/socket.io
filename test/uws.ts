@@ -186,6 +186,12 @@ describe("socket.io with uWebSocket.js-based engine", () => {
     io.to("room1").emit("hello");
   });
 
+  it("should not crash when socket is disconnected before the upgrade", (done) => {
+    client.on("disconnect", () => done());
+
+    io.of("/").sockets.get(client.id)!.disconnect();
+  });
+
   it("should serve static files", (done) => {
     const clientVersion = require("socket.io-client/package.json").version;
 
