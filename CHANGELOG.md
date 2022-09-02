@@ -1,3 +1,12 @@
+## [4.5.2](https://github.com/socketio/socket.io-client/compare/4.5.1...4.5.2) (2022-09-02)
+
+
+### Bug Fixes
+
+* handle ill-formatted packet from server ([c597023](https://github.com/socketio/socket.io-client/commit/c5970231699aa47b00c4a617af4239d0fa90fa53))
+
+
+
 ## [4.5.1](https://github.com/socketio/socket.io-client/compare/4.5.0...4.5.1) (2022-05-17)
 
 There were some minor bug fixes on the server side, which mandate a client bump.
