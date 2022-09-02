@@ -1,3 +1,13 @@
+## [4.5.2](https://github.com/socketio/socket.io/compare/4.5.1...4.5.2) (2022-09-02)
+
+
+### Bug Fixes
+
+* prevent the socket from joining a room after disconnection ([18f3fda](https://github.com/socketio/socket.io/commit/18f3fdab12947a9fee3e9c37cfc1da97027d1473))
+* **uws:** prevent the server from crashing after upgrade ([ba497ee](https://github.com/socketio/socket.io/commit/ba497ee3eb52c4abf1464380d015d8c788714364))
+
+
+
 ## [4.5.1](https://github.com/socketio/socket.io/compare/4.5.0...4.5.1) (2022-05-17)
 
 

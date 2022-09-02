@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.5.1
+ * Socket.IO v4.5.2
  * (c) 2014-2022 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -12,17 +12,11 @@
   function _typeof(obj) {
     "@babel/helpers - typeof";
 
-    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-      _typeof = function (obj) {
-        return typeof obj;
-      };
-    } else {
-      _typeof = function (obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-      };
-    }
-
-    return _typeof(obj);
+    return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) {
+      return typeof obj;
+    } : function (obj) {
+      return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    }, _typeof(obj);
   }
 
   function _classCallCheck(instance, Constructor) {
@@ -44,11 +38,14 @@
   function _createClass(Constructor, protoProps, staticProps) {
     if (protoProps) _defineProperties(Constructor.prototype, protoProps);
     if (staticProps) _defineProperties(Constructor, staticProps);
+    Object.defineProperty(Constructor, "prototype", {
+      writable: false
+    });
     return Constructor;
   }
 
   function _extends() {
-    _extends = Object.assign || function (target) {
+    _extends = Object.assign ? Object.assign.bind() : function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -61,7 +58,6 @@
 
       return target;
     };
-
     return _extends.apply(this, arguments);
   }
 
@@ -77,22 +73,24 @@
         configurable: true
       }
     });
+    Object.defineProperty(subClass, "prototype", {
+      writable: false
+    });
     if (superClass) _setPrototypeOf(subClass, superClass);
   }
 
   function _getPrototypeOf(o) {
-    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) {
       return o.__proto__ || Object.getPrototypeOf(o);
     };
     return _getPrototypeOf(o);
   }
 
   function _setPrototypeOf(o, p) {
-    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
       o.__proto__ = p;
       return o;
     };
-
     return _setPrototypeOf(o, p);
   }
 
@@ -111,7 +109,7 @@
 
   function _construct(Parent, args, Class) {
     if (_isNativeReflectConstruct()) {
-      _construct = Reflect.construct;
+      _construct = Reflect.construct.bind();
     } else {
       _construct = function _construct(Parent, args, Class) {
         var a = [null];
@@ -210,9 +208,9 @@
     return object;
   }
 
-  function _get(target, property, receiver) {
+  function _get() {
     if (typeof Reflect !== "undefined" && Reflect.get) {
-      _get = Reflect.get;
+      _get = Reflect.get.bind();
     } else {
       _get = function _get(target, property, receiver) {
         var base = _superPropBase(target, property);
@@ -221,14 +219,14 @@
         var desc = Object.getOwnPropertyDescriptor(base, property);
 
         if (desc.get) {
-          return desc.get.call(receiver);
+          return desc.get.call(arguments.length < 3 ? target : receiver);
         }
 
         return desc.value;
       };
     }
 
-    return _get(target, property, receiver || target);
+    return _get.apply(this, arguments);
   }
 
   function _unsupportedIterableToArray(o, minLen) {
@@ -363,11 +361,6 @@
     return fileReader.readAsDataURL(data);
   };
 
-  /*
-   * base64-arraybuffer 1.0.1 <https://github.com/niklasvh/base64-arraybuffer>
-   * Copyright (c) 2022 Niklas von Hertzen <https://hertzen.com>
-   * Released under MIT License
-   */
   var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'; // Use a lookup table to find the index.
 
   var lookup$1 = typeof Uint8Array === 'undefined' ? [] : new Uint8Array(256);
@@ -375,7 +368,6 @@
   for (var i$1 = 0; i$1 < chars.length; i$1++) {
     lookup$1[chars.charCodeAt(i$1)] = i$1;
   }
-
   var decode$1 = function decode(base64) {
     var bufferLength = base64.length * 0.75,
         len = base64.length,
@@ -667,7 +659,7 @@
     return !!this.listeners(event).length;
   };
 
-  var globalThis = (function () {
+  var globalThisShim = function () {
     if (typeof self !== "undefined") {
       return self;
     } else if (typeof window !== "undefined") {
@@ -675,7 +667,7 @@
     } else {
       return Function("return this")();
     }
-  })();
+  }();
 
   function pick(obj) {
     for (var _len = arguments.length, attr = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -695,11 +687,11 @@
   var NATIVE_CLEAR_TIMEOUT = clearTimeout;
   function installTimerFunctions(obj, opts) {
     if (opts.useNativeTimers) {
-      obj.setTimeoutFn = NATIVE_SET_TIMEOUT.bind(globalThis);
-      obj.clearTimeoutFn = NATIVE_CLEAR_TIMEOUT.bind(globalThis);
+      obj.setTimeoutFn = NATIVE_SET_TIMEOUT.bind(globalThisShim);
+      obj.clearTimeoutFn = NATIVE_CLEAR_TIMEOUT.bind(globalThisShim);
     } else {
-      obj.setTimeoutFn = setTimeout.bind(globalThis);
-      obj.clearTimeoutFn = clearTimeout.bind(globalThis);
+      obj.setTimeoutFn = setTimeout.bind(globalThisShim);
+      obj.clearTimeoutFn = clearTimeout.bind(globalThisShim);
     }
   } // base64 encoded buffers are about 33% bigger (https://en.wikipedia.org/wiki/Base64)
 
@@ -753,7 +745,7 @@
       return _this;
     }
 
-    return TransportError;
+    return _createClass(TransportError);
   }( /*#__PURE__*/_wrapNativeSuper(Error));
 
   var Transport = /*#__PURE__*/function (_Emitter) {
@@ -998,7 +990,7 @@
   var hasCORS = value;
 
   // browser shim for xmlhttprequest module
-  function XMLHttpRequest$1 (opts) {
+  function XHR(opts) {
     var xdomain = opts.xdomain; // XMLHttpRequest can be disabled on IE
 
     try {
@@ -1009,7 +1001,7 @@
 
     if (!xdomain) {
       try {
-        return new globalThis[["Active"].concat("Object").join("X")]("Microsoft.XMLHTTP");
+        return new globalThisShim[["Active"].concat("Object").join("X")]("Microsoft.XMLHTTP");
       } catch (e) {}
     }
   }
@@ -1017,7 +1009,7 @@
   function empty() {}
 
   var hasXHR2 = function () {
-    var xhr = new XMLHttpRequest$1({
+    var xhr = new XHR({
       xdomain: false
     });
     return null != xhr.responseType;
@@ -1362,7 +1354,7 @@
         var opts = pick(this.opts, "agent", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized", "autoUnref");
         opts.xdomain = !!this.opts.xd;
         opts.xscheme = !!this.opts.xs;
-        var xhr = this.xhr = new XMLHttpRequest$1(opts);
+        var xhr = this.xhr = new XHR(opts);
 
         try {
           xhr.open(this.method, this.uri, this.async);
@@ -1513,7 +1505,7 @@
       // @ts-ignore
       attachEvent("onunload", unloadHandler);
     } else if (typeof addEventListener === "function") {
-      var terminationEvent = "onpagehide" in globalThis ? "pagehide" : "unload";
+      var terminationEvent = "onpagehide" in globalThisShim ? "pagehide" : "unload";
       addEventListener(terminationEvent, unloadHandler, false);
     }
   }
@@ -1539,7 +1531,7 @@
       };
     }
   }();
-  var WebSocket = globalThis.WebSocket || globalThis.MozWebSocket;
+  var WebSocket = globalThisShim.WebSocket || globalThisShim.MozWebSocket;
   var usingBrowserWebSocket = true;
   var defaultBinaryType = "arraybuffer";
 
@@ -1745,7 +1737,7 @@
     }, {
       key: "check",
       value: function check() {
-        return !!WebSocket && !("__initialize" in WebSocket && this.name === WS.prototype.name);
+        return !!WebSocket;
       }
     }]);
 
@@ -2501,6 +2493,8 @@
   }(Emitter);
   Socket$1.protocol = protocol$1;
 
+  Socket$1.protocol;
+
   /**
    * URL parser.
    *
@@ -3207,7 +3201,7 @@
       key: "emit",
       value: function emit(ev) {
         if (RESERVED_EVENTS.hasOwnProperty(ev)) {
-          throw new Error('"' + ev + '" is a reserved event name');
+          throw new Error('"' + ev.toString() + '" is a reserved event name');
         }
 
         for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
@@ -4179,7 +4173,11 @@
     }, {
       key: "ondata",
       value: function ondata(data) {
-        this.decoder.add(data);
+        try {
+          this.decoder.add(data);
+        } catch (e) {
+          this.onclose("parse error");
+        }
       }
       /**
        * Called when parser fully decodes a packet.
