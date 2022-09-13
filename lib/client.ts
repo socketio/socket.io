@@ -18,6 +18,13 @@ interface WriteOptions {
   wsPreEncoded?: string;
 }
 
+type CloseReason =
+  | "transport error"
+  | "transport close"
+  | "forced close"
+  | "ping timeout"
+  | "parse error";
+
 export class Client<
   ListenEvents extends EventsMap,
   EmitEvents extends EventsMap,
@@ -306,7 +313,7 @@ export class Client<
    * @param reason
    * @private
    */
-  private onclose(reason: string): void {
+  private onclose(reason: CloseReason | "forced server close"): void {
     debug("client close with reason %s", reason);
 
     // ignore a potential subsequent `close` event

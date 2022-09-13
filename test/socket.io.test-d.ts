@@ -4,6 +4,7 @@ import type { DefaultEventsMap } from "../lib/typed-events";
 import { createServer } from "http";
 import { expectError, expectType } from "tsd";
 import { Adapter } from "socket.io-adapter";
+import type { DisconnectReason } from "../lib/socket";
 
 // This file is run by tsd, not mocha.
 
@@ -17,10 +18,10 @@ describe("server", () => {
           sio.on("connection", (s) => {
             expectType<Socket<DefaultEventsMap, DefaultEventsMap>>(s);
             s.on("disconnect", (reason) => {
-              expectType<string>(reason);
+              expectType<DisconnectReason>(reason);
             });
             s.on("disconnecting", (reason) => {
-              expectType<string>(reason);
+              expectType<DisconnectReason>(reason);
             });
           });
           sio.on("connect", (s) => {

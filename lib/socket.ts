@@ -25,9 +25,23 @@ const debug = debugModule("socket.io:socket");
 
 type ClientReservedEvents = "connect_error";
 
+// TODO for next major release: cleanup disconnect reasons
+export type DisconnectReason =
+  // Engine.IO close reasons
+  | "transport error"
+  | "transport close"
+  | "forced close"
+  | "ping timeout"
+  | "parse error"
+  // Socket.IO disconnect reasons
+  | "server shutting down"
+  | "forced server close"
+  | "client namespace disconnect"
+  | "server namespace disconnect";
+
 export interface SocketReservedEventsMap {
-  disconnect: (reason: string) => void;
-  disconnecting: (reason: string) => void;
+  disconnect: (reason: DisconnectReason) => void;
+  disconnecting: (reason: DisconnectReason) => void;
   error: (err: Error) => void;
 }
 
@@ -509,7 +523,7 @@ export class Socket<
    *
    * @private
    */
-  _onclose(reason: string): this | undefined {
+  _onclose(reason: DisconnectReason): this | undefined {
     if (!this.connected) return this;
     debug("closing socket - reason %s", reason);
     this.emitReserved("disconnecting", reason);
