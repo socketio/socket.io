@@ -295,7 +295,7 @@ describe("Engine.IO protocol", () => {
 
         const pollResponses = await Promise.all([
           fetch(`${URL}/engine.io/?EIO=4&transport=polling&sid=${sid}`),
-          fetch(`${URL}/engine.io/?EIO=4&transport=polling&sid=${sid}&t=burst`),
+          sleep(5).then(() => fetch(`${URL}/engine.io/?EIO=4&transport=polling&sid=${sid}&t=burst`)),
         ]);
 
         expect(pollResponses[0].status).to.eql(200);
@@ -304,7 +304,8 @@ describe("Engine.IO protocol", () => {
 
         expect(content).to.eql("1");
 
-        expect(pollResponses[1].status).to.eql(500);
+        // the Node.js implementation uses HTTP 500 (Internal Server Error), but HTTP 400 seems more suitable
+        expect(pollResponses[1].status).to.be.oneOf([400, 500]);
 
         const pollResponse = await fetch(
           `${URL}/engine.io/?EIO=4&transport=polling&sid=${sid}`
@@ -546,7 +547,7 @@ describe("Engine.IO protocol", () => {
         `${WS_URL}/engine.io/?EIO=4&transport=websocket&sid=${sid}`
       );
 
-      await waitFor(socket2, "close");
+      await waitFor(socket2, "error");
 
       socket.send("4hello");
 
