@@ -51,6 +51,8 @@ export interface ClusterAdapterOptions {
   requestsTimeout: number;
 }
 
+function ignoreError() {}
+
 /**
  * Returns a function that will create a ClusterAdapter instance.
  *
@@ -295,7 +297,7 @@ export class ClusterAdapter extends Adapter {
       message.nsp
     );
 
-    process.send(message);
+    process.send(message, null, { swallowErrors: true }, ignoreError);
   }
 
   /**
@@ -559,7 +561,7 @@ export function setupPrimary() {
         const workerId = message.data.workerId;
         // emit back to the requester
         if (hasOwnProperty.call(cluster.workers, workerId)) {
-          cluster.workers[workerId].send(message);
+          cluster.workers[workerId].send(message, null, ignoreError);
         }
         break;
       default:
@@ -570,7 +572,7 @@ export function setupPrimary() {
             hasOwnProperty.call(cluster.workers, workerId) &&
             workerId !== emitterIdAsString
           ) {
-            cluster.workers[workerId].send(message);
+            cluster.workers[workerId].send(message, null, ignoreError);
           }
         }
     }
@@ -580,11 +582,15 @@ export function setupPrimary() {
     // notify all active workers
     for (const workerId in cluster.workers) {
       if (hasOwnProperty.call(cluster.workers, workerId)) {
-        cluster.workers[workerId].send({
-          source: MESSAGE_SOURCE,
-          type: EventType.WORKER_EXIT,
-          data: worker.id,
-        });
+        cluster.workers[workerId].send(
+          {
+            source: MESSAGE_SOURCE,
+            type: EventType.WORKER_EXIT,
+            data: worker.id,
+          },
+          null,
+          ignoreError
+        );
       }
     }
   });
