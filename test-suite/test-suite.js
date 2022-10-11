@@ -498,6 +498,16 @@ describe("Engine.IO protocol", () => {
 
       expect(probeResponse.data).to.eql("3probe");
 
+      const pollResponse = await fetch(
+        `${URL}/engine.io/?EIO=4&transport=polling&sid=${sid}`
+      );
+
+      expect(pollResponse.status).to.eql(200);
+
+      const pollContent = await pollResponse.text();
+
+      expect(pollContent).to.eql("6"); // "noop" packet to cleanly end the HTTP long-polling request
+
       // complete upgrade
       socket.send("5");
 
