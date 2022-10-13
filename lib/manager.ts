@@ -2,6 +2,7 @@ import {
   Socket as Engine,
   SocketOptions as EngineOptions,
   installTimerFunctions,
+  nextTick,
 } from "engine.io-client";
 import { Socket, SocketOptions, DisconnectDescription } from "./socket.js";
 import * as parser from "socket.io-parser";
@@ -427,7 +428,7 @@ export class Manager<
     try {
       this.decoder.add(data);
     } catch (e) {
-      this.onclose("parse error");
+      this.onclose("parse error", e as Error);
     }
   }
 
@@ -437,7 +438,10 @@ export class Manager<
    * @private
    */
   private ondecoded(packet): void {
-    this.emitReserved("packet", packet);
+    // the nextTick call prevents an exception in a user-provided event listener from triggering a disconnection due to a "parse error"
+    nextTick(() => {
+      this.emitReserved("packet", packet);
+    }, this.setTimeoutFn);
   }
 
   /**

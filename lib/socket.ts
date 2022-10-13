@@ -725,5 +725,6 @@ export namespace Socket {
     | "io client disconnect"
     | "ping timeout"
     | "transport close"
-    | "transport error";
+    | "transport error"
+    | "parse error";
 }
