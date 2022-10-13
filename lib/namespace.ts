@@ -341,7 +341,9 @@ export class Namespace<
   /**
    * Gets a list of clients.
    *
-   * @return self
+   * @deprecated this method will be removed in the next major release, please use {@link Namespace#serverSideEmit} or
+   * {@link Namespace#fetchSockets} instead.
+   *
    * @public
    */
   public allSockets(): Promise<Set<SocketId>> {

@@ -746,6 +746,9 @@ export class Server<
   /**
    * Gets a list of socket ids.
    *
+   * @deprecated this method will be removed in the next major release, please use {@link Server#serverSideEmit} or
+   * {@link Server#fetchSockets} instead.
+   *
    * @public
    */
   public allSockets(): Promise<Set<SocketId>> {
