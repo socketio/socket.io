@@ -1,5 +1,5 @@
 /*!
- * Engine.IO v6.2.2
+ * Engine.IO v6.2.3
  * (c) 2014-2022 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -1724,11 +1724,11 @@
     var regx = /\/{2,9}/g,
         names = path.replace(regx, "/").split("/");
 
-    if (path.substr(0, 1) == '/' || path.length === 0) {
+    if (path.slice(0, 1) == '/' || path.length === 0) {
       names.splice(0, 1);
     }
 
-    if (path.substr(path.length - 1, 1) == '/') {
+    if (path.slice(-1) == '/') {
       names.splice(names.length - 1, 1);
     }
 
@@ -1828,14 +1828,16 @@
           // Firefox closes the connection when the "beforeunload" event is emitted but not Chrome. This event listener
           // ensures every browser behaves the same (no "disconnect" event at the Socket.IO level when the page is
           // closed/reloaded)
-          addEventListener("beforeunload", function () {
+          _this.beforeunloadEventListener = function () {
             if (_this.transport) {
               // silently close the transport
               _this.transport.removeAllListeners();
 
               _this.transport.close();
             }
-          }, false);
+          };
+
+          addEventListener("beforeunload", _this.beforeunloadEventListener, false);
         }
 
         if (_this.hostname !== "localhost") {
@@ -2383,6 +2385,7 @@
           this.transport.removeAllListeners();
 
           if (typeof removeEventListener === "function") {
+            removeEventListener("beforeunload", this.beforeunloadEventListener, false);
             removeEventListener("offline", this.offlineEventListener, false);
           } // set ready state
 
