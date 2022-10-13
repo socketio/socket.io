@@ -24,10 +24,10 @@
   },
   "devDependencies": {
     "@types/expect.js": "^0.3.29",
-    "@types/mocha": "^8.2.1",
+    "@types/mocha": "^10.0.0",
     "@types/node": "^15.12.4",
     "expect.js": "0.3.1",
-    "mocha": "^8.4.0",
+    "mocha": "^10.0.0",
     "nyc": "^15.1.0",
     "prettier": "^2.1.2",
     "socket.io": "^4.5.0",
