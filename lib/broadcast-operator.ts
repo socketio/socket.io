@@ -26,14 +26,14 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * @return a new BroadcastOperator instance
    * @public
    */
-  public to(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
+  public to(room: Room | Room[]) {
     const rooms = new Set(this.rooms);
     if (Array.isArray(room)) {
       room.forEach((r) => rooms.add(r));
     } else {
       rooms.add(room);
     }
-    return new BroadcastOperator(
+    return new BroadcastOperator<EmitEvents, SocketData>(
       this.adapter,
       rooms,
       this.exceptRooms,
@@ -48,7 +48,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * @return a new BroadcastOperator instance
    * @public
    */
-  public in(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
+  public in(room: Room | Room[]) {
     return this.to(room);
   }
 
@@ -59,16 +59,14 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * @return a new BroadcastOperator instance
    * @public
    */
-  public except(
-    room: Room | Room[]
-  ): BroadcastOperator<EmitEvents, SocketData> {
+  public except(room: Room | Room[]) {
     const exceptRooms = new Set(this.exceptRooms);
     if (Array.isArray(room)) {
       room.forEach((r) => exceptRooms.add(r));
     } else {
       exceptRooms.add(room);
     }
-    return new BroadcastOperator(
+    return new BroadcastOperator<EmitEvents, SocketData>(
       this.adapter,
       this.rooms,
       exceptRooms,
@@ -83,11 +81,9 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * @return a new BroadcastOperator instance
    * @public
    */
-  public compress(
-    compress: boolean
-  ): BroadcastOperator<EmitEvents, SocketData> {
+  public compress(compress: boolean) {
     const flags = Object.assign({}, this.flags, { compress });
-    return new BroadcastOperator(
+    return new BroadcastOperator<EmitEvents, SocketData>(
       this.adapter,
       this.rooms,
       this.exceptRooms,
@@ -103,9 +99,9 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * @return a new BroadcastOperator instance
    * @public
    */
-  public get volatile(): BroadcastOperator<EmitEvents, SocketData> {
+  public get volatile() {
     const flags = Object.assign({}, this.flags, { volatile: true });
-    return new BroadcastOperator(
+    return new BroadcastOperator<EmitEvents, SocketData>(
       this.adapter,
       this.rooms,
       this.exceptRooms,
@@ -119,9 +115,9 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * @return a new BroadcastOperator instance
    * @public
    */
-  public get local(): BroadcastOperator<EmitEvents, SocketData> {
+  public get local() {
     const flags = Object.assign({}, this.flags, { local: true });
-    return new BroadcastOperator(
+    return new BroadcastOperator<EmitEvents, SocketData>(
       this.adapter,
       this.rooms,
       this.exceptRooms,
@@ -144,7 +140,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    */
   public timeout(timeout: number) {
     const flags = Object.assign({}, this.flags, { timeout });
-    return new BroadcastOperator(
+    return new BroadcastOperator<EmitEvents, SocketData>(
       this.adapter,
       this.rooms,
       this.exceptRooms,
@@ -255,9 +251,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    *
    * @public
    */
-  public fetchSockets<SocketData = any>(): Promise<
-    RemoteSocket<EmitEvents, SocketData>[]
-  > {
+  public fetchSockets(): Promise<RemoteSocket<EmitEvents, SocketData>[]> {
     return this.adapter
       .fetchSockets({
         rooms: this.rooms,
@@ -359,7 +353,10 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
     this.handshake = details.handshake;
     this.rooms = new Set(details.rooms);
     this.data = details.data;
-    this.operator = new BroadcastOperator(adapter, new Set([this.id]));
+    this.operator = new BroadcastOperator<EmitEvents, SocketData>(
+      adapter,
+      new Set([this.id])
+    );
   }
 
   public emit<Ev extends EventNames<EmitEvents>>(

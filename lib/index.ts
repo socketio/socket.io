@@ -819,7 +819,7 @@ export class Server<
    * @param room
    * @public
    */
-  public socketsJoin(room: Room | Room[]): void {
+  public socketsJoin(room: Room | Room[]) {
     return this.sockets.socketsJoin(room);
   }
 
@@ -829,7 +829,7 @@ export class Server<
    * @param room
    * @public
    */
-  public socketsLeave(room: Room | Room[]): void {
+  public socketsLeave(room: Room | Room[]) {
     return this.sockets.socketsLeave(room);
   }
 
@@ -839,7 +839,7 @@ export class Server<
    * @param close - whether to close the underlying connection
    * @public
    */
-  public disconnectSockets(close: boolean = false): void {
+  public disconnectSockets(close: boolean = false) {
     return this.sockets.disconnectSockets(close);
   }
 }

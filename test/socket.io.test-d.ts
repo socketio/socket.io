@@ -209,6 +209,10 @@ describe("server", () => {
         const srv = createServer();
         const sio = new Server<ClientToServerEvents, ServerToClientEvents>(srv);
         srv.listen(() => {
+          sio.emit("helloFromServer", "hi", 1);
+          sio.to("room").emit("helloFromServer", "hi", 1);
+          sio.timeout(1000).emit("helloFromServer", "hi", 1);
+
           sio.on("connection", (s) => {
             s.emit("helloFromServer", "hi", 10);
             done();
@@ -220,6 +224,10 @@ describe("server", () => {
         const srv = createServer();
         const sio = new Server<ClientToServerEvents, ServerToClientEvents>(srv);
         srv.listen(() => {
+          expectError(sio.emit("helloFromClient"));
+          expectError(sio.to("room").emit("helloFromClient"));
+          expectError(sio.timeout(1000).to("room").emit("helloFromClient"));
+
           sio.on("connection", (s) => {
             expectError(s.emit("helloFromClient", "hi"));
             expectError(s.emit("helloFromServer", "hi", 10, "10"));
@@ -234,7 +242,7 @@ describe("server", () => {
     });
   });
 
-  describe("listen and emit event maps", () => {
+  describe("listen and emit event maps for the serverSideEmit method", () => {
     interface ClientToServerEvents {
       helloFromClient: (message: string) => void;
     }

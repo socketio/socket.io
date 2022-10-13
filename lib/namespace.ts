@@ -175,8 +175,8 @@ export class Namespace<
    * @return self
    * @public
    */
-  public to(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
-    return new BroadcastOperator(this.adapter).to(room);
+  public to(room: Room | Room[]) {
+    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).to(room);
   }
 
   /**
@@ -186,8 +186,8 @@ export class Namespace<
    * @return self
    * @public
    */
-  public in(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
-    return new BroadcastOperator(this.adapter).in(room);
+  public in(room: Room | Room[]) {
+    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).in(room);
   }
 
   /**
@@ -197,10 +197,10 @@ export class Namespace<
    * @return self
    * @public
    */
-  public except(
-    room: Room | Room[]
-  ): BroadcastOperator<EmitEvents, SocketData> {
-    return new BroadcastOperator(this.adapter).except(room);
+  public except(room: Room | Room[]) {
+    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).except(
+      room
+    );
   }
 
   /**
@@ -345,7 +345,9 @@ export class Namespace<
    * @public
    */
   public allSockets(): Promise<Set<SocketId>> {
-    return new BroadcastOperator(this.adapter).allSockets();
+    return new BroadcastOperator<EmitEvents, SocketData>(
+      this.adapter
+    ).allSockets();
   }
 
   /**
@@ -355,10 +357,10 @@ export class Namespace<
    * @return self
    * @public
    */
-  public compress(
-    compress: boolean
-  ): BroadcastOperator<EmitEvents, SocketData> {
-    return new BroadcastOperator(this.adapter).compress(compress);
+  public compress(compress: boolean) {
+    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).compress(
+      compress
+    );
   }
 
   /**
@@ -369,8 +371,8 @@ export class Namespace<
    * @return self
    * @public
    */
-  public get volatile(): BroadcastOperator<EmitEvents, SocketData> {
-    return new BroadcastOperator(this.adapter).volatile;
+  public get volatile() {
+    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).volatile;
   }
 
   /**
@@ -379,8 +381,8 @@ export class Namespace<
    * @return self
    * @public
    */
-  public get local(): BroadcastOperator<EmitEvents, SocketData> {
-    return new BroadcastOperator(this.adapter).local;
+  public get local() {
+    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).local;
   }
 
   /**
@@ -397,7 +399,9 @@ export class Namespace<
    * @param timeout
    */
   public timeout(timeout: number) {
-    return new BroadcastOperator(this.adapter).timeout(timeout);
+    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).timeout(
+      timeout
+    );
   }
 
   /**
@@ -405,8 +409,10 @@ export class Namespace<
    *
    * @public
    */
-  public fetchSockets(): Promise<RemoteSocket<EmitEvents, SocketData>[]> {
-    return new BroadcastOperator(this.adapter).fetchSockets();
+  public fetchSockets() {
+    return new BroadcastOperator<EmitEvents, SocketData>(
+      this.adapter
+    ).fetchSockets();
   }
 
   /**
@@ -415,8 +421,10 @@ export class Namespace<
    * @param room
    * @public
    */
-  public socketsJoin(room: Room | Room[]): void {
-    return new BroadcastOperator(this.adapter).socketsJoin(room);
+  public socketsJoin(room: Room | Room[]) {
+    return new BroadcastOperator<EmitEvents, SocketData>(
+      this.adapter
+    ).socketsJoin(room);
   }
 
   /**
@@ -425,8 +433,10 @@ export class Namespace<
    * @param room
    * @public
    */
-  public socketsLeave(room: Room | Room[]): void {
-    return new BroadcastOperator(this.adapter).socketsLeave(room);
+  public socketsLeave(room: Room | Room[]) {
+    return new BroadcastOperator<EmitEvents, SocketData>(
+      this.adapter
+    ).socketsLeave(room);
   }
 
   /**
@@ -435,7 +445,9 @@ export class Namespace<
    * @param close - whether to close the underlying connection
    * @public
    */
-  public disconnectSockets(close: boolean = false): void {
-    return new BroadcastOperator(this.adapter).disconnectSockets(close);
+  public disconnectSockets(close: boolean = false) {
+    return new BroadcastOperator<EmitEvents, SocketData>(
+      this.adapter
+    ).disconnectSockets(close);
   }
 }

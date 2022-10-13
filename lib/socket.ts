@@ -902,10 +902,10 @@ export class Socket<
     }
   }
 
-  private newBroadcastOperator(): BroadcastOperator<EmitEvents, SocketData> {
+  private newBroadcastOperator() {
     const flags = Object.assign({}, this.flags);
     this.flags = {};
-    return new BroadcastOperator(
+    return new BroadcastOperator<EmitEvents, SocketData>(
       this.adapter,
       new Set<Room>(),
       new Set<Room>([this.id]),
