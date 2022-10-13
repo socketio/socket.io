@@ -248,7 +248,8 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   private pingTimeoutTimer: NodeJS.Timer;
   private setTimeoutFn: typeof setTimeout;
   private clearTimeoutFn: typeof clearTimeout;
-  private offlineEventListener;
+  private readonly beforeunloadEventListener: () => void;
+  private readonly offlineEventListener: () => void;
   private upgrading: boolean;
   private maxPayload?: number;
 
@@ -352,17 +353,14 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
         // Firefox closes the connection when the "beforeunload" event is emitted but not Chrome. This event listener
         // ensures every browser behaves the same (no "disconnect" event at the Socket.IO level when the page is
         // closed/reloaded)
-        addEventListener(
-          "beforeunload",
-          () => {
-            if (this.transport) {
-              // silently close the transport
-              this.transport.removeAllListeners();
-              this.transport.close();
-            }
-          },
-          false
-        );
+        this.beforeunloadEventListener = () => {
+          if (this.transport) {
+            // silently close the transport
+            this.transport.removeAllListeners();
+            this.transport.close();
+          }
+        };
+        addEventListener("beforeunload", this.beforeunloadEventListener, false);
       }
       if (this.hostname !== "localhost") {
         this.offlineEventListener = () => {
@@ -912,6 +910,11 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
       this.transport.removeAllListeners();
 
       if (typeof removeEventListener === "function") {
+        removeEventListener(
+          "beforeunload",
+          this.beforeunloadEventListener,
+          false
+        );
         removeEventListener("offline", this.offlineEventListener, false);
       }
 
