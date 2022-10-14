@@ -72,6 +72,32 @@ interface ServerOptions extends EngineOptions, AttachOptions {
   connectTimeout: number;
 }
 
+/**
+ * Represents a Socket.IO server.
+ *
+ * @example
+ * import { Server } from "socket.io";
+ *
+ * const io = new Server();
+ *
+ * io.on("connection", (socket) => {
+ *   console.log(`socket ${socket.id} connected`);
+ *
+ *   // send an event to the client
+ *   socket.emit("foo", "bar");
+ *
+ *   socket.on("foobar", () => {
+ *     // an event was received from the client
+ *   });
+ *
+ *   // upon disconnection
+ *   socket.on("disconnect", (reason) => {
+ *     console.log(`socket ${socket.id} disconnected due to ${reason}`);
+ *   });
+ * });
+ *
+ * io.listen(3000);
+ */
 export class Server<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
@@ -96,11 +122,8 @@ export class Server<
   /**
    * A reference to the underlying Engine.IO server.
    *
-   * Example:
-   *
-   * <code>
-   *   const clientsCount = io.engine.clientsCount;
-   * </code>
+   * @example
+   * const clientsCount = io.engine.clientsCount;
    *
    */
   public engine: any;
@@ -139,7 +162,6 @@ export class Server<
    *
    * @param srv http server, port, or options
    * @param [opts]
-   * @public
    */
   constructor(opts?: Partial<ServerOptions>);
   constructor(
@@ -190,7 +212,6 @@ export class Server<
    *
    * @param v - whether to serve client code
    * @return self when setting or value when getting
-   * @public
    */
   public serveClient(v: boolean): this;
   public serveClient(): boolean;
@@ -253,7 +274,6 @@ export class Server<
    *
    * @param {String} v pathname
    * @return {Server|String} self when setting or value when getting
-   * @public
    */
   public path(v: string): this;
   public path(): string;
@@ -275,7 +295,6 @@ export class Server<
   /**
    * Set the delay after which a client without namespace is closed
    * @param v
-   * @public
    */
   public connectTimeout(v: number): this;
   public connectTimeout(): number;
@@ -291,7 +310,6 @@ export class Server<
    *
    * @param v pathname
    * @return self when setting or value when getting
-   * @public
    */
   public adapter(): AdapterConstructor | undefined;
   public adapter(v: AdapterConstructor): this;
@@ -312,7 +330,6 @@ export class Server<
    * @param srv - server or port
    * @param opts - options passed to engine.io
    * @return self
-   * @public
    */
   public listen(
     srv: http.Server | HTTPSServer | number,
@@ -327,7 +344,6 @@ export class Server<
    * @param srv - server or port
    * @param opts - options passed to engine.io
    * @return self
-   * @public
    */
   public attach(
     srv: http.Server | HTTPSServer | number,
@@ -561,7 +577,6 @@ export class Server<
    *
    * @param {engine.Server} engine engine.io (or compatible) server
    * @return self
-   * @public
    */
   public bind(engine): this {
     this.engine = engine;
@@ -589,9 +604,20 @@ export class Server<
   /**
    * Looks up a namespace.
    *
-   * @param {String|RegExp|Function} name nsp name
+   * @example
+   * // with a simple string
+   * const myNamespace = io.of("/my-namespace");
+   *
+   * // with a regex
+   * const dynamicNsp = io.of(/^\/dynamic-\d+$/).on("connection", (socket) => {
+   *   const namespace = socket.nsp; // newNamespace.name === "/dynamic-101"
+   *
+   *   // broadcast to all clients in the given sub-namespace
+   *   namespace.emit("hello");
+   * });
+   *
+   * @param name - nsp name
    * @param fn optional, nsp `connection` ev handler
-   * @public
    */
   public of(
     name: string | RegExp | ParentNspNameMatchFn,
@@ -637,7 +663,6 @@ export class Server<
    * Closes server connection
    *
    * @param [fn] optional, called as `fn([err])` on error OR all conns closed
-   * @public
    */
   public close(fn?: (err?: Error) => void): void {
     for (const socket of this.sockets.sockets.values()) {
@@ -657,10 +682,15 @@ export class Server<
   }
 
   /**
-   * Sets up namespace middleware.
+   * Registers a middleware, which is a function that gets executed for every incoming {@link Socket}.
    *
-   * @return self
-   * @public
+   * @example
+   * io.use((socket, next) => {
+   *   // ...
+   *   next();
+   * });
+   *
+   * @param fn - the middleware function
    */
   public use(
     fn: (
@@ -675,43 +705,71 @@ export class Server<
   /**
    * Targets a room when emitting.
    *
-   * @param room
-   * @return self
-   * @public
+   * @example
+   * // the “foo” event will be broadcast to all connected clients in the “room-101” room
+   * io.to("room-101").emit("foo", "bar");
+   *
+   * // with an array of rooms (a client will be notified at most once)
+   * io.to(["room-101", "room-102"]).emit("foo", "bar");
+   *
+   * // with multiple chained calls
+   * io.to("room-101").to("room-102").emit("foo", "bar");
+   *
+   * @param room - a room, or an array of rooms
+   * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public to(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
+  public to(room: Room | Room[]) {
     return this.sockets.to(room);
   }
 
   /**
-   * Targets a room when emitting.
+   * Targets a room when emitting. Similar to `to()`, but might feel clearer in some cases:
    *
-   * @param room
-   * @return self
-   * @public
+   * @example
+   * // disconnect all clients in the "room-101" room
+   * io.in("room-101").disconnectSockets();
+   *
+   * @param room - a room, or an array of rooms
+   * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public in(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
+  public in(room: Room | Room[]) {
     return this.sockets.in(room);
   }
 
   /**
    * Excludes a room when emitting.
    *
-   * @param name
-   * @return self
-   * @public
+   * @example
+   * // the "foo" event will be broadcast to all connected clients, except the ones that are in the "room-101" room
+   * io.except("room-101").emit("foo", "bar");
+   *
+   * // with an array of rooms
+   * io.except(["room-101", "room-102"]).emit("foo", "bar");
+   *
+   * // with multiple chained calls
+   * io.except("room-101").except("room-102").emit("foo", "bar");
+   *
+   * @param room - a room, or an array of rooms
+   * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public except(
-    name: Room | Room[]
-  ): BroadcastOperator<EmitEvents, SocketData> {
-    return this.sockets.except(name);
+  public except(room: Room | Room[]) {
+    return this.sockets.except(room);
   }
 
   /**
    * Sends a `message` event to all clients.
    *
+   * This method mimics the WebSocket.send() method.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/send
+   *
+   * @example
+   * io.send("hello");
+   *
+   * // this is equivalent to
+   * io.emit("message", "hello");
+   *
    * @return self
-   * @public
    */
   public send(...args: EventParams<EmitEvents, "message">): this {
     this.sockets.emit("message", ...args);
@@ -719,10 +777,9 @@ export class Server<
   }
 
   /**
-   * Sends a `message` event to all clients.
+   * Sends a `message` event to all clients. Alias of {@link send}.
    *
    * @return self
-   * @public
    */
   public write(...args: EventParams<EmitEvents, "message">): this {
     this.sockets.emit("message", ...args);
@@ -730,11 +787,30 @@ export class Server<
   }
 
   /**
-   * Emit a packet to other Socket.IO servers
+   * Sends a message to the other Socket.IO servers of the cluster.
+   *
+   * @example
+   * io.serverSideEmit("hello", "world");
+   *
+   * io.on("hello", (arg1) => {
+   *   console.log(arg1); // prints "world"
+   * });
+   *
+   * // acknowledgements (without binary content) are supported too:
+   * io.serverSideEmit("ping", (err, responses) => {
+   *  if (err) {
+   *     // some clients did not acknowledge the event in the given delay
+   *   } else {
+   *     console.log(responses); // one response per client
+   *   }
+   * });
+   *
+   * io.on("ping", (cb) => {
+   *   cb("pong");
+   * });
    *
    * @param ev - the event name
    * @param args - an array of arguments, which may include an acknowledgement callback at the end
-   * @public
    */
   public serverSideEmit<Ev extends EventNames<ServerSideEvents>>(
     ev: Ev,
@@ -748,8 +824,6 @@ export class Server<
    *
    * @deprecated this method will be removed in the next major release, please use {@link Server#serverSideEmit} or
    * {@link Server#fetchSockets} instead.
-   *
-   * @public
    */
   public allSockets(): Promise<Set<SocketId>> {
     return this.sockets.allSockets();
@@ -758,13 +832,13 @@ export class Server<
   /**
    * Sets the compress flag.
    *
+   * @example
+   * io.compress(false).emit("hello");
+   *
    * @param compress - if `true`, compresses the sending data
-   * @return self
-   * @public
+   * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public compress(
-    compress: boolean
-  ): BroadcastOperator<EmitEvents, SocketData> {
+  public compress(compress: boolean) {
     return this.sockets.compress(compress);
   }
 
@@ -773,33 +847,39 @@ export class Server<
    * receive messages (because of network slowness or other issues, or because they’re connected through long polling
    * and is in the middle of a request-response cycle).
    *
-   * @return self
-   * @public
+   * @example
+   * io.volatile.emit("hello"); // the clients may or may not receive it
+   *
+   * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public get volatile(): BroadcastOperator<EmitEvents, SocketData> {
+  public get volatile() {
     return this.sockets.volatile;
   }
 
   /**
    * Sets a modifier for a subsequent event emission that the event data will only be broadcast to the current node.
    *
-   * @return self
-   * @public
+   * @example
+   * // the “foo” event will be broadcast to all connected clients on this node
+   * io.local.emit("foo", "bar");
+   *
+   * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public get local(): BroadcastOperator<EmitEvents, SocketData> {
+  public get local() {
     return this.sockets.local;
   }
 
   /**
-   * Adds a timeout in milliseconds for the next operation
+   * Adds a timeout in milliseconds for the next operation.
    *
-   * <pre><code>
-   *
+   * @example
    * io.timeout(1000).emit("some-event", (err, responses) => {
-   *   // ...
+   *   if (err) {
+   *     // some clients did not acknowledge the event in the given delay
+   *   } else {
+   *     console.log(responses); // one response per client
+   *   }
    * });
-   *
-   * </pre></code>
    *
    * @param timeout
    */
@@ -808,39 +888,83 @@ export class Server<
   }
 
   /**
-   * Returns the matching socket instances
+   * Returns the matching socket instances.
    *
-   * @public
+   * Note: this method also works within a cluster of multiple Socket.IO servers, with a compatible {@link Adapter}.
+   *
+   * @example
+   * // return all Socket instances
+   * const sockets = await io.fetchSockets();
+   *
+   * // return all Socket instances in the "room1" room
+   * const sockets = await io.in("room1").fetchSockets();
+   *
+   * for (const socket of sockets) {
+   *   console.log(socket.id);
+   *   console.log(socket.handshake);
+   *   console.log(socket.rooms);
+   *   console.log(socket.data);
+   *
+   *   socket.emit("hello");
+   *   socket.join("room1");
+   *   socket.leave("room2");
+   *   socket.disconnect();
+   * }
    */
   public fetchSockets(): Promise<RemoteSocket<EmitEvents, SocketData>[]> {
     return this.sockets.fetchSockets();
   }
 
   /**
-   * Makes the matching socket instances join the specified rooms
+   * Makes the matching socket instances join the specified rooms.
    *
-   * @param room
-   * @public
+   * Note: this method also works within a cluster of multiple Socket.IO servers, with a compatible {@link Adapter}.
+   *
+   * @example
+   *
+   * // make all socket instances join the "room1" room
+   * io.socketsJoin("room1");
+   *
+   * // make all socket instances in the "room1" room join the "room2" and "room3" rooms
+   * io.in("room1").socketsJoin(["room2", "room3"]);
+   *
+   * @param room - a room, or an array of rooms
    */
   public socketsJoin(room: Room | Room[]) {
     return this.sockets.socketsJoin(room);
   }
 
   /**
-   * Makes the matching socket instances leave the specified rooms
+   * Makes the matching socket instances leave the specified rooms.
    *
-   * @param room
-   * @public
+   * Note: this method also works within a cluster of multiple Socket.IO servers, with a compatible {@link Adapter}.
+   *
+   * @example
+   * // make all socket instances leave the "room1" room
+   * io.socketsLeave("room1");
+   *
+   * // make all socket instances in the "room1" room leave the "room2" and "room3" rooms
+   * io.in("room1").socketsLeave(["room2", "room3"]);
+   *
+   * @param room - a room, or an array of rooms
    */
   public socketsLeave(room: Room | Room[]) {
     return this.sockets.socketsLeave(room);
   }
 
   /**
-   * Makes the matching socket instances disconnect
+   * Makes the matching socket instances disconnect.
+   *
+   * Note: this method also works within a cluster of multiple Socket.IO servers, with a compatible {@link Adapter}.
+   *
+   * @example
+   * // make all socket instances disconnect (the connections might be kept alive for other namespaces)
+   * io.disconnectSockets();
+   *
+   * // make all socket instances in the "room1" room disconnect and close the underlying connections
+   * io.in("room1").disconnectSockets(true);
    *
    * @param close - whether to close the underlying connection
-   * @public
    */
   public disconnectSockets(close: boolean = false) {
     return this.sockets.disconnectSockets(close);

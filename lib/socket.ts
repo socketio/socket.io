@@ -128,6 +128,37 @@ export type Event = [string, ...any[]];
 
 function noop() {}
 
+/**
+ * This is the main object for interacting with a client.
+ *
+ * A Socket belongs to a given {@link Namespace} and uses an underlying {@link Client} to communicate.
+ *
+ * Within each {@link Namespace}, you can also define arbitrary channels (called "rooms") that the {@link Socket} can
+ * join and leave. That provides a convenient way to broadcast to a group of socket instances.
+ *
+ * @example
+ * io.on("connection", (socket) => {
+ *   console.log(`socket ${socket.id} connected`);
+ *
+ *   // send an event to the client
+ *   socket.emit("foo", "bar");
+ *
+ *   socket.on("foobar", () => {
+ *     // an event was received from the client
+ *   });
+ *
+ *   // join the room named "room1"
+ *   socket.join("room1");
+ *
+ *   // broadcast to everyone in the room named "room1"
+ *   io.to("room1").emit("hello");
+ *
+ *   // upon disconnection
+ *   socket.on("disconnect", (reason) => {
+ *     console.log(`socket ${socket.id} disconnected due to ${reason}`);
+ *   });
+ * });
+ */
 export class Socket<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
@@ -138,13 +169,32 @@ export class Socket<
   EmitEvents,
   SocketReservedEventsMap
 > {
+  /**
+   * An unique identifier for the session.
+   */
   public readonly id: SocketId;
+  /**
+   * The handshake details.
+   */
   public readonly handshake: Handshake;
   /**
-   * Additional information that can be attached to the Socket instance and which will be used in the fetchSockets method
+   * Additional information that can be attached to the Socket instance and which will be used in the
+   * {@link Server.fetchSockets()} method.
    */
   public data: Partial<SocketData> = {};
-
+  /**
+   * Whether the socket is currently connected or not.
+   *
+   * @example
+   * io.use((socket, next) => {
+   *   console.log(socket.connected); // false
+   *   next();
+   * });
+   *
+   * io.on("connection", (socket) => {
+   *   console.log(socket.connected); // true
+   * });
+   */
   public connected: boolean = false;
 
   private readonly server: Server<
@@ -209,8 +259,20 @@ export class Socket<
   /**
    * Emits to this client.
    *
+   * @example
+   * io.on("connection", (socket) => {
+   *   socket.emit("hello", "world");
+   *
+   *   // all serializable datastructures are supported (no need to call JSON.stringify)
+   *   socket.emit("hello", 1, "2", { 3: ["4"], 5: Buffer.from([6]) });
+   *
+   *   // with an acknowledgement from the client
+   *   socket.emit("hello", "world", (val) => {
+   *     // ...
+   *   });
+   * });
+   *
    * @return Always returns `true`.
-   * @public
    */
   public emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
@@ -268,43 +330,83 @@ export class Socket<
   /**
    * Targets a room when broadcasting.
    *
-   * @param room
-   * @return self
-   * @public
+   * @example
+   * io.on("connection", (socket) => {
+   *   // the “foo” event will be broadcast to all connected clients in the “room-101” room, except this socket
+   *   socket.to("room-101").emit("foo", "bar");
+   *
+   *   // the code above is equivalent to:
+   *   io.to("room-101").except(socket.id).emit("foo", "bar");
+   *
+   *   // with an array of rooms (a client will be notified at most once)
+   *   socket.to(["room-101", "room-102"]).emit("foo", "bar");
+   *
+   *   // with multiple chained calls
+   *   socket.to("room-101").to("room-102").emit("foo", "bar");
+   * });
+   *
+   * @param room - a room, or an array of rooms
+   * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public to(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
+  public to(room: Room | Room[]) {
     return this.newBroadcastOperator().to(room);
   }
 
   /**
-   * Targets a room when broadcasting.
+   * Targets a room when broadcasting. Similar to `to()`, but might feel clearer in some cases:
    *
-   * @param room
-   * @return self
-   * @public
+   * @example
+   * io.on("connection", (socket) => {
+   *   // disconnect all clients in the "room-101" room, except this socket
+   *   socket.in("room-101").disconnectSockets();
+   * });
+   *
+   * @param room - a room, or an array of rooms
+   * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public in(room: Room | Room[]): BroadcastOperator<EmitEvents, SocketData> {
+  public in(room: Room | Room[]) {
     return this.newBroadcastOperator().in(room);
   }
 
   /**
    * Excludes a room when broadcasting.
    *
-   * @param room
-   * @return self
-   * @public
+   * @example
+   * io.on("connection", (socket) => {
+   *   // the "foo" event will be broadcast to all connected clients, except the ones that are in the "room-101" room
+   *   // and this socket
+   *   socket.except("room-101").emit("foo", "bar");
+   *
+   *   // with an array of rooms
+   *   socket.except(["room-101", "room-102"]).emit("foo", "bar");
+   *
+   *   // with multiple chained calls
+   *   socket.except("room-101").except("room-102").emit("foo", "bar");
+   * });
+   *
+   * @param room - a room, or an array of rooms
+   * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public except(
-    room: Room | Room[]
-  ): BroadcastOperator<EmitEvents, SocketData> {
+  public except(room: Room | Room[]) {
     return this.newBroadcastOperator().except(room);
   }
 
   /**
    * Sends a `message` event.
    *
+   * This method mimics the WebSocket.send() method.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/send
+   *
+   * @example
+   * io.on("connection", (socket) => {
+   *   socket.send("hello");
+   *
+   *   // this is equivalent to
+   *   socket.emit("message", "hello");
+   * });
+   *
    * @return self
-   * @public
    */
   public send(...args: EventParams<EmitEvents, "message">): this {
     this.emit("message", ...args);
@@ -312,10 +414,9 @@ export class Socket<
   }
 
   /**
-   * Sends a `message` event.
+   * Sends a `message` event. Alias of {@link send}.
    *
    * @return self
-   * @public
    */
   public write(...args: EventParams<EmitEvents, "message">): this {
     this.emit("message", ...args);
@@ -341,9 +442,17 @@ export class Socket<
   /**
    * Joins a room.
    *
+   * @example
+   * io.on("connection", (socket) => {
+   *   // join a single room
+   *   socket.join("room1");
+   *
+   *   // join multiple rooms
+   *   socket.join(["room1", "room2"]);
+   * });
+   *
    * @param {String|Array} rooms - room or array of rooms
    * @return a Promise or nothing, depending on the adapter
-   * @public
    */
   public join(rooms: Room | Array<Room>): Promise<void> | void {
     debug("join room %s", rooms);
@@ -357,9 +466,17 @@ export class Socket<
   /**
    * Leaves a room.
    *
+   * @example
+   * io.on("connection", (socket) => {
+   *   // leave a single room
+   *   socket.leave("room1");
+   *
+   *   // leave multiple rooms
+   *   socket.leave("room1").leave("room2");
+   * });
+   *
    * @param {String} room
    * @return a Promise or nothing, depending on the adapter
-   * @public
    */
   public leave(room: string): Promise<void> | void {
     debug("leave room %s", room);
@@ -559,10 +676,17 @@ export class Socket<
   /**
    * Disconnects this client.
    *
-   * @param {Boolean} close - if `true`, closes the underlying connection
-   * @return {Socket} self
+   * @example
+   * io.on("connection", (socket) => {
+   *   // disconnect this socket (the connection might be kept alive for other namespaces)
+   *   socket.disconnect();
    *
-   * @public
+   *   // disconnect this socket and close the underlying connection
+   *   socket.disconnect(true);
+   * })
+   *
+   * @param {Boolean} close - if `true`, closes the underlying connection
+   * @return self
    */
   public disconnect(close = false): this {
     if (!this.connected) return this;
@@ -578,9 +702,13 @@ export class Socket<
   /**
    * Sets the compress flag.
    *
+   * @example
+   * io.on("connection", (socket) => {
+   *   socket.compress(false).emit("hello");
+   * });
+   *
    * @param {Boolean} compress - if `true`, compresses the sending data
    * @return {Socket} self
-   * @public
    */
   public compress(compress: boolean): this {
     this.flags.compress = compress;
@@ -592,8 +720,12 @@ export class Socket<
    * receive messages (because of network slowness or other issues, or because they’re connected through long polling
    * and is in the middle of a request-response cycle).
    *
+   * @example
+   * io.on("connection", (socket) => {
+   *   socket.volatile.emit("hello"); // the client may or may not receive it
+   * });
+   *
    * @return {Socket} self
-   * @public
    */
   public get volatile(): this {
     this.flags.volatile = true;
@@ -604,20 +736,30 @@ export class Socket<
    * Sets a modifier for a subsequent event emission that the event data will only be broadcast to every sockets but the
    * sender.
    *
-   * @return {Socket} self
-   * @public
+   * @example
+   * io.on("connection", (socket) => {
+   *   // the “foo” event will be broadcast to all connected clients, except this socket
+   *   socket.broadcast.emit("foo", "bar");
+   * });
+   *
+   * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public get broadcast(): BroadcastOperator<EmitEvents, SocketData> {
+  public get broadcast() {
     return this.newBroadcastOperator();
   }
 
   /**
    * Sets a modifier for a subsequent event emission that the event data will only be broadcast to the current node.
    *
-   * @return {Socket} self
-   * @public
+   * @example
+   * io.on("connection", (socket) => {
+   *   // the “foo” event will be broadcast to all connected clients on this node, except this socket
+   *   socket.local.emit("foo", "bar");
+   * });
+   *
+   * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public get local(): BroadcastOperator<EmitEvents, SocketData> {
+  public get local() {
     return this.newBroadcastOperator().local;
   }
 
@@ -625,16 +767,16 @@ export class Socket<
    * Sets a modifier for a subsequent event emission that the callback will be called with an error when the
    * given number of milliseconds have elapsed without an acknowledgement from the client:
    *
-   * ```
-   * socket.timeout(5000).emit("my-event", (err) => {
-   *   if (err) {
-   *     // the client did not acknowledge the event in the given delay
-   *   }
+   * @example
+   * io.on("connection", (socket) => {
+   *   socket.timeout(5000).emit("my-event", (err) => {
+   *     if (err) {
+   *       // the client did not acknowledge the event in the given delay
+   *     }
+   *   });
    * });
-   * ```
    *
    * @returns self
-   * @public
    */
   public timeout(timeout: number): this {
     this.flags.timeout = timeout;
@@ -666,9 +808,25 @@ export class Socket<
   /**
    * Sets up socket middleware.
    *
+   * @example
+   * io.on("connection", (socket) => {
+   *   socket.use(([event, ...args], next) => {
+   *     if (isUnauthorized(event)) {
+   *       return next(new Error("unauthorized event"));
+   *     }
+   *     // do not forget to call next
+   *     next();
+   *   });
+   *
+   *   socket.on("error", (err) => {
+   *     if (err && err.message === "unauthorized event") {
+   *       socket.disconnect();
+   *     }
+   *   });
+   * });
+   *
    * @param {Function} fn - middleware function (event, next)
    * @return {Socket} self
-   * @public
    */
   public use(fn: (event: Event, next: (err?: Error) => void) => void): this {
     this.fns.push(fn);
@@ -711,8 +869,6 @@ export class Socket<
 
   /**
    * A reference to the request that originated the underlying Engine.IO Socket.
-   *
-   * @public
    */
   public get request(): IncomingMessage {
     return this.client.request;
@@ -721,14 +877,30 @@ export class Socket<
   /**
    * A reference to the underlying Client transport connection (Engine.IO Socket object).
    *
-   * @public
+   * @example
+   * io.on("connection", (socket) => {
+   *   console.log(socket.conn.transport.name); // prints "polling" or "websocket"
+   *
+   *   socket.conn.once("upgrade", () => {
+   *     console.log(socket.conn.transport.name); // prints "websocket"
+   *   });
+   * });
    */
   public get conn() {
     return this.client.conn;
   }
 
   /**
-   * @public
+   * Returns the rooms the socket is currently in.
+   *
+   * @example
+   * io.on("connection", (socket) => {
+   *   console.log(socket.rooms); // Set { <socket.id> }
+   *
+   *   socket.join("room1");
+   *
+   *   console.log(socket.rooms); // Set { <socket.id>, "room1" }
+   * });
    */
   public get rooms(): Set<Room> {
     return this.adapter.socketRooms(this.id) || new Set();
@@ -738,8 +910,14 @@ export class Socket<
    * Adds a listener that will be fired when any event is received. The event name is passed as the first argument to
    * the callback.
    *
+   * @example
+   * io.on("connection", (socket) => {
+   *   socket.onAny((event, ...args) => {
+   *     console.log(`got event ${event}`);
+   *   });
+   * });
+   *
    * @param listener
-   * @public
    */
   public onAny(listener: (...args: any[]) => void): this {
     this._anyListeners = this._anyListeners || [];
@@ -752,7 +930,6 @@ export class Socket<
    * the callback. The listener is added to the beginning of the listeners array.
    *
    * @param listener
-   * @public
    */
   public prependAny(listener: (...args: any[]) => void): this {
     this._anyListeners = this._anyListeners || [];
@@ -763,8 +940,22 @@ export class Socket<
   /**
    * Removes the listener that will be fired when any event is received.
    *
+   * @example
+   * io.on("connection", (socket) => {
+   *   const catchAllListener = (event, ...args) => {
+   *     console.log(`got event ${event}`);
+   *   }
+   *
+   *   socket.onAny(catchAllListener);
+   *
+   *   // remove a specific listener
+   *   socket.offAny(catchAllListener);
+   *
+   *   // or remove all listeners
+   *   socket.offAny();
+   * });
+   *
    * @param listener
-   * @public
    */
   public offAny(listener?: (...args: any[]) => void): this {
     if (!this._anyListeners) {
@@ -787,28 +978,25 @@ export class Socket<
   /**
    * Returns an array of listeners that are listening for any event that is specified. This array can be manipulated,
    * e.g. to remove listeners.
-   *
-   * @public
    */
   public listenersAny() {
     return this._anyListeners || [];
   }
 
   /**
-   * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
-   * callback.
+   * Adds a listener that will be fired when any event is sent. The event name is passed as the first argument to
+   * the callback.
    *
-   * @param listener
+   * Note: acknowledgements sent to the client are not included.
    *
-   * <pre><code>
-   *
-   * socket.onAnyOutgoing((event, ...args) => {
-   *   console.log(event);
+   * @example
+   * io.on("connection", (socket) => {
+   *   socket.onAnyOutgoing((event, ...args) => {
+   *     console.log(`sent event ${event}`);
+   *   });
    * });
    *
-   * </pre></code>
-   *
-   * @public
+   * @param listener
    */
   public onAnyOutgoing(listener: (...args: any[]) => void): this {
     this._anyOutgoingListeners = this._anyOutgoingListeners || [];
@@ -820,17 +1008,14 @@ export class Socket<
    * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
    * callback. The listener is added to the beginning of the listeners array.
    *
-   * @param listener
-   *
-   * <pre><code>
-   *
-   * socket.prependAnyOutgoing((event, ...args) => {
-   *   console.log(event);
+   * @example
+   * io.on("connection", (socket) => {
+   *   socket.prependAnyOutgoing((event, ...args) => {
+   *     console.log(`sent event ${event}`);
+   *   });
    * });
    *
-   * </pre></code>
-   *
-   * @public
+   * @param listener
    */
   public prependAnyOutgoing(listener: (...args: any[]) => void): this {
     this._anyOutgoingListeners = this._anyOutgoingListeners || [];
@@ -839,24 +1024,24 @@ export class Socket<
   }
 
   /**
-   * Removes the listener that will be fired when any event is emitted.
+   * Removes the listener that will be fired when any event is sent.
    *
-   * @param listener
+   * @example
+   * io.on("connection", (socket) => {
+   *   const catchAllListener = (event, ...args) => {
+   *     console.log(`sent event ${event}`);
+   *   }
    *
-   * <pre><code>
+   *   socket.onAnyOutgoing(catchAllListener);
    *
-   * const handler = (event, ...args) => {
-   *   console.log(event);
-   * }
+   *   // remove a specific listener
+   *   socket.offAnyOutgoing(catchAllListener);
    *
-   * socket.onAnyOutgoing(handler);
+   *   // or remove all listeners
+   *   socket.offAnyOutgoing();
+   * });
    *
-   * // then later
-   * socket.offAnyOutgoing(handler);
-   *
-   * </pre></code>
-   *
-   * @public
+   * @param listener - the catch-all listener
    */
   public offAnyOutgoing(listener?: (...args: any[]) => void): this {
     if (!this._anyOutgoingListeners) {
@@ -879,8 +1064,6 @@ export class Socket<
   /**
    * Returns an array of listeners that are listening for any event that is specified. This array can be manipulated,
    * e.g. to remove listeners.
-   *
-   * @public
    */
   public listenersAnyOutgoing() {
     return this._anyOutgoingListeners || [];
