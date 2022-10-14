@@ -1,5 +1,6 @@
 import http = require("http");
 import type { Server as HTTPSServer } from "https";
+import type { Http2SecureServer } from "http2";
 import { createReadStream } from "fs";
 import { createDeflate, createGzip, createBrotliCompress } from "zlib";
 import accepts = require("accepts");
@@ -155,7 +156,7 @@ export class Server<
    * @private
    */
   _connectTimeout: number;
-  private httpServer: http.Server | HTTPSServer;
+  private httpServer: http.Server | HTTPSServer | Http2SecureServer;
 
   /**
    * Server constructor.
@@ -165,7 +166,7 @@ export class Server<
    */
   constructor(opts?: Partial<ServerOptions>);
   constructor(
-    srv?: http.Server | HTTPSServer | number,
+    srv?: http.Server | HTTPSServer | Http2SecureServer | number,
     opts?: Partial<ServerOptions>
   );
   constructor(
@@ -174,6 +175,7 @@ export class Server<
       | Partial<ServerOptions>
       | http.Server
       | HTTPSServer
+      | Http2SecureServer
       | number,
     opts?: Partial<ServerOptions>
   );
@@ -183,6 +185,7 @@ export class Server<
       | Partial<ServerOptions>
       | http.Server
       | HTTPSServer
+      | Http2SecureServer
       | number,
     opts: Partial<ServerOptions> = {}
   ) {
@@ -204,7 +207,9 @@ export class Server<
     this.sockets = this.of("/");
     this.opts = opts;
     if (srv || typeof srv == "number")
-      this.attach(srv as http.Server | HTTPSServer | number);
+      this.attach(
+        srv as http.Server | HTTPSServer | Http2SecureServer | number
+      );
   }
 
   /**
@@ -332,7 +337,7 @@ export class Server<
    * @return self
    */
   public listen(
-    srv: http.Server | HTTPSServer | number,
+    srv: http.Server | HTTPSServer | Http2SecureServer | number,
     opts: Partial<ServerOptions> = {}
   ): this {
     return this.attach(srv, opts);
@@ -346,7 +351,7 @@ export class Server<
    * @return self
    */
   public attach(
-    srv: http.Server | HTTPSServer | number,
+    srv: http.Server | HTTPSServer | Http2SecureServer | number,
     opts: Partial<ServerOptions> = {}
   ): this {
     if ("function" == typeof srv) {
@@ -452,7 +457,7 @@ export class Server<
    * @private
    */
   private initEngine(
-    srv: http.Server | HTTPSServer,
+    srv: http.Server | HTTPSServer | Http2SecureServer,
     opts: EngineOptions & AttachOptions
   ): void {
     // initialize engine
@@ -475,7 +480,9 @@ export class Server<
    * @param srv http server
    * @private
    */
-  private attachServe(srv: http.Server | HTTPSServer): void {
+  private attachServe(
+    srv: http.Server | HTTPSServer | Http2SecureServer
+  ): void {
     debug("attaching client serving req handler");
 
     const evs = srv.listeners("request").slice(0);
