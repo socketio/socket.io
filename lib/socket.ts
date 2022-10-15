@@ -55,17 +55,91 @@ interface SocketReservedEvents {
   ) => void;
 }
 
+/**
+ * A Socket is the fundamental class for interacting with the server.
+ *
+ * A Socket belongs to a certain Namespace (by default /) and uses an underlying {@link Manager} to communicate.
+ *
+ * @example
+ * const socket = io();
+ *
+ * socket.on("connect", () => {
+ *   console.log("connected");
+ * });
+ *
+ * // send an event to the server
+ * socket.emit("foo", "bar");
+ *
+ * socket.on("foobar", () => {
+ *   // an event was received from the server
+ * });
+ *
+ * // upon disconnection
+ * socket.on("disconnect", (reason) => {
+ *   console.log(`disconnected due to ${reason}`);
+ * });
+ */
 export class Socket<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents
 > extends Emitter<ListenEvents, EmitEvents, SocketReservedEvents> {
   public readonly io: Manager<ListenEvents, EmitEvents>;
 
+  /**
+   * A unique identifier for the session.
+   *
+   * @example
+   * const socket = io();
+   *
+   * console.log(socket.id); // undefined
+   *
+   * socket.on("connect", () => {
+   *   console.log(socket.id); // "G5p5..."
+   * });
+   */
   public id: string;
+
+  /**
+   * Whether the socket is currently connected to the server.
+   *
+   * @example
+   * const socket = io();
+   *
+   * socket.on("connect", () => {
+   *   console.log(socket.connected); // true
+   * });
+   *
+   * socket.on("disconnect", () => {
+   *   console.log(socket.connected); // false
+   * });
+   */
   public connected: boolean = false;
 
+  /**
+   * Credentials that are sent when accessing a namespace.
+   *
+   * @example
+   * const socket = io({
+   *   auth: {
+   *     token: "abcd"
+   *   }
+   * });
+   *
+   * // or with a function
+   * const socket = io({
+   *   auth: (cb) => {
+   *     cb({ token: localStorage.token })
+   *   }
+   * });
+   */
   public auth: { [key: string]: any } | ((cb: (data: object) => void) => void);
+  /**
+   * Buffer for packets received before the CONNECT packet
+   */
   public receiveBuffer: Array<ReadonlyArray<any>> = [];
+  /**
+   * Buffer for packets that will be sent once the socket is connected
+   */
   public sendBuffer: Array<Packet> = [];
 
   private readonly nsp: string;
@@ -79,8 +153,6 @@ export class Socket<
 
   /**
    * `Socket` constructor.
-   *
-   * @public
    */
   constructor(io: Manager, nsp: string, opts?: Partial<SocketOptions>) {
     super();
@@ -94,6 +166,17 @@ export class Socket<
 
   /**
    * Whether the socket is currently disconnected
+   *
+   * @example
+   * const socket = io();
+   *
+   * socket.on("connect", () => {
+   *   console.log(socket.disconnected); // false
+   * });
+   *
+   * socket.on("disconnect", () => {
+   *   console.log(socket.disconnected); // true
+   * });
    */
   public get disconnected(): boolean {
     return !this.connected;
@@ -117,7 +200,21 @@ export class Socket<
   }
 
   /**
-   * Whether the Socket will try to reconnect when its Manager connects or reconnects
+   * Whether the Socket will try to reconnect when its Manager connects or reconnects.
+   *
+   * @example
+   * const socket = io();
+   *
+   * console.log(socket.active); // true
+   *
+   * socket.on("disconnect", (reason) => {
+   *   if (reason === "io server disconnect") {
+   *     // the disconnection was initiated by the server, you need to manually reconnect
+   *     console.log(socket.active); // false
+   *   }
+   *   // else the socket will automatically try to reconnect
+   *   console.log(socket.active); // true
+   * });
    */
   public get active(): boolean {
     return !!this.subs;
@@ -126,7 +223,12 @@ export class Socket<
   /**
    * "Opens" the socket.
    *
-   * @public
+   * @example
+   * const socket = io({
+   *   autoConnect: false
+   * });
+   *
+   * socket.connect();
    */
   public connect(): this {
     if (this.connected) return this;
@@ -138,7 +240,7 @@ export class Socket<
   }
 
   /**
-   * Alias for connect()
+   * Alias for {@link connect()}.
    */
   public open(): this {
     return this.connect();
@@ -147,8 +249,17 @@ export class Socket<
   /**
    * Sends a `message` event.
    *
+   * This method mimics the WebSocket.send() method.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/send
+   *
+   * @example
+   * socket.send("hello");
+   *
+   * // this is equivalent to
+   * socket.emit("message", "hello");
+   *
    * @return self
-   * @public
    */
   public send(...args: any[]): this {
     args.unshift("message");
@@ -160,8 +271,18 @@ export class Socket<
    * Override `emit`.
    * If the event is in `events`, it's emitted normally.
    *
+   * @example
+   * socket.emit("hello", "world");
+   *
+   * // all serializable datastructures are supported (no need to call JSON.stringify)
+   * socket.emit("hello", 1, "2", { 3: ["4"], 5: Uint8Array.from([6]) });
+   *
+   * // with an acknowledgement from the server
+   * socket.emit("hello", "world", (val) => {
+   *   // ...
+   * });
+   *
    * @return self
-   * @public
    */
   public emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
@@ -475,10 +596,20 @@ export class Socket<
   }
 
   /**
-   * Disconnects the socket manually.
+   * Disconnects the socket manually. In that case, the socket will not try to reconnect.
+   *
+   * If this is the last active Socket instance of the {@link Manager}, the low-level connection will be closed.
+   *
+   * @example
+   * const socket = io();
+   *
+   * socket.on("disconnect", (reason) => {
+   *   // console.log(reason); prints "io client disconnect"
+   * });
+   *
+   * socket.disconnect();
    *
    * @return self
-   * @public
    */
   public disconnect(): this {
     if (this.connected) {
@@ -497,10 +628,9 @@ export class Socket<
   }
 
   /**
-   * Alias for disconnect()
+   * Alias for {@link disconnect()}.
    *
    * @return self
-   * @public
    */
   public close(): this {
     return this.disconnect();
@@ -509,9 +639,11 @@ export class Socket<
   /**
    * Sets the compress flag.
    *
+   * @example
+   * socket.compress(false).emit("hello");
+   *
    * @param compress - if `true`, compresses the sending data
    * @return self
-   * @public
    */
   public compress(compress: boolean): this {
     this.flags.compress = compress;
@@ -522,8 +654,10 @@ export class Socket<
    * Sets a modifier for a subsequent event emission that the event message will be dropped when this socket is not
    * ready to send messages.
    *
+   * @example
+   * socket.volatile.emit("hello"); // the server may or may not receive it
+   *
    * @returns self
-   * @public
    */
   public get volatile(): this {
     this.flags.volatile = true;
@@ -534,16 +668,14 @@ export class Socket<
    * Sets a modifier for a subsequent event emission that the callback will be called with an error when the
    * given number of milliseconds have elapsed without an acknowledgement from the server:
    *
-   * ```
+   * @example
    * socket.timeout(5000).emit("my-event", (err) => {
    *   if (err) {
    *     // the server did not acknowledge the event in the given delay
    *   }
    * });
-   * ```
    *
    * @returns self
-   * @public
    */
   public timeout(timeout: number): this {
     this.flags.timeout = timeout;
@@ -554,8 +686,12 @@ export class Socket<
    * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
    * callback.
    *
+   * @example
+   * socket.onAny((event, ...args) => {
+   *   console.log(`got ${event}`);
+   * });
+   *
    * @param listener
-   * @public
    */
   public onAny(listener: (...args: any[]) => void): this {
     this._anyListeners = this._anyListeners || [];
@@ -567,8 +703,12 @@ export class Socket<
    * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
    * callback. The listener is added to the beginning of the listeners array.
    *
+   * @example
+   * socket.prependAny((event, ...args) => {
+   *   console.log(`got event ${event}`);
+   * });
+   *
    * @param listener
-   * @public
    */
   public prependAny(listener: (...args: any[]) => void): this {
     this._anyListeners = this._anyListeners || [];
@@ -579,8 +719,20 @@ export class Socket<
   /**
    * Removes the listener that will be fired when any event is emitted.
    *
+   * @example
+   * const catchAllListener = (event, ...args) => {
+   *   console.log(`got event ${event}`);
+   * }
+   *
+   * socket.onAny(catchAllListener);
+   *
+   * // remove a specific listener
+   * socket.offAny(catchAllListener);
+   *
+   * // or remove all listeners
+   * socket.offAny();
+   *
    * @param listener
-   * @public
    */
   public offAny(listener?: (...args: any[]) => void): this {
     if (!this._anyListeners) {
@@ -603,8 +755,6 @@ export class Socket<
   /**
    * Returns an array of listeners that are listening for any event that is specified. This array can be manipulated,
    * e.g. to remove listeners.
-   *
-   * @public
    */
   public listenersAny() {
     return this._anyListeners || [];
@@ -614,17 +764,14 @@ export class Socket<
    * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
    * callback.
    *
-   * @param listener
+   * Note: acknowledgements sent to the server are not included.
    *
-   * <pre><code>
-   *
+   * @example
    * socket.onAnyOutgoing((event, ...args) => {
-   *   console.log(event);
+   *   console.log(`sent event ${event}`);
    * });
    *
-   * </pre></code>
-   *
-   * @public
+   * @param listener
    */
   public onAnyOutgoing(listener: (...args: any[]) => void): this {
     this._anyOutgoingListeners = this._anyOutgoingListeners || [];
@@ -636,17 +783,14 @@ export class Socket<
    * Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
    * callback. The listener is added to the beginning of the listeners array.
    *
-   * @param listener
+   * Note: acknowledgements sent to the server are not included.
    *
-   * <pre><code>
-   *
+   * @example
    * socket.prependAnyOutgoing((event, ...args) => {
-   *   console.log(event);
+   *   console.log(`sent event ${event}`);
    * });
    *
-   * </pre></code>
-   *
-   * @public
+   * @param listener
    */
   public prependAnyOutgoing(listener: (...args: any[]) => void): this {
     this._anyOutgoingListeners = this._anyOutgoingListeners || [];
@@ -657,22 +801,20 @@ export class Socket<
   /**
    * Removes the listener that will be fired when any event is emitted.
    *
-   * @param listener
-   *
-   * <pre><code>
-   *
-   * const handler = (event, ...args) => {
-   *   console.log(event);
+   * @example
+   * const catchAllListener = (event, ...args) => {
+   *   console.log(`sent event ${event}`);
    * }
    *
-   * socket.onAnyOutgoing(handler);
+   * socket.onAnyOutgoing(catchAllListener);
    *
-   * // then later
-   * socket.offAnyOutgoing(handler);
+   * // remove a specific listener
+   * socket.offAnyOutgoing(catchAllListener);
    *
-   * </pre></code>
+   * // or remove all listeners
+   * socket.offAnyOutgoing();
    *
-   * @public
+   * @param [listener] - the catch-all listener (optional)
    */
   public offAnyOutgoing(listener?: (...args: any[]) => void): this {
     if (!this._anyOutgoingListeners) {
@@ -695,8 +837,6 @@ export class Socket<
   /**
    * Returns an array of listeners that are listening for any event that is specified. This array can be manipulated,
    * e.g. to remove listeners.
-   *
-   * @public
    */
   public listenersAnyOutgoing() {
     return this._anyOutgoingListeners || [];
