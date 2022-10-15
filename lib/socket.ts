@@ -207,6 +207,12 @@ export interface SocketOptions {
   path: string;
 
   /**
+   * Whether we should add a trailing slash to the request path.
+   * @default true
+   */
+  addTrailingSlash: boolean;
+
+  /**
    * Either a single protocol string or an array of protocol strings. These strings are used to indicate sub-protocols,
    * so that a single server can implement multiple WebSocket sub-protocols (for example, you might want one server to
    * be able to handle different types of interactions depending on the specified protocol)
@@ -323,6 +329,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
         upgrade: true,
         timestampParam: "t",
         rememberUpgrade: false,
+        addTrailingSlash: true,
         rejectUnauthorized: true,
         perMessageDeflate: {
           threshold: 1024
@@ -333,7 +340,9 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
       opts
     );
 
-    this.opts.path = this.opts.path.replace(/\/$/, "") + "/";
+    this.opts.path =
+      this.opts.path.replace(/\/$/, "") +
+      (this.opts.addTrailingSlash ? "/" : "");
 
     if (typeof this.opts.query === "string") {
       this.opts.query = decode(this.opts.query);
