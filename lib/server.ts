@@ -31,6 +31,12 @@ export interface AttachOptions {
    * @default 1000
    */
   destroyUpgradeTimeout?: number;
+
+  /**
+   * Whether we should add a trailing slash to the request path.
+   * @default true
+   */
+  addTrailingSlash?: boolean;
 }
 
 export interface ServerOptions {
@@ -180,6 +186,22 @@ export abstract class BaseServer extends EventEmitter {
   }
 
   protected abstract init();
+
+  /**
+   * Compute the pathname of the requests that are handled by the server
+   * @param options
+   * @protected
+   */
+  protected _computePath(options: AttachOptions) {
+    let path = (options.path || "/engine.io").replace(/\/$/, "");
+
+    if (options.addTrailingSlash !== false) {
+      // normalize path
+      path += "/";
+    }
+
+    return path;
+  }
 
   /**
    * Returns a list of available transports for upgrade given a certain transport.
@@ -635,14 +657,11 @@ export class Server extends BaseServer {
    * @api public
    */
   public attach(server: HttpServer, options: AttachOptions = {}) {
-    let path = (options.path || "/engine.io").replace(/\/$/, "");
-
+    const path = this._computePath(options);
     const destroyUpgradeTimeout = options.destroyUpgradeTimeout || 1000;
 
-    // normalize path
-    path += "/";
-
     function check(req) {
+      // TODO use `path === new URL(...).pathname` in the next major release (ref: https://nodejs.org/api/url.html)
       return path === req.url.slice(0, path.length);
     }
 

@@ -65,7 +65,7 @@ export class uServer extends BaseServer {
     app /* : TemplatedApp */,
     options: AttachOptions & uOptions = {}
   ) {
-    const path = (options.path || "/engine.io").replace(/\/$/, "") + "/";
+    const path = this._computePath(options);
     (app as TemplatedApp)
       .any(path, this.handleRequest.bind(this))
       //

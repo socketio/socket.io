@@ -745,6 +745,36 @@ describe("server", () => {
         });
       });
     });
+
+    it("should support requests without trailing slash", done => {
+      listen({ addTrailingSlash: false }, port => {
+        const partialDone = createPartialDone(done, 2);
+
+        request
+          .get(`http://localhost:${port}/engine.io`)
+          .query({ transport: "polling" })
+          .end((err, res) => {
+            expect(err).to.be(null);
+            expect(res.status).to.be(200);
+            partialDone();
+          });
+
+        request
+          .get(`http://localhost:${port}/engine.io/foo/bar/`)
+          .query({ transport: "polling" })
+          .end((err, res) => {
+            if (process.env.EIO_WS_ENGINE === "uws") {
+              expect(err).to.not.be(null);
+              expect(err.message).to.be("socket hang up");
+            } else {
+              expect(err).to.be(null);
+              // this should not work, but it is kept for backward-compatibility
+              expect(res.status).to.be(200);
+            }
+            partialDone();
+          });
+      });
+    });
   });
 
   describe("close", () => {
