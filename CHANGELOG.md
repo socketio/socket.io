@@ -1,31 +1,36 @@
 # History
 
-- [4.5.3](#453-2022-10-15) (2022-10-15)
-- [4.5.2](#452-2022-09-02) (2022-09-02)
-- [4.5.1](#451-2022-05-17) (2022-05-17)
-- [4.5.0](#450-2022-04-23) (2022-04-23)
-- [4.4.1](#441-2022-01-06) (2022-01-06)
-- [4.4.0](#440-2021-11-18) (2021-11-18)
-- [4.3.2](#432-2021-10-16) (2021-10-16)
-- [4.3.1](#431-2021-10-15) (2021-10-15)
-- [4.3.0](#430-2021-10-14) (2021-10-14)
-- [4.2.0](#420-2021-08-30) (2021-08-30)
-- [4.1.3](#413-2021-07-10) (2021-07-10)
-- [4.1.2](#412-2021-05-17) (2021-05-17)
-- [4.1.1](#411-2021-05-11) (2021-05-11)
-- [4.1.0](#410-2021-05-11) (2021-05-11)
-- [4.0.2](#402-2021-05-06) (2021-05-06)
-- [4.0.1](#401-2021-03-31) (2021-03-31)
-- [4.0.0](#400-2021-03-10) (2021-03-10)
-- [3.1.2](#312-2021-02-26) (2021-02-26)
-- [3.1.1](#311-2021-02-03) (2021-02-03)
-- [3.1.0](#310-2021-01-15) (2021-01-15)
-- [3.0.5](#305-2021-01-05) (2021-01-05)
-- [3.0.4](#304-2020-12-07) (2020-12-07)
-- [3.0.3](#303-2020-11-19) (2020-11-19)
-- [3.0.2](#302-2020-11-17) (2020-11-17)
-- [3.0.1](#301-2020-11-09) (2020-11-09)
-- [3.0.0](#300-2020-11-05) (2020-11-05)
+- [4.5.3](#453-2022-10-15) (Oct 2022)
+- [4.5.2](#452-2022-09-02) (Sep 2022)
+- [2.5.0](#250-2022-06-26) (Jun 2022) (from the [2.x](https://github.com/socketio/socket.io-client/tree/2.x) branch)
+- [4.5.1](#451-2022-05-17) (May 2022)
+- [4.5.0](#450-2022-04-23) (Apr 2022)
+- [4.4.1](#441-2022-01-06) (Jan 2022)
+
+- [4.4.0](#440-2021-11-18) (Nov 2021)
+- [4.3.2](#432-2021-10-16) (Oct 2021)
+- [4.3.1](#431-2021-10-15) (Oct 2021)
+- [4.3.0](#430-2021-10-14) (Oct 2021)
+- [4.2.0](#420-2021-08-30) (Aug 2021)
+- [4.1.3](#413-2021-07-10) (Jul 2021)
+- [4.1.2](#412-2021-05-17) (May 2021)
+- [4.1.1](#411-2021-05-11) (May 2021)
+- [4.1.0](#410-2021-05-11) (May 2021)
+- [4.0.2](#402-2021-05-06) (May 2021)
+- [4.0.1](#401-2021-03-31) (Mar 2021)
+- [3.1.3](#313-2021-03-12) (Mar 2021) (from the [3.1.x](https://github.com/socketio/socket.io-client/tree/3.1.x) branch)
+- [4.0.0](#400-2021-03-10) (Mar 2021)
+- [3.1.2](#312-2021-02-26) (Feb 2021)
+- [3.1.1](#311-2021-02-03) (Feb 2021)
+- [3.1.0](#310-2021-01-15) (Jan 2021)
+- [3.0.5](#305-2021-01-05) (Jan 2021)
+- [2.4.0](#240-2021-01-04) (Jan 2021) (from the [2.x](https://github.com/socketio/socket.io-client/tree/2.x) branch)
+
+- [3.0.4](#304-2020-12-07) (Dec 2020)
+- [3.0.3](#303-2020-11-19) (Nov 2020)
+- [3.0.2](#302-2020-11-17) (Nov 2020)
+- [3.0.1](#301-2020-11-09) (Nov 2020)
+- [3.0.0](#300-2020-11-05) (Nov 2020)
 
 # Release notes
 
@@ -44,6 +49,15 @@
 ### Bug Fixes
 
 * handle ill-formatted packet from server ([c597023](https://github.com/socketio/socket.io-client/commit/c5970231699aa47b00c4a617af4239d0fa90fa53))
+
+
+
+# [2.5.0](https://github.com/socketio/socket.io-client/compare/2.4.0...2.5.0) (2022-06-26)
+
+
+### Bug Fixes
+
+* ensure buffered events are sent in order ([991eb0b](https://github.com/Automattic/socket.io-client/commit/991eb0b0289bbbf680099e6d42b302beee7568b8))
 
 
 
@@ -113,6 +127,14 @@ The server will now include a "maxPayload" field in the handshake details, allow
 ### Features
 
 * add timeout feature ([ccf7998](https://github.com/socketio/socket.io-client/commit/ccf7998cc5049d02022567aedfb263de875a06a5))
+
+```js
+socket.timeout(5000).emit("my-event", (err) => {
+  if (err) {
+    // the server did not acknowledge the event in the given delay
+  }
+});
+```
 
 
 
@@ -215,6 +237,16 @@ There were some minor bug fixes on the server side, which mandate a client bump.
 * **typings:** update definition to match wrapper.mjs ([#1456](https://github.com/socketio/socket.io-client/issues/1456)) ([48f573f](https://github.com/socketio/socket.io-client/commit/48f573f6f6c4d542e6a098e7f4ae472b888b5664))
 
 
+
+## [3.1.3](https://github.com/socketio/socket.io-client/compare/3.1.2...3.1.3) (2021-03-12)
+
+
+### Bug Fixes
+
+* **bundle:** restore support for JS modules ([afa7953](https://github.com/socketio/socket.io-client/commit/afa79532f8a422cc9246175abdbe30299a0b0281))
+
+
+
 # [4.0.0](https://github.com/socketio/socket.io-client/compare/3.1.2...4.0.0) (2021-03-10)
 
 The major bump is due to some breaking changes on the server side.
@@ -266,6 +298,13 @@ The major bump is due to some breaking changes on the server side.
 
 * emit a connect_error event upon connection failure ([53c7374](https://github.com/socketio/socket.io-client/commit/53c73749a829b2c98d9a5e45c48f0ae5a22c056c))
 * **typings:** make sendBuffer and receiveBuffer public ([b83f89c](https://github.com/socketio/socket.io-client/commit/b83f89c901e82e06f66cbda4124cf739d2bb01c3))
+
+
+
+# [2.4.0](https://github.com/socketio/socket.io-client/compare/2.3.1...2.4.0) (2021-01-04)
+
+The minor bump is matching the bump of the server, but there is no new feature in this release.
+
 
 
 ## [3.0.4](https://github.com/socketio/socket.io-client/compare/3.0.3...3.0.4) (2020-12-07)
