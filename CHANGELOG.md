@@ -1,11 +1,15 @@
 # History
 
+## 2022
+
 - [4.5.3](#453-2022-10-15) (Oct 2022)
 - [4.5.2](#452-2022-09-02) (Sep 2022)
 - [2.5.0](#250-2022-06-26) (Jun 2022) (from the [2.x](https://github.com/socketio/socket.io-client/tree/2.x) branch)
 - [4.5.1](#451-2022-05-17) (May 2022)
 - [4.5.0](#450-2022-04-23) (Apr 2022)
 - [4.4.1](#441-2022-01-06) (Jan 2022)
+
+## 2021
 
 - [4.4.0](#440-2021-11-18) (Nov 2021)
 - [4.3.2](#432-2021-10-16) (Oct 2021)
@@ -19,18 +23,32 @@
 - [4.0.2](#402-2021-05-06) (May 2021)
 - [4.0.1](#401-2021-03-31) (Mar 2021)
 - [3.1.3](#313-2021-03-12) (Mar 2021) (from the [3.1.x](https://github.com/socketio/socket.io-client/tree/3.1.x) branch)
-- [4.0.0](#400-2021-03-10) (Mar 2021)
+- [**4.0.0**](#400-2021-03-10) (Mar 2021)
 - [3.1.2](#312-2021-02-26) (Feb 2021)
 - [3.1.1](#311-2021-02-03) (Feb 2021)
 - [3.1.0](#310-2021-01-15) (Jan 2021)
 - [3.0.5](#305-2021-01-05) (Jan 2021)
 - [2.4.0](#240-2021-01-04) (Jan 2021) (from the [2.x](https://github.com/socketio/socket.io-client/tree/2.x) branch)
 
+## 2020
+
 - [3.0.4](#304-2020-12-07) (Dec 2020)
 - [3.0.3](#303-2020-11-19) (Nov 2020)
 - [3.0.2](#302-2020-11-17) (Nov 2020)
 - [3.0.1](#301-2020-11-09) (Nov 2020)
-- [3.0.0](#300-2020-11-05) (Nov 2020)
+- [**3.0.0**](#300-2020-11-05) (Nov 2020)
+- [2.3.1](#231-2020-09-30) (Sep 2020)
+
+## 2019
+
+- [2.3.0](#230-2019-09-20) (Sep 2019)
+
+## 2018
+
+- [2.2.0](#220-2018-11-29) (Nov 2018)
+- [2.1.1](#211-2018-05-17) (May 2018)
+- [2.1.0](#210-2018-03-29) (Mar 2018)
+
 
 # Release notes
 
@@ -478,3 +496,38 @@ plugin.
 
 * fix reconnection after opening socket asynchronously ([#1253](https://github.com/socketio/socket.io-client/issues/1253)) ([050108b](https://github.com/socketio/socket.io-client/commit/050108b2281effda086b197cf174ee2e8e1aad79))
 
+
+
+# [2.3.0](https://github.com/socketio/socket.io-client/compare/2.2.0...2.3.0) (2019-09-20)
+
+The minor bump is matching the bump of the server, but there is no new feature in this release.
+
+
+
+# [2.2.0](https://github.com/socketio/socket.io-client/compare/2.1.1...2.2.0) (2018-11-29)
+
+### Bug fixes
+
+- remove any reference to the `global` variable (related: https://github.com/socketio/socket.io-client/issues/1166)
+
+
+
+## [2.1.1](https://github.com/socketio/socket.io-client/compare/2.1.0...2.1.1) (2018-05-17)
+
+### Bug fixes
+
+- fire an error event on middleware failure for non-root namespace ([#1202](https://github.com/socketio/socket.io-client/issues/1202)) ([0fe9439](https://github.com/socketio/socket.io-client/commit/0fe9439ff6d97fb6e7fa7bd145ee9367de055b29))
+
+
+
+# [2.1.0](https://github.com/socketio/socket.io-client/compare/2.0.4...2.1.0) (2018-03-29)
+
+### Features
+
+- add a 'binary' flag ([#1194](https://github.com/socketio/socket.io-client/pull/1194)) ([74893d5](https://github.com/socketio/socket.io-client/commit/74893d53ca22335cbdbdd1468a5f9a810143a231))
+
+```js
+// by default, the object is recursively scanned to check whether it contains some binary data
+// in the following example, the check is skipped in order to improve performance
+socket.binary(false).emit('plain-object', object);
+```
