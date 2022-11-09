@@ -1,9 +1,75 @@
+# History
+
+## 2022
+
+- [3.3.3](#333-2022-11-09) (Nov 2022) (from the [3.3.x](https://github.com/socketio/socket.io-parser/tree/3.3.x) branch)
+- [3.4.2](#342-2022-11-09) (Nov 2022) (from the [3.4.x](https://github.com/socketio/socket.io-parser/tree/3.4.x) branch)
+- [4.0.5](#405-2022-06-27) (Jun 2022) (from the [4.0.x](https://github.com/socketio/socket.io-parser/tree/4.0.x) branch)
+- [4.2.1](#421-2022-06-27) (Jun 2022)
+- [4.2.0](#420-2022-04-17) (Apr 2022)
+- [4.1.2](#412-2022-02-17) (Feb 2022)
+
+## 2021
+
+- [4.1.1](#411-2021-10-14) (Oct 2021)
+- [4.1.0](#410-2021-10-11) (Oct 2021)
+- [4.0.4](#404-2021-01-15) (Jan 2021)
+- [3.3.2](#332-2021-01-09) (Jan 2021) (from the [3.3.x](https://github.com/socketio/socket.io-parser/tree/3.3.x) branch)
+- [4.0.3](#403-2021-01-05) (Jan 2021)
+
+## 2020
+
+- [4.0.2](#402-2020-11-25) (Nov 2020)
+- [4.0.1](#401-2020-11-05) (Nov 2020)
+- [3.3.1](#331-2020-09-30) (Sep 2020) (from the [3.3.x](https://github.com/socketio/socket.io-parser/tree/3.3.x) branch)
+- [**4.0.0**](#400-2020-09-28) (Sep 2020)
+- [3.4.1](#341-2020-05-13) (May 2020)
+
+## 2019
+
+- [3.4.0](#340-2019-09-20) (Sep 2019)
+
+## 2018
+
+- [3.3.0](#330-2018-11-07) (Nov 2018)
+
+
+
+# Release notes
+
+## [3.3.3](https://github.com/Automattic/socket.io-parser/compare/3.3.2...3.3.3) (2022-11-09)
+
+
+### Bug Fixes
+
+* check the format of the index of each attachment ([fb21e42](https://github.com/Automattic/socket.io-parser/commit/fb21e422fc193b34347395a33e0f625bebc09983))
+
+
+
+## [3.4.2](https://github.com/socketio/socket.io-parser/compare/3.4.1...3.4.2) (2022-11-09)
+
+
+### Bug Fixes
+
+* check the format of the index of each attachment ([04d23ce](https://github.com/socketio/socket.io-parser/commit/04d23cecafe1b859fb03e0cbf6ba3b74dff56d14))
+
+
+
 ## [4.2.1](https://github.com/socketio/socket.io-parser/compare/4.2.0...4.2.1) (2022-06-27)
 
 
 ### Bug Fixes
 
 * check the format of the index of each attachment ([b5d0cb7](https://github.com/socketio/socket.io-parser/commit/b5d0cb7dc56a0601a09b056beaeeb0e43b160050))
+
+
+
+## [4.0.5](https://github.com/socketio/socket.io-parser/compare/4.0.4...4.0.5) (2022-06-27)
+
+
+### Bug Fixes
+
+* check the format of the index of each attachment ([b559f05](https://github.com/socketio/socket.io-parser/commit/b559f050ee02bd90bd853b9823f8de7fa94a80d4))
 
 
 
@@ -42,6 +108,16 @@
 ### Bug Fixes
 
 * allow integers as event names ([1c220dd](https://github.com/socketio/socket.io-parser/commit/1c220ddbf45ea4b44bc8dbf6f9ae245f672ba1b9))
+
+
+
+## [3.3.2](https://github.com/Automattic/socket.io-parser/compare/3.3.1...3.3.2) (2021-01-09)
+
+
+### Bug Fixes
+
+* prevent DoS (OOM) via massive packets ([#95](https://github.com/Automattic/socket.io-parser/issues/95)) ([89197a0](https://github.com/Automattic/socket.io-parser/commit/89197a05c43b18cc4569fd178d56e7bb8f403865))
+
 
 
 ## [4.0.3](https://github.com/socketio/socket.io-parser/compare/4.0.2...4.0.3) (2021-01-05)
@@ -122,3 +198,16 @@ There is a breaking API change (see below), but the exchange [protocol](https://
 ### Bug Fixes
 
 * prevent DoS (OOM) via massive packets ([#95](https://github.com/socketio/socket.io-parser/issues/95)) ([dcb942d](https://github.com/socketio/socket.io-parser/commit/dcb942d24db97162ad16a67c2a0cf30875342d55))
+
+
+
+## [3.4.0](https://github.com/socketio/socket.io-parser/compare/3.3.0...3.4.0) (2019-09-20)
+
+
+
+## [3.3.0](https://github.com/socketio/socket.io-parser/compare/3.2.0...3.3.0) (2018-11-07)
+
+
+### Bug Fixes
+
+* remove any reference to the `global` variable ([b47efb2](https://github.com/socketio/socket.io-parser/commit/b47efb2))
