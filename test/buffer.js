@@ -2,41 +2,32 @@ const { PacketType, Decoder } = require("../");
 const helpers = require("./helpers.js");
 const expect = require("expect.js");
 
-describe("parser", () => {
-  it("encodes a Buffer", (done) => {
-    helpers.test_bin(
-      {
-        type: PacketType.EVENT,
-        data: ["a", Buffer.from("abc", "utf8")],
-        id: 23,
-        nsp: "/cool",
-      },
-      done
-    );
+describe("Buffer", () => {
+  it("encodes a Buffer", () => {
+    return helpers.test_bin({
+      type: PacketType.EVENT,
+      data: ["a", Buffer.from("abc", "utf8")],
+      id: 23,
+      nsp: "/cool",
+    });
   });
 
-  it("encodes a nested Buffer", (done) => {
-    helpers.test_bin(
-      {
-        type: PacketType.EVENT,
-        data: ["a", { b: ["c", Buffer.from("abc", "utf8")] }],
-        id: 23,
-        nsp: "/cool",
-      },
-      done
-    );
+  it("encodes a nested Buffer", () => {
+    return helpers.test_bin({
+      type: PacketType.EVENT,
+      data: ["a", { b: ["c", Buffer.from("abc", "utf8")] }],
+      id: 23,
+      nsp: "/cool",
+    });
   });
 
-  it("encodes a binary ack with Buffer", (done) => {
-    helpers.test_bin(
-      {
-        type: PacketType.ACK,
-        data: ["a", Buffer.from("xxx", "utf8"), {}],
-        id: 127,
-        nsp: "/back",
-      },
-      done
-    );
+  it("encodes a binary ack with Buffer", () => {
+    return helpers.test_bin({
+      type: PacketType.ACK,
+      data: ["a", Buffer.from("xxx", "utf8"), {}],
+      id: 127,
+      nsp: "/back",
+    });
   });
 
   it("throws an error when adding an attachment with an invalid 'num' attribute (string)", () => {

@@ -12,8 +12,8 @@ const BlobBuilderImpl =
     ? MozBlobBuilder
     : false;
 
-describe("parser", () => {
-  it("encodes a Blob", (done) => {
+describe("Blob", () => {
+  it("encodes a Blob", () => {
     let data;
     if (BlobBuilderImpl) {
       const bb = new BlobBuilderImpl();
@@ -29,10 +29,10 @@ describe("parser", () => {
       id: 0,
       nsp: "/",
     };
-    helpers.test_bin(packet, done);
+    return helpers.test_bin(packet);
   });
 
-  it("encodes an Blob deep in JSON", (done) => {
+  it("encodes an Blob deep in JSON", () => {
     let data;
     if (BlobBuilderImpl) {
       const bb = new BlobBuilderImpl();
@@ -48,10 +48,10 @@ describe("parser", () => {
       id: 999,
       nsp: "/deep",
     };
-    helpers.test_bin(packet, done);
+    return helpers.test_bin(packet);
   });
 
-  it("encodes a binary ack with a blob", (done) => {
+  it("encodes a binary ack with a blob", () => {
     let data;
     if (BlobBuilderImpl) {
       const bb = new BlobBuilderImpl();
@@ -67,6 +67,6 @@ describe("parser", () => {
       id: 999,
       nsp: "/deep",
     };
-    helpers.test_bin(packet, done);
+    return helpers.test_bin(packet);
   });
 });

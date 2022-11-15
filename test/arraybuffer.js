@@ -3,18 +3,18 @@ const expect = require("expect.js");
 const helpers = require("./helpers.js");
 const encoder = new Encoder();
 
-describe("parser", () => {
-  it("encodes an ArrayBuffer", (done) => {
+describe("ArrayBuffer", () => {
+  it("encodes an ArrayBuffer", () => {
     const packet = {
       type: PacketType.EVENT,
       data: ["a", new ArrayBuffer(2)],
       id: 0,
       nsp: "/",
     };
-    helpers.test_bin(packet, done);
+    return helpers.test_bin(packet);
   });
 
-  it("encodes an ArrayBuffer into an object with a null prototype", (done) => {
+  it("encodes an ArrayBuffer into an object with a null prototype", () => {
     const packet = {
       type: PacketType.EVENT,
       data: [
@@ -26,10 +26,10 @@ describe("parser", () => {
       id: 0,
       nsp: "/",
     };
-    helpers.test_bin(packet, done);
+    return helpers.test_bin(packet);
   });
 
-  it("encodes a TypedArray", (done) => {
+  it("encodes a TypedArray", () => {
     const array = new Uint8Array(5);
     for (let i = 0; i < array.length; i++) array[i] = i;
 
@@ -39,10 +39,10 @@ describe("parser", () => {
       id: 0,
       nsp: "/",
     };
-    helpers.test_bin(packet, done);
+    return helpers.test_bin(packet);
   });
 
-  it("encodes ArrayBuffers deep in JSON", (done) => {
+  it("encodes ArrayBuffers deep in JSON", () => {
     const packet = {
       type: PacketType.EVENT,
       data: [
@@ -56,17 +56,17 @@ describe("parser", () => {
       id: 999,
       nsp: "/deep",
     };
-    helpers.test_bin(packet, done);
+    return helpers.test_bin(packet);
   });
 
-  it("encodes deep binary JSON with null values", (done) => {
+  it("encodes deep binary JSON with null values", () => {
     const packet = {
       type: PacketType.EVENT,
       data: ["a", { a: "b", c: 4, e: { g: null }, h: new ArrayBuffer(9) }],
       nsp: "/",
       id: 600,
     };
-    helpers.test_bin(packet, done);
+    return helpers.test_bin(packet);
   });
 
   it("cleans itself up on close", () => {

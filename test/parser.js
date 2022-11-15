@@ -2,7 +2,7 @@ const { PacketType, Decoder, Encoder } = require("..");
 const expect = require("expect.js");
 const helpers = require("./helpers.js");
 
-describe("parser", () => {
+describe("socket.io-parser", () => {
   it("exposes types", () => {
     expect(PacketType.CONNECT).to.be.a("number");
     expect(PacketType.DISCONNECT).to.be.a("number");
@@ -13,97 +13,73 @@ describe("parser", () => {
     expect(PacketType.BINARY_ACK).to.be.a("number");
   });
 
-  it("encodes connection", (done) => {
-    helpers.test(
-      {
-        type: PacketType.CONNECT,
-        nsp: "/woot",
-        data: {
-          token: "123",
-        },
+  it("encodes connection", () => {
+    return helpers.test({
+      type: PacketType.CONNECT,
+      nsp: "/woot",
+      data: {
+        token: "123",
       },
-      done
-    );
+    });
   });
 
-  it("encodes disconnection", (done) => {
-    helpers.test(
-      {
-        type: PacketType.DISCONNECT,
-        nsp: "/woot",
-      },
-      done
-    );
+  it("encodes disconnection", () => {
+    return helpers.test({
+      type: PacketType.DISCONNECT,
+      nsp: "/woot",
+    });
   });
 
-  it("encodes an event", (done) => {
-    helpers.test(
-      {
-        type: PacketType.EVENT,
-        data: ["a", 1, {}],
-        nsp: "/",
-      },
-      done
-    );
+  it("encodes an event", () => {
+    return helpers.test({
+      type: PacketType.EVENT,
+      data: ["a", 1, {}],
+      nsp: "/",
+    });
   });
 
-  it("encodes an event (with an integer as event name)", (done) => {
-    helpers.test(
-      {
-        type: PacketType.EVENT,
-        data: [1, "a", {}],
-        nsp: "/",
-      },
-      done
-    );
+  it("encodes an event (with an integer as event name)", () => {
+    return helpers.test({
+      type: PacketType.EVENT,
+      data: [1, "a", {}],
+      nsp: "/",
+    });
   });
 
-  it("encodes an event (with ack)", (done) => {
-    helpers.test(
-      {
-        type: PacketType.EVENT,
-        data: ["a", 1, {}],
-        id: 1,
-        nsp: "/test",
-      },
-      done
-    );
+  it("encodes an event (with ack)", () => {
+    return helpers.test({
+      type: PacketType.EVENT,
+      data: ["a", 1, {}],
+      id: 1,
+      nsp: "/test",
+    });
   });
 
-  it("encodes an ack", (done) => {
-    helpers.test(
-      {
-        type: PacketType.ACK,
-        data: ["a", 1, {}],
-        id: 123,
-        nsp: "/",
-      },
-      done
-    );
+  it("encodes an ack", () => {
+    return helpers.test({
+      type: PacketType.ACK,
+      data: ["a", 1, {}],
+      id: 123,
+      nsp: "/",
+    });
   });
 
-  it("encodes an connect error", (done) => {
-    helpers.test(
-      {
-        type: PacketType.CONNECT_ERROR,
-        data: "Unauthorized",
-        nsp: "/",
-      },
-      done
-    );
+  it("encodes an connect error", () => {
+    return helpers.test({
+      type: PacketType.CONNECT_ERROR,
+      data: "Unauthorized",
+      nsp: "/",
+    });
   });
 
-  it("encodes an connect error (with object)", (done) => {
-    helpers.test(
-      {
-        type: PacketType.CONNECT_ERROR,
-        data: {
-          message: "Unauthorized",
-        },
-        nsp: "/",
+  it("encodes an connect error (with object)", () => {
+    return helpers.test({
+      type: PacketType.CONNECT_ERROR,
+      data: {
+        message: "Unauthorized",
       },
-      done
-    );
+      nsp: "/",
+    });
   });
 
   it("throws an error when encoding circular objects", () => {
