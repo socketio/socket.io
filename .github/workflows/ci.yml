@@ -6,40 +6,52 @@ on:
   schedule:
     - cron: '0 0 * * 0'
 
+permissions:
+  contents: read
+
 jobs:
   test-node:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     strategy:
       matrix:
         node-version: [14, 16]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm test
-        env:
-          CI: true
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
 
   test-browser:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
-          node-version: '10.x'
-      - run: npm ci
-      - run: npm test
+          node-version: 16
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
         env:
-          CI: true
           BROWSERS: 1
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
           SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
           SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-        timeout-minutes: 20

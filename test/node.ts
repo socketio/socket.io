@@ -1,7 +1,13 @@
 const path = require("path");
 const { exec } = require("child_process");
 
-describe("autoRef option", () => {
+describe("autoUnref option", function () {
+  before(function () {
+    if (process.env.WDIO_WORKER !== undefined) {
+      return this.skip();
+    }
+  });
+
   const fixture = (filename) =>
     process.execPath + " " + path.join(__dirname, "fixtures", filename);
 
