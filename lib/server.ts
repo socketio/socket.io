@@ -678,6 +678,9 @@ export class Server extends BaseServer {
           setTimeout(function() {
             // @ts-ignore
             if (socket.writable && socket.bytesWritten <= 0) {
+              socket.on("error", e => {
+                debug("error while destroying upgrade: %s", e.message);
+              });
               return socket.end();
             }
           }, destroyUpgradeTimeout);
