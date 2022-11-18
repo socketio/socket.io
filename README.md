@@ -87,7 +87,6 @@ For more information on the client refer to the
 - **Future proof**
 - **100% Node.JS core style**
   - No API sugar (left for higher level projects)
-  - Written in readable vanilla JavaScript
 
 ## API
 
