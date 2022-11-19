@@ -1,5 +1,4 @@
 const { listen, uServer } = require("..");
-const { App, us_socket_local_port } = require("uWebSockets.js");
 const { Socket } =
   process.env.EIO_CLIENT === "3"
     ? require("engine.io-client-v3")
@@ -18,6 +17,7 @@ exports.listen = (opts, fn) => {
   opts.allowEIO3 = true;
 
   if (process.env.EIO_WS_ENGINE === "uws") {
+    const { App, us_socket_local_port } = require("uWebSockets.js");
     const engine = new uServer(opts);
     const app = App();
     engine.attach(app, opts);
