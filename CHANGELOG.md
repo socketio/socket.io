@@ -2,6 +2,7 @@
 
 ## 2022
 
+- [3.6.1](#361-2022-11-20) (Nov 2022) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)
 - [6.2.1](#621-2022-11-20) (Nov 2022)
 - [3.6.0](#360-2022-06-06) (Jun 2022) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)
 - [6.2.0](#620-2022-04-17) (Apr 2022)
@@ -37,6 +38,33 @@
 
 
 # Release notes
+
+## [3.6.1](https://github.com/socketio/engine.io/compare/3.6.0...3.6.1) (2022-11-20)
+
+:warning: This release contains an important security fix :warning:
+
+A malicious client could send a specially crafted HTTP request, triggering an uncaught exception and killing the Node.js process:
+
+```
+Error: read ECONNRESET
+    at TCP.onStreamRead (internal/stream_base_commons.js:209:20)
+Emitted 'error' event on Socket instance at:
+    at emitErrorNT (internal/streams/destroy.js:106:8)
+    at emitErrorCloseNT (internal/streams/destroy.js:74:3)
+    at processTicksAndRejections (internal/process/task_queues.js:80:21) {
+  errno: -104,
+  code: 'ECONNRESET',
+  syscall: 'read'
+}
+```
+
+Please upgrade as soon as possible.
+
+### Bug Fixes
+
+* catch errors when destroying invalid upgrades ([83c4071](https://github.com/socketio/engine.io/commit/83c4071af871fc188298d7d591e95670bf9f9085))
+
+
 
 ## [6.2.1](https://github.com/socketio/engine.io/compare/6.2.0...6.2.1) (2022-11-20)
 
