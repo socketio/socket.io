@@ -1,3 +1,70 @@
+# History
+
+## 2022
+
+- [6.2.1](#621-2022-11-20) (Nov 2022)
+- [3.6.0](#360-2022-06-06) (Jun 2022) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)
+- [6.2.0](#620-2022-04-17) (Apr 2022)
+- [6.1.3](#613-2022-02-23) (Feb 2022)
+- [6.1.2](#612-2022-01-18) (Jan 2022)
+- [6.1.1](#611-2022-01-11) (Jan 2022)
+
+## 2021
+
+- [6.1.0](#610-2021-11-08) (Nov 2021)
+- [6.0.1](#601-2021-11-06) (Nov 2021)
+- [**6.0.0**](#600-2021-10-08) (Oct 2021)
+- [5.2.0](#520-2021-08-29) (Aug 2021)
+- [5.1.1](#511-2021-05-16) (May 2021)
+- [5.1.0](#510-2021-05-04) (May 2021)
+- [**5.0.0**](#500-2021-03-10) (Mar 2021)
+- [4.1.1](#411-2021-02-02) (Feb 2021)
+- [4.1.0](#410-2021-01-14) (Jan 2021)
+- [4.0.6](#406-2021-01-04) (Jan 2021)
+
+## 2020
+
+- [3.5.0](#350-2020-12-30) (Dec 2020) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)
+- [4.0.5](#405-2020-12-07) (Dec 2020)
+- [4.0.4](#404-2020-11-17) (Nov 2020)
+- [4.0.3](#403-2020-11-17) (Nov 2020)
+- [4.0.2](#402-2020-11-09) (Nov 2020)
+- [4.0.1](#401-2020-10-21) (Oct 2020)
+- [**4.0.0**](#400-2020-09-10) (Sep 2020)
+- [3.4.2](#342-2020-06-04) (Jun 2020)
+- [3.4.1](#341-2020-04-17) (Apr 2020)
+
+
+
+# Release notes
+
+## [6.2.1](https://github.com/socketio/engine.io/compare/6.2.0...6.2.1) (2022-11-20)
+
+:warning: This release contains an important security fix :warning:
+
+A malicious client could send a specially crafted HTTP request, triggering an uncaught exception and killing the Node.js process:
+
+```
+Error: read ECONNRESET
+    at TCP.onStreamRead (internal/stream_base_commons.js:209:20)
+Emitted 'error' event on Socket instance at:
+    at emitErrorNT (internal/streams/destroy.js:106:8)
+    at emitErrorCloseNT (internal/streams/destroy.js:74:3)
+    at processTicksAndRejections (internal/process/task_queues.js:80:21) {
+  errno: -104,
+  code: 'ECONNRESET',
+  syscall: 'read'
+}
+```
+
+Please upgrade as soon as possible.
+
+### Bug Fixes
+
+* catch errors when destroying invalid upgrades ([#658](https://github.com/socketio/engine.io/issues/658)) ([425e833](https://github.com/socketio/engine.io/commit/425e833ab13373edf1dd5a0706f07100db14e3c6))
+
+
+
 # [3.6.0](https://github.com/socketio/engine.io/compare/3.5.0...3.6.0) (2022-06-06)
 
 
