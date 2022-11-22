@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.5.3
+ * Socket.IO v4.5.4
  * (c) 2014-2022 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -2679,8 +2679,14 @@
   function _reconstructPacket(data, buffers) {
     if (!data) return data;
 
-    if (data && data._placeholder) {
-      return buffers[data.num]; // appropriate buffer (should be natural order anyway)
+    if (data && data._placeholder === true) {
+      var isIndexValid = typeof data.num === "number" && data.num >= 0 && data.num < buffers.length;
+
+      if (isIndexValid) {
+        return buffers[data.num]; // appropriate buffer (should be natural order anyway)
+      } else {
+        throw new Error("illegal attachments");
+      }
     } else if (Array.isArray(data)) {
       for (var i = 0; i < data.length; i++) {
         data[i] = _reconstructPacket(data[i], buffers);
@@ -2840,6 +2846,10 @@
         var packet;
 
         if (typeof obj === "string") {
+          if (this.reconstructor) {
+            throw new Error("got plaintext data when reconstructing a packet");
+          }
+
           packet = this.decodeString(obj);
 
           if (packet.type === PacketType.BINARY_EVENT || packet.type === PacketType.BINARY_ACK) {

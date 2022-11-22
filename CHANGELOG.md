@@ -2,6 +2,7 @@
 
 ## 2022
 
+- [4.5.4](#454-2022-11-22) (Nov 2022)
 - [4.5.3](#453-2022-10-15) (Oct 2022)
 - [4.5.2](#452-2022-09-02) (Sep 2022)
 - [2.5.0](#250-2022-06-26) (Jun 2022) (from the [2.x](https://github.com/socketio/socket.io/tree/2.x) branch)
@@ -50,6 +51,20 @@
 
 
 # Release notes
+
+## [4.5.4](https://github.com/socketio/socket.io/compare/4.5.3...4.5.4) (2022-11-22)
+
+This release contains a bump of:
+
+- `engine.io` in order to fix [CVE-2022-41940](https://github.com/socketio/engine.io/security/advisories/GHSA-r7qp-cfhv-p84w)
+- `socket.io-parser` in order to fix [CVE-2022-2421](https://github.com/advisories/GHSA-qm95-pgcg-qqfq).
+
+### Dependencies
+
+- [`engine.io@~6.2.1`](https://github.com/socketio/engine.io-client/tree/6.2.1) ([diff](https://github.com/socketio/engine.io/compare/6.2.0...6.2.1))
+- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3)
+
+
 
 ## [4.5.3](https://github.com/socketio/socket.io/compare/4.5.2...4.5.3) (2022-10-15)
 
