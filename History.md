@@ -1,4 +1,34 @@
-# [3.1.0](https://github.com/socketio/emitter/compare/3.0.0...3.1.0) (2022-04-17)
+# History
+
+- [**4.0.0**](#400-2022-11-22) (Nov 2022)
+- [3.1.0](#310-2022-04-17) (Apr 2022)
+- [**3.0.0**](#300-2021-10-14) (Oct 2021)
+
+
+
+# Release notes
+
+## [4.0.0](https://github.com/socketio/emitter/compare/3.1.0...4.0.0) (2022-11-22)
+
+### BREAKING CHANGES
+
+`emitReserved()` is renamed to `_emitReserved()` in order to enable proper mangling.
+
+New syntax:
+
+```js
+import { Emitter } from "@socket.io/component-emitter";
+
+class MyEmitter extends Emitter {
+  foo() {
+    this._emitReserved("input");
+  }
+}
+```
+
+
+
+## [3.1.0](https://github.com/socketio/emitter/compare/3.0.0...3.1.0) (2022-04-17)
 
 
 ### Features
@@ -7,7 +37,7 @@
 
 
 
-# [3.0.0](https://github.com/socketio/emitter/compare/2.0.0...3.0.0) (2021-10-14)
+## [3.0.0](https://github.com/socketio/emitter/compare/2.0.0...3.0.0) (2021-10-14)
 
 
 ### Features
