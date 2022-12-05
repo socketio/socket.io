@@ -20,7 +20,7 @@ export class Socket extends EventEmitter {
   private upgrading: boolean;
   private upgraded: boolean;
   private writeBuffer: Packet[];
-  private packetsFn: any[];
+  private packetsFn: Array<() => void>;
   private sentCallbackFn: any[];
   private cleanupFn: any[];
   private checkIntervalTimer;
@@ -431,12 +431,27 @@ export class Socket extends EventEmitter {
    * @return {Socket} for chaining
    * @api public
    */
-  public send(data, options, callback?) {
+  public send(
+    data: RawData,
+    options?: { compress: boolean },
+    callback?: () => void
+  ) {
     this.sendPacket("message", data, options, callback);
     return this;
   }
 
-  public write(data, options, callback?) {
+  /**
+   * Alias of {@link send}.
+   *
+   * @param data
+   * @param options
+   * @param callback
+   */
+  public write(
+    data: RawData,
+    options?: { compress: boolean },
+    callback?: () => void
+  ) {
     this.sendPacket("message", data, options, callback);
     return this;
   }
@@ -451,14 +466,16 @@ export class Socket extends EventEmitter {
    *
    * @api private
    */
-  private sendPacket(type: PacketType, data?: RawData, options?, callback?) {
+  private sendPacket(
+    type: PacketType,
+    data?: RawData,
+    options: { compress: boolean } = { compress: true },
+    callback?: () => void
+  ) {
     if ("function" === typeof options) {
       callback = options;
       options = null;
     }
-
-    options = options || {};
-    options.compress = false !== options.compress;
 
     if ("closing" !== this.readyState && "closed" !== this.readyState) {
       debug('sending packet "%s" (%s)', type, data);
