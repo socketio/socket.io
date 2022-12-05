@@ -28,6 +28,12 @@ export class Socket extends EventEmitter {
   private pingTimeoutTimer;
   private pingIntervalTimer;
 
+  /**
+   * This is the session identifier that the client will use in the subsequent HTTP requests. It must not be shared with
+   * others parties, as it might lead to session hijacking.
+   *
+   * @private
+   */
   private readonly id: string;
 
   get readyState() {
