@@ -42,7 +42,7 @@
     "@socket.io/component-emitter": "~3.1.0",
     "debug": "~4.3.1",
     "engine.io-parser": "~5.0.3",
-    "ws": "~8.2.3",
+    "ws": "~8.11.0",
     "xmlhttprequest-ssl": "~2.0.0"
   },
   "devDependencies": {
