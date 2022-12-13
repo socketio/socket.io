@@ -1,7 +1,7 @@
 const { Socket } = require("../..");
 const socket = new Socket("http://localhost:3000", {
   autoUnref: true,
-  transports: ["polling"]
+  transports: ["polling"],
 });
 
 socket.on("open", () => {

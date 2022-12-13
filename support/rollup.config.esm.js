@@ -16,12 +16,12 @@ module.exports = {
     format: "esm",
     sourcemap: true,
     plugins: [terser()],
-    banner
+    banner,
   },
   plugins: [
     nodeResolve({
-      browser: true
+      browser: true,
     }),
-    commonjs()
-  ]
+    commonjs(),
+  ],
 };

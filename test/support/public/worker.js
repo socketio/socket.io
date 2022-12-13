@@ -5,7 +5,7 @@ importScripts("/test/support/engine.io.min.js");
 var socket = eio();
 
 var count = 0;
-socket.on("message", function(msg) {
+socket.on("message", function (msg) {
   count++;
   if (count < 10) {
     socket.send("give utf8");

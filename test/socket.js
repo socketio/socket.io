@@ -4,23 +4,23 @@ const { isIE11, isAndroid, isEdge, isIPad } = require("./support/env");
 const FakeTimers = require("@sinonjs/fake-timers");
 const { repeat } = require("./util");
 
-describe("Socket", function() {
+describe("Socket", function () {
   this.timeout(10000);
 
   describe("filterUpgrades", () => {
     it("should return only available transports", () => {
       const socket = new Socket({ transports: ["polling"] });
       expect(socket.filterUpgrades(["polling", "websocket"])).to.eql([
-        "polling"
+        "polling",
       ]);
       socket.close();
     });
   });
 
-  it("throws an error when no transports are available", done => {
+  it("throws an error when no transports are available", (done) => {
     const socket = new Socket({ transports: [] });
     let errorMessage = "";
-    socket.on("error", error => {
+    socket.on("error", (error) => {
       errorMessage = error;
     });
     socket.open();
@@ -31,18 +31,18 @@ describe("Socket", function() {
     });
   });
 
-  describe("fake timers", function() {
-    before(function() {
+  describe("fake timers", function () {
+    before(function () {
       if (isIE11 || isAndroid || isEdge || isIPad) {
         this.skip();
       }
     });
 
-    it("uses window timeout by default", done => {
+    it("uses window timeout by default", (done) => {
       const clock = FakeTimers.install();
       const socket = new Socket({ transports: [] });
       let errorMessage = "";
-      socket.on("error", error => {
+      socket.on("error", (error) => {
         errorMessage = error;
       });
       socket.open();
@@ -53,15 +53,15 @@ describe("Socket", function() {
       done();
     });
 
-    it.skip("uses custom timeout when provided", done => {
+    it.skip("uses custom timeout when provided", (done) => {
       const clock = FakeTimers.install();
       const socket = new Socket({
         transports: [],
-        useNativeTimers: true
+        useNativeTimers: true,
       });
 
       let errorMessage = "";
-      socket.on("error", error => {
+      socket.on("error", (error) => {
         errorMessage = error;
       });
       socket.open();
@@ -83,13 +83,13 @@ describe("Socket", function() {
   });
 
   describe("close", () => {
-    it("provides details when maxHttpBufferSize is reached (polling)", done => {
+    it("provides details when maxHttpBufferSize is reached (polling)", (done) => {
       const socket = new Socket({ transports: ["polling"] });
       socket.on("open", () => {
         socket.send(repeat("a", 101)); // over the maxHttpBufferSize value of the server
       });
 
-      socket.on("error", err => {
+      socket.on("error", (err) => {
         expect(err).to.be.an(Error);
         expect(err.type).to.eql("TransportError");
         expect(err.message).to.eql("xhr post error");
@@ -106,7 +106,7 @@ describe("Socket", function() {
       });
     });
 
-    it("provides details when maxHttpBufferSize is reached (websocket)", done => {
+    it("provides details when maxHttpBufferSize is reached (websocket)", (done) => {
       const socket = new Socket({ transports: ["websocket"] });
       socket.on("open", () => {
         socket.send(repeat("a", 101)); // over the maxHttpBufferSize value of the server
@@ -128,13 +128,13 @@ describe("Socket", function() {
       });
     });
 
-    it("provides details when the session ID is unknown (polling)", done => {
+    it("provides details when the session ID is unknown (polling)", (done) => {
       const socket = new Socket({
         transports: ["polling"],
-        query: { sid: "abc" }
+        query: { sid: "abc" },
       });
 
-      socket.on("error", err => {
+      socket.on("error", (err) => {
         expect(err).to.be.an(Error);
         expect(err.type).to.eql("TransportError");
         expect(err.message).to.eql("xhr poll error");
@@ -153,13 +153,13 @@ describe("Socket", function() {
       });
     });
 
-    it("provides details when the session ID is unknown (websocket)", done => {
+    it("provides details when the session ID is unknown (websocket)", (done) => {
       const socket = new Socket({
         transports: ["websocket"],
-        query: { sid: "abc" }
+        query: { sid: "abc" },
       });
 
-      socket.on("error", err => {
+      socket.on("error", (err) => {
         expect(err).to.be.an(Error);
         expect(err.type).to.eql("TransportError");
         expect(err.message).to.eql("websocket error");

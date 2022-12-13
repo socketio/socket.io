@@ -18,7 +18,7 @@ module.exports = {
       format: "umd",
       name: "eio",
       sourcemap: true,
-      banner
+      banner,
     },
     {
       file: "./dist/engine.io.min.js",
@@ -26,18 +26,18 @@ module.exports = {
       name: "eio",
       sourcemap: true,
       plugins: [terser()],
-      banner
-    }
+      banner,
+    },
   ],
   plugins: [
     nodeResolve({
-      browser: true
+      browser: true,
     }),
     commonjs(),
     babel({
       babelHelpers: "bundled",
       presets: [["@babel/env"]],
-      plugins: ["@babel/plugin-transform-object-assign"]
-    })
-  ]
+      plugins: ["@babel/plugin-transform-object-assign"],
+    }),
+  ],
 };

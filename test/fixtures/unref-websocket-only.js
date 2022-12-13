@@ -1,7 +1,7 @@
 const { Socket } = require("../..");
 const socket = new Socket("http://localhost:3000", {
   autoUnref: true,
-  transports: ["websocket"]
+  transports: ["websocket"],
 });
 
 socket.on("open", () => {

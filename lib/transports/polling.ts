@@ -13,9 +13,9 @@ const debug = debugModule("engine.io-client:polling"); // debug()
 
 function empty() {}
 
-const hasXHR2 = (function() {
+const hasXHR2 = (function () {
   const xhr = new XMLHttpRequest({
-    xdomain: false
+    xdomain: false,
   });
   return null != xhr.responseType;
 })();
@@ -96,7 +96,7 @@ export class Polling extends Transport {
       if (this.polling) {
         debug("we are currently polling - waiting to pause");
         total++;
-        this.once("pollComplete", function() {
+        this.once("pollComplete", function () {
           debug("pre-pause polling complete");
           --total || pause();
         });
@@ -105,7 +105,7 @@ export class Polling extends Transport {
       if (!this.writable) {
         debug("we are currently writing - waiting to pause");
         total++;
-        this.once("drain", function() {
+        this.once("drain", function () {
           debug("pre-pause writing complete");
           --total || pause();
         });
@@ -134,7 +134,7 @@ export class Polling extends Transport {
    */
   onData(data) {
     debug("polling got data %s", data);
-    const callback = packet => {
+    const callback = (packet) => {
       // if its the first message we consider the transport open
       if ("opening" === this.readyState && packet.type === "open") {
         this.onOpen();
@@ -199,7 +199,7 @@ export class Polling extends Transport {
   write(packets) {
     this.writable = false;
 
-    encodePayload(packets, data => {
+    encodePayload(packets, (data) => {
       this.doWrite(data, () => {
         this.writable = true;
         this.emitReserved("drain");
@@ -269,7 +269,7 @@ export class Polling extends Transport {
   doWrite(data, fn) {
     const req = this.request({
       method: "POST",
-      data: data
+      data: data,
     });
     req.on("success", fn);
     req.on("error", (xhrStatus, context) => {

@@ -1,6 +1,6 @@
 const { Socket } = require("../..");
 const socket = new Socket("http://localhost:3000", {
-  autoUnref: false
+  autoUnref: false,
 });
 
 setTimeout(() => {

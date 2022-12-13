@@ -5,22 +5,22 @@ const { repeat } = require("./util");
 
 describe("node.js", () => {
   describe("autoRef option", () => {
-    const fixture = filename =>
+    const fixture = (filename) =>
       process.execPath + " " + path.join(__dirname, "fixtures", filename);
 
-    it("should stop once the timer is triggered", done => {
+    it("should stop once the timer is triggered", (done) => {
       exec(fixture("unref.js"), done);
     });
 
-    it("should stop once the timer is triggered (polling)", done => {
+    it("should stop once the timer is triggered (polling)", (done) => {
       exec(fixture("unref-polling-only.js"), done);
     });
 
-    it("should stop once the timer is triggered (websocket)", done => {
+    it("should stop once the timer is triggered (websocket)", (done) => {
       exec(fixture("unref-websocket-only.js"), done);
     });
 
-    it("should not stop with autoUnref set to false", done => {
+    it("should not stop with autoUnref set to false", (done) => {
       const process = exec(fixture("no-unref.js"), () => {
         done(new Error("should not happen"));
       });
@@ -31,7 +31,7 @@ describe("node.js", () => {
     });
   });
 
-  it("should merge binary packets according to maxPayload value", done => {
+  it("should merge binary packets according to maxPayload value", (done) => {
     const socket = new Socket({ transports: ["polling"] });
     socket.on("open", () => {
       socket.send(Buffer.allocUnsafe(72));

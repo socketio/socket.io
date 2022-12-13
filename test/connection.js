@@ -3,13 +3,13 @@ const Socket = require("../").Socket;
 const env = require("./support/env");
 const { repeat } = require("./util");
 
-describe("connection", function() {
+describe("connection", function () {
   this.timeout(20000);
 
-  it("should connect to localhost", done => {
+  it("should connect to localhost", (done) => {
     const socket = new Socket();
     socket.on("open", () => {
-      socket.on("message", data => {
+      socket.on("message", (data) => {
         expect(data).to.equal("hi");
         socket.close();
         done();
@@ -17,11 +17,11 @@ describe("connection", function() {
     });
   });
 
-  it("should receive multibyte utf-8 strings with polling", done => {
+  it("should receive multibyte utf-8 strings with polling", (done) => {
     const socket = new Socket();
     socket.on("open", () => {
       socket.send("cash money €€€");
-      socket.on("message", data => {
+      socket.on("message", (data) => {
         if ("hi" === data) return;
         expect(data).to.be("cash money €€€");
         socket.close();
@@ -30,13 +30,13 @@ describe("connection", function() {
     });
   });
 
-  it("should receive emoji", done => {
+  it("should receive emoji", (done) => {
     const socket = new Socket();
     socket.on("open", () => {
       socket.send(
         "\uD800\uDC00-\uDB7F\uDFFF\uDB80\uDC00-\uDBFF\uDFFF\uE000-\uF8FF"
       );
-      socket.on("message", data => {
+      socket.on("message", (data) => {
         if ("hi" === data) return;
         expect(data).to.be(
           "\uD800\uDC00-\uDB7F\uDFFF\uDB80\uDC00-\uDBFF\uDFFF\uE000-\uF8FF"
@@ -47,7 +47,7 @@ describe("connection", function() {
     });
   });
 
-  it("should not send packets if socket closes", done => {
+  it("should not send packets if socket closes", (done) => {
     const socket = new Socket();
     socket.on("open", () => {
       let noPacket = true;
@@ -63,7 +63,7 @@ describe("connection", function() {
     });
   });
 
-  it("should merge packets according to maxPayload value", done => {
+  it("should merge packets according to maxPayload value", (done) => {
     const socket = new Socket({ transports: ["polling"] });
     socket.on("open", () => {
       socket.send(repeat("a", 99));
@@ -84,7 +84,7 @@ describe("connection", function() {
     });
   });
 
-  it("should send a packet whose length is above the maxPayload value anyway", done => {
+  it("should send a packet whose length is above the maxPayload value anyway", (done) => {
     const socket = new Socket({ transports: ["polling"] });
     socket.on("open", () => {
       socket.send(repeat("a", 101));
@@ -98,11 +98,11 @@ describe("connection", function() {
 
   // no `Worker` on old IE
   if (typeof Worker !== "undefined") {
-    it("should work in a worker", done => {
+    it("should work in a worker", (done) => {
       const worker = new Worker("/test/support/worker.js");
       let msg = 0;
       const utf8yay = "пойду спать всем спокойной ночи";
-      worker.onmessage = e => {
+      worker.onmessage = (e) => {
         msg++;
         if (msg === 1) {
           expect(e.data).to.be("hi");
@@ -126,7 +126,7 @@ describe("connection", function() {
   }
 
   if (env.wsSupport && !env.isOldSimulator && !env.isAndroid && !env.isIE11) {
-    it("should defer close when upgrading", done => {
+    it("should defer close when upgrading", (done) => {
       const socket = new Socket();
       socket.on("open", () => {
         let upgraded = false;
@@ -144,7 +144,7 @@ describe("connection", function() {
       });
     });
 
-    it("should close on upgradeError if closing is deferred", done => {
+    it("should close on upgradeError if closing is deferred", (done) => {
       const socket = new Socket();
       socket.on("open", () => {
         let upgradeError = false;
@@ -163,7 +163,7 @@ describe("connection", function() {
       });
     });
 
-    it("should not send packets if closing is deferred", done => {
+    it("should not send packets if closing is deferred", (done) => {
       const socket = new Socket();
       socket.on("open", () => {
         let noPacket = true;
@@ -181,7 +181,7 @@ describe("connection", function() {
       });
     });
 
-    it("should send all buffered packets if closing is deferred", done => {
+    it("should send all buffered packets if closing is deferred", (done) => {
       const socket = new Socket();
       socket.on("open", () => {
         socket
@@ -198,10 +198,10 @@ describe("connection", function() {
   }
 
   if (env.browser && typeof addEventListener === "function") {
-    it("should close the socket when receiving a beforeunload event", done => {
+    it("should close the socket when receiving a beforeunload event", (done) => {
       const socket = new Socket();
 
-      const createEvent = name => {
+      const createEvent = (name) => {
         if (typeof Event === "function") {
           return new Event(name);
         } else {

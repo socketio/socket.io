@@ -6,17 +6,17 @@ const join = require("path").join;
 const http = require("http").Server(app);
 const server = require("engine.io").attach(http, {
   pingInterval: 500,
-  maxHttpBufferSize: 100
+  maxHttpBufferSize: 100,
 });
 const { rollup } = require("rollup");
 
 const rollupConfig = require("../../support/rollup.config.umd.js");
 
-rollup(rollupConfig).then(async bundle => {
+rollup(rollupConfig).then(async (bundle) => {
   await bundle.write({
     ...rollupConfig.output[1],
     file: "./test/support/public/engine.io.min.js",
-    sourcemap: false
+    sourcemap: false,
   });
 
   await bundle.close();
@@ -27,11 +27,11 @@ http.listen(process.env.ZUUL_PORT || 3000);
 // serve worker.js and engine.io.js as raw file
 app.use("/test/support", express.static(join(__dirname, "public")));
 
-server.on("connection", socket => {
+server.on("connection", (socket) => {
   socket.send("hi");
 
   // Bounce any received messages back
-  socket.on("message", data => {
+  socket.on("message", (data) => {
     if (data === "give binary") {
       const abv = new Int8Array(5);
       for (let i = 0; i < 5; i++) {

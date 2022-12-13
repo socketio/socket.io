@@ -332,10 +332,10 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
         addTrailingSlash: true,
         rejectUnauthorized: true,
         perMessageDeflate: {
-          threshold: 1024
+          threshold: 1024,
         },
         transportOptions: {},
-        closeOnBeforeunload: true
+        closeOnBeforeunload: true,
       },
       opts
     );
@@ -374,7 +374,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
       if (this.hostname !== "localhost") {
         this.offlineEventListener = () => {
           this.onClose("transport close", {
-            description: "network connection lost"
+            description: "network connection lost",
           });
         };
         addEventListener("offline", this.offlineEventListener, false);
@@ -413,7 +413,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
         socket: this,
         hostname: this.hostname,
         secure: this.secure,
-        port: this.port
+        port: this.port,
       }
     );
 
@@ -481,7 +481,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
       .on("drain", this.onDrain.bind(this))
       .on("packet", this.onPacket.bind(this))
       .on("error", this.onError.bind(this))
-      .on("close", reason => this.onClose("transport close", reason));
+      .on("close", (reason) => this.onClose("transport close", reason));
   }
 
   /**
@@ -502,7 +502,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
 
       debug('probe transport "%s" opened', name);
       transport.send([{ type: "ping", data: "probe" }]);
-      transport.once("packet", msg => {
+      transport.once("packet", (msg) => {
         if (failed) return;
         if ("pong" === msg.type && "probe" === msg.data) {
           debug('probe transport "%s" pong', name);
@@ -549,7 +549,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
     }
 
     // Handle any error that happens while probing
-    const onerror = err => {
+    const onerror = (err) => {
       const error = new Error("probe error: " + err);
       // @ts-ignore
       error.transport = transport.name;
@@ -828,7 +828,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
     const packet = {
       type: type,
       data: data,
-      options: options
+      options: options,
     };
     this.emitReserved("packetCreate", packet);
     this.writeBuffer.push(packet);

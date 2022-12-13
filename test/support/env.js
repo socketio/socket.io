@@ -24,6 +24,6 @@ exports.isIPad = /iPad/.test(userAgent);
 if (typeof location === "undefined") {
   location = {
     hostname: "localhost",
-    port: 3000
+    port: 3000,
   };
 }

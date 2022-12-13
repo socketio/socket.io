@@ -10,7 +10,7 @@ describe("XMLHttpRequest", () => {
           const xhra = new XMLHttpRequest({
             xdomain: false,
             xscheme: false,
-            enablesXDR: false
+            enablesXDR: false,
           });
           expect(xhra).to.be.an("object");
           expect(xhra).to.have.property("open");
@@ -18,7 +18,7 @@ describe("XMLHttpRequest", () => {
           const xhrb = new XMLHttpRequest({
             xdomain: false,
             xscheme: false,
-            enablesXDR: true
+            enablesXDR: true,
           });
           expect(xhrb).to.be.an("object");
           expect(xhrb).to.have.property("open");
@@ -26,7 +26,7 @@ describe("XMLHttpRequest", () => {
           const xhrc = new XMLHttpRequest({
             xdomain: false,
             xscheme: true,
-            enablesXDR: false
+            enablesXDR: false,
           });
           expect(xhrc).to.be.an("object");
           expect(xhrc).to.have.property("open");
@@ -34,7 +34,7 @@ describe("XMLHttpRequest", () => {
           const xhrd = new XMLHttpRequest({
             xdomain: false,
             xscheme: true,
-            enablesXDR: true
+            enablesXDR: true,
           });
           expect(xhrd).to.be.an("object");
           expect(xhrd).to.have.property("open");
@@ -48,7 +48,7 @@ describe("XMLHttpRequest", () => {
             const xhr = new XMLHttpRequest({
               xdomain: true,
               xscheme: false,
-              enablesXDR: true
+              enablesXDR: true,
             });
             expect(xhr).to.be.an("object");
             expect(xhr).to.have.property("open");
@@ -62,14 +62,14 @@ describe("XMLHttpRequest", () => {
             const xhra = new XMLHttpRequest({
               xdomain: true,
               xscheme: true,
-              enablesXDR: false
+              enablesXDR: false,
             });
             expect(xhra).to.be.an("object");
             expect(xhra).not.to.have.property("open");
             const xhrb = new XMLHttpRequest({
               xdomain: true,
               xscheme: true,
-              enablesXDR: true
+              enablesXDR: true,
             });
             expect(xhrb).to.be.an("object");
             expect(xhrb).not.to.have.property("open");
@@ -81,14 +81,14 @@ describe("XMLHttpRequest", () => {
             const xhra = new XMLHttpRequest({
               xdomain: true,
               xscheme: false,
-              enablesXDR: false
+              enablesXDR: false,
             });
             expect(xhra).to.be.an("object");
             expect(xhra).not.to.have.property("open");
             const xhrb = new XMLHttpRequest({
               xdomain: true,
               xscheme: true,
-              enablesXDR: false
+              enablesXDR: false,
             });
             expect(xhrb).to.be.an("object");
             expect(xhrb).not.to.have.property("open");
@@ -105,7 +105,7 @@ describe("XMLHttpRequest", () => {
           const xhra = new XMLHttpRequest({
             xdomain: false,
             xscheme: false,
-            enablesXDR: true
+            enablesXDR: true,
           });
           expect(xhra).to.be.an("object");
           expect(xhra).to.have.property("open");
@@ -113,7 +113,7 @@ describe("XMLHttpRequest", () => {
           const xhrb = new XMLHttpRequest({
             xdomain: true,
             xscheme: false,
-            enablesXDR: true
+            enablesXDR: true,
           });
           expect(xhrb).to.be.an("object");
           expect(xhrb).to.have.property("open");

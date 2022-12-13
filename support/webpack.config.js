@@ -11,7 +11,7 @@ module.exports = {
     filename: "engine.io.js",
     library: "eio",
     libraryTarget: "umd",
-    globalObject: "self"
+    globalObject: "self",
   },
   mode: "development",
   node: false,
@@ -23,11 +23,11 @@ module.exports = {
           loader: "babel-loader",
           options: {
             presets: ["@babel/preset-env"],
-            plugins: ["@babel/plugin-transform-object-assign"]
-          }
-        }
-      }
-    ]
+            plugins: ["@babel/plugin-transform-object-assign"],
+          },
+        },
+      },
+    ],
   },
-  plugins: [new BannerPlugin(banner)]
+  plugins: [new BannerPlugin(banner)],
 };

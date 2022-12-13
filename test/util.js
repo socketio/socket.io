@@ -1,5 +1,5 @@
 // polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat
-exports.repeat = function(str, count) {
+exports.repeat = function (str, count) {
   if (String.prototype.repeat) {
     return str.repeat(count);
   }

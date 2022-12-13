@@ -6,7 +6,7 @@ import {
   defaultBinaryType,
   nextTick,
   usingBrowserWebSocket,
-  WebSocket
+  WebSocket,
 } from "./websocket-constructor.js";
 import debugModule from "debug"; // debug()
 import { encodePacket } from "engine.io-parser";
@@ -111,13 +111,13 @@ export class WS extends Transport {
       }
       this.onOpen();
     };
-    this.ws.onclose = closeEvent =>
+    this.ws.onclose = (closeEvent) =>
       this.onClose({
         description: "websocket connection closed",
-        context: closeEvent
+        context: closeEvent,
       });
-    this.ws.onmessage = ev => this.onData(ev.data);
-    this.ws.onerror = e => this.onError("websocket error", e);
+    this.ws.onmessage = (ev) => this.onData(ev.data);
+    this.ws.onerror = (e) => this.onError("websocket error", e);
   }
 
   /**
@@ -135,7 +135,7 @@ export class WS extends Transport {
       const packet = packets[i];
       const lastPacket = i === packets.length - 1;
 
-      encodePacket(packet, this.supportsBinary, data => {
+      encodePacket(packet, this.supportsBinary, (data) => {
         // always create a new object (GH-437)
         const opts: { compress?: boolean } = {};
         if (!usingBrowserWebSocket) {

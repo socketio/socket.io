@@ -4,7 +4,7 @@ export const nextTick = (() => {
   const isPromiseAvailable =
     typeof Promise === "function" && typeof Promise.resolve === "function";
   if (isPromiseAvailable) {
-    return cb => Promise.resolve().then(cb);
+    return (cb) => Promise.resolve().then(cb);
   } else {
     return (cb, setTimeoutFn) => setTimeoutFn(cb, 0);
   }
