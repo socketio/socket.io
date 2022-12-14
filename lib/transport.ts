@@ -1,4 +1,4 @@
-import { decodePacket, Packet, RawData } from "engine.io-parser";
+import { decodePacket, type Packet, type RawData } from "engine.io-parser";
 import { Emitter } from "@socket.io/component-emitter";
 import { installTimerFunctions } from "./util.js";
 import debugModule from "debug"; // debug()
@@ -33,24 +33,27 @@ interface TransportReservedEvents {
   drain: () => void;
 }
 
+type TransportState = "opening" | "open" | "closed" | "pausing" | "paused";
+
 export abstract class Transport extends Emitter<
-  {},
-  {},
+  Record<never, never>,
+  Record<never, never>,
   TransportReservedEvents
 > {
+  public query: Record<string, string>;
+  public writable: boolean = false;
+
   protected opts: SocketOptions;
   protected supportsBinary: boolean;
-  protected query: object;
-  protected readyState: string;
-  protected writable: boolean = false;
+  protected readyState: TransportState;
   protected socket: any;
   protected setTimeoutFn: typeof setTimeout;
 
   /**
    * Transport abstract constructor.
    *
-   * @param {Object} options.
-   * @api private
+   * @param {Object} opts - options
+   * @protected
    */
   constructor(opts) {
     super();
@@ -58,7 +61,6 @@ export abstract class Transport extends Emitter<
 
     this.opts = opts;
     this.query = opts.query;
-    this.readyState = "";
     this.socket = opts.socket;
   }
 
@@ -69,7 +71,7 @@ export abstract class Transport extends Emitter<
    * @param description
    * @param context - the error context
    * @return {Transport} for chaining
-   * @api protected
+   * @protected
    */
   protected onError(reason: string, description: any, context?: any) {
     super.emitReserved(
@@ -81,25 +83,19 @@ export abstract class Transport extends Emitter<
 
   /**
    * Opens the transport.
-   *
-   * @api public
    */
-  private open() {
-    if ("closed" === this.readyState || "" === this.readyState) {
-      this.readyState = "opening";
-      this.doOpen();
-    }
+  public open() {
+    this.readyState = "opening";
+    this.doOpen();
 
     return this;
   }
 
   /**
    * Closes the transport.
-   *
-   * @api public
    */
   public close() {
-    if ("opening" === this.readyState || "open" === this.readyState) {
+    if (this.readyState === "opening" || this.readyState === "open") {
       this.doClose();
       this.onClose();
     }
@@ -111,10 +107,9 @@ export abstract class Transport extends Emitter<
    * Sends multiple packets.
    *
    * @param {Array} packets
-   * @api public
    */
   public send(packets) {
-    if ("open" === this.readyState) {
+    if (this.readyState === "open") {
       this.write(packets);
     } else {
       // this might happen if the transport was silently closed in the beforeunload event handler
@@ -125,7 +120,7 @@ export abstract class Transport extends Emitter<
   /**
    * Called upon open
    *
-   * @api protected
+   * @protected
    */
   protected onOpen() {
     this.readyState = "open";
@@ -137,7 +132,7 @@ export abstract class Transport extends Emitter<
    * Called with data.
    *
    * @param {String} data
-   * @api protected
+   * @protected
    */
   protected onData(data: RawData) {
     const packet = decodePacket(data, this.socket.binaryType);
@@ -147,7 +142,7 @@ export abstract class Transport extends Emitter<
   /**
    * Called with a decoded packet.
    *
-   * @api protected
+   * @protected
    */
   protected onPacket(packet: Packet) {
     super.emitReserved("packet", packet);
@@ -156,14 +151,26 @@ export abstract class Transport extends Emitter<
   /**
    * Called upon close.
    *
-   * @api protected
+   * @protected
    */
   protected onClose(details?: CloseDetails) {
     this.readyState = "closed";
     super.emitReserved("close", details);
   }
 
+  /**
+   * The name of the transport
+   */
+  public abstract get name(): string;
+
+  /**
+   * Pauses the transport, in order not to lose packets during an upgrade.
+   *
+   * @param onPause
+   */
+  public pause(onPause: () => void) {}
+
   protected abstract doOpen();
   protected abstract doClose();
-  protected abstract write(packets);
+  protected abstract write(packets: Packet[]);
 }

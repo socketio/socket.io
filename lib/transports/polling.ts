@@ -31,7 +31,7 @@ export class Polling extends Transport {
    * XHR Polling constructor.
    *
    * @param {Object} opts
-   * @api public
+   * @package
    */
   constructor(opts) {
     super(opts);
@@ -58,10 +58,7 @@ export class Polling extends Transport {
     this.supportsBinary = hasXHR2 && !forceBase64;
   }
 
-  /**
-   * Transport name.
-   */
-  get name() {
+  override get name() {
     return "polling";
   }
 
@@ -69,19 +66,19 @@ export class Polling extends Transport {
    * Opens the socket (triggers polling). We write a PING message to determine
    * when the transport is open.
    *
-   * @api private
+   * @protected
    */
-  doOpen() {
+  override doOpen() {
     this.poll();
   }
 
   /**
    * Pauses polling.
    *
-   * @param {Function} callback upon buffers are flushed and transport is paused
-   * @api private
+   * @param {Function} onPause - callback upon buffers are flushed and transport is paused
+   * @package
    */
-  pause(onPause) {
+  override pause(onPause) {
     this.readyState = "pausing";
 
     const pause = () => {
@@ -118,7 +115,7 @@ export class Polling extends Transport {
   /**
    * Starts polling cycle.
    *
-   * @api public
+   * @private
    */
   poll() {
     debug("polling");
@@ -130,9 +127,9 @@ export class Polling extends Transport {
   /**
    * Overloads onData to detect payloads.
    *
-   * @api private
+   * @protected
    */
-  onData(data) {
+  override onData(data) {
     debug("polling got data %s", data);
     const callback = (packet) => {
       // if its the first message we consider the transport open
@@ -170,9 +167,9 @@ export class Polling extends Transport {
   /**
    * For polling, send a close packet.
    *
-   * @api private
+   * @protected
    */
-  doClose() {
+  override doClose() {
     const close = () => {
       debug("writing close packet");
       this.write([{ type: "close" }]);
@@ -192,11 +189,10 @@ export class Polling extends Transport {
   /**
    * Writes a packets payload.
    *
-   * @param {Array} data packets
-   * @param {Function} drain callback
-   * @api private
+   * @param {Array} packets - data packets
+   * @protected
    */
-  write(packets) {
+  override write(packets) {
     this.writable = false;
 
     encodePayload(packets, (data) => {
@@ -210,7 +206,7 @@ export class Polling extends Transport {
   /**
    * Generates uri for connection.
    *
-   * @api private
+   * @private
    */
   uri() {
     let query: { b64?: number; sid?: string } = this.query || {};
@@ -252,7 +248,7 @@ export class Polling extends Transport {
    * Creates a request.
    *
    * @param {String} method
-   * @api private
+   * @private
    */
   request(opts = {}) {
     Object.assign(opts, { xd: this.xd, xs: this.xs }, this.opts);
@@ -264,9 +260,9 @@ export class Polling extends Transport {
    *
    * @param {String} data to send.
    * @param {Function} called upon flush.
-   * @api private
+   * @private
    */
-  doWrite(data, fn) {
+  private doWrite(data, fn) {
     const req = this.request({
       method: "POST",
       data: data,
@@ -280,9 +276,9 @@ export class Polling extends Transport {
   /**
    * Starts a poll cycle.
    *
-   * @api private
+   * @private
    */
-  doPoll() {
+  private doPoll() {
     debug("xhr poll");
     const req = this.request();
     req.on("data", this.onData.bind(this));
@@ -317,7 +313,7 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
    * Request constructor
    *
    * @param {Object} options
-   * @api public
+   * @package
    */
   constructor(uri, opts) {
     super();
@@ -335,7 +331,7 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
   /**
    * Creates the XHR object and sends the request.
    *
-   * @api private
+   * @private
    */
   private create() {
     const opts = pick(
@@ -422,7 +418,7 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
   /**
    * Called upon error.
    *
-   * @api private
+   * @private
    */
   private onError(err: number | Error) {
     this.emitReserved("error", err, this.xhr);
@@ -432,7 +428,7 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
   /**
    * Cleans up house.
    *
-   * @api private
+   * @private
    */
   private cleanup(fromError?) {
     if ("undefined" === typeof this.xhr || null === this.xhr) {
@@ -456,7 +452,7 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
   /**
    * Called upon load.
    *
-   * @api private
+   * @private
    */
   private onLoad() {
     const data = this.xhr.responseText;
@@ -470,7 +466,7 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
   /**
    * Aborts the request.
    *
-   * @api public
+   * @package
    */
   public abort() {
     this.cleanup();

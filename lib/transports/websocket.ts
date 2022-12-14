@@ -25,8 +25,8 @@ export class WS extends Transport {
   /**
    * WebSocket transport constructor.
    *
-   * @api {Object} connection options
-   * @api public
+   * @param {Object} opts - connection options
+   * @protected
    */
   constructor(opts) {
     super(opts);
@@ -34,21 +34,11 @@ export class WS extends Transport {
     this.supportsBinary = !opts.forceBase64;
   }
 
-  /**
-   * Transport name.
-   *
-   * @api public
-   */
-  get name() {
+  override get name() {
     return "websocket";
   }
 
-  /**
-   * Opens socket.
-   *
-   * @api private
-   */
-  doOpen() {
+  override doOpen() {
     if (!this.check()) {
       // let probe timeout
       return;
@@ -102,9 +92,9 @@ export class WS extends Transport {
   /**
    * Adds event listeners to the socket
    *
-   * @api private
+   * @private
    */
-  addEventListeners() {
+  private addEventListeners() {
     this.ws.onopen = () => {
       if (this.opts.autoUnref) {
         this.ws._socket.unref();
@@ -120,13 +110,7 @@ export class WS extends Transport {
     this.ws.onerror = (e) => this.onError("websocket error", e);
   }
 
-  /**
-   * Writes data to socket.
-   *
-   * @param {Array} array of packets.
-   * @api private
-   */
-  write(packets) {
+  override write(packets) {
     this.writable = false;
 
     // encodePacket efficient as it uses WS framing
@@ -179,12 +163,7 @@ export class WS extends Transport {
     }
   }
 
-  /**
-   * Closes socket.
-   *
-   * @api private
-   */
-  doClose() {
+  override doClose() {
     if (typeof this.ws !== "undefined") {
       this.ws.close();
       this.ws = null;
@@ -194,7 +173,7 @@ export class WS extends Transport {
   /**
    * Generates uri for connection.
    *
-   * @api private
+   * @private
    */
   uri() {
     let query: { b64?: number } = this.query || {};
@@ -237,9 +216,9 @@ export class WS extends Transport {
    * Feature detection for WebSocket.
    *
    * @return {Boolean} whether this transport is available.
-   * @api public
+   * @private
    */
-  check() {
+  private check() {
     return !!WebSocket;
   }
 }

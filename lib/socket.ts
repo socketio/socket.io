@@ -4,8 +4,14 @@ import { decode } from "./contrib/parseqs.js";
 import { parse } from "./contrib/parseuri.js";
 import debugModule from "debug"; // debug()
 import { Emitter } from "@socket.io/component-emitter";
-import { protocol } from "engine.io-parser";
-import { CloseDetails } from "./transport.js";
+import {
+  protocol,
+  type Packet,
+  type BinaryType,
+  type PacketType,
+  RawData,
+} from "engine.io-parser";
+import { CloseDetails, Transport } from "./transport.js";
 
 const debug = debugModule("engine.io-client:socket"); // debug()
 
@@ -221,11 +227,19 @@ export interface SocketOptions {
   protocols: string | string[];
 }
 
+interface HandshakeData {
+  sid: string;
+  upgrades: string[];
+  pingInterval: number;
+  pingTimeout: number;
+  maxPayload: number;
+}
+
 interface SocketReservedEvents {
   open: () => void;
-  handshake: (data) => void;
-  packet: (packet) => void;
-  packetCreate: (packet) => void;
+  handshake: (data: HandshakeData) => void;
+  packet: (packet: Packet) => void;
+  packetCreate: (packet: Packet) => void;
   data: (data) => void;
   message: (data) => void;
   drain: () => void;
@@ -240,13 +254,19 @@ interface SocketReservedEvents {
   close: (reason: string, description?: CloseDetails | Error) => void;
 }
 
-export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
-  public id: string;
-  public transport: any;
-  public binaryType: string;
+type SocketState = "opening" | "open" | "closing" | "closed";
 
-  private readyState: string;
-  private writeBuffer;
+export class Socket extends Emitter<
+  Record<never, never>,
+  Record<never, never>,
+  SocketReservedEvents
+> {
+  public id: string;
+  public transport: Transport;
+  public binaryType: BinaryType;
+  public readyState: SocketState;
+  public writeBuffer: Packet[] = [];
+
   private prevBufferLen: number;
   private upgrades;
   private pingInterval: number;
@@ -271,9 +291,8 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Socket constructor.
    *
-   * @param {String|Object} uri or options
+   * @param {String|Object} uri - uri or options
    * @param {Object} opts - options
-   * @api public
    */
   constructor(uri, opts: Partial<SocketOptions> = {}) {
     super();
@@ -317,7 +336,6 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
         : "80");
 
     this.transports = opts.transports || ["polling", "websocket"];
-    this.readyState = "";
     this.writeBuffer = [];
     this.prevBufferLen = 0;
 
@@ -387,9 +405,9 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Creates transport of the given type.
    *
-   * @param {String} transport name
+   * @param {String} name - transport name
    * @return {Transport}
-   * @api private
+   * @private
    */
   private createTransport(name) {
     debug('creating transport "%s"', name);
@@ -425,7 +443,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Initializes transport to use and starts probe.
    *
-   * @api private
+   * @private
    */
   private open() {
     let transport;
@@ -463,7 +481,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Sets the current transport. Disables the existing one (if any).
    *
-   * @api private
+   * @private
    */
   private setTransport(transport) {
     debug("setting transport %s", transport.name);
@@ -487,8 +505,8 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Probes a transport.
    *
-   * @param {String} transport name
-   * @api private
+   * @param {String} name - transport name
+   * @private
    */
   private probe(name) {
     debug('probing transport "%s"', name);
@@ -600,7 +618,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Called when connection is deemed open.
    *
-   * @api private
+   * @private
    */
   private onOpen() {
     debug("socket open");
@@ -611,11 +629,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
 
     // we check for `readyState` in case an `open`
     // listener already closed the socket
-    if (
-      "open" === this.readyState &&
-      this.opts.upgrade &&
-      this.transport.pause
-    ) {
+    if ("open" === this.readyState && this.opts.upgrade) {
       debug("starting upgrade probes");
       let i = 0;
       const l = this.upgrades.length;
@@ -628,7 +642,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Handles a packet.
    *
-   * @api private
+   * @private
    */
   private onPacket(packet) {
     if (
@@ -676,9 +690,9 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
    * Called upon handshake completion.
    *
    * @param {Object} data - handshake obj
-   * @api private
+   * @private
    */
-  private onHandshake(data) {
+  private onHandshake(data: HandshakeData) {
     this.emitReserved("handshake", data);
     this.id = data.sid;
     this.transport.query.sid = data.sid;
@@ -695,7 +709,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Sets and resets ping timeout timer based on server pings.
    *
-   * @api private
+   * @private
    */
   private resetPingTimeout() {
     this.clearTimeoutFn(this.pingTimeoutTimer);
@@ -710,7 +724,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Called on `drain` event
    *
-   * @api private
+   * @private
    */
   private onDrain() {
     this.writeBuffer.splice(0, this.prevBufferLen);
@@ -730,7 +744,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Flush write buffers.
    *
-   * @api private
+   * @private
    */
   private flush() {
     if (
@@ -782,18 +796,17 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Sends a message.
    *
-   * @param {String} message.
-   * @param {Function} callback function.
+   * @param {String} msg - message.
    * @param {Object} options.
+   * @param {Function} callback function.
    * @return {Socket} for chaining.
-   * @api public
    */
-  public write(msg, options, fn?) {
+  public write(msg: RawData, options?, fn?) {
     this.sendPacket("message", msg, options, fn);
     return this;
   }
 
-  public send(msg, options, fn?) {
+  public send(msg: RawData, options?, fn?) {
     this.sendPacket("message", msg, options, fn);
     return this;
   }
@@ -801,13 +814,13 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Sends a packet.
    *
-   * @param {String} packet type.
+   * @param {String} type: packet type.
    * @param {String} data.
    * @param {Object} options.
-   * @param {Function} callback function.
-   * @api private
+   * @param {Function} fn - callback function.
+   * @private
    */
-  private sendPacket(type, data?, options?, fn?) {
+  private sendPacket(type: PacketType, data?: RawData, options?, fn?) {
     if ("function" === typeof data) {
       fn = data;
       data = undefined;
@@ -838,8 +851,6 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
 
   /**
    * Closes the connection.
-   *
-   * @api public
    */
   public close() {
     const close = () => {
@@ -884,7 +895,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Called upon transport error
    *
-   * @api private
+   * @private
    */
   private onError(err) {
     debug("socket error %j", err);
@@ -896,7 +907,7 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Called upon transport close.
    *
-   * @api private
+   * @private
    */
   private onClose(reason: string, description?: CloseDetails | Error) {
     if (
@@ -946,9 +957,8 @@ export class Socket extends Emitter<{}, {}, SocketReservedEvents> {
   /**
    * Filters upgrades, returning only those matching client transports.
    *
-   * @param {Array} server upgrades
-   * @api private
-   *
+   * @param {Array} upgrades - server upgrades
+   * @private
    */
   private filterUpgrades(upgrades) {
     const filteredUpgrades = [];
