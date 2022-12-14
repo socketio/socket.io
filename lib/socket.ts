@@ -83,12 +83,6 @@ export interface SocketOptions {
   transports: string[];
 
   /**
-   * The port the policy server listens on
-   * @default 843
-   */
-  policyPost: number;
-
-  /**
    * If true and if the previous websocket connection to the server succeeded,
    * the connection attempt will bypass the normal upgrade process and will
    * initially try websocket. A connection attempt following a transport error
