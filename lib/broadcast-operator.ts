@@ -435,7 +435,7 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
   public readonly rooms: Set<Room>;
   public readonly data: SocketData;
 
-  private readonly operator: BroadcastOperator<EmitEvents, SocketData>;
+  private operator: BroadcastOperator<EmitEvents, SocketData>;
 
   constructor(adapter: Adapter, details: SocketDetails<SocketData>) {
     this.id = details.id;
@@ -446,6 +446,25 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
       adapter,
       new Set([this.id])
     );
+  }
+
+  /**
+   * Adds a timeout in milliseconds for the next operation.
+   *
+   * @example
+   * socket.timeout(1000).emit("some-event", (err, responses) => {
+   *   if (err) {
+   *     // some clients did not acknowledge the event in the given delay
+   *   } else {
+   *     console.log(responses); // one response per client
+   *   }
+   * });
+   *
+   * @param timeout
+   */
+  public timeout(timeout: number) {
+    this.operator = this.operator.timeout(timeout);
+    return this;
   }
 
   public emit<Ev extends EventNames<EmitEvents>>(
