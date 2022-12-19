@@ -1,453 +1,374 @@
 # Engine.IO Protocol
 
-This document describes the Engine.IO protocol. For a reference JavaScript
-implementation, take a look at
-[engine.io-parser](https://github.com/socketio/engine.io-parser),
-[engine.io-client](https://github.com/socketio/engine.io-client)
-and [engine.io](https://github.com/socketio/engine.io).
+This document describes the 4th version of the Engine.IO protocol.
 
-Table of Contents:
+**Table of content**
 
-- [Revision](#revision)
-- [Anatomy of an Engine.IO session](#anatomy-of-an-engineio-session)
-  - [Sample session](#sample-session)
-  - [Sample session with WebSocket only](#sample-session-with-websocket-only)
-- [URLs](#urls)
-- [Encoding](#encoding)
-    - [Packet](#packet)
-        - [0 open](#0-open)
-        - [1 close](#1-close)
-        - [2 ping](#2-ping)
-        - [3 pong](#3-pong)
-        - [4 message](#4-message)
-        - [5 upgrade](#5-upgrade)
-        - [6 noop](#6-noop)
-    - [Payload](#payload)
+- [Introduction](#introduction)
 - [Transports](#transports)
-    - [Polling](#polling)
-        - [XHR](#xhr)
-        - [JSONP](#jsonp)
-    - [Server-sent events](#server-sent-events)
-    - [WebSocket](#websocket)
-- [Transport upgrading](#transport-upgrading)
-- [Timeouts](#timeouts)
-- [Difference between v3 and v4](#difference-between-v3-and-v4)
-- [Difference between v2 and v3](#difference-between-v2-and-v3)
+  - [HTTP long-polling](#http-long-polling)
+    - [Request path](#request-path)
+    - [Query parameters](#query-parameters)
+    - [Headers](#headers)
+    - [Sending and receiving data](#sending-and-receiving-data)
+      - [Sending data](#sending-data)
+      - [Receiving data](#receiving-data)
+  - [WebSocket](#websocket)
+- [Protocol](#protocol)
+  - [Handshake](#handshake)
+  - [Heartbeat](#heartbeat)
+  - [Upgrade](#upgrade)
+  - [Message](#message)
+- [Packet encoding](#packet-encoding)
+  - [HTTP long-polling](#http-long-polling-1)
+  - [WebSocket](#websocket-1)
+- [History](#history)
+  - [From v2 to v3](#from-v2-to-v3)
+  - [From v3 to v4](#from-v3-to-v4)
 - [Test suite](#test-suite)
 
-## Revision
 
-This is revision **4** of the Engine.IO protocol.
 
-The revision 2 can be found here: https://github.com/socketio/engine.io-protocol/tree/v2
+## Introduction
 
-The revision 3 can be found here: https://github.com/socketio/engine.io-protocol/tree/v3
+The Engine.IO protocol enables [full-duplex](https://en.wikipedia.org/wiki/Duplex_(telecommunications)#FULL-DUPLEX) and low-overhead communication between a client and a server.
 
-## Anatomy of an Engine.IO session
+It is based on the [WebSocket protocol](https://en.wikipedia.org/wiki/WebSocket) and uses [HTTP long-polling](https://en.wikipedia.org/wiki/Push_technology#Long_polling) as fallback if the WebSocket connection can't be established.
 
-1. Transport establishes a connection to the Engine.IO URL.
-2. Server responds with an `open` packet with JSON-encoded handshake data:
-  - `sid` session id (`String`)
-  - `upgrades` possible transport upgrades (`Array` of `String`)
-  - `pingTimeout` server configured ping timeout, used for the client
-    to detect that the server is unresponsive (`Number`)
-  - `pingInterval` server configured ping interval, used for the client
-    to detect that the server is unresponsive (`Number`)
-  - `maxPayload` server configured maximum number of bytes per chunk, used by the client to aggregate packets into [payloads](#payload) (`Number`)
-3. Client must respond to periodic `ping` packets sent by the server
-with `pong` packets.
-4. Client and server can exchange `message` packets at will.
-5. Polling transports can send a `close` packet to close the socket, since
-they're expected to be "opening" and "closing" all the time.
+The reference implementation is written in [TypeScript](https://www.typescriptlang.org/):
 
-### Sample session
+- server: https://github.com/socketio/engine.io
+- client: https://github.com/socketio/engine.io-client
 
-- Request n°1 (open packet)
-
-```
-GET /engine.io/?EIO=4&transport=polling&t=N8hyd6w
-< HTTP/1.1 200 OK
-< Content-Type: text/plain; charset=UTF-8
-0{"sid":"lv_VI97HAXpY6yYWAAAC","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":5000,"maxPayload":1000000}
-```
-
-Details:
-
-```
-0           => "open" packet type
-{"sid":...  => the handshake data
-```
-
-Note: the `t` query param is used to ensure that the request is not cached by the browser.
-
-- Request n°2 (message in):
-
-`socket.send('hey')` is executed on the server:
-
-```
-GET /engine.io/?EIO=4&transport=polling&t=N8hyd7H&sid=lv_VI97HAXpY6yYWAAAC
-< HTTP/1.1 200 OK
-< Content-Type: text/plain; charset=UTF-8
-4hey
-```
-
-Details:
-
-```
-4           => "message" packet type
-hey         => the actual message
-```
-
-Note: the `sid` query param contains the sid sent in the handshake.
-
-- Request n°3 (message out)
-
-`socket.send('hello'); socket.send('world');` is executed on the client:
-
-```
-POST /engine.io/?EIO=4&transport=polling&t=N8hzxke&sid=lv_VI97HAXpY6yYWAAAC
-> Content-Type: text/plain; charset=UTF-8
-4hello\x1e4world
-< HTTP/1.1 200 OK
-< Content-Type: text/plain; charset=UTF-8
-ok
-```
-
-Details:
-
-```
-4           => "message" packet type
-hello       => the 1st message
-\x1e        => separator
-4           => "message" message type
-world       => the 2nd message
-```
-
-- Request n°4 (WebSocket upgrade)
-
-```
-GET /engine.io/?EIO=4&transport=websocket&sid=lv_VI97HAXpY6yYWAAAC
-< HTTP/1.1 101 Switching Protocols
-```
-
-WebSocket frames:
-
-```
-< 2probe    => probe request
-> 3probe    => probe response
-< 5         => "upgrade" packet type
-> 4hello    => message (not concatenated)
-> 4world
-> 2         => "ping" packet type
-< 3         => "pong" packet type
-> 1         => "close" packet type
-```
-
-### Sample session with WebSocket only
-
-In that case, the client only enables WebSocket (without HTTP polling).
-
-```
-GET /engine.io/?EIO=4&transport=websocket
-< HTTP/1.1 101 Switching Protocols
-```
-
-WebSocket frames:
-
-```
-< 0{"sid":"lv_VI97HAXpY6yYWAAAC","pingInterval":25000,"pingTimeout":5000,"maxPayload":1000000}} => handshake
-< 4hey
-> 4hello    => message (not concatenated)
-> 4world
-< 2         => "ping" packet type
-> 3         => "pong" packet type
-> 1         => "close" packet type
-```
-
-
-## URLs
-
-An Engine.IO url is composed as follows:
-
-```
-/engine.io/[?<query string>]
-```
-
-- The `engine.io` pathname should only be changed by higher-level
-  frameworks whose protocol sits on top of engine's.
-
-- The query string is optional and has six reserved keys:
-
-  - `transport`: indicates the transport name. Supported ones by default are
-    `polling`, `websocket`.
-  - `j`: if the transport is `polling` but a JSONP response is required, `j`
-    must be set with the JSONP response index.
-  - `sid`: if the client has been given a session id, it must be included
-    in the querystring.
-  - `EIO`: the version of the protocol
-  - `t`: a hashed-timestamp used for cache-busting
-
-*FAQ:* Is the `/engine.io` portion modifiable?
-
-Provided the server is customized to intercept requests under a different
-path segment, yes.
-
-*FAQ:* What determines whether an option is going to be part of the path
-versus being encoded as part of the query string? In other words, why
-is the `transport` not part of the URL?
-
-It's convention that the path segments remain *only* that which allows to
-disambiguate whether a request should be handled by a given Engine.IO
-server instance or not. As it stands, it's only the Engine.IO prefix
-(`/engine.io`) and the resource (`default` by default).
-
-## Encoding
-
-There's two distinct types of encodings
-
-- packet
-- payload
-
-### Packet
-
-An encoded packet can be UTF-8 string or binary data. The packet encoding format for a string is as follows
-
-```
-<packet type id>[<data>]
-```
-example:
-```
-4hello
-```
-
-For binary data the packet type is not included, since only "message" packet type can include binary.
-
-#### 0 open
-
-Sent from the server when a new transport is opened (recheck)
-
-#### 1 close
-
-Request the close of this transport but does not shutdown the connection itself.
-
-#### 2 ping
-
-Sent by the server. Client should answer with a pong packet.
-
-example
-1. server sends: ```2```
-2. client sends: ```3```
-
-#### 3 pong
-
-Sent by the client to respond to ping packets.
-
-#### 4 message
-
-actual message, client and server should call their callbacks with the data.
-
-##### example 1
-
-1. server sends: ```4HelloWorld```
-2. client receives and calls callback ```socket.on('message', function (data) { console.log(data); });```
-
-##### example 2
-
-1. client sends: ```4HelloWorld```
-2. server receives and calls callback ```socket.on('message', function (data) { console.log(data); });```
-
-#### 5 upgrade
-
-Before engine.io switches a transport, it tests, if server and client can communicate over this transport.
-If this test succeed, the client sends an upgrade packets which requests the server to flush its cache on
-the old transport and switch to the new transport.
-
-#### 6 noop
-
-A noop packet. Used primarily to force a poll cycle when an incoming websocket connection is received.
-
-##### example
-1. client connects through new transport
-2. client sends ```2probe```
-3. server receives and sends ```3probe```
-4. client receives and sends ```5```
-5. server flushes and closes old transport and switches to new.
-
-### Payload
-
-A payload is a series of encoded packets tied together. The payload encoding format is as follows when only strings are sent and XHR2 is not supported:
-
-```
-<packet1>\x1e<packet2>\x1e<packet3>
-```
-
-The packets are separated by the record separator ('\x1e'). More info here: https://en.wikipedia.org/wiki/C0_and_C1_control_codes#Field_separators
-
-When binary data is included in the payload, it is sent as base64 encoded strings. For the purposes of decoding, an
-identifier `b` is put before a packet encoding that contains binary data. A combination of any number of strings and
-base64 encoded strings can be sent. Here is an example of base 64 encoded messages:
-
-```
-<packet1>\x1eb<packet2 data in b64>[...]
-```
-
-The payload is used for transports which do not support framing, as the polling protocol for example.
-
-- Example without binary:
-
-```
-[
-  {
-    "type": "message",
-    "data": "hello"
-  },
-  {
-    "type": "message",
-    "data": "€"
-  }
-]
-```
-
-is encoded to:
-
-```
-4hello\x1e4€
-```
-
-- Example with binary:
-
-```
-[
-  {
-    "type": "message",
-    "data": "€"
-  },
-  {
-    "type": "message",
-    "data": buffer <01 02 03 04>
-  }
-]
-```
-
-is encoded to:
-
-```
-4€\x1ebAQIDBA==
-
-with
-
-4           => "message" packet type
-€
-\x1e        => record separator
-b           => indicates a base64 packet
-AQIDBA==    => buffer content encoded in base64
-```
+The [Socket.IO protocol](https://github.com/socketio/socket.io-protocol) is built on top of these foundations, bringing additional features over the communication channel provided by the Engine.IO protocol.
 
 ## Transports
 
-An engine.io server must support three transports:
+The connection between an Engine.IO client and an Engine.IO server can be established with:
 
-- websocket
-- server-sent events (SSE)
-- polling
-  - jsonp
-  - xhr
+- [HTTP long-polling](#http-long-polling)
+- [WebSocket](#websocket)
 
-### Polling
+### HTTP long-polling
 
-The polling transport consists of recurring GET requests by the client
-to the server to get data, and POST requests with payloads from the
-client to the server to send data.
+The HTTP long-polling transport (also simply referred as "polling") consists of successive HTTP requests:
 
-#### XHR
+- long-running `GET` requests, for receiving data from the server
+- short-running `POST` requests, for sending data to the server
 
-The server must support CORS responses.
+#### Request path
 
-#### JSONP
+The path of the HTTP requests is `/engine.io/` by default.
 
-The server implementation must respond with valid JavaScript. The URL
-contains a query string parameter `j` that must be used in the response.
-`j` is an integer.
+It might be updated by libraries built on top of the protocol (for example, the Socket.IO protocol uses `/socket.io/`).
 
-The format of a JSONP packet.
+#### Query parameters
+
+The following query parameters are used:
+
+| Name        | Value     | Description                                                        |
+|-------------|-----------|--------------------------------------------------------------------|
+| `EIO`       | `4`       | Mandatory, the version of the protocol.                            | 
+| `transport` | `polling` | Mandatory, the name of the transport.                              |
+| `sid`       | `<sid>`   | Mandatory once the session is established, the session identifier. |
+
+If a mandatory query parameter is missing, then the server MUST respond with an HTTP 400 error status.
+
+#### Headers
+
+When sending binary data, the sender (client or server) MUST include a `Content-Type: application/octet-stream` header.
+
+Without an explicit `Content-Type` header, the receiver SHOULD infer that the data is plaintext.
+
+Reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+
+#### Sending and receiving data
+
+##### Sending data
+
+To send some packets, a client MUST create an HTTP `POST` request with the packets encoded in the request body:
 
 ```
-`___eio[` <j> `]("` <encoded payload> `");`
+CLIENT                                                 SERVER
+
+  │                                                      │
+  │   POST /engine.io/?EIO=4&transport=polling&sid=...   │
+  │ ───────────────────────────────────────────────────► │
+  │ ◄──────────────────────────────────────────────────┘ │
+  │                        HTTP 200                      │
+  │                                                      │
 ```
 
-To ensure that the payload gets processed correctly, it must be escaped
-in such a way that the response is still valid JavaScript. Passing the
-encoded payload through a JSON encoder is a good way to escape it.
+The server MUST return an HTTP 400 response if the session ID (from the `sid` query parameter) is not known.
 
-Example JSONP frame returned by the server:
+To indicate success, the server MUST return an HTTP 200 response, with the string `ok` in the response body.
 
-```
-___eio[4]("packet data");
-```
+To ensure packet ordering, a client MUST NOT have more than one active `POST` request. Should it happen, the server MUST return an HTTP 400 error status and close the session.
 
-##### Posting data
+##### Receiving data
 
-The client posts data through a hidden iframe. The data gets to the server
-in the URI encoded format as follows:
+To receive some packets, a client MUST create an HTTP `GET` request:
 
 ```
-d=<escaped packet payload>
+CLIENT                                                SERVER
+
+  │   GET /engine.io/?EIO=4&transport=polling&sid=...   │
+  │ ──────────────────────────────────────────────────► │
+  │                                                   . │
+  │                                                   . │
+  │                                                   . │
+  │                                                   . │
+  │ ◄─────────────────────────────────────────────────┘ │
+  │                       HTTP 200                      │
 ```
 
-In addition to the regular qs escaping, in order to prevent
-inconsistencies with `\n` handling by browsers, `\n` gets escaped as `\\n`
-prior to being POSTd.
+The server MUST return an HTTP 400 response if the session ID (from the `sid` query parameter) is not known.
 
-### Server-sent events
+The server MAY not respond right away if there are no packets buffered for the given session. Once there are some packets to be sent, the server SHOULD encode them (see [Packet encoding](#packet-encoding)) and send them in the response body of the HTTP request.
 
-The client uses an EventSource object for receiving data, and an XMLHttpRequest object for sending data.
+To ensure packet ordering, a client MUST NOT have more than one active `GET` request. Should it happen, the server MUST return an HTTP 400 error status and close the session.
 
 ### WebSocket
 
-Encoding payloads _should not_ be used for WebSocket, as the protocol
-already has a lightweight framing mechanism.
+The WebSocket transport consists of a [WebSocket connection](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API), which provides a bidirectional and low-latency communication channel between the server and the client.
 
-In order to send a payload of messages, encode packets individually
-and `send()` them in succession.
+The following query parameters are used:
 
-## Transport upgrading
+| Name        | Value       | Description                                                                   |
+|-------------|-------------|-------------------------------------------------------------------------------|
+| `EIO`       | `4`         | Mandatory, the version of the protocol.                                       | 
+| `transport` | `websocket` | Mandatory, the name of the transport.                                         |
+| `sid`       | `<sid>`     | Optional, depending on whether it's an upgrade from HTTP long-polling or not. |
 
-A connection always starts with polling (either XHR or JSONP). WebSocket
-gets tested on the side by sending a probe. If the probe is responded
-from the server, an upgrade packet is sent by the client.
+If a mandatory query parameter is missing, then the server MUST close the WebSocket connection.
 
-To ensure no messages are lost, the upgrade packet will only be sent
-once all the buffers of the existing transport are flushed and the
-transport is considered _paused_.
+Each packet (read or write) is sent its own [WebSocket frame](https://datatracker.ietf.org/doc/html/rfc6455#section-5).
 
-When the server receives the upgrade packet, it must assume this is the
-new transport channel and send all existing buffers (if any) to it.
+A client MUST NOT open more than one WebSocket connection per session. Should it happen, the server MUST close the WebSocket connection.
 
-The probe sent by the client is a `ping` packet with `probe` sent as data.
-The probe sent by the server is a `pong` packet with `probe` sent as data.
+## Protocol
 
-Moving forward, upgrades other than just `polling -> x` are being considered.
+An Engine.IO packet consists of:
 
-## Timeouts
+- a packet type
+- an optional packet payload
 
-The client must use the `pingTimeout` and the `pingInterval` sent as part
-of the handshake (with the `open` packet) to determine whether the server
-is unresponsive.
+Here is the list of available packet types:
 
-The server sends a `ping` packet. If no packet type is received within
-`pingTimeout`, the server considers the socket disconnected. If a `pong`
-packet is actually received, the server will wait `pingInterval` before
-sending a `ping` packet again.
+| Type    | ID  | Usage                                            |
+|---------|-----|--------------------------------------------------|
+| open    | 0   | Used during the [handshake](#handshake).         | 
+| close   | 1   | Used to indicate that a transport can be closed. |
+| ping    | 2   | Used in the [heartbeat mechanism](#heartbeat).   |
+| pong    | 3   | Used in the [heartbeat mechanism](#heartbeat).   |
+| message | 4   | Used to send a payload to the other side.        |
+| upgrade | 5   | Used during the [upgrade process](#upgrade).     |
+| noop    | 6   | Used during the [upgrade process](#upgrade).     |
 
-Since the two values are shared between the server and the client, the client
-will also be able to detect whether the server becomes unresponsive when it
-does not receive any data within `pingTimeout + pingInterval`.
+### Handshake
 
-## Difference between v3 and v4
+To establish a connection, the client MUST send an HTTP `GET` request to the server:
+
+- HTTP long-polling first (by default)
+
+```
+CLIENT                                                    SERVER
+
+  │                                                          │
+  │        GET /engine.io/?EIO=4&transport=polling           │
+  │ ───────────────────────────────────────────────────────► │
+  │ ◄──────────────────────────────────────────────────────┘ │
+  │                        HTTP 200                          │
+  │                                                          │
+```
+
+- WebSocket-only session
+
+```
+CLIENT                                                    SERVER
+
+  │                                                          │
+  │        GET /engine.io/?EIO=4&transport=websocket         │
+  │ ───────────────────────────────────────────────────────► │
+  │ ◄──────────────────────────────────────────────────────┘ │
+  │                        HTTP 101                          │
+  │                                                          │
+```
+
+If the server accepts the connection, then it MUST respond with an `open` packet with the following JSON-encoded payload:
+
+| Key            | Type       | Description                                                                                                       |
+|----------------|------------|-------------------------------------------------------------------------------------------------------------------|
+| `sid`          | `string`   | The session ID.                                                                                                   |
+| `upgrades`     | `string[]` | The list of available [transport upgrades](#upgrade).                                                             |
+| `pingInterval` | `number`   | The ping interval, used in the [heartbeat mechanism](#heartbeat) (in milliseconds).                               |
+| `pingTimeout`  | `number`   | The ping timeout, used in the [heartbeat mechanism](#heartbeat) (in milliseconds).                                |
+| `maxPayload`   | `number`   | The maximum number of bytes per chunk, used by the client to aggregate packets into [payloads](#packet-encoding). |
+
+Example:
+
+```json
+{
+  "sid": "lv_VI97HAXpY6yYWAAAC",
+  "upgrades": ["websocket"],
+  "pingInterval": 25000,
+  "pingTimeout": 20000,
+  "maxPayload": 1000000
+}
+```
+
+The client MUST send the `sid` value in the query parameters of all subsequent requests.
+
+### Heartbeat
+
+Once the [handshake](#handshake) is completed, a heartbeat mechanism is started to check the liveness of the connection:
+
+```
+CLIENT                                                 SERVER
+
+  │                   *** Handshake ***                  │
+  │                                                      │
+  │  ◄─────────────────────────────────────────────────  │
+  │                           2                          │  (ping packet)
+  │  ─────────────────────────────────────────────────►  │
+  │                           3                          │  (pong packet)
+```
+
+At a given interval (the `pingInterval` value sent in the handshake) the server sends a `ping` packet and the client has a few seconds (the `pingTimeout` value) to send a `pong` packet back.
+
+If the server does not receive a `pong` packet back, then it SHOULD consider that the connection is closed.
+
+Conversely, if the client does not receive a `pong` packet within `pingInterval + pingTimeout`, then it SHOULD consider that the connection is closed.
+
+### Upgrade
+
+By default, the client SHOULD create an HTTP long-polling connection, and then upgrade to better transports if available.
+
+To upgrade to WebSocket, the client MUST:
+
+- pause the HTTP long-polling transport (no more HTTP request gets sent), to ensure that no packet gets lost
+- open a WebSocket connection with the same session ID
+- send a `ping` packet with the string `probe` in the payload
+
+The server MUST:
+
+- send a `noop` packet to any pending `GET` request (if applicable) to cleanly close HTTP long-polling transport
+- respond with a `pong` packet with the string `probe` in the payload
+
+Finally, the client MUST send a `upgrade` packet to complete the upgrade:
+
+```
+CLIENT                                                 SERVER
+
+  │                                                      │
+  │   GET /engine.io/?EIO=4&transport=websocket&sid=...  │
+  │ ───────────────────────────────────────────────────► │
+  │  ◄─────────────────────────────────────────────────┘ │
+  │            HTTP 101 (WebSocket handshake)            │
+  │                                                      │
+  │            -----  WebSocket frames -----             │
+  │  ─────────────────────────────────────────────────►  │
+  │                         2probe                       │ (ping packet)
+  │  ◄─────────────────────────────────────────────────  │
+  │                         3probe                       │ (pong packet)
+  │  ─────────────────────────────────────────────────►  │
+  │                         5                            │ (upgrade packet)
+  │                                                      │
+```
+
+### Message
+
+Once the [handshake](#handshake) is completed, the client and the server can exchange data by including it in a `message` packet.
+
+
+## Packet encoding
+
+The serialization of an Engine.IO packet depends on the type of the payload (plaintext or binary) and on the transport.
+
+### HTTP long-polling
+
+Due to the nature of the HTTP long-polling transport, multiple packets might be concatenated in a single payload in order to increase throughput.
+
+Format:
+
+```
+<packet type>[<data>]<separator><packet type>[<data>]<separator><packet type>[<data>][...]
+```
+
+Example:
+
+```
+4hello\x1e2\x1e4world
+
+with:
+
+4      => message packet type
+hello  => message payload
+\x1e   => separator
+2      => ping packet type
+\x1e   => separator
+4      => message packet type
+world  => message payload
+```
+
+The packets are separated by the [record separator character](https://en.wikipedia.org/wiki/C0_and_C1_control_codes#Field_separators): `\x1e`
+
+Binary payloads MUST be base64-encoded and prefixed with a `b` character:
+
+Example:
+
+```
+4hello\x1ebAQIDBA==
+
+with:
+
+4         => message packet type
+hello     => message payload
+\x1e      => separator
+b         => binary prefix
+AQIDBA==  => buffer <01 02 03 04> encoded as base64
+```
+
+The client SHOULD use the `maxPayload` value sent during the [handshake](#handshake) to decide how many packets should be concatenated.
+
+### WebSocket
+
+Each Engine.IO packet is sent in its own [WebSocket frame](https://datatracker.ietf.org/doc/html/rfc6455#section-5).
+
+Format:
+
+```
+<packet type>[<data>]
+```
+
+Example:
+
+```
+4hello
+
+with:
+
+4      => message packet type
+hello  => message payload (UTF-8 encoded)
+```
+
+Binary payloads are sent as is, without modification.
+
+## History
+
+### From v2 to v3
+
+- add support for binary data
+
+The [2nd version](https://github.com/socketio/engine.io-protocol/tree/v2) of the protocol is used in Socket.IO `v0.9` and below.
+
+The [3rd version](https://github.com/socketio/engine.io-protocol/tree/v3) of the protocol is used in Socket.IO `v1` and `v2`.
+
+### From v3 to v4
 
 - reverse ping/pong mechanism
 
-The ping packets will now be sent by the server, because the timers set in the browsers are not reliable enough. We
+The ping packets are now sent by the server, because the timers set in the browsers are not reliable enough. We
 suspect that a lot of timeout problems came from timers being delayed on the client-side.
 
 - always use base64 when encoding a payload with binary data
@@ -466,13 +387,7 @@ For example, `€` was encoded to `2:4€`, though `Buffer.byteLength('€') ===
 
 Note: this assumes the record separator is not used in the data.
 
-The revision 4 of the protocol will be included in Socket.IO v3.
-
-## Difference between v2 and v3
-
-- add support for binary data
-
-v2 is included in Socket.IO v0.9, while v3 is included in Socket.IO v1/v2.
+The 4th version (current) is included in Socket.IO `v3` and above.
 
 ## Test suite
 
@@ -483,7 +398,7 @@ Usage:
 - in Node.js: `npm ci && npm test`
 - in a browser: simply open the `index.html` file in your browser
 
-For reference, here is expected configuration for the JS server to pass all tests:
+For reference, here is expected configuration for the JavaScript server to pass all tests:
 
 ```js
 import { listen } from "engine.io";
