@@ -1,31 +1,22 @@
+# Socket.IO Protocol
 
-# socket.io-protocol
+This document describes the 5th version of the Socket.IO protocol.
 
-  This document describes the Socket.IO protocol. For a reference JavaScript
-  implementation, take a look at
-  [socket.io-parser](https://github.com/socketio/socket.io-parser),
-  [socket.io-client](https://github.com/socketio/socket.io-client)
-  and [socket.io](https://github.com/socketio/socket.io).
+**Table of content**
 
-## Table of Contents
-
-- [Protocol version](#protocol-version)
-- [Packet format](#packet-format)
-  - [Packet types](#packet-types)
-    - [CONNECT](#0---connect)
-    - [DISCONNECT](#1---disconnect)
-    - [EVENT](#2---event)
-    - [ACK](#3---ack)
-    - [CONNECT_ERROR](#4---connect_error)
-    - [BINARY_EVENT](#5---binary_event)
-    - [BINARY_ACK](#6---binary_ack)
-- [Packet encoding](#packet-encoding)
-  - [Encoding format](#encoding-format)
-  - [Examples](#examples)
+- [Introduction](#introduction)
 - [Exchange protocol](#exchange-protocol)
   - [Connection to a namespace](#connection-to-a-namespace)
-  - [Disconnection from a namespace](#disconnection-from-a-namespace)
+  - [Sending and receiving data](#sending-and-receiving-data)
   - [Acknowledgement](#acknowledgement)
+  - [Disconnection from a namespace](#disconnection-from-a-namespace)
+- [Packet encoding](#packet-encoding)
+  - [Format](#format)
+  - [Examples](#examples)
+    - [Connection to a namespace](#connection-to-a-namespace-1)
+    - [Sending and receiving data](#sending-and-receiving-data-1)
+    - [Acknowledgement](#acknowledgement-1)
+    - [Disconnection from a namespace](#disconnection-from-a-namespace-1)
 - [Sample session](#sample-session)
 - [History](#history)
   - [Difference between v5 and v4](#difference-between-v5-and-v4)
@@ -35,230 +26,248 @@
   - [Initial revision](#initial-revision)
 - [Test suite](#test-suite)
 
-## Protocol version
 
-This is the revision **5** of the Socket.IO protocol, included in `socket.io@3.0.0...latest`.
+## Introduction
 
-The 4th revision (included in `socket.io@1.0.3...2.x.x`) can be found here: https://github.com/socketio/socket.io-protocol/tree/v4
+The Socket.IO protocol enables [full-duplex](https://en.wikipedia.org/wiki/Duplex_(telecommunications)#FULL-DUPLEX) and low-overhead communication between a client and a server.
 
-The 3rd revision (included in `socket.io@1.0.0...1.0.2`) can be found here: https://github.com/socketio/socket.io-protocol/tree/v3
+It is built on top of [the Engine.IO protocol](https://github.com/socketio/engine.io-protocol), which handles the low-level plumbing with WebSocket and HTTP long-polling.
 
-Both the 1st and the 2nd revisions were part of the work towards Socket.IO 1.0 but were never included in a Socket.IO
-release.
+The Socket.IO protocol adds the following features:
 
-It is built on top of the [4th](https://github.com/socketio/engine.io-protocol) revision of the Engine.IO protocol.
+- multiplexing (referred as ["namespace"](https://socket.io/docs/v4/namespaces) in the Socket.IO jargon)
 
-While the Engine.IO protocol describes the low-level plumbing with WebSocket and HTTP long-polling, the Socket.IO
-protocol adds another layer above in order to provide the following features:
+Example with the JavaScript API:
 
-- multiplexing (what we call [Namespace](https://socket.io/docs/namespaces/))
-
-Example of the Javascript API:
+*Server*
 
 ```js
-// server-side
-const nsp = io.of("/admin");
-nsp.on("connect", socket => {});
+// declare the namespace
+const namespace = io.of("/admin");
+// handle the connection to the namespace
+namespace.on("connection", (socket) => {
+  // ...
+});
+```
 
-// client-side
-const socket1 = io(); // main namespace
+*Client*
+
+```js
+// reach the main namespace
+const socket1 = io();
+// reach the "/admin" namespace (with the same underlying WebSocket connection)
 const socket2 = io("/admin");
-socket2.on("connect", () => {});
+// handle the connection to the namespace
+socket2.on("connect", () => {
+  // ...
+});
 ```
 
 - acknowledgement of packets
 
-Example of the Javascript API:
+Example with the JavaScript API:
 
 ```js
 // on one side
-socket.emit("hello", 1, () => { console.log("received"); });
+socket.emit("hello", "foo", (arg) => {
+  console.log("received", arg);
+});
+
 // on the other side
-socket.on("hello", (a, cb) => { cb(); });
+socket.on("hello", (arg, ack) => {
+  ack("bar");
+});
 ```
 
-## Packet format
+The reference implementation is written in [TypeScript](https://www.typescriptlang.org/):
 
-A packet contains the following fields:
+- server: https://github.com/socketio/socket.io
+- client: https://github.com/socketio/socket.io-client
 
-- a type (integer, see [below](#packet-types))
+
+## Exchange protocol
+
+A Socket.IO packet contains the following fields:
+
+- a packet type (integer)
 - a namespace (string)
 - optionally, a payload (Object | Array)
 - optionally, an acknowledgment id (integer)
 
-## Packet types
+Here is the list of available packet types:
 
-### 0 - CONNECT
+| Type          | ID  | Usage                                                                                 |
+|---------------|-----|---------------------------------------------------------------------------------------|
+| CONNECT       | 0   | Used during the [connection to a namespace](#connection-to-a-namespace).              |
+| DISCONNECT    | 1   | Used when [disconnecting from a namespace](#disconnection-from-a-namespace).          |
+| EVENT         | 2   | Used to [send data](#sending-and-receiving-data) to the other side.                   |
+| ACK           | 3   | Used to [acknowledge](#acknowledgement) an event.                                     |
+| CONNECT_ERROR | 4   | Used during the [connection to a namespace](#connection-to-a-namespace).              |
+| BINARY_EVENT  | 5   | Used to [send binary data](#sending-and-receiving-data) to the other side.            |
+| BINARY_ACK    | 6   | Used to [acknowledge](#acknowledgement) an event (the response includes binary data). |
 
-This event is sent:
 
-- by the client when requesting access to a namespace
+### Connection to a namespace
 
-The client can send a payload for authentication/authorization purposes. Example:
+At the beginning of a Socket.IO session, the client MUST send a `CONNECT` packet:
 
-```json
-{
-  "type": 0,
-  "nsp": "/admin",
-  "data": {
-    "token": "123"
-  }
-}
-```
+The server MUST respond with either:
 
-- by the server when accepting the connection to a namespace
-
-In case of success, the server responds with a payload contain the ID of the Socket. Example:
-
-```json
-{
-  "type": 0,
-  "nsp": "/admin",
-  "data": {
-    "sid": "CjdVH4TQvovi1VvgAC5Z"
-  }
-}
-```
-
-#### 1 - DISCONNECT
-
-This event is used when one side wants to disconnect from a namespace.
-
-It does not contain any payload nor acknowledgement id.
-
-Example:
-
-```json
-{
-  "type": 1,
-  "nsp": "/admin"
-}
-```
-
-#### 2 - EVENT
-
-This event is used when one side wants to transmit some data (without binary) to the other side.
-
-It does contain a payload, and an optional acknowledgement id.
-
-Example:
-
-```json
-{
-  "type": 2,
-  "nsp": "/",
-  "data": ["hello", 1]
-}
-```
-
-With an acknowledgment id:
-
-```json
-{
-  "type": 2,
-  "nsp": "/admin",
-  "data": ["project:delete", 123],
-  "id": 456
-}
-```
-
-#### 3 - ACK
-
-This event is used when one side has received an EVENT or a BINARY_EVENT with an acknowledgement id.
-
-It contains the acknowledgement id received in the previous packet, and may contain a payload (without binary).
-
-```json
-{
-  "type": 3,
-  "nsp": "/admin",
-  "data": [],
-  "id": 456
-}
-```
-
-#### 4 - CONNECT_ERROR
-
-This event is sent by the server when the connection to a namespace is refused.
-
-It contains a payload with a "message" and an optional "data" fields.
-
-Example:
-
-```json
-{
-  "type": 4,
-  "nsp": "/admin",
-  "data": {
-    "message": "Not authorized",
-    "data": {
-      "code": "E001",
-      "label": "Invalid credentials"
-    }
-  }
-}
-```
-
-#### 5 - BINARY_EVENT
-
-Note: Both `BINARY_EVENT` and `BINARY_ACK` are used by the built-in parser, in order to make a distinction between packets that contain binary content and those which don't. They may not be used by other custom parsers.
-
-This event is used when one side wants to transmit some data (including binary) to the other side.
-
-It does contain a payload, and an optional acknowledgement id.
-
-Example:
+- a `CONNECT` packet if the connection is successful, with the session ID in the payload
+- or a `CONNECT_ERROR` packet if the connection is not allowed
 
 ```
-{
-  "type": 5,
-  "nsp": "/",
-  "data": ["hello", <Buffer 01 02 03>]
-}
+CLIENT                                                      SERVER
+
+  │  ───────────────────────────────────────────────────────►  │
+  │             { type: CONNECT, namespace: "/" }              │
+  │  ◄───────────────────────────────────────────────────────  │
+  │   { type: CONNECT, namespace: "/", data: { sid: "..." } }  │
 ```
 
-With an acknowledgment id:
+If the server does not receive a `CONNECT` packet first, then it MUST close the connection immediately.
+
+A client MAY be connected to multiple namespaces at the same time, with the same underlying WebSocket connection.
+
+Examples:
+
+- with the main namespace (named `"/"`)
 
 ```
-{
-  "type": 5,
-  "nsp": "/admin",
-  "data": ["project:delete", <Buffer 01 02 03>],
-  "id": 456
-}
+Client > { type: CONNECT, namespace: "/" }
+Server > { type: CONNECT, namespace: "/", data: { sid: "wZX3oN0bSVIhsaknAAAI" } }
 ```
 
-#### 6 - BINARY_ACK
-
-This event is used when one side has received an EVENT or a BINARY_EVENT with an acknowledgement id.
-
-It contains the acknowledgement id received in the previous packet, and contain a payload including binary.
-
-Example:
+- with a custom namespace
 
 ```
-{
-  "type": 6,
-  "nsp": "/admin",
-  "data": [<Buffer 03 02 01>],
-  "id": 456
-}
+Client > { type: CONNECT, namespace: "/admin" }
+Server > { type: CONNECT, namespace: "/admin", data: { sid: "oSO0OpakMV_3jnilAAAA" } }
 ```
+
+- with an additional payload
+
+```
+Client > { type: CONNECT, namespace: "/admin", data: { "token": "123" } }
+Server > { type: CONNECT, namespace: "/admin", data: { sid: "iLnRaVGHY4B75TeVAAAB" } }
+```
+
+- in case the connection is refused
+
+```
+Client > { type: CONNECT, namespace: "/" }
+Server > { type: CONNECT_ERROR, namespace: "/", data: { message: "Not authorized" } }
+```
+
+### Sending and receiving data
+
+Once the [connection to a namespace](#connection-to-a-namespace) is established, the client and the server can begin exchanging data:
+
+```
+CLIENT                                                      SERVER
+
+  │  ───────────────────────────────────────────────────────►  │
+  │        { type: EVENT, namespace: "/", data: ["foo"] }      │
+  │                                                            │
+  │  ◄───────────────────────────────────────────────────────  │
+  │        { type: EVENT, namespace: "/", data: ["bar"] }      │
+```
+
+The payload is mandatory and MUST be a non-empty array. If that's not the case, then the receiver MUST close the connection.
+
+Examples:
+
+- with the main namespace
+
+```
+Client > { type: EVENT, namespace: "/", data: ["foo"] }
+```
+
+- with a custom namespace
+
+```
+Server > { type: EVENT, namespace: "/admin", data: ["bar"] }
+```
+
+- with binary data
+
+```
+Client > { type: BINARY_EVENT, namespace: "/", data: ["baz", <Buffer <01 02 03 04>> ] }
+```
+
+### Acknowledgement
+
+The sender MAY include an event ID in order to request an acknowledgement from the receiver:
+
+```
+CLIENT                                                      SERVER
+
+  │  ───────────────────────────────────────────────────────►  │
+  │   { type: EVENT, namespace: "/", data: ["foo"], id: 12 }   │
+  │  ◄───────────────────────────────────────────────────────  │
+  │    { type: ACK, namespace: "/", data: ["bar"], id: 12 }    │
+```
+
+The receiver MUST respond with an `ACK` packet with the same event ID.
+
+The payload is mandatory and MUST be an array (possibly empty).
+
+Examples:
+
+- with the main namespace
+
+```
+Client > { type: EVENT, namespace: "/", data: ["foo"], id: 12 }
+Server > { type: ACK, namespace: "/", data: [], id: 12 }
+```
+
+- with a custom namespace
+
+```
+Server > { type: EVENT, namespace: "/admin", data: ["foo"], id: 13 }
+Client > { type: ACK, namespace: "/admin", data: ["bar"], id: 13 }
+```
+
+- with binary data
+
+```
+Client > { type: BINARY_EVENT, namespace: "/", data: ["foo", <buffer <01 02 03 04> ], id: 14 }
+Server > { type: ACK, namespace: "/", data: ["bar"], id: 14 }
+
+or
+
+Server > { type: EVENT, namespace: "/", data: ["foo" ], id: 15 }
+Client > { type: BINARY_ACK, namespace: "/", data: ["bar", <buffer <01 02 03 04>], id: 15 }
+```
+
+### Disconnection from a namespace
+
+At any time, one side can end the connection to a namespace by sending a `DISCONNECT` packet:
+
+```
+CLIENT                                                      SERVER
+
+  │  ───────────────────────────────────────────────────────►  │
+  │           { type: DISCONNECT, namespace: "/" }             │
+```
+
+No response is expected from the other side. The low-level connection MAY be kept alive if the client is connected to another namespace.
+
 
 ## Packet encoding
 
 This section details the encoding used by the default parser which is included in Socket.IO server and client, and
 whose source can be found [here](https://github.com/socketio/socket.io-parser).
 
-The JS server and client implementations also supports custom parsers, which have different tradeoffs and may benefit to
-certain kind of applications. Please see [socket.io-json-parser](https://github.com/darrachequesne/socket.io-json-parser)
-or [socket.io-msgpack-parser](https://github.com/darrachequesne/socket.io-msgpack-parser) for example.
+The JavaScript server and client implementations also supports custom parsers, which have different tradeoffs and may benefit to
+certain kind of applications. Please see [socket.io-json-parser](https://github.com/socketio/socket.io-json-parser)
+or [socket.io-msgpack-parser](https://github.com/socketio/socket.io-msgpack-parser) for example.
 
 Please also note that each Socket.IO packet is sent as a Engine.IO `message` packet (more information [here](https://github.com/socketio/engine.io-protocol)),
-so the encoded result will be prefixed by `4` when sent over the wire (in the request/response body with HTTP
+so the encoded result will be prefixed by the character `"4"` when sent over the wire (in the request/response body with HTTP
 long-polling, or in the WebSocket frame).
 
-### Encoding format
+### Format
 
 ```
 <packet type>[<# of binary attachments>-][<namespace>,][<acknowledgment id>][JSON-stringified payload without binary]
@@ -266,173 +275,195 @@ long-polling, or in the WebSocket frame).
 + binary attachments extracted
 ```
 
-Note:
-
-- the namespace is only included if it is different from the main namespace (`/`)
+Note: the namespace is only included if it is different from the main namespace (`/`)
 
 ### Examples
 
-- `CONNECT` packet for the main namespace
+#### Connection to a namespace
 
-```json
-{
-  "type": 0,
-  "nsp": "/",
-  "data": {
-    "token": "123"
-  }
-}
-```
+- with the main namespace
 
-is encoded to `0{"token":"123"}`
-
-- `CONNECT` packet for the `/admin` namespace
-
-```json
-{
-  "type": 0,
-  "nsp": "/admin",
-  "data": {
-    "token": "123"
-  }
-}
-```
-
-is encoded to `0/admin,{"token":"123"}`
-
-- `DISCONNECT` packet for the `/admin` namespace
-
-```json
-{
-  "type": 1,
-  "nsp": "/admin"
-}
-```
-
-is encoded to `1/admin,`
-
-- `EVENT` packet
-
-```json
-{
-  "type": 2,
-  "nsp": "/",
-  "data": ["hello", 1]
-}
-```
-
-is encoded to `2["hello",1]`
-
-- `EVENT` packet with an acknowledgement id
-
-```json
-{
-  "type": 2,
-  "nsp": "/admin",
-  "data": ["project:delete", 123],
-  "id": 456
-}
-```
-
-is encoded to `2/admin,456["project:delete",123]`
-
-- `ACK` packet
-
-```json
-{
-  "type": 3,
-  "nsp": "/admin",
-  "data": [],
-  "id": 456
-}
-```
-
-is encoded to `3/admin,456[]`
-
-- `CONNECT_ERROR` packet
-
-```json
-{
-  "type": 4,
-  "nsp": "/admin",
-  "data": {
-    "message": "Not authorized"
-  }
-}
-```
-
-is encoded to `4/admin,{"message":"Not authorized"}`
-
-- `BINARY_EVENT` packet
+*Packet*
 
 ```
-{
-  "type": 5,
-  "nsp": "/",
-  "data": ["hello", <Buffer 01 02 03>]
-}
+{ type: CONNECT, namespace: "/" }
 ```
 
-is encoded to `51-["hello",{"_placeholder":true,"num":0}]` + `<Buffer 01 02 03>`
-
-- `BINARY_EVENT` packet with an acknowledgement id
+*Encoded*
 
 ```
-{
-  "type": 5,
-  "nsp": "/admin",
-  "data": ["project:delete", <Buffer 01 02 03>],
-  "id": 456
-}
+0
 ```
 
-is encoded to `51-/admin,456["project:delete",{"_placeholder":true,"num":0}]` + `<Buffer 01 02 03>`
+- with a custom namespace
 
-- `BINARY_ACK` packet
-
-```
-{
-  "type": 6,
-  "nsp": "/admin",
-  "data": [<Buffer 03 02 01>],
-  "id": 456
-}
-```
-
-is encoded to `61-/admin,456[{"_placeholder":true,"num":0}]` + `<Buffer 03 02 01>`
-
-
-## Exchange protocol
-
-### Connection to a namespace
-
-For each namespace (including the main namespace), the client first sends a CONNECT packet, and the server responds with a CONNECT packet containing the id of the Socket.
+*Packet*
 
 ```
-Client > { type: CONNECT, nsp: "/admin" }
-Server > { type: CONNECT, nsp: "/admin", data: { sid: "wZX3oN0bSVIhsaknAAAI" } } (if the connection is successful)
-or
-Server > { type: CONNECT_ERROR, nsp: "/admin", data: { message: "Not authorized" } }
+{ type: CONNECT, namespace: "/admin", data: { sid: "oSO0OpakMV_3jnilAAAA" } }
 ```
 
-### Disconnection from a namespace
+*Encoded*
 
 ```
-Client > { type: DISCONNECT, nsp: "/admin" }
+0/admin,{"sid":"oSO0OpakMV_3jnilAAAA"}
 ```
 
-And vice versa. No response is expected from the other-side.
+- in case the connection is refused
 
-### Acknowledgement
+*Packet*
 
 ```
-Client > { type: EVENT, nsp: "/admin", data: ["hello"], id: 456 }
-Server > { type: ACK, nsp: "/admin", data: [], id: 456 }
-or
-Server > { type: BINARY_ACK, nsp: "/admin", data: [ <Buffer 01 02 03> ], id: 456 }
+{ type: CONNECT_ERROR, namespace: "/", data: { message: "Not authorized" } }
 ```
 
-And vice versa.
+*Encoded*
+
+```
+4{"message":"Not authorized"}
+```
+
+#### Sending and receiving data
+
+- with the main namespace
+
+*Packet*
+
+```
+{ type: EVENT, namespace: "/", data: ["foo"] }
+```
+
+*Encoded*
+
+```
+2["foo"]
+```
+
+- with a custom namespace
+
+*Packet*
+
+```
+{ type: EVENT, namespace: "/admin", data: ["bar"] }
+```
+
+*Encoded*
+
+```
+2/admin,["bar"]
+```
+
+- with binary data
+
+*Packet*
+
+```
+{ type: BINARY_EVENT, namespace: "/", data: ["baz", <Buffer <01 02 03 04>> ] }
+```
+
+*Encoded*
+
+```
+51-["baz",{"_placeholder":true,"num":0}]
+
++ <Buffer <01 02 03 04>>
+```
+
+- with multiple attachments
+
+*Packet*
+
+```
+{ type: BINARY_EVENT, namespace: "/admin", data: ["baz", <Buffer <01 02>>, <Buffer <03 04>> ] }
+```
+
+*Encoded*
+
+```
+52-/admin,["baz",{"_placeholder":true,"num":0},{"_placeholder":true,"num":1}]
+
++ <Buffer <01 02>>
++ <Buffer <03 04>>
+```
+
+Please remember that each Socket.IO packet is wrapped in a Engine.IO `message` packet, so they will be prefixed by the character `"4"` when sent over the wire.
+
+Example: `{ type: EVENT, namespace: "/", data: ["foo"] }` will be sent as `42["foo"]`
+
+#### Acknowledgement
+
+- with the main namespace
+
+*Packet*
+
+```
+{ type: EVENT, namespace: "/", data: ["foo"], id: 12 }
+```
+
+*Encoded*
+
+```
+212["foo"]
+```
+
+- with a custom namespace
+
+*Packet*
+
+```
+{ type: ACK, namespace: "/admin", data: ["bar"], id: 13 }
+```
+
+*Encoded*
+
+```
+3/admin,13["bar"]`
+```
+
+- with binary data
+
+*Packet*
+
+```
+{ type: BINARY_ACK, namespace: "/", data: ["bar", <Buffer <01 02 03 04>>], id: 15 }
+```
+
+*Encoded*
+
+```
+61-15["bar",{"_placeholder":true,"num":0}]
+
++ <Buffer <01 02 03 04>>
+```
+
+#### Disconnection from a namespace
+
+- with the main namespace
+
+*Packet*
+
+```
+{ type: DISCONNECT, namespace: "/" }
+```
+
+*Encoded*
+
+```
+1
+```
+
+- with a custom namespace
+
+```
+{ type: DISCONNECT, namespace: "/admin" }
+```
+
+*Encoded*
+
+```
+1/admin,
+```
+
 
 ## Sample session
 
@@ -555,6 +586,12 @@ WebSocket frames:
 
 ### Difference between v5 and v4
 
+The 5th revision (current) of the Socket.IO protocol is used in Socket.IO v3 and above (`v3.0.0` was released in November 2020).
+
+It is built on top of the 4th revision of [the Engine.IO protocol](https://github.com/socketio/engine.io-protocol) (hence the `EIO=4` query parameter).
+
+List of changes:
+
 - remove the implicit connection to the default namespace
 
 In previous versions, a client was always connected to the default namespace, even if it requested access to another namespace.
@@ -609,16 +646,34 @@ Commits: [54bf4a4](https://github.com/socketio/socket.io/commit/54bf4a44e9e896df
 
 ### Difference between v4 and v3
 
+The 4th revision of the Socket.IO protocol is used in Socket.IO v1 (`v1.0.3` was released in June 2014) and v2 (`v2.0.0` was released in May 2017).
+
+The details of the revision can be found here: https://github.com/socketio/socket.io-protocol/tree/v4
+
+It is built on top of the 3rd revision of [the Engine.IO protocol](https://github.com/socketio/engine.io-protocol) (hence the `EIO=3` query parameter).
+
+List of changes:
+
 - add a `BINARY_ACK` packet type
 
 Previously, an `ACK` packet was always treated as if it may contain binary objects, with recursive search for such
 objects, which could hurt performance.
 
+Reference: https://github.com/socketio/socket.io-parser/commit/ca4f42a922ba7078e840b1bc09fe3ad618acc065
+
 ### Difference between v3 and v2
+
+The 3rd revision of the Socket.IO protocol is used in early Socket.IO v1 versions (`socket.io@1.0.0...1.0.2`) (released in May 2014).
+
+The details of the revision can be found here: https://github.com/socketio/socket.io-protocol/tree/v3
+
+List of changes:
 
 - remove the usage of msgpack to encode packets containing binary objects (see also [299849b](https://github.com/socketio/socket.io-parser/commit/299849b00294c3bc95817572441f3aca8ffb1f65))
 
 ### Difference between v2 and v1
+
+List of changes:
 
 - add a `BINARY_EVENT` packet type
 
@@ -633,14 +688,14 @@ the next iterations.
 
 ## Test suite
 
-The test suite in the `test-suite/` directory lets you check the compliance of a server implementation.
+The test suite in the [`test-suite/`](https://github.com/socketio/socket.io-protocol/tree/main/test-suite) directory lets you check the compliance of a server implementation.
 
 Usage:
 
 - in Node.js: `npm ci && npm test`
 - in a browser: simply open the `index.html` file in your browser
 
-For reference, here is expected configuration for the JS server to pass all tests:
+For reference, here is expected configuration for the JavaScript server to pass all tests:
 
 ```js
 import { Server } from "socket.io";
