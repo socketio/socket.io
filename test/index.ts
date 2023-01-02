@@ -83,6 +83,7 @@ describe("socket.io-adapter", () => {
           }
         }
       },
+      // @ts-ignore
       sockets: new Map([socket("s1"), socket("s2"), socket("s3")])
     };
     const adapter = new Adapter(nsp);
@@ -124,6 +125,7 @@ describe("socket.io-adapter", () => {
           }
         }
       },
+      // @ts-ignore
       sockets: new Map([socket("s1"), socket("s2"), socket("s3")])
     };
     const adapter = new Adapter(nsp);
