@@ -141,13 +141,13 @@ export class Adapter extends EventEmitter {
     const packetOpts = {
       preEncoded: true,
       volatile: flags.volatile,
-      compress: flags.compress
+      compress: flags.compress,
     };
 
     packet.nsp = this.nsp.name;
     const encodedPackets = this.encoder.encode(packet);
 
-    this.apply(opts, socket => {
+    this.apply(opts, (socket) => {
       if (typeof socket.notifyOutgoingListeners === "function") {
         socket.notifyOutgoingListeners(packet);
       }
@@ -181,7 +181,7 @@ export class Adapter extends EventEmitter {
     const packetOpts = {
       preEncoded: true,
       volatile: flags.volatile,
-      compress: flags.compress
+      compress: flags.compress,
     };
 
     packet.nsp = this.nsp.name;
@@ -192,7 +192,7 @@ export class Adapter extends EventEmitter {
 
     let clientCount = 0;
 
-    this.apply(opts, socket => {
+    this.apply(opts, (socket) => {
       // track the total number of acknowledgements that are expected
       clientCount++;
       // call the ack callback for each client response
@@ -216,7 +216,7 @@ export class Adapter extends EventEmitter {
   public sockets(rooms: Set<Room>): Promise<Set<SocketId>> {
     const sids = new Set<SocketId>();
 
-    this.apply({ rooms }, socket => {
+    this.apply({ rooms }, (socket) => {
       sids.add(socket.id);
     });
 
@@ -240,7 +240,7 @@ export class Adapter extends EventEmitter {
   public fetchSockets(opts: BroadcastOptions): Promise<any[]> {
     const sockets = [];
 
-    this.apply(opts, socket => {
+    this.apply(opts, (socket) => {
       sockets.push(socket);
     });
 
@@ -254,7 +254,7 @@ export class Adapter extends EventEmitter {
    * @param rooms - the rooms to join
    */
   public addSockets(opts: BroadcastOptions, rooms: Room[]): void {
-    this.apply(opts, socket => {
+    this.apply(opts, (socket) => {
       socket.join(rooms);
     });
   }
@@ -266,8 +266,8 @@ export class Adapter extends EventEmitter {
    * @param rooms - the rooms to leave
    */
   public delSockets(opts: BroadcastOptions, rooms: Room[]): void {
-    this.apply(opts, socket => {
-      rooms.forEach(room => socket.leave(room));
+    this.apply(opts, (socket) => {
+      rooms.forEach((room) => socket.leave(room));
     });
   }
 
@@ -278,7 +278,7 @@ export class Adapter extends EventEmitter {
    * @param close - whether to close the underlying connection
    */
   public disconnectSockets(opts: BroadcastOptions, close: boolean): void {
-    this.apply(opts, socket => {
+    this.apply(opts, (socket) => {
       socket.disconnect(close);
     });
   }
@@ -315,7 +315,7 @@ export class Adapter extends EventEmitter {
     if (exceptRooms && exceptRooms.size > 0) {
       for (const room of exceptRooms) {
         if (this.rooms.has(room)) {
-          this.rooms.get(room).forEach(sid => exceptSids.add(sid));
+          this.rooms.get(room).forEach((sid) => exceptSids.add(sid));
         }
       }
     }

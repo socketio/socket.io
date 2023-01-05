@@ -32,8 +32,8 @@ describe("socket.io-adapter", () => {
       sockets: new Map([
         ["s1", { id: "s1" }],
         ["s2", { id: "s2" }],
-        ["s3", { id: "s3" }]
-      ])
+        ["s3", { id: "s3" }],
+      ]),
     });
     adapter.addAll("s1", new Set(["r1", "r2"]));
     adapter.addAll("s2", new Set(["r2", "r3"]));
@@ -70,9 +70,9 @@ describe("socket.io-adapter", () => {
               expect(payload).to.eql(["123"]);
               expect(opts.preEncoded).to.eql(true);
               ids.push(id);
-            }
-          }
-        }
+            },
+          },
+        },
       ];
     }
     const nsp = {
@@ -80,11 +80,11 @@ describe("socket.io-adapter", () => {
         encoder: {
           encode() {
             return ["123"];
-          }
-        }
+          },
+        },
       },
       // @ts-ignore
-      sockets: new Map([socket("s1"), socket("s2"), socket("s3")])
+      sockets: new Map([socket("s1"), socket("s2"), socket("s3")]),
     };
     const adapter = new Adapter(nsp);
     adapter.addAll("s1", new Set(["r1"]));
@@ -93,7 +93,7 @@ describe("socket.io-adapter", () => {
 
     adapter.broadcast([], {
       rooms: new Set(),
-      except: new Set(["r1"])
+      except: new Set(["r1"]),
     });
     expect(ids).to.eql(["s2"]);
   });
@@ -112,9 +112,9 @@ describe("socket.io-adapter", () => {
               expect(opts.preEncoded).to.eql(true);
               expect(opts.wsPreEncoded).to.be(undefined);
               ids.push(id);
-            }
-          }
-        }
+            },
+          },
+        },
       ];
     }
     const nsp = {
@@ -122,11 +122,11 @@ describe("socket.io-adapter", () => {
         encoder: {
           encode() {
             return [Buffer.from([1, 2, 3])];
-          }
-        }
+          },
+        },
       },
       // @ts-ignore
-      sockets: new Map([socket("s1"), socket("s2"), socket("s3")])
+      sockets: new Map([socket("s1"), socket("s2"), socket("s3")]),
     };
     const adapter = new Adapter(nsp);
     adapter.addAll("s1", new Set(["r1", "r2"]));
@@ -135,7 +135,7 @@ describe("socket.io-adapter", () => {
 
     adapter.broadcast([], {
       rooms: new Set(["r1"]),
-      except: new Set(["r2"])
+      except: new Set(["r2"]),
     });
     expect(ids).to.eql(["s3"]);
   });
@@ -149,8 +149,8 @@ describe("socket.io-adapter", () => {
         sockets: new Map([
           ["s1", { id: "s1" }],
           ["s2", { id: "s2" }],
-          ["s3", { id: "s3" }]
-        ])
+          ["s3", { id: "s3" }],
+        ]),
       });
     });
 
@@ -160,7 +160,7 @@ describe("socket.io-adapter", () => {
         adapter.addAll("s2", new Set(["s2"]));
         adapter.addAll("s3", new Set(["s3"]));
         const matchingSockets = await adapter.fetchSockets({
-          rooms: new Set()
+          rooms: new Set(),
         });
         expect(matchingSockets).to.be.an(Array);
         expect(matchingSockets.length).to.be(3);
@@ -172,7 +172,7 @@ describe("socket.io-adapter", () => {
         adapter.addAll("s3", new Set(["r2"]));
         const matchingSockets = await adapter.fetchSockets({
           rooms: new Set(["r1"]),
-          except: new Set(["r2"])
+          except: new Set(["r2"]),
         });
         expect(matchingSockets).to.be.an(Array);
         expect(matchingSockets.length).to.be(1);
@@ -182,26 +182,26 @@ describe("socket.io-adapter", () => {
   });
 
   describe("events", () => {
-    it("should emit a 'create-room' event", done => {
+    it("should emit a 'create-room' event", (done) => {
       const adapter = new Adapter({ server: { encoder: null } });
-      adapter.on("create-room", room => {
+      adapter.on("create-room", (room) => {
         expect(room).to.eql("r1");
         done();
       });
       adapter.addAll("s1", new Set(["r1"]));
     });
 
-    it("should not emit a 'create-room' event if the room already exists", done => {
+    it("should not emit a 'create-room' event if the room already exists", (done) => {
       const adapter = new Adapter({ server: { encoder: null } });
       adapter.addAll("s1", new Set(["r1"]));
-      adapter.on("create-room", room => {
+      adapter.on("create-room", (room) => {
         done(new Error("should not happen"));
       });
       adapter.addAll("s2", new Set(["r1"]));
       done();
     });
 
-    it("should emit a 'join-room' event", done => {
+    it("should emit a 'join-room' event", (done) => {
       const adapter = new Adapter({ server: { encoder: null } });
       adapter.on("join-room", (room, sid) => {
         expect(room).to.eql("r1");
@@ -211,7 +211,7 @@ describe("socket.io-adapter", () => {
       adapter.addAll("s1", new Set(["r1"]));
     });
 
-    it("should not emit a 'join-room' event if the sid is already in the room", done => {
+    it("should not emit a 'join-room' event if the sid is already in the room", (done) => {
       const adapter = new Adapter({ server: { encoder: null } });
       adapter.addAll("s1", new Set(["r1", "r2"]));
       adapter.on("join-room", () => {
@@ -221,7 +221,7 @@ describe("socket.io-adapter", () => {
       done();
     });
 
-    it("should emit a 'leave-room' event with del method", done => {
+    it("should emit a 'leave-room' event with del method", (done) => {
       const adapter = new Adapter({ server: { encoder: null } });
       adapter.on("leave-room", (room, sid) => {
         expect(room).to.eql("r1");
@@ -232,7 +232,7 @@ describe("socket.io-adapter", () => {
       adapter.del("s1", "r1");
     });
 
-    it("should not throw when calling del twice", done => {
+    it("should not throw when calling del twice", (done) => {
       const adapter = new Adapter({ server: { encoder: null } });
       adapter.on("leave-room", (room, sid) => {
         adapter.del("s1", "r1");
@@ -242,7 +242,7 @@ describe("socket.io-adapter", () => {
       adapter.del("s1", "r1");
     });
 
-    it("should emit a 'leave-room' event with delAll method", done => {
+    it("should emit a 'leave-room' event with delAll method", (done) => {
       const adapter = new Adapter({ server: { encoder: null } });
       adapter.on("leave-room", (room, sid) => {
         expect(room).to.eql("r1");
@@ -253,9 +253,9 @@ describe("socket.io-adapter", () => {
       adapter.delAll("s1");
     });
 
-    it("should emit a 'delete-room' event", done => {
+    it("should emit a 'delete-room' event", (done) => {
       const adapter = new Adapter({ server: { encoder: null } });
-      adapter.on("delete-room", room => {
+      adapter.on("delete-room", (room) => {
         expect(room).to.eql("r1");
         done();
       });
@@ -263,9 +263,9 @@ describe("socket.io-adapter", () => {
       adapter.delAll("s1");
     });
 
-    it("should not emit a 'delete-room' event if there is another sid in the room", done => {
+    it("should not emit a 'delete-room' event if there is another sid in the room", (done) => {
       const adapter = new Adapter({ server: { encoder: null } });
-      adapter.on("delete-room", room => {
+      adapter.on("delete-room", (room) => {
         done(new Error("should not happen"));
       });
       adapter.addAll("s1", new Set(["r1"]));
