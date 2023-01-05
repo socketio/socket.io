@@ -1,5 +1,5 @@
-const { Adapter } = require("..");
-const expect = require("expect.js");
+import { Adapter, SessionAwareAdapter } from "../lib";
+import expect = require("expect.js");
 
 describe("socket.io-adapter", () => {
   it("should add/remove sockets", () => {
@@ -272,6 +272,242 @@ describe("socket.io-adapter", () => {
       adapter.addAll("s2", new Set(["r1", "r2"]));
       adapter.delAll("s1");
       done();
+    });
+  });
+
+  describe("connection state recovery", () => {
+    it("should persist and restore session", async () => {
+      const adapter = new SessionAwareAdapter({
+        server: {
+          encoder: {
+            encode(packet) {
+              return packet;
+            },
+          },
+          opts: {
+            connectionStateRecovery: {
+              maxDisconnectionDuration: 5000,
+            },
+          },
+        },
+      });
+
+      adapter.persistSession({
+        sid: "abc",
+        pid: "def",
+        data: "ghi",
+        rooms: ["r1", "r2"],
+      });
+
+      const packetData = ["hello"];
+
+      adapter.broadcast(
+        {
+          nsp: "/",
+          type: 2,
+          data: packetData,
+        },
+        {
+          rooms: new Set(),
+          except: new Set(),
+        }
+      );
+
+      const offset = packetData[1];
+      const session = await adapter.restoreSession("def", offset);
+
+      expect(session).to.not.be(null);
+      expect(session.sid).to.eql("abc");
+      expect(session.pid).to.eql("def");
+      expect(session.missedPackets).to.eql([]);
+    });
+
+    it("should restore missed packets", async () => {
+      const adapter = new SessionAwareAdapter({
+        server: {
+          encoder: {
+            encode(packet) {
+              return packet;
+            },
+          },
+          opts: {
+            connectionStateRecovery: {
+              maxDisconnectionDuration: 5000,
+            },
+          },
+        },
+      });
+
+      adapter.persistSession({
+        sid: "abc",
+        pid: "def",
+        data: "ghi",
+        rooms: ["r1", "r2"],
+      });
+
+      const packetData = ["hello"];
+
+      adapter.broadcast(
+        {
+          nsp: "/",
+          type: 2,
+          data: packetData,
+        },
+        {
+          rooms: new Set(),
+          except: new Set(),
+        }
+      );
+
+      adapter.broadcast(
+        {
+          nsp: "/",
+          type: 2,
+          data: ["all"],
+        },
+        {
+          rooms: new Set(),
+          except: new Set(),
+        }
+      );
+
+      adapter.broadcast(
+        {
+          nsp: "/",
+          type: 2,
+          data: ["room"],
+        },
+        {
+          rooms: new Set(["r1"]),
+          except: new Set(),
+        }
+      );
+
+      adapter.broadcast(
+        {
+          nsp: "/",
+          type: 2,
+          data: ["except"],
+        },
+        {
+          rooms: new Set(),
+          except: new Set(["r2"]),
+        }
+      );
+
+      adapter.broadcast(
+        {
+          nsp: "/",
+          type: 2,
+          data: ["no except"],
+        },
+        {
+          rooms: new Set(),
+          except: new Set(["r3"]),
+        }
+      );
+
+      adapter.broadcast(
+        {
+          nsp: "/",
+          type: 2,
+          data: ["with ack"],
+          id: 0,
+        },
+        {
+          rooms: new Set(),
+          except: new Set(),
+        }
+      );
+
+      adapter.broadcast(
+        {
+          nsp: "/",
+          type: 3,
+          data: ["ack type"],
+        },
+        {
+          rooms: new Set(),
+          except: new Set(),
+        }
+      );
+
+      adapter.broadcast(
+        {
+          nsp: "/",
+          type: 2,
+          data: ["volatile"],
+        },
+        {
+          rooms: new Set(),
+          except: new Set(),
+          flags: {
+            volatile: true,
+          },
+        }
+      );
+
+      const offset = packetData[1];
+      const session = await adapter.restoreSession("def", offset);
+
+      expect(session).to.not.be(null);
+      expect(session.sid).to.eql("abc");
+      expect(session.pid).to.eql("def");
+
+      expect(session.missedPackets.length).to.eql(3);
+      expect(session.missedPackets[0].length).to.eql(2);
+      expect(session.missedPackets[0][0]).to.eql("all");
+      expect(session.missedPackets[1][0]).to.eql("room");
+      expect(session.missedPackets[2][0]).to.eql("no except");
+    });
+
+    it("should fail to restore an unknown session", async () => {
+      const adapter = new SessionAwareAdapter({
+        server: {
+          encoder: {
+            encode(packet) {
+              return packet;
+            },
+          },
+          opts: {
+            connectionStateRecovery: {
+              maxDisconnectionDuration: 5000,
+            },
+          },
+        },
+      });
+
+      const session = await adapter.restoreSession("abc", "def");
+
+      expect(session).to.be(null);
+    });
+
+    it("should fail to restore a known session with an unknown offset", async () => {
+      const adapter = new SessionAwareAdapter({
+        server: {
+          encoder: {
+            encode(packet) {
+              return packet;
+            },
+          },
+          opts: {
+            connectionStateRecovery: {
+              maxDisconnectionDuration: 5000,
+            },
+          },
+        },
+      });
+
+      adapter.persistSession({
+        sid: "abc",
+        pid: "def",
+        data: "ghi",
+        rooms: ["r1", "r2"],
+      });
+
+      const session = await adapter.restoreSession("abc", "def");
+
+      expect(session).to.be(null);
     });
   });
 });
