@@ -1,5 +1,6 @@
 # History
 
+- [2.5.1](#251-2023-01-06) (Jan 2023)
 - [2.5.0](#250-2023-01-06) (Jan 2023)
 - [2.4.0](#240-2022-03-30) (Mar 2022)
 - [2.3.3](#233-2021-11-16) (Nov 2021)
@@ -16,6 +17,14 @@
 
 
 # Release notes
+
+## [2.5.1](https://github.com/socketio/socket.io-adapter/compare/2.5.0...2.5.1) (2023-01-06)
+
+
+### Bug Fixes
+
+* properly precompute the WebSocket frames ([99b0f18](https://github.com/socketio/socket.io-adapter/commit/99b0f188194b58a213682d564607913a447279e3))
+
 
 
 ## [2.5.0](https://github.com/socketio/socket.io-adapter/compare/2.4.0...2.5.0) (2023-01-06)
