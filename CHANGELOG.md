@@ -1,4 +1,38 @@
-# [2.4.0](https://github.com/socketio/socket.io-adapter/compare/2.3.3...2.4.0) (2022-03-30)
+# History
+
+- [2.5.0](#250-2023-01-06) (Jan 2023)
+- [2.4.0](#240-2022-03-30) (Mar 2022)
+- [2.3.3](#233-2021-11-16) (Nov 2021)
+- [2.3.2](#232-2021-08-28) (Aug 2021)
+- [2.3.1](#231-2021-05-19) (May 2021)
+- [2.3.0](#230-2021-05-10) (May 2021)
+- [2.2.0](#220-2021-02-27) (Feb 2021)
+- [2.1.0](#210-2021-01-15) (Jan 2021)
+- [2.0.3](#203-2020-11-05) (Nov 2020)
+- [2.0.2](#202-2020-09-28) (Sep 2020)
+- [2.0.1](#201-2020-09-28) (Sep 2020)
+- [2.0.0](#200-2020-09-25) (Sep 2020)
+
+
+
+# Release notes
+
+
+## [2.5.0](https://github.com/socketio/socket.io-adapter/compare/2.4.0...2.5.0) (2023-01-06)
+
+
+### Features
+
+* implement connection state recovery ([f529412](https://github.com/socketio/socket.io-adapter/commit/f5294126a8feec1906bca439443c3864415415fb))
+
+
+### Performance Improvements
+
+* precompute the WebSocket frames when broadcasting ([5f7b47d](https://github.com/socketio/socket.io-adapter/commit/5f7b47d40f9daabe4e3c321eda620bbadfe5ce96))
+
+
+
+## [2.4.0](https://github.com/socketio/socket.io-adapter/compare/2.3.3...2.4.0) (2022-03-30)
 
 
 ### Features
@@ -33,7 +67,7 @@
 * restore compatibility with binary parsers ([a33e42b](https://github.com/socketio/socket.io-adapter/commit/a33e42bb7b935ccdd3688b4c305714b791ade0db))
 
 
-# [2.3.0](https://github.com/socketio/socket.io-adapter/compare/2.2.0...2.3.0) (2021-05-10)
+## [2.3.0](https://github.com/socketio/socket.io-adapter/compare/2.2.0...2.3.0) (2021-05-10)
 
 
 ### Features
@@ -42,7 +76,7 @@
 * add support for the "wsPreEncoded" writing option ([5579d40](https://github.com/socketio/socket.io-adapter/commit/5579d40c24d15f69e44246f788fb93beb367f994))
 
 
-# [2.2.0](https://github.com/socketio/socket.io-adapter/compare/2.1.0...2.2.0) (2021-02-27)
+## [2.2.0](https://github.com/socketio/socket.io-adapter/compare/2.1.0...2.2.0) (2021-02-27)
 
 
 ### Features
@@ -51,7 +85,7 @@
 * allow excluding all sockets in a room ([#66](https://github.com/socketio/socket.io-adapter/issues/66)) ([985bb41](https://github.com/socketio/socket.io-adapter/commit/985bb41fa2c04f17f1cf3a17c14ab9acde8947f7))
 
 
-# [2.1.0](https://github.com/socketio/socket.io-adapter/compare/2.0.3...2.1.0) (2021-01-15)
+## [2.1.0](https://github.com/socketio/socket.io-adapter/compare/2.0.3...2.1.0) (2021-01-15)
 
 
 ### Features
@@ -101,7 +135,7 @@ The dist/ directory was not up-to-date when publishing the previous version...
 
 
 
-# [2.0.0](https://github.com/socketio/socket.io-adapter/compare/1.1.2...2.0.0) (2020-09-25)
+## [2.0.0](https://github.com/socketio/socket.io-adapter/compare/1.1.2...2.0.0) (2020-09-25)
 
 
 ### Features
