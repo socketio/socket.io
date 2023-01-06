@@ -1,3 +1,31 @@
+# History
+
+- [5.0.5](#505-2023-01-06) (Jan 2023)
+- [5.0.4](#504-2022-04-30) (Apr 2022)
+- [5.0.3](#503-2022-01-17) (Jan 2022)
+- [5.0.2](#502-2021-11-14) (Nov 2021)
+- [5.0.1](#501-2021-10-15) (Oct 2021)
+- [5.0.0](#500-2021-10-04) (Oct 2021)
+- [4.0.3](#403-2021-08-29) (Aug 2021)
+- [4.0.2](#402-2020-12-07) (Dec 2020)
+- [2.2.1](#221-2020-09-30) (Sep 2020) (from the [2.2.x](https://github.com/socketio/engine.io-parser/tree/2.2.x) branch)
+- [4.0.1](#401-2020-09-10) (Sep 2020)
+- [4.0.0](#400-2020-09-08) (Sep 2020)
+- [2.2.0](#220-2019-09-13) (Sep 2019)
+
+
+
+# Release notes
+
+## [5.0.5](https://github.com/socketio/engine.io-parser/compare/5.0.4...5.0.5) (2023-01-06)
+
+
+### Bug Fixes
+
+* properly encode empty buffer in base64 encoding ([#131](https://github.com/socketio/engine.io-parser/issues/131)) ([351ba82](https://github.com/socketio/engine.io-parser/commit/351ba8245b1aac795646d7e7a9001c8e1d0cc9f2))
+
+
+
 ## [5.0.4](https://github.com/socketio/engine.io-parser/compare/5.0.3...5.0.4) (2022-04-30)
 
 
@@ -31,7 +59,7 @@
 
 
 
-# [5.0.0](https://github.com/socketio/engine.io-parser/compare/4.0.3...5.0.0) (2021-10-04)
+## [5.0.0](https://github.com/socketio/engine.io-parser/compare/4.0.3...5.0.0) (2021-10-04)
 
 This release includes the migration to TypeScript. The major bump is due to the new "exports" field in the package.json file.
 
@@ -64,7 +92,7 @@ See also: https://nodejs.org/api/packages.html#packages_package_entry_points
 * use a terser-compatible representation of the separator ([886f9ea](https://github.com/socketio/engine.io-parser/commit/886f9ea7c4e717573152c31320f6fb6c6664061b))
 
 
-# [4.0.0](https://github.com/socketio/engine.io-parser/compare/v4.0.0-alpha.1...4.0.0) (2020-09-08)
+## [4.0.0](https://github.com/socketio/engine.io-parser/compare/v4.0.0-alpha.1...4.0.0) (2020-09-08)
 
 This major release contains the necessary changes for the version 4 of the Engine.IO protocol. More information about the new version can be found [there](https://github.com/socketio/engine.io-protocol#difference-between-v3-and-v4).
 
@@ -103,7 +131,7 @@ Please note that the parser is now dependency-free! This should help reduce the 
 
 
 
-# [4.0.0-alpha.1](https://github.com/socketio/engine.io-parser/compare/v4.0.0-alpha.0...v4.0.0-alpha.1) (2020-05-19)
+## [4.0.0-alpha.1](https://github.com/socketio/engine.io-parser/compare/v4.0.0-alpha.0...v4.0.0-alpha.1) (2020-05-19)
 
 
 ### Features
@@ -112,7 +140,7 @@ Please note that the parser is now dependency-free! This should help reduce the 
 
 
 
-# [4.0.0-alpha.0](https://github.com/socketio/engine.io-parser/compare/2.2.0...v4.0.0-alpha.0) (2020-02-04)
+## [4.0.0-alpha.0](https://github.com/socketio/engine.io-parser/compare/2.2.0...v4.0.0-alpha.0) (2020-02-04)
 
 
 ### Bug Fixes
@@ -134,7 +162,7 @@ Protocol v4: { type: 'message', data: <Buffer 01 02 03> } => <Buffer 01 02 03>
 
 
 
-# [2.2.0](https://github.com/socketio/engine.io-parser/compare/2.1.3...2.2.0) (2019-09-13)
+## [2.2.0](https://github.com/socketio/engine.io-parser/compare/2.1.3...2.2.0) (2019-09-13)
 
 
 * [refactor] Use `Buffer.allocUnsafe` instead of `new Buffer` (#104) ([aedf8eb](https://github.com/socketio/engine.io-parser/commit/aedf8eb29e8bf6aeb5c6cc68965d986c4c958ae2)), closes [#104](https://github.com/socketio/engine.io-parser/issues/104)
