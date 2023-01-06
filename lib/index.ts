@@ -1,6 +1,8 @@
 import { EventEmitter } from "events";
 import { yeast } from "./contrib/yeast";
-import { WebSocket } from "ws";
+import WebSocket = require("ws");
+
+const canPreComputeFrame = typeof WebSocket?.Sender?.frame === "function";
 
 /**
  * A public ID, sent by the server at the beginning of the Socket.IO session and which can be used for private messaging
@@ -231,7 +233,11 @@ export class Adapter extends EventEmitter {
   private _encode(packet: unknown, packetOpts: Record<string, unknown>) {
     const encodedPackets = this.encoder.encode(packet);
 
-    if (encodedPackets.length === 1 && typeof encodedPackets[0] === "string") {
+    if (
+      canPreComputeFrame &&
+      encodedPackets.length === 1 &&
+      typeof encodedPackets[0] === "string"
+    ) {
       // "4" being the "message" packet type in the Engine.IO protocol
       const data = Buffer.from("4" + encodedPackets[0]);
       // see https://github.com/websockets/ws/issues/617#issuecomment-283002469
