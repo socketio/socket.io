@@ -12,6 +12,9 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "description": "default socket.io in-memory adapter",
+  "peerDependencies": {
+    "ws": "*"
+  },
   "devDependencies": {
     "@types/mocha": "^10.0.1",
     "@types/node": "^14.11.2",

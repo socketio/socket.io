@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
 import { yeast } from "./contrib/yeast";
+import { WebSocket } from "ws";
 
 /**
  * A public ID, sent by the server at the beginning of the Socket.IO session and which can be used for private messaging
@@ -164,7 +165,7 @@ export class Adapter extends EventEmitter {
     };
 
     packet.nsp = this.nsp.name;
-    const encodedPackets = this.encoder.encode(packet);
+    const encodedPackets = this._encode(packet, packetOpts);
 
     this.apply(opts, (socket) => {
       if (typeof socket.notifyOutgoingListeners === "function") {
@@ -207,7 +208,7 @@ export class Adapter extends EventEmitter {
     // we can use the same id for each packet, since the _ids counter is common (no duplicate)
     packet.id = this.nsp._ids++;
 
-    const encodedPackets = this.encoder.encode(packet);
+    const encodedPackets = this._encode(packet, packetOpts);
 
     let clientCount = 0;
 
@@ -225,6 +226,25 @@ export class Adapter extends EventEmitter {
     });
 
     clientCountCallback(clientCount);
+  }
+
+  private _encode(packet: unknown, packetOpts: Record<string, unknown>) {
+    const encodedPackets = this.encoder.encode(packet);
+
+    if (encodedPackets.length === 1 && typeof encodedPackets[0] === "string") {
+      // "4" being the "message" packet type in the Engine.IO protocol
+      const data = Buffer.from("4" + encodedPackets[0]);
+      // see https://github.com/websockets/ws/issues/617#issuecomment-283002469
+      packetOpts.wsPreEncodedFrame = WebSocket.Sender.frame(data, {
+        readOnly: false,
+        mask: false,
+        rsv1: false,
+        opcode: 1,
+        fin: true,
+      });
+    }
+
+    return encodedPackets;
   }
 
   /**

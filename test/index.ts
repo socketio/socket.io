@@ -140,6 +140,48 @@ describe("socket.io-adapter", () => {
     expect(ids).to.eql(["s3"]);
   });
 
+  it("should precompute the WebSocket frames when broadcasting", () => {
+    function socket(id) {
+      return [
+        id,
+        {
+          id,
+          client: {
+            writeToEngine(payload, opts) {
+              expect(payload).to.eql(["123"]);
+              expect(opts.preEncoded).to.eql(true);
+              expect(opts.wsPreEncodedFrame.length).to.eql(2);
+              expect(opts.wsPreEncodedFrame[0]).to.eql(Buffer.from([129, 4]));
+              expect(opts.wsPreEncodedFrame[1]).to.eql(
+                Buffer.from([52, 49, 50, 51])
+              );
+            },
+          },
+        },
+      ];
+    }
+    const nsp = {
+      server: {
+        encoder: {
+          encode() {
+            return ["123"];
+          },
+        },
+      },
+      // @ts-ignore
+      sockets: new Map([socket("s1"), socket("s2"), socket("s3")]),
+    };
+    const adapter = new Adapter(nsp);
+    adapter.addAll("s1", new Set());
+    adapter.addAll("s2", new Set());
+    adapter.addAll("s3", new Set());
+
+    adapter.broadcast([], {
+      rooms: new Set(),
+      except: new Set(),
+    });
+  });
+
   describe("utility methods", () => {
     let adapter;
 
