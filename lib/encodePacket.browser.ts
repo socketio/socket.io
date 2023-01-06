@@ -45,7 +45,7 @@ const encodeBlobAsBase64 = (
   const fileReader = new FileReader();
   fileReader.onload = function() {
     const content = (fileReader.result as string).split(",")[1];
-    callback("b" + content);
+    callback("b" + (content || ""));
   };
   return fileReader.readAsDataURL(data);
 };

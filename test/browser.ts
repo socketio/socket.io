@@ -97,6 +97,18 @@ describe("engine.io-parser (browser only)", () => {
           done();
         });
       });
+
+      it("should encode/decode a string + a 0-length ArrayBuffer payload", done => {
+        const packets: Packet[] = [
+          { type: "message", data: "test" },
+          { type: "message", data: createArrayBuffer([]) }
+        ];
+        encodePayload(packets, payload => {
+          expect(payload).to.eql("4test\x1eb");
+          expect(decodePayload(payload, "arraybuffer")).to.eql(packets);
+          done();
+        });
+      });
     }
   });
 });
