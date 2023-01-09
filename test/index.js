@@ -14,6 +14,7 @@ require("./socket");
 require("./transport");
 require("./connection");
 require("./xmlhttprequest");
+require("./parseuri");
 
 if (typeof ArrayBuffer !== "undefined") {
   require("./arraybuffer");
