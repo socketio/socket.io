@@ -2822,6 +2822,53 @@ describe("server", () => {
           });
         });
       });
+
+      it("should use the pre-encoded frame", function(done) {
+        if (process.env.EIO_WS_ENGINE === "uws") {
+          return this.skip();
+        }
+        engine = listen(port => {
+          client = new ClientSocket(`ws://localhost:${port}`, {
+            transports: ["websocket"]
+          });
+
+          engine.on("connection", conn => {
+            conn.send("test", {
+              wsPreEncodedFrame: [
+                Buffer.from([129, 4]),
+                Buffer.from([52, 49, 50, 51])
+              ]
+            });
+          });
+
+          client.on("message", msg => {
+            expect(msg).to.be("123");
+            done();
+          });
+        });
+      });
+
+      it("should not use the pre-encoded frame when the permessage-deflate extension is enabled", done => {
+        engine = listen({ perMessageDeflate: true }, port => {
+          client = new ClientSocket(`ws://localhost:${port}`, {
+            transports: ["websocket"]
+          });
+
+          engine.on("connection", conn => {
+            conn.send("test", {
+              wsPreEncodedFrame: [
+                Buffer.from([129, 4]),
+                Buffer.from([52, 49, 50, 51])
+              ]
+            });
+          });
+
+          client.on("message", msg => {
+            expect(msg).to.be("test");
+            done();
+          });
+        });
+      });
     });
   });
 

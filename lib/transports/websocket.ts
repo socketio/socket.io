@@ -93,9 +93,29 @@ export class WebSocket extends Transport {
 
     if (packet.options && typeof packet.options.wsPreEncoded === "string") {
       send(packet.options.wsPreEncoded);
+    } else if (this._canSendPreEncodedFrame(packet)) {
+      // the WebSocket frame was computed with WebSocket.Sender.frame()
+      // see https://github.com/websockets/ws/issues/617#issuecomment-283002469
+      this.socket._sender.sendFrame(packet.options.wsPreEncodedFrame, err => {
+        if (err) return this.onError("write error", err.stack);
+        this.send(packets);
+      });
     } else {
       this.parser.encodePacket(packet, this.supportsBinary, send);
     }
+  }
+
+  /**
+   * Whether the encoding of the WebSocket frame can be skipped.
+   * @param packet
+   * @private
+   */
+  private _canSendPreEncodedFrame(packet) {
+    return (
+      !this.perMessageDeflate &&
+      typeof this.socket?._sender?.sendFrame === "function" &&
+      packet.options?.wsPreEncodedFrame !== undefined
+    );
   }
 
   /**
