@@ -1,5 +1,9 @@
 # History
 
+## 2023
+
+- [6.3.0](#630-2023-01-10) (Jan 2023)
+
 ## 2022
 
 - [3.6.1](#361-2022-11-20) (Nov 2022) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)
@@ -39,6 +43,48 @@
 
 # Release notes
 
+## [6.3.0](https://github.com/socketio/engine.io/compare/6.2.1...6.3.0) (2023-01-10)
+
+
+### Bug Fixes
+
+* fix the ES module wrapper ([ed87609](https://github.com/socketio/engine.io/commit/ed87609bafca0e844e6b29ea1a895d95df6a544c))
+* wait for all packets to be sent before closing the WebSocket connection ([a65a047](https://github.com/socketio/engine.io/commit/a65a047526401bebaa113a8c70d03f5d963eaa54))
+
+
+### Features
+
+* add the "addTrailingSlash" option ([#655](https://github.com/socketio/engine.io/issues/655)) ([d0fd474](https://github.com/socketio/engine.io/commit/d0fd4746afa396297f07bb62e539b0c1c4018d7c))
+
+The trailing slash which was added by default can now be disabled:
+
+```js
+import { Server } from "engine.io";
+
+const server = new Server();
+
+server.attach(httpServer, {
+  addTrailingSlash: false
+});
+```
+
+In the example above, the clients can omit the trailing slash and use `/engine.io` instead of `/engine.io/`.
+
+
+### Performance Improvements
+
+* add the wsPreEncodedFrame option ([5e34722](https://github.com/socketio/engine.io/commit/5e34722b0b6564d6207a56d69bc3b0a831e4dc46))
+
+This will be used when broadcasting packets at the Socket.IO level.
+
+See also: https://github.com/socketio/socket.io-adapter/commit/5f7b47d40f9daabe4e3c321eda620bbadfe5ce96
+
+### Dependencies
+
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) ([diff](https://github.com/websockets/ws/compare/8.2.3...8.11.0))
+
+
+
 ## [3.6.1](https://github.com/socketio/engine.io/compare/3.6.0...3.6.1) (2022-11-20)
 
 :warning: This release contains an important security fix :warning:
@@ -64,6 +110,9 @@ Please upgrade as soon as possible.
 
 * catch errors when destroying invalid upgrades ([83c4071](https://github.com/socketio/engine.io/commit/83c4071af871fc188298d7d591e95670bf9f9085))
 
+### Dependencies
+
+- [`ws@~7.4.2`](https://github.com/websockets/ws/releases/tag/7.4.2) (no change)
 
 
 ## [6.2.1](https://github.com/socketio/engine.io/compare/6.2.0...6.2.1) (2022-11-20)
@@ -91,9 +140,13 @@ Please upgrade as soon as possible.
 
 * catch errors when destroying invalid upgrades ([#658](https://github.com/socketio/engine.io/issues/658)) ([425e833](https://github.com/socketio/engine.io/commit/425e833ab13373edf1dd5a0706f07100db14e3c6))
 
+### Dependencies
+
+- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3) (no change)
 
 
-# [3.6.0](https://github.com/socketio/engine.io/compare/3.5.0...3.6.0) (2022-06-06)
+
+## [3.6.0](https://github.com/socketio/engine.io/compare/3.5.0...3.6.0) (2022-06-06)
 
 
 ### Bug Fixes
@@ -116,7 +169,7 @@ See also: https://github.com/advisories/GHSA-j4f2-536g-r55m
 
 
 
-# [6.2.0](https://github.com/socketio/engine.io/compare/6.1.3...6.2.0) (2022-04-17)
+## [6.2.0](https://github.com/socketio/engine.io/compare/6.1.3...6.2.0) (2022-04-17)
 
 
 ### Features
@@ -178,7 +231,7 @@ Thanks to Marcus Wejderot from Mevisio for the responsible disclosure.
 
 
 
-# [6.1.0](https://github.com/socketio/engine.io/compare/6.0.0...6.1.0) (2021-11-08)
+## [6.1.0](https://github.com/socketio/engine.io/compare/6.0.0...6.1.0) (2021-11-08)
 
 
 ### Bug Fixes
@@ -206,7 +259,7 @@ Thanks to Marcus Wejderot from Mevisio for the responsible disclosure.
 
 
 
-# [6.0.0](https://github.com/socketio/engine.io/compare/5.2.0...6.0.0) (2021-10-08)
+## [6.0.0](https://github.com/socketio/engine.io/compare/5.2.0...6.0.0) (2021-10-08)
 
 The codebase was migrated to TypeScript ([c0d6eaa](https://github.com/socketio/engine.io/commit/c0d6eaa1ba1291946dc8425d5f533d5f721862dd))
 
@@ -235,7 +288,7 @@ const eioServer = new Server(httpServer);
 
 `ws` version: `~8.2.3` (bumped from `~7.4.2`)
 
-# [5.2.0](https://github.com/socketio/engine.io/compare/5.1.1...5.2.0) (2021-08-29)
+## [5.2.0](https://github.com/socketio/engine.io/compare/5.1.1...5.2.0) (2021-08-29)
 
 No change on the server-side, this matches the client release.
 
@@ -248,7 +301,7 @@ No change on the server-side, this matches the client release.
 * properly close the websocket connection upon handshake error ([4360686](https://github.com/socketio/engine.io/commit/43606865e5299747cbb31f3ed9baf4567502a879))
 
 
-# [5.1.0](https://github.com/socketio/engine.io/compare/5.0.0...5.1.0) (2021-05-04)
+## [5.1.0](https://github.com/socketio/engine.io/compare/5.0.0...5.1.0) (2021-05-04)
 
 
 ### Features
@@ -263,7 +316,7 @@ No change on the server-side, this matches the client release.
 * **websocket:** fix write back-pressure ([#618](https://github.com/socketio/engine.io/issues/618)) ([ad5306a](https://github.com/socketio/engine.io/commit/ad5306aeaedf06ac7a49f791e1b76e55c35a564e))
 
 
-# [5.0.0](https://github.com/socketio/engine.io/compare/4.1.1...5.0.0) (2021-03-10)
+## [5.0.0](https://github.com/socketio/engine.io/compare/4.1.1...5.0.0) (2021-03-10)
 
 
 ### Bug Fixes
@@ -306,7 +359,7 @@ const eioServer = require("engine.io")(httpServer, {
 * do not reset the ping timer after upgrade ([ff2b8ab](https://github.com/socketio/engine.io/commit/ff2b8aba48ebcb0de5626d3b76fddc94c398395f)), closes [/github.com/socketio/socket.io-client-swift/pull/1309#issuecomment-768475704](https://github.com//github.com/socketio/socket.io-client-swift/pull/1309/issues/issuecomment-768475704)
 
 
-# [4.1.0](https://github.com/socketio/engine.io/compare/4.0.6...4.1.0) (2021-01-14)
+## [4.1.0](https://github.com/socketio/engine.io/compare/4.0.6...4.1.0) (2021-01-14)
 
 
 ### Features
@@ -323,7 +376,7 @@ const eioServer = require("engine.io")(httpServer, {
 
 
 
-# [3.5.0](https://github.com/socketio/engine.io/compare/3.4.2...3.5.0) (2020-12-30)
+## [3.5.0](https://github.com/socketio/engine.io/compare/3.4.2...3.5.0) (2020-12-30)
 
 
 ### Features
@@ -362,7 +415,7 @@ No change on the server-side, this matches the client release.
 
 
 
-# [4.0.0](https://github.com/socketio/engine.io/compare/v4.0.0-alpha.1...4.0.0) (2020-09-10)
+## [4.0.0](https://github.com/socketio/engine.io/compare/v4.0.0-alpha.1...4.0.0) (2020-09-10)
 
 More details about this release in the blog post: https://socket.io/blog/engine-io-4-release/
 
@@ -415,7 +468,7 @@ More details about this release in the blog post: https://socket.io/blog/engine-
 
 
 
-# [4.0.0-alpha.1](https://github.com/socketio/engine.io/compare/v4.0.0-alpha.0...v4.0.0-alpha.1) (2020-02-12)
+## [4.0.0-alpha.1](https://github.com/socketio/engine.io/compare/v4.0.0-alpha.0...v4.0.0-alpha.1) (2020-02-12)
 
 #### Links
 
@@ -425,7 +478,7 @@ More details about this release in the blog post: https://socket.io/blog/engine-
 
 
 
-# [4.0.0-alpha.0](https://github.com/socketio/engine.io/compare/3.4.0...v4.0.0-alpha.0) (2020-02-12)
+## [4.0.0-alpha.0](https://github.com/socketio/engine.io/compare/3.4.0...v4.0.0-alpha.0) (2020-02-12)
 
 
 ### Features
