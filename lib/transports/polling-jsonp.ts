@@ -33,7 +33,7 @@ export class JSONP extends Polling {
     if ("string" === typeof data) {
       // client will send already escaped newlines as \\\\n and newlines as \\n
       // \\n must be replaced with \n and \\\\n with \\n
-      data = data.replace(rSlashes, function(match, slashes) {
+      data = data.replace(rSlashes, function (match, slashes) {
         return slashes ? match : "\n";
       });
       super.onData(data.replace(rDoubleSlashes, "\\n"));

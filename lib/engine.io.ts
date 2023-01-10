@@ -26,7 +26,7 @@ function listen(port, options: AttachOptions & ServerOptions, fn) {
     options = {};
   }
 
-  const server = createServer(function(req, res) {
+  const server = createServer(function (req, res) {
     res.writeHead(501);
     res.end("Not Implemented");
   });

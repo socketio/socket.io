@@ -44,7 +44,7 @@ export class uServer extends BaseServer {
     });
 
     req.connection = {
-      remoteAddress: Buffer.from(res.getRemoteAddressAsText()).toString()
+      remoteAddress: Buffer.from(res.getRemoteAddressAsText()).toString(),
     };
 
     res.onAborted(() => {
@@ -75,7 +75,7 @@ export class uServer extends BaseServer {
         maxBackpressure: options.maxBackpressure,
         maxPayloadLength: this.opts.maxHttpBufferSize,
         upgrade: this.handleUpgrade.bind(this),
-        open: ws => {
+        open: (ws) => {
           ws.transport.socket = ws;
           ws.transport.writable = true;
           ws.transport.emit("drain");
@@ -87,7 +87,7 @@ export class uServer extends BaseServer {
         },
         close: (ws, code, message) => {
           ws.transport.onClose(code, message);
-        }
+        },
       });
   }
 
@@ -106,7 +106,7 @@ export class uServer extends BaseServer {
           req,
           code: errorCode,
           message: Server.errorMessages[errorCode],
-          context: errorContext
+          context: errorContext,
         });
         this.abortRequest(req.res, errorCode, errorContext);
         return;
@@ -152,7 +152,7 @@ export class uServer extends BaseServer {
           req,
           code: errorCode,
           message: Server.errorMessages[errorCode],
-          context: errorContext
+          context: errorContext,
         });
         this.abortRequest(res, errorCode, errorContext);
         return;
@@ -191,7 +191,7 @@ export class uServer extends BaseServer {
 
       res.upgrade(
         {
-          transport
+          transport,
         },
         req.getHeader("sec-websocket-key"),
         req.getHeader("sec-websocket-protocol"),
@@ -220,7 +220,7 @@ export class uServer extends BaseServer {
     res.end(
       JSON.stringify({
         code: errorCode,
-        message
+        message,
       })
     );
   }

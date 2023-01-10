@@ -22,7 +22,7 @@ exports.listen = (opts, fn) => {
     const app = App();
     engine.attach(app, opts);
 
-    app.listen(0, listenSocket => {
+    app.listen(0, (listenSocket) => {
       const port = us_socket_local_port(listenSocket);
       process.nextTick(() => {
         fn(port);

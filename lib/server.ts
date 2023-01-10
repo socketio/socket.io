@@ -148,10 +148,10 @@ export abstract class BaseServer extends EventEmitter {
         transports: Object.keys(transports),
         allowUpgrades: true,
         httpCompression: {
-          threshold: 1024
+          threshold: 1024,
         },
         cors: false,
-        allowEIO3: false
+        allowEIO3: false,
       },
       opts
     );
@@ -163,7 +163,7 @@ export abstract class BaseServer extends EventEmitter {
           path: "/",
           // @ts-ignore
           httpOnly: opts.cookie.path !== false,
-          sameSite: "lax"
+          sameSite: "lax",
         },
         opts.cookie
       );
@@ -176,7 +176,7 @@ export abstract class BaseServer extends EventEmitter {
     if (opts.perMessageDeflate) {
       this.opts.perMessageDeflate = Object.assign(
         {
-          threshold: 1024
+          threshold: 1024,
         },
         opts.perMessageDeflate
       );
@@ -237,7 +237,7 @@ export abstract class BaseServer extends EventEmitter {
       debug("origin header invalid");
       return fn(Server.errors.BAD_REQUEST, {
         name: "INVALID_ORIGIN",
-        origin
+        origin,
       });
     }
 
@@ -247,7 +247,7 @@ export abstract class BaseServer extends EventEmitter {
       if (!this.clients.hasOwnProperty(sid)) {
         debug('unknown sid "%s"', sid);
         return fn(Server.errors.UNKNOWN_SID, {
-          sid
+          sid,
         });
       }
       const previousTransport = this.clients[sid].transport.name;
@@ -256,21 +256,21 @@ export abstract class BaseServer extends EventEmitter {
         return fn(Server.errors.BAD_REQUEST, {
           name: "TRANSPORT_MISMATCH",
           transport,
-          previousTransport
+          previousTransport,
         });
       }
     } else {
       // handshake is GET only
       if ("GET" !== req.method) {
         return fn(Server.errors.BAD_HANDSHAKE_METHOD, {
-          method: req.method
+          method: req.method,
         });
       }
 
       if (transport === "websocket" && !upgrade) {
         debug("invalid transport upgrade");
         return fn(Server.errors.BAD_REQUEST, {
-          name: "TRANSPORT_HANDSHAKE_ERROR"
+          name: "TRANSPORT_HANDSHAKE_ERROR",
         });
       }
 
@@ -279,7 +279,7 @@ export abstract class BaseServer extends EventEmitter {
       return this.opts.allowRequest(req, (message, success) => {
         if (!success) {
           return fn(Server.errors.FORBIDDEN, {
-            message
+            message,
           });
         }
         fn();
@@ -337,8 +337,8 @@ export abstract class BaseServer extends EventEmitter {
         message:
           Server.errorMessages[Server.errors.UNSUPPORTED_PROTOCOL_VERSION],
         context: {
-          protocol
-        }
+          protocol,
+        },
       });
       closeConnection(Server.errors.UNSUPPORTED_PROTOCOL_VERSION);
       return;
@@ -355,8 +355,8 @@ export abstract class BaseServer extends EventEmitter {
         message: Server.errorMessages[Server.errors.BAD_REQUEST],
         context: {
           name: "ID_GENERATION_ERROR",
-          error: e
-        }
+          error: e,
+        },
       });
       closeConnection(Server.errors.BAD_REQUEST);
       return;
@@ -386,8 +386,8 @@ export abstract class BaseServer extends EventEmitter {
         message: Server.errorMessages[Server.errors.BAD_REQUEST],
         context: {
           name: "TRANSPORT_HANDSHAKE_ERROR",
-          error: e
-        }
+          error: e,
+        },
       });
       closeConnection(Server.errors.BAD_REQUEST);
       return;
@@ -401,7 +401,7 @@ export abstract class BaseServer extends EventEmitter {
         if (this.opts.cookie) {
           headers["Set-Cookie"] = [
             // @ts-ignore
-            serialize(this.opts.cookie.name, id, this.opts.cookie)
+            serialize(this.opts.cookie.name, id, this.opts.cookie),
           ];
         }
         this.emit("initial_headers", headers, req);
@@ -436,7 +436,7 @@ export abstract class BaseServer extends EventEmitter {
     BAD_HANDSHAKE_METHOD: 2,
     BAD_REQUEST: 3,
     FORBIDDEN: 4,
-    UNSUPPORTED_PROTOCOL_VERSION: 5
+    UNSUPPORTED_PROTOCOL_VERSION: 5,
   };
 
   static errorMessages = {
@@ -445,7 +445,7 @@ export abstract class BaseServer extends EventEmitter {
     2: "Bad handshake method",
     3: "Bad request",
     4: "Forbidden",
-    5: "Unsupported protocol version"
+    5: "Unsupported protocol version",
   };
 }
 
@@ -467,7 +467,7 @@ export class Server extends BaseServer {
       noServer: true,
       clientTracking: false,
       perMessageDeflate: this.opts.perMessageDeflate,
-      maxPayload: this.opts.maxHttpBufferSize
+      maxPayload: this.opts.maxHttpBufferSize,
     });
 
     if (typeof this.ws.on === "function") {
@@ -483,7 +483,7 @@ export class Server extends BaseServer {
 
         this.emit("headers", additionalHeaders, req);
 
-        Object.keys(additionalHeaders).forEach(key => {
+        Object.keys(additionalHeaders).forEach((key) => {
           headersArray.push(`${key}: ${additionalHeaders[key]}`);
         });
       });
@@ -532,7 +532,7 @@ export class Server extends BaseServer {
           req,
           code: errorCode,
           message: Server.errorMessages[errorCode],
-          context: errorContext
+          context: errorContext,
         });
         abortRequest(res, errorCode, errorContext);
         return;
@@ -571,7 +571,7 @@ export class Server extends BaseServer {
           req,
           code: errorCode,
           message: Server.errorMessages[errorCode],
-          context: errorContext
+          context: errorContext,
         });
         abortUpgrade(socket, errorCode, errorContext);
         return;
@@ -581,7 +581,7 @@ export class Server extends BaseServer {
       upgradeHead = null;
 
       // delegate to ws
-      this.ws.handleUpgrade(req, socket, head, websocket => {
+      this.ws.handleUpgrade(req, socket, head, (websocket) => {
         this.onWebSocket(req, socket, websocket);
       });
     });
@@ -694,10 +694,10 @@ export class Server extends BaseServer {
           // but by adding a handler, we prevent that
           // and if no eio thing handles the upgrade
           // then the socket needs to die!
-          setTimeout(function() {
+          setTimeout(function () {
             // @ts-ignore
             if (socket.writable && socket.bytesWritten <= 0) {
-              socket.on("error", e => {
+              socket.on("error", (e) => {
                 debug("error while destroying upgrade: %s", e.message);
               });
               return socket.end();
@@ -730,7 +730,7 @@ function abortRequest(res, errorCode, errorContext) {
   res.end(
     JSON.stringify({
       code: errorCode,
-      message
+      message,
     })
   );
 }

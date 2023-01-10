@@ -74,7 +74,7 @@ export class WebSocket extends Transport {
       opts.compress = packet.options.compress;
     }
 
-    const send = data => {
+    const send = (data) => {
       if (this.perMessageDeflate) {
         const len =
           "string" === typeof data ? Buffer.byteLength(data) : data.length;
@@ -85,7 +85,7 @@ export class WebSocket extends Transport {
       debug('writing "%s"', data);
       this.writable = false;
 
-      this.socket.send(data, opts, err => {
+      this.socket.send(data, opts, (err) => {
         if (err) return this.onError("write error", err.stack);
         this.send(packets);
       });
@@ -96,7 +96,7 @@ export class WebSocket extends Transport {
     } else if (this._canSendPreEncodedFrame(packet)) {
       // the WebSocket frame was computed with WebSocket.Sender.frame()
       // see https://github.com/websockets/ws/issues/617#issuecomment-283002469
-      this.socket._sender.sendFrame(packet.options.wsPreEncodedFrame, err => {
+      this.socket._sender.sendFrame(packet.options.wsPreEncodedFrame, (err) => {
         if (err) return this.onError("write error", err.stack);
         this.send(packets);
       });

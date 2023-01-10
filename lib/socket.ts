@@ -98,7 +98,7 @@ export class Socket extends EventEmitter {
         upgrades: this.getAvailableUpgrades(),
         pingInterval: this.server.opts.pingInterval,
         pingTimeout: this.server.opts.pingTimeout,
-        maxPayload: this.server.opts.maxHttpBufferSize
+        maxPayload: this.server.opts.maxHttpBufferSize,
       })
     );
 
@@ -232,7 +232,7 @@ export class Socket extends EventEmitter {
     // this function will manage packet events (also message callbacks)
     this.setupSendCallback();
 
-    this.cleanupFn.push(function() {
+    this.cleanupFn.push(function () {
       transport.removeListener("error", onError);
       transport.removeListener("packet", onPacket);
       transport.removeListener("drain", flush);
@@ -264,7 +264,7 @@ export class Socket extends EventEmitter {
       }
     }, this.server.opts.upgradeTimeout);
 
-    const onPacket = packet => {
+    const onPacket = (packet) => {
       if ("ping" === packet.type && "probe" === packet.data) {
         debug("got probe ping packet, sending pong");
         transport.send([{ type: "pong", data: "probe" }]);
@@ -314,7 +314,7 @@ export class Socket extends EventEmitter {
       this.removeListener("close", onClose);
     };
 
-    const onError = err => {
+    const onError = (err) => {
       debug("client did not complete upgrade - %s", err);
       cleanup();
       transport.close();
@@ -352,7 +352,7 @@ export class Socket extends EventEmitter {
     }
 
     // silence further transport errors and prevent uncaught exceptions
-    this.transport.on("error", function() {
+    this.transport.on("error", function () {
       debug("error triggered by discarded transport");
     });
 
@@ -483,7 +483,7 @@ export class Socket extends EventEmitter {
 
       const packet: Packet = {
         type,
-        options
+        options,
       };
 
       if (data) packet.data = data;

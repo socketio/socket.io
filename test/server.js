@@ -29,11 +29,11 @@ describe("server", () => {
   });
 
   describe("verification", () => {
-    it("should disallow non-existent transports", done => {
+    it("should disallow non-existent transports", (done) => {
       const partialDone = createPartialDone(done, 2);
 
-      engine = listen(port => {
-        engine.on("connection_error", err => {
+      engine = listen((port) => {
+        engine.on("connection_error", (err) => {
           expect(err.req).to.be.ok();
           expect(err.code).to.be(0);
           expect(err.message).to.be("Transport unknown");
@@ -54,12 +54,12 @@ describe("server", () => {
       });
     });
 
-    it("should disallow `constructor` as transports", done => {
+    it("should disallow `constructor` as transports", (done) => {
       const partialDone = createPartialDone(done, 2);
 
       // make sure we check for actual properties - not those present on every {}
-      engine = listen(port => {
-        engine.on("connection_error", err => {
+      engine = listen((port) => {
+        engine.on("connection_error", (err) => {
           expect(err.req).to.be.ok();
           expect(err.code).to.be(0);
           expect(err.message).to.be("Transport unknown");
@@ -81,11 +81,11 @@ describe("server", () => {
       });
     });
 
-    it("should disallow non-existent sids", done => {
+    it("should disallow non-existent sids", (done) => {
       const partialDone = createPartialDone(done, 2);
 
-      engine = listen(port => {
-        engine.on("connection_error", err => {
+      engine = listen((port) => {
+        engine.on("connection_error", (err) => {
           expect(err.req).to.be.ok();
           expect(err.code).to.be(1);
           expect(err.message).to.be("Session ID unknown");
@@ -107,17 +107,17 @@ describe("server", () => {
       });
     });
 
-    it("should disallow requests that are rejected by `allowRequest`", done => {
+    it("should disallow requests that are rejected by `allowRequest`", (done) => {
       const partialDone = createPartialDone(done, 2);
 
       engine = listen(
         {
           allowRequest: (req, fn) => {
             fn("Thou shall not pass", false);
-          }
+          },
         },
-        port => {
-          engine.on("connection_error", err => {
+        (port) => {
+          engine.on("connection_error", (err) => {
             expect(err.req).to.be.ok();
             expect(err.code).to.be(4);
             expect(err.message).to.be("Forbidden");
@@ -140,16 +140,16 @@ describe("server", () => {
       );
     });
 
-    it("should disallow connection that are rejected by `allowRequest` (ws)", done => {
+    it("should disallow connection that are rejected by `allowRequest` (ws)", (done) => {
       listen(
         {
           allowRequest: (req, fn) => {
             fn(null, false);
-          }
+          },
         },
-        port => {
+        (port) => {
           const client = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["websocket"]
+            transports: ["websocket"],
           });
           client.on("error", () => {
             done();
@@ -158,8 +158,8 @@ describe("server", () => {
       );
     });
 
-    it("should not throw when the client sends invalid data during the handshake (ws only)", done => {
-      listen(port => {
+    it("should not throw when the client sends invalid data during the handshake (ws only)", (done) => {
+      listen((port) => {
         // will throw "RangeError: Invalid WebSocket frame: RSV2 and RSV3 must be clear"
         request
           .get(`http://localhost:${port}/engine.io/`)
@@ -175,8 +175,8 @@ describe("server", () => {
       });
     });
 
-    it("should not throw when the client sends invalid data during the handshake (upgrade)", done => {
-      listen(port => {
+    it("should not throw when the client sends invalid data during the handshake (upgrade)", (done) => {
+      listen((port) => {
         request
           .get(`http://localhost:${port}/engine.io/`)
           .query({ transport: "polling", EIO: 4 })
@@ -200,8 +200,8 @@ describe("server", () => {
   });
 
   describe("handshake", () => {
-    it("should send the io cookie", done => {
-      listen({ cookie: true }, port => {
+    it("should send the io cookie", (done) => {
+      listen({ cookie: true }, (port) => {
         request
           .get(`http://localhost:${port}/engine.io/`)
           .query({ transport: "polling", EIO: 4 })
@@ -217,8 +217,8 @@ describe("server", () => {
       });
     });
 
-    it("should send the io cookie custom name", done => {
-      listen({ cookie: { name: "woot" } }, port => {
+    it("should send the io cookie custom name", (done) => {
+      listen({ cookie: { name: "woot" } }, (port) => {
         request
           .get(`http://localhost:${port}/engine.io/`)
           .query({ transport: "polling", b64: 1 })
@@ -233,8 +233,8 @@ describe("server", () => {
       });
     });
 
-    it("should send the cookie with custom path", done => {
-      listen({ cookie: { path: "/custom" } }, port => {
+    it("should send the cookie with custom path", (done) => {
+      listen({ cookie: { path: "/custom" } }, (port) => {
         request
           .get(`http://localhost:${port}/engine.io/`)
           .query({ transport: "polling", b64: 1 })
@@ -249,8 +249,8 @@ describe("server", () => {
       });
     });
 
-    it("should send the cookie with path=false", done => {
-      listen({ cookie: { path: false } }, port => {
+    it("should send the cookie with path=false", (done) => {
+      listen({ cookie: { path: false } }, (port) => {
         request
           .get(`http://localhost:${port}/engine.io/`)
           .query({ transport: "polling", b64: 1 })
@@ -265,8 +265,8 @@ describe("server", () => {
       });
     });
 
-    it("should send the io cookie with httpOnly=true", done => {
-      listen({ cookie: { httpOnly: true } }, port => {
+    it("should send the io cookie with httpOnly=true", (done) => {
+      listen({ cookie: { httpOnly: true } }, (port) => {
         request
           .get(`http://localhost:${port}/engine.io/`)
           .query({ transport: "polling", b64: 1 })
@@ -281,8 +281,8 @@ describe("server", () => {
       });
     });
 
-    it("should send the io cookie with sameSite=strict", done => {
-      listen({ cookie: { sameSite: "strict" } }, port => {
+    it("should send the io cookie with sameSite=strict", (done) => {
+      listen({ cookie: { sameSite: "strict" } }, (port) => {
         request
           .get(`http://localhost:${port}/engine.io/`)
           .query({ transport: "polling", b64: 1 })
@@ -297,8 +297,8 @@ describe("server", () => {
       });
     });
 
-    it("should send the io cookie with httpOnly=false", done => {
-      listen({ cookie: { httpOnly: false } }, port => {
+    it("should send the io cookie with httpOnly=false", (done) => {
+      listen({ cookie: { httpOnly: false } }, (port) => {
         request
           .get(`http://localhost:${port}/engine.io/`)
           .query({ transport: "polling", b64: 1 })
@@ -313,8 +313,8 @@ describe("server", () => {
       });
     });
 
-    it("should send the io cookie with httpOnly not boolean", done => {
-      listen({ cookie: { httpOnly: "no" } }, port => {
+    it("should send the io cookie with httpOnly not boolean", (done) => {
+      listen({ cookie: { httpOnly: "no" } }, (port) => {
         request
           .get(`http://localhost:${port}/engine.io/`)
           .query({ transport: "polling", b64: 1 })
@@ -329,8 +329,8 @@ describe("server", () => {
       });
     });
 
-    it("should not send the io cookie", done => {
-      listen({ cookie: false }, port => {
+    it("should not send the io cookie", (done) => {
+      listen({ cookie: false }, (port) => {
         request
           .get(`http://localhost:${port}/engine.io/`)
           .query({ transport: "polling" })
@@ -342,8 +342,8 @@ describe("server", () => {
       });
     });
 
-    it("should register a new client", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should register a new client", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         expect(Object.keys(engine.clients)).to.have.length(0);
         expect(engine.clientsCount).to.be(0);
 
@@ -356,14 +356,14 @@ describe("server", () => {
       });
     });
 
-    it("should register a new client with custom id", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should register a new client with custom id", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         expect(Object.keys(engine.clients)).to.have.length(0);
         expect(engine.clientsCount).to.be(0);
 
         const customId = "CustomId" + Date.now();
 
-        engine.generateId = req => customId;
+        engine.generateId = (req) => customId;
 
         const socket = new ClientSocket(`ws://localhost:${port}`);
         socket.once("open", () => {
@@ -376,8 +376,8 @@ describe("server", () => {
       });
     });
 
-    it("should register a new client with custom id (with a Promise)", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should register a new client with custom id (with a Promise)", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         const customId = "CustomId" + Date.now();
 
         engine.generateId = () => Promise.resolve(customId);
@@ -391,15 +391,15 @@ describe("server", () => {
       });
     });
 
-    it("should disallow connection that are rejected by `generateId`", done => {
+    it("should disallow connection that are rejected by `generateId`", (done) => {
       const partialDone = createPartialDone(done, 2);
 
-      engine = listen({ allowUpgrades: false }, port => {
+      engine = listen({ allowUpgrades: false }, (port) => {
         engine.generateId = () => {
           return Promise.reject(new Error("nope"));
         };
 
-        engine.on("connection_error", err => {
+        engine.on("connection_error", (err) => {
           expect(err.req).to.be.ok();
           expect(err.code).to.be(3);
           expect(err.message).to.be("Bad request");
@@ -414,18 +414,18 @@ describe("server", () => {
       });
     });
 
-    it("should disallow connection that are rejected by `generateId` (websocket only)", function(done) {
+    it("should disallow connection that are rejected by `generateId` (websocket only)", function (done) {
       if (process.env.EIO_WS_ENGINE === "eiows") {
         return this.skip();
       }
       const partialDone = createPartialDone(done, 2);
 
-      engine = listen({ allowUpgrades: false }, port => {
+      engine = listen({ allowUpgrades: false }, (port) => {
         engine.generateId = () => {
           return Promise.reject(new Error("nope"));
         };
 
-        engine.on("connection_error", err => {
+        engine.on("connection_error", (err) => {
           expect(err.req).to.be.ok();
           expect(err.code).to.be(3);
           expect(err.message).to.be("Bad request");
@@ -434,7 +434,7 @@ describe("server", () => {
         });
 
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
         socket.on("error", () => {
           partialDone();
@@ -442,10 +442,10 @@ describe("server", () => {
       });
     });
 
-    it("should exchange handshake data", done => {
-      listen({ allowUpgrades: false }, port => {
+    it("should exchange handshake data", (done) => {
+      listen({ allowUpgrades: false }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
-        socket.on("handshake", obj => {
+        socket.on("handshake", (obj) => {
           expect(obj.sid).to.be.a("string");
           expect(obj.pingTimeout).to.be.a("number");
           expect(obj.upgrades).to.be.an("array");
@@ -455,84 +455,84 @@ describe("server", () => {
       });
     });
 
-    it("should allow custom ping timeouts", done => {
-      listen({ allowUpgrades: false, pingTimeout: 123 }, port => {
+    it("should allow custom ping timeouts", (done) => {
+      listen({ allowUpgrades: false, pingTimeout: 123 }, (port) => {
         const socket = new ClientSocket(`http://localhost:${port}`);
-        socket.on("handshake", obj => {
+        socket.on("handshake", (obj) => {
           expect(obj.pingTimeout).to.be(123);
           done();
         });
       });
     });
 
-    it("should trigger a connection event with a Socket", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should trigger a connection event with a Socket", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         new ClientSocket(`ws://localhost:${port}`);
-        engine.on("connection", socket => {
+        engine.on("connection", (socket) => {
           expect(socket).to.be.an(Socket);
           done();
         });
       });
     });
 
-    it("should open with polling by default", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should open with polling by default", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         new ClientSocket(`ws://localhost:${port}`);
-        engine.on("connection", socket => {
+        engine.on("connection", (socket) => {
           expect(socket.transport.name).to.be("polling");
           done();
         });
       });
     });
 
-    it("should be able to open with ws directly", done => {
-      const engine = listen({ transports: ["websocket"] }, port => {
+    it("should be able to open with ws directly", (done) => {
+      const engine = listen({ transports: ["websocket"] }, (port) => {
         new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
-        engine.on("connection", socket => {
+        engine.on("connection", (socket) => {
           expect(socket.transport.name).to.be("websocket");
           done();
         });
       });
     });
 
-    it("should not suggest any upgrades for websocket", done => {
-      listen({ transports: ["websocket"] }, port => {
+    it("should not suggest any upgrades for websocket", (done) => {
+      listen({ transports: ["websocket"] }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
-        socket.on("handshake", obj => {
+        socket.on("handshake", (obj) => {
           expect(obj.upgrades).to.have.length(0);
           done();
         });
       });
     });
 
-    it("should not suggest upgrades when none are availble", done => {
-      listen({ transports: ["polling"] }, port => {
+    it("should not suggest upgrades when none are availble", (done) => {
+      listen({ transports: ["polling"] }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {});
-        socket.on("handshake", obj => {
+        socket.on("handshake", (obj) => {
           expect(obj.upgrades).to.have.length(0);
           done();
         });
       });
     });
 
-    it("should only suggest available upgrades", done => {
-      listen({ transports: ["polling"] }, port => {
+    it("should only suggest available upgrades", (done) => {
+      listen({ transports: ["polling"] }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {});
-        socket.on("handshake", obj => {
+        socket.on("handshake", (obj) => {
           expect(obj.upgrades).to.have.length(0);
           done();
         });
       });
     });
 
-    it("should suggest all upgrades when no transports are disabled", done => {
-      listen({}, port => {
+    it("should suggest all upgrades when no transports are disabled", (done) => {
+      listen({}, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {});
-        socket.on("handshake", obj => {
+        socket.on("handshake", (obj) => {
           expect(obj.upgrades).to.have.length(1);
           expect(obj.upgrades).to.have.contain("websocket");
           done();
@@ -540,17 +540,17 @@ describe("server", () => {
       });
     });
 
-    it("default to polling when proxy doesn't support websocket", done => {
+    it("default to polling when proxy doesn't support websocket", (done) => {
       const partialDone = createPartialDone(done, 2);
 
-      engine = listen({ allowUpgrades: false }, port => {
-        engine.on("connection", socket => {
-          socket.on("message", msg => {
+      engine = listen({ allowUpgrades: false }, (port) => {
+        engine.on("connection", (socket) => {
+          socket.on("message", (msg) => {
             if ("echo" === msg) socket.send(msg);
           });
         });
 
-        engine.on("connection_error", err => {
+        engine.on("connection_error", (err) => {
           expect(err.req).to.be.ok();
           expect(err.code).to.be(3);
           expect(err.message).to.be("Bad request");
@@ -571,7 +571,7 @@ describe("server", () => {
               expect(res.status).to.be(400);
               expect(res.body.code).to.be(3);
               socket.send("echo");
-              socket.on("message", msg => {
+              socket.on("message", (msg) => {
                 expect(msg).to.be("echo");
                 partialDone();
               });
@@ -580,10 +580,10 @@ describe("server", () => {
       });
     });
 
-    it("should allow arbitrary data through query string", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should allow arbitrary data through query string", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         new ClientSocket(`ws://localhost:${port}`, { query: { a: "b" } });
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           expect(conn.request._query).to.have.keys("transport", "a");
           expect(conn.request._query.a).to.be("b");
           done();
@@ -591,10 +591,10 @@ describe("server", () => {
       });
     });
 
-    it("should allow data through query string in uri", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should allow data through query string in uri", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         new ClientSocket(`ws://localhost:${port}?a=b&c=d`);
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           expect(conn.request._query.EIO).to.be.a("string");
           expect(conn.request._query.a).to.be("b");
           expect(conn.request._query.c).to.be("d");
@@ -603,15 +603,15 @@ describe("server", () => {
       });
     });
 
-    it("should disallow bad requests (handshake error)", function(done) {
+    it("should disallow bad requests (handshake error)", function (done) {
       const partialDone = createPartialDone(done, 2);
 
       engine = listen(
         {
-          cors: { credentials: true, origin: "http://engine.io" }
+          cors: { credentials: true, origin: "http://engine.io" },
         },
-        port => {
-          engine.on("connection_error", err => {
+        (port) => {
+          engine.on("connection_error", (err) => {
             expect(err.req).to.be.ok();
             expect(err.code).to.be(3);
             expect(err.message).to.be("Bad request");
@@ -640,21 +640,21 @@ describe("server", () => {
       );
     });
 
-    it("should disallow invalid origin header", function(done) {
+    it("should disallow invalid origin header", function (done) {
       if (process.env.EIO_WS_ENGINE === "uws") {
         return this.skip();
       }
       const partialDone = createPartialDone(done, 2);
 
-      engine = listen(port => {
+      engine = listen((port) => {
         // we can't send an invalid header through request.get
         // so add an invalid char here
-        engine.prepare = function(req) {
+        engine.prepare = function (req) {
           Server.prototype.prepare.call(engine, req);
           req.headers.origin += "\n";
         };
 
-        engine.on("connection_error", err => {
+        engine.on("connection_error", (err) => {
           expect(err.req).to.be.ok();
           expect(err.code).to.be(3);
           expect(err.message).to.be("Bad request");
@@ -677,11 +677,11 @@ describe("server", () => {
       });
     });
 
-    it("should disallow invalid handshake method", done => {
+    it("should disallow invalid handshake method", (done) => {
       const partialDone = createPartialDone(done, 2);
 
-      engine = listen(port => {
-        engine.on("connection_error", err => {
+      engine = listen((port) => {
+        engine.on("connection_error", (err) => {
           expect(err.req).to.be.ok();
           expect(err.code).to.be(2);
           expect(err.message).to.be("Bad handshake method");
@@ -702,7 +702,7 @@ describe("server", () => {
       });
     });
 
-    it("should disallow unsupported protocol versions", done => {
+    it("should disallow unsupported protocol versions", (done) => {
       const partialDone = createPartialDone(done, 2);
 
       const httpServer = http.createServer();
@@ -711,7 +711,7 @@ describe("server", () => {
       httpServer.listen(() => {
         const port = httpServer.address().port;
 
-        engine.on("connection_error", err => {
+        engine.on("connection_error", (err) => {
           expect(err.req).to.be.ok();
           expect(err.code).to.be(5);
           expect(err.message).to.be("Unsupported protocol version");
@@ -734,11 +734,11 @@ describe("server", () => {
       });
     });
 
-    it("should send a packet along with the handshake", done => {
-      listen({ initialPacket: "faster!" }, port => {
+    it("should send a packet along with the handshake", (done) => {
+      listen({ initialPacket: "faster!" }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             expect(msg).to.be("faster!");
             done();
           });
@@ -746,8 +746,8 @@ describe("server", () => {
       });
     });
 
-    it("should support requests without trailing slash", done => {
-      listen({ addTrailingSlash: false }, port => {
+    it("should support requests without trailing slash", (done) => {
+      listen({ addTrailingSlash: false }, (port) => {
         const partialDone = createPartialDone(done, 2);
 
         request
@@ -778,12 +778,12 @@ describe("server", () => {
   });
 
   describe("close", () => {
-    it("should be able to access non-empty writeBuffer at closing (server)", done => {
+    it("should be able to access non-empty writeBuffer at closing (server)", (done) => {
       const opts = { allowUpgrades: false };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         new ClientSocket(`http://localhost:${port}`);
-        engine.on("connection", conn => {
-          conn.on("close", reason => {
+        engine.on("connection", (conn) => {
+          conn.on("close", (reason) => {
             expect(conn.writeBuffer.length).to.be(1);
             setTimeout(() => {
               expect(conn.writeBuffer.length).to.be(0); // writeBuffer has been cleared
@@ -796,12 +796,12 @@ describe("server", () => {
       });
     });
 
-    it("should be able to access non-empty writeBuffer at closing (client)", done => {
+    it("should be able to access non-empty writeBuffer at closing (client)", (done) => {
       const opts = { allowUpgrades: false };
-      listen(opts, port => {
+      listen(opts, (port) => {
         const socket = new ClientSocket(`http://localhost:${port}`);
         socket.on("open", () => {
-          socket.on("close", reason => {
+          socket.on("close", (reason) => {
             expect(socket.writeBuffer.length).to.be(1);
             setTimeout(() => {
               expect(socket.writeBuffer.length).to.be(0);
@@ -814,13 +814,13 @@ describe("server", () => {
       });
     });
 
-    it("should trigger on server if the client does not pong", done => {
+    it("should trigger on server if the client does not pong", (done) => {
       const opts = { allowUpgrades: false, pingInterval: 5, pingTimeout: 5 };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`http://localhost:${port}`);
         socket.sendPacket = () => {};
-        engine.on("connection", conn => {
-          conn.on("close", reason => {
+        engine.on("connection", (conn) => {
+          conn.on("close", (reason) => {
             expect(reason).to.be("ping timeout");
             done();
           });
@@ -828,16 +828,16 @@ describe("server", () => {
       });
     });
 
-    it("should trigger on server even when there is no outstanding polling request (GH-198)", done => {
+    it("should trigger on server even when there is no outstanding polling request (GH-198)", (done) => {
       const opts = {
         allowUpgrades: false,
         pingInterval: 500,
-        pingTimeout: 500
+        pingTimeout: 500,
       };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`http://localhost:${port}`);
-        engine.on("connection", conn => {
-          conn.on("close", reason => {
+        engine.on("connection", (conn) => {
+          conn.on("close", (reason) => {
             expect(reason).to.be("ping timeout");
             done();
           });
@@ -851,9 +851,9 @@ describe("server", () => {
       });
     });
 
-    it("should trigger on client if server does not meet ping timeout", done => {
+    it("should trigger on client if server does not meet ping timeout", (done) => {
       const opts = { allowUpgrades: false, pingInterval: 50, pingTimeout: 30 };
-      listen(opts, port => {
+      listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
         socket.on("open", () => {
           // override onPacket and Transport#onClose to simulate an inactive server after handshake
@@ -867,9 +867,9 @@ describe("server", () => {
       });
     });
 
-    it("should trigger on both ends upon ping timeout", done => {
+    it("should trigger on both ends upon ping timeout", (done) => {
       const opts = { allowUpgrades: false, pingTimeout: 50, pingInterval: 50 };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
         let total = 2;
 
@@ -878,7 +878,7 @@ describe("server", () => {
           --total || done();
         }
 
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.on("close", onClose);
         });
 
@@ -892,13 +892,13 @@ describe("server", () => {
       });
     });
 
-    it("should trigger when server closes a client", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should trigger when server closes a client", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
         let total = 2;
 
-        engine.on("connection", conn => {
-          conn.on("close", reason => {
+        engine.on("connection", (conn) => {
+          conn.on("close", (reason) => {
             expect(reason).to.be("forced close");
             --total || done();
           });
@@ -908,7 +908,7 @@ describe("server", () => {
         });
 
         socket.on("open", () => {
-          socket.on("close", reason => {
+          socket.on("close", (reason) => {
             expect(reason).to.be("transport close");
             --total || done();
           });
@@ -916,16 +916,16 @@ describe("server", () => {
       });
     });
 
-    it("should trigger when server closes a client (ws)", done => {
+    it("should trigger when server closes a client (ws)", (done) => {
       const opts = { allowUpgrades: false, transports: ["websocket"] };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
         let total = 2;
 
-        engine.on("connection", conn => {
-          conn.on("close", reason => {
+        engine.on("connection", (conn) => {
+          conn.on("close", (reason) => {
             expect(reason).to.be("forced close");
             --total || done();
           });
@@ -935,7 +935,7 @@ describe("server", () => {
         });
 
         socket.on("open", () => {
-          socket.on("close", reason => {
+          socket.on("close", (reason) => {
             expect(reason).to.be("transport close");
             --total || done();
           });
@@ -943,46 +943,46 @@ describe("server", () => {
       });
     });
 
-    it("should allow client reconnect after restarting (ws)", function(done) {
+    it("should allow client reconnect after restarting (ws)", function (done) {
       if (process.env.EIO_WS_ENGINE === "uws") {
         return this.skip();
       }
       const opts = { transports: ["websocket"] };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         engine.httpServer.close();
         engine.httpServer.listen(port);
 
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
 
-        engine.once("connection", conn => {
+        engine.once("connection", (conn) => {
           setTimeout(() => {
             conn.close();
           }, 10);
         });
 
-        socket.once("close", reason => {
+        socket.once("close", (reason) => {
           expect(reason).to.be("transport close");
           done();
         });
       });
     });
 
-    it("should trigger when client closes", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should trigger when client closes", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
         let total = 2;
 
-        engine.on("connection", conn => {
-          conn.on("close", reason => {
+        engine.on("connection", (conn) => {
+          conn.on("close", (reason) => {
             expect(reason).to.be("transport close");
             --total || done();
           });
         });
 
         socket.on("open", () => {
-          socket.on("close", reason => {
+          socket.on("close", (reason) => {
             expect(reason).to.be("forced close");
             --total || done();
           });
@@ -994,23 +994,23 @@ describe("server", () => {
       });
     });
 
-    it("should trigger when client closes (ws)", done => {
+    it("should trigger when client closes (ws)", (done) => {
       const opts = { allowUpgrades: false, transports: ["websocket"] };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
         let total = 2;
 
-        engine.on("connection", conn => {
-          conn.on("close", reason => {
+        engine.on("connection", (conn) => {
+          conn.on("close", (reason) => {
             expect(reason).to.be("transport close");
             --total || done();
           });
         });
 
         socket.on("open", () => {
-          socket.on("close", reason => {
+          socket.on("close", (reason) => {
             expect(reason).to.be("forced close");
             --total || done();
           });
@@ -1022,36 +1022,36 @@ describe("server", () => {
       });
     });
 
-    it("should trigger when calling socket.close() in payload", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should trigger when calling socket.close() in payload", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
 
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.send(null, () => {
             socket.close();
           });
           conn.send("this should not be handled");
 
-          conn.on("close", reason => {
+          conn.on("close", (reason) => {
             expect(reason).to.be("transport close");
             done();
           });
         });
 
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             expect(msg).to.not.be("this should not be handled");
           });
 
-          socket.on("close", reason => {
+          socket.on("close", (reason) => {
             expect(reason).to.be("forced close");
           });
         });
       });
     });
 
-    it("should abort upgrade if socket is closed (GH-35)", done => {
-      listen({ allowUpgrades: true }, port => {
+    it("should abort upgrade if socket is closed (GH-35)", (done) => {
+      listen({ allowUpgrades: true }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
         socket.on("open", () => {
           socket.close();
@@ -1063,18 +1063,18 @@ describe("server", () => {
       });
     });
 
-    it("should abort connection when upgrade fails", done => {
-      listen({ allowUpgrades: true }, port => {
+    it("should abort connection when upgrade fails", (done) => {
+      listen({ allowUpgrades: true }, (port) => {
         const req = http.request(
           {
             port,
             path: "/engine.io/",
             headers: {
               connection: "Upgrade",
-              upgrade: "websocket"
-            }
+              upgrade: "websocket",
+            },
           },
-          res => {
+          (res) => {
             expect(res.statusCode).to.eql(400);
             res.resume();
             res.on("end", done);
@@ -1087,15 +1087,15 @@ describe("server", () => {
     it(
       "should trigger if a poll request is ongoing and the underlying " +
         "socket closes, as in a browser tab close",
-      $done => {
-        const engine = listen({ allowUpgrades: false }, port => {
+      ($done) => {
+        const engine = listen({ allowUpgrades: false }, (port) => {
           // hack to access the sockets created by node-xmlhttprequest
           // see: https://github.com/driverdan/node-XMLHttpRequest/issues/44
           const request = require("http").request;
           const sockets = [];
-          http.request = function(opts) {
+          http.request = function (opts) {
             const req = request.apply(null, arguments);
-            req.on("socket", socket => {
+            req.on("socket", (socket) => {
               sockets.push(socket);
             });
             return req;
@@ -1109,7 +1109,7 @@ describe("server", () => {
           var socket = new ClientSocket(`ws://localhost:${port}`);
           let serverSocket;
 
-          engine.on("connection", s => {
+          engine.on("connection", (s) => {
             serverSocket = s;
           });
 
@@ -1142,11 +1142,11 @@ describe("server", () => {
       }
     );
 
-    it("should not trigger with connection: close header", $done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should not trigger with connection: close header", ($done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         // intercept requests to add connection: close
         const request = http.request;
-        http.request = function() {
+        http.request = function () {
           const opts = arguments[0];
           opts.headers = opts.headers || {};
           opts.headers.Connection = "close";
@@ -1158,8 +1158,8 @@ describe("server", () => {
           $done();
         }
 
-        engine.on("connection", socket => {
-          socket.on("message", msg => {
+        engine.on("connection", (socket) => {
+          socket.on("message", (msg) => {
             expect(msg).to.equal("test");
             socket.send("woot");
           });
@@ -1169,7 +1169,7 @@ describe("server", () => {
         socket.on("open", () => {
           socket.send("test");
         });
-        socket.on("message", msg => {
+        socket.on("message", (msg) => {
           expect(msg).to.be("woot");
           done();
         });
@@ -1179,15 +1179,15 @@ describe("server", () => {
     it(
       "should not trigger early with connection `ping timeout`" +
         "after post handshake timeout",
-      done => {
+      (done) => {
         // first timeout should trigger after `pingInterval + pingTimeout`,
         // not just `pingTimeout`.
         const opts = {
           allowUpgrades: false,
           pingInterval: 300,
-          pingTimeout: 100
+          pingTimeout: 100,
         };
-        listen(opts, port => {
+        listen(opts, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`);
           let clientCloseReason = null;
 
@@ -1195,7 +1195,7 @@ describe("server", () => {
             socket.transport.removeListener("packet");
           });
           socket.on("open", () => {
-            socket.on("close", reason => {
+            socket.on("close", (reason) => {
               clientCloseReason = reason;
             });
           });
@@ -1211,26 +1211,26 @@ describe("server", () => {
     it(
       "should not trigger early with connection `ping timeout` " +
         "after post ping timeout",
-      done => {
+      (done) => {
         // ping timeout should trigger after `pingInterval + pingTimeout`,
         // not just `pingTimeout`.
         const opts = {
           allowUpgrades: false,
           pingInterval: 80,
-          pingTimeout: 50
+          pingTimeout: 50,
         };
-        const engine = listen(opts, port => {
+        const engine = listen(opts, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`);
           let clientCloseReason = null;
 
-          engine.on("connection", conn => {
+          engine.on("connection", (conn) => {
             conn.on("heartbeat", () => {
               conn.onPacket = () => {};
             });
           });
 
           socket.on("open", () => {
-            socket.on("close", reason => {
+            socket.on("close", (reason) => {
               clientCloseReason = reason;
             });
           });
@@ -1246,25 +1246,25 @@ describe("server", () => {
     it(
       "should trigger early with connection `transport close` " +
         "after missing pong",
-      done => {
+      (done) => {
         // ping timeout should trigger after `pingInterval + pingTimeout`,
         // not just `pingTimeout`.
         const opts = {
           allowUpgrades: false,
           pingInterval: 80,
-          pingTimeout: 50
+          pingTimeout: 50,
         };
-        const engine = listen(opts, port => {
+        const engine = listen(opts, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`);
           let clientCloseReason = null;
 
           socket.on("open", () => {
-            socket.on("close", reason => {
+            socket.on("close", (reason) => {
               clientCloseReason = reason;
             });
           });
 
-          engine.on("connection", conn => {
+          engine.on("connection", (conn) => {
             conn.on("heartbeat", () => {
               setTimeout(() => {
                 conn.close();
@@ -1283,23 +1283,23 @@ describe("server", () => {
       it(
         "should trigger with connection `ping timeout` " +
           "after `pingInterval + pingTimeout`",
-        done => {
+        (done) => {
           const opts = {
             allowUpgrades: false,
             pingInterval: 300,
-            pingTimeout: 100
+            pingTimeout: 100,
           };
-          const engine = listen(opts, port => {
+          const engine = listen(opts, (port) => {
             const socket = new ClientSocket(`ws://localhost:${port}`);
             let clientCloseReason = null;
 
             socket.on("open", () => {
-              socket.on("close", reason => {
+              socket.on("close", (reason) => {
                 clientCloseReason = reason;
               });
             });
 
-            engine.on("connection", conn => {
+            engine.on("connection", (conn) => {
               conn.once("heartbeat", () => {
                 setTimeout(() => {
                   socket.transport.removeListener("packet");
@@ -1321,23 +1321,23 @@ describe("server", () => {
       it(
         "should trigger with connection `ping timeout` " +
           "after `pingInterval + pingTimeout`",
-        done => {
+        (done) => {
           const opts = {
             allowUpgrades: false,
             pingInterval: 300,
-            pingTimeout: 100
+            pingTimeout: 100,
           };
-          const engine = listen(opts, port => {
+          const engine = listen(opts, (port) => {
             const socket = new ClientSocket(`ws://localhost:${port}`);
             let clientCloseReason = null;
 
             socket.on("open", () => {
-              socket.on("close", reason => {
+              socket.on("close", (reason) => {
                 clientCloseReason = reason;
               });
             });
 
-            engine.on("connection", conn => {
+            engine.on("connection", (conn) => {
               conn.once("heartbeat", () => {
                 socket.transport.removeListener("packet");
                 setTimeout(() => {
@@ -1359,14 +1359,14 @@ describe("server", () => {
 
     it(
       "should abort the polling data request if it is " + "in progress",
-      function(done) {
+      function (done) {
         if (process.env.EIO_WS_ENGINE === "uws") {
           return this.skip();
         }
-        const engine = listen({ transports: ["polling"] }, port => {
+        const engine = listen({ transports: ["polling"] }, (port) => {
           const socket = new ClientSocket(`http://localhost:${port}`);
 
-          engine.on("connection", conn => {
+          engine.on("connection", (conn) => {
             const onDataRequest = conn.transport.onDataRequest;
             conn.transport.onDataRequest = (req, res) => {
               engine.httpServer.close(done);
@@ -1385,15 +1385,15 @@ describe("server", () => {
 
     // tests https://github.com/LearnBoost/engine.io-client/issues/207
     // websocket test, transport error
-    it("should trigger transport close before open for ws", done => {
+    it("should trigger transport close before open for ws", (done) => {
       const opts = { transports: ["websocket"] };
-      listen(opts, port => {
+      listen(opts, (port) => {
         const url = `ws://0.0.0.0:${port}`;
         const socket = new ClientSocket(url);
         socket.on("open", () => {
           done(new Error("Test invalidation"));
         });
-        socket.on("close", reason => {
+        socket.on("close", (reason) => {
           expect(reason).to.be("transport error");
           done();
         });
@@ -1402,14 +1402,14 @@ describe("server", () => {
 
     // tests https://github.com/LearnBoost/engine.io-client/issues/207
     // polling test, transport error
-    it("should trigger transport close before open for xhr", done => {
+    it("should trigger transport close before open for xhr", (done) => {
       const opts = { transports: ["polling"] };
-      listen(opts, port => {
+      listen(opts, (port) => {
         const socket = new ClientSocket(`http://invalidserver:${port}`);
         socket.on("open", () => {
           done(new Error("Test invalidation"));
         });
-        socket.on("close", reason => {
+        socket.on("close", (reason) => {
           expect(reason).to.be("transport error");
           done();
         });
@@ -1418,14 +1418,14 @@ describe("server", () => {
 
     // tests https://github.com/LearnBoost/engine.io-client/issues/207
     // websocket test, force close
-    it("should trigger force close before open for ws", done => {
+    it("should trigger force close before open for ws", (done) => {
       const opts = { transports: ["websocket"] };
-      listen(opts, port => {
+      listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
         socket.on("open", () => {
           done(new Error("Test invalidation"));
         });
-        socket.on("close", reason => {
+        socket.on("close", (reason) => {
           expect(reason).to.be("forced close");
           done();
         });
@@ -1435,14 +1435,14 @@ describe("server", () => {
 
     // tests https://github.com/LearnBoost/engine.io-client/issues/207
     // polling test, force close
-    it("should trigger force close before open for xhr", done => {
+    it("should trigger force close before open for xhr", (done) => {
       const opts = { transports: ["polling"] };
-      listen(opts, port => {
+      listen(opts, (port) => {
         const socket = new ClientSocket(`http://localhost:${port}`);
         socket.on("open", () => {
           done(new Error("Test invalidation"));
         });
-        socket.on("close", reason => {
+        socket.on("close", (reason) => {
           expect(reason).to.be("forced close");
           done();
         });
@@ -1450,52 +1450,52 @@ describe("server", () => {
       });
     });
 
-    it("should close transport upon ping timeout (ws)", done => {
+    it("should close transport upon ping timeout (ws)", (done) => {
       const opts = {
         allowUpgrades: false,
         transports: ["websocket"],
         pingInterval: 50,
-        pingTimeout: 30
+        pingTimeout: 30,
       };
-      const engine = listen(opts, port => {
-        engine.on("connection", conn => {
+      const engine = listen(opts, (port) => {
+        engine.on("connection", (conn) => {
           conn.transport.on("close", done);
         });
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
         // override to simulate an inactive client
         socket.sendPacket = socket.onHeartbeat = () => {};
       });
     });
 
-    it("should close transport upon ping timeout (polling)", done => {
+    it("should close transport upon ping timeout (polling)", (done) => {
       const opts = {
         allowUpgrades: false,
         transports: ["polling"],
         pingInterval: 50,
-        pingTimeout: 30
+        pingTimeout: 30,
       };
-      const engine = listen(opts, port => {
-        engine.on("connection", conn => {
+      const engine = listen(opts, (port) => {
+        engine.on("connection", (conn) => {
           conn.transport.on("close", done);
         });
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["polling"]
+          transports: ["polling"],
         });
         // override to simulate an inactive client
         socket.sendPacket = socket.onHeartbeat = () => {};
       });
     });
 
-    it("should close transport upon parse error (ws)", done => {
+    it("should close transport upon parse error (ws)", (done) => {
       const opts = { allowUpgrades: false, transports: ["websocket"] };
-      const engine = listen(opts, port => {
-        engine.on("connection", conn => {
+      const engine = listen(opts, (port) => {
+        engine.on("connection", (conn) => {
           conn.transport.on("close", done);
         });
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
         socket.on("open", () => {
           socket.transport.ws.send("invalid");
@@ -1503,15 +1503,15 @@ describe("server", () => {
       });
     });
 
-    it("should close transport upon parse error (polling)", done => {
+    it("should close transport upon parse error (polling)", (done) => {
       const opts = { allowUpgrades: false, transports: ["polling"] };
-      const engine = listen(opts, port => {
-        engine.on("connection", conn => {
+      const engine = listen(opts, (port) => {
+        engine.on("connection", (conn) => {
           conn.transport.closeTimeout = 100;
           conn.transport.on("close", done);
         });
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["polling"]
+          transports: ["polling"],
         });
         socket.on("open", () => {
           socket.transport.doWrite("invalid", () => {});
@@ -1519,10 +1519,10 @@ describe("server", () => {
       });
     });
 
-    it("should close upgrading transport upon socket close", done => {
-      const engine = listen(port => {
-        engine.on("connection", conn => {
-          conn.on("upgrading", transport => {
+    it("should close upgrading transport upon socket close", (done) => {
+      const engine = listen((port) => {
+        engine.on("connection", (conn) => {
+          conn.on("upgrading", (transport) => {
             transport.on("close", done);
             conn.close();
           });
@@ -1531,25 +1531,25 @@ describe("server", () => {
       });
     });
 
-    it("should close upgrading transport upon upgrade timeout", done => {
+    it("should close upgrading transport upon upgrade timeout", (done) => {
       const opts = { upgradeTimeout: 100 };
-      const engine = listen(opts, port => {
-        engine.on("connection", conn => {
-          conn.on("upgrading", transport => {
+      const engine = listen(opts, (port) => {
+        engine.on("connection", (conn) => {
+          conn.on("upgrading", (transport) => {
             transport.on("close", done);
           });
         });
         const socket = new ClientSocket(`ws://localhost:${port}`);
-        socket.on("upgrading", transport => {
+        socket.on("upgrading", (transport) => {
           // override not to complete upgrading
           transport.send = () => {};
         });
       });
     });
 
-    it("should not timeout after an upgrade", done => {
+    it("should not timeout after an upgrade", (done) => {
       const opts = { pingInterval: 200, pingTimeout: 20 };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
         socket.on("open", () => {
           setTimeout(() => {
@@ -1565,9 +1565,9 @@ describe("server", () => {
       });
     });
 
-    it("should not crash when messing with Object prototype", done => {
+    it("should not crash when messing with Object prototype", (done) => {
       Object.prototype.foo = "bar"; // eslint-disable-line no-extend-native
-      const engine = listen({ allowUpgrades: true }, port => {
+      const engine = listen({ allowUpgrades: true }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
         socket.on("open", () => {
           engine.close();
@@ -1579,7 +1579,7 @@ describe("server", () => {
     });
 
     describe("graceful close", () => {
-      before(function() {
+      before(function () {
         if (process.env.EIO_WS_ENGINE === "uws") {
           this.skip();
         }
@@ -1591,31 +1591,31 @@ describe("server", () => {
         );
       }
 
-      it("should stop socket and timers", done => {
+      it("should stop socket and timers", (done) => {
         exec(fixture("server-close.js"), done);
       });
 
-      it("should stop upgraded socket and timers", done => {
+      it("should stop upgraded socket and timers", (done) => {
         exec(fixture("server-close-upgraded.js"), done);
       });
 
-      it("should stop upgrading socket and timers", done => {
+      it("should stop upgrading socket and timers", (done) => {
         exec(fixture("server-close-upgrading.js"), done);
       });
     });
   });
 
-  describe("messages", function() {
+  describe("messages", function () {
     this.timeout(5000);
 
-    it("should arrive from server to client", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should arrive from server to client", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.send("a");
         });
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             expect(msg).to.be("a");
             done();
           });
@@ -1623,13 +1623,13 @@ describe("server", () => {
       });
     });
 
-    it("should arrive from server to client (multiple)", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should arrive from server to client (multiple)", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
         const expected = ["a", "b", "c"];
         let i = 0;
 
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.send("a");
           // we use set timeouts to ensure the messages are delivered as part
           // of different.
@@ -1653,23 +1653,23 @@ describe("server", () => {
           });
         });
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             expect(msg).to.be(expected[i++]);
           });
         });
       });
     });
 
-    it("should not be receiving data when getting a message longer than maxHttpBufferSize when polling", done => {
+    it("should not be receiving data when getting a message longer than maxHttpBufferSize when polling", (done) => {
       const opts = {
         allowUpgrades: false,
         transports: ["polling"],
-        maxHttpBufferSize: 5
+        maxHttpBufferSize: 5,
       };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
-        engine.on("connection", conn => {
-          conn.on("message", msg => {
+        engine.on("connection", (conn) => {
+          conn.on("message", (msg) => {
             done(
               new Error("Test invalidation (message is longer than allowed)")
             );
@@ -1684,14 +1684,14 @@ describe("server", () => {
       });
     });
 
-    it("should not be receiving data when getting a message longer than maxHttpBufferSize (websocket)", done => {
+    it("should not be receiving data when getting a message longer than maxHttpBufferSize (websocket)", (done) => {
       const opts = { maxHttpBufferSize: 5 };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
-        engine.on("connection", conn => {
-          conn.on("message", msg => {
+        engine.on("connection", (conn) => {
+          conn.on("message", (msg) => {
             done(
               new Error("Test invalidation (message is longer than allowed)")
             );
@@ -1706,16 +1706,16 @@ describe("server", () => {
       });
     });
 
-    it("should receive data when getting a message shorter than maxHttpBufferSize when polling", done => {
+    it("should receive data when getting a message shorter than maxHttpBufferSize when polling", (done) => {
       const opts = {
         allowUpgrades: false,
         transports: ["polling"],
-        maxHttpBufferSize: 5
+        maxHttpBufferSize: 5,
       };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
-        engine.on("connection", conn => {
-          conn.on("message", msg => {
+        engine.on("connection", (conn) => {
+          conn.on("message", (msg) => {
             expect(msg).to.be("a");
             done();
           });
@@ -1726,17 +1726,17 @@ describe("server", () => {
       });
     });
 
-    it("should arrive from server to client (ws)", done => {
+    it("should arrive from server to client (ws)", (done) => {
       const opts = { allowUpgrades: false, transports: ["websocket"] };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.send("a");
         });
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             expect(msg).to.be("a");
             done();
           });
@@ -1744,16 +1744,16 @@ describe("server", () => {
       });
     });
 
-    it("should arrive from server to client (multiple, ws)", done => {
+    it("should arrive from server to client (multiple, ws)", (done) => {
       const opts = { allowUpgrades: false, transports: ["websocket"] };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
         const expected = ["a", "b", "c"];
         let i = 0;
 
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.send("a");
           setTimeout(() => {
             conn.send("b");
@@ -1771,23 +1771,23 @@ describe("server", () => {
         });
 
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             expect(msg).to.be(expected[i++]);
           });
         });
       });
     });
 
-    it("should arrive from server to client (multiple, no delay, ws)", done => {
+    it("should arrive from server to client (multiple, no delay, ws)", (done) => {
       const opts = { allowUpgrades: false, transports: ["websocket"] };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
         const expected = ["a", "b", "c"];
         let i = 0;
 
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.on("close", () => {
             setTimeout(() => {
               expect(i).to.be(3);
@@ -1803,31 +1803,31 @@ describe("server", () => {
         });
 
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             expect(msg).to.be(expected[i++]);
           });
         });
       });
     });
 
-    it("should arrive when binary data is sent as Int8Array (ws)", done => {
+    it("should arrive when binary data is sent as Int8Array (ws)", (done) => {
       const binaryData = new Int8Array(5);
       for (let i = 0; i < binaryData.length; i++) {
         binaryData[i] = i;
       }
 
       const opts = { allowUpgrades: false, transports: ["websocket"] };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
 
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.send(binaryData);
         });
 
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             for (let i = 0; i < binaryData.length; i++) {
               const num = msg.readInt8(i);
               expect(num).to.be(i);
@@ -1838,24 +1838,24 @@ describe("server", () => {
       });
     });
 
-    it("should arrive when binary data is sent as Int32Array (ws)", done => {
+    it("should arrive when binary data is sent as Int32Array (ws)", (done) => {
       const binaryData = new Int32Array(5);
       for (let i = 0; i < binaryData.length; i++) {
         binaryData[i] = (i + 100) * 9823;
       }
 
       const opts = { allowUpgrades: false, transports: ["websocket"] };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
 
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.send(binaryData);
         });
 
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             let i = 0,
               ii = 0;
             for (; ii < binaryData.length; i += 4, ii++) {
@@ -1868,24 +1868,24 @@ describe("server", () => {
       });
     });
 
-    it("should arrive when binary data is sent as Int32Array, given as ArrayBuffer(ws)", done => {
+    it("should arrive when binary data is sent as Int32Array, given as ArrayBuffer(ws)", (done) => {
       const binaryData = new Int32Array(5);
       for (let i = 0; i < binaryData.length; i++) {
         binaryData[i] = (i + 100) * 9823;
       }
 
       const opts = { allowUpgrades: false, transports: ["websocket"] };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
 
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.send(binaryData.buffer);
         });
 
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             let i = 0,
               ii = 0;
             for (; ii < binaryData.length; i += 4, ii++) {
@@ -1898,24 +1898,24 @@ describe("server", () => {
       });
     });
 
-    it("should arrive when binary data is sent as Buffer (ws)", done => {
+    it("should arrive when binary data is sent as Buffer (ws)", (done) => {
       const binaryData = Buffer.allocUnsafe(5);
       for (let i = 0; i < binaryData.length; i++) {
         binaryData.writeInt8(i, i);
       }
 
       const opts = { allowUpgrades: false, transports: ["websocket"] };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
 
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.send(binaryData);
         });
 
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             for (let i = 0; i < binaryData.length; i++) {
               const num = msg.readInt8(i);
               expect(num).to.be(i);
@@ -1926,24 +1926,24 @@ describe("server", () => {
       });
     });
 
-    it("should arrive when binary data sent as Buffer (polling)", done => {
+    it("should arrive when binary data sent as Buffer (polling)", (done) => {
       const binaryData = Buffer.allocUnsafe(5);
       for (let i = 0; i < binaryData.length; i++) {
         binaryData.writeInt8(i, i);
       }
 
       const opts = { allowUpgrades: false, transports: ["polling"] };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["polling"]
+          transports: ["polling"],
         });
 
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.send(binaryData);
         });
 
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             for (let i = 0; i < binaryData.length; i++) {
               const num = msg.readInt8(i);
               expect(num).to.be(i);
@@ -1955,25 +1955,25 @@ describe("server", () => {
       });
     });
 
-    it("should arrive as ArrayBuffer if requested when binary data sent as Buffer (ws)", done => {
+    it("should arrive as ArrayBuffer if requested when binary data sent as Buffer (ws)", (done) => {
       const binaryData = Buffer.allocUnsafe(5);
       for (let i = 0; i < binaryData.length; i++) {
         binaryData.writeInt8(i, i);
       }
 
       const opts = { allowUpgrades: false, transports: ["websocket"] };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
         socket.binaryType = "arraybuffer";
 
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.send(binaryData);
         });
 
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             expect(msg instanceof ArrayBuffer).to.be(true);
             const intArray = new Int8Array(msg);
             for (let i = 0; i < binaryData.length; i++) {
@@ -1986,18 +1986,18 @@ describe("server", () => {
       });
     });
 
-    it("should arrive when content is split in multiple chunks (polling)", done => {
+    it("should arrive when content is split in multiple chunks (polling)", (done) => {
       const engine = listen(
         {
-          maxHttpBufferSize: 1e10
+          maxHttpBufferSize: 1e10,
         },
-        port => {
+        (port) => {
           const client = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["polling"]
+            transports: ["polling"],
           });
 
-          engine.on("connection", socket => {
-            socket.on("message", data => {
+          engine.on("connection", (socket) => {
+            socket.on("message", (data) => {
               client.close();
               done();
             });
@@ -2010,18 +2010,18 @@ describe("server", () => {
       );
     });
 
-    it("should arrive when content is sent with chunked transfer-encoding (polling)", function(done) {
+    it("should arrive when content is sent with chunked transfer-encoding (polling)", function (done) {
       if (process.env.EIO_WS_ENGINE === "uws") {
         // µWebSockets.js does not currently support chunked encoding: https://github.com/uNetworking/uWebSockets.js/issues/669
         return this.skip();
       }
-      const engine = listen(port => {
+      const engine = listen((port) => {
         const client = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["polling"]
+          transports: ["polling"],
         });
 
-        engine.on("connection", socket => {
-          socket.on("message", data => {
+        engine.on("connection", (socket) => {
+          socket.on("message", (data) => {
             expect(data).to.eql("123");
 
             client.close();
@@ -2034,7 +2034,7 @@ describe("server", () => {
             host: "localhost",
             port,
             path: `/engine.io/?EIO=4&transport=polling&sid=${client.id}`,
-            method: "POST"
+            method: "POST",
           });
 
           req.write(process.env.EIO_CLIENT === "3" ? "4:41" : "41");
@@ -2045,25 +2045,25 @@ describe("server", () => {
       });
     });
 
-    it("should arrive as ArrayBuffer if requested when binary data sent as Buffer (polling)", done => {
+    it("should arrive as ArrayBuffer if requested when binary data sent as Buffer (polling)", (done) => {
       const binaryData = Buffer.allocUnsafe(5);
       for (let i = 0; i < binaryData.length; i++) {
         binaryData.writeInt8(i, i);
       }
 
       const opts = { allowUpgrades: false, transports: ["polling"] };
-      const engine = listen(opts, port => {
+      const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["polling"]
+          transports: ["polling"],
         });
         socket.binaryType = "arraybuffer";
 
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.send(binaryData);
         });
 
         socket.on("open", () => {
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             expect(msg instanceof ArrayBuffer).to.be(true);
             const intArray = new Int8Array(msg);
             for (let i = 0; i < binaryData.length; i++) {
@@ -2076,9 +2076,9 @@ describe("server", () => {
       });
     });
 
-    it("should trigger a flush/drain event", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
-        engine.on("connection", socket => {
+    it("should trigger a flush/drain event", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
+        engine.on("connection", (socket) => {
           let totalEvents = 4;
 
           engine.on("flush", (sock, buf) => {
@@ -2086,12 +2086,12 @@ describe("server", () => {
             expect(buf).to.be.an("array");
             --totalEvents || done();
           });
-          socket.on("flush", buf => {
+          socket.on("flush", (buf) => {
             expect(buf).to.be.an("array");
             --totalEvents || done();
           });
 
-          engine.on("drain", sock => {
+          engine.on("drain", (sock) => {
             expect(sock).to.be(socket);
             expect(socket.writeBuffer.length).to.be(0);
             --totalEvents || done();
@@ -2111,7 +2111,7 @@ describe("server", () => {
     it(
       "should interleave with pongs if many messages buffered " +
         "after connection open",
-      function(done) {
+      function (done) {
         if (process.env.EIO_WS_ENGINE === "uws") {
           return this.skip();
         }
@@ -2121,18 +2121,18 @@ describe("server", () => {
         const opts = {
           transports: ["websocket"],
           pingInterval: 200,
-          pingTimeout: 100
+          pingTimeout: 100,
         };
 
-        const engine = listen(opts, port => {
+        const engine = listen(opts, (port) => {
           const messageCount = 100;
           const messagePayload = new Array(256 * 256).join("a");
           let connection = null;
-          engine.on("connection", conn => {
+          engine.on("connection", (conn) => {
             connection = conn;
           });
           const socket = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["websocket"]
+            transports: ["websocket"],
           });
           socket.on("open", () => {
             for (let i = 0; i < messageCount; i++) {
@@ -2140,7 +2140,7 @@ describe("server", () => {
               connection.send(messagePayload + "|message: " + i); // does not work
             }
             let receivedCount = 0;
-            socket.on("message", msg => {
+            socket.on("message", (msg) => {
               receivedCount += 1;
               if (receivedCount === messageCount) {
                 done();
@@ -2151,20 +2151,20 @@ describe("server", () => {
       }
     );
 
-    it("should support chinese", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should support chinese", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
         const shi = "石室詩士施氏，嗜獅，誓食十獅。";
         const shi2 = "氏時時適市視獅。";
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           conn.send(".");
           conn.send(shi);
           conn.send(shi2);
-          conn.once("message", msg0 => {
+          conn.once("message", (msg0) => {
             expect(msg0).to.be(".");
-            conn.once("message", msg => {
+            conn.once("message", (msg) => {
               expect(msg).to.be(shi);
-              conn.once("message", msg2 => {
+              conn.once("message", (msg2) => {
                 expect(msg2).to.be(shi2);
                 done();
               });
@@ -2172,11 +2172,11 @@ describe("server", () => {
           });
         });
         socket.on("open", () => {
-          socket.once("message", msg0 => {
+          socket.once("message", (msg0) => {
             expect(msg0).to.be(".");
-            socket.once("message", msg => {
+            socket.once("message", (msg) => {
               expect(msg).to.be(shi);
-              socket.once("message", msg2 => {
+              socket.once("message", (msg2) => {
                 expect(msg2).to.be(shi2);
                 socket.send(".");
                 socket.send(shi);
@@ -2188,7 +2188,7 @@ describe("server", () => {
       });
     });
 
-    it("should send and receive data with key and cert (polling)", function(done) {
+    it("should send and receive data with key and cert (polling)", function (done) {
       if (process.env.EIO_WS_ENGINE === "uws") {
         return this.skip();
       }
@@ -2197,14 +2197,14 @@ describe("server", () => {
         cert: fs.readFileSync("test/fixtures/server.crt"),
         ca: fs.readFileSync("test/fixtures/ca.crt"),
         requestCert: true,
-        rejectUnauthorized: true
+        rejectUnauthorized: true,
       };
 
       const opts = {
         key: fs.readFileSync("test/fixtures/client.key"),
         cert: fs.readFileSync("test/fixtures/client.crt"),
         ca: fs.readFileSync("test/fixtures/ca.crt"),
-        transports: ["polling"]
+        transports: ["polling"],
       };
 
       const srv = https.createServer(srvOpts, (req, res) => {
@@ -2215,15 +2215,15 @@ describe("server", () => {
       const engine = new Server({
         transports: ["polling"],
         allowUpgrades: false,
-        allowEIO3: true
+        allowEIO3: true,
       });
       engine.attach(srv);
       srv.listen(() => {
         const port = srv.address().port;
         const socket = new ClientSocket(`https://localhost:${port}`, opts);
 
-        engine.on("connection", conn => {
-          conn.on("message", msg => {
+        engine.on("connection", (conn) => {
+          conn.on("message", (msg) => {
             expect(msg).to.be("hello");
             done();
           });
@@ -2235,7 +2235,7 @@ describe("server", () => {
       });
     });
 
-    it("should send and receive data with ca when not requiring auth (polling)", function(done) {
+    it("should send and receive data with ca when not requiring auth (polling)", function (done) {
       if (process.env.EIO_WS_ENGINE === "uws") {
         return this.skip();
       }
@@ -2244,12 +2244,12 @@ describe("server", () => {
         cert: fs.readFileSync("test/fixtures/server.crt"),
         ca: fs.readFileSync("test/fixtures/ca.crt"),
         requestCert: true,
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
       };
 
       const opts = {
         ca: fs.readFileSync("test/fixtures/ca.crt"),
-        transports: ["polling"]
+        transports: ["polling"],
       };
 
       const srv = https.createServer(srvOpts, (req, res) => {
@@ -2260,15 +2260,15 @@ describe("server", () => {
       const engine = new Server({
         transports: ["polling"],
         allowUpgrades: false,
-        allowEIO3: true
+        allowEIO3: true,
       });
       engine.attach(srv);
       srv.listen(() => {
         const port = srv.address().port;
         const socket = new ClientSocket(`https://localhost:${port}`, opts);
 
-        engine.on("connection", conn => {
-          conn.on("message", msg => {
+        engine.on("connection", (conn) => {
+          conn.on("message", (msg) => {
             expect(msg).to.be("hello");
             done();
           });
@@ -2280,7 +2280,7 @@ describe("server", () => {
       });
     });
 
-    it("should send and receive data with key and cert (ws)", function(done) {
+    it("should send and receive data with key and cert (ws)", function (done) {
       if (process.env.EIO_WS_ENGINE === "uws") {
         return this.skip();
       }
@@ -2289,14 +2289,14 @@ describe("server", () => {
         cert: fs.readFileSync("test/fixtures/server.crt"),
         ca: fs.readFileSync("test/fixtures/ca.crt"),
         requestCert: true,
-        rejectUnauthorized: true
+        rejectUnauthorized: true,
       };
 
       const opts = {
         key: fs.readFileSync("test/fixtures/client.key"),
         cert: fs.readFileSync("test/fixtures/client.crt"),
         ca: fs.readFileSync("test/fixtures/ca.crt"),
-        transports: ["websocket"]
+        transports: ["websocket"],
       };
 
       const srv = https.createServer(srvOpts, (req, res) => {
@@ -2307,15 +2307,15 @@ describe("server", () => {
       const engine = new Server({
         transports: ["websocket"],
         allowUpgrades: false,
-        allowEIO3: true
+        allowEIO3: true,
       });
       engine.attach(srv);
       srv.listen(() => {
         const port = srv.address().port;
         const socket = new ClientSocket(`https://localhost:${port}`, opts);
 
-        engine.on("connection", conn => {
-          conn.on("message", msg => {
+        engine.on("connection", (conn) => {
+          conn.on("message", (msg) => {
             expect(msg).to.be("hello");
             done();
           });
@@ -2327,7 +2327,7 @@ describe("server", () => {
       });
     });
 
-    it("should send and receive data with pfx (polling)", function(done) {
+    it("should send and receive data with pfx (polling)", function (done) {
       if (process.env.EIO_WS_ENGINE === "uws") {
         return this.skip();
       }
@@ -2336,13 +2336,13 @@ describe("server", () => {
         cert: fs.readFileSync("test/fixtures/server.crt"),
         ca: fs.readFileSync("test/fixtures/ca.crt"),
         requestCert: true,
-        rejectUnauthorized: true
+        rejectUnauthorized: true,
       };
 
       const opts = {
         pfx: fs.readFileSync("test/fixtures/client.pfx"),
         ca: fs.readFileSync("test/fixtures/ca.crt"),
-        transports: ["polling"]
+        transports: ["polling"],
       };
 
       const srv = https.createServer(srvOpts, (req, res) => {
@@ -2353,15 +2353,15 @@ describe("server", () => {
       const engine = new Server({
         transports: ["polling"],
         allowUpgrades: false,
-        allowEIO3: true
+        allowEIO3: true,
       });
       engine.attach(srv);
       srv.listen(() => {
         const port = srv.address().port;
         const socket = new ClientSocket(`https://localhost:${port}`, opts);
 
-        engine.on("connection", conn => {
-          conn.on("message", msg => {
+        engine.on("connection", (conn) => {
+          conn.on("message", (msg) => {
             expect(msg).to.be("hello");
             done();
           });
@@ -2373,7 +2373,7 @@ describe("server", () => {
       });
     });
 
-    it("should send and receive data with pfx (ws)", function(done) {
+    it("should send and receive data with pfx (ws)", function (done) {
       if (process.env.EIO_WS_ENGINE === "uws") {
         return this.skip();
       }
@@ -2382,13 +2382,13 @@ describe("server", () => {
         cert: fs.readFileSync("test/fixtures/server.crt"),
         ca: fs.readFileSync("test/fixtures/ca.crt"),
         requestCert: true,
-        rejectUnauthorized: true
+        rejectUnauthorized: true,
       };
 
       const opts = {
         pfx: fs.readFileSync("test/fixtures/client.pfx"),
         ca: fs.readFileSync("test/fixtures/ca.crt"),
-        transports: ["websocket"]
+        transports: ["websocket"],
       };
 
       const srv = https.createServer(srvOpts, (req, res) => {
@@ -2399,15 +2399,15 @@ describe("server", () => {
       const engine = new Server({
         transports: ["websocket"],
         allowUpgrades: false,
-        allowEIO3: true
+        allowEIO3: true,
       });
       engine.attach(srv);
       srv.listen(() => {
         const port = srv.address().port;
         const socket = new ClientSocket(`https://localhost:${port}`, opts);
 
-        engine.on("connection", conn => {
-          conn.on("message", msg => {
+        engine.on("connection", (conn) => {
+          conn.on("message", (msg) => {
             expect(msg).to.be("hello");
             done();
           });
@@ -2422,10 +2422,10 @@ describe("server", () => {
 
   describe("send", () => {
     describe("writeBuffer", () => {
-      it("should not empty until `drain` event (polling)", done => {
-        listen({ allowUpgrades: false }, port => {
+      it("should not empty until `drain` event (polling)", (done) => {
+        listen({ allowUpgrades: false }, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["polling"]
+            transports: ["polling"],
           });
           let totalEvents = 2;
           socket.on("open", () => {
@@ -2441,10 +2441,10 @@ describe("server", () => {
         });
       });
 
-      it("should not empty until `drain` event (websocket)", done => {
-        listen({ allowUpgrades: false }, port => {
+      it("should not empty until `drain` event (websocket)", (done) => {
+        listen({ allowUpgrades: false }, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["websocket"]
+            transports: ["websocket"],
           });
           let totalEvents = 2;
           socket.on("open", () => {
@@ -2462,22 +2462,22 @@ describe("server", () => {
     });
 
     describe("callback", () => {
-      it("should execute in order when message sent (client) (polling)", done => {
-        const engine = listen({ allowUpgrades: false }, port => {
+      it("should execute in order when message sent (client) (polling)", (done) => {
+        const engine = listen({ allowUpgrades: false }, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["polling"]
+            transports: ["polling"],
           });
           let i = 0;
           let j = 0;
 
-          engine.on("connection", conn => {
-            conn.on("message", msg => {
+          engine.on("connection", (conn) => {
+            conn.on("message", (msg) => {
               conn.send(msg);
             });
           });
 
           socket.on("open", () => {
-            socket.on("message", msg => {
+            socket.on("message", (msg) => {
               // send another packet until we've sent 3 total
               if (++i < 3) {
                 expect(i).to.eql(j);
@@ -2490,7 +2490,7 @@ describe("server", () => {
             function sendFn() {
               socket.send(
                 j,
-                (value => {
+                ((value) => {
                   j++;
                 })(j)
               );
@@ -2501,22 +2501,22 @@ describe("server", () => {
         });
       });
 
-      it("should execute in order when message sent (client) (websocket)", done => {
-        const engine = listen({ allowUpgrades: false }, port => {
+      it("should execute in order when message sent (client) (websocket)", (done) => {
+        const engine = listen({ allowUpgrades: false }, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["websocket"]
+            transports: ["websocket"],
           });
           let i = 0;
           let j = 0;
 
-          engine.on("connection", conn => {
-            conn.on("message", msg => {
+          engine.on("connection", (conn) => {
+            conn.on("message", (msg) => {
               conn.send(msg);
             });
           });
 
           socket.on("open", () => {
-            socket.on("message", msg => {
+            socket.on("message", (msg) => {
               // send another packet until we've sent 3 total
               if (++i < 3) {
                 expect(i).to.eql(j);
@@ -2529,7 +2529,7 @@ describe("server", () => {
             function sendFn() {
               socket.send(
                 j,
-                (value => {
+                ((value) => {
                   j++;
                 })(j)
               );
@@ -2540,22 +2540,22 @@ describe("server", () => {
         });
       });
 
-      it("should execute in order with payloads (client) (polling)", done => {
-        const engine = listen({ allowUpgrades: false }, port => {
+      it("should execute in order with payloads (client) (polling)", (done) => {
+        const engine = listen({ allowUpgrades: false }, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["polling"]
+            transports: ["polling"],
           });
           let i = 0;
           let lastCbFired = 0;
 
-          engine.on("connection", conn => {
-            conn.on("message", msg => {
+          engine.on("connection", (conn) => {
+            conn.on("message", (msg) => {
               conn.send(msg);
             });
           });
 
           socket.on("open", () => {
-            socket.on("message", msg => {
+            socket.on("message", (msg) => {
               expect(msg).to.eql(i + 1);
               i++;
             });
@@ -2585,22 +2585,22 @@ describe("server", () => {
         });
       });
 
-      it("should execute in order with payloads (client) (websocket)", done => {
-        const engine = listen({ allowUpgrades: false }, port => {
+      it("should execute in order with payloads (client) (websocket)", (done) => {
+        const engine = listen({ allowUpgrades: false }, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["websocket"]
+            transports: ["websocket"],
           });
           let i = 0;
           let lastCbFired = 0;
 
-          engine.on("connection", conn => {
-            conn.on("message", msg => {
+          engine.on("connection", (conn) => {
+            conn.on("message", (msg) => {
               conn.send(msg);
             });
           });
 
           socket.on("open", () => {
-            socket.on("message", msg => {
+            socket.on("message", (msg) => {
               expect(msg).to.eql(i + 1);
               i++;
             });
@@ -2630,21 +2630,21 @@ describe("server", () => {
         });
       });
 
-      it("should execute when message sent (polling)", done => {
-        const engine = listen({ allowUpgrades: false }, port => {
+      it("should execute when message sent (polling)", (done) => {
+        const engine = listen({ allowUpgrades: false }, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["polling"]
+            transports: ["polling"],
           });
           let i = 0;
           let j = 0;
 
-          engine.on("connection", conn => {
-            conn.send("a", transport => {
+          engine.on("connection", (conn) => {
+            conn.send("a", (transport) => {
               i++;
             });
           });
           socket.on("open", () => {
-            socket.on("message", msg => {
+            socket.on("message", (msg) => {
               j++;
             });
           });
@@ -2656,22 +2656,22 @@ describe("server", () => {
         });
       });
 
-      it("should execute when message sent (websocket)", done => {
-        const engine = listen({ allowUpgrades: false }, port => {
+      it("should execute when message sent (websocket)", (done) => {
+        const engine = listen({ allowUpgrades: false }, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["websocket"]
+            transports: ["websocket"],
           });
           let i = 0;
           let j = 0;
 
-          engine.on("connection", conn => {
-            conn.send("a", transport => {
+          engine.on("connection", (conn) => {
+            conn.send("a", (transport) => {
               i++;
             });
           });
 
           socket.on("open", () => {
-            socket.on("message", msg => {
+            socket.on("message", (msg) => {
               j++;
             });
           });
@@ -2683,22 +2683,22 @@ describe("server", () => {
         });
       });
 
-      it("should execute once for each send", done => {
-        const engine = listen(port => {
+      it("should execute once for each send", (done) => {
+        const engine = listen((port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`);
           let a = 0;
           let b = 0;
           let c = 0;
           let all = 0;
 
-          engine.on("connection", conn => {
+          engine.on("connection", (conn) => {
             conn.send("a");
             conn.send("b");
             conn.send("c");
           });
 
           socket.on("open", () => {
-            socket.on("message", msg => {
+            socket.on("message", (msg) => {
               if (msg === "a") a++;
               if (msg === "b") b++;
               if (msg === "c") c++;
@@ -2714,23 +2714,23 @@ describe("server", () => {
         });
       });
 
-      it("should execute in multipart packet", done => {
-        const engine = listen(port => {
+      it("should execute in multipart packet", (done) => {
+        const engine = listen((port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`);
           let i = 0;
           let j = 0;
 
-          engine.on("connection", conn => {
-            conn.send("b", transport => {
+          engine.on("connection", (conn) => {
+            conn.send("b", (transport) => {
               i++;
             });
 
-            conn.send("a", transport => {
+            conn.send("a", (transport) => {
               i++;
             });
           });
           socket.on("open", () => {
-            socket.on("message", msg => {
+            socket.on("message", (msg) => {
               j++;
             });
           });
@@ -2742,33 +2742,33 @@ describe("server", () => {
         });
       });
 
-      it("should execute in multipart packet (polling)", done => {
-        const engine = listen(port => {
+      it("should execute in multipart packet (polling)", (done) => {
+        const engine = listen((port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["polling"]
+            transports: ["polling"],
           });
           let i = 0;
           let j = 0;
 
-          engine.on("connection", conn => {
-            conn.send("d", transport => {
+          engine.on("connection", (conn) => {
+            conn.send("d", (transport) => {
               i++;
             });
 
-            conn.send("c", transport => {
+            conn.send("c", (transport) => {
               i++;
             });
 
-            conn.send("b", transport => {
+            conn.send("b", (transport) => {
               i++;
             });
 
-            conn.send("a", transport => {
+            conn.send("a", (transport) => {
               i++;
             });
           });
           socket.on("open", () => {
-            socket.on("message", msg => {
+            socket.on("message", (msg) => {
               j++;
             });
           });
@@ -2780,15 +2780,15 @@ describe("server", () => {
         });
       });
 
-      it("should clean callback references when socket gets closed with pending callbacks", done => {
-        const engine = listen({ allowUpgrades: false }, port => {
+      it("should clean callback references when socket gets closed with pending callbacks", (done) => {
+        const engine = listen({ allowUpgrades: false }, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["polling"]
+            transports: ["polling"],
           });
 
-          engine.on("connection", conn => {
+          engine.on("connection", (conn) => {
             socket.transport.on("pollComplete", () => {
-              conn.send("a", transport => {
+              conn.send("a", (transport) => {
                 done(new Error("Test invalidation"));
               });
 
@@ -2800,7 +2800,7 @@ describe("server", () => {
               socket.close();
             });
 
-            conn.on("close", reason => {
+            conn.on("close", (reason) => {
               expect(conn.packetsFn).to.be.empty();
               expect(conn.sentCallbackFn).to.be.empty();
               done();
@@ -2809,23 +2809,23 @@ describe("server", () => {
         });
       });
 
-      it("should not execute when it is not actually sent (polling)", done => {
-        const engine = listen({ allowUpgrades: false }, port => {
+      it("should not execute when it is not actually sent (polling)", (done) => {
+        const engine = listen({ allowUpgrades: false }, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["polling"]
+            transports: ["polling"],
           });
 
-          socket.transport.on("pollComplete", msg => {
+          socket.transport.on("pollComplete", (msg) => {
             socket.close();
           });
 
-          engine.on("connection", conn => {
+          engine.on("connection", (conn) => {
             let err;
             conn.send("a");
-            conn.send("b", transport => {
+            conn.send("b", (transport) => {
               err = new Error("Test invalidation");
             });
-            conn.on("close", reason => {
+            conn.on("close", (reason) => {
               done(err);
             });
           });
@@ -2834,66 +2834,66 @@ describe("server", () => {
     });
 
     describe("pre-encoded content", () => {
-      it("should use the pre-encoded content", done => {
-        engine = listen(port => {
+      it("should use the pre-encoded content", (done) => {
+        engine = listen((port) => {
           client = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["websocket"]
+            transports: ["websocket"],
           });
 
-          engine.on("connection", conn => {
+          engine.on("connection", (conn) => {
             conn.send("test", {
-              wsPreEncoded: "4test pre-encoded"
+              wsPreEncoded: "4test pre-encoded",
             });
           });
 
-          client.on("message", msg => {
+          client.on("message", (msg) => {
             expect(msg).to.be("test pre-encoded");
             done();
           });
         });
       });
 
-      it("should use the pre-encoded frame", function(done) {
+      it("should use the pre-encoded frame", function (done) {
         if (process.env.EIO_WS_ENGINE === "uws") {
           return this.skip();
         }
-        engine = listen(port => {
+        engine = listen((port) => {
           client = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["websocket"]
+            transports: ["websocket"],
           });
 
-          engine.on("connection", conn => {
+          engine.on("connection", (conn) => {
             conn.send("test", {
               wsPreEncodedFrame: [
                 Buffer.from([129, 4]),
-                Buffer.from([52, 49, 50, 51])
-              ]
+                Buffer.from([52, 49, 50, 51]),
+              ],
             });
           });
 
-          client.on("message", msg => {
+          client.on("message", (msg) => {
             expect(msg).to.be("123");
             done();
           });
         });
       });
 
-      it("should not use the pre-encoded frame when the permessage-deflate extension is enabled", done => {
-        engine = listen({ perMessageDeflate: true }, port => {
+      it("should not use the pre-encoded frame when the permessage-deflate extension is enabled", (done) => {
+        engine = listen({ perMessageDeflate: true }, (port) => {
           client = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["websocket"]
+            transports: ["websocket"],
           });
 
-          engine.on("connection", conn => {
+          engine.on("connection", (conn) => {
             conn.send("test", {
               wsPreEncodedFrame: [
                 Buffer.from([129, 4]),
-                Buffer.from([52, 49, 50, 51])
-              ]
+                Buffer.from([52, 49, 50, 51]),
+              ],
             });
           });
 
-          client.on("message", msg => {
+          client.on("message", (msg) => {
             expect(msg).to.be("test");
             done();
           });
@@ -2903,11 +2903,11 @@ describe("server", () => {
   });
 
   describe("packet", () => {
-    it("should emit when socket receives packet", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should emit when socket receives packet", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
-        engine.on("connection", conn => {
-          conn.on("packet", packet => {
+        engine.on("connection", (conn) => {
+          conn.on("packet", (packet) => {
             expect(packet.type).to.be("message");
             expect(packet.data).to.be("a");
             done();
@@ -2919,30 +2919,33 @@ describe("server", () => {
       });
     });
 
-    it("should emit when receives pong", done => {
-      const engine = listen({ allowUpgrades: false, pingInterval: 4 }, port => {
-        new ClientSocket(`ws://localhost:${port}`);
-        engine.on("connection", conn => {
-          conn.on("packet", packet => {
-            conn.close();
-            if (process.env.EIO_CLIENT === "3") {
-              expect(packet.type).to.be("ping");
-            } else {
-              expect(packet.type).to.be("pong");
-            }
-            done();
+    it("should emit when receives pong", (done) => {
+      const engine = listen(
+        { allowUpgrades: false, pingInterval: 4 },
+        (port) => {
+          new ClientSocket(`ws://localhost:${port}`);
+          engine.on("connection", (conn) => {
+            conn.on("packet", (packet) => {
+              conn.close();
+              if (process.env.EIO_CLIENT === "3") {
+                expect(packet.type).to.be("ping");
+              } else {
+                expect(packet.type).to.be("pong");
+              }
+              done();
+            });
           });
-        });
-      });
+        }
+      );
     });
   });
 
   describe("packetCreate", () => {
-    it("should emit before socket send message", done => {
-      const engine = listen({ allowUpgrades: false }, port => {
+    it("should emit before socket send message", (done) => {
+      const engine = listen({ allowUpgrades: false }, (port) => {
         new ClientSocket(`ws://localhost:${port}`);
-        engine.on("connection", conn => {
-          conn.on("packetCreate", packet => {
+        engine.on("connection", (conn) => {
+          conn.on("packetCreate", (packet) => {
             expect(packet.type).to.be("message");
             expect(packet.data).to.be("a");
             done();
@@ -2952,27 +2955,30 @@ describe("server", () => {
       });
     });
 
-    it("should emit before send pong", done => {
-      const engine = listen({ allowUpgrades: false, pingInterval: 4 }, port => {
-        new ClientSocket(`ws://localhost:${port}`);
-        engine.on("connection", conn => {
-          conn.on("packetCreate", packet => {
-            conn.close();
-            if (process.env.EIO_CLIENT === "3") {
-              expect(packet.type).to.be("pong");
-            } else {
-              expect(packet.type).to.be("ping");
-            }
-            done();
+    it("should emit before send pong", (done) => {
+      const engine = listen(
+        { allowUpgrades: false, pingInterval: 4 },
+        (port) => {
+          new ClientSocket(`ws://localhost:${port}`);
+          engine.on("connection", (conn) => {
+            conn.on("packetCreate", (packet) => {
+              conn.close();
+              if (process.env.EIO_CLIENT === "3") {
+                expect(packet.type).to.be("pong");
+              } else {
+                expect(packet.type).to.be("ping");
+              }
+              done();
+            });
           });
-        });
-      });
+        }
+      );
     });
   });
 
   describe("upgrade", () => {
-    it("should upgrade", done => {
-      const engine = listen(port => {
+    it("should upgrade", (done) => {
+      const engine = listen((port) => {
         // it takes both to send 50 to verify
         let ready = 2;
         let closed = 2;
@@ -2984,7 +2990,7 @@ describe("server", () => {
         }
 
         // server
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           let lastSent = 0;
           let lastReceived = 0;
           let upgraded = false;
@@ -2999,20 +3005,20 @@ describe("server", () => {
 
           expect(conn.request._query.transport).to.be("polling");
 
-          conn.on("message", msg => {
+          conn.on("message", (msg) => {
             expect(conn.request._query).to.be.an("object");
             lastReceived++;
             expect(msg).to.eql(lastReceived);
           });
 
-          conn.on("upgrade", to => {
+          conn.on("upgrade", (to) => {
             expect(conn.request._query.transport).to.be("polling");
             upgraded = true;
             expect(to.name).to.be("websocket");
             expect(conn.transport.name).to.be("websocket");
           });
 
-          conn.on("close", reason => {
+          conn.on("close", (reason) => {
             expect(reason).to.be("transport close");
             expect(lastSent).to.be(50);
             expect(lastReceived).to.be(50);
@@ -3035,7 +3041,7 @@ describe("server", () => {
               --ready || finish();
             }
           }, 2);
-          socket.on("upgrading", to => {
+          socket.on("upgrading", (to) => {
             // we want to make sure for the sake of this test that we have a buffer
             expect(to.name).to.equal("websocket");
             upgrades++;
@@ -3048,15 +3054,15 @@ describe("server", () => {
 
             expect(socket.writeBuffer).to.not.be.empty();
           });
-          socket.on("upgrade", to => {
+          socket.on("upgrade", (to) => {
             expect(to.name).to.equal("websocket");
             upgrades++;
           });
-          socket.on("message", msg => {
+          socket.on("message", (msg) => {
             lastReceived++;
             expect(lastReceived).to.eql(msg);
           });
-          socket.on("close", reason => {
+          socket.on("close", (reason) => {
             expect(reason).to.be("forced close");
             expect(lastSent).to.be(50);
             expect(upgrades).to.be(2);
@@ -3078,85 +3084,91 @@ describe("server", () => {
       return c[Object.keys(c)[0]];
     }
 
-    it("should compress by default", done => {
-      const engine = listen({ cookie: true, transports: ["polling"] }, port => {
-        engine.on("connection", conn => {
-          const buf = Buffer.allocUnsafe(1024);
-          for (let i = 0; i < buf.length; i++) buf[i] = i % 0xff;
-          conn.send(buf);
-        });
+    it("should compress by default", (done) => {
+      const engine = listen(
+        { cookie: true, transports: ["polling"] },
+        (port) => {
+          engine.on("connection", (conn) => {
+            const buf = Buffer.allocUnsafe(1024);
+            for (let i = 0; i < buf.length; i++) buf[i] = i % 0xff;
+            conn.send(buf);
+          });
 
-        http.get(
-          {
-            port: port,
-            path: "/engine.io/?transport=polling"
-          },
-          res => {
-            const sid = getSidFromResponse(res);
-            http.get(
-              {
-                port: port,
-                path: "/engine.io/?transport=polling&sid=" + sid,
-                headers: { "Accept-Encoding": "gzip, deflate" }
-              },
-              res => {
-                expect(res.headers["content-encoding"]).to.equal("gzip");
-                res
-                  .pipe(zlib.createGunzip())
-                  .on("error", done)
-                  .on("end", done)
-                  .resume();
-              }
-            );
-          }
-        );
-      });
+          http.get(
+            {
+              port: port,
+              path: "/engine.io/?transport=polling",
+            },
+            (res) => {
+              const sid = getSidFromResponse(res);
+              http.get(
+                {
+                  port: port,
+                  path: "/engine.io/?transport=polling&sid=" + sid,
+                  headers: { "Accept-Encoding": "gzip, deflate" },
+                },
+                (res) => {
+                  expect(res.headers["content-encoding"]).to.equal("gzip");
+                  res
+                    .pipe(zlib.createGunzip())
+                    .on("error", done)
+                    .on("end", done)
+                    .resume();
+                }
+              );
+            }
+          );
+        }
+      );
     });
 
-    it("should compress using deflate", done => {
-      const engine = listen({ cookie: true, transports: ["polling"] }, port => {
-        engine.on("connection", conn => {
-          const buf = Buffer.allocUnsafe(1024);
-          for (let i = 0; i < buf.length; i++) buf[i] = i % 0xff;
-          conn.send(buf);
-        });
+    it("should compress using deflate", (done) => {
+      const engine = listen(
+        { cookie: true, transports: ["polling"] },
+        (port) => {
+          engine.on("connection", (conn) => {
+            const buf = Buffer.allocUnsafe(1024);
+            for (let i = 0; i < buf.length; i++) buf[i] = i % 0xff;
+            conn.send(buf);
+          });
 
-        http.get(
-          {
-            port: port,
-            path: "/engine.io/?transport=polling"
-          },
-          res => {
-            const sid = getSidFromResponse(res);
-            http.get(
-              {
-                port: port,
-                path: "/engine.io/?transport=polling&sid=" + sid,
-                headers: { "Accept-Encoding": "deflate" }
-              },
-              res => {
-                expect(res.headers["content-encoding"]).to.equal("deflate");
-                res
-                  .pipe(zlib.createDeflate())
-                  .on("error", done)
-                  .on("end", done)
-                  .resume();
-              }
-            );
-          }
-        );
-      });
+          http.get(
+            {
+              port: port,
+              path: "/engine.io/?transport=polling",
+            },
+            (res) => {
+              const sid = getSidFromResponse(res);
+              http.get(
+                {
+                  port: port,
+                  path: "/engine.io/?transport=polling&sid=" + sid,
+                  headers: { "Accept-Encoding": "deflate" },
+                },
+                (res) => {
+                  expect(res.headers["content-encoding"]).to.equal("deflate");
+                  res
+                    .pipe(zlib.createDeflate())
+                    .on("error", done)
+                    .on("end", done)
+                    .resume();
+                }
+              );
+            }
+          );
+        }
+      );
     });
 
-    it("should set threshold", done => {
+    it("should set threshold", (done) => {
       const engine = listen(
         {
           cookie: true,
           transports: ["polling"],
-          httpCompression: { threshold: 0 }
+          httpCompression: { threshold: 0 },
         },
-        port => {
-          engine.on("connection", conn => {
+        (port) => {
+          engine.on("connection", (conn) => {
             const buf = Buffer.allocUnsafe(10);
             for (let i = 0; i < buf.length; i++) buf[i] = i % 0xff;
             conn.send(buf);
@@ -3165,17 +3177,17 @@ describe("server", () => {
           http.get(
             {
               port: port,
-              path: "/engine.io/?transport=polling"
+              path: "/engine.io/?transport=polling",
             },
-            res => {
+            (res) => {
               const sid = getSidFromResponse(res);
               http.get(
                 {
                   port: port,
                   path: "/engine.io/?transport=polling&sid=" + sid,
-                  headers: { "Accept-Encoding": "gzip, deflate" }
+                  headers: { "Accept-Encoding": "gzip, deflate" },
                 },
-                res => {
+                (res) => {
                   expect(res.headers["content-encoding"]).to.equal("gzip");
                   done();
                 }
@@ -3186,11 +3198,11 @@ describe("server", () => {
       );
     });
 
-    it("should disable compression", done => {
+    it("should disable compression", (done) => {
       const engine = listen(
         { cookie: true, transports: ["polling"], httpCompression: false },
-        port => {
-          engine.on("connection", conn => {
+        (port) => {
+          engine.on("connection", (conn) => {
             const buf = Buffer.allocUnsafe(1024);
             for (let i = 0; i < buf.length; i++) buf[i] = i % 0xff;
             conn.send(buf);
@@ -3199,17 +3211,17 @@ describe("server", () => {
           http.get(
             {
               port: port,
-              path: "/engine.io/?transport=polling"
+              path: "/engine.io/?transport=polling",
             },
-            res => {
+            (res) => {
               const sid = getSidFromResponse(res);
               http.get(
                 {
                   port: port,
                   path: "/engine.io/?transport=polling&sid=" + sid,
-                  headers: { "Accept-Encoding": "gzip, deflate" }
+                  headers: { "Accept-Encoding": "gzip, deflate" },
                 },
-                res => {
+                (res) => {
                   expect(res.headers["content-encoding"]).to.be(undefined);
                   done();
                 }
@@ -3220,78 +3232,84 @@ describe("server", () => {
       );
     });
 
-    it("should disable compression per message", done => {
-      const engine = listen({ cookie: true, transports: ["polling"] }, port => {
-        engine.on("connection", conn => {
-          const buf = Buffer.allocUnsafe(1024);
-          for (let i = 0; i < buf.length; i++) buf[i] = i % 0xff;
-          conn.send(buf, { compress: false });
-        });
+    it("should disable compression per message", (done) => {
+      const engine = listen(
+        { cookie: true, transports: ["polling"] },
+        (port) => {
+          engine.on("connection", (conn) => {
+            const buf = Buffer.allocUnsafe(1024);
+            for (let i = 0; i < buf.length; i++) buf[i] = i % 0xff;
+            conn.send(buf, { compress: false });
+          });
 
-        http.get(
-          {
-            port: port,
-            path: "/engine.io/?transport=polling"
-          },
-          res => {
-            const sid = getSidFromResponse(res);
-            http.get(
-              {
-                port: port,
-                path: "/engine.io/?transport=polling&sid=" + sid,
-                headers: { "Accept-Encoding": "gzip, deflate" }
-              },
-              res => {
-                expect(res.headers["content-encoding"]).to.be(undefined);
-                done();
-              }
-            );
-          }
-        );
-      });
+          http.get(
+            {
+              port: port,
+              path: "/engine.io/?transport=polling",
+            },
+            (res) => {
+              const sid = getSidFromResponse(res);
+              http.get(
+                {
+                  port: port,
+                  path: "/engine.io/?transport=polling&sid=" + sid,
+                  headers: { "Accept-Encoding": "gzip, deflate" },
+                },
+                (res) => {
+                  expect(res.headers["content-encoding"]).to.be(undefined);
+                  done();
+                }
+              );
+            }
+          );
+        }
+      );
     });
 
-    it("should not compress when the byte size is below threshold", done => {
-      const engine = listen({ cookie: true, transports: ["polling"] }, port => {
-        engine.on("connection", conn => {
-          const buf = Buffer.allocUnsafe(100);
-          for (let i = 0; i < buf.length; i++) buf[i] = i % 0xff;
-          conn.send(buf);
-        });
+    it("should not compress when the byte size is below threshold", (done) => {
+      const engine = listen(
+        { cookie: true, transports: ["polling"] },
+        (port) => {
+          engine.on("connection", (conn) => {
+            const buf = Buffer.allocUnsafe(100);
+            for (let i = 0; i < buf.length; i++) buf[i] = i % 0xff;
+            conn.send(buf);
+          });
 
-        http.get(
-          {
-            port: port,
-            path: "/engine.io/?transport=polling"
-          },
-          res => {
-            const sid = getSidFromResponse(res);
-            http.get(
-              {
-                port: port,
-                path: "/engine.io/?transport=polling&sid=" + sid,
-                headers: { "Accept-Encoding": "gzip, deflate" }
-              },
-              res => {
-                expect(res.headers["content-encoding"]).to.be(undefined);
-                done();
-              }
-            );
-          }
-        );
-      });
+          http.get(
+            {
+              port: port,
+              path: "/engine.io/?transport=polling",
+            },
+            (res) => {
+              const sid = getSidFromResponse(res);
+              http.get(
+                {
+                  port: port,
+                  path: "/engine.io/?transport=polling&sid=" + sid,
+                  headers: { "Accept-Encoding": "gzip, deflate" },
+                },
+                (res) => {
+                  expect(res.headers["content-encoding"]).to.be(undefined);
+                  done();
+                }
+              );
+            }
+          );
+        }
+      );
     });
   });
 
   describe("permessage-deflate", () => {
-    it("should set threshold", function(done) {
+    it("should set threshold", function (done) {
       if (process.env.EIO_WS_ENGINE === "uws") {
         return this.skip();
       }
       const engine = listen(
         { transports: ["websocket"], perMessageDeflate: { threshold: 0 } },
-        port => {
-          engine.on("connection", conn => {
+        (port) => {
+          engine.on("connection", (conn) => {
             const socket = conn.transport.socket;
             const send = socket.send;
             socket.send = (data, opts, callback) => {
@@ -3308,20 +3326,20 @@ describe("server", () => {
             conn.send(buf, { compress: true });
           });
           new ClientSocket(`http://localhost:${port}`, {
-            transports: ["websocket"]
+            transports: ["websocket"],
           });
         }
       );
     });
 
-    it("should not compress when the byte size is below threshold", function(done) {
+    it("should not compress when the byte size is below threshold", function (done) {
       if (process.env.EIO_WS_ENGINE === "uws") {
         return this.skip();
       }
       const engine = listen(
         { transports: ["websocket"], perMessageDeflate: true },
-        port => {
-          engine.on("connection", conn => {
+        (port) => {
+          engine.on("connection", (conn) => {
             const socket = conn.transport.socket;
             const send = socket.send;
             socket.send = (data, opts, callback) => {
@@ -3338,29 +3356,29 @@ describe("server", () => {
             conn.send(buf, { compress: true });
           });
           new ClientSocket(`http://localhost:${port}`, {
-            transports: ["websocket"]
+            transports: ["websocket"],
           });
         }
       );
     });
   });
 
-  describe("extraHeaders", function() {
+  describe("extraHeaders", function () {
     this.timeout(5000);
 
     const headers = {
       "x-custom-header-for-my-project": "my-secret-access-token",
       cookie:
-        "user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly"
+        "user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly",
     };
 
     function testForTransport(transport, done) {
-      const engine = listen(port => {
+      const engine = listen((port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {
           extraHeaders: headers,
-          transports: [transport]
+          transports: [transport],
         });
-        engine.on("connection", conn => {
+        engine.on("connection", (conn) => {
           for (let h in headers) {
             expect(conn.request.headers[h]).to.equal(headers[h]);
           }
@@ -3370,20 +3388,20 @@ describe("server", () => {
       });
     }
 
-    it("should arrive from client to server via WebSockets", done => {
+    it("should arrive from client to server via WebSockets", (done) => {
       testForTransport("websocket", done);
     });
 
-    it("should arrive from client to server via XMLHttpRequest", done => {
+    it("should arrive from client to server via XMLHttpRequest", (done) => {
       testForTransport("polling", done);
     });
   });
 
   describe("response headers", () => {
     function testForHeaders(headers, done) {
-      const engine = listen(port => {
-        engine.on("connection", conn => {
-          conn.transport.once("headers", headers => {
+      const engine = listen((port) => {
+        engine.on("connection", (conn) => {
+          conn.transport.once("headers", (headers) => {
             expect(headers["X-XSS-Protection"]).to.be("0");
             conn.close();
             done();
@@ -3392,31 +3410,31 @@ describe("server", () => {
         });
         new ClientSocket(`ws://localhost:${port}`, {
           extraHeaders: headers,
-          transports: ["polling"]
+          transports: ["polling"],
         });
       });
     }
 
-    it("should contain X-XSS-Protection: 0 for IE8", done => {
+    it("should contain X-XSS-Protection: 0 for IE8", (done) => {
       const headers = {
         "user-agent":
-          "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; Tablet PC 2.0)"
+          "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; Tablet PC 2.0)",
       };
       testForHeaders(headers, done);
     });
 
-    it("should contain X-XSS-Protection: 0 for IE11", done => {
+    it("should contain X-XSS-Protection: 0 for IE11", (done) => {
       const headers = {
         "user-agent":
-          "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko"
+          "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko",
       };
       testForHeaders(headers, done);
     });
 
-    it("should emit a 'initial_headers' event (polling)", done => {
+    it("should emit a 'initial_headers' event (polling)", (done) => {
       const partialDone = createPartialDone(done, 2);
 
-      engine = listen({ cookie: true }, port => {
+      engine = listen({ cookie: true }, (port) => {
         engine.on("initial_headers", (headers, req) => {
           expect(req.method).to.be("GET");
           headers["test"] = "123";
@@ -3451,11 +3469,11 @@ describe("server", () => {
       });
     });
 
-    it("should emit a 'headers' event (polling)", done => {
+    it("should emit a 'headers' event (polling)", (done) => {
       const partialDone = createPartialDone(done, 3);
 
-      engine = listen({ cookie: true }, port => {
-        engine.on("headers", headers => {
+      engine = listen({ cookie: true }, (port) => {
+        engine.on("headers", (headers) => {
           headers["test"] = "123";
           headers["set-cookie"] = "mycookie=456";
           partialDone();
@@ -3488,7 +3506,7 @@ describe("server", () => {
       });
     });
 
-    it("should emit a 'initial_headers' event (websocket)", function(done) {
+    it("should emit a 'initial_headers' event (websocket)", function (done) {
       if (
         process.env.EIO_WS_ENGINE === "eiows" ||
         process.env.EIO_WS_ENGINE === "uws"
@@ -3497,7 +3515,7 @@ describe("server", () => {
       }
       const partialDone = createPartialDone(done, 2);
 
-      engine = listen({ cookie: true }, port => {
+      engine = listen({ cookie: true }, (port) => {
         engine.on("initial_headers", (headers, req) => {
           expect(req.method).to.be("GET");
           headers["test"] = "123";
@@ -3506,10 +3524,10 @@ describe("server", () => {
         });
 
         client = new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
 
-        client.transport.ws.on("upgrade", res => {
+        client.transport.ws.on("upgrade", (res) => {
           expect(res.headers["test"]).to.be("123");
           expect(res.headers["set-cookie"].length).to.be(1);
           expect(res.headers["set-cookie"][0]).to.be("mycookie=456");
@@ -3518,10 +3536,10 @@ describe("server", () => {
       });
     });
 
-    it("should emit a single 'initial_headers' event per connection", done => {
+    it("should emit a single 'initial_headers' event per connection", (done) => {
       const partialDone = createPartialDone(done, 2);
 
-      engine = listen(port => {
+      engine = listen((port) => {
         engine.on("initial_headers", () => {
           partialDone();
         });
@@ -3534,7 +3552,7 @@ describe("server", () => {
       });
     });
 
-    it("should emit several 'headers' events per connection", function(done) {
+    it("should emit several 'headers' events per connection", function (done) {
       if (
         process.env.EIO_WS_ENGINE === "eiows" ||
         process.env.EIO_WS_ENGINE === "uws"
@@ -3543,7 +3561,7 @@ describe("server", () => {
       }
       const partialDone = createPartialDone(done, 4);
 
-      engine = listen(port => {
+      engine = listen((port) => {
         engine.on("headers", () => {
           partialDone();
         });
@@ -3558,10 +3576,10 @@ describe("server", () => {
   });
 
   describe("cors", () => {
-    it("should allow CORS from the current origin (preflight request)", done => {
+    it("should allow CORS from the current origin (preflight request)", (done) => {
       listen(
         { cors: { origin: true, headers: ["my-header"], credentials: true } },
-        port => {
+        (port) => {
           request
             .options(`http://localhost:${port}/engine.io/`)
             .set("Origin", "http://engine.io")
@@ -3588,10 +3606,10 @@ describe("server", () => {
       );
     });
 
-    it("should allow CORS from the current origin (actual request)", done => {
+    it("should allow CORS from the current origin (actual request)", (done) => {
       listen(
         { cors: { origin: true, headers: ["my-header"], credentials: true } },
-        port => {
+        (port) => {
           request
             .get(`http://localhost:${port}/engine.io/`)
             .set("Origin", "http://engine.io")
@@ -3618,14 +3636,14 @@ describe("server", () => {
       );
     });
 
-    it("should disallow CORS from a bad origin", done => {
+    it("should disallow CORS from a bad origin", (done) => {
       listen(
         {
           cors: {
-            origin: ["http://good-domain.com"]
-          }
+            origin: ["http://good-domain.com"],
+          },
         },
-        port => {
+        (port) => {
           request
             .options(`http://localhost:${port}/engine.io/`)
             .set("Origin", "http://bad-domain.com")
@@ -3646,7 +3664,7 @@ describe("server", () => {
       );
     });
 
-    it("should forward the configuration to the cors module", done => {
+    it("should forward the configuration to the cors module", (done) => {
       listen(
         {
           cors: {
@@ -3656,10 +3674,10 @@ describe("server", () => {
             exposedHeaders: ["my-exposed-header"],
             credentials: true,
             maxAge: 123,
-            optionsSuccessStatus: 200
-          }
+            optionsSuccessStatus: 200,
+          },
         },
-        port => {
+        (port) => {
           request
             .options(`http://localhost:${port}/engine.io/`)
             .set("Origin", "http://good-domain.com")
@@ -3690,15 +3708,15 @@ describe("server", () => {
       );
     });
 
-    it("should work with CORS enabled", done => {
+    it("should work with CORS enabled", (done) => {
       engine = listen(
         { cors: { origin: true, headers: ["my-header"], credentials: true } },
-        port => {
+        (port) => {
           const client = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["polling"]
+            transports: ["polling"],
           });
-          engine.on("connection", socket => {
-            socket.on("message", msg => {
+          engine.on("connection", (socket) => {
+            socket.on("message", (msg) => {
               expect(msg).to.be("hey");
               socket.send("holà");
             });
@@ -3706,7 +3724,7 @@ describe("server", () => {
           client.on("open", () => {
             client.send("hey");
           });
-          client.on("message", msg => {
+          client.on("message", (msg) => {
             expect(msg).to.be("holà");
             client.close();
             done();
@@ -3717,24 +3735,24 @@ describe("server", () => {
   });
 
   describe("wsEngine option", () => {
-    before(function() {
+    before(function () {
       if (process.env.EIO_WS_ENGINE === "uws") {
         this.skip();
       }
     });
 
     // FIXME eiows fails to build on Node.js 18 (and has dropped support for Node.js 10)
-    it.skip("should allow loading of other websocket server implementation like eiows", done => {
+    it.skip("should allow loading of other websocket server implementation like eiows", (done) => {
       const engine = listen(
         { allowUpgrades: false, wsEngine: require("eiows").Server },
-        port => {
+        (port) => {
           expect(engine.ws instanceof require("eiows").Server).to.be.ok();
           const socket = new ClientSocket(`ws://localhost:${port}`);
-          engine.on("connection", conn => {
+          engine.on("connection", (conn) => {
             conn.send("a");
           });
           socket.on("open", () => {
-            socket.on("message", msg => {
+            socket.on("message", (msg) => {
               expect(msg).to.be("a");
               done();
             });
@@ -3749,27 +3767,27 @@ describe("server", () => {
       "0000:0000:0000:0000:0000:0000:0000:0001",
       "0000:0000:0000:0000:0000:ffff:7f00:0001",
       "::ffff:127.0.0.1",
-      "::1"
+      "::1",
     ];
 
-    it("should be defined (polling)", done => {
-      const engine = listen({ transports: ["polling"] }, port => {
+    it("should be defined (polling)", (done) => {
+      const engine = listen({ transports: ["polling"] }, (port) => {
         new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["polling"]
+          transports: ["polling"],
         });
-        engine.on("connection", socket => {
+        engine.on("connection", (socket) => {
           expect(POSSIBLE_VALUES).to.contain(socket.remoteAddress);
           done();
         });
       });
     });
 
-    it("should be defined (ws)", done => {
-      const engine = listen({ transports: ["websocket"] }, port => {
+    it("should be defined (ws)", (done) => {
+      const engine = listen({ transports: ["websocket"] }, (port) => {
         new ClientSocket(`ws://localhost:${port}`, {
-          transports: ["websocket"]
+          transports: ["websocket"],
         });
-        engine.on("connection", socket => {
+        engine.on("connection", (socket) => {
           expect(POSSIBLE_VALUES).to.contain(socket.remoteAddress);
           done();
         });

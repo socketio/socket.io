@@ -33,11 +33,11 @@ describe("engine", () => {
   });
 
   describe("listen", () => {
-    it("should open a http server that returns 501", function(done) {
+    it("should open a http server that returns 501", function (done) {
       if (process.env.EIO_WS_ENGINE === "uws") {
         return this.skip();
       }
-      listen(port => {
+      listen((port) => {
         request.get(`http://localhost:${port}`, (err, res) => {
           expect(err).to.be.an(Error);
           expect(res.status).to.be(501);
@@ -62,7 +62,7 @@ describe("engine", () => {
       expect(engine).to.be.an(Server);
     });
 
-    it("should attach engine to an http server", done => {
+    it("should attach engine to an http server", (done) => {
       const server = http.createServer();
       attach(server);
 
@@ -79,7 +79,7 @@ describe("engine", () => {
       });
     });
 
-    it("should destroy upgrades not handled by engine", done => {
+    it("should destroy upgrades not handled by engine", (done) => {
       const server = http.createServer();
       attach(server, { destroyUpgradeTimeout: 50 });
 
@@ -92,7 +92,7 @@ describe("engine", () => {
             "Connection: Upgrade",
             "Upgrade: IRC/6.9",
             "",
-            ""
+            "",
           ].join("\r\n")
         );
 
@@ -107,7 +107,7 @@ describe("engine", () => {
       });
     });
 
-    it("should not destroy unhandled upgrades with destroyUpgrade:false", done => {
+    it("should not destroy unhandled upgrades with destroyUpgrade:false", (done) => {
       const server = http.createServer();
       attach(server, { destroyUpgrade: false, destroyUpgradeTimeout: 50 });
 
@@ -121,7 +121,7 @@ describe("engine", () => {
               "Connection: Upgrade",
               "Upgrade: IRC/6.9",
               "",
-              ""
+              "",
             ].join("\r\n")
           );
 
@@ -139,7 +139,7 @@ describe("engine", () => {
       });
     });
 
-    it("should destroy unhandled upgrades with after a timeout", done => {
+    it("should destroy unhandled upgrades with after a timeout", (done) => {
       const server = http.createServer();
       attach(server, { destroyUpgradeTimeout: 200 });
 
@@ -153,7 +153,7 @@ describe("engine", () => {
               "Connection: Upgrade",
               "Upgrade: IRC/6.9",
               "",
-              ""
+              "",
             ].join("\r\n")
           );
 
@@ -173,14 +173,14 @@ describe("engine", () => {
       });
     });
 
-    it("should not destroy handled upgrades with after a timeout", done => {
+    it("should not destroy handled upgrades with after a timeout", (done) => {
       const server = http.createServer();
       attach(server, { destroyUpgradeTimeout: 100 });
 
       // write to the socket to keep engine.io from closing it by writing before the timeout
       server.on("upgrade", (req, socket) => {
         socket.write("foo");
-        socket.on("data", chunk => {
+        socket.on("data", (chunk) => {
           expect(chunk.toString()).to.be("foo");
           socket.end();
         });
@@ -197,7 +197,7 @@ describe("engine", () => {
               "Connection: Upgrade",
               "Upgrade: IRC/6.9",
               "",
-              ""
+              "",
             ].join("\r\n")
           );
 
@@ -206,14 +206,14 @@ describe("engine", () => {
             client.write("foo");
           }, 200);
 
-          client.on("data", data => {});
+          client.on("data", (data) => {});
 
           client.on("end", done);
         });
       });
     });
 
-    it("should preserve original request listeners", done => {
+    it("should preserve original request listeners", (done) => {
       let listeners = 0;
       const server = http.createServer((req, res) => {
         expect(req && res).to.be.ok();

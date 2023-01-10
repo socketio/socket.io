@@ -3,5 +3,5 @@ import { WebSocket } from "./websocket";
 
 export default {
   polling: Polling,
-  websocket: WebSocket
+  websocket: WebSocket,
 };

@@ -66,7 +66,7 @@ export class WebSocket extends Transport {
       opts.compress = packet.options.compress;
     }
 
-    const send = data => {
+    const send = (data) => {
       const isBinary = typeof data !== "string";
       const compress =
         this.perMessageDeflate &&

@@ -8,7 +8,7 @@ const debug = debugModule("engine:polling");
 
 const compressionMethods = {
   gzip: createGzip,
-  deflate: createDeflate
+  deflate: createDeflate,
 };
 
 export class Polling extends Transport {
@@ -151,7 +151,7 @@ export class Polling extends Transport {
     const headers = {
       // text/html is required instead of text/plain to avoid an
       // unwanted download dialog on certain user-agents (GH-43)
-      "Content-Type": "text/html"
+      "Content-Type": "text/html",
     };
 
     this.headers(req, headers);
@@ -159,7 +159,7 @@ export class Polling extends Transport {
       res.writeHeader(key, String(headers[key]));
     }
 
-    const onEnd = buffer => {
+    const onEnd = (buffer) => {
       this.onData(buffer.toString());
       this.onDataRequestCleanup();
       res.end("ok");
@@ -220,7 +220,7 @@ export class Polling extends Transport {
    */
   onData(data) {
     debug('received "%s"', data);
-    const callback = packet => {
+    const callback = (packet) => {
       if ("close" === packet.type) {
         debug("got xhr close packet");
         this.onClose();
@@ -266,8 +266,8 @@ export class Polling extends Transport {
       this.shouldClose = null;
     }
 
-    const doWrite = data => {
-      const compress = packets.some(packet => {
+    const doWrite = (data) => {
+      const compress = packets.some((packet) => {
         return packet.options && packet.options.compress;
       });
       this.write(data, { compress });
@@ -307,12 +307,12 @@ export class Polling extends Transport {
       : "application/octet-stream";
 
     const headers = {
-      "Content-Type": contentType
+      "Content-Type": contentType,
     };
 
-    const respond = data => {
+    const respond = (data) => {
       this.headers(this.req, headers);
-      Object.keys(headers).forEach(key => {
+      Object.keys(headers).forEach((key) => {
         this.res.writeHeader(key, String(headers[key]));
       });
       this.res.end(data);
@@ -362,11 +362,11 @@ export class Polling extends Transport {
 
     compressionMethods[encoding](this.httpCompression)
       .on("error", callback)
-      .on("data", function(chunk) {
+      .on("data", function (chunk) {
         buffers.push(chunk);
         nread += chunk.length;
       })
-      .on("end", function() {
+      .on("end", function () {
         callback(null, Buffer.concat(buffers, nread));
       })
       .end(data);
