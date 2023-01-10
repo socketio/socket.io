@@ -10,16 +10,16 @@ export function pick(obj, ...attr) {
 }
 
 // Keep a reference to the real timeout functions so they can be used when overridden
-const NATIVE_SET_TIMEOUT = setTimeout;
-const NATIVE_CLEAR_TIMEOUT = clearTimeout;
+const NATIVE_SET_TIMEOUT = globalThis.setTimeout;
+const NATIVE_CLEAR_TIMEOUT = globalThis.clearTimeout;
 
 export function installTimerFunctions(obj, opts) {
   if (opts.useNativeTimers) {
     obj.setTimeoutFn = NATIVE_SET_TIMEOUT.bind(globalThis);
     obj.clearTimeoutFn = NATIVE_CLEAR_TIMEOUT.bind(globalThis);
   } else {
-    obj.setTimeoutFn = setTimeout.bind(globalThis);
-    obj.clearTimeoutFn = clearTimeout.bind(globalThis);
+    obj.setTimeoutFn = globalThis.setTimeout.bind(globalThis);
+    obj.clearTimeoutFn = globalThis.clearTimeout.bind(globalThis);
   }
 }
 
