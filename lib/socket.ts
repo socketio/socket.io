@@ -10,6 +10,7 @@ const debug = debugModule("engine:socket");
 
 export class Socket extends EventEmitter {
   public readonly protocol: number;
+  // TODO for the next major release: do not keep the reference to the first HTTP request, as it stays in memory
   public readonly request: IncomingMessage;
   public readonly remoteAddress: string;
 
