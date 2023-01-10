@@ -1,15 +1,24 @@
 # History
 
+## 2023
+
+- [6.3.0](#63O-2023-01-10) (2023-01-10)
+
+## 2022
+
 - [6.2.3](#623-2022-10-13) (2022-10-13)
 - [6.2.2](#622-2022-05-02) (2022-05-02)
 - [6.2.1](#621-2022-04-17) (2022-04-17)
 - [6.2.0](#620-2022-04-17) (2022-04-17)
+
+## 2021
+
 - [6.0.3](#603-2021-11-14) (2021-11-14) (from the [6.0.x](https://github.com/socketio/engine.io-client/tree/6.0.x) branch)
 - [6.1.1](#611-2021-11-14) (2021-11-14)
 - [6.1.0](#610-2021-11-08) (2021-11-08)
 - [6.0.2](#602-2021-10-15) (2021-10-15)
 - [6.0.1](#601-2021-10-14) (2021-10-14)
-- [6.0.0](#600-2021-10-08) (2021-10-08)
+- [**6.0.0**](#600-2021-10-08) (2021-10-08)
 - [5.2.0](#520-2021-08-29) (2021-08-29)
 - [5.1.2](#512-2021-06-24) (2021-06-24)
 - [5.1.1](#511-2021-05-11) (2021-05-11)
@@ -17,7 +26,7 @@
 - [3.5.2](#352-2021-05-05) (2021-05-05) (from the [3.5.x](https://github.com/socketio/engine.io-client/tree/3.5.x) branch)
 - [5.1.0](#510-2021-05-04) (2021-05-04)
 - [5.0.1](#501-2021-03-31) (2021-03-31)
-- [5.0.0](#500-2021-03-10) (2021-03-10)
+- [**5.0.0**](#500-2021-03-10) (2021-03-10)
 - [3.5.1](#351-2021-03-02) (2021-03-02) (from the [3.5.x](https://github.com/socketio/engine.io-client/tree/3.5.x) branch)
 - [4.1.2](#412-2021-02-25) (2021-02-25)
 - [4.1.1](#411-2021-02-02) (2021-02-02)
@@ -25,12 +34,47 @@
 
 # Release notes
 
+## [6.3.0](https://github.com/socketio/engine.io-client/compare/6.2.3...6.3.0) (2023-01-10)
+
+
+### Bug Fixes
+
+* properly parse relative URL with a "@" character ([12b7d78](https://github.com/socketio/engine.io-client/commit/12b7d7817e9c0016c970f903de15ed8b4255ea90))
+* use explicit context for setTimeout function ([#699](https://github.com/socketio/engine.io-client/issues/699)) ([047f420](https://github.com/socketio/engine.io-client/commit/047f420b86a669752536ff425261e7be60a80692))
+
+
+### Features
+
+* add the "addTrailingSlash" option ([#694](https://github.com/socketio/engine.io-client/issues/694)) ([21a6e12](https://github.com/socketio/engine.io-client/commit/21a6e1219add92157c5442537d24fbe1129a50f5))
+
+The trailing slash which was added by default can now be disabled:
+
+```js
+import { Socket } from "engine.io-client";
+
+const socket = new Socket("https://example.com", {
+  addTrailingSlash: false
+});
+```
+
+In the example above, the request URL will be `https://example.com/engine.io` instead of `https://example.com/engine.io/`.
+
+### Dependencies
+
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) ([diff](https://github.com/websockets/ws/compare/8.2.3...8.11.0))
+
+
+
 ## [6.2.3](https://github.com/socketio/engine.io-client/compare/6.2.2...6.2.3) (2022-10-13)
 
 
 ### Bug Fixes
 
 * properly clear "beforeunload" event listener ([99925a4](https://github.com/socketio/engine.io-client/commit/99925a47750f66d2ad36313243545181512579ee))
+
+### Dependencies
+
+- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3) (no change)
 
 
 
