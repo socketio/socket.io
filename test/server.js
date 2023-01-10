@@ -1797,9 +1797,7 @@ describe("server", () => {
           conn.send("a");
           conn.send("b");
           conn.send("c");
-          setTimeout(() => {
-            conn.close();
-          }, 50);
+          conn.close();
         });
 
         socket.on("open", () => {

@@ -61,47 +61,48 @@ export class WebSocket extends Transport {
    * @api private
    */
   send(packets) {
-    const packet = packets.shift();
-    if (typeof packet === "undefined") {
-      this.writable = true;
-      this.emit("drain");
-      return;
-    }
+    this.writable = false;
 
-    // always creates a new object since ws modifies it
-    const opts: { compress?: boolean } = {};
-    if (packet.options) {
-      opts.compress = packet.options.compress;
-    }
+    for (let i = 0; i < packets.length; i++) {
+      const packet = packets[i];
+      const isLast = i + 1 === packets.length;
 
-    const send = (data) => {
-      if (this.perMessageDeflate) {
-        const len =
-          "string" === typeof data ? Buffer.byteLength(data) : data.length;
-        if (len < this.perMessageDeflate.threshold) {
-          opts.compress = false;
-        }
+      // always creates a new object since ws modifies it
+      const opts: { compress?: boolean } = {};
+      if (packet.options) {
+        opts.compress = packet.options.compress;
       }
-      debug('writing "%s"', data);
-      this.writable = false;
 
-      this.socket.send(data, opts, (err) => {
-        if (err) return this.onError("write error", err.stack);
-        this.send(packets);
-      });
-    };
+      const onSent = (err) => {
+        if (err) {
+          return this.onError("write error", err.stack);
+        } else if (isLast) {
+          this.writable = true;
+          this.emit("drain");
+        }
+      };
 
-    if (packet.options && typeof packet.options.wsPreEncoded === "string") {
-      send(packet.options.wsPreEncoded);
-    } else if (this._canSendPreEncodedFrame(packet)) {
-      // the WebSocket frame was computed with WebSocket.Sender.frame()
-      // see https://github.com/websockets/ws/issues/617#issuecomment-283002469
-      this.socket._sender.sendFrame(packet.options.wsPreEncodedFrame, (err) => {
-        if (err) return this.onError("write error", err.stack);
-        this.send(packets);
-      });
-    } else {
-      this.parser.encodePacket(packet, this.supportsBinary, send);
+      const send = (data) => {
+        if (this.perMessageDeflate) {
+          const len =
+            "string" === typeof data ? Buffer.byteLength(data) : data.length;
+          if (len < this.perMessageDeflate.threshold) {
+            opts.compress = false;
+          }
+        }
+        debug('writing "%s"', data);
+        this.socket.send(data, opts, onSent);
+      };
+
+      if (packet.options && typeof packet.options.wsPreEncoded === "string") {
+        send(packet.options.wsPreEncoded);
+      } else if (this._canSendPreEncodedFrame(packet)) {
+        // the WebSocket frame was computed with WebSocket.Sender.frame()
+        // see https://github.com/websockets/ws/issues/617#issuecomment-283002469
+        this.socket._sender.sendFrame(packet.options.wsPreEncodedFrame, onSent);
+      } else {
+        this.parser.encodePacket(packet, this.supportsBinary, send);
+      }
     }
   }
 

@@ -560,10 +560,18 @@ export class Socket extends EventEmitter {
     this.readyState = "closing";
 
     if (this.writeBuffer.length) {
-      this.once("drain", this.closeTransport.bind(this, discard));
+      debug(
+        "there are %d remaining packets in the buffer, waiting for the 'drain' event",
+        this.writeBuffer.length
+      );
+      this.once("drain", () => {
+        debug("all packets have been sent, closing the transport");
+        this.closeTransport(discard);
+      });
       return;
     }
 
+    debug("the buffer is empty, closing the transport right away", discard);
     this.closeTransport(discard);
   }
 
@@ -574,6 +582,7 @@ export class Socket extends EventEmitter {
    * @api private
    */
   private closeTransport(discard) {
+    debug("closing the transport (discard? %s)", discard);
     if (discard) this.transport.discard();
     this.transport.close(this.onClose.bind(this, "forced close"));
   }

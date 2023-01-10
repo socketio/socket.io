@@ -53,36 +53,32 @@ export class WebSocket extends Transport {
    * @api private
    */
   send(packets) {
-    const packet = packets.shift();
-    if (typeof packet === "undefined") {
-      this.writable = true;
-      this.emit("drain");
-      return;
-    }
+    this.writable = false;
 
-    // always creates a new object since ws modifies it
-    const opts: { compress?: boolean } = {};
-    if (packet.options) {
-      opts.compress = packet.options.compress;
-    }
+    for (let i = 0; i < packets.length; i++) {
+      const packet = packets[i];
+      const isLast = i + 1 === packets.length;
 
-    const send = (data) => {
-      const isBinary = typeof data !== "string";
-      const compress =
-        this.perMessageDeflate &&
-        Buffer.byteLength(data) > this.perMessageDeflate.threshold;
+      const send = (data) => {
+        const isBinary = typeof data !== "string";
+        const compress =
+          this.perMessageDeflate &&
+          Buffer.byteLength(data) > this.perMessageDeflate.threshold;
 
-      debug('writing "%s"', data);
-      this.writable = false;
+        debug('writing "%s"', data);
+        this.socket.send(data, isBinary, compress);
 
-      this.socket.send(data, isBinary, compress);
-      this.send(packets);
-    };
+        if (isLast) {
+          this.writable = true;
+          this.emit("drain");
+        }
+      };
 
-    if (packet.options && typeof packet.options.wsPreEncoded === "string") {
-      send(packet.options.wsPreEncoded);
-    } else {
-      this.parser.encodePacket(packet, this.supportsBinary, send);
+      if (packet.options && typeof packet.options.wsPreEncoded === "string") {
+        send(packet.options.wsPreEncoded);
+      } else {
+        this.parser.encodePacket(packet, this.supportsBinary, send);
+      }
     }
   }
 
@@ -94,7 +90,7 @@ export class WebSocket extends Transport {
   doClose(fn) {
     debug("closing");
     fn && fn();
-    // call fn first since socket.close() immediately emits a "close" event
-    this.socket.close();
+    // call fn first since socket.end() immediately emits a "close" event
+    this.socket.end();
   }
 }
