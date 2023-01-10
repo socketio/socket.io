@@ -1,3 +1,10 @@
-import lib from "./build/engine.io.js";
-
-export const { Server, Socket, Transport, transports, listen, attach, parser, protocol } = lib;
+export {
+  Server,
+  Socket,
+  Transport,
+  transports,
+  listen,
+  attach,
+  parser,
+  protocol,
+} from "./build/engine.io.js";
