@@ -31,6 +31,7 @@ import {
   EventNames,
 } from "./typed-events";
 import { patchAdapter, restoreAdapter, serveFile } from "./uws";
+import type { BaseServer } from "engine.io/build/server";
 
 const debug = debugModule("socket.io:server");
 
@@ -127,7 +128,7 @@ export class Server<
    * const clientsCount = io.engine.clientsCount;
    *
    */
-  public engine: any;
+  public engine: BaseServer;
 
   /** @private */
   readonly _parser: typeof parser;
@@ -582,10 +583,10 @@ export class Server<
   /**
    * Binds socket.io to an engine.io instance.
    *
-   * @param {engine.Server} engine engine.io (or compatible) server
+   * @param engine engine.io (or compatible) server
    * @return self
    */
-  public bind(engine): this {
+  public bind(engine: BaseServer): this {
     this.engine = engine;
     this.engine.on("connection", this.onconnection.bind(this));
     return this;
