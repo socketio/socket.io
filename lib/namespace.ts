@@ -296,13 +296,25 @@ export class Namespace<
    * @return {Socket}
    * @private
    */
-  _add(
+  async _add(
     client: Client<ListenEvents, EmitEvents, ServerSideEvents>,
-    query,
-    fn?: () => void
-  ): Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData> {
+    auth: Record<string, unknown>,
+    fn: (
+      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+    ) => void
+  ) {
     debug("adding socket to nsp %s", this.name);
-    const socket = new Socket(this, client, query);
+    const socket = await this._createSocket(client, auth);
+
+    if (
+      // @ts-ignore
+      this.server.opts.connectionStateRecovery?.skipMiddlewares &&
+      socket.recovered &&
+      client.conn.readyState === "open"
+    ) {
+      return this._doConnect(socket, fn);
+    }
+
     this.run(socket, (err) => {
       process.nextTick(() => {
         if ("open" !== client.conn.readyState) {
@@ -324,22 +336,53 @@ export class Namespace<
           }
         }
 
-        // track socket
-        this.sockets.set(socket.id, socket);
-
-        // it's paramount that the internal `onconnect` logic
-        // fires before user-set events to prevent state order
-        // violations (such as a disconnection before the connection
-        // logic is complete)
-        socket._onconnect();
-        if (fn) fn();
-
-        // fire user-set events
-        this.emitReserved("connect", socket);
-        this.emitReserved("connection", socket);
+        this._doConnect(socket, fn);
       });
     });
-    return socket;
+  }
+
+  private async _createSocket(
+    client: Client<ListenEvents, EmitEvents, ServerSideEvents>,
+    auth: Record<string, unknown>
+  ) {
+    const sessionId = auth.pid;
+    const offset = auth.offset;
+    if (
+      // @ts-ignore
+      this.server.opts.connectionStateRecovery &&
+      typeof sessionId === "string" &&
+      typeof offset === "string"
+    ) {
+      const session = await this.adapter.restoreSession(sessionId, offset);
+      if (session) {
+        debug("connection state recovered for sid %s", session.sid);
+        return new Socket(this, client, auth, session);
+      } else {
+        debug("unable to restore session state");
+      }
+    }
+    return new Socket(this, client, auth);
+  }
+
+  private _doConnect(
+    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
+    fn: (
+      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+    ) => void
+  ) {
+    // track socket
+    this.sockets.set(socket.id, socket);
+
+    // it's paramount that the internal `onconnect` logic
+    // fires before user-set events to prevent state order
+    // violations (such as a disconnection before the connection
+    // logic is complete)
+    socket._onconnect();
+    if (fn) fn(socket);
+
+    // fire user-set events
+    this.emitReserved("connect", socket);
+    this.emitReserved("connection", socket);
   }
 
   /**

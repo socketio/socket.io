@@ -5,6 +5,7 @@ import {
   Socket as ClientSocket,
   SocketOptions,
 } from "socket.io-client";
+import request from "supertest";
 
 const expect = require("expect.js");
 const i = expect.stringify;
@@ -73,8 +74,46 @@ export function createPartialDone(count: number, done: (err?: Error) => void) {
   };
 }
 
-export function waitFor(emitter, event) {
-  return new Promise((resolve) => {
+export function waitFor<T = unknown>(emitter, event) {
+  return new Promise<T>((resolve) => {
     emitter.once(event, resolve);
+  });
+}
+
+// TODO: update superagent as latest release now supports promises
+export function eioHandshake(httpServer): Promise<string> {
+  return new Promise((resolve) => {
+    request(httpServer)
+      .get("/socket.io/")
+      .query({ transport: "polling", EIO: 4 })
+      .end((err, res) => {
+        const sid = JSON.parse(res.text.substring(1)).sid;
+        resolve(sid);
+      });
+  });
+}
+
+export function eioPush(httpServer, sid: string, body: string): Promise<void> {
+  return new Promise((resolve) => {
+    request(httpServer)
+      .post("/socket.io/")
+      .send(body)
+      .query({ transport: "polling", EIO: 4, sid })
+      .expect(200)
+      .end(() => {
+        resolve();
+      });
+  });
+}
+
+export function eioPoll(httpServer, sid): Promise<string> {
+  return new Promise((resolve) => {
+    request(httpServer)
+      .get("/socket.io/")
+      .query({ transport: "polling", EIO: 4, sid })
+      .expect(200)
+      .end((err, res) => {
+        resolve(res.text);
+      });
   });
 }

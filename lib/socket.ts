@@ -2,19 +2,21 @@ import { Packet, PacketType } from "socket.io-parser";
 import debugModule from "debug";
 import type { Server } from "./index";
 import {
-  EventParams,
+  DefaultEventsMap,
   EventNames,
+  EventParams,
   EventsMap,
   StrictEventEmitter,
-  DefaultEventsMap,
 } from "./typed-events";
 import type { Client } from "./client";
 import type { Namespace, NamespaceReservedEventsMap } from "./namespace";
-import type { IncomingMessage, IncomingHttpHeaders } from "http";
+import type { IncomingHttpHeaders, IncomingMessage } from "http";
 import type {
   Adapter,
   BroadcastFlags,
+  PrivateSessionId,
   Room,
+  Session,
   SocketId,
 } from "socket.io-adapter";
 import base64id from "base64id";
@@ -38,6 +40,15 @@ export type DisconnectReason =
   | "forced server close"
   | "client namespace disconnect"
   | "server namespace disconnect";
+
+const RECOVERABLE_DISCONNECT_REASONS: ReadonlySet<DisconnectReason> = new Set([
+  "transport error",
+  "transport close",
+  "forced close",
+  "ping timeout",
+  "server shutting down",
+  "forced server close",
+]);
 
 export interface SocketReservedEventsMap {
   disconnect: (reason: DisconnectReason) => void;
@@ -174,6 +185,11 @@ export class Socket<
    */
   public readonly id: SocketId;
   /**
+   * Whether the connection state was recovered after a temporary disconnection. In that case, any missed packets will
+   * be transmitted to the client, the data attribute and the rooms will be restored.
+   */
+  public readonly recovered: boolean = false;
+  /**
    * The handshake details.
    */
   public readonly handshake: Handshake;
@@ -197,6 +213,14 @@ export class Socket<
    */
   public connected: boolean = false;
 
+  /**
+   * The session ID, which must not be shared (unlike {@link id}).
+   *
+   * @private
+   */
+  private readonly pid: PrivateSessionId;
+
+  // TODO: remove this unused reference
   private readonly server: Server<
     ListenEvents,
     EmitEvents,
@@ -221,16 +245,32 @@ export class Socket<
   constructor(
     readonly nsp: Namespace<ListenEvents, EmitEvents, ServerSideEvents>,
     readonly client: Client<ListenEvents, EmitEvents, ServerSideEvents>,
-    auth: object
+    auth: Record<string, unknown>,
+    previousSession?: Session
   ) {
     super();
     this.server = nsp.server;
     this.adapter = this.nsp.adapter;
-    if (client.conn.protocol === 3) {
-      // @ts-ignore
-      this.id = nsp.name !== "/" ? nsp.name + "#" + client.id : client.id;
+    if (previousSession) {
+      this.id = previousSession.sid;
+      this.pid = previousSession.pid;
+      previousSession.rooms.forEach((room) => this.join(room));
+      this.data = previousSession.data as Partial<SocketData>;
+      previousSession.missedPackets.forEach((packet) => {
+        this.packet({
+          type: PacketType.EVENT,
+          data: packet,
+        });
+      });
+      this.recovered = true;
     } else {
-      this.id = base64id.generateId(); // don't reuse the Engine.IO id because it's sensitive information
+      if (client.conn.protocol === 3) {
+        // @ts-ignore
+        this.id = nsp.name !== "/" ? nsp.name + "#" + client.id : client.id;
+      } else {
+        this.id = base64id.generateId(); // don't reuse the Engine.IO id because it's sensitive information
+      }
+      this.pid = base64id.generateId();
     }
     this.handshake = this.buildHandshake(auth);
   }
@@ -299,8 +339,18 @@ export class Socket<
     const flags = Object.assign({}, this.flags);
     this.flags = {};
 
-    this.notifyOutgoingListeners(packet);
-    this.packet(packet, flags);
+    // @ts-ignore
+    if (this.nsp.server.opts.connectionStateRecovery) {
+      // this ensures the packet is stored and can be transmitted upon reconnection
+      this.adapter.broadcast(packet, {
+        rooms: new Set([this.id]),
+        except: new Set(),
+        flags,
+      });
+    } else {
+      this.notifyOutgoingListeners(packet);
+      this.packet(packet, flags);
+    }
 
     return true;
   }
@@ -508,7 +558,10 @@ export class Socket<
     if (this.conn.protocol === 3) {
       this.packet({ type: PacketType.CONNECT });
     } else {
-      this.packet({ type: PacketType.CONNECT, data: { sid: this.id } });
+      this.packet({
+        type: PacketType.CONNECT,
+        data: { sid: this.id, pid: this.pid },
+      });
     }
   }
 
@@ -644,6 +697,17 @@ export class Socket<
     if (!this.connected) return this;
     debug("closing socket - reason %s", reason);
     this.emitReserved("disconnecting", reason);
+
+    if (RECOVERABLE_DISCONNECT_REASONS.has(reason)) {
+      debug("connection state recovery is enabled for sid %s", this.id);
+      this.adapter.persistSession({
+        sid: this.id,
+        pid: this.pid,
+        rooms: [...this.rooms],
+        data: this.data,
+      });
+    }
+
     this._cleanup();
     this.nsp._remove(this);
     this.client._remove(this);

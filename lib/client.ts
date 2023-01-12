@@ -114,7 +114,7 @@ export class Client<
    * @param {Object} auth - the auth parameters
    * @private
    */
-  private connect(name: string, auth: object = {}): void {
+  private connect(name: string, auth: Record<string, unknown> = {}): void {
     if (this.server._nsps.has(name)) {
       debug("connecting to namespace %s", name);
       return this.doConnect(name, auth);
@@ -152,10 +152,10 @@ export class Client<
    *
    * @private
    */
-  private doConnect(name: string, auth: object): void {
+  private doConnect(name: string, auth: Record<string, unknown>): void {
     const nsp = this.server.of(name);
 
-    const socket = nsp._add(this, auth, () => {
+    nsp._add(this, auth, (socket) => {
       this.sockets.set(socket.id, socket);
       this.nsps.set(nsp.name, socket);
 
@@ -228,7 +228,7 @@ export class Client<
   }
 
   private writeToEngine(
-    encodedPackets: Array<String | Buffer>,
+    encodedPackets: Array<string | Buffer>,
     opts: WriteOptions
   ): void {
     if (opts.volatile && !this.conn.transport.writable) {
@@ -267,7 +267,7 @@ export class Client<
    */
   private ondecoded(packet: Packet): void {
     let namespace: string;
-    let authPayload;
+    let authPayload: Record<string, unknown>;
     if (this.conn.protocol === 3) {
       const parsed = url.parse(packet.nsp, true);
       namespace = parsed.pathname!;

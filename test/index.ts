@@ -20,4 +20,5 @@ describe("socket.io", () => {
   require("./socket-timeout");
   require("./uws");
   require("./utility-methods");
+  require("./connection-state-recovery");
 });

@@ -4,46 +4,13 @@ import { join } from "path";
 import { exec } from "child_process";
 import { Server } from "..";
 import expect from "expect.js";
-import { createClient, getPort } from "./support/util";
-import request from "supertest";
-
-// TODO: update superagent as latest release now supports promises
-const eioHandshake = (httpServer): Promise<string> => {
-  return new Promise((resolve) => {
-    request(httpServer)
-      .get("/socket.io/")
-      .query({ transport: "polling", EIO: 4 })
-      .end((err, res) => {
-        const sid = JSON.parse(res.text.substring(1)).sid;
-        resolve(sid);
-      });
-  });
-};
-
-const eioPush = (httpServer, sid: string, body: string): Promise<void> => {
-  return new Promise((resolve) => {
-    request(httpServer)
-      .post("/socket.io/")
-      .send(body)
-      .query({ transport: "polling", EIO: 4, sid })
-      .expect(200)
-      .end(() => {
-        resolve();
-      });
-  });
-};
-
-const eioPoll = (httpServer, sid): Promise<string> => {
-  return new Promise((resolve) => {
-    request(httpServer)
-      .get("/socket.io/")
-      .query({ transport: "polling", EIO: 4, sid })
-      .expect(200)
-      .end((err, res) => {
-        resolve(res.text);
-      });
-  });
-};
+import {
+  createClient,
+  eioHandshake,
+  eioPoll,
+  eioPush,
+  getPort,
+} from "./support/util";
 
 describe("close", () => {
   it("should be able to close sio sending a srv", (done) => {

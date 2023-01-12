@@ -17,7 +17,12 @@ import { Client } from "./client";
 import { EventEmitter } from "events";
 import { ExtendedError, Namespace, ServerReservedEventsMap } from "./namespace";
 import { ParentNamespace } from "./parent-namespace";
-import { Adapter, Room, SocketId } from "socket.io-adapter";
+import {
+  Adapter,
+  SessionAwareAdapter,
+  Room,
+  SocketId,
+} from "socket.io-adapter";
 import * as parser from "socket.io-parser";
 import type { Encoder } from "socket.io-parser";
 import debugModule from "debug";
@@ -72,6 +77,25 @@ interface ServerOptions extends EngineOptions, AttachOptions {
    * @default 45000
    */
   connectTimeout: number;
+  /**
+   * Whether to enable the recovery of connection state when a client temporarily disconnects.
+   *
+   * The connection state includes the missed packets, the rooms the socket was in and the `data` attribute.
+   */
+  connectionStateRecovery: {
+    /**
+     * The backup duration of the sessions and the packets.
+     *
+     * @default 120000 (2 minutes)
+     */
+    maxDisconnectionDuration?: number;
+    /**
+     * Whether to skip middlewares upon successful connection state recovery.
+     *
+     * @default true
+     */
+    skipMiddlewares?: boolean;
+  };
 }
 
 /**
@@ -148,7 +172,7 @@ export class Server<
   > = new Map();
   private _adapter?: AdapterConstructor;
   private _serveClient: boolean;
-  private opts: Partial<EngineOptions>;
+  private readonly opts: Partial<ServerOptions>;
   private eio: Engine;
   private _path: string;
   private clientPathRegex: RegExp;
@@ -204,9 +228,20 @@ export class Server<
     this.serveClient(false !== opts.serveClient);
     this._parser = opts.parser || parser;
     this.encoder = new this._parser.Encoder();
-    this.adapter(opts.adapter || Adapter);
-    this.sockets = this.of("/");
     this.opts = opts;
+    if (opts.connectionStateRecovery) {
+      opts.connectionStateRecovery = Object.assign(
+        {
+          maxDisconnectionDuration: 2 * 60 * 1000,
+          skipMiddlewares: true,
+        },
+        opts.connectionStateRecovery
+      );
+      this.adapter(opts.adapter || SessionAwareAdapter);
+    } else {
+      this.adapter(opts.adapter || Adapter);
+    }
+    this.sockets = this.of("/");
     if (srv || typeof srv == "number")
       this.attach(
         srv as http.Server | HTTPSServer | Http2SecureServer | number
