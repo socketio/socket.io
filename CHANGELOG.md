@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [6.3.1](#631-2023-01-12) (Jan 2023)
 - [6.3.0](#630-2023-01-10) (Jan 2023)
 
 ## 2022
@@ -42,6 +43,10 @@
 
 
 # Release notes
+
+## [6.3.1](https://github.com/socketio/engine.io/compare/6.3.0...6.3.1) (2023-01-12)
+
+
 
 ## [6.3.0](https://github.com/socketio/engine.io/compare/6.2.1...6.3.0) (2023-01-10)
 
