@@ -8,6 +8,10 @@ import { Packet, PacketType, RawData } from "engine.io-parser";
 
 const debug = debugModule("engine:socket");
 
+export interface SendOptions {
+  compress?: boolean;
+}
+
 export class Socket extends EventEmitter {
   public readonly protocol: number;
   // TODO for the next major release: do not keep the reference to the first HTTP request, as it stays in memory
@@ -432,11 +436,7 @@ export class Socket extends EventEmitter {
    * @return {Socket} for chaining
    * @api public
    */
-  public send(
-    data: RawData,
-    options?: { compress: boolean },
-    callback?: () => void
-  ) {
+  public send(data: RawData, options?: SendOptions, callback?: () => void) {
     this.sendPacket("message", data, options, callback);
     return this;
   }
@@ -448,11 +448,7 @@ export class Socket extends EventEmitter {
    * @param options
    * @param callback
    */
-  public write(
-    data: RawData,
-    options?: { compress: boolean },
-    callback?: () => void
-  ) {
+  public write(data: RawData, options?: SendOptions, callback?: () => void) {
     this.sendPacket("message", data, options, callback);
     return this;
   }
@@ -470,20 +466,23 @@ export class Socket extends EventEmitter {
   private sendPacket(
     type: PacketType,
     data?: RawData,
-    options: { compress: boolean } = { compress: true },
+    options: SendOptions = {},
     callback?: () => void
   ) {
     if ("function" === typeof options) {
       callback = options;
-      options = null;
+      options = {};
     }
 
     if ("closing" !== this.readyState && "closed" !== this.readyState) {
       debug('sending packet "%s" (%s)', type, data);
 
+      // compression is enabled by default
+      options.compress = options.compress !== false;
+
       const packet: Packet = {
         type,
-        options,
+        options: options as { compress: boolean },
       };
 
       if (data) packet.data = data;
