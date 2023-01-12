@@ -498,4 +498,22 @@ describe("messaging many", () => {
         success(done, io, socket1, socket2, socket3);
       });
   });
+
+  it("should precompute the WebSocket frame when broadcasting", (done) => {
+    const io = new Server(0);
+    const socket = createClient(io, "/chat", {
+      transports: ["websocket"],
+    });
+    const partialDone = createPartialDone(2, successFn(done, io, socket));
+
+    io.of("/chat").on("connection", (s) => {
+      s.conn.once("packetCreate", (packet) => {
+        expect(packet.options.wsPreEncodedFrame).to.be.an(Array);
+        partialDone();
+      });
+      io.of("/chat").compress(false).emit("woot", "hi");
+    });
+
+    socket.on("woot", partialDone);
+  });
 });

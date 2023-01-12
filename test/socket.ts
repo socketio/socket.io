@@ -731,7 +731,7 @@ describe("socket", () => {
     });
   });
 
-  it("should enable compresion by default", (done) => {
+  it("should enable compression by default", (done) => {
     const io = new Server(0);
     const socket = createClient(io, "/chat");
 
@@ -740,11 +740,11 @@ describe("socket", () => {
         expect(packet.options.compress).to.be(true);
         success(done, io, socket);
       });
-      io.of("/chat").emit("woot", "hi");
+      s.emit("woot", "hi");
     });
   });
 
-  it("should disable compresion", (done) => {
+  it("should disable compression", (done) => {
     const io = new Server(0);
     const socket = createClient(io, "/chat");
 
@@ -753,7 +753,7 @@ describe("socket", () => {
         expect(packet.options.compress).to.be(false);
         success(done, io, socket);
       });
-      io.of("/chat").compress(false).emit("woot", "hi");
+      s.compress(false).emit("woot", "hi");
     });
   });
 
