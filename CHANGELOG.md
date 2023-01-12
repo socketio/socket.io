@@ -1,5 +1,6 @@
 # History
 
+- [2.5.2](#252-2023-01-12) (Jan 2023)
 - [2.5.1](#251-2023-01-06) (Jan 2023)
 - [2.5.0](#250-2023-01-06) (Jan 2023)
 - [2.4.0](#240-2022-03-30) (Mar 2022)
@@ -12,11 +13,17 @@
 - [2.0.3](#203-2020-11-05) (Nov 2020)
 - [2.0.2](#202-2020-09-28) (Sep 2020)
 - [2.0.1](#201-2020-09-28) (Sep 2020)
-- [2.0.0](#200-2020-09-25) (Sep 2020)
+- [**2.0.0**](#200-2020-09-25) (Sep 2020)
 
 
 
 # Release notes
+
+## [2.5.2](https://github.com/socketio/socket.io-adapter/compare/2.5.1...2.5.2) (2023-01-12)
+
+The `ws` dependency was moved from `peerDependencies` to `dependencies`, in order to prevent issues like [this](https://github.com/socketio/socket.io-redis-adapter/issues/478).
+
+
 
 ## [2.5.1](https://github.com/socketio/socket.io-adapter/compare/2.5.0...2.5.1) (2023-01-06)
 
