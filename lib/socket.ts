@@ -12,6 +12,40 @@ import debugModule from "debug"; // debug()
 
 const debug = debugModule("socket.io-client:socket"); // debug()
 
+type Last<T extends any[]> = T extends [...infer I, infer L] ? L : any;
+type AllButLast<T extends any[]> = T extends [...infer I, infer L] ? I : any[];
+
+type PrependTimeoutError<T> = T extends (...args: infer Params) => infer Result
+  ? (err: Error, ...args: Params) => Result
+  : T;
+
+/**
+ * Utility type to decorate the acknowledgement callbacks with a timeout error.
+ *
+ * This is needed because the timeout() flag breaks the symmetry between the sender and the receiver:
+ *
+ * @example
+ * interface Events {
+ *   "my-event": (val: string) => void;
+ * }
+ *
+ * socket.on("my-event", (cb) => {
+ *   cb("123"); // one single argument here
+ * });
+ *
+ * socket.timeout(1000).emit("my-event", (err, val) => {
+ *   // two arguments there (the "err" argument is not properly typed)
+ * });
+ *
+ */
+export type DecorateAcknowledgements<E> = {
+  [K in keyof E]: E[K] extends (...args: infer Params) => infer Result
+    ? (
+        ...args: [...AllButLast<Params>, PrependTimeoutError<Last<Params>>]
+      ) => Result
+    : E[K];
+};
+
 export interface SocketOptions {
   /**
    * the authentication payload sent when connecting to the Namespace
@@ -677,7 +711,9 @@ export class Socket<
    *
    * @returns self
    */
-  public timeout(timeout: number): this {
+  public timeout(
+    timeout: number
+  ): Socket<ListenEvents, DecorateAcknowledgements<EmitEvents>> {
     this.flags.timeout = timeout;
     return this;
   }

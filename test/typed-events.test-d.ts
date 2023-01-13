@@ -59,6 +59,17 @@ describe("typed events", () => {
 
         socket.emit("random", 1, "2", [3]);
         socket.emit("no parameters");
+
+        socket.emit("ackFromClient", "1", 2, (c, d) => {
+          expectType<any>(c);
+          expectType<any>(d);
+        });
+
+        socket.timeout(1000).emit("ackFromClient", "1", 2, (err, c, d) => {
+          expectType<any>(err);
+          expectType<any>(c);
+          expectType<any>(d);
+        });
       });
     });
   });
@@ -111,6 +122,12 @@ describe("typed events", () => {
   describe("listen and emit event maps", () => {
     interface ClientToServerEvents {
       helloFromClient: (message: string) => void;
+      ackFromClient: (
+        a: string,
+        b: number,
+        ack: (c: string, d: boolean) => void
+      ) => void;
+      ackFromClientNoArg: (ack: () => void) => void;
     }
 
     interface ServerToClientEvents {
@@ -142,6 +159,23 @@ describe("typed events", () => {
         const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io();
 
         socket.emit("helloFromClient", "hi");
+
+        socket.emit("ackFromClient", "1", 2, (c, d) => {
+          expectType<string>(c);
+          expectType<boolean>(d);
+        });
+
+        socket.timeout(1000).emit("ackFromClient", "1", 2, (err, c, d) => {
+          expectType<Error>(err);
+          expectType<string>(c);
+          expectType<boolean>(d);
+        });
+
+        socket.emit("ackFromClientNoArg", () => {});
+
+        socket.timeout(1000).emit("ackFromClientNoArg", (err) => {
+          expectType<Error>(err);
+        });
       });
 
       it("does not accept arguments of wrong types", () => {
