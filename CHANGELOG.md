@@ -1,5 +1,6 @@
 # History
 
+- [5.0.6](#506-2023-01-16) (Jan 2023)
 - [5.0.5](#505-2023-01-06) (Jan 2023)
 - [5.0.4](#504-2022-04-30) (Apr 2022)
 - [5.0.3](#503-2022-01-17) (Jan 2022)
@@ -16,6 +17,12 @@
 
 
 # Release notes
+
+## [5.0.6](https://github.com/socketio/engine.io-parser/compare/5.0.5...5.0.6) (2023-01-16)
+
+The `compile` script was not run before publishing `5.0.5`, so the esm build did not include the latest changes.
+
+
 
 ## [5.0.5](https://github.com/socketio/engine.io-parser/compare/5.0.4...5.0.5) (2023-01-06)
 

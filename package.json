@@ -2,7 +2,7 @@
   "name": "engine.io-parser",
   "description": "Parser for the client for the realtime Engine",
   "license": "MIT",
-  "version": "5.0.5",
+  "version": "5.0.6",
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",
   "exports": {
@@ -36,7 +36,8 @@
     "test:node": "nyc mocha -r ts-node/register test/index.ts",
     "test:browser": "zuul test/index.ts --no-coverage",
     "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.ts'",
-    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.ts'"
+    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.ts'",
+    "prepack": "npm run compile"
   },
   "repository": {
     "type": "git",
