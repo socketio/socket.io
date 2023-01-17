@@ -12,12 +12,11 @@ import debugModule from "debug"; // debug()
 
 const debug = debugModule("socket.io-client:socket"); // debug()
 
-type Last<T extends any[]> = T extends [...infer I, infer L] ? L : any;
-type AllButLast<T extends any[]> = T extends [...infer I, infer L] ? I : any[];
-
-type PrependTimeoutError<T> = T extends (...args: infer Params) => infer Result
-  ? (err: Error, ...args: Params) => Result
-  : T;
+type PrependTimeoutError<T extends any[]> = {
+  [K in keyof T]: T[K] extends (...args: infer Params) => infer Result
+    ? (err: Error, ...args: Params) => Result
+    : T[K];
+};
 
 /**
  * Utility type to decorate the acknowledgement callbacks with a timeout error.
@@ -40,9 +39,7 @@ type PrependTimeoutError<T> = T extends (...args: infer Params) => infer Result
  */
 export type DecorateAcknowledgements<E> = {
   [K in keyof E]: E[K] extends (...args: infer Params) => infer Result
-    ? (
-        ...args: [...AllButLast<Params>, PrependTimeoutError<Last<Params>>]
-      ) => Result
+    ? (...args: PrependTimeoutError<Params>) => Result
     : E[K];
 };
 
