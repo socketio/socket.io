@@ -88,6 +88,12 @@ This release contains a bump of:
 
 # [2.5.0](https://github.com/socketio/socket.io/compare/2.4.1...2.5.0) (2022-06-26)
 
+⚠️ WARNING ⚠️
+
+The default value of the maxHttpBufferSize option has been decreased from 100 MB to 1 MB, in order to prevent attacks by denial of service.
+
+Security advisory: [GHSA-j4f2-536g-r55m](https://github.com/advisories/GHSA-j4f2-536g-r55m)
+
 
 ### Bug Fixes
 
