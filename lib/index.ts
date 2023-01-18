@@ -98,6 +98,11 @@ interface ServerOptions extends EngineOptions, AttachOptions {
      */
     skipMiddlewares?: boolean;
   };
+  /**
+   * Whether to remove child namespaces that have no sockets connected to them
+   * @default false
+   */
+  cleanupEmptyChildNamespaces: boolean;
 }
 
 /**
@@ -243,11 +248,16 @@ export class Server<
     } else {
       this.adapter(opts.adapter || Adapter);
     }
+    opts.cleanupEmptyChildNamespaces = !!opts.cleanupEmptyChildNamespaces;
     this.sockets = this.of("/");
     if (srv || typeof srv == "number")
       this.attach(
         srv as http.Server | HTTPSServer | Http2SecureServer | number
       );
+  }
+
+  get _opts() {
+    return this.opts;
   }
 
   /**

@@ -7,6 +7,9 @@ import type {
   DefaultEventsMap,
 } from "./typed-events";
 import type { BroadcastOptions } from "socket.io-adapter";
+import debugModule from "debug";
+
+const debug = debugModule("socket.io:parent-namespace");
 
 export class ParentNamespace<
   ListenEvents extends EventsMap = DefaultEventsMap,
@@ -52,6 +55,7 @@ export class ParentNamespace<
   createChild(
     name: string
   ): Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData> {
+    debug("creating child namespace %s", name);
     const namespace = new Namespace(this.server, name);
     namespace._fns = this._fns.slice(0);
     this.listeners("connect").forEach((listener) =>
@@ -61,6 +65,21 @@ export class ParentNamespace<
       namespace.on("connection", listener)
     );
     this.children.add(namespace);
+
+    if (this.server._opts.cleanupEmptyChildNamespaces) {
+      const remove = namespace._remove;
+
+      namespace._remove = (socket) => {
+        remove.call(namespace, socket);
+        if (namespace.sockets.size === 0) {
+          debug("closing child namespace %s", name);
+          namespace.adapter.close();
+          this.server._nsps.delete(namespace.name);
+          this.children.delete(namespace);
+        }
+      };
+    }
+
     this.server._nsps.set(name, namespace);
     return namespace;
   }
