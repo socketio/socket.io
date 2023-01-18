@@ -2,6 +2,8 @@ import { Packet, PacketType } from "socket.io-parser";
 import debugModule from "debug";
 import type { Server } from "./index";
 import {
+  DecorateAcknowledgements,
+  DecorateAcknowledgementsWithMultipleResponses,
   DefaultEventsMap,
   EventNames,
   EventParams,
@@ -842,7 +844,14 @@ export class Socket<
    *
    * @returns self
    */
-  public timeout(timeout: number): this {
+  public timeout(
+    timeout: number
+  ): Socket<
+    ListenEvents,
+    DecorateAcknowledgements<EmitEvents>,
+    ServerSideEvents,
+    SocketData
+  > {
     this.flags.timeout = timeout;
     return this;
   }
@@ -1152,11 +1161,9 @@ export class Socket<
   private newBroadcastOperator() {
     const flags = Object.assign({}, this.flags);
     this.flags = {};
-    return new BroadcastOperator<EmitEvents, SocketData>(
-      this.adapter,
-      new Set<Room>(),
-      new Set<Room>([this.id]),
-      flags
-    );
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter, new Set<Room>(), new Set<Room>([this.id]), flags);
   }
 }

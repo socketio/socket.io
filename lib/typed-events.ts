@@ -178,3 +178,52 @@ export abstract class StrictEventEmitter<
     >[];
   }
 }
+
+type PrependTimeoutError<T extends any[]> = {
+  [K in keyof T]: T[K] extends (...args: infer Params) => infer Result
+    ? (err: Error, ...args: Params) => Result
+    : T[K];
+};
+
+type ExpectMultipleResponses<T extends any[]> = {
+  [K in keyof T]: T[K] extends (err: Error, arg: infer Param) => infer Result
+    ? (err: Error, arg: Param[]) => Result
+    : T[K];
+};
+
+/**
+ * Utility type to decorate the acknowledgement callbacks with a timeout error.
+ *
+ * This is needed because the timeout() flag breaks the symmetry between the sender and the receiver:
+ *
+ * @example
+ * interface Events {
+ *   "my-event": (val: string) => void;
+ * }
+ *
+ * socket.on("my-event", (cb) => {
+ *   cb("123"); // one single argument here
+ * });
+ *
+ * socket.timeout(1000).emit("my-event", (err, val) => {
+ *   // two arguments there (the "err" argument is not properly typed)
+ * });
+ *
+ */
+export type DecorateAcknowledgements<E> = {
+  [K in keyof E]: E[K] extends (...args: infer Params) => infer Result
+    ? (...args: PrependTimeoutError<Params>) => Result
+    : E[K];
+};
+
+export type DecorateAcknowledgementsWithTimeoutAndMultipleResponses<E> = {
+  [K in keyof E]: E[K] extends (...args: infer Params) => infer Result
+    ? (...args: ExpectMultipleResponses<PrependTimeoutError<Params>>) => Result
+    : E[K];
+};
+
+export type DecorateAcknowledgementsWithMultipleResponses<E> = {
+  [K in keyof E]: E[K] extends (...args: infer Params) => infer Result
+    ? (...args: ExpectMultipleResponses<Params>) => Result
+    : E[K];
+};

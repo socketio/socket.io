@@ -34,6 +34,8 @@ import {
   EventParams,
   StrictEventEmitter,
   EventNames,
+  DecorateAcknowledgements,
+  DecorateAcknowledgementsWithTimeoutAndMultipleResponses,
 } from "./typed-events";
 import { patchAdapter, restoreAdapter, serveFile } from "./uws";
 import type { BaseServer } from "engine.io/build/server";
@@ -857,7 +859,10 @@ export class Server<
    */
   public serverSideEmit<Ev extends EventNames<ServerSideEvents>>(
     ev: Ev,
-    ...args: EventParams<ServerSideEvents, Ev>
+    ...args: EventParams<
+      DecorateAcknowledgementsWithTimeoutAndMultipleResponses<ServerSideEvents>,
+      Ev
+    >
   ): boolean {
     return this.sockets.serverSideEmit(ev, ...args);
   }

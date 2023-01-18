@@ -7,6 +7,8 @@ import type {
   EventNames,
   EventsMap,
   TypedEventBroadcaster,
+  DecorateAcknowledgements,
+  DecorateAcknowledgementsWithTimeoutAndMultipleResponses,
 } from "./typed-events";
 
 export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
@@ -169,12 +171,10 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    */
   public timeout(timeout: number) {
     const flags = Object.assign({}, this.flags, { timeout });
-    return new BroadcastOperator<EmitEvents, SocketData>(
-      this.adapter,
-      this.rooms,
-      this.exceptRooms,
-      flags
-    );
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithTimeoutAndMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter, this.rooms, this.exceptRooms, flags);
   }
 
   /**
