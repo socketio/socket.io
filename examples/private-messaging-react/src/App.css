@@ -1,38 +1,126 @@
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+  position: relative;
   min-height: 100vh;
+  max-width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(233, 233, 255);
+}
+
+.App::after {
+  content: "Private Messaging in Socket.io";
+  position: absolute;
+  bottom: 30px;
+  color: rgb(119, 119, 179);
+}
+
+.App .form {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  gap: 1.5rem;
+  width: 300px;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px 0 rgba(226, 226, 255, 1);
+  animation: form-load 400ms;
+}
+
+.App .form .header {
+  text-align: center;
+}
+
+.App .form .header p {
+  color: #727272;
+}
+
+.App .form input {
+  height: 40px;
+  width: 100%;
+  font-size: 16px;
+  padding: 0 1rem;
+  border: 1.5px solid rgb(215, 215, 255);
+  border-radius: 8px;
+  outline: none;
+  box-shadow: 0 0 0 0 rgb(192, 192, 255);
+  transition: box-shadow 150ms;
+}
+
+.App .form input:focus {
+  box-shadow: 0 0 0 3px rgb(192, 192, 255);
+}
+
+.App .form button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 100%;
+  background-color: rgb(84, 84, 255);
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
   color: white;
+  border: 1.5px solid rgb(63, 63, 255);
+  outline: none;
+  cursor: pointer;
+  transition: background-color 250ms;
 }
 
-.App-link {
-  color: #61dafb;
+.App .form button:hover {
+  background-color: rgb(72, 72, 220);
 }
 
-@keyframes App-logo-spin {
+.App .form button.joined {
+  background-color: rgba(72, 72, 220, 0.05);
+  color: rgb(84, 84, 255);
+}
+
+.App .form button.joined:hover {
+  background-color: rgba(72, 72, 220, 0.1);
+}
+
+.App .form button .loader {
+  height: 20px;
+  width: 20px;
+  border: 1.5px solid white;
+  border-left: 1.5px solid transparent;
+  border-radius: 100%;
+  animation: spin 1s linear infinite, load 250ms ease-in;
+}
+
+@keyframes load {
+  0% {
+    opacity: 0;
+    scale: 0;
+  }
+
+  50% {
+    scale: 0.85;
+  }
+
+  80% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes form-load {
+  0% {
+    opacity: 0;
+    transform: rotateX(130deg) rotateY(30deg);
   }
 }
