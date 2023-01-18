@@ -473,6 +473,34 @@ describe("namespaces", () => {
     io.of("/nsp");
   });
 
+  it("should not clean up parent namespace when cleanupEmptyChildNamespaces is on and there are no more sockets in a namespace", (done) => {
+    const io = new Server(0, { cleanupEmptyChildNamespaces: true });
+    const c1 = createClient(io, "/chat");
+
+    c1.on("connect", () => {
+      c1.disconnect();
+
+      // Give it some time to disconnect the client
+      setTimeout(() => {
+        const socket = createClient(io, "/chat");
+
+        socket.on("connect_error", () => {
+          done(
+            new Error(
+              "Client got a connect error when connecting to a parent namespace"
+            )
+          );
+        });
+
+        socket.on("connect", () => {
+          success(done, io, socket);
+        });
+      }, 500);
+    });
+
+    const nsp = io.of("/chat");
+  });
+
   describe("dynamic namespaces", () => {
     it("should allow connections to dynamic namespaces with a regex", (done) => {
       const io = new Server(0);
@@ -570,6 +598,66 @@ describe("namespaces", () => {
       let two = createClient(io, "/dynamic-101");
       one.on("message", handler);
       two.on("message", handler);
+    });
+
+    it("should clean up namespace when cleanupEmptyChildNamespaces is on and there are no more sockets in a namespace", (done) => {
+      const io = new Server(0, { cleanupEmptyChildNamespaces: true });
+      const c1 = createClient(io, "/dynamic-101");
+
+      c1.on("connect", () => {
+        c1.disconnect();
+
+        // Give it some time to disconnect and clean up the namespace
+        setTimeout(() => {
+          expect(io._nsps.has("/dynamic-101")).to.be(false);
+          success(done, io);
+        }, 100);
+      });
+
+      io.of(/^\/dynamic-\d+$/);
+    });
+
+    it("should allow a client to connect to a cleaned up namespace", (done) => {
+      const io = new Server(0, { cleanupEmptyChildNamespaces: true });
+      const c1 = createClient(io, "/dynamic-101");
+
+      c1.on("connect", () => {
+        c1.disconnect();
+
+        // Give it some time to disconnect and clean up the namespace
+        setTimeout(() => {
+          const c2 = createClient(io, "/dynamic-101");
+
+          c2.on("connect", () => {
+            success(done, io, c2);
+          });
+
+          c2.on("connect_error", () => {
+            done(
+              new Error("Client got error when connecting to dynamic namespace")
+            );
+          });
+        }, 100);
+      });
+
+      io.of(/^\/dynamic-\d+$/);
+    });
+
+    it("should not clean up namespace when cleanupEmptyChildNamespaces is off and there are no more sockets in a namespace", (done) => {
+      const io = new Server(0);
+      const c1 = createClient(io, "/dynamic-101");
+
+      c1.on("connect", () => {
+        c1.disconnect();
+
+        // Give it some time to disconnect and clean up the namespace
+        setTimeout(() => {
+          expect(io._nsps.has("/dynamic-101")).to.be(true);
+          success(done, io);
+        }, 300);
+      });
+
+      io.of(/^\/dynamic-\d+$/);
     });
   });
 });

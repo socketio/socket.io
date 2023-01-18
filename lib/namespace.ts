@@ -147,19 +147,24 @@ export class Namespace<
   /** @private */
   _ids: number = 0;
 
+  private cleanupEmptyNamespaceFunc?: (nsp: Namespace) => void;
+
   /**
    * Namespace constructor.
    *
    * @param server instance
    * @param name
+   * @param cleanupEmptyNamespaceFunc (optional) function to run if the namespace is empty
    */
   constructor(
     server: Server<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
-    name: string
+    name: string,
+    cleanupEmptyNamespaceFunc?: (nsp: Namespace) => void
   ) {
     super();
     this.server = server;
     this.name = name;
+    this.cleanupEmptyNamespaceFunc = cleanupEmptyNamespaceFunc;
     this._initAdapter();
   }
 
@@ -693,5 +698,21 @@ export class Namespace<
     return new BroadcastOperator<EmitEvents, SocketData>(
       this.adapter
     ).disconnectSockets(close);
+  }
+
+  /**
+   * Cleans up the namespace if necessary (if the server option cleanupEmptyChildNamespaces is true and there are no sockets connected to the namespace).
+   *
+   */
+  public cleanupEmptyNamespace() {
+    if (
+      !this.server.cleanupEmptyChildNamespaces ||
+      this.sockets.size !== 0 ||
+      typeof this.cleanupEmptyNamespaceFunc !== "function"
+    ) {
+      return;
+    }
+
+    this.cleanupEmptyNamespaceFunc(this);
   }
 }

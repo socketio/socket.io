@@ -713,6 +713,7 @@ export class Socket<
     this.client._remove(this);
     this.connected = false;
     this.emitReserved("disconnect", reason);
+    this.nsp.cleanupEmptyNamespace();
     return;
   }
 

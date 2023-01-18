@@ -52,7 +52,11 @@ export class ParentNamespace<
   createChild(
     name: string
   ): Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData> {
-    const namespace = new Namespace(this.server, name);
+    const namespace = new Namespace(this.server, name, (nsp: Namespace) => {
+      nsp.adapter.close();
+      this.server._nsps.delete(nsp.name);
+      this.children.delete(nsp);
+    });
     namespace._fns = this._fns.slice(0);
     this.listeners("connect").forEach((listener) =>
       namespace.on("connect", listener)

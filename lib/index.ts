@@ -96,6 +96,11 @@ interface ServerOptions extends EngineOptions, AttachOptions {
      */
     skipMiddlewares?: boolean;
   };
+  /**
+   * whether or not to remove child namespaces that have no sockets connected to them
+   * @default false
+   */
+  cleanupEmptyChildNamespaces: boolean;
 }
 
 /**
@@ -153,6 +158,7 @@ export class Server<
    *
    */
   public engine: BaseServer;
+  public readonly cleanupEmptyChildNamespaces: boolean;
 
   /** @private */
   readonly _parser: typeof parser;
@@ -226,6 +232,7 @@ export class Server<
     this.path(opts.path || "/socket.io");
     this.connectTimeout(opts.connectTimeout || 45000);
     this.serveClient(false !== opts.serveClient);
+    this.cleanupEmptyChildNamespaces = !!opts.cleanupEmptyChildNamespaces;
     this._parser = opts.parser || parser;
     this.encoder = new this._parser.Encoder();
     this.opts = opts;
