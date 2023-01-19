@@ -288,6 +288,7 @@ export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
   public destroy() {
     if (this.reconstructor) {
       this.reconstructor.finishedReconstruction();
+      this.reconstructor = null;
     }
   }
 }

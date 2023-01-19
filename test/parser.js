@@ -127,4 +127,19 @@ describe("socket.io-parser", () => {
       /^Unknown type: 999$/
     );
   });
+
+  it("should resume decoding after calling destroy()", () => {
+    return new Promise((resolve) => {
+      const decoder = new Decoder();
+
+      decoder.on("decoded", (packet) => {
+        expect(packet.data).to.eql(["hello"]);
+        resolve();
+      });
+
+      decoder.add('51-["hello"]');
+      decoder.destroy();
+      decoder.add('2["hello"]');
+    });
+  });
 });

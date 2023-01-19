@@ -69,27 +69,6 @@ describe("ArrayBuffer", () => {
     return helpers.test_bin(packet);
   });
 
-  it("cleans itself up on close", () => {
-    const packet = {
-      type: PacketType.EVENT,
-      data: ["a", new ArrayBuffer(2), new ArrayBuffer(3)],
-      id: 0,
-      nsp: "/",
-    };
-
-    const encodedPackets = encoder.encode(packet);
-
-    const decoder = new Decoder();
-    decoder.on("decoded", (packet) => {
-      throw new Error("received a packet when not all binary data was sent.");
-    });
-
-    decoder.add(encodedPackets[0]); // add metadata
-    decoder.add(encodedPackets[1]); // add first attachment
-    decoder.destroy(); // destroy before all data added
-    expect(decoder.reconstructor.buffers.length).to.be(0); // expect that buffer is clean
-  });
-
   it("should not modify the input packet", () => {
     const packet = {
       type: PacketType.EVENT,
