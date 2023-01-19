@@ -1,5 +1,9 @@
 # History
 
+## 2023
+
+- [4.2.2](#422-2023-01-19) (Jan 2023)
+
 ## 2022
 
 - [3.3.3](#333-2022-11-09) (Nov 2022) (from the [3.3.x](https://github.com/socketio/socket.io-parser/tree/3.3.x) branch)
@@ -37,6 +41,16 @@
 
 # Release notes
 
+## [4.2.2](https://github.com/socketio/socket.io-parser/compare/4.2.1...4.2.2) (2023-01-19)
+
+
+### Bug Fixes
+
+* calling destroy() should clear all internal state ([22c42e3](https://github.com/socketio/socket.io-parser/commit/22c42e3545e4adbc5931276c378f5d62c8b3854a))
+* do not modify the input packet upon encoding ([ae8dd88](https://github.com/socketio/socket.io-parser/commit/ae8dd88995dbd7f89c97e5cc15e5b489fa0efece))
+
+
+
 ## [3.3.3](https://github.com/Automattic/socket.io-parser/compare/3.3.2...3.3.3) (2022-11-09)
 
 
@@ -73,7 +87,7 @@
 
 
 
-# [4.2.0](https://github.com/socketio/socket.io-parser/compare/4.1.2...4.2.0) (2022-04-17)
+## [4.2.0](https://github.com/socketio/socket.io-parser/compare/4.1.2...4.2.0) (2022-04-17)
 
 
 ### Features
@@ -94,7 +108,7 @@
 ## [4.1.1](https://github.com/socketio/socket.io-parser/compare/4.1.0...4.1.1) (2021-10-14)
 
 
-# [4.1.0](https://github.com/socketio/socket.io-parser/compare/4.0.4...4.1.0) (2021-10-11)
+## [4.1.0](https://github.com/socketio/socket.io-parser/compare/4.0.4...4.1.0) (2021-10-11)
 
 
 ### Features
@@ -174,7 +188,7 @@
 ## [3.3.1](https://github.com/socketio/socket.io-parser/compare/3.3.0...3.3.1) (2020-09-30)
 
 
-# [4.0.0](https://github.com/socketio/socket.io-parser/compare/3.4.1...4.0.0) (2020-09-28)
+## [4.0.0](https://github.com/socketio/socket.io-parser/compare/3.4.1...4.0.0) (2020-09-28)
 
 This release will be included in Socket.IO v3.
 
