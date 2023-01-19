@@ -53,11 +53,15 @@ export class Encoder {
 
     if (obj.type === PacketType.EVENT || obj.type === PacketType.ACK) {
       if (hasBinary(obj)) {
-        obj.type =
-          obj.type === PacketType.EVENT
-            ? PacketType.BINARY_EVENT
-            : PacketType.BINARY_ACK;
-        return this.encodeAsBinary(obj);
+        return this.encodeAsBinary({
+          type:
+            obj.type === PacketType.EVENT
+              ? PacketType.BINARY_EVENT
+              : PacketType.BINARY_ACK,
+          nsp: obj.nsp,
+          data: obj.data,
+          id: obj.id,
+        });
       }
     }
     return [this.encodeAsString(obj)];
@@ -149,10 +153,9 @@ export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
         throw new Error("got plaintext data when reconstructing a packet");
       }
       packet = this.decodeString(obj);
-      if (
-        packet.type === PacketType.BINARY_EVENT ||
-        packet.type === PacketType.BINARY_ACK
-      ) {
+      const isBinaryEvent = packet.type === PacketType.BINARY_EVENT;
+      if (isBinaryEvent || packet.type === PacketType.BINARY_ACK) {
+        packet.type = isBinaryEvent ? PacketType.EVENT : PacketType.ACK;
         // binary packet's json
         this.reconstructor = new BinaryReconstructor(packet);
 

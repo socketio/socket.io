@@ -89,4 +89,20 @@ describe("ArrayBuffer", () => {
     decoder.destroy(); // destroy before all data added
     expect(decoder.reconstructor.buffers.length).to.be(0); // expect that buffer is clean
   });
+
+  it("should not modify the input packet", () => {
+    const packet = {
+      type: PacketType.EVENT,
+      nsp: "/",
+      data: ["a", Uint8Array.of(1, 2, 3), Uint8Array.of(4, 5, 6)],
+    };
+
+    encoder.encode(packet);
+
+    expect(packet).to.eql({
+      type: PacketType.EVENT,
+      nsp: "/",
+      data: ["a", Uint8Array.of(1, 2, 3), Uint8Array.of(4, 5, 6)],
+    });
+  });
 });

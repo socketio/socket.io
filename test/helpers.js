@@ -20,13 +20,10 @@ module.exports.test = (obj) => {
 // tests encoding of binary packets
 module.exports.test_bin = (obj) => {
   return new Promise((resolve) => {
-    const originalData = obj.data;
     const encodedPackets = encoder.encode(obj);
 
     const decoder = new parser.Decoder();
     decoder.on("decoded", (packet) => {
-      obj.data = originalData;
-      obj.attachments = undefined;
       expect(obj).to.eql(packet);
       resolve();
     });

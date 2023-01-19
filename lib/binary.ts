@@ -53,7 +53,7 @@ function _deconstructPacket(data, buffers) {
 
 export function reconstructPacket(packet, buffers) {
   packet.data = _reconstructPacket(packet.data, buffers);
-  packet.attachments = undefined; // no longer useful
+  delete packet.attachments; // no longer useful
   return packet;
 }
 
