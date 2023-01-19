@@ -1001,6 +1001,22 @@ describe("socket", () => {
       });
     });
 
+    it("should call listener when broadcasting binary data", (done) => {
+      const io = new Server(0);
+      const clientSocket = createClient(io, "/", { multiplex: false });
+
+      io.on("connection", (socket) => {
+        socket.onAnyOutgoing((event, arg1) => {
+          expect(event).to.be("my-event");
+          expect(arg1).to.be.an(Uint8Array);
+
+          success(done, io, clientSocket);
+        });
+
+        io.emit("my-event", Uint8Array.of(1, 2, 3));
+      });
+    });
+
     it("should prepend listener", (done) => {
       const io = new Server(0);
       const clientSocket = createClient(io, "/", { multiplex: false });
