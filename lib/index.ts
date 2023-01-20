@@ -34,8 +34,11 @@ import {
   EventParams,
   StrictEventEmitter,
   EventNames,
-  DecorateAcknowledgements,
   DecorateAcknowledgementsWithTimeoutAndMultipleResponses,
+  AllButLast,
+  Last,
+  FirstArg,
+  SecondArg,
 } from "./typed-events";
 import { patchAdapter, restoreAdapter, serveFile } from "./uws";
 import type { BaseServer } from "engine.io/build/server";
@@ -812,6 +815,26 @@ export class Server<
   }
 
   /**
+   * Emits an event and waits for an acknowledgement from all clients.
+   *
+   * @example
+   * try {
+   *   const responses = await io.timeout(1000).emitWithAck("some-event");
+   *   console.log(responses); // one response per client
+   * } catch (e) {
+   *   // some clients did not acknowledge the event in the given delay
+   * }
+   *
+   * @return a Promise that will be fulfilled when all clients have acknowledged the event
+   */
+  public emitWithAck<Ev extends EventNames<EmitEvents>>(
+    ev: Ev,
+    ...args: AllButLast<EventParams<EmitEvents, Ev>>
+  ): Promise<SecondArg<Last<EventParams<EmitEvents, Ev>>>> {
+    return this.sockets.emitWithAck(ev, ...args);
+  }
+
+  /**
    * Sends a `message` event to all clients.
    *
    * This method mimics the WebSocket.send() method.
@@ -854,9 +877,9 @@ export class Server<
    * // acknowledgements (without binary content) are supported too:
    * io.serverSideEmit("ping", (err, responses) => {
    *  if (err) {
-   *     // some clients did not acknowledge the event in the given delay
+   *     // some servers did not acknowledge the event in the given delay
    *   } else {
-   *     console.log(responses); // one response per client
+   *     console.log(responses); // one response per server (except the current one)
    *   }
    * });
    *
@@ -875,6 +898,29 @@ export class Server<
     >
   ): boolean {
     return this.sockets.serverSideEmit(ev, ...args);
+  }
+
+  /**
+   * Sends a message and expect an acknowledgement from the other Socket.IO servers of the cluster.
+   *
+   * @example
+   * try {
+   *   const responses = await io.serverSideEmitWithAck("ping");
+   *   console.log(responses); // one response per server (except the current one)
+   * } catch (e) {
+   *   // some servers did not acknowledge the event in the given delay
+   * }
+   *
+   * @param ev - the event name
+   * @param args - an array of arguments
+   *
+   * @return a Promise that will be fulfilled when all servers have acknowledged the event
+   */
+  public serverSideEmitWithAck<Ev extends EventNames<ServerSideEvents>>(
+    ev: Ev,
+    ...args: AllButLast<EventParams<ServerSideEvents, Ev>>
+  ): Promise<FirstArg<Last<EventParams<ServerSideEvents, Ev>>>[]> {
+    return this.sockets.serverSideEmitWithAck(ev, ...args);
   }
 
   /**

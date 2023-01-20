@@ -2,12 +2,15 @@ import { Packet, PacketType } from "socket.io-parser";
 import debugModule from "debug";
 import type { Server } from "./index";
 import {
+  AllButLast,
   DecorateAcknowledgements,
   DecorateAcknowledgementsWithMultipleResponses,
   DefaultEventsMap,
   EventNames,
   EventParams,
   EventsMap,
+  FirstArg,
+  Last,
   StrictEventEmitter,
 } from "./typed-events";
 import type { Client } from "./client";
@@ -355,6 +358,42 @@ export class Socket<
     }
 
     return true;
+  }
+
+  /**
+   * Emits an event and waits for an acknowledgement
+   *
+   * @example
+   * io.on("connection", async (socket) => {
+   *   // without timeout
+   *   const response = await socket.emitWithAck("hello", "world");
+   *
+   *   // with a specific timeout
+   *   try {
+   *     const response = await socket.timeout(1000).emitWithAck("hello", "world");
+   *   } catch (err) {
+   *     // the client did not acknowledge the event in the given delay
+   *   }
+   * });
+   *
+   * @return a Promise that will be fulfilled when the client acknowledges the event
+   */
+  public emitWithAck<Ev extends EventNames<EmitEvents>>(
+    ev: Ev,
+    ...args: AllButLast<EventParams<EmitEvents, Ev>>
+  ): Promise<FirstArg<Last<EventParams<EmitEvents, Ev>>>> {
+    // the timeout flag is optional
+    const withErr = this.flags.timeout !== undefined;
+    return new Promise((resolve, reject) => {
+      args.push((arg1, arg2) => {
+        if (withErr) {
+          return arg1 ? reject(arg1) : resolve(arg2);
+        } else {
+          return resolve(arg1);
+        }
+      });
+      this.emit(ev, ...(args as any[] as EventParams<EmitEvents, Ev>));
+    });
   }
 
   /**

@@ -92,6 +92,28 @@ describe("server", () => {
         });
       });
     });
+
+    describe("emitWithAck", () => {
+      it("accepts any parameters", () => {
+        const srv = createServer();
+        const sio = new Server(srv);
+        srv.listen(async () => {
+          const value = await sio
+            .timeout(1000)
+            .emitWithAck("ackFromServerSingleArg", true, "123");
+          expectType<any>(value);
+
+          sio.on("connection", async (s) => {
+            const value1 = await s.emitWithAck(
+              "ackFromServerSingleArg",
+              true,
+              "123"
+            );
+            expectType<any>(value1);
+          });
+        });
+      });
+    });
   });
 
   describe("single event map", () => {
@@ -181,6 +203,13 @@ describe("server", () => {
         b: string,
         ack: (c: boolean, d: string) => void
       ) => void;
+
+      ackFromServerSingleArg: (
+        a: boolean,
+        b: string,
+        ack: (c: string) => void
+      ) => void;
+
       multipleAckFromServer: (
         a: boolean,
         b: string,
@@ -295,6 +324,42 @@ describe("server", () => {
         });
       });
     });
+
+    describe("emitWithAck", () => {
+      it("accepts arguments of the correct types", (done) => {
+        const srv = createServer();
+        const sio = new Server<ClientToServerEvents, ServerToClientEvents>(srv);
+        srv.listen(async () => {
+          const value = await sio
+            .timeout(1000)
+            .emitWithAck("multipleAckFromServer", true, "123");
+          expectType<string[]>(value);
+
+          sio.on("connection", async (s) => {
+            const value1 = await s
+              .timeout(1000)
+              .to("room")
+              .emitWithAck("multipleAckFromServer", true, "123");
+            expectType<string[]>(value1);
+
+            const value2 = await s
+              .to("room")
+              .timeout(1000)
+              .emitWithAck("multipleAckFromServer", true, "123");
+            expectType<string[]>(value2);
+
+            const value3 = await s.emitWithAck(
+              "ackFromServerSingleArg",
+              true,
+              "123"
+            );
+            expectType<string>(value3);
+
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe("listen and emit event maps for the serverSideEmit method", () => {
@@ -323,7 +388,7 @@ describe("server", () => {
         expectType<
           Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents>
         >(sio);
-        srv.listen(() => {
+        srv.listen(async () => {
           sio.serverSideEmit("helloFromServerToServer", "hello", 10);
           sio
             .of("/test")
@@ -342,6 +407,12 @@ describe("server", () => {
             expectType<Error>(err);
             expectType<number[]>(bar);
           });
+
+          const value = await sio.serverSideEmitWithAck(
+            "ackFromServerToServer",
+            "foo"
+          );
+          expectType<number[]>(value);
 
           sio.on("ackFromServerToServer", (foo, cb) => {
             expectType<string>(foo);

@@ -605,6 +605,24 @@ describe("socket", () => {
     });
   });
 
+  it("should emit an event and wait for the acknowledgement", (done) => {
+    const io = new Server(0);
+    const socket = createClient(io);
+
+    io.on("connection", async (s) => {
+      socket.on("hi", (a, b, fn) => {
+        expect(a).to.be(1);
+        expect(b).to.be(2);
+        fn(3);
+      });
+
+      const val = await s.emitWithAck("hi", 1, 2);
+      expect(val).to.be(3);
+
+      success(done, io, socket);
+    });
+  });
+
   it("should have access to the client", (done) => {
     const io = new Server(0);
     const socket = createClient(io);

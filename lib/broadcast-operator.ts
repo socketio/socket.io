@@ -7,8 +7,10 @@ import type {
   EventNames,
   EventsMap,
   TypedEventBroadcaster,
-  DecorateAcknowledgements,
   DecorateAcknowledgementsWithTimeoutAndMultipleResponses,
+  AllButLast,
+  Last,
+  SecondArg,
 } from "./typed-events";
 
 export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
@@ -274,6 +276,36 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
     });
 
     return true;
+  }
+
+  /**
+   * Emits an event and waits for an acknowledgement from all clients.
+   *
+   * @example
+   * try {
+   *   const responses = await io.timeout(1000).emitWithAck("some-event");
+   *   console.log(responses); // one response per client
+   * } catch (e) {
+   *   // some clients did not acknowledge the event in the given delay
+   * }
+   *
+   * @return a Promise that will be fulfilled when all clients have acknowledged the event
+   */
+  public emitWithAck<Ev extends EventNames<EmitEvents>>(
+    ev: Ev,
+    ...args: AllButLast<EventParams<EmitEvents, Ev>>
+  ): Promise<SecondArg<Last<EventParams<EmitEvents, Ev>>>> {
+    return new Promise((resolve, reject) => {
+      args.push((err, responses) => {
+        if (err) {
+          err.responses = responses;
+          return reject(err);
+        } else {
+          return resolve(responses);
+        }
+      });
+      this.emit(ev, ...(args as any[] as EventParams<EmitEvents, Ev>));
+    });
   }
 
   /**

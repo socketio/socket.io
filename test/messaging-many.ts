@@ -471,6 +471,74 @@ describe("messaging many", () => {
     });
   });
 
+  it("should broadcast and expect multiple acknowledgements (promise)", (done) => {
+    const io = new Server(0);
+    const socket1 = createClient(io, "/", { multiplex: false });
+    const socket2 = createClient(io, "/", { multiplex: false });
+    const socket3 = createClient(io, "/", { multiplex: false });
+
+    socket1.on("some event", (cb) => {
+      cb(1);
+    });
+
+    socket2.on("some event", (cb) => {
+      cb(2);
+    });
+
+    socket3.on("some event", (cb) => {
+      cb(3);
+    });
+
+    Promise.all([
+      waitFor(socket1, "connect"),
+      waitFor(socket2, "connect"),
+      waitFor(socket3, "connect"),
+    ]).then(async () => {
+      const responses = await io.timeout(2000).emitWithAck("some event");
+      expect(responses).to.contain(1, 2, 3);
+
+      success(done, io, socket1, socket2, socket3);
+    });
+  });
+
+  it("should fail when a client does not acknowledge the event in the given delay (promise)", (done) => {
+    const io = new Server(0);
+    const socket1 = createClient(io, "/", { multiplex: false });
+    const socket2 = createClient(io, "/", { multiplex: false });
+    const socket3 = createClient(io, "/", { multiplex: false });
+
+    socket1.on("some event", (cb) => {
+      cb(1);
+    });
+
+    socket2.on("some event", (cb) => {
+      cb(2);
+    });
+
+    socket3.on("some event", () => {
+      // timeout
+    });
+
+    Promise.all([
+      waitFor(socket1, "connect"),
+      waitFor(socket2, "connect"),
+      waitFor(socket3, "connect"),
+    ]).then(async () => {
+      try {
+        await io.timeout(200).emitWithAck("some event");
+        expect.fail();
+      } catch (err) {
+        expect(err).to.be.an(Error);
+        // @ts-ignore
+        expect(err.responses).to.have.length(2);
+        // @ts-ignore
+        expect(err.responses).to.contain(1, 2);
+
+        success(done, io, socket1, socket2, socket3);
+      }
+    });
+  });
+
   it("should broadcast and return if the packet is sent to 0 client", (done) => {
     const io = new Server(0);
     const socket1 = createClient(io, "/", { multiplex: false });
