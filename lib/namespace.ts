@@ -7,6 +7,10 @@ import {
   StrictEventEmitter,
   DefaultEventsMap,
   DecorateAcknowledgementsWithTimeoutAndMultipleResponses,
+  AllButLast,
+  Last,
+  FirstArg,
+  SecondArg,
 } from "./typed-events";
 import type { Client } from "./client";
 import debugModule from "debug";
@@ -434,6 +438,30 @@ export class Namespace<
   }
 
   /**
+   * Emits an event and waits for an acknowledgement from all clients.
+   *
+   * @example
+   * const myNamespace = io.of("/my-namespace");
+   *
+   * try {
+   *   const responses = await myNamespace.timeout(1000).emitWithAck("some-event");
+   *   console.log(responses); // one response per client
+   * } catch (e) {
+   *   // some clients did not acknowledge the event in the given delay
+   * }
+   *
+   * @return a Promise that will be fulfilled when all clients have acknowledged the event
+   */
+  public emitWithAck<Ev extends EventNames<EmitEvents>>(
+    ev: Ev,
+    ...args: AllButLast<EventParams<EmitEvents, Ev>>
+  ): Promise<SecondArg<Last<EventParams<EmitEvents, Ev>>>> {
+    return new BroadcastOperator<EmitEvents, SocketData>(
+      this.adapter
+    ).emitWithAck(ev, ...args);
+  }
+
+  /**
    * Sends a `message` event to all clients.
    *
    * This method mimics the WebSocket.send() method.
@@ -480,9 +508,9 @@ export class Namespace<
    * // acknowledgements (without binary content) are supported too:
    * myNamespace.serverSideEmit("ping", (err, responses) => {
    *  if (err) {
-   *     // some clients did not acknowledge the event in the given delay
+   *     // some servers did not acknowledge the event in the given delay
    *   } else {
-   *     console.log(responses); // one response per client
+   *     console.log(responses); // one response per server (except the current one)
    *   }
    * });
    *
@@ -506,6 +534,44 @@ export class Namespace<
     args.unshift(ev);
     this.adapter.serverSideEmit(args);
     return true;
+  }
+
+  /**
+   * Sends a message and expect an acknowledgement from the other Socket.IO servers of the cluster.
+   *
+   * @example
+   * const myNamespace = io.of("/my-namespace");
+   *
+   * try {
+   *   const responses = await myNamespace.serverSideEmitWithAck("ping");
+   *   console.log(responses); // one response per server (except the current one)
+   * } catch (e) {
+   *   // some servers did not acknowledge the event in the given delay
+   * }
+   *
+   * @param ev - the event name
+   * @param args - an array of arguments
+   *
+   * @return a Promise that will be fulfilled when all servers have acknowledged the event
+   */
+  public serverSideEmitWithAck<Ev extends EventNames<ServerSideEvents>>(
+    ev: Ev,
+    ...args: AllButLast<EventParams<ServerSideEvents, Ev>>
+  ): Promise<FirstArg<Last<EventParams<ServerSideEvents, Ev>>>[]> {
+    return new Promise((resolve, reject) => {
+      args.push((err, responses) => {
+        if (err) {
+          err.responses = responses;
+          return reject(err);
+        } else {
+          return resolve(responses);
+        }
+      });
+      this.serverSideEmit(
+        ev,
+        ...(args as any[] as EventParams<ServerSideEvents, Ev>)
+      );
+    });
   }
 
   /**

@@ -179,6 +179,20 @@ export abstract class StrictEventEmitter<
   }
 }
 
+export type Last<T extends any[]> = T extends [...infer H, infer L] ? L : any;
+export type AllButLast<T extends any[]> = T extends [...infer H, infer L]
+  ? H
+  : any[];
+export type FirstArg<T> = T extends (arg: infer Param) => infer Result
+  ? Param
+  : any;
+export type SecondArg<T> = T extends (
+  err: Error,
+  arg: infer Param
+) => infer Result
+  ? Param
+  : any;
+
 type PrependTimeoutError<T extends any[]> = {
   [K in keyof T]: T[K] extends (...args: infer Params) => infer Result
     ? (err: Error, ...args: Params) => Result

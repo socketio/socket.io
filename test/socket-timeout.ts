@@ -54,4 +54,34 @@ describe("timeout", () => {
       });
     });
   });
+
+  it("should timeout if the client does not acknowledge the event (promise)", (done) => {
+    const io = new Server(0);
+    const client = createClient(io, "/");
+
+    io.on("connection", async (socket) => {
+      try {
+        await socket.timeout(50).emitWithAck("unknown");
+        expect.fail();
+      } catch (err) {
+        expect(err).to.be.an(Error);
+        success(done, io, client);
+      }
+    });
+  });
+
+  it("should not timeout if the client does acknowledge the event (promise)", (done) => {
+    const io = new Server(0);
+    const client = createClient(io, "/");
+
+    client.on("echo", (arg, cb) => {
+      cb(arg);
+    });
+
+    io.on("connection", async (socket) => {
+      const value = await socket.timeout(50).emitWithAck("echo", 42);
+      expect(value).to.be(42);
+      success(done, io, client);
+    });
+  });
 });
