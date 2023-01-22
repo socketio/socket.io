@@ -1,6 +1,12 @@
 import fs = require("fs");
 import { join } from "path";
-import { createClient, getPort, success, successFn } from "./support/util";
+import {
+  createClient,
+  createPartialDone,
+  getPort,
+  success,
+  successFn,
+} from "./support/util";
 import { Server } from "..";
 import expect from "expect.js";
 
@@ -995,6 +1001,22 @@ describe("socket", () => {
       });
     });
 
+    it("should call listener when broadcasting binary data", (done) => {
+      const io = new Server(0);
+      const clientSocket = createClient(io, "/", { multiplex: false });
+
+      io.on("connection", (socket) => {
+        socket.onAnyOutgoing((event, arg1) => {
+          expect(event).to.be("my-event");
+          expect(arg1).to.be.an(Uint8Array);
+
+          success(done, io, clientSocket);
+        });
+
+        io.emit("my-event", Uint8Array.of(1, 2, 3));
+      });
+    });
+
     it("should prepend listener", (done) => {
       const io = new Server(0);
       const clientSocket = createClient(io, "/", { multiplex: false });
@@ -1038,6 +1060,31 @@ describe("socket", () => {
 
         socket.emit("my-event", "123");
       });
+    });
+
+    it("should disconnect all namespaces when calling disconnect(true)", (done) => {
+      const io = new Server(0);
+      io.of("/foo");
+      io.of("/bar");
+
+      const socket1 = createClient(io, "/", {
+        transports: ["websocket"],
+      });
+      const socket2 = createClient(io, "/foo");
+      const socket3 = createClient(io, "/bar");
+
+      io.of("/bar").on("connection", (socket) => {
+        socket.disconnect(true);
+      });
+
+      const partialDone = createPartialDone(
+        3,
+        successFn(done, io, socket1, socket2, socket3)
+      );
+
+      socket1.on("disconnect", partialDone);
+      socket2.on("disconnect", partialDone);
+      socket3.on("disconnect", partialDone);
     });
   });
 });

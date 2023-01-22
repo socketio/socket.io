@@ -6,11 +6,12 @@ import {
   EventsMap,
   StrictEventEmitter,
   DefaultEventsMap,
+  DecorateAcknowledgementsWithTimeoutAndMultipleResponses,
 } from "./typed-events";
 import type { Client } from "./client";
 import debugModule from "debug";
 import type { Adapter, Room, SocketId } from "socket.io-adapter";
-import { BroadcastOperator, RemoteSocket } from "./broadcast-operator";
+import { BroadcastOperator } from "./broadcast-operator";
 
 const debug = debugModule("socket.io:namespace");
 
@@ -494,7 +495,10 @@ export class Namespace<
    */
   public serverSideEmit<Ev extends EventNames<ServerSideEvents>>(
     ev: Ev,
-    ...args: EventParams<ServerSideEvents, Ev>
+    ...args: EventParams<
+      DecorateAcknowledgementsWithTimeoutAndMultipleResponses<ServerSideEvents>,
+      Ev
+    >
   ): boolean {
     if (RESERVED_EVENTS.has(ev)) {
       throw new Error(`"${String(ev)}" is a reserved event name`);

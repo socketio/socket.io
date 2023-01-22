@@ -167,10 +167,25 @@ describe("server", () => {
   describe("listen and emit event maps", () => {
     interface ClientToServerEvents {
       helloFromClient: (message: string) => void;
+      ackFromClient: (
+        a: string,
+        b: number,
+        ack: (c: string, d: number) => void
+      ) => void;
     }
 
     interface ServerToClientEvents {
       helloFromServer: (message: string, x: number) => void;
+      ackFromServer: (
+        a: boolean,
+        b: string,
+        ack: (c: boolean, d: string) => void
+      ) => void;
+      multipleAckFromServer: (
+        a: boolean,
+        b: string,
+        ack: (c: string) => void
+      ) => void;
     }
 
     describe("on", () => {
@@ -184,6 +199,13 @@ describe("server", () => {
             s.on("helloFromClient", (message) => {
               expectType<string>(message);
               done();
+            });
+
+            s.on("ackFromClient", (a, b, cb) => {
+              expectType<string>(a);
+              expectType<number>(b);
+              expectType<(c: string, d: number) => void>(cb);
+              cb("123", 456);
             });
           });
         });
@@ -213,8 +235,41 @@ describe("server", () => {
           sio.to("room").emit("helloFromServer", "hi", 1);
           sio.timeout(1000).emit("helloFromServer", "hi", 1);
 
+          sio
+            .timeout(1000)
+            .emit("multipleAckFromServer", true, "123", (err, c) => {
+              expectType<Error>(err);
+              expectType<string[]>(c);
+            });
+
           sio.on("connection", (s) => {
             s.emit("helloFromServer", "hi", 10);
+
+            s.emit("ackFromServer", true, "123", (c, d) => {
+              expectType<boolean>(c);
+              expectType<string>(d);
+            });
+
+            s.timeout(1000).emit("ackFromServer", true, "123", (err, c, d) => {
+              expectType<Error>(err);
+              expectType<boolean>(c);
+              expectType<string>(d);
+            });
+
+            s.timeout(1000)
+              .to("room")
+              .emit("multipleAckFromServer", true, "123", (err, c) => {
+                expectType<Error>(err);
+                expectType<string[]>(c);
+              });
+
+            s.to("room")
+              .timeout(1000)
+              .emit("multipleAckFromServer", true, "123", (err, c) => {
+                expectType<Error>(err);
+                expectType<string[]>(c);
+              });
+
             done();
           });
         });
@@ -253,6 +308,7 @@ describe("server", () => {
 
     interface InterServerEvents {
       helloFromServerToServer: (message: string, x: number) => void;
+      ackFromServerToServer: (foo: string, cb: (bar: number) => void) => void;
     }
 
     describe("on", () => {
@@ -280,6 +336,16 @@ describe("server", () => {
           sio.of("/test").on("helloFromServerToServer", (message, x) => {
             expectType<string>(message);
             expectType<number>(x);
+          });
+
+          sio.serverSideEmit("ackFromServerToServer", "foo", (err, bar) => {
+            expectType<Error>(err);
+            expectType<number[]>(bar);
+          });
+
+          sio.on("ackFromServerToServer", (foo, cb) => {
+            expectType<string>(foo);
+            expectType<(bar: number) => void>(cb);
           });
         });
       });
