@@ -8,6 +8,7 @@ const crypto = require("crypto");
 const { InMemoryMessageStore } = require("./messageStore");
 const randomId = () => crypto.randomBytes(8).toString("hex");
 
+let users = [];
 const messageStore = new InMemoryMessageStore();
 
 io.use(async (socket, next) => {
@@ -32,7 +33,6 @@ io.on("connection", async socket => {
     socket.join(socket.userID);
 
     // fetch existing users
-    const users = [];
     const messages = messageStore.findMessagesForUser(socket.userID);
     const messagesPerUser = new Map();
     messages.forEach(message => {
@@ -46,10 +46,17 @@ io.on("connection", async socket => {
         }
     });
 
+    users.push({
+        userID: socket.userID,
+        username: socket.username,
+        connected: socket.connected,
+        messages: messagesPerUser.get(socket.userID) || [],
+    });
+
     socket.emit("users", users);
 
     // notify existing users
-    socket.broadcast.emit("user connected!", {
+    socket.broadcast.emit("user connected", {
         userID: socket.userID,
         username: socket.username,
         connected: true,
@@ -76,6 +83,8 @@ io.on("connection", async socket => {
         if (isDisconnected) {
             socket.broadcast.emit("user disconnected", socket.userID);
         }
+
+        users = users.filter(user => user.userID !== socket.userID);
     });
 });
 

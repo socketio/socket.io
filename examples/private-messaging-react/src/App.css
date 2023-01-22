@@ -8,13 +8,6 @@
   background-color: rgb(233, 233, 255);
 }
 
-.App::after {
-  content: "Private Messaging in Socket.io";
-  position: absolute;
-  bottom: 30px;
-  color: rgb(119, 119, 179);
-}
-
 .App .form {
   display: flex;
   flex-direction: column;

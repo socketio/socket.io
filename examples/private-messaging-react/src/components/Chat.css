@@ -1,0 +1,67 @@
+.chat {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.chat .left {
+    min-height: 100vh;
+    width: 100%;
+    color: white;
+    background-color: rgb(35, 35, 175);
+}
+
+.chat .left .user-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    margin: 2rem 0;
+}
+
+.chat .left .user-info img {
+    height: 30px;
+    width: 30px;
+    margin-right: 1rem;
+}
+
+.chat .left .user-info {
+    font-weight: 600;
+}
+
+.chat .left .users {
+    max-height: 70%;
+    overflow: scroll;
+    padding: 0 1rem;
+}
+
+.chat .left .users .user {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 14px;
+    user-select: none;
+    transition: 250ms;
+}
+
+.chat .left .users .user:hover {
+    background-color: white;
+    color: rgb(35, 35, 175);
+}
+
+.chat .left .users .user:active {
+    scale: 0.99;
+}
+
+.chat .right {
+    height: 100%;
+    width: 100%;
+}
