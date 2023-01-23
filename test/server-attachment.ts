@@ -16,7 +16,9 @@ describe("server attachment", () => {
         .buffer(true)
         .end((err, res) => {
           if (err) return done(err);
-          expect(res.headers["content-type"]).to.be("application/javascript");
+          expect(res.headers["content-type"]).to.be(
+            "application/javascript; charset=utf-8"
+          );
           expect(res.headers.etag).to.be('"' + clientVersion + '"');
           expect(res.headers["x-sourcemap"]).to.be(undefined);
           expect(res.text).to.match(/engine\.io/);
@@ -33,7 +35,9 @@ describe("server attachment", () => {
         .buffer(true)
         .end((err, res) => {
           if (err) return done(err);
-          expect(res.headers["content-type"]).to.be("application/json");
+          expect(res.headers["content-type"]).to.be(
+            "application/json; charset=utf-8"
+          );
           expect(res.headers.etag).to.be('"' + clientVersion + '"');
           expect(res.text).to.match(/engine\.io/);
           expect(res.status).to.be(200);
