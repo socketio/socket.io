@@ -488,7 +488,7 @@ export class Server<
         res.writeHeader("cache-control", "public, max-age=0");
         res.writeHeader(
           "content-type",
-          "application/" + (isMap ? "json" : "javascript")
+          "application/" + (isMap ? "json" : "javascript") + "; charset=utf-8"
         );
         res.writeHeader("etag", expectedEtag);
 
@@ -581,7 +581,7 @@ export class Server<
     res.setHeader("Cache-Control", "public, max-age=0");
     res.setHeader(
       "Content-Type",
-      "application/" + (isMap ? "json" : "javascript")
+      "application/" + (isMap ? "json" : "javascript") + "; charset=utf-8"
     );
     res.setHeader("ETag", expectedEtag);
 
