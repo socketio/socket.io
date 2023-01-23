@@ -26,7 +26,7 @@ import {
 import * as parser from "socket.io-parser";
 import type { Encoder } from "socket.io-parser";
 import debugModule from "debug";
-import { Socket } from "./socket";
+import { Socket, DisconnectReason } from "./socket";
 import type { BroadcastOperator, RemoteSocket } from "./broadcast-operator";
 import {
   EventsMap,
@@ -1096,5 +1096,12 @@ module.exports.Server = Server;
 module.exports.Namespace = Namespace;
 module.exports.Socket = Socket;
 
-export { Socket, ServerOptions, Namespace, BroadcastOperator, RemoteSocket };
+export {
+  Socket,
+  DisconnectReason,
+  ServerOptions,
+  Namespace,
+  BroadcastOperator,
+  RemoteSocket,
+};
 export { Event } from "./socket";
