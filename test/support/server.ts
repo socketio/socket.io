@@ -2,7 +2,10 @@ import { Server } from "socket.io";
 import expect from "expect.js";
 
 export function createServer() {
-  const server = new Server(3210, { pingInterval: 2000 });
+  const server = new Server(3210, {
+    pingInterval: 2000,
+    connectionStateRecovery: {},
+  });
 
   server.of("/foo").on("connection", (socket) => {
     socket.on("getId", (cb) => {

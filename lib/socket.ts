@@ -131,6 +131,20 @@ export class Socket<
   public id: string;
 
   /**
+   * The session ID used for connection state recovery, which must not be shared (unlike {@link id}).
+   *
+   * @private
+   */
+  private _pid: string;
+
+  /**
+   * The offset of the last received packet, which will be sent upon reconnection to allow for the recovery of the connection state.
+   *
+   * @private
+   */
+  private _lastOffset: string;
+
+  /**
    * Whether the socket is currently connected to the server.
    *
    * @example
@@ -413,11 +427,26 @@ export class Socket<
     debug("transport is open - connecting");
     if (typeof this.auth == "function") {
       this.auth((data) => {
-        this.packet({ type: PacketType.CONNECT, data });
+        this._sendConnectPacket(data as Record<string, unknown>);
       });
     } else {
-      this.packet({ type: PacketType.CONNECT, data: this.auth });
+      this._sendConnectPacket(this.auth);
     }
+  }
+
+  /**
+   * Sends a CONNECT packet to initiate the Socket.IO session.
+   *
+   * @param data
+   * @private
+   */
+  private _sendConnectPacket(data: Record<string, unknown>) {
+    this.packet({
+      type: PacketType.CONNECT,
+      data: this._pid
+        ? Object.assign({ pid: this._pid, offset: this._lastOffset }, data)
+        : data,
+    });
   }
 
   /**
@@ -463,8 +492,7 @@ export class Socket<
     switch (packet.type) {
       case PacketType.CONNECT:
         if (packet.data && packet.data.sid) {
-          const id = packet.data.sid;
-          this.onconnect(id);
+          this.onconnect(packet.data.sid, packet.data.pid);
         } else {
           this.emitReserved(
             "connect_error",
@@ -529,6 +557,9 @@ export class Socket<
       }
     }
     super.emit.apply(this, args);
+    if (this._pid && args.length && typeof args[args.length - 1] === "string") {
+      this._lastOffset = args[args.length - 1];
+    }
   }
 
   /**
@@ -575,9 +606,10 @@ export class Socket<
    *
    * @private
    */
-  private onconnect(id: string): void {
+  private onconnect(id: string, pid: string) {
     debug("socket connected with id %s", id);
     this.id = id;
+    this._pid = pid; // defined only if connection state recovery is enabled
     this.connected = true;
     this.emitBuffered();
     this.emitReserved("connect");
