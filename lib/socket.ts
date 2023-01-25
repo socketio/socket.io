@@ -275,7 +275,9 @@ export class Socket<
       } else {
         this.id = base64id.generateId(); // don't reuse the Engine.IO id because it's sensitive information
       }
-      this.pid = base64id.generateId();
+      if (this.server._opts.connectionStateRecovery) {
+        this.pid = base64id.generateId();
+      }
     }
     this.handshake = this.buildHandshake(auth);
   }

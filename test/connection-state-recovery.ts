@@ -193,4 +193,26 @@ describe("connection state recovery", () => {
 
     io.close();
   });
+
+  it("should be disabled by default", async () => {
+    const httpServer = createServer().listen(0);
+    const io = new Server(httpServer);
+
+    // Engine.IO handshake
+    const sid = await eioHandshake(httpServer);
+
+    // Socket.IO handshake
+    await eioPush(httpServer, sid, "40");
+
+    const handshakeBody = await eioPoll(httpServer, sid);
+
+    expect(handshakeBody.startsWith("40")).to.be(true);
+
+    const handshake = JSON.parse(handshakeBody.substring(2));
+
+    expect(handshake.sid).to.not.be(undefined);
+    expect(handshake.pid).to.be(undefined);
+
+    io.close();
+  });
 });
