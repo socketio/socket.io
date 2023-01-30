@@ -470,6 +470,25 @@ describe("socket", () => {
       });
     });
 
+    it("should call listener with binary data", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL + "/abc", {
+          forceNew: true,
+        });
+
+        socket.on("connect", () => {
+          socket.onAnyOutgoing((event, arg1) => {
+            expect(event).to.be("my-event");
+            expect(arg1).to.be.an(Uint8Array);
+
+            success(done, socket);
+          });
+
+          socket.emit("my-event", Uint8Array.of(1, 2, 3));
+        });
+      });
+    });
+
     it("should prepend listener", () => {
       return wrap((done) => {
         const socket = io(BASE_URL + "/abc", {
