@@ -330,6 +330,17 @@ describe("socket", () => {
     });
   });
 
+  it("should emit an event and wait for the acknowledgement", () => {
+    return wrap(async (done) => {
+      const socket = io(BASE_URL, { forceNew: true });
+
+      const val = await socket.emitWithAck("echo", 123);
+      expect(val).to.be(123);
+
+      success(done, socket);
+    });
+  });
+
   describe("volatile packets", () => {
     it("should discard a volatile packet when the socket is not connected", () => {
       return wrap((done) => {
@@ -559,6 +570,33 @@ describe("socket", () => {
           expect(value).to.be(42);
           success(done, socket);
         });
+      });
+    });
+
+    it("should timeout when the server does not acknowledge the event (promise)", () => {
+      return wrap(async (done) => {
+        const socket = io(BASE_URL + "/");
+
+        try {
+          await socket.timeout(50).emitWithAck("unknown");
+          expect.fail();
+        } catch (e) {
+          success(done, socket);
+        }
+      });
+    });
+
+    it("should not timeout when the server does acknowledge the event (promise)", () => {
+      return wrap(async (done) => {
+        const socket = io(BASE_URL + "/");
+
+        try {
+          const value = await socket.timeout(50).emitWithAck("echo", 42);
+          expect(value).to.be(42);
+          success(done, socket);
+        } catch (e) {
+          expect.fail();
+        }
       });
     });
   });

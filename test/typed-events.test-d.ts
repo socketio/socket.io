@@ -1,6 +1,7 @@
 import { io, Socket } from "..";
 import type { DefaultEventsMap } from "@socket.io/component-emitter";
 import { expectError, expectType } from "tsd";
+import { createServer } from "http";
 
 // This file is run by tsd, not mocha.
 
@@ -54,7 +55,7 @@ describe("typed events", () => {
     });
 
     describe("emit", () => {
-      it("accepts any parameters", () => {
+      it("accepts any parameters", async () => {
         const socket = io();
 
         socket.emit("random", 1, "2", [3]);
@@ -70,6 +71,24 @@ describe("typed events", () => {
           expectType<any>(c);
           expectType<any>(d);
         });
+      });
+    });
+
+    describe("emitWithAck", () => {
+      it("accepts any parameters", async () => {
+        const socket = io();
+
+        const value = await socket.emitWithAck(
+          "ackFromClientSingleArg",
+          "1",
+          2
+        );
+        expectType<any>(value);
+
+        const value2 = await socket
+          .timeout(1000)
+          .emitWithAck("ackFromClientSingleArg", "3", 4);
+        expectType<any>(value2);
       });
     });
   });
@@ -126,6 +145,11 @@ describe("typed events", () => {
         a: string,
         b: number,
         ack: (c: string, d: boolean) => void
+      ) => void;
+      ackFromClientSingleArg: (
+        a: string,
+        b: number,
+        ack: (c: string) => void
       ) => void;
       ackFromClientNoArg: (ack: () => void) => void;
     }
@@ -187,6 +211,24 @@ describe("typed events", () => {
         expectError(socket.emit("helloFromServer", "hi", 10));
         expectError(socket.emit("wrong name", 10));
         expectError(socket.emit("wrong name"));
+      });
+    });
+
+    describe("emitWithAck", () => {
+      it("accepts arguments of the correct types", async () => {
+        const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io();
+
+        const value = await socket.emitWithAck(
+          "ackFromClientSingleArg",
+          "1",
+          2
+        );
+        expectType<string>(value);
+
+        const value2 = await socket
+          .timeout(1000)
+          .emitWithAck("ackFromClientSingleArg", "3", 4);
+        expectType<string>(value2);
       });
     });
   });
