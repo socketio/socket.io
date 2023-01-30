@@ -167,7 +167,11 @@ export class Socket<
    * });
    */
   public connected: boolean = false;
-
+  /**
+   * Whether the connection state was recovered after a temporary disconnection. In that case, any missed packets will
+   * be transmitted by the server.
+   */
+  public recovered: boolean = false;
   /**
    * Credentials that are sent when accessing a namespace.
    *
@@ -651,6 +655,7 @@ export class Socket<
   private onconnect(id: string, pid: string) {
     debug("socket connected with id %s", id);
     this.id = id;
+    this.recovered = pid && this._pid === pid;
     this._pid = pid; // defined only if connection state recovery is enabled
     this.connected = true;
     this.emitBuffered();

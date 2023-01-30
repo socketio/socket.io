@@ -9,7 +9,9 @@ describe("connection state recovery", () => {
         forceNew: true,
       });
 
-      socket.emit("hi");
+      expect(socket.recovered).to.eql(false);
+
+      socket.emit("hi"); // init the offset
 
       socket.on("hi", () => {
         const id = socket.id;
@@ -18,6 +20,7 @@ describe("connection state recovery", () => {
 
         socket.on("connect", () => {
           expect(socket.id).to.eql(id); // means that the reconnection was successful
+          expect(socket.recovered).to.eql(true); // means that the reconnection was successful
           done();
         });
       });
