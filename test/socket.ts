@@ -618,5 +618,18 @@ describe("socket", () => {
         }
       });
     });
+
+    it("should use the default value", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL + "/", {
+          ackTimeout: 50,
+        });
+
+        socket.emit("unknown", (err) => {
+          expect(err).to.be.an(Error);
+          success(done, socket);
+        });
+      });
+    });
   });
 });

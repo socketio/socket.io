@@ -55,8 +55,28 @@ export interface SocketOptions {
   /**
    * the authentication payload sent when connecting to the Namespace
    */
-  auth: { [key: string]: any } | ((cb: (data: object) => void) => void);
+  auth?: { [key: string]: any } | ((cb: (data: object) => void) => void);
+  /**
+   * The maximum number of retries. Above the limit, the packet will be discarded.
+   *
+   * Using `Infinity` means the delivery guarantee is "at-least-once" (instead of "at-most-once" by default), but a
+   * smaller value like 10 should be sufficient in practice.
+   */
+  retries?: number;
+  /**
+   * The default timeout in milliseconds used when waiting for an acknowledgement.
+   */
+  ackTimeout?: number;
 }
+
+type QueuedPacket = {
+  id: number;
+  args: unknown[];
+  flags: Flags;
+  pending: boolean;
+  tryCount: number;
+  ack?: (err?: Error, ...args: unknown[]) => void;
+};
 
 /**
  * Internal events.
@@ -76,6 +96,7 @@ interface Flags {
   compress?: boolean;
   volatile?: boolean;
   timeout?: number;
+  withRetry?: boolean;
 }
 
 export type DisconnectDescription =
@@ -198,8 +219,16 @@ export class Socket<
    * Buffer for packets that will be sent once the socket is connected
    */
   public sendBuffer: Array<Packet> = [];
+  /**
+   * The queue of packets to be sent with retry in case of failure.
+   *
+   * Packets are sent one by one, each waiting for the server acknowledgement, in order to guarantee the delivery order.
+   * @private
+   */
+  private _queue: Array<QueuedPacket> = [];
 
   private readonly nsp: string;
+  private readonly _opts: SocketOptions;
 
   private ids: number = 0;
   private acks: object = {};
@@ -218,6 +247,7 @@ export class Socket<
     if (opts && opts.auth) {
       this.auth = opts.auth;
     }
+    this._opts = Object.assign({}, opts);
     if (this.io._autoConnect) this.open();
   }
 
@@ -350,6 +380,24 @@ export class Socket<
     }
 
     args.unshift(ev);
+
+    if (this._opts.retries && !this.flags.withRetry && !this.flags.volatile) {
+      let ack;
+      if (typeof args[args.length - 1] === "function") {
+        ack = args.pop();
+      }
+      this._queue.push({
+        id: this.ids++,
+        tryCount: 0,
+        pending: false,
+        args,
+        ack,
+        flags: Object.assign({ withRetry: true }, this.flags),
+      });
+      this._drainQueue();
+      return this;
+    }
+
     const packet: any = {
       type: PacketType.EVENT,
       data: args,
@@ -393,7 +441,7 @@ export class Socket<
    * @private
    */
   private _registerAckCallback(id: number, ack: Function) {
-    const timeout = this.flags.timeout;
+    const timeout = this.flags.timeout ?? this._opts.ackTimeout;
     if (timeout === undefined) {
       this.acks[id] = ack;
       return;
@@ -440,7 +488,8 @@ export class Socket<
     ...args: AllButLast<EventParams<EmitEvents, Ev>>
   ): Promise<FirstArg<Last<EventParams<EmitEvents, Ev>>>> {
     // the timeout flag is optional
-    const withErr = this.flags.timeout !== undefined;
+    const withErr =
+      this.flags.timeout !== undefined || this._opts.ackTimeout !== undefined;
     return new Promise((resolve, reject) => {
       args.push((arg1, arg2) => {
         if (withErr) {
@@ -451,6 +500,62 @@ export class Socket<
       });
       this.emit(ev, ...(args as any[] as EventParams<EmitEvents, Ev>));
     });
+  }
+
+  /**
+   * Send the first packet of the queue, and wait for an acknowledgement from the server.
+   * @private
+   */
+  private _drainQueue() {
+    debug("draining queue");
+    if (this._queue.length === 0) {
+      return;
+    }
+    const packet = this._queue[0];
+    if (packet.pending) {
+      debug(
+        "packet [%d] has already been sent and is waiting for an ack",
+        packet.id
+      );
+      return;
+    }
+    packet.pending = true;
+    packet.tryCount++;
+    debug("sending packet [%d] (try n°%d)", packet.id, packet.tryCount);
+    const currentId = this.ids;
+    this.ids = packet.id; // the same id is reused for consecutive retries, in order to allow deduplication on the server side
+    this.flags = packet.flags;
+    packet.args.push((err, ...responseArgs) => {
+      if (packet !== this._queue[0]) {
+        // the packet has already been acknowledged
+        return;
+      }
+      const hasError = err !== null;
+      if (hasError) {
+        if (packet.tryCount > this._opts.retries) {
+          debug(
+            "packet [%d] is discarded after %d tries",
+            packet.id,
+            packet.tryCount
+          );
+          this._queue.shift();
+          if (packet.ack) {
+            packet.ack(err);
+          }
+        }
+      } else {
+        debug("packet [%d] was successfully sent", packet.id);
+        this._queue.shift();
+        if (packet.ack) {
+          packet.ack(null, ...responseArgs);
+        }
+      }
+      packet.pending = false;
+      return this._drainQueue();
+    });
+
+    this.emit.apply(this, packet.args);
+    this.ids = currentId; // restore offset
   }
 
   /**
