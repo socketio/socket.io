@@ -4,13 +4,8 @@ import { decode } from "./contrib/parseqs.js";
 import { parse } from "./contrib/parseuri.js";
 import debugModule from "debug"; // debug()
 import { Emitter } from "@socket.io/component-emitter";
-import {
-  protocol,
-  type Packet,
-  type BinaryType,
-  type PacketType,
-  RawData,
-} from "engine.io-parser";
+import { protocol } from "engine.io-parser";
+import type { Packet, BinaryType, PacketType, RawData } from "engine.io-parser";
 import { CloseDetails, Transport } from "./transport.js";
 
 const debug = debugModule("engine.io-client:socket"); // debug()

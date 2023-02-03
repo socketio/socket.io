@@ -1,4 +1,5 @@
-import { decodePacket, type Packet, type RawData } from "engine.io-parser";
+import { decodePacket } from "engine.io-parser";
+import type { Packet, RawData } from "engine.io-parser";
 import { Emitter } from "@socket.io/component-emitter";
 import { installTimerFunctions } from "./util.js";
 import debugModule from "debug"; // debug()
