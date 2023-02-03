@@ -56,8 +56,8 @@ const RECOVERABLE_DISCONNECT_REASONS: ReadonlySet<DisconnectReason> = new Set([
 ]);
 
 export interface SocketReservedEventsMap {
-  disconnect: (reason: DisconnectReason) => void;
-  disconnecting: (reason: DisconnectReason) => void;
+  disconnect: (reason: DisconnectReason, description?: any) => void;
+  disconnecting: (reason: DisconnectReason, description?: any) => void;
   error: (err: Error) => void;
 }
 
@@ -749,14 +749,15 @@ export class Socket<
    * Called upon closing. Called by `Client`.
    *
    * @param {String} reason
+   * @param description
    * @throw {Error} optional error object
    *
    * @private
    */
-  _onclose(reason: DisconnectReason): this | undefined {
+  _onclose(reason: DisconnectReason, description?: any): this | undefined {
     if (!this.connected) return this;
     debug("closing socket - reason %s", reason);
-    this.emitReserved("disconnecting", reason);
+    this.emitReserved("disconnecting", reason, description);
 
     if (RECOVERABLE_DISCONNECT_REASONS.has(reason)) {
       debug("connection state recovery is enabled for sid %s", this.id);
@@ -772,7 +773,7 @@ export class Socket<
     this.nsp._remove(this);
     this.client._remove(this);
     this.connected = false;
-    this.emitReserved("disconnect", reason);
+    this.emitReserved("disconnect", reason, description);
     return;
   }
 
