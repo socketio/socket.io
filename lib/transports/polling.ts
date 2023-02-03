@@ -292,7 +292,7 @@ export class Polling extends Transport {
 interface RequestReservedEvents {
   success: () => void;
   data: (data: RawData) => void;
-  error: (err: number | Error, context: XMLHttpRequest) => void;
+  error: (err: number | Error, context: unknown) => void; // context should be typed as XMLHttpRequest, but this type is not available on non-browser platforms
 }
 
 export class Request extends Emitter<{}, {}, RequestReservedEvents> {
