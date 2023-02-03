@@ -467,6 +467,10 @@ export class Manager<
       this.nsps[nsp] = socket;
     }
 
+    if (this._autoConnect) {
+      socket.connect();
+    }
+
     return socket;
   }
 

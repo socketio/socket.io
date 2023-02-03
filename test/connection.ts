@@ -814,4 +814,28 @@ describe("connection", () => {
       });
     });
   }
+
+  it("should reopen a cached socket", () => {
+    return wrap((done) => {
+      const manager = new Manager(BASE_URL, {
+        autoConnect: true,
+      });
+      const socket = manager.socket("/");
+      socket.on("connect", () => {
+        socket.disconnect();
+      });
+
+      socket.on("disconnect", () => {
+        const socket2 = manager.socket("/");
+
+        expect(socket2 === socket).to.be(true);
+        expect(socket2.active).to.be(true);
+
+        socket2.on("connect", () => {
+          socket2.disconnect();
+          done();
+        });
+      });
+    });
+  });
 });
