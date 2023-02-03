@@ -311,9 +311,13 @@ export class Client<
    * Called upon transport close.
    *
    * @param reason
+   * @param description
    * @private
    */
-  private onclose(reason: CloseReason | "forced server close"): void {
+  private onclose(
+    reason: CloseReason | "forced server close",
+    description?: any
+  ): void {
     debug("client close with reason %s", reason);
 
     // ignore a potential subsequent `close` event
@@ -321,7 +325,7 @@ export class Client<
 
     // `nsps` and `sockets` are cleaned up seamlessly
     for (const socket of this.sockets.values()) {
-      socket._onclose(reason);
+      socket._onclose(reason, description);
     }
     this.sockets.clear();
 
