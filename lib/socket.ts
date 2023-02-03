@@ -96,7 +96,7 @@ interface Flags {
   compress?: boolean;
   volatile?: boolean;
   timeout?: number;
-  withRetry?: boolean;
+  fromQueue?: boolean;
 }
 
 export type DisconnectDescription =
@@ -381,7 +381,7 @@ export class Socket<
 
     args.unshift(ev);
 
-    if (this._opts.retries && !this.flags.withRetry && !this.flags.volatile) {
+    if (this._opts.retries && !this.flags.fromQueue && !this.flags.volatile) {
       let ack;
       if (typeof args[args.length - 1] === "function") {
         ack = args.pop();
@@ -392,7 +392,7 @@ export class Socket<
         pending: false,
         args,
         ack,
-        flags: Object.assign({ withRetry: true }, this.flags),
+        flags: Object.assign({ fromQueue: true }, this.flags),
       });
       this._drainQueue();
       return this;
