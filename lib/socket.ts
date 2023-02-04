@@ -102,7 +102,7 @@ export type DisconnectDescription =
   | Error
   | {
       description: string;
-      context?: CloseEvent | XMLHttpRequest;
+      context?: unknown; // context should be typed as CloseEvent | XMLHttpRequest, but these types are not available on non-browser platforms
     };
 
 interface SocketReservedEvents {
