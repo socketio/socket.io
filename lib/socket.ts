@@ -217,6 +217,22 @@ export class Socket<
    * });
    */
   public connected: boolean = false;
+  /**
+   * The identifier of the current packet. Multiple retries of the same packet will have the same identifier, in order
+   * to allow deduplication (only process a packet once).
+   *
+   * @example
+   * io.on("connection", (socket) => {
+   *   socket.on("my-event", async (payload, callback) => {
+   *     const offset = socket.currentOffset;
+   *
+   *     await insertInDatabase(payload, offset);
+   *
+   *     callback();
+   *   })
+   * });
+   */
+  public currentOffset: string;
 
   /**
    * The session ID, which must not be shared (unlike {@link id}).
@@ -652,6 +668,7 @@ export class Socket<
     if (null != packet.id) {
       debug("attaching ack callback to event");
       args.push(this.ack(packet.id));
+      this.currentOffset = `${this.id}-${packet.id}`;
     }
 
     if (this._anyListeners && this._anyListeners.length) {
