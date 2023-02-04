@@ -11,6 +11,19 @@ describe("retry", () => {
         ackTimeout: 50,
       });
 
+      let i = 0;
+      const expected = [
+        "0",
+        '20["echo",1]',
+        '21["echo",2]',
+        '22["echo",3]',
+        "1",
+      ];
+
+      socket.io.engine.on("packetCreate", ({ data }) => {
+        expect(data).to.eql(expected[i++]);
+      });
+
       socket.emit("echo", 1, () => {
         // @ts-ignore
         expect(socket._queue.length).to.eql(2);
@@ -50,6 +63,20 @@ describe("retry", () => {
       });
 
       let count = 0;
+
+      let i = 0;
+      const expected = [
+        "0",
+        '20["ack"]',
+        '20["ack"]',
+        '20["ack"]',
+        '20["ack"]',
+        "1",
+      ];
+
+      socket.io.engine.on("packetCreate", ({ data }) => {
+        expect(data).to.eql(expected[i++]);
+      });
 
       socket.emit("ack", () => {
         expect(count).to.eql(4);

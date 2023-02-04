@@ -75,7 +75,6 @@ type QueuedPacket = {
   flags: Flags;
   pending: boolean;
   tryCount: number;
-  ack?: (err?: Error, ...args: unknown[]) => void;
 };
 
 /**
@@ -382,19 +381,7 @@ export class Socket<
     args.unshift(ev);
 
     if (this._opts.retries && !this.flags.fromQueue && !this.flags.volatile) {
-      let ack;
-      if (typeof args[args.length - 1] === "function") {
-        ack = args.pop();
-      }
-      this._queue.push({
-        id: this.ids++,
-        tryCount: 0,
-        pending: false,
-        args,
-        ack,
-        flags: Object.assign({ fromQueue: true }, this.flags),
-      });
-      this._drainQueue();
+      this._addToQueue(args);
       return this;
     }
 
@@ -503,6 +490,58 @@ export class Socket<
   }
 
   /**
+   * Add the packet to the queue.
+   * @param args
+   * @private
+   */
+  private _addToQueue(args: unknown[]) {
+    let ack;
+    if (typeof args[args.length - 1] === "function") {
+      ack = args.pop();
+    }
+
+    const packet = {
+      id: this.ids++,
+      tryCount: 0,
+      pending: false,
+      args,
+      flags: Object.assign({ fromQueue: true }, this.flags),
+    };
+
+    args.push((err, ...responseArgs) => {
+      if (packet !== this._queue[0]) {
+        // the packet has already been acknowledged
+        return;
+      }
+      const hasError = err !== null;
+      if (hasError) {
+        if (packet.tryCount > this._opts.retries) {
+          debug(
+            "packet [%d] is discarded after %d tries",
+            packet.id,
+            packet.tryCount
+          );
+          this._queue.shift();
+          if (ack) {
+            ack(err);
+          }
+        }
+      } else {
+        debug("packet [%d] was successfully sent", packet.id);
+        this._queue.shift();
+        if (ack) {
+          ack(null, ...responseArgs);
+        }
+      }
+      packet.pending = false;
+      return this._drainQueue();
+    });
+
+    this._queue.push(packet);
+    this._drainQueue();
+  }
+
+  /**
    * Send the first packet of the queue, and wait for an acknowledgement from the server.
    * @private
    */
@@ -525,34 +564,6 @@ export class Socket<
     const currentId = this.ids;
     this.ids = packet.id; // the same id is reused for consecutive retries, in order to allow deduplication on the server side
     this.flags = packet.flags;
-    packet.args.push((err, ...responseArgs) => {
-      if (packet !== this._queue[0]) {
-        // the packet has already been acknowledged
-        return;
-      }
-      const hasError = err !== null;
-      if (hasError) {
-        if (packet.tryCount > this._opts.retries) {
-          debug(
-            "packet [%d] is discarded after %d tries",
-            packet.id,
-            packet.tryCount
-          );
-          this._queue.shift();
-          if (packet.ack) {
-            packet.ack(err);
-          }
-        }
-      } else {
-        debug("packet [%d] was successfully sent", packet.id);
-        this._queue.shift();
-        if (packet.ack) {
-          packet.ack(null, ...responseArgs);
-        }
-      }
-      packet.pending = false;
-      return this._drainQueue();
-    });
 
     this.emit.apply(this, packet.args);
     this.ids = currentId; // restore offset
