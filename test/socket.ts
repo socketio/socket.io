@@ -1105,28 +1105,4 @@ describe("socket", () => {
       socket3.on("disconnect", partialDone);
     });
   });
-
-  // TODO: enable once a new version of the socket.io-client package is released
-  // it("should retry with the same packet ID", (done) => {
-  //   const io = new Server(0);
-  //   let counter = 0;
-  //
-  //   io.on("connection", (socket) => {
-  //     socket.on("my-event", (cb) => {
-  //       expect(socket.currentOffset).to.eql(socket.id + "-0");
-  //       if (++counter === 3) {
-  //         cb();
-  //
-  //         success(done, io, clientSocket);
-  //       }
-  //     });
-  //   });
-  //
-  //   const clientSocket = createClient(io, "/", {
-  //     retries: 10,
-  //     ackTimeout: 20,
-  //   });
-  //
-  //   clientSocket.emit("my-event");
-  // });
 });
