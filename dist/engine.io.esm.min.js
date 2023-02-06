@@ -1,5 +1,5 @@
 /*!
- * Engine.IO v6.3.1
+ * Engine.IO v6.4.0
  * (c) 2014-2023 Guillermo Rauch
  * Released under the MIT License.
  */

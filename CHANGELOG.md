@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [6.4.0](#640-2023-02-06) (Feb 2023)
 - [6.3.1](#631-2023-02-04) (Feb 2023)
 - [6.3.0](#63O-2023-01-10) (Jan 2023)
 
@@ -34,6 +35,16 @@
 - [4.1.0](#410-2021-01-14) (Jan 2021)
 
 # Release notes
+
+## [6.4.0](https://github.com/socketio/engine.io-client/compare/6.3.1...6.4.0) (2023-02-06)
+
+The minor bump is due to changes on the server side.
+
+### Dependencies
+
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [6.3.1](https://github.com/socketio/engine.io-client/compare/6.3.0...6.3.1) (2023-02-04)
 
