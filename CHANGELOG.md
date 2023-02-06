@@ -1,5 +1,9 @@
 # History
 
+## 2023
+
+- [4.6.0](#460-2023-02-07) (Feb 2023)
+
 ## 2022
 
 - [4.5.4](#454-2022-11-22) (Nov 2022)
@@ -53,6 +57,105 @@
 
 # Release notes
 
+# [4.6.0](https://github.com/socketio/socket.io-client/compare/4.5.4...4.6.0) (2023-02-07)
+
+
+### Bug Fixes
+
+* **typings:** do not expose browser-specific types ([4d6d95e](https://github.com/socketio/socket.io-client/commit/4d6d95e0792efd43b78c760b055764fef02ebc9e))
+* ensure manager.socket() returns an active socket ([b7dd891](https://github.com/socketio/socket.io-client/commit/b7dd891e890461d33a104ca9187d5cd30d6f76af))
+* **typings:** properly type emits with timeout ([#1570](https://github.com/socketio/socket.io-client/issues/1570)) ([33e4172](https://github.com/socketio/socket.io-client/commit/33e417258c9a5697e001163971ae87821e9c097f))
+
+
+### Features
+
+#### A new "addTrailingSlash" option
+
+The trailing slash which was added by default can now be disabled:
+
+```js
+import { io } from "socket.io-client";
+
+const socket = io("https://example.com", {
+  addTrailingSlash: false
+});
+```
+
+In the example above, the request URL will be `https://example.com/socket.io` instead of `https://example.com/socket.io/`.
+
+Added in [21a6e12](https://github.com/socketio/engine.io-client/commit/21a6e1219add92157c5442537d24fbe1129a50f5).
+
+#### Promise-based acknowledgements
+
+This commit adds some syntactic sugar around acknowledgements:
+
+```js
+// without timeout
+const response = await socket.emitWithAck("hello", "world");
+
+// with a specific timeout
+try {
+  const response = await socket.timeout(1000).emitWithAck("hello", "world");
+} catch (err) {
+  // the server did not acknowledge the event in the given delay
+}
+```
+
+Note: environments that [do not support Promises](https://caniuse.com/promises) will need to add a polyfill in order to use this feature.
+
+Added in [47b979d](https://github.com/socketio/socket.io-client/commit/47b979d57388e9b5e9a332f3f4a9873211f0d844).
+
+#### Connection state recovery
+
+This feature allows a client to reconnect after a temporary disconnection and restore its ID and receive any packets that was missed during the disconnection gap. It must be enabled on the server side.
+
+A new boolean attribute named `recovered` is added on the `socket` object:
+
+```js
+socket.on("connect", () => {
+  console.log(socket.recovered); // whether the recovery was successful
+});
+```
+
+Added in [54d5ee0](https://github.com/socketio/socket.io/commit/54d5ee05a684371191e207b8089f09fc24eb5107) (server) and [b4e20c5](https://github.com/socketio/socket.io-client/commit/b4e20c5c709b5e9cc03ee9b6bd1d576f4810a817) (client).
+
+#### Retry mechanism
+
+Two new options are available:
+
+- `retries`: the maximum number of retries. Above the limit, the packet will be discarded.
+- `ackTimeout`: the default timeout in milliseconds used when waiting for an acknowledgement (not to be mixed up with the already existing `timeout` option, which is used by the Manager during the connection)
+
+```js
+const socket = io({
+  retries: 3,
+  ackTimeout: 10000
+});
+
+// implicit ack
+socket.emit("my-event");
+
+// explicit ack
+socket.emit("my-event", (err, val) => { /* ... */ });
+
+// custom timeout (in that case the ackTimeout is optional)
+socket.timeout(5000).emit("my-event", (err, val) => { /* ... */ });
+```
+
+In all examples above, "my-event" will be sent up to 4 times (1 + 3), until the server sends an acknowledgement.
+
+Assigning a unique ID to each packet is the duty of the user, in order to allow deduplication on the server side.
+
+Added in [655dce9](https://github.com/socketio/socket.io-client/commit/655dce97556a1ea44a60db6b694d0cfd85b5f70f).
+
+
+### Dependencies
+
+- [`engine.io-client@~6.4.0`](https://github.com/socketio/engine.io-client/releases/tag/6.4.0) ([diff](https://github.com/socketio/engine.io-client/compare/6.2.3...6.4.0))
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) ([diff](https://github.com/websockets/ws/compare/8.2.3...8.11.0))
+
+
+
 ## [4.5.4](https://github.com/socketio/socket.io-client/compare/4.5.3...4.5.4) (2022-11-22)
 
 This release contains a bump of the `socket.io-parser` dependency, in order to fix [CVE-2022-2421](https://github.com/advisories/GHSA-qm95-pgcg-qqfq).
@@ -60,7 +163,7 @@ This release contains a bump of the `socket.io-parser` dependency, in order to f
 ### Dependencies
 
 - [`engine.io-client@~6.2.3`](https://github.com/socketio/engine.io-client/tree/6.2.3)
-- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3)
+- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3) (no change)
 
 
 
