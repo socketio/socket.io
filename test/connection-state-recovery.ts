@@ -2,6 +2,7 @@ import { Server, Socket } from "..";
 import expect from "expect.js";
 import { waitFor, eioHandshake, eioPush, eioPoll } from "./support/util";
 import { createServer, Server as HttpServer } from "http";
+import { Adapter } from "socket.io-adapter";
 
 async function init(httpServer: HttpServer, io: Server) {
   // Engine.IO handshake
@@ -212,6 +213,34 @@ describe("connection state recovery", () => {
 
     expect(handshake.sid).to.not.be(undefined);
     expect(handshake.pid).to.be(undefined);
+
+    io.close();
+  });
+
+  it("should not call adapter#persistSession or adapter#restoreSession if disabled", async () => {
+    const httpServer = createServer().listen(0);
+
+    class DummyAdapter extends Adapter {
+      override persistSession(session) {
+        expect.fail();
+      }
+
+      override restoreSession(pid, offset) {
+        expect.fail();
+        return Promise.reject("should not happen");
+      }
+    }
+
+    const io = new Server(httpServer, {
+      adapter: DummyAdapter,
+    });
+
+    // Engine.IO handshake
+    const sid = await eioHandshake(httpServer);
+
+    await eioPush(httpServer, sid, '40{"pid":"foo","offset":"bar"}');
+    await eioPoll(httpServer, sid);
+    await eioPush(httpServer, sid, "1");
 
     io.close();
   });
