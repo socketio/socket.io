@@ -34,6 +34,7 @@ export class uServer extends BaseServer {
    */
   private prepare(req, res: HttpResponse) {
     req.method = req.getMethod().toUpperCase();
+    req.url = req.getUrl();
 
     const params = new URLSearchParams(req.getQuery());
     req._query = Object.fromEntries(params.entries());
@@ -91,6 +92,23 @@ export class uServer extends BaseServer {
       });
   }
 
+  override _applyMiddlewares(req: any, res: any, callback: () => void): void {
+    if (this.middlewares.length === 0) {
+      return callback();
+    }
+
+    // needed to buffer headers until the status is computed
+    req.res = new ResponseWrapper(res);
+
+    super._applyMiddlewares(req, req.res, () => {
+      // some middlewares (like express-session) wait for the writeHead() call to flush their headers
+      // see https://github.com/expressjs/session/blob/1010fadc2f071ddf2add94235d72224cf65159c6/index.js#L220-L244
+      req.res.writeHead();
+
+      callback();
+    });
+  }
+
   private handleRequest(
     res: HttpResponse,
     req: HttpRequest & { res: any; _query: any }
@@ -100,104 +118,99 @@ export class uServer extends BaseServer {
 
     req.res = res;
 
-    const callback = (errorCode, errorContext) => {
-      if (errorCode !== undefined) {
-        this.emit("connection_error", {
-          req,
-          code: errorCode,
-          message: Server.errorMessages[errorCode],
-          context: errorContext,
-        });
-        this.abortRequest(req.res, errorCode, errorContext);
-        return;
-      }
+    this._applyMiddlewares(req, res, () => {
+      this.verify(req, false, (errorCode, errorContext) => {
+        if (errorCode !== undefined) {
+          this.emit("connection_error", {
+            req,
+            code: errorCode,
+            message: Server.errorMessages[errorCode],
+            context: errorContext,
+          });
+          this.abortRequest(req.res, errorCode, errorContext);
+          return;
+        }
 
-      if (req._query.sid) {
-        debug("setting new request for existing client");
-        this.clients[req._query.sid].transport.onRequest(req);
-      } else {
-        const closeConnection = (errorCode, errorContext) =>
-          this.abortRequest(res, errorCode, errorContext);
-        this.handshake(req._query.transport, req, closeConnection);
-      }
-    };
-
-    if (this.corsMiddleware) {
-      // needed to buffer headers until the status is computed
-      req.res = new ResponseWrapper(res);
-
-      this.corsMiddleware.call(null, req, req.res, () => {
-        this.verify(req, false, callback);
+        if (req._query.sid) {
+          debug("setting new request for existing client");
+          this.clients[req._query.sid].transport.onRequest(req);
+        } else {
+          const closeConnection = (errorCode, errorContext) =>
+            this.abortRequest(res, errorCode, errorContext);
+          this.handshake(req._query.transport, req, closeConnection);
+        }
       });
-    } else {
-      this.verify(req, false, callback);
-    }
+    });
   }
 
   private handleUpgrade(
     res: HttpResponse,
-    req: HttpRequest & { _query: any },
+    req: HttpRequest & { res: any; _query: any },
     context
   ) {
     debug("on upgrade");
 
     this.prepare(req, res);
 
-    // @ts-ignore
     req.res = res;
 
-    this.verify(req, true, async (errorCode, errorContext) => {
-      if (errorCode) {
-        this.emit("connection_error", {
-          req,
-          code: errorCode,
-          message: Server.errorMessages[errorCode],
-          context: errorContext,
-        });
-        this.abortRequest(res, errorCode, errorContext);
-        return;
-      }
-
-      const id = req._query.sid;
-      let transport;
-
-      if (id) {
-        const client = this.clients[id];
-        if (!client) {
-          debug("upgrade attempt for closed client");
-          res.close();
-        } else if (client.upgrading) {
-          debug("transport has already been trying to upgrade");
-          res.close();
-        } else if (client.upgraded) {
-          debug("transport had already been upgraded");
-          res.close();
-        } else {
-          debug("upgrading existing transport");
-          transport = this.createTransport(req._query.transport, req);
-          client.maybeUpgrade(transport);
-        }
-      } else {
-        transport = await this.handshake(
-          req._query.transport,
-          req,
-          (errorCode, errorContext) =>
-            this.abortRequest(res, errorCode, errorContext)
-        );
-        if (!transport) {
+    this._applyMiddlewares(req, res, () => {
+      this.verify(req, true, async (errorCode, errorContext) => {
+        if (errorCode) {
+          this.emit("connection_error", {
+            req,
+            code: errorCode,
+            message: Server.errorMessages[errorCode],
+            context: errorContext,
+          });
+          this.abortRequest(res, errorCode, errorContext);
           return;
         }
-      }
 
-      res.upgrade(
-        {
-          transport,
-        },
-        req.getHeader("sec-websocket-key"),
-        req.getHeader("sec-websocket-protocol"),
-        req.getHeader("sec-websocket-extensions"),
-        context
-      );
+        const id = req._query.sid;
+        let transport;
+
+        if (id) {
+          const client = this.clients[id];
+          if (!client) {
+            debug("upgrade attempt for closed client");
+            res.close();
+          } else if (client.upgrading) {
+            debug("transport has already been trying to upgrade");
+            res.close();
+          } else if (client.upgraded) {
+            debug("transport had already been upgraded");
+            res.close();
+          } else {
+            debug("upgrading existing transport");
+            transport = this.createTransport(req._query.transport, req);
+            client.maybeUpgrade(transport);
+          }
+        } else {
+          transport = await this.handshake(
+            req._query.transport,
+            req,
+            (errorCode, errorContext) =>
+              this.abortRequest(res, errorCode, errorContext)
+          );
+          if (!transport) {
+            return;
+          }
+        }
+
+        // calling writeStatus() triggers the flushing of any header added in a middleware
+        req.res.writeStatus("101 Switching Protocols");
+
+        res.upgrade(
+          {
+            transport,
+          },
+          req.getHeader("sec-websocket-key"),
+          req.getHeader("sec-websocket-protocol"),
+          req.getHeader("sec-websocket-extensions"),
+          context
+        );
+      });
     });
   }
 
@@ -233,11 +246,29 @@ class ResponseWrapper {
   constructor(readonly res: HttpResponse) {}
 
   public set statusCode(status: number) {
+    if (!status) {
+      return;
+    }
+    // FIXME: handle all status codes?
     this.writeStatus(status === 200 ? "200 OK" : "204 No Content");
   }
 
+  public writeHead(status: number) {
+    this.statusCode = status;
+  }
+
   public setHeader(key, value) {
-    this.writeHeader(key, value);
+    if (Array.isArray(value)) {
+      value.forEach((val) => {
+        this.writeHeader(key, val);
+      });
+    } else {
+      this.writeHeader(key, value);
+    }
+  }
+
+  public removeHeader() {
+    // FIXME: not implemented
   }
 
   // needed by vary: https://github.com/jshttp/vary/blob/5d725d059b3871025cf753e9dfa08924d0bcfa8f/index.js#L134
