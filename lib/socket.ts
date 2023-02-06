@@ -742,7 +742,10 @@ export class Socket<
     debug("closing socket - reason %s", reason);
     this.emitReserved("disconnecting", reason, description);
 
-    if (RECOVERABLE_DISCONNECT_REASONS.has(reason)) {
+    if (
+      this.server._opts.connectionStateRecovery &&
+      RECOVERABLE_DISCONNECT_REASONS.has(reason)
+    ) {
       debug("connection state recovery is enabled for sid %s", this.id);
       this.adapter.persistSession({
         sid: this.id,
