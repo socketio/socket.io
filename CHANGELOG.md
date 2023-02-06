@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [6.4.0](#640-2023-02-06) (Feb 2023)
 - [6.3.1](#631-2023-01-12) (Jan 2023)
 - [6.3.0](#630-2023-01-10) (Jan 2023)
 
@@ -44,7 +45,55 @@
 
 # Release notes
 
+## [6.4.0](https://github.com/socketio/engine.io/compare/6.3.1...6.4.0) (2023-02-06)
+
+
+### Features
+
+* add support for Express middlewares ([24786e7](https://github.com/socketio/engine.io/commit/24786e77c5403b1c4b5a2bc84e2af06f9187f74a))
+
+This commit implements middlewares at the Engine.IO level, because Socket.IO middlewares are meant for namespace authorization and are not executed during a classic HTTP request/response cycle.
+
+A workaround was possible by using the allowRequest option and the "headers" event, but this feels way cleaner and works with upgrade requests too.
+
+Syntax:
+
+```js
+engine.use((req, res, next) => {
+  // do something
+
+  next();
+});
+
+// with express-session
+import session from "express-session";
+
+engine.use(session({
+  secret: "keyboard cat",
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true }
+}));
+
+// with helmet
+import helmet from "helmet";
+
+engine.use(helmet());
+```
+
+
+### Dependencies
+
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
+
 ## [6.3.1](https://github.com/socketio/engine.io/compare/6.3.0...6.3.1) (2023-01-12)
+
+
+### Dependencies
+
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
 
 
 

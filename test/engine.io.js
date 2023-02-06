@@ -14,7 +14,7 @@ describe("engine", () => {
     expect(protocol).to.be.a("number");
   });
 
-  it.skip("should be the same version as client", () => {
+  it("should be the same version as client", () => {
     const version = require("../package.json").version;
     expect(version).to.be(require("engine.io-client/package.json").version);
   });
