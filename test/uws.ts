@@ -53,7 +53,7 @@ describe("socket.io with uWebSocket.js-based engine", () => {
 
     const partialDone = createPartialDone(done, 4);
     client.on("connect", partialDone);
-    clientWSOnly.on("connect", partialDone);
+    clientWSOnly.once("connect", partialDone);
     clientPollingOnly.on("connect", partialDone);
     clientCustomNamespace.on("connect", partialDone);
   });
