@@ -1,5 +1,9 @@
 # History
 
+## 2023
+
+- [4.6.0](#460-2023-02-07) (Feb 2023)
+
 ## 2022
 
 - [4.5.4](#454-2022-11-22) (Nov 2022)
@@ -52,6 +56,187 @@
 
 # Release notes
 
+# [4.6.0](https://github.com/socketio/socket.io/compare/4.5.4...4.6.0) (2023-02-07)
+
+
+### Bug Fixes
+
+* add timeout method to remote socket ([#4558](https://github.com/socketio/socket.io/issues/4558)) ([0c0eb00](https://github.com/socketio/socket.io/commit/0c0eb0016317218c2be3641e706cfaa9bea39a2d))
+* **typings:** properly type emits with timeout ([f3ada7d](https://github.com/socketio/socket.io/commit/f3ada7d8ccc02eeced2b9b9ac8e4bc921eb630d2))
+
+
+### Features
+
+#### Promise-based acknowledgements
+
+This commit adds some syntactic sugar around acknowledgements:
+
+- `emitWithAck()`
+
+```js
+try {
+  const responses = await io.timeout(1000).emitWithAck("some-event");
+  console.log(responses); // one response per client
+} catch (e) {
+  // some clients did not acknowledge the event in the given delay
+}
+
+io.on("connection", async (socket) => {
+    // without timeout
+  const response = await socket.emitWithAck("hello", "world");
+
+  // with a specific timeout
+  try {
+    const response = await socket.timeout(1000).emitWithAck("hello", "world");
+  } catch (err) {
+    // the client did not acknowledge the event in the given delay
+  }
+});
+```
+
+- `serverSideEmitWithAck()`
+
+```js
+try {
+  const responses = await io.timeout(1000).serverSideEmitWithAck("some-event");
+  console.log(responses); // one response per server (except itself)
+} catch (e) {
+  // some servers did not acknowledge the event in the given delay
+}
+```
+
+Added in [184f3cf](https://github.com/socketio/socket.io/commit/184f3cf7af57acc4b0948eee307f25f8536eb6c8).
+
+#### Connection state recovery
+
+This feature allows a client to reconnect after a temporary disconnection and restore its state:
+
+- id
+- rooms
+- data
+- missed packets
+
+Usage:
+
+```js
+import { Server } from "socket.io";
+
+const io = new Server({
+  connectionStateRecovery: {
+    // default values
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: true,
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log(socket.recovered); // whether the state was recovered or not
+});
+```
+
+Here's how it works:
+
+- the server sends a session ID during the handshake (which is different from the current `id` attribute, which is public and can be freely shared)
+- the server also includes an offset in each packet (added at the end of the data array, for backward compatibility)
+- upon temporary disconnection, the server stores the client state for a given delay (implemented at the adapter level)
+- upon reconnection, the client sends both the session ID and the last offset it has processed, and the server tries to restore the state
+
+The in-memory adapter already supports this feature, and we will soon update the Postgres and MongoDB adapters. We will also create a new adapter based on [Redis Streams](https://redis.io/docs/data-types/streams/), which will support this feature.
+
+Added in [54d5ee0](https://github.com/socketio/socket.io/commit/54d5ee05a684371191e207b8089f09fc24eb5107).
+
+#### Compatibility (for real) with Express middlewares
+
+This feature implements middlewares at the Engine.IO level, because Socket.IO middlewares are meant for namespace authorization and are not executed during a classic HTTP request/response cycle.
+
+Syntax:
+
+```js
+io.engine.use((req, res, next) => {
+  // do something
+
+  next();
+});
+
+// with express-session
+import session from "express-session";
+
+io.engine.use(session({
+  secret: "keyboard cat",
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true }
+}));
+
+// with helmet
+import helmet from "helmet";
+
+io.engine.use(helmet());
+```
+
+A workaround was possible by using the allowRequest option and the "headers" event, but this feels way cleaner and works with upgrade requests too.
+
+Added in [24786e7](https://github.com/socketio/engine.io/commit/24786e77c5403b1c4b5a2bc84e2af06f9187f74a).
+
+#### Error details in the disconnecting and disconnect events
+
+The `disconnect` event will now contain additional details about the disconnection reason.
+
+```js
+io.on("connection", (socket) => {
+  socket.on("disconnect", (reason, description) => {
+    console.log(description);
+  });
+});
+```
+
+Added in [8aa9499](https://github.com/socketio/socket.io/commit/8aa94991cee5518567d6254eec04b23f81510257).
+
+#### Automatic removal of empty child namespaces
+
+This commit adds a new option, "cleanupEmptyChildNamespaces". With this option enabled (disabled by default), when a socket disconnects from a dynamic namespace and if there are no other sockets connected to it then the namespace will be cleaned up and its adapter will be closed. 
+
+```js
+import { createServer } from "node:http";
+import { Server } from "socket.io";
+
+const httpServer = createServer();
+const io = new Server(httpServer, {
+  cleanupEmptyChildNamespaces: true
+});
+```
+
+Added in [5d9220b](https://github.com/socketio/socket.io/commit/5d9220b69adf73e086c27bbb63a4976b348f7c4c).
+
+#### A new "addTrailingSlash" option
+
+The trailing slash which was added by default can now be disabled:
+
+```js
+import { createServer } from "node:http";
+import { Server } from "socket.io";
+
+const httpServer = createServer();
+const io = new Server(httpServer, {
+  addTrailingSlash: false
+});
+```
+
+In the example above, the clients can omit the trailing slash and use `/socket.io` instead of `/socket.io/`.
+
+Added in [d0fd474](https://github.com/socketio/engine.io/commit/d0fd4746afa396297f07bb62e539b0c1c4018d7c).
+
+### Performance Improvements
+
+* precompute the WebSocket frames when broadcasting ([da2b542](https://github.com/socketio/socket.io/commit/da2b54279749adc5279c9ac4742b01b36c01cff0))
+
+
+### Dependencies
+
+- [`engine.io@~6.4.0`](https://github.com/socketio/engine.io/releases/tag/6.4.0) ([diff](https://github.com/socketio/engine.io/compare/6.2.0...6.2.1))
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) ([diff](https://github.com/websockets/ws/compare/8.2.3...8.11.0))
+
+
 ## [4.5.4](https://github.com/socketio/socket.io/compare/4.5.3...4.5.4) (2022-11-22)
 
 This release contains a bump of:
@@ -61,8 +246,8 @@ This release contains a bump of:
 
 ### Dependencies
 
-- [`engine.io@~6.2.1`](https://github.com/socketio/engine.io-client/tree/6.2.1) ([diff](https://github.com/socketio/engine.io/compare/6.2.0...6.2.1))
-- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3)
+- [`engine.io@~6.2.1`](https://github.com/socketio/engine.io/releases/tag/6.2.1) ([diff](https://github.com/socketio/engine.io/compare/6.2.0...6.2.1))
+- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3) (no change)
 
 
 

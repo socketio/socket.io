@@ -1,6 +1,6 @@
 /*!
- * Socket.IO v4.5.4
- * (c) 2014-2022 Guillermo Rauch
+ * Socket.IO v4.6.0
+ * (c) 2014-2023 Guillermo Rauch
  * Released under the MIT License.
  */
 (function (global, factory) {
@@ -683,15 +683,15 @@
     }, {});
   } // Keep a reference to the real timeout functions so they can be used when overridden
 
-  var NATIVE_SET_TIMEOUT = setTimeout;
-  var NATIVE_CLEAR_TIMEOUT = clearTimeout;
+  var NATIVE_SET_TIMEOUT = globalThisShim.setTimeout;
+  var NATIVE_CLEAR_TIMEOUT = globalThisShim.clearTimeout;
   function installTimerFunctions(obj, opts) {
     if (opts.useNativeTimers) {
       obj.setTimeoutFn = NATIVE_SET_TIMEOUT.bind(globalThisShim);
       obj.clearTimeoutFn = NATIVE_CLEAR_TIMEOUT.bind(globalThisShim);
     } else {
-      obj.setTimeoutFn = setTimeout.bind(globalThisShim);
-      obj.clearTimeoutFn = clearTimeout.bind(globalThisShim);
+      obj.setTimeoutFn = globalThisShim.setTimeout.bind(globalThisShim);
+      obj.clearTimeoutFn = globalThisShim.clearTimeout.bind(globalThisShim);
     }
   } // base64 encoded buffers are about 33% bigger (https://en.wikipedia.org/wiki/Base64)
 
@@ -756,8 +756,8 @@
     /**
      * Transport abstract constructor.
      *
-     * @param {Object} options.
-     * @api private
+     * @param {Object} opts - options
+     * @protected
      */
     function Transport(opts) {
       var _this2;
@@ -769,7 +769,6 @@
       installTimerFunctions(_assertThisInitialized(_this2), opts);
       _this2.opts = opts;
       _this2.query = opts.query;
-      _this2.readyState = "";
       _this2.socket = opts.socket;
       return _this2;
     }
@@ -780,7 +779,7 @@
      * @param description
      * @param context - the error context
      * @return {Transport} for chaining
-     * @api protected
+     * @protected
      */
 
 
@@ -793,30 +792,23 @@
       }
       /**
        * Opens the transport.
-       *
-       * @api public
        */
 
     }, {
       key: "open",
       value: function open() {
-        if ("closed" === this.readyState || "" === this.readyState) {
-          this.readyState = "opening";
-          this.doOpen();
-        }
-
+        this.readyState = "opening";
+        this.doOpen();
         return this;
       }
       /**
        * Closes the transport.
-       *
-       * @api public
        */
 
     }, {
       key: "close",
       value: function close() {
-        if ("opening" === this.readyState || "open" === this.readyState) {
+        if (this.readyState === "opening" || this.readyState === "open") {
           this.doClose();
           this.onClose();
         }
@@ -827,20 +819,19 @@
        * Sends multiple packets.
        *
        * @param {Array} packets
-       * @api public
        */
 
     }, {
       key: "send",
       value: function send(packets) {
-        if ("open" === this.readyState) {
+        if (this.readyState === "open") {
           this.write(packets);
         }
       }
       /**
        * Called upon open
        *
-       * @api protected
+       * @protected
        */
 
     }, {
@@ -855,7 +846,7 @@
        * Called with data.
        *
        * @param {String} data
-       * @api protected
+       * @protected
        */
 
     }, {
@@ -867,7 +858,7 @@
       /**
        * Called with a decoded packet.
        *
-       * @api protected
+       * @protected
        */
 
     }, {
@@ -878,7 +869,7 @@
       /**
        * Called upon close.
        *
-       * @api protected
+       * @protected
        */
 
     }, {
@@ -888,6 +879,15 @@
 
         _get(_getPrototypeOf(Transport.prototype), "emitReserved", this).call(this, "close", details);
       }
+      /**
+       * Pauses the transport, in order not to lose packets during an upgrade.
+       *
+       * @param onPause
+       */
+
+    }, {
+      key: "pause",
+      value: function pause(onPause) {}
     }]);
 
     return Transport;
@@ -1024,7 +1024,7 @@
      * XHR Polling constructor.
      *
      * @param {Object} opts
-     * @api public
+     * @package
      */
     function Polling(opts) {
       var _this;
@@ -1054,10 +1054,6 @@
       _this.supportsBinary = hasXHR2 && !forceBase64;
       return _this;
     }
-    /**
-     * Transport name.
-     */
-
 
     _createClass(Polling, [{
       key: "name",
@@ -1068,7 +1064,7 @@
        * Opens the socket (triggers polling). We write a PING message to determine
        * when the transport is open.
        *
-       * @api private
+       * @protected
        */
 
     }, {
@@ -1079,8 +1075,8 @@
       /**
        * Pauses polling.
        *
-       * @param {Function} callback upon buffers are flushed and transport is paused
-       * @api private
+       * @param {Function} onPause - callback upon buffers are flushed and transport is paused
+       * @package
        */
 
     }, {
@@ -1118,7 +1114,7 @@
       /**
        * Starts polling cycle.
        *
-       * @api public
+       * @private
        */
 
     }, {
@@ -1131,7 +1127,7 @@
       /**
        * Overloads onData to detect payloads.
        *
-       * @api private
+       * @protected
        */
 
     }, {
@@ -1174,7 +1170,7 @@
       /**
        * For polling, send a close packet.
        *
-       * @api private
+       * @protected
        */
 
     }, {
@@ -1199,9 +1195,8 @@
       /**
        * Writes a packets payload.
        *
-       * @param {Array} data packets
-       * @param {Function} drain callback
-       * @api private
+       * @param {Array} packets - data packets
+       * @protected
        */
 
     }, {
@@ -1221,7 +1216,7 @@
       /**
        * Generates uri for connection.
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -1252,7 +1247,7 @@
        * Creates a request.
        *
        * @param {String} method
-       * @api private
+       * @private
        */
 
     }, {
@@ -1272,7 +1267,7 @@
        *
        * @param {String} data to send.
        * @param {Function} called upon flush.
-       * @api private
+       * @private
        */
 
     }, {
@@ -1292,7 +1287,7 @@
       /**
        * Starts a poll cycle.
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -1320,7 +1315,7 @@
      * Request constructor
      *
      * @param {Object} options
-     * @api public
+     * @package
      */
     function Request(uri, opts) {
       var _this8;
@@ -1342,7 +1337,7 @@
     /**
      * Creates the XHR object and sends the request.
      *
-     * @api private
+     * @private
      */
 
 
@@ -1423,7 +1418,7 @@
       /**
        * Called upon error.
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -1435,7 +1430,7 @@
       /**
        * Cleans up house.
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -1462,7 +1457,7 @@
       /**
        * Called upon load.
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -1479,7 +1474,7 @@
       /**
        * Aborts the request.
        *
-       * @api public
+       * @package
        */
 
     }, {
@@ -1544,8 +1539,8 @@
     /**
      * WebSocket transport constructor.
      *
-     * @api {Object} connection options
-     * @api public
+     * @param {Object} opts - connection options
+     * @protected
      */
     function WS(opts) {
       var _this;
@@ -1556,24 +1551,12 @@
       _this.supportsBinary = !opts.forceBase64;
       return _this;
     }
-    /**
-     * Transport name.
-     *
-     * @api public
-     */
-
 
     _createClass(WS, [{
       key: "name",
       get: function get() {
         return "websocket";
       }
-      /**
-       * Opens socket.
-       *
-       * @api private
-       */
-
     }, {
       key: "doOpen",
       value: function doOpen() {
@@ -1603,7 +1586,7 @@
       /**
        * Adds event listeners to the socket
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -1634,13 +1617,6 @@
           return _this2.onError("websocket error", e);
         };
       }
-      /**
-       * Writes data to socket.
-       *
-       * @param {Array} array of packets.
-       * @api private
-       */
-
     }, {
       key: "write",
       value: function write(packets) {
@@ -1682,12 +1658,6 @@
           _loop(i);
         }
       }
-      /**
-       * Closes socket.
-       *
-       * @api private
-       */
-
     }, {
       key: "doClose",
       value: function doClose() {
@@ -1699,7 +1669,7 @@
       /**
        * Generates uri for connection.
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -1731,7 +1701,7 @@
        * Feature detection for WebSocket.
        *
        * @return {Boolean} whether this transport is available.
-       * @api public
+       * @private
        */
 
     }, {
@@ -1752,12 +1722,24 @@
   // imported from https://github.com/galkn/parseuri
 
   /**
-   * Parses an URI
+   * Parses a URI
+   *
+   * Note: we could also have used the built-in URL object, but it isn't supported on all platforms.
+   *
+   * See:
+   * - https://developer.mozilla.org/en-US/docs/Web/API/URL
+   * - https://caniuse.com/url
+   * - https://www.rfc-editor.org/rfc/rfc3986#appendix-B
+   *
+   * History of the parse() method:
+   * - first commit: https://github.com/socketio/socket.io-client/commit/4ee1d5d94b3906a9c052b459f1a818b15f38f91c
+   * - export into its own module: https://github.com/socketio/engine.io-client/commit/de2c561e4564efeb78f1bdb1ba39ef81b2822cb3
+   * - reimport: https://github.com/socketio/engine.io-client/commit/df32277c3f6d622eec5ed09f493cae3f3391d242
    *
    * @author Steven Levithan <stevenlevithan.com> (MIT license)
    * @api private
    */
-  var re = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+  var re = /^(?:(?![^:@\/?#]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@\/?#]*)(?::([^:@\/?#]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
   var parts = ['source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'];
   function parse(str) {
     var src = str,
@@ -1821,9 +1803,8 @@
     /**
      * Socket constructor.
      *
-     * @param {String|Object} uri or options
+     * @param {String|Object} uri - uri or options
      * @param {Object} opts - options
-     * @api public
      */
     function Socket(uri) {
       var _this;
@@ -1833,6 +1814,7 @@
       _classCallCheck(this, Socket);
 
       _this = _super.call(this);
+      _this.writeBuffer = [];
 
       if (uri && "object" === _typeof(uri)) {
         opts = uri;
@@ -1860,7 +1842,6 @@
       _this.hostname = opts.hostname || (typeof location !== "undefined" ? location.hostname : "localhost");
       _this.port = opts.port || (typeof location !== "undefined" && location.port ? location.port : _this.secure ? "443" : "80");
       _this.transports = opts.transports || ["polling", "websocket"];
-      _this.readyState = "";
       _this.writeBuffer = [];
       _this.prevBufferLen = 0;
       _this.opts = _extends({
@@ -1870,6 +1851,7 @@
         upgrade: true,
         timestampParam: "t",
         rememberUpgrade: false,
+        addTrailingSlash: true,
         rejectUnauthorized: true,
         perMessageDeflate: {
           threshold: 1024
@@ -1877,7 +1859,7 @@
         transportOptions: {},
         closeOnBeforeunload: true
       }, opts);
-      _this.opts.path = _this.opts.path.replace(/\/$/, "") + "/";
+      _this.opts.path = _this.opts.path.replace(/\/$/, "") + (_this.opts.addTrailingSlash ? "/" : "");
 
       if (typeof _this.opts.query === "string") {
         _this.opts.query = decode(_this.opts.query);
@@ -1926,9 +1908,9 @@
     /**
      * Creates transport of the given type.
      *
-     * @param {String} transport name
+     * @param {String} name - transport name
      * @return {Transport}
-     * @api private
+     * @private
      */
 
 
@@ -1957,7 +1939,7 @@
       /**
        * Initializes transport to use and starts probe.
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -1995,7 +1977,7 @@
       /**
        * Sets the current transport. Disables the existing one (if any).
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -2017,8 +1999,8 @@
       /**
        * Probes a transport.
        *
-       * @param {String} transport name
-       * @api private
+       * @param {String} name - transport name
+       * @private
        */
 
     }, {
@@ -2131,7 +2113,7 @@
       /**
        * Called when connection is deemed open.
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -2143,7 +2125,7 @@
         this.flush(); // we check for `readyState` in case an `open`
         // listener already closed the socket
 
-        if ("open" === this.readyState && this.opts.upgrade && this.transport.pause) {
+        if ("open" === this.readyState && this.opts.upgrade) {
           var i = 0;
           var l = this.upgrades.length;
 
@@ -2155,7 +2137,7 @@
       /**
        * Handles a packet.
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -2196,7 +2178,7 @@
        * Called upon handshake completion.
        *
        * @param {Object} data - handshake obj
-       * @api private
+       * @private
        */
 
     }, {
@@ -2217,7 +2199,7 @@
       /**
        * Sets and resets ping timeout timer based on server pings.
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -2237,7 +2219,7 @@
       /**
        * Called on `drain` event
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -2258,7 +2240,7 @@
       /**
        * Flush write buffers.
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -2310,11 +2292,10 @@
       /**
        * Sends a message.
        *
-       * @param {String} message.
-       * @param {Function} callback function.
+       * @param {String} msg - message.
        * @param {Object} options.
+       * @param {Function} callback function.
        * @return {Socket} for chaining.
-       * @api public
        */
 
     }, {
@@ -2332,11 +2313,11 @@
       /**
        * Sends a packet.
        *
-       * @param {String} packet type.
+       * @param {String} type: packet type.
        * @param {String} data.
        * @param {Object} options.
-       * @param {Function} callback function.
-       * @api private
+       * @param {Function} fn - callback function.
+       * @private
        */
 
     }, {
@@ -2370,8 +2351,6 @@
       }
       /**
        * Closes the connection.
-       *
-       * @api public
        */
 
     }, {
@@ -2423,7 +2402,7 @@
       /**
        * Called upon transport error
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -2436,7 +2415,7 @@
       /**
        * Called upon transport close.
        *
-       * @api private
+       * @private
        */
 
     }, {
@@ -2472,9 +2451,8 @@
       /**
        * Filters upgrades, returning only those matching client transports.
        *
-       * @param {Array} server upgrades
-       * @api private
-       *
+       * @param {Array} upgrades - server upgrades
+       * @private
        */
 
     }, {
@@ -2671,7 +2649,7 @@
 
   function reconstructPacket(packet, buffers) {
     packet.data = _reconstructPacket(packet.data, buffers);
-    packet.attachments = undefined; // no longer useful
+    delete packet.attachments; // no longer useful
 
     return packet;
   }
@@ -2749,8 +2727,12 @@
       value: function encode(obj) {
         if (obj.type === PacketType.EVENT || obj.type === PacketType.ACK) {
           if (hasBinary(obj)) {
-            obj.type = obj.type === PacketType.EVENT ? PacketType.BINARY_EVENT : PacketType.BINARY_ACK;
-            return this.encodeAsBinary(obj);
+            return this.encodeAsBinary({
+              type: obj.type === PacketType.EVENT ? PacketType.BINARY_EVENT : PacketType.BINARY_ACK,
+              nsp: obj.nsp,
+              data: obj.data,
+              id: obj.id
+            });
           }
         }
 
@@ -2851,9 +2833,11 @@
           }
 
           packet = this.decodeString(obj);
+          var isBinaryEvent = packet.type === PacketType.BINARY_EVENT;
 
-          if (packet.type === PacketType.BINARY_EVENT || packet.type === PacketType.BINARY_ACK) {
-            // binary packet's json
+          if (isBinaryEvent || packet.type === PacketType.BINARY_ACK) {
+            packet.type = isBinaryEvent ? PacketType.EVENT : PacketType.ACK; // binary packet's json
+
             this.reconstructor = new BinaryReconstructor(packet); // no attachments, labeled binary but no binary data to follow
 
             if (packet.attachments === 0) {
@@ -2982,6 +2966,7 @@
       function destroy() {
         if (this.reconstructor) {
           this.reconstructor.finishedReconstruction();
+          this.reconstructor = null;
         }
       }
     }], [{
@@ -3151,6 +3136,12 @@
 
       _this.connected = false;
       /**
+       * Whether the connection state was recovered after a temporary disconnection. In that case, any missed packets will
+       * be transmitted by the server.
+       */
+
+      _this.recovered = false;
+      /**
        * Buffer for packets received before the CONNECT packet
        */
 
@@ -3160,6 +3151,14 @@
        */
 
       _this.sendBuffer = [];
+      /**
+       * The queue of packets to be sent with retry in case of failure.
+       *
+       * Packets are sent one by one, each waiting for the server acknowledgement, in order to guarantee the delivery order.
+       * @private
+       */
+
+      _this._queue = [];
       _this.ids = 0;
       _this.acks = {};
       _this.flags = {};
@@ -3170,6 +3169,7 @@
         _this.auth = opts.auth;
       }
 
+      _this._opts = _extends({}, opts);
       if (_this.io._autoConnect) _this.open();
       return _this;
     }
@@ -3317,6 +3317,13 @@
         }
 
         args.unshift(ev);
+
+        if (this._opts.retries && !this.flags.fromQueue && !this.flags["volatile"]) {
+          this._addToQueue(args);
+
+          return this;
+        }
+
         var packet = {
           type: PacketType.EVENT,
           data: args
@@ -3355,7 +3362,9 @@
       value: function _registerAckCallback(id, ack) {
         var _this2 = this;
 
-        var timeout = this.flags.timeout;
+        var _a;
+
+        var timeout = (_a = this.flags.timeout) !== null && _a !== void 0 ? _a : this._opts.ackTimeout;
 
         if (timeout === undefined) {
           this.acks[id] = ack;
@@ -3387,6 +3396,135 @@
         };
       }
       /**
+       * Emits an event and waits for an acknowledgement
+       *
+       * @example
+       * // without timeout
+       * const response = await socket.emitWithAck("hello", "world");
+       *
+       * // with a specific timeout
+       * try {
+       *   const response = await socket.timeout(1000).emitWithAck("hello", "world");
+       * } catch (err) {
+       *   // the server did not acknowledge the event in the given delay
+       * }
+       *
+       * @return a Promise that will be fulfilled when the server acknowledges the event
+       */
+
+    }, {
+      key: "emitWithAck",
+      value: function emitWithAck(ev) {
+        var _this3 = this;
+
+        for (var _len4 = arguments.length, args = new Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
+          args[_key4 - 1] = arguments[_key4];
+        }
+
+        // the timeout flag is optional
+        var withErr = this.flags.timeout !== undefined || this._opts.ackTimeout !== undefined;
+        return new Promise(function (resolve, reject) {
+          args.push(function (arg1, arg2) {
+            if (withErr) {
+              return arg1 ? reject(arg1) : resolve(arg2);
+            } else {
+              return resolve(arg1);
+            }
+          });
+
+          _this3.emit.apply(_this3, [ev].concat(args));
+        });
+      }
+      /**
+       * Add the packet to the queue.
+       * @param args
+       * @private
+       */
+
+    }, {
+      key: "_addToQueue",
+      value: function _addToQueue(args) {
+        var _this4 = this;
+
+        var ack;
+
+        if (typeof args[args.length - 1] === "function") {
+          ack = args.pop();
+        }
+
+        var packet = {
+          id: this.ids++,
+          tryCount: 0,
+          pending: false,
+          args: args,
+          flags: _extends({
+            fromQueue: true
+          }, this.flags)
+        };
+        args.push(function (err) {
+          if (packet !== _this4._queue[0]) {
+            // the packet has already been acknowledged
+            return;
+          }
+
+          var hasError = err !== null;
+
+          if (hasError) {
+            if (packet.tryCount > _this4._opts.retries) {
+              _this4._queue.shift();
+
+              if (ack) {
+                ack(err);
+              }
+            }
+          } else {
+            _this4._queue.shift();
+
+            if (ack) {
+              for (var _len5 = arguments.length, responseArgs = new Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
+                responseArgs[_key5 - 1] = arguments[_key5];
+              }
+
+              ack.apply(void 0, [null].concat(responseArgs));
+            }
+          }
+
+          packet.pending = false;
+          return _this4._drainQueue();
+        });
+
+        this._queue.push(packet);
+
+        this._drainQueue();
+      }
+      /**
+       * Send the first packet of the queue, and wait for an acknowledgement from the server.
+       * @private
+       */
+
+    }, {
+      key: "_drainQueue",
+      value: function _drainQueue() {
+        if (this._queue.length === 0) {
+          return;
+        }
+
+        var packet = this._queue[0];
+
+        if (packet.pending) {
+          return;
+        }
+
+        packet.pending = true;
+        packet.tryCount++;
+        var currentId = this.ids;
+        this.ids = packet.id; // the same id is reused for consecutive retries, in order to allow deduplication on the server side
+
+        this.flags = packet.flags;
+        this.emit.apply(this, packet.args);
+        this.ids = currentId; // restore offset
+      }
+      /**
        * Sends a packet.
        *
        * @param packet
@@ -3409,21 +3547,33 @@
     }, {
       key: "onopen",
       value: function onopen() {
-        var _this3 = this;
+        var _this5 = this;
 
         if (typeof this.auth == "function") {
           this.auth(function (data) {
-            _this3.packet({
-              type: PacketType.CONNECT,
-              data: data
-            });
+            _this5._sendConnectPacket(data);
           });
         } else {
-          this.packet({
-            type: PacketType.CONNECT,
-            data: this.auth
-          });
+          this._sendConnectPacket(this.auth);
         }
+      }
+      /**
+       * Sends a CONNECT packet to initiate the Socket.IO session.
+       *
+       * @param data
+       * @private
+       */
+
+    }, {
+      key: "_sendConnectPacket",
+      value: function _sendConnectPacket(data) {
+        this.packet({
+          type: PacketType.CONNECT,
+          data: this._pid ? _extends({
+            pid: this._pid,
+            offset: this._lastOffset
+          }, data) : data
+        });
       }
       /**
        * Called upon engine or manager `error`.
@@ -3470,8 +3620,7 @@
         switch (packet.type) {
           case PacketType.CONNECT:
             if (packet.data && packet.data.sid) {
-              var id = packet.data.sid;
-              this.onconnect(id);
+              this.onconnect(packet.data.sid, packet.data.pid);
             } else {
               this.emitReserved("connect_error", new Error("It seems you are trying to reach a Socket.IO server in v2.x with a v3.x client, but they are not compatible (more information here: https://socket.io/docs/v3/migrating-from-2-x-to-3-0/)"));
             }
@@ -3545,6 +3694,10 @@
         }
 
         _get(_getPrototypeOf(Socket.prototype), "emit", this).apply(this, args);
+
+        if (this._pid && args.length && typeof args[args.length - 1] === "string") {
+          this._lastOffset = args[args.length - 1];
+        }
       }
       /**
        * Produces an ack callback to emit with an event.
@@ -3562,8 +3715,8 @@
           if (sent) return;
           sent = true;
 
-          for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-            args[_key4] = arguments[_key4];
+          for (var _len6 = arguments.length, args = new Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
+            args[_key6] = arguments[_key6];
           }
 
           self.packet({
@@ -3598,8 +3751,11 @@
 
     }, {
       key: "onconnect",
-      value: function onconnect(id) {
+      value: function onconnect(id, pid) {
         this.id = id;
+        this.recovered = pid && this._pid === pid;
+        this._pid = pid; // defined only if connection state recovery is enabled
+
         this.connected = true;
         this.emitBuffered();
         this.emitReserved("connect");
@@ -3613,16 +3769,16 @@
     }, {
       key: "emitBuffered",
       value: function emitBuffered() {
-        var _this4 = this;
+        var _this6 = this;
 
         this.receiveBuffer.forEach(function (args) {
-          return _this4.emitEvent(args);
+          return _this6.emitEvent(args);
         });
         this.receiveBuffer = [];
         this.sendBuffer.forEach(function (packet) {
-          _this4.notifyOutgoingListeners(packet);
+          _this6.notifyOutgoingListeners(packet);
 
-          _this4.packet(packet);
+          _this6.packet(packet);
         });
         this.sendBuffer = [];
       }
@@ -4348,6 +4504,10 @@
         if (!socket) {
           socket = new Socket(this, nsp, opts);
           this.nsps[nsp] = socket;
+        }
+
+        if (this._autoConnect) {
+          socket.connect();
         }
 
         return socket;
