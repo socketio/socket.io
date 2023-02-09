@@ -6,12 +6,11 @@ import { createDeflate, createGzip, createBrotliCompress } from "zlib";
 import accepts = require("accepts");
 import { pipeline } from "stream";
 import path = require("path");
-import {
-  attach,
-  Server as Engine,
+import { attach, Server as Engine, uServer } from "engine.io";
+import type {
   ServerOptions as EngineOptions,
   AttachOptions,
-  uServer,
+  BaseServer,
 } from "engine.io";
 import { Client } from "./client";
 import { EventEmitter } from "events";
@@ -41,7 +40,6 @@ import {
   SecondArg,
 } from "./typed-events";
 import { patchAdapter, restoreAdapter, serveFile } from "./uws";
-import type { BaseServer } from "engine.io/build/server";
 
 const debug = debugModule("socket.io:server");
 
