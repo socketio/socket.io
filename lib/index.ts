@@ -41,7 +41,7 @@ import {
   SecondArg,
 } from "./typed-events";
 import { patchAdapter, restoreAdapter, serveFile } from "./uws";
-import type { BaseServer } from "engine.io/build/server";
+import type { BaseServer } from "engine.io";
 
 const debug = debugModule("socket.io:server");
 
