@@ -338,6 +338,14 @@ A representation of a client. _Inherits from EventEmitter_.
     - Fired when an error occurs.
     - **Arguments**
       - `Error`: error object
+- `upgrading`
+    - Fired when the client starts the upgrade to a better transport like WebSocket.
+    - **Arguments**
+        - `Object`: the transport
+- `upgrade`
+    - Fired when the client completes the upgrade to a better transport like WebSocket.
+    - **Arguments**
+        - `Object`: the transport
 - `flush`
     - Called when the write buffer is being flushed.
     - **Arguments**
