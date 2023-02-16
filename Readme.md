@@ -126,7 +126,7 @@ io.listen(3000);
 
 Starting with **3.0**, express applications have become request handler
 functions that you pass to `http` or `http` `Server` instances. You need
-to pass the `Server` to `socket.io`, and not the express application
+to pass the `Server` to `socket.io`, not the express application
 function. Also make sure to call `.listen` on the `server`, not the `app`.
 
 ```js
