@@ -543,15 +543,17 @@ export class Socket<
 
   /**
    * Send the first packet of the queue, and wait for an acknowledgement from the server.
+   * @param force - whether to resend a packet that has not been acknowledged yet
+   *
    * @private
    */
-  private _drainQueue() {
+  private _drainQueue(force = false) {
     debug("draining queue");
-    if (this._queue.length === 0) {
+    if (!this.connected || this._queue.length === 0) {
       return;
     }
     const packet = this._queue[0];
-    if (packet.pending) {
+    if (packet.pending && !force) {
       debug(
         "packet [%d] has already been sent and is waiting for an ack",
         packet.id
@@ -776,6 +778,7 @@ export class Socket<
     this.connected = true;
     this.emitBuffered();
     this.emitReserved("connect");
+    this._drainQueue(true);
   }
 
   /**

@@ -89,4 +89,25 @@ describe("retry", () => {
       });
     });
   });
+
+  it("should not drain the queue while the socket is disconnected", () => {
+    return wrap((done) => {
+      const socket = io(BASE_URL, {
+        forceNew: true,
+        autoConnect: false,
+        retries: 3,
+        ackTimeout: 10,
+      });
+
+      socket.emit("echo", 1, (err) => {
+        expect(err).to.be(null);
+
+        success(done, socket);
+      });
+
+      setTimeout(() => {
+        socket.connect();
+      }, 100);
+    });
+  });
 });
