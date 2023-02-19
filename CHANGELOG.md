@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [6.4.1](#641-2023-02-20) (Feb 2023)
 - [6.4.0](#640-2023-02-06) (Feb 2023)
 - [6.3.1](#631-2023-01-12) (Jan 2023)
 - [6.3.0](#630-2023-01-10) (Jan 2023)
@@ -44,6 +45,20 @@
 
 
 # Release notes
+
+## [6.4.1](https://github.com/socketio/engine.io/compare/6.4.0...6.4.1) (2023-02-20)
+
+This release contains [6e78489](https://github.com/socketio/engine.io/commit/6e78489486f0d7570861fd6002a364d1ab87da4a), which exports the `BaseServer` class in order to restore the compatibility with the `nodenext` module resolution strategy of TypeScript.
+
+Reference: https://www.typescriptlang.org/tsconfig/#moduleResolution
+
+Related: https://github.com/socketio/socket.io/issues/4621
+
+
+### Dependencies
+
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
 
 ## [6.4.0](https://github.com/socketio/engine.io/compare/6.3.1...6.4.0) (2023-02-06)
 
