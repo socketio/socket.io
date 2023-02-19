@@ -652,5 +652,16 @@ describe("namespaces", () => {
 
       io.of(/^\/dynamic-\d+$/);
     });
+
+    it("should attach a child namespace to its parent upon manual creation", () => {
+      const io = new Server(0);
+      const parentNamespace = io.of(/^\/dynamic-\d+$/);
+      const childNamespace = io.of("/dynamic-101");
+
+      // @ts-ignore
+      expect(parentNamespace.children.has(childNamespace)).to.be(true);
+
+      io.close();
+    });
   });
 });
