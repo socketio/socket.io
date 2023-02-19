@@ -358,12 +358,15 @@ export class Namespace<
       typeof sessionId === "string" &&
       typeof offset === "string"
     ) {
-      const session = await this.adapter.restoreSession(sessionId, offset);
+      let session;
+      try {
+        session = await this.adapter.restoreSession(sessionId, offset);
+      } catch (e) {
+        debug("error while restoring session: %s", e);
+      }
       if (session) {
         debug("connection state recovered for sid %s", session.sid);
         return new Socket(this, client, auth, session);
-      } else {
-        debug("unable to restore session state");
       }
     }
     return new Socket(this, client, auth);
