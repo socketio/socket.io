@@ -11,6 +11,21 @@ import debugModule from "debug";
 
 const debug = debugModule("socket.io:parent-namespace");
 
+/**
+ * A parent namespace is a special {@link Namespace} that holds a list of child namespaces which were created either
+ * with a regular expression or with a function.
+ *
+ * @example
+ * const parentNamespace = io.of(/\/dynamic-\d+/);
+ *
+ * parentNamespace.on("connection", (socket) => {
+ *   const childNamespace = socket.nsp;
+ * }
+ *
+ * // will reach all the clients that are in one of the child namespaces, like "/dynamic-101"
+ * parentNamespace.emit("hello", "world");
+ *
+ */
 export class ParentNamespace<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
@@ -81,6 +96,10 @@ export class ParentNamespace<
     }
 
     this.server._nsps.set(name, namespace);
+
+    // @ts-ignore
+    this.server.sockets.emitReserved("new_namespace", namespace);
+
     return namespace;
   }
 
