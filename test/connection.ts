@@ -838,4 +838,57 @@ describe("connection", () => {
       });
     });
   });
+
+  it("should not reopen a cached but active socket", () => {
+    return wrap((done) => {
+      const manager = new Manager(BASE_URL, {
+        autoConnect: true,
+      });
+
+      let i = 0;
+      const expected = ["0", "1"];
+
+      manager.engine.on("packetCreate", ({ data }) => {
+        expect(data).to.eql(expected[i++]);
+      });
+
+      manager.once("open", () => {
+        const socket = manager.socket("/");
+        const socket2 = manager.socket("/");
+
+        expect(socket2 === socket).to.be(true);
+
+        socket.on("connect", () => {
+          socket.disconnect();
+          done();
+        });
+      });
+    });
+  });
+
+  it("should not reopen an already active socket", () => {
+    return wrap((done) => {
+      const manager = new Manager(BASE_URL, {
+        autoConnect: true,
+      });
+
+      let i = 0;
+      const expected = ["0", "0/foo,", "1", "1/foo,"];
+
+      manager.engine.on("packetCreate", ({ data }) => {
+        expect(data).to.eql(expected[i++]);
+      });
+
+      manager.once("open", () => {
+        const socket = manager.socket("/");
+        const socketFoo = manager.socket("/foo");
+
+        socket.on("connect", () => {
+          socket.disconnect();
+          socketFoo.disconnect();
+          done();
+        });
+      });
+    });
+  });
 });

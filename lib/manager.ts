@@ -465,9 +465,7 @@ export class Manager<
     if (!socket) {
       socket = new Socket(this, nsp, opts);
       this.nsps[nsp] = socket;
-    }
-
-    if (this._autoConnect) {
+    } else if (this._autoConnect && !socket.active) {
       socket.connect();
     }
 
