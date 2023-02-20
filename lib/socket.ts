@@ -70,6 +70,12 @@ export interface SocketOptions {
 }
 
 type QueuedPacket = {
+  /**
+   * Only used for debugging purposes. To allow deduplication on the server side, one should include a unique offset in
+   * the packet, for example with crypto.randomUUID().
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID
+   */
   id: number;
   args: unknown[];
   flags: Flags;
@@ -225,6 +231,11 @@ export class Socket<
    * @private
    */
   private _queue: Array<QueuedPacket> = [];
+  /**
+   * A sequence to generate the ID of the {@link QueuedPacket}.
+   * @private
+   */
+  private _queueSeq: number = 0;
 
   private readonly nsp: string;
   private readonly _opts: SocketOptions;
@@ -501,7 +512,7 @@ export class Socket<
     }
 
     const packet = {
-      id: this.ids++,
+      id: this._queueSeq++,
       tryCount: 0,
       pending: false,
       args,
@@ -563,12 +574,8 @@ export class Socket<
     packet.pending = true;
     packet.tryCount++;
     debug("sending packet [%d] (try n°%d)", packet.id, packet.tryCount);
-    const currentId = this.ids;
-    this.ids = packet.id; // the same id is reused for consecutive retries, in order to allow deduplication on the server side
     this.flags = packet.flags;
-
     this.emit.apply(this, packet.args);
-    this.ids = currentId; // restore offset
   }
 
   /**

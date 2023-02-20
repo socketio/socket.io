@@ -68,9 +68,9 @@ describe("retry", () => {
       const expected = [
         "0",
         '20["ack"]',
-        '20["ack"]',
-        '20["ack"]',
-        '20["ack"]',
+        '21["ack"]',
+        '22["ack"]',
+        '23["ack"]',
         "1",
       ];
 
