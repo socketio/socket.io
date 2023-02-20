@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [4.6.1](#461-2023-02-20) (Feb 2023)
 - [4.6.0](#460-2023-02-07) (Feb 2023)
 
 ## 2022
@@ -56,7 +57,23 @@
 
 # Release notes
 
-# [4.6.0](https://github.com/socketio/socket.io/compare/4.5.4...4.6.0) (2023-02-07)
+## [4.6.1](https://github.com/socketio/socket.io/compare/4.6.0...4.6.1) (2023-02-20)
+
+
+### Bug Fixes
+
+* properly handle manually created dynamic namespaces ([0d0a7a2](https://github.com/socketio/socket.io/commit/0d0a7a22b5ff95f864216c529114b7dd41738d1e))
+* **types:** fix nodenext module resolution compatibility ([#4625](https://github.com/socketio/socket.io/issues/4625)) ([d0b22c6](https://github.com/socketio/socket.io/commit/d0b22c630208669aceb7ae013180c99ef90279b0))
+
+
+### Dependencies
+
+- [`engine.io@~6.4.0`](https://github.com/socketio/engine.io/releases/tag/6.4.0) (no change)
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
+
+## [4.6.0](https://github.com/socketio/socket.io/compare/4.5.4...4.6.0) (2023-02-07)
 
 
 ### Bug Fixes
