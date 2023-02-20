@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.6.0
+ * Socket.IO v4.6.1
  * (c) 2014-2023 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -3159,6 +3159,12 @@
        */
 
       _this._queue = [];
+      /**
+       * A sequence to generate the ID of the {@link QueuedPacket}.
+       * @private
+       */
+
+      _this._queueSeq = 0;
       _this.ids = 0;
       _this.acks = {};
       _this.flags = {};
@@ -3453,7 +3459,7 @@
         }
 
         var packet = {
-          id: this.ids++,
+          id: this._queueSeq++,
           tryCount: 0,
           pending: false,
           args: args,
@@ -3499,30 +3505,30 @@
       }
       /**
        * Send the first packet of the queue, and wait for an acknowledgement from the server.
+       * @param force - whether to resend a packet that has not been acknowledged yet
+       *
        * @private
        */
 
     }, {
       key: "_drainQueue",
       value: function _drainQueue() {
-        if (this._queue.length === 0) {
+        var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+        if (!this.connected || this._queue.length === 0) {
           return;
         }
 
         var packet = this._queue[0];
 
-        if (packet.pending) {
+        if (packet.pending && !force) {
           return;
         }
 
         packet.pending = true;
         packet.tryCount++;
-        var currentId = this.ids;
-        this.ids = packet.id; // the same id is reused for consecutive retries, in order to allow deduplication on the server side
-
         this.flags = packet.flags;
         this.emit.apply(this, packet.args);
-        this.ids = currentId; // restore offset
       }
       /**
        * Sends a packet.
@@ -3759,6 +3765,8 @@
         this.connected = true;
         this.emitBuffered();
         this.emitReserved("connect");
+
+        this._drainQueue(true);
       }
       /**
        * Emit buffered events (received and emitted).
@@ -4504,9 +4512,7 @@
         if (!socket) {
           socket = new Socket(this, nsp, opts);
           this.nsps[nsp] = socket;
-        }
-
-        if (this._autoConnect) {
+        } else if (this._autoConnect && !socket.active) {
           socket.connect();
         }
 

@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [4.6.1](#461-2023-02-20) (Feb 2023)
 - [4.6.0](#460-2023-02-07) (Feb 2023)
 
 ## 2022
@@ -57,7 +58,23 @@
 
 # Release notes
 
-# [4.6.0](https://github.com/socketio/socket.io-client/compare/4.5.4...4.6.0) (2023-02-07)
+## [4.6.1](https://github.com/socketio/socket.io-client/compare/4.6.0...4.6.1) (2023-02-20)
+
+
+### Bug Fixes
+
+* do not drain the queue while the socket is offline ([4996f9e](https://github.com/socketio/socket.io-client/commit/4996f9ee71074e2d62a0f8fa95fcf7d43e99615d))
+* prevent duplicate connections when multiplexing ([46213a6](https://github.com/socketio/socket.io-client/commit/46213a647ea0d4453b00bca09268f69ffd259509))
+
+
+### Dependencies
+
+- [`engine.io-client@~6.4.0`](https://github.com/socketio/engine.io-client/releases/tag/6.4.0) (no change)
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
+
+## [4.6.0](https://github.com/socketio/socket.io-client/compare/4.5.4...4.6.0) (2023-02-07)
 
 
 ### Bug Fixes
