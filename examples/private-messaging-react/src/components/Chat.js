@@ -2,12 +2,22 @@ import React, { useEffect, useState } from 'react';
 import Person from "../assets/person.png";
 import "./Chat.css";
 import socket from '../socket';
+import useMessages from '../hooks/useMessages';
 
 function Chat({
     username
 }) {
     const [users, setUsers] = useState([]);
     const [chatUser, setChatUser] = useState(null);
+    const [message, setMessage] = useState('');
+    const [messages] = useMessages();
+
+    const postMessage = message => {
+        socket.emit("private message", {
+            content: message,
+            to: chatUser.userID
+        });
+    }
 
     useEffect(() => {
         socket.on("users", users => {
@@ -35,10 +45,6 @@ function Chat({
             setUsers(newUsers);
         });
     }, [users]);
-
-    useEffect(() => {
-        console.log(chatUser);
-    }, [chatUser]);
 
     return (
         <div className='chat'>
@@ -71,13 +77,26 @@ function Chat({
 
                         <div className='chat-ui'>
                             <div className='messages-list'>
-
+                                {
+                                    messages
+                                        .filter(message => message.from === chatUser.userID)
+                                        .map((message, index) => (
+                                            <div key={index}>
+                                                {message.content}
+                                            </div>
+                                        ))
+                                }
                             </div>
 
                             <div className='message-box'>
-                                <input type="text" placeholder="Your message" />
+                                <input
+                                    value={message}
+                                    onChange={e => setMessage(e.target.value)}
+                                    type="text"
+                                    placeholder="Your message"
+                                />
 
-                                <button>Send</button>
+                                <button onClick={() => postMessage(message)}>Send</button>
                             </div>
                         </div>
                     </div> :
