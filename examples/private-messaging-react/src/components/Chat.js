@@ -3,15 +3,17 @@ import Person from "../assets/person.png";
 import "./Chat.css";
 import socket from '../socket';
 
-const initReactiveProperties = user => user.hasNewMessages = false;
-
 function Chat({
     username
 }) {
     const [users, setUsers] = useState([]);
+    const [chatUser, setChatUser] = useState(null);
 
     useEffect(() => {
-        socket.on("users", users => setUsers(users));
+        socket.on("users", users => {
+            setUsers(users);
+            setChatUser(users[0]);
+        });
 
         socket.on("user connected", user => {
             setUsers(users => {
@@ -32,7 +34,11 @@ function Chat({
 
             setUsers(newUsers);
         });
-    }, [users])
+    }, [users]);
+
+    useEffect(() => {
+        console.log(chatUser);
+    }, [chatUser]);
 
     return (
         <div className='chat'>
@@ -46,14 +52,39 @@ function Chat({
                     {users.map((user, index) => (
                         <div
                             className='user'
+                            onClick={() => setChatUser(user)}
                             key={index}>
                             {user.username}
                         </div>
                     ))}
                 </div>
             </div>
-            <div className='right'>
 
+            <div className='right'>
+                {chatUser ?
+                    <div>
+                        <div className='sticky-header'>
+                            <div className='user'>
+                                <h3>{chatUser ? chatUser.username : null}</h3>
+                            </div>
+                        </div>
+
+                        <div className='chat-ui'>
+                            <div className='messages-list'>
+
+                            </div>
+
+                            <div className='message-box'>
+                                <input type="text" placeholder="Your message" />
+
+                                <button>Send</button>
+                            </div>
+                        </div>
+                    </div> :
+                    <div className='no-user-selected'>
+                        <h3>Select a user</h3>
+                    </div>
+                }
             </div>
         </div>
     );
