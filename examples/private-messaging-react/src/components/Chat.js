@@ -83,7 +83,9 @@ function Chat({
                                     messages
                                         .filter(message => message.from === chatUser.userID)
                                         .map((message, index) => (
-                                            <div key={index}>
+                                            <div
+                                                className='message'
+                                                key={index}>
                                                 {message.content}
                                             </div>
                                         ))

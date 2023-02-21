@@ -79,6 +79,7 @@
 }
 
 .chat .right .chat-ui {
+    position: relative;
     max-height: 100%;
     width: 100%;
 }
@@ -88,14 +89,25 @@
     width: 100%;
 }
 
+.chat .right .chat-ui .messages-list .message {
+    min-height: 20px;
+    width: fit-content;
+    padding: 10px 15px;
+    margin: 20px;
+    border-radius: 20px;
+    border-bottom-left-radius: 0;
+    background-color: rgb(35, 35, 175, 0.1);
+}
+
 .chat .right .chat-ui .message-box {
-    height: 8vh;
-    width: 100%;
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    width: 400px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 20px;
-    padding: 0 20px;
 }
 
 .chat .right .chat-ui .message-box input {
