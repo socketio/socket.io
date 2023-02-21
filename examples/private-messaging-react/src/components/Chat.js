@@ -17,6 +17,8 @@ function Chat({
             content: message,
             to: chatUser.userID
         });
+
+        setMessage('');
     }
 
     useEffect(() => {
