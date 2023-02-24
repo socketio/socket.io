@@ -13,7 +13,7 @@ function useMessages() {
         });
     }, [messages]);
 
-    return [messages];
+    return [messages, setMessages];
 }
 
 export default useMessages;

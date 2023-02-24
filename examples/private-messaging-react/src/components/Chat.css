@@ -88,6 +88,7 @@
 .chat .right .chat-ui .messages-list {
     height: 85vh;
     width: 100%;
+    overflow: scroll;
 }
 
 .chat .right .chat-ui .messages-list .message {
@@ -98,6 +99,12 @@
     border-radius: 20px;
     border-bottom-left-radius: 0;
     background-color: rgb(35, 35, 175, 0.1);
+}
+
+.chat .right .chat-ui .messages-list .message.sent {
+    width: 30%;
+    margin-left: 65%;
+    text-align: right;
 }
 
 .chat .right .chat-ui .message-box {

@@ -10,13 +10,21 @@ function Chat({
     const [users, setUsers] = useState([]);
     const [message, setMessage] = useState('');
     const [chatUser, setChatUser] = useState(0);
-    const [messages] = useMessages();
+    const [messages, setMessages] = useMessages();
 
     const postMessage = message => {
-        socket.emit("private message", {
+        const msg = {
             content: message,
-            to: chatUser.userID
-        });
+            to: users[chatUser].userID
+        };
+
+        socket.emit("private message", msg);
+
+        setMessages(messages => [
+            ...messages,
+            msg
+        ]);
+
 
         setMessage('');
     }
@@ -81,10 +89,10 @@ function Chat({
                             <div className='messages-list'>
                                 {
                                     messages
-                                        .filter(message => message.from === chatUser.userID)
+                                        .filter(message => message.from === users[chatUser].userID || message.to === users[chatUser].userID)
                                         .map((message, index) => (
                                             <div
-                                                className='message'
+                                                className={`message ${message.from === users[chatUser].userID ? 'received' : 'sent'}`}
                                                 key={index}>
                                                 {message.content}
                                             </div>
