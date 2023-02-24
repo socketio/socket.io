@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import socket from "../socket";
+import { useState, useEffect, useContext } from "react";
+import SocketContext from "../context/SocketContext";
 
 function useMessages() {
+    const socket = useContext(SocketContext);
     const [messages, setMessages] = useState([]);
 
     useEffect(() => {
@@ -11,7 +12,9 @@ function useMessages() {
                 message
             ]);
         });
-    }, [messages]);
+
+        return () => socket.off();
+    }, [socket]);
 
     return [messages, setMessages];
 }
