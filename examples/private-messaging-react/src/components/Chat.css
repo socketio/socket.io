@@ -52,7 +52,8 @@
     transition: 250ms;
 }
 
-.chat .left .users .user:hover {
+.chat .left .users .user:hover,
+.chat .left .users .user.active {
     background-color: white;
     color: rgb(35, 35, 175);
 }

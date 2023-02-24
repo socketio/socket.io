@@ -8,8 +8,8 @@ function Chat({
     username
 }) {
     const [users, setUsers] = useState([]);
-    const [chatUser, setChatUser] = useState(null);
     const [message, setMessage] = useState('');
+    const [chatUser, setChatUser] = useState(0);
     const [messages] = useMessages();
 
     const postMessage = message => {
@@ -24,7 +24,7 @@ function Chat({
     useEffect(() => {
         socket.on("users", users => {
             setUsers(users);
-            setChatUser(users[0]);
+            setChatUser(0);
         });
 
         socket.on("user connected", user => {
@@ -59,8 +59,8 @@ function Chat({
                 <div className='users'>
                     {users.map((user, index) => (
                         <div
-                            className='user'
-                            onClick={() => setChatUser(user)}
+                            className={`user ${chatUser === index ? 'active' : 'inactive'}`}
+                            onClick={() => setChatUser(index)}
                             key={index}>
                             {user.username}
                         </div>
@@ -69,11 +69,11 @@ function Chat({
             </div>
 
             <div className='right'>
-                {chatUser ?
+                {users[chatUser] ?
                     <div>
                         <div className='sticky-header'>
                             <div className='user'>
-                                <h3>{chatUser ? chatUser.username : null}</h3>
+                                <h3>{users[chatUser] ? users[chatUser].username : null}</h3>
                             </div>
                         </div>
 
