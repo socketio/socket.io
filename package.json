@@ -19,8 +19,10 @@
     "prepack": "tsc"
   },
   "dependencies": {
-    "debug": "~4.3.1",
-    "socket.io-adapter": "~2.4.0"
+    "debug": "~4.3.1"
+  },
+  "peerDependencies": {
+    "socket.io-adapter": "^2.4.0"
   },
   "devDependencies": {
     "@types/expect.js": "^0.3.29",
@@ -30,7 +32,7 @@
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
     "prettier": "^2.1.2",
-    "socket.io": "^4.5.0",
+    "socket.io": "^4.6.1",
     "socket.io-client": "^4.1.1",
     "ts-node": "^9.1.1",
     "typescript": "^4.0.5"
