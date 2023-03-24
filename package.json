@@ -1,6 +1,6 @@
 {
   "name": "@socket.io/cluster-adapter",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "The Socket.IO cluster adapter, allowing to broadcast events between several Socket.IO servers",
   "license": "MIT",
   "repository": {
