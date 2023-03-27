@@ -250,8 +250,8 @@ Added in [d0fd474](https://github.com/socketio/engine.io/commit/d0fd4746afa39629
 
 ### Dependencies
 
-- [`engine.io@~6.4.0`](https://github.com/socketio/engine.io/releases/tag/6.4.0) ([diff](https://github.com/socketio/engine.io/compare/6.2.0...6.2.1))
-- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) ([diff](https://github.com/websockets/ws/compare/8.2.3...8.11.0))
+- [`engine.io@~6.4.0`](https://github.com/socketio/engine.io/releases/tag/6.4.0) (https://github.com/socketio/engine.io/compare/6.2.1...6.4.0)
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (https://github.com/websockets/ws/compare/8.2.3...8.11.0)
 
 
 ## [4.5.4](https://github.com/socketio/socket.io/compare/4.5.3...4.5.4) (2022-11-22)
@@ -276,6 +276,11 @@ This release contains a bump of:
 * **typings:** accept an HTTP2 server in the constructor ([d3d0a2d](https://github.com/socketio/socket.io/commit/d3d0a2d5beaff51fd145f810bcaf6914213f8a06))
 * **typings:** apply types to "io.timeout(...).emit()" calls ([e357daf](https://github.com/socketio/socket.io/commit/e357daf5858560bc84e7e50cd36f0278d6721ea1))
 
+### Dependencies
+
+- [`engine.io@~6.2.0`](https://github.com/socketio/engine.io/releases/tag/6.2.1) (no change)
+- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3) (no change)
+
 
 
 ## [4.5.2](https://github.com/socketio/socket.io/compare/4.5.1...4.5.2) (2022-09-02)
@@ -286,13 +291,18 @@ This release contains a bump of:
 * prevent the socket from joining a room after disconnection ([18f3fda](https://github.com/socketio/socket.io/commit/18f3fdab12947a9fee3e9c37cfc1da97027d1473))
 * **uws:** prevent the server from crashing after upgrade ([ba497ee](https://github.com/socketio/socket.io/commit/ba497ee3eb52c4abf1464380d015d8c788714364))
 
+### Dependencies
+
+- [`engine.io@~6.2.0`](https://github.com/socketio/engine.io/releases/tag/6.2.0) (no change)
+- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3) (no change)
+
 
 
 # [2.5.0](https://github.com/socketio/socket.io/compare/2.4.1...2.5.0) (2022-06-26)
 
 ⚠️ WARNING ⚠️
 
-The default value of the maxHttpBufferSize option has been decreased from 100 MB to 1 MB, in order to prevent attacks by denial of service.
+The default value of the `maxHttpBufferSize` option has been decreased from 100 MB to 1 MB, in order to prevent attacks by denial of service.
 
 Security advisory: [GHSA-j4f2-536g-r55m](https://github.com/advisories/GHSA-j4f2-536g-r55m)
 
@@ -304,6 +314,11 @@ Security advisory: [GHSA-j4f2-536g-r55m](https://github.com/advisories/GHSA-j4f2
 * only set 'connected' to true after middleware execution ([226cc16](https://github.com/socketio/socket.io/commit/226cc16165f9fe60f16ff4d295fb91c8971cde35))
 * prevent the socket from joining a room after disconnection ([f223178](https://github.com/socketio/socket.io/commit/f223178eb655a7713303b21a78f9ef9e161d6458))
 
+### Dependencies
+
+- [`engine.io@~3.6.0`](https://github.com/socketio/engine.io/releases/tag/3.6.0) (https://github.com/socketio/engine.io/compare/3.5.0...3.6.0)
+- [`ws@~7.4.2`](https://github.com/websockets/ws/releases/tag/7.4.2) (no change)
+
 
 
 ## [4.5.1](https://github.com/socketio/socket.io/compare/4.5.0...4.5.1) (2022-05-17)
@@ -313,6 +328,11 @@ Security advisory: [GHSA-j4f2-536g-r55m](https://github.com/advisories/GHSA-j4f2
 
 * forward the local flag to the adapter when using fetchSockets() ([30430f0](https://github.com/socketio/socket.io/commit/30430f0985f8e7c49394543d4c84913b6a15df60))
 * **typings:** add HTTPS server to accepted types ([#4351](https://github.com/socketio/socket.io/issues/4351)) ([9b43c91](https://github.com/socketio/socket.io/commit/9b43c9167cff817c60fa29dbda2ef7cd938aff51))
+
+### Dependencies
+
+- [`engine.io@~6.2.0`](https://github.com/socketio/engine.io/releases/tag/6.2.0) (no change)
+- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3) (no change)
 
 
 
@@ -326,7 +346,7 @@ Security advisory: [GHSA-j4f2-536g-r55m](https://github.com/advisories/GHSA-j4f2
 
 ### Features
 
-* add support for catch-all listeners for outgoing packets ([531104d](https://github.com/socketio/socket.io/commit/531104d332690138b7aab84d5583d6204132c8b4))
+#### Catch-all listeners for outgoing packets
 
 This is similar to `onAny()`, but for outgoing packets.
 
@@ -338,7 +358,9 @@ socket.onAnyOutgoing((event, ...args) => {
 });
 ```
 
-* broadcast and expect multiple acks ([8b20457](https://github.com/socketio/socket.io/commit/8b204570a94979bbec307f23ca078f30f5cf07b0))
+Added in [531104d](https://github.com/socketio/socket.io/commit/531104d332690138b7aab84d5583d6204132c8b4).
+
+#### Broadcast and expect multiple acknowledgements
 
 Syntax:
 
@@ -348,17 +370,24 @@ io.timeout(1000).emit("some-event", (err, responses) => {
 });
 ```
 
-* add the "maxPayload" field in the handshake details ([088dcb4](https://github.com/socketio/engine.io/commit/088dcb4dff60df39785df13d0a33d3ceaa1dff38))
+Added in [8b20457](https://github.com/socketio/socket.io/commit/8b204570a94979bbec307f23ca078f30f5cf07b0).
 
-So that clients in HTTP long-polling can decide how many packets they have to send to stay under the maxHttpBufferSize
-value.
+#### `maxHttpBufferSize` value negotiation
 
-This is a backward compatible change which should not mandate a new major revision of the protocol (we stay in v4), as
-we only add a field in the JSON-encoded handshake data:
+A "maxPayload" field is now included in the Engine.IO handshake, so that clients in HTTP long-polling can decide how many packets they have to send to stay under the `maxHttpBufferSize` value.
+
+This is a backward compatible change which should not mandate a new major revision of the protocol (we stay in v4), as we only add a field in the JSON-encoded handshake data:
 
 ```
 0{"sid":"lv_VI97HAXpY6yYWAAAC","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":5000,"maxPayload":1000000}
 ```
+
+Added in [088dcb4](https://github.com/socketio/engine.io/commit/088dcb4dff60df39785df13d0a33d3ceaa1dff38).
+
+### Dependencies
+
+- [`engine.io@~6.2.0`](https://github.com/socketio/engine.io/releases/tag/6.2.0) (https://github.com/socketio/engine.io/compare/6.1.0...6.2.0)
+- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3) (no change)
 
 
 
