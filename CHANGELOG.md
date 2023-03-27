@@ -179,7 +179,7 @@ This release contains a bump of the `socket.io-parser` dependency, in order to f
 
 ### Dependencies
 
-- [`engine.io-client@~6.2.3`](https://github.com/socketio/engine.io-client/tree/6.2.3)
+- [`engine.io-client@~6.2.3`](https://github.com/socketio/engine.io-client/tree/6.2.3) (no change)
 - [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3) (no change)
 
 
@@ -191,6 +191,11 @@ This release contains a bump of the `socket.io-parser` dependency, in order to f
 
 * do not swallow user exceptions ([2403b88](https://github.com/socketio/socket.io-client/commit/2403b88057bf3fd32eb2047c82be26c455c13a2f))
 
+### Dependencies
+
+- [`engine.io-client@~6.2.3`](https://github.com/socketio/engine.io-client/tree/6.2.3) (https://github.com/socketio/engine.io-client/compare/6.2.1...6.2.3)
+- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3) (no change)
+
 
 
 ## [4.5.2](https://github.com/socketio/socket.io-client/compare/4.5.1...4.5.2) (2022-09-02)
@@ -199,6 +204,11 @@ This release contains a bump of the `socket.io-parser` dependency, in order to f
 ### Bug Fixes
 
 * handle ill-formatted packet from server ([c597023](https://github.com/socketio/socket.io-client/commit/c5970231699aa47b00c4a617af4239d0fa90fa53))
+
+### Dependencies
+
+- [`engine.io-client@~6.2.1`](https://github.com/socketio/engine.io-client/releases/tag/6.2.1) (no change)
+- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3) (no change)
 
 
 
@@ -209,11 +219,21 @@ This release contains a bump of the `socket.io-parser` dependency, in order to f
 
 * ensure buffered events are sent in order ([991eb0b](https://github.com/Automattic/socket.io-client/commit/991eb0b0289bbbf680099e6d42b302beee7568b8))
 
+### Dependencies
+
+- [`engine.io-client@~3.5.0`](https://github.com/socketio/engine.io-client/releases/tag/3.5.0) (no change)
+- [`ws@~7.4.2`](https://github.com/websockets/ws/releases/tag/7.4.2) (no change)
+
 
 
 ## [4.5.1](https://github.com/socketio/socket.io-client/compare/4.5.0...4.5.1) (2022-05-17)
 
 There were some minor bug fixes on the server side, which mandate a client bump.
+
+### Dependencies
+
+- [`engine.io-client@~6.2.1`](https://github.com/socketio/engine.io-client/releases/tag/6.2.1) (no change)
+- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3) (no change)
 
 
 
@@ -222,7 +242,7 @@ There were some minor bug fixes on the server side, which mandate a client bump.
 
 ### Features
 
-* add details to the disconnect event ([b862924](https://github.com/socketio/socket.io-client/commit/b862924b7f1720979e5db2f0154906b305d420e3))
+#### Additional details for the disconnect event
 
 The "disconnect" event will now include additional details to help debugging if anything has gone wrong.
 
@@ -242,7 +262,9 @@ socket.on("disconnect", (reason, details) => {
 });
 ```
 
-* add support for catch-all listeners for outgoing packets ([74e3e60](https://github.com/socketio/socket.io-client/commit/74e3e601a43133b2c0ea43c3de2764cc55b57b5a))
+Added in [b862924](https://github.com/socketio/socket.io-client/commit/b862924b7f1720979e5db2f0154906b305d420e3).
+
+#### Catch-all listeners for outgoing packets
 
 This is similar to `onAny()`, but for outgoing packets.
 
@@ -254,9 +276,18 @@ socket.onAnyOutgoing((event, ...args) => {
 });
 ```
 
-* slice write buffer according to the maxPayload value ([46fdc2f](https://github.com/socketio/engine.io-client/commit/46fdc2f0ed352b454614247406689edc9d908927))
+Added in [74e3e60](https://github.com/socketio/socket.io-client/commit/74e3e601a43133b2c0ea43c3de2764cc55b57b5a).
 
-The server will now include a "maxPayload" field in the handshake details, allowing the clients to decide how many packets they have to send to stay under the maxHttpBufferSize value.
+#### Slice write buffer according to the maxPayload value
+
+The server will now include a "maxPayload" field in the handshake details, allowing the clients to decide how many packets they have to send to stay under the `maxHttpBufferSize` value.
+
+Added in [46fdc2f](https://github.com/socketio/engine.io-client/commit/46fdc2f0ed352b454614247406689edc9d908927).
+
+### Dependencies
+
+- [`engine.io-client@~6.2.1`](https://github.com/socketio/engine.io-client/releases/tag/6.2.1) (https://github.com/socketio/engine.io-client/compare/6.1.1...6.2.1)
+- [`ws@~8.2.3`](https://github.com/websockets/ws/releases/tag/8.2.3) (no change)
 
 
 
