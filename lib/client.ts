@@ -115,6 +115,8 @@ export class Client<
    * @private
    */
   private connect(name: string, auth: Record<string, unknown> = {}): void {
+    auth === null && (auth = {});
+    
     if (this.server._nsps.has(name)) {
       debug("connecting to namespace %s", name);
       return this.doConnect(name, auth);
