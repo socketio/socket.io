@@ -144,7 +144,7 @@ export abstract class BaseServer extends EventEmitter {
   public opts: ServerOptions;
 
   protected clients: any;
-  private clientsCount: number;
+  public clientsCount: number;
   protected middlewares: Middleware[] = [];
 
   /**
