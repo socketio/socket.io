@@ -10,11 +10,19 @@ Please read the related guide:
 ## Running the frontend
 
 ```
-npm install
+npm install -legacy-peer-deps
 npm run serve
 ```
 
 ### Running the server
+
+Before running the server, you need `redis-server` up and running. If you haven't installed redis yet on your machine, go ahead and [install it.](https://redis.io/docs/getting-started/installation/).
+
+After installing you can spin up the server on default port 6379 using this command:
+
+```
+redis-server
+```
 
 ```
 cd server
