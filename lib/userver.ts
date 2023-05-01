@@ -294,6 +294,7 @@ class ResponseWrapper {
     this.res.writeStatus(status);
     this.statusWritten = true;
     this.writeBufferedHeaders();
+    return this;
   }
 
   public writeHeader(key: string, value: string) {

@@ -4,6 +4,7 @@ const request = require("superagent");
 const { WebSocket } = require("ws");
 const helmet = require("helmet");
 const session = require("express-session");
+const { ClientSocket } = require("./common");
 
 describe("middlewares", () => {
   it("should apply middleware (polling)", (done) => {
@@ -288,6 +289,32 @@ describe("middlewares", () => {
           }
           done();
         });
+      });
+    });
+  });
+
+  it("should not be receiving data when getting a message longer than maxHttpBufferSize when polling (with a middleware)", (done) => {
+    const opts = {
+      allowUpgrades: false,
+      transports: ["polling"],
+      maxHttpBufferSize: 5,
+    };
+    const engine = listen(opts, (port) => {
+      engine.use((req, res, next) => {
+        next();
+      });
+
+      const socket = new ClientSocket(`ws://localhost:${port}`);
+      engine.on("connection", (conn) => {
+        conn.on("message", () => {
+          done(new Error("Test invalidation (message is longer than allowed)"));
+        });
+      });
+      socket.on("open", () => {
+        socket.send("aasdasdakjhasdkjhasdkjhasdkjhasdkjhasdkjhasdkjha");
+      });
+      socket.on("close", (reason) => {
+        done();
       });
     });
   });
