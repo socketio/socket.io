@@ -137,7 +137,7 @@ export interface ServerOptions {
 type Middleware = (
   req: IncomingMessage,
   res: ServerResponse,
-  next: () => void
+  next: (err?: any) => void
 ) => void;
 
 export abstract class BaseServer extends EventEmitter {
@@ -335,7 +335,7 @@ export abstract class BaseServer extends EventEmitter {
   protected _applyMiddlewares(
     req: IncomingMessage,
     res: ServerResponse,
-    callback: () => void
+    callback: (err?: any) => void
   ) {
     if (this.middlewares.length === 0) {
       debug("no middleware to apply, skipping");
@@ -344,7 +344,11 @@ export abstract class BaseServer extends EventEmitter {
 
     const apply = (i) => {
       debug("applying middleware n°%d", i + 1);
-      this.middlewares[i](req, res, () => {
+      this.middlewares[i](req, res, (err?: any) => {
+        if (err) {
+          return callback(err);
+        }
+
         if (i + 1 < this.middlewares.length) {
           apply(i + 1);
         } else {
@@ -655,8 +659,12 @@ export class Server extends BaseServer {
       }
     };
 
-    this._applyMiddlewares(req, res, () => {
-      this.verify(req, false, callback);
+    this._applyMiddlewares(req, res, (err) => {
+      if (err) {
+        callback(Server.errors.BAD_REQUEST, { name: "MIDDLEWARE_FAILURE" });
+      } else {
+        this.verify(req, false, callback);
+      }
     });
   }
 
@@ -673,32 +681,37 @@ export class Server extends BaseServer {
     this.prepare(req);
 
     const res = new WebSocketResponse(req, socket);
-
-    this._applyMiddlewares(req, res as unknown as ServerResponse, () => {
-      this.verify(req, true, (errorCode, errorContext) => {
-        if (errorCode) {
-          this.emit("connection_error", {
-            req,
-            code: errorCode,
-            message: Server.errorMessages[errorCode],
-            context: errorContext,
-          });
-          abortUpgrade(socket, errorCode, errorContext);
-          return;
-        }
-
-        const head = Buffer.from(upgradeHead);
-        upgradeHead = null;
-
-        // some middlewares (like express-session) wait for the writeHead() call to flush their headers
-        // see https://github.com/expressjs/session/blob/1010fadc2f071ddf2add94235d72224cf65159c6/index.js#L220-L244
-        res.writeHead();
-
-        // delegate to ws
-        this.ws.handleUpgrade(req, socket, head, (websocket) => {
-          this.onWebSocket(req, socket, websocket);
+    const callback = (errorCode, errorContext) => {
+      if (errorCode) {
+        this.emit("connection_error", {
+          req,
+          code: errorCode,
+          message: Server.errorMessages[errorCode],
+          context: errorContext,
         });
+        abortUpgrade(socket, errorCode, errorContext);
+        return;
+      }
+
+      const head = Buffer.from(upgradeHead);
+      upgradeHead = null;
+
+      // some middlewares (like express-session) wait for the writeHead() call to flush their headers
+      // see https://github.com/expressjs/session/blob/1010fadc2f071ddf2add94235d72224cf65159c6/index.js#L220-L244
+      res.writeHead();
+
+      // delegate to ws
+      this.ws.handleUpgrade(req, socket, head, (websocket) => {
+        this.onWebSocket(req, socket, websocket);
       });
+    };
+
+    this._applyMiddlewares(req, res as unknown as ServerResponse, (err) => {
+      if (err) {
+        callback(Server.errors.BAD_REQUEST, { name: "MIDDLEWARE_FAILURE" });
+      } else {
+        this.verify(req, true, callback);
+      }
     });
   }
 

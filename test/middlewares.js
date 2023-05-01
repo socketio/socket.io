@@ -247,4 +247,48 @@ describe("middlewares", () => {
       });
     });
   });
+
+  it("should fail on errors (polling)", (done) => {
+    const engine = listen((port) => {
+      engine.use((req, res, next) => {
+        next(new Error("will always fail"));
+      });
+
+      request
+        .get(`http://localhost:${port}/engine.io/`)
+        .query({ EIO: 4, transport: "polling" })
+        .end((err, res) => {
+          expect(err).to.be.an(Error);
+          expect(res.status).to.eql(400);
+
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          done();
+        });
+    });
+
+    it("should fail on errors (websocket)", (done) => {
+      const engine = listen((port) => {
+        engine.use((req, res, next) => {
+          next(new Error("will always fail"));
+        });
+
+        engine.on("connection", () => {
+          done(new Error("should not connect"));
+        });
+
+        const socket = new WebSocket(
+          `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`
+        );
+
+        socket.addEventListener("error", () => {
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          done();
+        });
+      });
+    });
+  });
 });
