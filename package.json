@@ -1,6 +1,6 @@
 {
   "name": "engine.io",
-  "version": "6.4.1",
+  "version": "6.4.2",
   "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server",
   "type": "commonjs",
   "main": "./build/engine.io.js",

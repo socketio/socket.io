@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [6.4.2](#642-2023-05-02) (May 2023)
 - [6.4.1](#641-2023-02-20) (Feb 2023)
 - [6.4.0](#640-2023-02-06) (Feb 2023)
 - [6.3.1](#631-2023-01-12) (Jan 2023)
@@ -45,6 +46,39 @@
 
 
 # Release notes
+
+## [6.4.2](https://github.com/socketio/engine.io/compare/6.4.1...6.4.2) (2023-05-02)
+
+:warning: This release contains an important security fix :warning:
+
+A malicious client could send a specially crafted HTTP request, triggering an uncaught exception and killing the Node.js process:
+
+```
+TypeError: Cannot read properties of undefined (reading 'handlesUpgrades')
+  at Server.onWebSocket (build/server.js:515:67)
+```
+
+Please upgrade as soon as possible.
+
+
+### Bug Fixes
+
+* include error handling for Express middlewares ([#674](https://github.com/socketio/engine.io/issues/674)) ([9395782](https://github.com/socketio/engine.io/commit/93957828be1252c83275b56f0c7c0bd145a0ceb9))
+* prevent crash when provided with an invalid query param ([fc480b4](https://github.com/socketio/engine.io/commit/fc480b4f305e16fe5972cf337d055e598372dc44))
+* **typings:** make clientsCount public ([#675](https://github.com/socketio/engine.io/issues/675)) ([bd6d471](https://github.com/socketio/engine.io/commit/bd6d4713b02ff646c581872cd9ffe753acff0d73))
+* **uws:** prevent crash when using with middlewares ([8b22162](https://github.com/socketio/engine.io/commit/8b2216290330b174c9e67be32765bec0c74769f9))
+
+
+### Credits
+
+Huge thanks to [@tyilo](https://github.com/tyilo) and [@cieldeville](https://github.com/cieldeville) for helping!
+
+
+### Dependencies
+
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [6.4.1](https://github.com/socketio/engine.io/compare/6.4.0...6.4.1) (2023-02-20)
 
