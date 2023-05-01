@@ -11,6 +11,7 @@ const { ClientSocket, listen, createPartialDone } = require("./common");
 const expect = require("expect.js");
 const request = require("superagent");
 const cookieMod = require("cookie");
+const { WebSocket } = require("ws");
 
 /**
  * Tests.
@@ -195,6 +196,51 @@ describe("server", () => {
 
             setTimeout(done, 50);
           });
+      });
+    });
+
+    it("should disallow `__proto__` as transport (polling)", (done) => {
+      const partialDone = createPartialDone(done, 2);
+
+      engine = listen((port) => {
+        engine.on("connection_error", (err) => {
+          expect(err.req).to.be.ok();
+          expect(err.code).to.be(0);
+          expect(err.message).to.be("Transport unknown");
+          expect(err.context.transport).to.be("__proto__");
+          partialDone();
+        });
+
+        request
+          .get(`http://localhost:${port}/engine.io/`)
+          .query({ transport: "__proto__", EIO: 4 })
+          .end((err, res) => {
+            expect(err).to.be.an(Error);
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(0);
+            expect(res.body.message).to.be("Transport unknown");
+            partialDone();
+          });
+      });
+    });
+
+    it("should disallow `__proto__` as transport (websocket)", (done) => {
+      const partialDone = createPartialDone(done, 2);
+
+      engine = listen((port) => {
+        engine.on("connection_error", (err) => {
+          expect(err.req).to.be.ok();
+          expect(err.code).to.be(0);
+          expect(err.message).to.be("Transport unknown");
+          expect(err.context.transport).to.be("__proto__");
+          partialDone();
+        });
+
+        const socket = new WebSocket(
+          `ws://localhost:${port}/engine.io/?EIO=4&transport=__proto__`
+        );
+
+        socket.onerror = partialDone;
       });
     });
   });

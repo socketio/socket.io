@@ -682,7 +682,7 @@ export class Server extends BaseServer {
 
     const res = new WebSocketResponse(req, socket);
     const callback = (errorCode, errorContext) => {
-      if (errorCode) {
+      if (errorCode !== undefined) {
         this.emit("connection_error", {
           req,
           code: errorCode,

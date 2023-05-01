@@ -165,7 +165,7 @@ export class uServer extends BaseServer {
     req.res = res;
 
     const callback = async (errorCode, errorContext) => {
-      if (errorCode) {
+      if (errorCode !== undefined) {
         this.emit("connection_error", {
           req,
           code: errorCode,
