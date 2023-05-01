@@ -75,8 +75,7 @@ export class Polling extends Transport {
       debug("request overlap");
       // assert: this.res, '.req and .res should be (un)set together'
       this.onError("overlap from client");
-      // TODO for the next major release: use an HTTP 400 status code (https://github.com/socketio/engine.io/issues/650)
-      res.writeHead(500);
+      res.writeHead(400);
       res.end();
       return;
     }
@@ -117,8 +116,7 @@ export class Polling extends Transport {
     if (this.dataReq) {
       // assert: this.dataRes, '.dataReq and .dataRes should be (un)set together'
       this.onError("data request overlap from client");
-      // TODO for the next major release: use an HTTP 400 status code (https://github.com/socketio/engine.io/issues/650)
-      res.writeHead(500);
+      res.writeHead(400);
       res.end();
       return;
     }
