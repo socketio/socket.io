@@ -320,7 +320,7 @@ export abstract class BaseServer extends EventEmitter {
    *
    * @param fn
    */
-  public use(fn: Middleware) {
+  public use(fn: any) {
     this.middlewares.push(fn);
   }
 
