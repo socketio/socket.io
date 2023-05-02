@@ -51,7 +51,7 @@ body {
 
 @font-face {
   font-family: Lato;
-  src: url("/fonts/Lato-Regular.ttf");
+  src: "~/public/fonts/Lato-Regular.ttf";
 }
 
 #app {
