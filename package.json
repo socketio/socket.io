@@ -22,12 +22,12 @@
     "./dist/socket.io.js": "./dist/socket.io.js",
     "./dist/socket.io.js.map": "./dist/socket.io.js.map",
     ".": {
+      "types": "./build/esm/index.d.ts",
       "import": {
         "node": "./build/esm-debug/index.js",
         "default": "./build/esm/index.js"
       },
       "require": "./build/cjs/index.js",
-      "types": "./build/esm/index.d.ts"
     }
   },
   "types": "./build/esm/index.d.ts",
