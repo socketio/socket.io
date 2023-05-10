@@ -49,7 +49,7 @@
     "accepts": "~1.3.4",
     "base64id": "~2.0.0",
     "debug": "~4.3.2",
-    "engine.io": "~6.4.1",
+    "engine.io": "~6.4.2",
     "socket.io-adapter": "~2.5.2",
     "socket.io-parser": "~4.2.1"
   },
