@@ -275,7 +275,10 @@ export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
         return typeof payload === "string" || typeof payload === "object";
       case PacketType.EVENT:
       case PacketType.BINARY_EVENT:
-        return Array.isArray(payload) && payload.length > 0;
+        return (
+          Array.isArray(payload) &&
+          (typeof payload[0] === "string" || typeof payload[0] === "number")
+        );
       case PacketType.ACK:
       case PacketType.BINARY_ACK:
         return Array.isArray(payload);

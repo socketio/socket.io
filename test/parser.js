@@ -118,6 +118,9 @@ describe("socket.io-parser", () => {
     isInvalidPayload("1/admin,{}");
     isInvalidPayload('2/admin,"invalid');
     isInvalidPayload("2/admin,{}");
+    isInvalidPayload('2[{"toString":"foo"}]');
+    isInvalidPayload('2[true,"foo"]');
+    isInvalidPayload('2[null,"bar"]');
 
     expect(() => new Decoder().add("999")).to.throwException(
       /^unknown packet type 9$/
