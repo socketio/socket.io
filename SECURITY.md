@@ -19,4 +19,4 @@ We will get back to you as soon as possible and publish a fix if necessary.
 
 ## History
 
-No security vulnerability were reported yet.
+- Mar 2016: [Insecure Defaults Allow MITM Over TLS in engine.io-client](https://github.com/advisories/GHSA-4r4m-hjwj-43p8) (CVE-2016-10536)
