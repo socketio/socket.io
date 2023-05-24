@@ -51,7 +51,7 @@
     "debug": "~4.3.2",
     "engine.io": "~6.4.2",
     "socket.io-adapter": "~2.5.2",
-    "socket.io-parser": "~4.2.1"
+    "socket.io-parser": "~4.2.3"
   },
   "devDependencies": {
     "@types/mocha": "^9.0.0",
