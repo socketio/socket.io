@@ -1,5 +1,6 @@
 # History
 
+- [5.0.7](#507-2023-05-24) (May 2023)
 - [5.0.6](#506-2023-01-16) (Jan 2023)
 - [5.0.5](#505-2023-01-06) (Jan 2023)
 - [5.0.4](#504-2022-04-30) (Apr 2022)
@@ -17,6 +18,12 @@
 
 
 # Release notes
+
+## [5.0.7](https://github.com/socketio/engine.io-parser/compare/5.0.6...5.0.7) (2023-05-24)
+
+The CommonJS build now includes the TypeScript declarations too, in order to be compatible the "node16" moduleResolution.
+
+
 
 ## [5.0.6](https://github.com/socketio/engine.io-parser/compare/5.0.5...5.0.6) (2023-01-16)
 

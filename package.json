@@ -2,7 +2,7 @@
   "name": "engine.io-parser",
   "description": "Parser for the client for the realtime Engine",
   "license": "MIT",
-  "version": "5.0.6",
+  "version": "5.0.7",
   "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",
   "exports": {
