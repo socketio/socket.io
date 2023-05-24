@@ -280,6 +280,9 @@ export class Socket<
       }
     }
     this.handshake = this.buildHandshake(auth);
+
+    // prevents crash when the socket receives an "error" event without listener
+    this.on("error", noop);
   }
 
   /**
@@ -720,12 +723,11 @@ export class Socket<
    * @private
    */
   _onerror(err: Error): void {
-    if (this.listeners("error").length) {
-      this.emitReserved("error", err);
-    } else {
-      console.error("Missing error handler on `socket`.");
-      console.error(err.stack);
-    }
+    // FIXME the meaning of the "error" event is overloaded:
+    //  - it can be sent by the client (`socket.emit("error")`)
+    //  - it can be emitted when the connection encounters an error (an invalid packet for example)
+    //  - it can be emitted when a packet is rejected in a middleware (`socket.use()`)
+    this.emitReserved("error", err);
   }
 
   /**
