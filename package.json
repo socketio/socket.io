@@ -27,7 +27,7 @@
         "node": "./build/esm-debug/index.js",
         "default": "./build/esm/index.js"
       },
-      "require": "./build/cjs/index.js",
+      "require": "./build/cjs/index.js"
     }
   },
   "types": "./build/esm/index.d.ts",
