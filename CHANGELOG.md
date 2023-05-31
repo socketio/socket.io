@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [4.6.2](#462-2023-05-31) (May 2023)
 - [4.6.1](#461-2023-02-20) (Feb 2023)
 - [4.6.0](#460-2023-02-07) (Feb 2023)
 
@@ -57,6 +58,21 @@
 
 
 # Release notes
+
+## [4.6.2](https://github.com/socketio/socket.io-client/compare/4.6.1...4.6.2) (2023-05-31)
+
+
+### Bug Fixes
+
+* **exports:** move `types` condition to the top ([#1580](https://github.com/socketio/socket.io-client/issues/1580)) ([7ead241](https://github.com/socketio/socket.io-client/commit/7ead241ecfd9f122db6789b5f2d11c04e9427953))
+
+
+### Dependencies
+
+- [`engine.io-client@~6.4.0`](https://github.com/socketio/engine.io-client/releases/tag/6.4.0) (no change)
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [4.6.1](https://github.com/socketio/socket.io-client/compare/4.6.0...4.6.1) (2023-02-20)
 
