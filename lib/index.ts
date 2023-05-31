@@ -6,6 +6,18 @@ import debugModule from "debug"; // debug()
 const debug = debugModule("socket.io-parser"); // debug()
 
 /**
+ * These strings must not be used as event names, as they have a special meaning.
+ */
+const RESERVED_EVENTS = [
+  "connect", // used on the client side
+  "connect_error", // used on the client side
+  "disconnect", // used on both sides
+  "disconnecting", // used on the server side
+  "newListener", // used by the Node.js EventEmitter
+  "removeListener", // used by the Node.js EventEmitter
+];
+
+/**
  * Protocol version.
  *
  * @public
@@ -277,7 +289,9 @@ export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
       case PacketType.BINARY_EVENT:
         return (
           Array.isArray(payload) &&
-          (typeof payload[0] === "string" || typeof payload[0] === "number")
+          (typeof payload[0] === "number" ||
+            (typeof payload[0] === "string" &&
+              RESERVED_EVENTS.indexOf(payload[0]) === -1))
         );
       case PacketType.ACK:
       case PacketType.BINARY_ACK:
