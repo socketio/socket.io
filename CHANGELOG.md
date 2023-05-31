@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [4.2.4](#424-2023-05-31) (May 2023)
 - [3.4.3](#343-2023-05-22) (May 2023) (from the [3.4.x](https://github.com/socketio/socket.io-parser/tree/3.4.x) branch)
 - [4.2.3](#423-2023-05-22) (May 2023)
 - [4.2.2](#422-2023-01-19) (Jan 2023)
@@ -42,6 +43,16 @@
 
 
 # Release notes
+
+## [4.2.4](https://github.com/socketio/socket.io-parser/compare/4.2.3...4.2.4) (2023-05-31)
+
+
+### Bug Fixes
+
+* ensure reserved events cannot be used as event names ([d9db473](https://github.com/socketio/socket.io-parser/commit/d9db4737a3c8ce5f1f49ecc8d928a74f3da591f7))
+* properly detect plain objects ([b0e6400](https://github.com/socketio/socket.io-parser/commit/b0e6400c93b5c4aa25e6a629d6448b8627275213))
+
+
 
 ## [3.4.3](https://github.com/socketio/socket.io-parser/compare/3.4.2...3.4.3) (2023-05-22)
 
