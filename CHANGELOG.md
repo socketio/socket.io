@@ -68,7 +68,7 @@
 
 ### Dependencies
 
-- [`engine.io@~6.4.0`](https://github.com/socketio/engine.io/releases/tag/6.4.0) (no change)
+- [`engine.io@~6.4.2`](https://github.com/socketio/engine.io/releases/tag/6.4.0) ([diff](https://github.com/socketio/engine.io/compare/6.4.1...6.4.2))
 - [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
 
 
@@ -84,7 +84,7 @@
 
 ### Dependencies
 
-- [`engine.io@~6.4.0`](https://github.com/socketio/engine.io/releases/tag/6.4.0) (no change)
+- [`engine.io@~6.4.1`](https://github.com/socketio/engine.io/releases/tag/6.4.1) ([diff](https://github.com/socketio/engine.io/compare/6.4.0...6.4.1))
 - [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
 
 
