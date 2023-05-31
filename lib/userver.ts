@@ -258,6 +258,7 @@ export class uServer extends BaseServer {
 class ResponseWrapper {
   private statusWritten: boolean = false;
   private headers = [];
+  private isAborted = false;
 
   constructor(readonly res: HttpResponse) {}
 
@@ -291,6 +292,8 @@ class ResponseWrapper {
   public getHeader() {}
 
   public writeStatus(status: string) {
+    if (this.isAborted) return;
+
     this.res.writeStatus(status);
     this.statusWritten = true;
     this.writeBufferedHeaders();
@@ -298,6 +301,8 @@ class ResponseWrapper {
   }
 
   public writeHeader(key: string, value: string) {
+    if (this.isAborted) return;
+
     if (key === "Content-Length") {
       // the content length is automatically added by uWebSockets.js
       return;
@@ -316,6 +321,8 @@ class ResponseWrapper {
   }
 
   public end(data) {
+    if (this.isAborted) return;
+
     if (!this.statusWritten) {
       // status will be inferred as "200 OK"
       this.writeBufferedHeaders();
@@ -324,10 +331,18 @@ class ResponseWrapper {
   }
 
   public onData(fn) {
+    if (this.isAborted) return;
+
     this.res.onData(fn);
   }
 
   public onAborted(fn) {
-    this.res.onAborted(fn);
+    if (this.isAborted) return;
+
+    this.res.onAborted(() => {
+      // Any attempt to use the UWS response object after abort will throw!
+      this.isAborted = true;
+      fn();
+    });
   }
 }
