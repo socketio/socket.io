@@ -115,6 +115,7 @@ describe("socket.io-parser", () => {
 
     isInvalidPayload('442["some","data"');
     isInvalidPayload('0/admin,"invalid"');
+    isInvalidPayload("0[]");
     isInvalidPayload("1/admin,{}");
     isInvalidPayload('2/admin,"invalid');
     isInvalidPayload("2/admin,{}");
