@@ -6,7 +6,7 @@ import {
   Packet
 } from "..";
 import * as expect from "expect.js";
-import "./node";
+import "./node"; // replaced by "./browser" for the tests in the browser (see "browser" field in the package.json file)
 
 describe("engine.io-parser", () => {
   describe("single packet", () => {

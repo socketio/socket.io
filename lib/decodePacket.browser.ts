@@ -9,7 +9,7 @@ import { decode } from "./contrib/base64-arraybuffer.js";
 
 const withNativeArrayBuffer = typeof ArrayBuffer === "function";
 
-const decodePacket = (
+export const decodePacket = (
   encodedPacket: RawData,
   binaryType?: BinaryType
 ): Packet => {
@@ -52,11 +52,21 @@ const decodeBase64Packet = (data, binaryType) => {
 const mapBinary = (data, binaryType) => {
   switch (binaryType) {
     case "blob":
-      return data instanceof ArrayBuffer ? new Blob([data]) : data;
+      if (data instanceof Blob) {
+        // from WebSocket + binaryType "blob"
+        return data;
+      } else {
+        // from HTTP long-polling or WebTransport
+        return new Blob([data]);
+      }
     case "arraybuffer":
     default:
-      return data; // assuming the data is already an ArrayBuffer
+      if (data instanceof ArrayBuffer) {
+        // from HTTP long-polling (base64) or WebSocket + binaryType "arraybuffer"
+        return data;
+      } else {
+        // from WebTransport (Uint8Array)
+        return data.buffer;
+      }
   }
 };
-
-export default decodePacket;

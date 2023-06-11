@@ -6,7 +6,7 @@ import {
   RawData
 } from "./commons.js";
 
-const decodePacket = (
+export const decodePacket = (
   encodedPacket: RawData,
   binaryType?: BinaryType
 ): Packet => {
@@ -38,23 +38,29 @@ const decodePacket = (
 };
 
 const mapBinary = (data: RawData, binaryType?: BinaryType) => {
-  const isBuffer = Buffer.isBuffer(data);
   switch (binaryType) {
     case "arraybuffer":
-      return isBuffer ? toArrayBuffer(data) : data;
+      if (data instanceof ArrayBuffer) {
+        // from WebSocket & binaryType "arraybuffer"
+        return data;
+      } else if (Buffer.isBuffer(data)) {
+        // from HTTP long-polling
+        return data.buffer.slice(
+          data.byteOffset,
+          data.byteOffset + data.byteLength
+        );
+      } else {
+        // from WebTransport (Uint8Array)
+        return data.buffer;
+      }
     case "nodebuffer":
     default:
-      return data; // assuming the data is already a Buffer
+      if (Buffer.isBuffer(data)) {
+        // from HTTP long-polling or WebSocket & binaryType "nodebuffer" (default)
+        return data;
+      } else {
+        // from WebTransport (Uint8Array)
+        return Buffer.from(data);
+      }
   }
 };
-
-const toArrayBuffer = (buffer: Buffer): ArrayBuffer => {
-  const arrayBuffer = new ArrayBuffer(buffer.length);
-  const view = new Uint8Array(arrayBuffer);
-  for (let i = 0; i < buffer.length; i++) {
-    view[i] = buffer[i];
-  }
-  return arrayBuffer;
-};
-
-export default decodePacket;

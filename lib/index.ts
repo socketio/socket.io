@@ -1,5 +1,5 @@
-import encodePacket from "./encodePacket.js";
-import decodePacket from "./decodePacket.js";
+import { encodePacket, encodePacketToBinary } from "./encodePacket.js";
+import { decodePacket } from "./decodePacket.js";
 import { Packet, PacketType, RawData, BinaryType } from "./commons.js";
 
 const SEPARATOR = String.fromCharCode(30); // see https://en.wikipedia.org/wiki/Delimiter#ASCII_delimited_text
@@ -40,9 +40,30 @@ const decodePayload = (
   return packets;
 };
 
+let TEXT_DECODER;
+
+export function decodePacketFromBinary(
+  data: Uint8Array,
+  isBinary: boolean,
+  binaryType: BinaryType
+) {
+  if (!TEXT_DECODER) {
+    // lazily created for compatibility with old browser platforms
+    TEXT_DECODER = new TextDecoder();
+  }
+  // 48 === "0".charCodeAt(0) (OPEN packet type)
+  // 54 === "6".charCodeAt(0) (NOOP packet type)
+  const isPlainBinary = isBinary || data[0] < 48 || data[0] > 54;
+  return decodePacket(
+    isPlainBinary ? data : TEXT_DECODER.decode(data),
+    binaryType
+  );
+}
+
 export const protocol = 4;
 export {
   encodePacket,
+  encodePacketToBinary,
   encodePayload,
   decodePacket,
   decodePayload,

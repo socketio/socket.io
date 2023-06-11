@@ -1,20 +1,24 @@
 import { PACKET_TYPES, Packet, RawData } from "./commons.js";
 
-const encodePacket = (
+export const encodePacket = (
   { type, data }: Packet,
   supportsBinary: boolean,
   callback: (encodedPacket: RawData) => void
 ) => {
   if (data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
-    const buffer = toBuffer(data);
-    return callback(encodeBuffer(buffer, supportsBinary));
+    return callback(
+      supportsBinary ? data : "b" + toBuffer(data, true).toString("base64")
+    );
   }
   // plain string
   return callback(PACKET_TYPES[type] + (data || ""));
 };
 
-const toBuffer = data => {
-  if (Buffer.isBuffer(data)) {
+const toBuffer = (data: BufferSource, forceBufferConversion: boolean) => {
+  if (
+    Buffer.isBuffer(data) ||
+    (data instanceof Uint8Array && !forceBufferConversion)
+  ) {
     return data;
   } else if (data instanceof ArrayBuffer) {
     return Buffer.from(data);
@@ -23,9 +27,20 @@ const toBuffer = data => {
   }
 };
 
-// only 'message' packets can contain binary, so the type prefix is not needed
-const encodeBuffer = (data: Buffer, supportsBinary: boolean): RawData => {
-  return supportsBinary ? data : "b" + data.toString("base64");
-};
+let TEXT_ENCODER;
 
-export default encodePacket;
+export function encodePacketToBinary(
+  packet: Packet,
+  callback: (encodedPacket: RawData) => void
+) {
+  if (packet.data instanceof ArrayBuffer || ArrayBuffer.isView(packet.data)) {
+    return callback(toBuffer(packet.data, false));
+  }
+  encodePacket(packet, true, encoded => {
+    if (!TEXT_ENCODER) {
+      // lazily created for compatibility with Node.js 10
+      TEXT_ENCODER = new TextEncoder();
+    }
+    callback(TEXT_ENCODER.encode(encoded));
+  });
+}

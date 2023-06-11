@@ -50,4 +50,39 @@ const encodeBlobAsBase64 = (
   return fileReader.readAsDataURL(data);
 };
 
-export default encodePacket;
+function toArray(data: BufferSource) {
+  if (data instanceof Uint8Array) {
+    return data;
+  } else if (data instanceof ArrayBuffer) {
+    return new Uint8Array(data);
+  } else {
+    return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+  }
+}
+
+let TEXT_ENCODER;
+
+export function encodePacketToBinary(
+  packet: Packet,
+  callback: (encodedPacket: RawData) => void
+) {
+  if (withNativeBlob && packet.data instanceof Blob) {
+    return packet.data
+      .arrayBuffer()
+      .then(toArray)
+      .then(callback);
+  } else if (
+    withNativeArrayBuffer &&
+    (packet.data instanceof ArrayBuffer || isView(packet.data))
+  ) {
+    return callback(toArray(packet.data));
+  }
+  encodePacket(packet, false, encoded => {
+    if (!TEXT_ENCODER) {
+      TEXT_ENCODER = new TextEncoder();
+    }
+    callback(TEXT_ENCODER.encode(encoded));
+  });
+}
+
+export { encodePacket };

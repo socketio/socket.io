@@ -1,7 +1,9 @@
 import {
   decodePacket,
+  decodePacketFromBinary,
   decodePayload,
   encodePacket,
+  encodePacketToBinary,
   encodePayload,
   Packet
 } from "..";
@@ -40,7 +42,7 @@ describe("engine.io-parser (node.js only)", () => {
         data: Int8Array.from([1, 2, 3, 4]).buffer
       };
       encodePacket(packet, true, encodedPacket => {
-        expect(encodedPacket).to.eql(Buffer.from([1, 2, 3, 4]));
+        expect(encodedPacket === packet.data).to.be(true);
         const decodedPacket = decodePacket(encodedPacket, "arraybuffer");
         expect(decodedPacket.type).to.eql(packet.type);
         expect(decodedPacket.data).to.be.an(ArrayBuffer);
@@ -65,14 +67,14 @@ describe("engine.io-parser (node.js only)", () => {
     });
 
     it("should encode a typed array", done => {
-      encodePacket(
-        { type: "message", data: Int16Array.from([257, 258, 259, 260]) },
-        true,
-        encodedPacket => {
-          expect(encodedPacket).to.eql(Buffer.from([1, 1, 2, 1, 3, 1, 4, 1]));
-          done();
-        }
-      );
+      const packet: Packet = {
+        type: "message",
+        data: Int16Array.from([257, 258, 259, 260])
+      };
+      encodePacket(packet, true, encodedPacket => {
+        expect(encodedPacket === packet.data).to.be(true);
+        done();
+      });
     });
 
     it("should encode a typed array (with offset and length)", done => {
@@ -106,4 +108,112 @@ describe("engine.io-parser (node.js only)", () => {
       });
     });
   });
+
+  if (typeof TextEncoder === "function") {
+    describe("single packet (to/from Uint8Array)", () => {
+      it("should encode/decode a plaintext packet", done => {
+        const packet: Packet = {
+          type: "message",
+          data: "1€"
+        };
+        encodePacketToBinary(packet, encodedPacket => {
+          expect(encodedPacket).to.be.an(Uint8Array);
+          expect(encodedPacket).to.eql(
+            Uint8Array.from([52, 49, 226, 130, 172])
+          );
+
+          const decoded = decodePacketFromBinary(
+            encodedPacket,
+            false,
+            "nodebuffer"
+          );
+          expect(decoded).to.eql(packet);
+          done();
+        });
+      });
+
+      it("should encode a binary packet (Buffer)", done => {
+        const packet: Packet = {
+          type: "message",
+          data: Buffer.from([1, 2, 3])
+        };
+        encodePacketToBinary(packet, encodedPacket => {
+          expect(encodedPacket === packet.data).to.be(true);
+          done();
+        });
+      });
+
+      it("should encode a binary packet (Uint8Array)", done => {
+        const packet: Packet = {
+          type: "message",
+          data: Uint8Array.from([1, 2, 3])
+        };
+        encodePacketToBinary(packet, encodedPacket => {
+          expect(encodedPacket === packet.data).to.be(true);
+          done();
+        });
+      });
+
+      it("should encode a binary packet (ArrayBuffer)", done => {
+        const packet: Packet = {
+          type: "message",
+          data: Uint8Array.from([1, 2, 3]).buffer
+        };
+        encodePacketToBinary(packet, encodedPacket => {
+          expect(Buffer.isBuffer(encodedPacket)).to.be(true);
+          expect(encodedPacket).to.eql(Buffer.from([1, 2, 3]));
+          done();
+        });
+      });
+
+      it("should encode a binary packet (Uint16Array)", done => {
+        const packet: Packet = {
+          type: "message",
+          data: Uint16Array.from([1, 2, 257])
+        };
+        encodePacketToBinary(packet, encodedPacket => {
+          expect(Buffer.isBuffer(encodedPacket)).to.be(true);
+          expect(encodedPacket).to.eql(Buffer.from([1, 0, 2, 0, 1, 1]));
+          done();
+        });
+      });
+
+      it("should decode a binary packet (Buffer)", () => {
+        const decoded = decodePacketFromBinary(
+          Uint8Array.from([1, 2, 3]),
+          false,
+          "nodebuffer"
+        );
+
+        expect(decoded.type).to.eql("message");
+        expect(Buffer.isBuffer(decoded.data)).to.be(true);
+        expect(decoded.data).to.eql(Buffer.from([1, 2, 3]));
+      });
+
+      it("should decode a binary packet (ArrayBuffer)", () => {
+        const decoded = decodePacketFromBinary(
+          Uint8Array.from([1, 2, 3]),
+          false,
+          "arraybuffer"
+        );
+
+        expect(decoded.type).to.eql("message");
+        expect(decoded.data).to.be.an(ArrayBuffer);
+        expect(areArraysEqual(decoded.data, Uint8Array.from([1, 2, 3])));
+      });
+
+      it("should decode a binary packet (with binary header)", () => {
+        // 52 === "4".charCodeAt(0)
+        const decoded = decodePacketFromBinary(
+          Uint8Array.from([52]),
+          true,
+          "nodebuffer"
+        );
+
+        expect(decoded.type).to.eql("message");
+        expect(Buffer.isBuffer(decoded.data)).to.be(true);
+        expect(decoded.data).to.eql(Buffer.from([52]));
+      });
+    });
+  }
 });
