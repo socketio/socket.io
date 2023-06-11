@@ -1,5 +1,6 @@
 # History
 
+- [5.1.0](#510-2023-06-11) (Jun 2023)
 - [5.0.7](#507-2023-05-24) (May 2023)
 - [5.0.6](#506-2023-01-16) (Jan 2023)
 - [5.0.5](#505-2023-01-06) (Jan 2023)
@@ -18,6 +19,15 @@
 
 
 # Release notes
+
+# [5.1.0](https://github.com/socketio/engine.io-parser/compare/5.0.7...5.1.0) (2023-06-11)
+
+
+### Features
+
+* implement WebTransport-related encoding/decoding ([bed70a4](https://github.com/socketio/engine.io-parser/commit/bed70a4f2598ebdf96d8ccc1b5d838b1a77a4290))
+
+
 
 ## [5.0.7](https://github.com/socketio/engine.io-parser/compare/5.0.6...5.0.7) (2023-05-24)
 
