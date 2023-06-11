@@ -70,10 +70,15 @@ export class Socket extends EventEmitter {
     this.protocol = protocol;
 
     // Cache IP since it might not be in the req later
-    if (req.websocket && req.websocket._socket) {
-      this.remoteAddress = req.websocket._socket.remoteAddress;
+    if (req) {
+      if (req.websocket && req.websocket._socket) {
+        this.remoteAddress = req.websocket._socket.remoteAddress;
+      } else {
+        this.remoteAddress = req.connection.remoteAddress;
+      }
     } else {
-      this.remoteAddress = req.connection.remoteAddress;
+      // TODO there is currently no way to get the IP address of the client when it connects with WebTransport
+      //  see https://github.com/fails-components/webtransport/issues/114
     }
 
     this.checkIntervalTimer = null;

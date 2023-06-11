@@ -1,10 +1,12 @@
 import { Polling as XHR } from "./polling";
 import { JSONP } from "./polling-jsonp";
 import { WebSocket } from "./websocket";
+import { WebTransport } from "./webtransport";
 
 export default {
   polling: polling,
   websocket: WebSocket,
+  webtransport: WebTransport,
 };
 
 /**
@@ -21,4 +23,4 @@ function polling(req) {
   }
 }
 
-polling.upgradesTo = ["websocket"];
+polling.upgradesTo = ["websocket", "webtransport"];

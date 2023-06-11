@@ -136,8 +136,26 @@ export abstract class Transport extends EventEmitter {
     this.emit("close");
   }
 
+  /**
+   * Advertise framing support.
+   */
   abstract get supportsFraming();
+
+  /**
+   * The name of the transport.
+   */
   abstract get name();
+
+  /**
+   * Sends an array of packets.
+   *
+   * @param {Array} packets
+   * @package
+   */
   abstract send(packets);
+
+  /**
+   * Closes the transport.
+   */
   abstract doClose(fn?);
 }

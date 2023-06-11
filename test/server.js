@@ -1618,6 +1618,7 @@ describe("server", () => {
         socket.on("open", () => {
           engine.close();
           setTimeout(() => {
+            delete Object.prototype.foo;
             done();
           }, 100);
         });

@@ -15,10 +15,12 @@ import type {
 import type { CookieSerializeOptions } from "cookie";
 import type { CorsOptions, CorsOptionsDelegate } from "cors";
 import type { Duplex } from "stream";
+import { WebTransport } from "./transports/webtransport";
 
 const debug = debugModule("engine");
 
 const kResponseHeaders = Symbol("responseHeaders");
+const TEXT_DECODER = new TextDecoder();
 
 type Transport = "polling" | "websocket";
 
@@ -78,7 +80,13 @@ export interface ServerOptions {
     fn: (err: string | null | undefined, success: boolean) => void
   ) => void;
   /**
-   * the low-level transports that are enabled
+   * The low-level transports that are enabled. WebTransport is disabled by default and must be manually enabled:
+   *
+   * @example
+   * new Server({
+   *   transports: ["polling", "websocket", "webtransport"]
+   * });
+   *
    * @default ["polling", "websocket"]
    */
   transports?: Transport[];
@@ -140,6 +148,17 @@ type Middleware = (
   next: (err?: any) => void
 ) => void;
 
+function parseSessionId(handshake: string) {
+  if (handshake.startsWith("0{")) {
+    try {
+      const parsed = JSON.parse(handshake.substring(1));
+      if (typeof parsed.sid === "string") {
+        return parsed.sid;
+      }
+    } catch (e) {}
+  }
+}
+
 export abstract class BaseServer extends EventEmitter {
   public opts: ServerOptions;
 
@@ -166,7 +185,7 @@ export abstract class BaseServer extends EventEmitter {
         pingInterval: 25000,
         upgradeTimeout: 10000,
         maxHttpBufferSize: 1e6,
-        transports: Object.keys(transports),
+        transports: ["polling", "websocket"], // WebTransport is disabled by default
         allowUpgrades: true,
         httpCompression: {
           threshold: 1024,
@@ -245,7 +264,11 @@ export abstract class BaseServer extends EventEmitter {
   protected verify(req, upgrade, fn) {
     // transport check
     const transport = req._query.transport;
-    if (!~this.opts.transports.indexOf(transport)) {
+    // WebTransport does not go through the verify() method, see the onWebTransportSession() method
+    if (
+      !~this.opts.transports.indexOf(transport) ||
+      transport === "webtransport"
+    ) {
       debug('unknown transport "%s"', transport);
       return fn(Server.errors.UNKNOWN_TRANSPORT, { transport });
     }
@@ -493,6 +516,85 @@ export abstract class BaseServer extends EventEmitter {
     this.emit("connection", socket);
 
     return transport;
+  }
+
+  public async onWebTransportSession(session: any) {
+    const timeout = setTimeout(() => {
+      debug(
+        "the client failed to establish a bidirectional stream in the given period"
+      );
+      session.close();
+    }, this.opts.upgradeTimeout);
+
+    const streamReader = session.incomingBidirectionalStreams.getReader();
+    const result = await streamReader.read();
+
+    if (result.done) {
+      debug("session is closed");
+      return;
+    }
+
+    const stream = result.value;
+    const reader = stream.readable.getReader();
+
+    // reading the first packet of the stream
+    const { value, done } = await reader.read();
+    if (done) {
+      debug("stream is closed");
+      return;
+    }
+
+    clearTimeout(timeout);
+    const handshake = TEXT_DECODER.decode(value);
+
+    // handshake is either
+    // "0" => new session
+    // '0{"sid":"xxxx"}' => upgrade
+    if (handshake === "0") {
+      const transport = new WebTransport(session, stream, reader);
+
+      // note: we cannot use "this.generateId()", because there is no "req" argument
+      const id = base64id.generateId();
+      debug('handshaking client "%s" (WebTransport)', id);
+
+      const socket = new Socket(id, this, transport, null, 4);
+
+      this.clients[id] = socket;
+      this.clientsCount++;
+
+      socket.once("close", () => {
+        delete this.clients[id];
+        this.clientsCount--;
+      });
+
+      this.emit("connection", socket);
+      return;
+    }
+
+    const sid = parseSessionId(handshake);
+
+    if (!sid) {
+      debug("invalid WebTransport handshake");
+      return session.close();
+    }
+
+    const client = this.clients[sid];
+
+    if (!client) {
+      debug("upgrade attempt for closed client");
+      session.close();
+    } else if (client.upgrading) {
+      debug("transport has already been trying to upgrade");
+      session.close();
+    } else if (client.upgraded) {
+      debug("transport had already been upgraded");
+      session.close();
+    } else {
+      debug("upgrading existing transport");
+
+      const transport = new WebTransport(session, stream, reader);
+      client.maybeUpgrade(transport);
+    }
   }
 
   protected abstract createTransport(transportName, req);
