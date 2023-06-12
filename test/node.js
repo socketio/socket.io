@@ -21,10 +21,15 @@ describe("node.js", () => {
     });
 
     it("should not stop with autoUnref set to false", (done) => {
+      let isComplete = false;
+
       const process = exec(fixture("no-unref.js"), () => {
-        done(new Error("should not happen"));
+        if (!isComplete) {
+          done(new Error("should not happen"));
+        }
       });
       setTimeout(() => {
+        isComplete = true;
         process.kill();
         done();
       }, 1000);
