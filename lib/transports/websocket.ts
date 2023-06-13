@@ -175,19 +175,9 @@ export class WS extends Transport {
    *
    * @private
    */
-  uri() {
-    let query: { b64?: number } = this.query || {};
+  private uri() {
     const schema = this.opts.secure ? "wss" : "ws";
-    let port = "";
-
-    // avoid port if default for schema
-    if (
-      this.opts.port &&
-      (("wss" === schema && Number(this.opts.port) !== 443) ||
-        ("ws" === schema && Number(this.opts.port) !== 80))
-    ) {
-      port = ":" + this.opts.port;
-    }
+    const query: { b64?: number } = this.query || {};
 
     // append timestamp to URI
     if (this.opts.timestampRequests) {
@@ -199,17 +189,7 @@ export class WS extends Transport {
       query.b64 = 1;
     }
 
-    const encodedQuery = encode(query);
-    const ipv6 = this.opts.hostname.indexOf(":") !== -1;
-
-    return (
-      schema +
-      "://" +
-      (ipv6 ? "[" + this.opts.hostname + "]" : this.opts.hostname) +
-      port +
-      this.opts.path +
-      (encodedQuery.length ? "?" + encodedQuery : "")
-    );
+    return this.createUri(schema, query);
   }
 
   /**

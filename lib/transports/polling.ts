@@ -215,10 +215,9 @@ export class Polling extends Transport {
    *
    * @private
    */
-  uri() {
-    let query: { b64?: number; sid?: string } = this.query || {};
+  private uri() {
     const schema = this.opts.secure ? "https" : "http";
-    let port = "";
+    const query: { b64?: number; sid?: string } = this.query || {};
 
     // cache busting is forced
     if (false !== this.opts.timestampRequests) {
@@ -229,26 +228,7 @@ export class Polling extends Transport {
       query.b64 = 1;
     }
 
-    // avoid port if default for schema
-    if (
-      this.opts.port &&
-      (("https" === schema && Number(this.opts.port) !== 443) ||
-        ("http" === schema && Number(this.opts.port) !== 80))
-    ) {
-      port = ":" + this.opts.port;
-    }
-
-    const encodedQuery = encode(query);
-    const ipv6 = this.opts.hostname.indexOf(":") !== -1;
-
-    return (
-      schema +
-      "://" +
-      (ipv6 ? "[" + this.opts.hostname + "]" : this.opts.hostname) +
-      port +
-      this.opts.path +
-      (encodedQuery.length ? "?" + encodedQuery : "")
-    );
+    return this.createUri(schema, query);
   }
 
   /**

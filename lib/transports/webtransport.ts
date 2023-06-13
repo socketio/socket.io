@@ -35,7 +35,7 @@ export class WT extends Transport {
     }
     // @ts-ignore
     this.transport = new WebTransport(
-      this.uri("https"),
+      this.createUri("https"),
       this.opts.transportOptions[this.name]
     );
 

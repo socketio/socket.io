@@ -172,7 +172,7 @@ export abstract class Transport extends Emitter<
    */
   public pause(onPause: () => void) {}
 
-  protected uri(schema: string, query: Record<string, unknown> = {}) {
+  protected createUri(schema: string, query: Record<string, unknown> = {}) {
     return (
       schema +
       "://" +
@@ -191,8 +191,8 @@ export abstract class Transport extends Emitter<
   private _port() {
     if (
       this.opts.port &&
-      ((this.opts.secure && this.opts.port !== "443") ||
-        (!this.opts.secure && this.opts.port !== "80"))
+      ((this.opts.secure && Number(this.opts.port !== 443)) ||
+        (!this.opts.secure && Number(this.opts.port) !== 80))
     ) {
       return ":" + this.opts.port;
     } else {
