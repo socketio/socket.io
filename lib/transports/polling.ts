@@ -306,7 +306,6 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
   private readonly opts: { xd; cookieJar: CookieJar } & SocketOptions;
   private readonly method: string;
   private readonly uri: string;
-  private readonly async: boolean;
   private readonly data: string | ArrayBuffer;
 
   private xhr: any;
@@ -329,7 +328,6 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
 
     this.method = opts.method || "GET";
     this.uri = uri;
-    this.async = false !== opts.async;
     this.data = undefined !== opts.data ? opts.data : null;
 
     this.create();
@@ -359,7 +357,7 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
 
     try {
       debug("xhr open %s: %s", this.method, this.uri);
-      xhr.open(this.method, this.uri, this.async);
+      xhr.open(this.method, this.uri, true);
       try {
         if (this.opts.extraHeaders) {
           xhr.setDisableHeaderCheck && xhr.setDisableHeaderCheck(true);
