@@ -3,7 +3,11 @@ import debugModule from "debug"; // debug()
 import { yeast } from "../contrib/yeast.js";
 import { encode } from "../contrib/parseqs.js";
 import { encodePayload, decodePayload, RawData } from "engine.io-parser";
-import { XHR as XMLHttpRequest } from "./xmlhttprequest.js";
+import {
+  CookieJar,
+  createCookieJar,
+  XHR as XMLHttpRequest,
+} from "./xmlhttprequest.js";
 import { Emitter } from "@socket.io/component-emitter";
 import { SocketOptions } from "../socket.js";
 import { installTimerFunctions, pick } from "../util.js";
@@ -26,6 +30,7 @@ export class Polling extends Transport {
 
   private polling: boolean = false;
   private pollXhr: any;
+  private cookieJar?: CookieJar;
 
   /**
    * XHR Polling constructor.
@@ -56,6 +61,10 @@ export class Polling extends Transport {
      */
     const forceBase64 = opts && opts.forceBase64;
     this.supportsBinary = hasXHR2 && !forceBase64;
+
+    if (this.opts.withCredentials) {
+      this.cookieJar = createCookieJar();
+    }
   }
 
   override get name() {
@@ -251,7 +260,11 @@ export class Polling extends Transport {
    * @private
    */
   request(opts = {}) {
-    Object.assign(opts, { xd: this.xd, xs: this.xs }, this.opts);
+    Object.assign(
+      opts,
+      { xd: this.xd, xs: this.xs, cookieJar: this.cookieJar },
+      this.opts
+    );
     return new Request(this.uri(), opts);
   }
 
@@ -296,7 +309,7 @@ interface RequestReservedEvents {
 }
 
 export class Request extends Emitter<{}, {}, RequestReservedEvents> {
-  private readonly opts: { xd; xs } & SocketOptions;
+  private readonly opts: { xd; xs; cookieJar: CookieJar } & SocketOptions;
   private readonly method: string;
   private readonly uri: string;
   private readonly async: boolean;
@@ -375,6 +388,8 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
         xhr.setRequestHeader("Accept", "*/*");
       } catch (e) {}
 
+      this.opts.cookieJar?.addCookies(xhr);
+
       // ie6 check
       if ("withCredentials" in xhr) {
         xhr.withCredentials = this.opts.withCredentials;
@@ -385,6 +400,10 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
       }
 
       xhr.onreadystatechange = () => {
+        if (xhr.readyState === 3) {
+          this.opts.cookieJar?.parseCookies(xhr);
+        }
+
         if (4 !== xhr.readyState) return;
         if (200 === xhr.status || 1223 === xhr.status) {
           this.onLoad();

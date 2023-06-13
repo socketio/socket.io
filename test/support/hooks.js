@@ -7,6 +7,7 @@ const { attach } = require("engine.io");
 const { rollup } = require("rollup");
 
 const rollupConfig = require("../../support/rollup.config.umd.js");
+const { serialize } = require("cookie");
 
 let httpServer, engine;
 
@@ -50,10 +51,27 @@ exports.mochaHooks = {
         } else if (data === "give utf8") {
           socket.send("пойду спать всем спокойной ночи");
           return;
+        } else if (data === "sendHeaders") {
+          const headers = socket.transport?.dataReq?.headers;
+          return socket.send(JSON.stringify(headers));
         }
 
         socket.send(data);
       });
+    });
+
+    engine.on("initial_headers", (headers) => {
+      headers["set-cookie"] = [
+        serialize("1", "1", { maxAge: 86400 }),
+        serialize("2", "2", {
+          sameSite: true,
+          path: "/",
+          httpOnly: true,
+          secure: true,
+        }),
+        serialize("3", "3", { maxAge: 0 }),
+        serialize("4", "4", { expires: new Date() }),
+      ];
     });
   },
 

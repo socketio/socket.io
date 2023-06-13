@@ -21,3 +21,5 @@ export function XHR(opts) {
     } catch (e) {}
   }
 }
+
+export function createCookieJar() {}
