@@ -26,7 +26,6 @@ const hasXHR2 = (function () {
 
 export class Polling extends Transport {
   private readonly xd: boolean;
-  private readonly xs: boolean;
 
   private polling: boolean = false;
   private pollXhr: any;
@@ -54,7 +53,6 @@ export class Polling extends Transport {
         (typeof location !== "undefined" &&
           opts.hostname !== location.hostname) ||
         port !== opts.port;
-      this.xs = opts.secure !== isSSL;
     }
     /**
      * XHR supports binary
@@ -260,11 +258,7 @@ export class Polling extends Transport {
    * @private
    */
   request(opts = {}) {
-    Object.assign(
-      opts,
-      { xd: this.xd, xs: this.xs, cookieJar: this.cookieJar },
-      this.opts
-    );
+    Object.assign(opts, { xd: this.xd, cookieJar: this.cookieJar }, this.opts);
     return new Request(this.uri(), opts);
   }
 
@@ -309,7 +303,7 @@ interface RequestReservedEvents {
 }
 
 export class Request extends Emitter<{}, {}, RequestReservedEvents> {
-  private readonly opts: { xd; xs; cookieJar: CookieJar } & SocketOptions;
+  private readonly opts: { xd; cookieJar: CookieJar } & SocketOptions;
   private readonly method: string;
   private readonly uri: string;
   private readonly async: boolean;
@@ -360,7 +354,6 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
       "autoUnref"
     );
     opts.xdomain = !!this.opts.xd;
-    opts.xscheme = !!this.opts.xs;
 
     const xhr = (this.xhr = new XMLHttpRequest(opts));
 
