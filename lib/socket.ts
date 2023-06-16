@@ -73,7 +73,8 @@ export interface SocketOptions {
    * A list of transports to try (in order). Engine.io always attempts to
    * connect directly with the first one, provided the feature detection test
    * for it passes.
-   * @default ['polling','websocket']
+   *
+   * @default ['polling','websocket', 'webtransport']
    */
   transports: string[];
 
@@ -324,7 +325,11 @@ export class Socket extends Emitter<
         ? "443"
         : "80");
 
-    this.transports = opts.transports || ["polling", "websocket"];
+    this.transports = opts.transports || [
+      "polling",
+      "websocket",
+      "webtransport",
+    ];
     this.writeBuffer = [];
     this.prevBufferLen = 0;
 

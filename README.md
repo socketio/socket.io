@@ -234,7 +234,7 @@ Exposed as `eio` in the browser standalone build.
       - `timestampParam` (`String`): timestamp parameter (`t`)
       - `path` (`String`): path to connect to, default is `/engine.io`
       - `transports` (`Array`): a list of transports to try (in order).
-      Defaults to `['polling', 'websocket']`. `Engine`
+      Defaults to `['polling', 'websocket', 'webtransport']`. `Engine`
       always attempts to connect directly with the first one, provided the
       feature detection test for it passes.
       - `transportOptions` (`Object`): hash of options, indexed by transport name, overriding the common options for the given transport

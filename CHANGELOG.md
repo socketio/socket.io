@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [6.5.0](#650-2023-06-16) (Jun 2023)
 - [6.4.0](#640-2023-02-06) (Feb 2023)
 - [6.3.1](#631-2023-02-04) (Feb 2023)
 - [6.3.0](#63O-2023-01-10) (Jan 2023)
@@ -35,6 +36,53 @@
 - [4.1.0](#410-2021-01-14) (Jan 2021)
 
 # Release notes
+
+# [6.5.0](https://github.com/socketio/engine.io-client/compare/6.4.0...6.5.0) (2023-06-16)
+
+
+### Features
+
+#### Support for WebTransport
+
+The Engine.IO client can now use WebTransport as the underlying transport.
+
+WebTransport is a web API that uses the HTTP/3 protocol as a bidirectional transport. It's intended for two-way communications between a web client and an HTTP/3 server.
+
+References:
+
+- https://w3c.github.io/webtransport/
+- https://developer.mozilla.org/en-US/docs/Web/API/WebTransport
+- https://developer.chrome.com/articles/webtransport/
+
+**For Node.js clients**: until WebTransport support lands [in Node.js](https://github.com/nodejs/node/issues/38478), you can use the `@fails-components/webtransport` package:
+
+```js
+import { WebTransport } from "@fails-components/webtransport";
+
+global.WebTransport = WebTransport;
+```
+
+Added in [7195c0f](https://github.com/socketio/engine.io-client/commit/7195c0f305b482f7b1ca2ed812030caaf72c0906).
+
+#### Cookie management for the Node.js client
+
+When setting the `withCredentials` option to `true`, the Node.js client will now include the cookies in the HTTP requests, making it easier to use it with cookie-based sticky sessions.
+
+```js
+import { Socket } from "engine.io-client";
+
+const socket = new Socket("https://example.com", {
+  withCredentials: true
+});
+```
+
+Added in [5fc88a6](https://github.com/socketio/engine.io-client/commit/5fc88a62d4017cdc144fa39b9755deadfff2db34).
+
+### Dependencies
+
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [6.4.0](https://github.com/socketio/engine.io-client/compare/6.3.1...6.4.0) (2023-02-06)
 
