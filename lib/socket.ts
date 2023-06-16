@@ -257,7 +257,7 @@ export class Socket extends Emitter<
   public writeBuffer: Packet[] = [];
 
   private prevBufferLen: number;
-  private upgrades;
+  private upgrades: string[];
   private pingInterval: number;
   private pingTimeout: number;
   private pingTimeoutTimer: NodeJS.Timer;
@@ -601,7 +601,19 @@ export class Socket extends Emitter<
     this.once("close", onclose);
     this.once("upgrading", onupgrade);
 
-    transport.open();
+    if (
+      this.upgrades.indexOf("webtransport") !== -1 &&
+      name !== "webtransport"
+    ) {
+      // favor WebTransport
+      this.setTimeoutFn(() => {
+        if (!failed) {
+          transport.open();
+        }
+      }, 200);
+    } else {
+      transport.open();
+    }
   }
 
   /**

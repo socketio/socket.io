@@ -115,6 +115,30 @@ describe("WebTransport", () => {
     );
   });
 
+  it("should favor WebTransport over WebSocket", (done) => {
+    setup(
+      {
+        transports: ["polling", "websocket", "webtransport"],
+      },
+      ({ engine, h3Server, certificate }) => {
+        const httpServer = createServer();
+        engine.attach(httpServer);
+        httpServer.listen(h3Server.port);
+
+        const socket = createSocket(h3Server.port, certificate, {
+          transports: ["polling", "websocket", "webtransport"],
+        });
+
+        socket.on("upgrade", (transport) => {
+          expect(transport.name).to.eql("webtransport");
+
+          httpServer.close();
+          success(engine, h3Server, done);
+        });
+      }
+    );
+  });
+
   it("should send ping/pong packets", (done) => {
     setup(
       {
