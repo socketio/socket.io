@@ -65,7 +65,9 @@ describe("node.js", () => {
     });
 
     socket.on("open", () => {
-      socket.send("sendHeaders");
+      setTimeout(() => {
+        socket.send("sendHeaders");
+      }, 10);
     });
 
     socket.on("message", (data) => {
