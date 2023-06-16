@@ -162,7 +162,9 @@ export class Polling extends Transport {
     const onEnd = (buffer) => {
       this.onData(buffer.toString());
       this.onDataRequestCleanup();
-      res.end("ok");
+      res.cork(() => {
+        res.end("ok");
+      });
     };
 
     res.onAborted(() => {
@@ -312,10 +314,12 @@ export class Polling extends Transport {
 
     const respond = (data) => {
       this.headers(this.req, headers);
-      Object.keys(headers).forEach((key) => {
-        this.res.writeHeader(key, String(headers[key]));
+      this.res.cork(() => {
+        Object.keys(headers).forEach((key) => {
+          this.res.writeHeader(key, String(headers[key]));
+        });
+        this.res.end(data);
       });
-      this.res.end(data);
       callback();
     };
 

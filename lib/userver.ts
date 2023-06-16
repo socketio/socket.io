@@ -70,24 +70,25 @@ export class uServer extends BaseServer {
     (app as TemplatedApp)
       .any(path, this.handleRequest.bind(this))
       //
-      .ws(path, {
+      .ws<{ transport: any }>(path, {
         compression: options.compression,
         idleTimeout: options.idleTimeout,
         maxBackpressure: options.maxBackpressure,
         maxPayloadLength: this.opts.maxHttpBufferSize,
         upgrade: this.handleUpgrade.bind(this),
         open: (ws) => {
-          ws.transport.socket = ws;
-          ws.transport.writable = true;
-          ws.transport.emit("drain");
+          const transport = ws.getUserData().transport;
+          transport.socket = ws;
+          transport.writable = true;
+          transport.emit("drain");
         },
         message: (ws, message, isBinary) => {
-          ws.transport.onData(
+          ws.getUserData().transport.onData(
             isBinary ? message : Buffer.from(message).toString()
           );
         },
         close: (ws, code, message) => {
-          ws.transport.onClose(code, message);
+          ws.getUserData().transport.onClose(code, message);
         },
       });
   }
@@ -323,11 +324,13 @@ class ResponseWrapper {
   public end(data) {
     if (this.isAborted) return;
 
-    if (!this.statusWritten) {
-      // status will be inferred as "200 OK"
-      this.writeBufferedHeaders();
-    }
-    this.res.end(data);
+    this.res.cork(() => {
+      if (!this.statusWritten) {
+        // status will be inferred as "200 OK"
+        this.writeBufferedHeaders();
+      }
+      this.res.end(data);
+    });
   }
 
   public onData(fn) {
@@ -344,5 +347,11 @@ class ResponseWrapper {
       this.isAborted = true;
       fn();
     });
+  }
+
+  public cork(fn) {
+    if (this.isAborted) return;
+
+    this.res.cork(fn);
   }
 }

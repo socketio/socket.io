@@ -57,7 +57,7 @@
     "rimraf": "^3.0.2",
     "superagent": "^3.8.1",
     "typescript": "^4.4.3",
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.15.0"
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.30.0"
   },
   "scripts": {
     "compile": "rimraf ./build && tsc",
