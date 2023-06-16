@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [6.5.0](#650-2023-06-16) (Jun 2023)
 - [6.4.2](#642-2023-05-02) (May 2023)
 - [6.4.1](#641-2023-02-20) (Feb 2023)
 - [6.4.0](#640-2023-02-06) (Feb 2023)
@@ -46,6 +47,91 @@
 
 
 # Release notes
+
+## [6.5.0](https://github.com/socketio/engine.io/compare/6.4.2...6.5.0) (2023-06-16)
+
+
+### Bug Fixes
+
+* **uws:** discard any write to an aborted uWS response ([#682](https://github.com/socketio/engine.io/issues/682)) ([3144d27](https://github.com/socketio/engine.io/commit/3144d274584ae3b96cca4e609c66c56d534f1715))
+
+
+### Features
+
+#### Support for WebTransport
+
+The Engine.IO server can now use WebTransport as the underlying transport.
+
+WebTransport is a web API that uses the HTTP/3 protocol as a bidirectional transport. It's intended for two-way communications between a web client and an HTTP/3 server.
+
+References:
+
+- https://w3c.github.io/webtransport/
+- https://developer.mozilla.org/en-US/docs/Web/API/WebTransport
+- https://developer.chrome.com/articles/webtransport/
+
+Until WebTransport support lands [in Node.js](https://github.com/nodejs/node/issues/38478), you can use the `@fails-components/webtransport` package:
+
+```js
+import { readFileSync } from "fs";
+import { createServer } from "https";
+import { Server } from "engine.io";
+import { Http3Server } from "@fails-components/webtransport";
+
+// WARNING: the total length of the validity period MUST NOT exceed two weeks (https://w3c.github.io/webtransport/#custom-certificate-requirements)
+const cert = readFileSync("/path/to/my/cert.pem");
+const key = readFileSync("/path/to/my/key.pem");
+
+const httpsServer = createServer({
+  key,
+  cert
+});
+
+httpsServer.listen(3000);
+
+const engine = new Server({
+  transports: ["polling", "websocket", "webtransport"] // WebTransport is not enabled by default
+});
+
+engine.attach(httpsServer);
+
+const h3Server = new Http3Server({
+  port: 3000,
+  host: "0.0.0.0",
+  secret: "changeit",
+  cert,
+  privKey: key,
+});
+
+(async () => {
+  const stream = await h3Server.sessionStream("/engine.io/");
+  const sessionReader = stream.getReader();
+
+  while (true) {
+    const { done, value } = await sessionReader.read();
+    if (done) {
+      break;
+    }
+    engine.onWebTransportSession(value);
+  }
+})();
+
+h3Server.startServer();
+```
+
+Added in [123b68c](https://github.com/socketio/engine.io/commit/123b68c04f9e971f59b526e0f967a488ee6b0116).
+
+
+### Credits
+
+Huge thanks to [@OxleyS](https://github.com/OxleyS) for helping!
+
+
+### Dependencies
+
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [6.4.2](https://github.com/socketio/engine.io/compare/6.4.1...6.4.2) (2023-05-02)
 
