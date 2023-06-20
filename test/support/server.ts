@@ -5,6 +5,10 @@ export function createServer() {
   const server = new Server(3210, {
     pingInterval: 2000,
     connectionStateRecovery: {},
+    allowRequest: (req, callback) => {
+      // add a fixed delay to test the connection timeout on the client side
+      setTimeout(() => callback(null, true), 10);
+    },
   });
 
   server.of("/foo").on("connection", (socket) => {

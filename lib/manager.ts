@@ -328,35 +328,32 @@ export class Manager<
       fn && fn();
     });
 
-    // emit `error`
-    const errorSub = on(socket, "error", (err) => {
+    const onError = (err) => {
       debug("error");
-      self.cleanup();
-      self._readyState = "closed";
+      this.cleanup();
+      this._readyState = "closed";
       this.emitReserved("error", err);
       if (fn) {
         fn(err);
       } else {
         // Only do this if there is no fn to handle the error
-        self.maybeReconnectOnOpen();
+        this.maybeReconnectOnOpen();
       }
-    });
+    };
+
+    // emit `error`
+    const errorSub = on(socket, "error", onError);
 
     if (false !== this._timeout) {
       const timeout = this._timeout;
       debug("connect attempt will timeout after %d", timeout);
 
-      if (timeout === 0) {
-        openSubDestroy(); // prevents a race condition with the 'open' event
-      }
-
       // set timer
       const timer = this.setTimeoutFn(() => {
         debug("connect attempt timed out after %d", timeout);
         openSubDestroy();
+        onError(new Error("timeout"));
         socket.close();
-        // @ts-ignore
-        socket.emit("error", new Error("timeout"));
       }, timeout);
 
       if (this.opts.autoUnref) {

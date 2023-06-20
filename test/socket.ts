@@ -70,6 +70,38 @@ describe("socket", () => {
     });
   });
 
+  it("fire a connect_error event on open timeout (polling)", () => {
+    return wrap((done) => {
+      const socket = io(BASE_URL, {
+        forceNew: true,
+        transports: ["polling"],
+        timeout: 0,
+      });
+
+      socket.on("connect_error", (err) => {
+        expect(err.message).to.eql("timeout");
+        socket.disconnect();
+        done();
+      });
+    });
+  });
+
+  it("fire a connect_error event on open timeout (websocket)", () => {
+    return wrap((done) => {
+      const socket = io(BASE_URL, {
+        forceNew: true,
+        transports: ["websocket"],
+        timeout: 0,
+      });
+
+      socket.on("connect_error", (err) => {
+        expect(err.message).to.eql("timeout");
+        socket.disconnect();
+        done();
+      });
+    });
+  });
+
   it("doesn't fire a connect_error event when the connection is already established", () => {
     return wrap((done) => {
       const socket = io(BASE_URL, { forceNew: true });
