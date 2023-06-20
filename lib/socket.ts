@@ -202,7 +202,7 @@ export class Socket<
    * Additional information that can be attached to the Socket instance and which will be used in the
    * {@link Server.fetchSockets()} method.
    */
-  public data: Partial<SocketData> = {};
+  public data: SocketData = {} as SocketData;
   /**
    * Whether the socket is currently connected or not.
    *
@@ -260,7 +260,7 @@ export class Socket<
       this.id = previousSession.sid;
       this.pid = previousSession.pid;
       previousSession.rooms.forEach((room) => this.join(room));
-      this.data = previousSession.data as Partial<SocketData>;
+      this.data = previousSession.data as SocketData;
       previousSession.missedPackets.forEach((packet) => {
         this.packet({
           type: PacketType.EVENT,
