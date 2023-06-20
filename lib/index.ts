@@ -40,6 +40,7 @@ import {
   SecondArg,
 } from "./typed-events";
 import { patchAdapter, restoreAdapter, serveFile } from "./uws";
+import corsMiddleware from "cors";
 
 const debug = debugModule("socket.io:server");
 
@@ -202,6 +203,11 @@ export class Server<
    */
   _connectTimeout: number;
   private httpServer: http.Server | HTTPSServer | Http2SecureServer;
+  private _corsMiddleware: (
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    next: () => void
+  ) => void;
 
   /**
    * Server constructor.
@@ -267,6 +273,10 @@ export class Server<
       this.attach(
         srv as http.Server | HTTPSServer | Http2SecureServer | number
       );
+
+    if (this.opts.cors) {
+      this._corsMiddleware = corsMiddleware(this.opts.cors);
+    }
   }
 
   get _opts() {
@@ -548,7 +558,13 @@ export class Server<
     srv.removeAllListeners("request");
     srv.on("request", (req, res) => {
       if (this.clientPathRegex.test(req.url!)) {
-        this.serve(req, res);
+        if (this._corsMiddleware) {
+          this._corsMiddleware(req, res, () => {
+            this.serve(req, res);
+          });
+        } else {
+          this.serve(req, res);
+        }
       } else {
         for (let i = 0; i < evs.length; i++) {
           evs[i].call(srv, req, res);

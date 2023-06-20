@@ -70,6 +70,27 @@ describe("server attachment", () => {
         });
     });
 
+    it("should serve client with necessary CORS headers", (done) => {
+      const srv = createServer();
+      new Server(srv, {
+        cors: {
+          origin: "https://good-origin.com",
+        },
+      });
+      request(srv)
+        .get("/socket.io/socket.io.js")
+        .set("origin", "https://good-origin.com")
+        .buffer(true)
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.headers["access-control-allow-origin"]).to.be(
+            "https://good-origin.com"
+          );
+          expect(res.status).to.be(200);
+          done();
+        });
+    });
+
     it(
       "should serve bundle with msgpack parser",
       testSource("socket.io.msgpack.min.js")
