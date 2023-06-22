@@ -15,6 +15,7 @@
   "exports": {
     "import": {
       "node": "./build/esm-debug/index.js",
+      "development": "./build/esm-debug/index.js",
       "default": "./build/esm/index.js"
     },
     "require": "./build/cjs/index.js"
