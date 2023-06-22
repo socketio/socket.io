@@ -129,6 +129,7 @@ export class Manager<
   // @ts-ignore
   private backoff: Backoff;
   private setTimeoutFn: typeof setTimeout;
+  private clearTimeoutFn: typeof clearTimeout;
   private _reconnection: boolean;
   private _reconnectionAttempts: number;
   private _reconnectionDelay: number;
@@ -360,8 +361,8 @@ export class Manager<
         timer.unref();
       }
 
-      this.subs.push(function subDestroy(): void {
-        clearTimeout(timer);
+      this.subs.push(() => {
+        this.clearTimeoutFn(timer);
       });
     }
 
@@ -605,8 +606,8 @@ export class Manager<
         timer.unref();
       }
 
-      this.subs.push(function subDestroy() {
-        clearTimeout(timer);
+      this.subs.push(() => {
+        this.clearTimeoutFn(timer);
       });
     }
   }
