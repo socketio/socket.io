@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [4.7.0](#470-2023-06-22) (Jun 2023)
 - [4.6.2](#462-2023-05-31) (May 2023)
 - [4.6.1](#461-2023-02-20) (Feb 2023)
 - [4.6.0](#460-2023-02-07) (Feb 2023)
@@ -57,6 +58,92 @@
 
 
 # Release notes
+
+## [4.7.0](https://github.com/socketio/socket.io/compare/4.6.2...4.7.0) (2023-06-22)
+
+
+### Bug Fixes
+
+* remove the Partial modifier from the socket.data type ([#4740](https://github.com/socketio/socket.io/issues/4740)) ([e5c62ca](https://github.com/socketio/socket.io/commit/e5c62cad60fc7d16fbb024fd9be1d1880f4e6f5f))
+
+
+### Features
+
+#### Support for WebTransport
+
+The Engine.IO server can now use WebTransport as the underlying transport.
+
+WebTransport is a web API that uses the HTTP/3 protocol as a bidirectional transport. It's intended for two-way communications between a web client and an HTTP/3 server.
+
+References:
+
+- https://w3c.github.io/webtransport/
+- https://developer.mozilla.org/en-US/docs/Web/API/WebTransport
+- https://developer.chrome.com/articles/webtransport/
+
+Until WebTransport support lands [in Node.js](https://github.com/nodejs/node/issues/38478), you can use the `@fails-components/webtransport` package:
+
+```js
+import { readFileSync } from "fs";
+import { createServer } from "https";
+import { Server } from "socket.io";
+import { Http3Server } from "@fails-components/webtransport";
+
+// WARNING: the total length of the validity period MUST NOT exceed two weeks (https://w3c.github.io/webtransport/#custom-certificate-requirements)
+const cert = readFileSync("/path/to/my/cert.pem");
+const key = readFileSync("/path/to/my/key.pem");
+
+const httpsServer = createServer({
+  key,
+  cert
+});
+
+httpsServer.listen(3000);
+
+const io = new Server(httpsServer, {
+  transports: ["polling", "websocket", "webtransport"] // WebTransport is not enabled by default
+});
+
+const h3Server = new Http3Server({
+  port: 3000,
+  host: "0.0.0.0",
+  secret: "changeit",
+  cert,
+  privKey: key,
+});
+
+(async () => {
+  const stream = await h3Server.sessionStream("/engine.io/");
+  const sessionReader = stream.getReader();
+
+  while (true) {
+    const { done, value } = await sessionReader.read();
+    if (done) {
+      break;
+    }
+    io.engine.onWebTransportSession(value);
+  }
+})();
+
+h3Server.startServer();
+```
+
+Added in [123b68c](https://github.com/socketio/engine.io/commit/123b68c04f9e971f59b526e0f967a488ee6b0116).
+
+
+#### Client bundles with CORS headers
+
+The bundles will now have the right `Access-Control-Allow-xxx` headers.
+
+Added in [63f181c](https://github.com/socketio/socket.io/commit/63f181cc12cbbbf94ed40eef52d60f36a1214fbe).
+
+
+### Dependencies
+
+- [`engine.io@~6.4.2`](https://github.com/socketio/engine.io/releases/tag/6.5.0) ([diff](https://github.com/socketio/engine.io/compare/6.4.2...6.5.0))
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [4.6.2](https://github.com/socketio/socket.io/compare/4.6.1...4.6.2) (2023-05-31)
 

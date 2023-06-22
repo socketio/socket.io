@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.6.2
+ * Socket.IO v4.7.0
  * (c) 2014-2023 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -355,12 +355,40 @@
 
     fileReader.onload = function () {
       var content = fileReader.result.split(",")[1];
-      callback("b" + content);
+      callback("b" + (content || ""));
     };
 
     return fileReader.readAsDataURL(data);
   };
 
+  function toArray(data) {
+    if (data instanceof Uint8Array) {
+      return data;
+    } else if (data instanceof ArrayBuffer) {
+      return new Uint8Array(data);
+    } else {
+      return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+    }
+  }
+
+  var TEXT_ENCODER;
+  function encodePacketToBinary(packet, callback) {
+    if (withNativeBlob$1 && packet.data instanceof Blob) {
+      return packet.data.arrayBuffer().then(toArray).then(callback);
+    } else if (withNativeArrayBuffer$2 && (packet.data instanceof ArrayBuffer || isView$1(packet.data))) {
+      return callback(toArray(packet.data));
+    }
+
+    encodePacket(packet, false, function (encoded) {
+      if (!TEXT_ENCODER) {
+        TEXT_ENCODER = new TextEncoder();
+      }
+
+      callback(TEXT_ENCODER.encode(encoded));
+    });
+  }
+
+  // imported from https://github.com/socketio/base64-arraybuffer
   var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'; // Use a lookup table to find the index.
 
   var lookup$1 = typeof Uint8Array === 'undefined' ? [] : new Uint8Array(256);
@@ -403,7 +431,6 @@
   };
 
   var withNativeArrayBuffer$1 = typeof ArrayBuffer === "function";
-
   var decodePacket = function decodePacket(encodedPacket, binaryType) {
     if (typeof encodedPacket !== "string") {
       return {
@@ -450,12 +477,24 @@
   var mapBinary = function mapBinary(data, binaryType) {
     switch (binaryType) {
       case "blob":
-        return data instanceof ArrayBuffer ? new Blob([data]) : data;
+        if (data instanceof Blob) {
+          // from WebSocket + binaryType "blob"
+          return data;
+        } else {
+          // from HTTP long-polling or WebTransport
+          return new Blob([data]);
+        }
 
       case "arraybuffer":
       default:
-        return data;
-      // assuming the data is already an ArrayBuffer
+        if (data instanceof ArrayBuffer) {
+          // from HTTP long-polling (base64) or WebSocket + binaryType "arraybuffer"
+          return data;
+        } else {
+          // from WebTransport (Uint8Array)
+          return data.buffer;
+        }
+
     }
   };
 
@@ -494,6 +533,18 @@
     return packets;
   };
 
+  var TEXT_DECODER;
+  function decodePacketFromBinary(data, isBinary, binaryType) {
+    if (!TEXT_DECODER) {
+      // lazily created for compatibility with old browser platforms
+      TEXT_DECODER = new TextDecoder();
+    } // 48 === "0".charCodeAt(0) (OPEN packet type)
+    // 54 === "6".charCodeAt(0) (NOOP packet type)
+
+
+    var isPlainBinary = isBinary || data[0] < 48 || data[0] > 54;
+    return decodePacket(isPlainBinary ? data : TEXT_DECODER.decode(data), binaryType);
+  }
   var protocol$1 = 4;
 
   /**
@@ -728,6 +779,46 @@
     return length;
   }
 
+  // imported from https://github.com/galkn/querystring
+
+  /**
+   * Compiles a querystring
+   * Returns string representation of the object
+   *
+   * @param {Object}
+   * @api private
+   */
+  function encode$1(obj) {
+    var str = '';
+
+    for (var i in obj) {
+      if (obj.hasOwnProperty(i)) {
+        if (str.length) str += '&';
+        str += encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]);
+      }
+    }
+
+    return str;
+  }
+  /**
+   * Parses a simple querystring into an object
+   *
+   * @param {String} qs
+   * @api private
+   */
+
+  function decode(qs) {
+    var qry = {};
+    var pairs = qs.split('&');
+
+    for (var i = 0, l = pairs.length; i < l; i++) {
+      var pair = pairs[i].split('=');
+      qry[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+    }
+
+    return qry;
+  }
+
   var TransportError = /*#__PURE__*/function (_Error) {
     _inherits(TransportError, _Error);
 
@@ -888,6 +979,33 @@
     }, {
       key: "pause",
       value: function pause(onPause) {}
+    }, {
+      key: "createUri",
+      value: function createUri(schema) {
+        var query = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+        return schema + "://" + this._hostname() + this._port() + this.opts.path + this._query(query);
+      }
+    }, {
+      key: "_hostname",
+      value: function _hostname() {
+        var hostname = this.opts.hostname;
+        return hostname.indexOf(":") === -1 ? hostname : "[" + hostname + "]";
+      }
+    }, {
+      key: "_port",
+      value: function _port() {
+        if (this.opts.port && (this.opts.secure && Number(this.opts.port !== 443) || !this.opts.secure && Number(this.opts.port) !== 80)) {
+          return ":" + this.opts.port;
+        } else {
+          return "";
+        }
+      }
+    }, {
+      key: "_query",
+      value: function _query(query) {
+        var encodedQuery = encode$1(query);
+        return encodedQuery.length ? "?" + encodedQuery : "";
+      }
     }]);
 
     return Transport;
@@ -909,7 +1027,7 @@
    * @api public
    */
 
-  function encode$1(num) {
+  function encode(num) {
     var encoded = '';
 
     do {
@@ -927,55 +1045,15 @@
    */
 
   function yeast() {
-    var now = encode$1(+new Date());
+    var now = encode(+new Date());
     if (now !== prev) return seed = 0, prev = now;
-    return now + '.' + encode$1(seed++);
+    return now + '.' + encode(seed++);
   } //
   // Map each character to its index.
   //
 
   for (; i < length; i++) {
     map[alphabet[i]] = i;
-  }
-
-  // imported from https://github.com/galkn/querystring
-
-  /**
-   * Compiles a querystring
-   * Returns string representation of the object
-   *
-   * @param {Object}
-   * @api private
-   */
-  function encode(obj) {
-    var str = '';
-
-    for (var i in obj) {
-      if (obj.hasOwnProperty(i)) {
-        if (str.length) str += '&';
-        str += encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]);
-      }
-    }
-
-    return str;
-  }
-  /**
-   * Parses a simple querystring into an object
-   *
-   * @param {String} qs
-   * @api private
-   */
-
-  function decode(qs) {
-    var qry = {};
-    var pairs = qs.split('&');
-
-    for (var i = 0, l = pairs.length; i < l; i++) {
-      var pair = pairs[i].split('=');
-      qry[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
-    }
-
-    return qry;
   }
 
   // imported from https://github.com/component/has-cors
@@ -1005,6 +1083,7 @@
       } catch (e) {}
     }
   }
+  function createCookieJar() {}
 
   function empty() {}
 
@@ -1043,7 +1122,6 @@
         }
 
         _this.xd = typeof location !== "undefined" && opts.hostname !== location.hostname || port !== opts.port;
-        _this.xs = opts.secure !== isSSL;
       }
       /**
        * XHR supports binary
@@ -1052,6 +1130,11 @@
 
       var forceBase64 = opts && opts.forceBase64;
       _this.supportsBinary = hasXHR2 && !forceBase64;
+
+      if (_this.opts.withCredentials) {
+        _this.cookieJar = createCookieJar();
+      }
+
       return _this;
     }
 
@@ -1222,9 +1305,8 @@
     }, {
       key: "uri",
       value: function uri() {
-        var query = this.query || {};
         var schema = this.opts.secure ? "https" : "http";
-        var port = ""; // cache busting is forced
+        var query = this.query || {}; // cache busting is forced
 
         if (false !== this.opts.timestampRequests) {
           query[this.opts.timestampParam] = yeast();
@@ -1232,16 +1314,9 @@
 
         if (!this.supportsBinary && !query.sid) {
           query.b64 = 1;
-        } // avoid port if default for schema
-
-
-        if (this.opts.port && ("https" === schema && Number(this.opts.port) !== 443 || "http" === schema && Number(this.opts.port) !== 80)) {
-          port = ":" + this.opts.port;
         }
 
-        var encodedQuery = encode(query);
-        var ipv6 = this.opts.hostname.indexOf(":") !== -1;
-        return schema + "://" + (ipv6 ? "[" + this.opts.hostname + "]" : this.opts.hostname) + port + this.opts.path + (encodedQuery.length ? "?" + encodedQuery : "");
+        return this.createUri(schema, query);
       }
       /**
        * Creates a request.
@@ -1257,7 +1332,7 @@
 
         _extends(opts, {
           xd: this.xd,
-          xs: this.xs
+          cookieJar: this.cookieJar
         }, this.opts);
 
         return new Request(this.uri(), opts);
@@ -1327,7 +1402,6 @@
       _this8.opts = opts;
       _this8.method = opts.method || "GET";
       _this8.uri = uri;
-      _this8.async = false !== opts.async;
       _this8.data = undefined !== opts.data ? opts.data : null;
 
       _this8.create();
@@ -1346,13 +1420,14 @@
       value: function create() {
         var _this9 = this;
 
+        var _a;
+
         var opts = pick(this.opts, "agent", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized", "autoUnref");
         opts.xdomain = !!this.opts.xd;
-        opts.xscheme = !!this.opts.xs;
         var xhr = this.xhr = new XHR(opts);
 
         try {
-          xhr.open(this.method, this.uri, this.async);
+          xhr.open(this.method, this.uri, true);
 
           try {
             if (this.opts.extraHeaders) {
@@ -1374,8 +1449,9 @@
 
           try {
             xhr.setRequestHeader("Accept", "*/*");
-          } catch (e) {} // ie6 check
+          } catch (e) {}
 
+          (_a = this.opts.cookieJar) === null || _a === void 0 ? void 0 : _a.addCookies(xhr); // ie6 check
 
           if ("withCredentials" in xhr) {
             xhr.withCredentials = this.opts.withCredentials;
@@ -1386,6 +1462,12 @@
           }
 
           xhr.onreadystatechange = function () {
+            var _a;
+
+            if (xhr.readyState === 3) {
+              (_a = _this9.opts.cookieJar) === null || _a === void 0 ? void 0 : _a.parseCookies(xhr);
+            }
+
             if (4 !== xhr.readyState) return;
 
             if (200 === xhr.status || 1223 === xhr.status) {
@@ -1675,14 +1757,8 @@
     }, {
       key: "uri",
       value: function uri() {
-        var query = this.query || {};
         var schema = this.opts.secure ? "wss" : "ws";
-        var port = ""; // avoid port if default for schema
-
-        if (this.opts.port && ("wss" === schema && Number(this.opts.port) !== 443 || "ws" === schema && Number(this.opts.port) !== 80)) {
-          port = ":" + this.opts.port;
-        } // append timestamp to URI
-
+        var query = this.query || {}; // append timestamp to URI
 
         if (this.opts.timestampRequests) {
           query[this.opts.timestampParam] = yeast();
@@ -1693,9 +1769,7 @@
           query.b64 = 1;
         }
 
-        var encodedQuery = encode(query);
-        var ipv6 = this.opts.hostname.indexOf(":") !== -1;
-        return schema + "://" + (ipv6 ? "[" + this.opts.hostname + "]" : this.opts.hostname) + port + this.opts.path + (encodedQuery.length ? "?" + encodedQuery : "");
+        return this.createUri(schema, query);
       }
       /**
        * Feature detection for WebSocket.
@@ -1714,8 +1788,127 @@
     return WS;
   }(Transport);
 
+  function shouldIncludeBinaryHeader(packet, encoded) {
+    // 48 === "0".charCodeAt(0) (OPEN packet type)
+    // 54 === "6".charCodeAt(0) (NOOP packet type)
+    return packet.type === "message" && typeof packet.data !== "string" && encoded[0] >= 48 && encoded[0] <= 54;
+  }
+
+  var WT = /*#__PURE__*/function (_Transport) {
+    _inherits(WT, _Transport);
+
+    var _super = _createSuper(WT);
+
+    function WT() {
+      _classCallCheck(this, WT);
+
+      return _super.apply(this, arguments);
+    }
+
+    _createClass(WT, [{
+      key: "name",
+      get: function get() {
+        return "webtransport";
+      }
+    }, {
+      key: "doOpen",
+      value: function doOpen() {
+        var _this = this;
+
+        // @ts-ignore
+        if (typeof WebTransport !== "function") {
+          return;
+        } // @ts-ignore
+
+
+        this.transport = new WebTransport(this.createUri("https"), this.opts.transportOptions[this.name]);
+        this.transport.closed.then(function () {
+          return _this.onClose();
+        }); // note: we could have used async/await, but that would require some additional polyfills
+
+        this.transport.ready.then(function () {
+          _this.transport.createBidirectionalStream().then(function (stream) {
+            var reader = stream.readable.getReader();
+            _this.writer = stream.writable.getWriter();
+            var binaryFlag;
+
+            var read = function read() {
+              reader.read().then(function (_ref) {
+                var done = _ref.done,
+                    value = _ref.value;
+
+                if (done) {
+                  return;
+                }
+
+                if (!binaryFlag && value.byteLength === 1 && value[0] === 54) {
+                  binaryFlag = true;
+                } else {
+                  // TODO expose binarytype
+                  _this.onPacket(decodePacketFromBinary(value, binaryFlag, "arraybuffer"));
+
+                  binaryFlag = false;
+                }
+
+                read();
+              });
+            };
+
+            read();
+            var handshake = _this.query.sid ? "0{\"sid\":\"".concat(_this.query.sid, "\"}") : "0";
+
+            _this.writer.write(new TextEncoder().encode(handshake)).then(function () {
+              return _this.onOpen();
+            });
+          });
+        });
+      }
+    }, {
+      key: "write",
+      value: function write(packets) {
+        var _this2 = this;
+
+        this.writable = false;
+
+        var _loop = function _loop(i) {
+          var packet = packets[i];
+          var lastPacket = i === packets.length - 1;
+          encodePacketToBinary(packet, function (data) {
+            if (shouldIncludeBinaryHeader(packet, data)) {
+              _this2.writer.write(Uint8Array.of(54));
+            }
+
+            _this2.writer.write(data).then(function () {
+              if (lastPacket) {
+                nextTick(function () {
+                  _this2.writable = true;
+
+                  _this2.emitReserved("drain");
+                }, _this2.setTimeoutFn);
+              }
+            });
+          });
+        };
+
+        for (var i = 0; i < packets.length; i++) {
+          _loop(i);
+        }
+      }
+    }, {
+      key: "doClose",
+      value: function doClose() {
+        var _a;
+
+        (_a = this.transport) === null || _a === void 0 ? void 0 : _a.close();
+      }
+    }]);
+
+    return WT;
+  }(Transport);
+
   var transports = {
     websocket: WS,
+    webtransport: WT,
     polling: Polling
   };
 
@@ -1841,7 +2034,7 @@
 
       _this.hostname = opts.hostname || (typeof location !== "undefined" ? location.hostname : "localhost");
       _this.port = opts.port || (typeof location !== "undefined" && location.port ? location.port : _this.secure ? "443" : "80");
-      _this.transports = opts.transports || ["polling", "websocket"];
+      _this.transports = opts.transports || ["polling", "websocket", "webtransport"];
       _this.writeBuffer = [];
       _this.prevBufferLen = 0;
       _this.opts = _extends({
@@ -2108,7 +2301,17 @@
         transport.once("close", onTransportClose);
         this.once("close", onclose);
         this.once("upgrading", onupgrade);
-        transport.open();
+
+        if (this.upgrades.indexOf("webtransport") !== -1 && name !== "webtransport") {
+          // favor WebTransport
+          this.setTimeoutFn(function () {
+            if (!failed) {
+              transport.open();
+            }
+          }, 200);
+        } else {
+          transport.open();
+        }
       }
       /**
        * Called when connection is deemed open.
@@ -4381,11 +4584,12 @@
         var openSubDestroy = on(socket, "open", function () {
           self.onopen();
           fn && fn();
-        }); // emit `error`
+        });
 
-        var errorSub = on(socket, "error", function (err) {
-          self.cleanup();
-          self._readyState = "closed";
+        var onError = function onError(err) {
+          _this2.cleanup();
+
+          _this2._readyState = "closed";
 
           _this2.emitReserved("error", err);
 
@@ -4393,31 +4597,28 @@
             fn(err);
           } else {
             // Only do this if there is no fn to handle the error
-            self.maybeReconnectOnOpen();
+            _this2.maybeReconnectOnOpen();
           }
-        });
+        }; // emit `error`
+
+
+        var errorSub = on(socket, "error", onError);
 
         if (false !== this._timeout) {
-          var timeout = this._timeout;
-
-          if (timeout === 0) {
-            openSubDestroy(); // prevents a race condition with the 'open' event
-          } // set timer
-
+          var timeout = this._timeout; // set timer
 
           var timer = this.setTimeoutFn(function () {
             openSubDestroy();
-            socket.close(); // @ts-ignore
-
-            socket.emit("error", new Error("timeout"));
+            onError(new Error("timeout"));
+            socket.close();
           }, timeout);
 
           if (this.opts.autoUnref) {
             timer.unref();
           }
 
-          this.subs.push(function subDestroy() {
-            clearTimeout(timer);
+          this.subs.push(function () {
+            _this2.clearTimeoutFn(timer);
           });
         }
 
@@ -4670,8 +4871,8 @@
             timer.unref();
           }
 
-          this.subs.push(function subDestroy() {
-            clearTimeout(timer);
+          this.subs.push(function () {
+            _this4.clearTimeoutFn(timer);
           });
         }
       }
