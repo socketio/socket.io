@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [4.7.0](#470-2023-06-22) (Jun 2023)
 - [4.6.2](#462-2023-05-31) (May 2023)
 - [4.6.1](#461-2023-02-20) (Feb 2023)
 - [4.6.0](#460-2023-02-07) (Feb 2023)
@@ -58,6 +59,88 @@
 
 
 # Release notes
+
+## [4.7.0](https://github.com/socketio/socket.io-client/compare/4.6.2...4.7.0) (2023-06-22)
+
+
+### Bug Fixes
+
+* properly report timeout error when connecting ([5bc94b5](https://github.com/socketio/socket.io-client/commit/5bc94b56bc1788bab16d9d514d2c8abf3b1d8f87))
+* use same scope for setTimeout and clearTimeout calls ([#1568](https://github.com/socketio/socket.io-client/issues/1568)) ([f2892ab](https://github.com/socketio/socket.io-client/commit/f2892aba0beeae7c9be930221655d7da6094c5f1))
+
+
+### Features
+
+#### Support for WebTransport
+
+The Engine.IO client can now use WebTransport as the underlying transport.
+
+WebTransport is a web API that uses the HTTP/3 protocol as a bidirectional transport. It's intended for two-way communications between a web client and an HTTP/3 server.
+
+References:
+
+- https://w3c.github.io/webtransport/
+- https://developer.mozilla.org/en-US/docs/Web/API/WebTransport
+- https://developer.chrome.com/articles/webtransport/
+
+**For Node.js clients**: until WebTransport support lands [in Node.js](https://github.com/nodejs/node/issues/38478), you can use the `@fails-components/webtransport` package:
+
+```js
+import { WebTransport } from "@fails-components/webtransport";
+
+global.WebTransport = WebTransport;
+```
+
+Added in [7195c0f](https://github.com/socketio/engine.io-client/commit/7195c0f305b482f7b1ca2ed812030caaf72c0906).
+
+#### Cookie management for the Node.js client
+
+When setting the `withCredentials` option to `true`, the Node.js client will now include the cookies in the HTTP requests, making it easier to use it with cookie-based sticky sessions.
+
+```js
+import { io } from "socket.io-client";
+
+const socket = io("https://example.com", {
+  withCredentials: true
+});
+```
+
+Added in [5fc88a6](https://github.com/socketio/engine.io-client/commit/5fc88a62d4017cdc144fa39b9755deadfff2db34).
+
+#### Conditional import of the ESM build with debug logs
+
+By default, the ESM build does not include the `debug` package in the browser environments, because it increases the bundle size (see [16b6569](https://github.com/socketio/socket.io-client/commit/16b65698aed766e1e645c78847f2e91bfc5b6f56)).
+
+Which means that, unfortunately, debug logs are not available in the devtools console, even when setting the `localStorage.debug = ...` attribute.
+
+You can now import the build which includes the `debug` packages with a [conditional import](https://nodejs.org/api/packages.html#conditional-exports). Example with vite:
+
+```js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 4000
+  },
+  resolve: {
+    conditions: ["development"]
+  }
+})
+```
+
+Reference: https://v2.vitejs.dev/config/#resolve-conditions
+
+Added in [781d753](https://github.com/socketio/socket.io-client/commit/781d753a626d01e675056a2ff4e27f5dd599564f).
+
+
+### Dependencies
+
+- [`engine.io-client@~6.5.0`](https://github.com/socketio/engine.io-client/releases/tag/6.5.0) ([diff](https://github.com/socketio/engine.io-client/compare/6.4.0...6.5.0))
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [4.6.2](https://github.com/socketio/socket.io-client/compare/4.6.1...4.6.2) (2023-05-31)
 
