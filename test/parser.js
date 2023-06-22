@@ -1,4 +1,4 @@
-const { PacketType, Decoder, Encoder } = require("..");
+const { PacketType, Decoder, Encoder, isPacketValid } = require("..");
 const expect = require("expect.js");
 const helpers = require("./helpers.js");
 
@@ -147,5 +147,94 @@ describe("socket.io-parser", () => {
       decoder.destroy();
       decoder.add('2["hello"]');
     });
+  });
+
+  it("should ensure that a packet is valid", () => {
+    expect(
+      isPacketValid({
+        type: 0,
+        nsp: "/",
+      })
+    ).to.eql(true);
+
+    expect(
+      isPacketValid({
+        type: 0,
+        nsp: "/admin",
+        data: "invalid",
+      })
+    ).to.eql(false);
+
+    expect(
+      isPacketValid({
+        type: 0,
+        nsp: "/",
+        data: [],
+      })
+    ).to.eql(false);
+
+    expect(
+      isPacketValid({
+        type: 1,
+        nsp: "/admin",
+        data: {},
+      })
+    ).to.eql(false);
+
+    expect(
+      isPacketValid({
+        type: 2,
+        nsp: "/admin",
+        data: "invalid",
+      })
+    ).to.eql(false);
+
+    expect(
+      isPacketValid({
+        type: 2,
+        nsp: "/admin",
+        data: {},
+      })
+    ).to.eql(false);
+
+    expect(
+      isPacketValid({
+        type: 2,
+        nsp: "/",
+        data: { toString: "foo" },
+      })
+    ).to.eql(false);
+
+    expect(
+      isPacketValid({
+        type: 2,
+        nsp: "/",
+        data: [true, "foo"],
+      })
+    ).to.eql(false);
+
+    expect(
+      isPacketValid({
+        type: 2,
+        nsp: "/",
+        data: [null, "bar"],
+      })
+    ).to.eql(false);
+
+    expect(
+      isPacketValid({
+        type: 2,
+        nsp: "/",
+        data: ["connect"],
+      })
+    ).to.eql(false);
+
+    expect(
+      isPacketValid({
+        type: 2,
+        nsp: "/",
+        data: ["disconnect", "123"],
+      })
+    ).to.eql(false);
   });
 });
