@@ -852,10 +852,6 @@ describe("socket", () => {
   it("should not crash when messing with Object prototype (and other globals)", (done) => {
     // @ts-ignore
     Object.prototype.foo = "bar";
-    // @ts-ignore
-    global.File = "";
-    // @ts-ignore
-    global.Blob = [];
     const io = new Server(0);
     const socket = createClient(io);
 
