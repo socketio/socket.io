@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [6.5.1](#651-2023-06-27) (Jun 2023)
 - [6.5.0](#650-2023-06-16) (Jun 2023)
 - [6.4.2](#642-2023-05-02) (May 2023)
 - [6.4.1](#641-2023-02-20) (Feb 2023)
@@ -47,6 +48,25 @@
 
 
 # Release notes
+
+## [6.5.1](https://github.com/socketio/engine.io/compare/6.5.0...6.5.1) (2023-06-27)
+
+
+### Bug Fixes
+
+* prevent crash when accessing TextDecoder ([#684](https://github.com/socketio/engine.io/issues/684)) ([6dd2bc4](https://github.com/socketio/engine.io/commit/6dd2bc4f68edd7575c3844ae8ceadde649be95b2))
+
+
+### Credits
+
+Huge thanks to [@iowaguy](https://github.com/iowaguy) for helping!
+
+
+### Dependencies
+
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [6.5.0](https://github.com/socketio/engine.io/compare/6.4.2...6.5.0) (2023-06-16)
 
