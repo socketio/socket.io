@@ -418,7 +418,6 @@ export class Socket extends Emitter<
 
     const opts = Object.assign(
       {},
-      this.opts.transportOptions[name],
       this.opts,
       {
         query,
@@ -426,7 +425,8 @@ export class Socket extends Emitter<
         hostname: this.hostname,
         secure: this.secure,
         port: this.port,
-      }
+      },
+      this.opts.transportOptions[name]
     );
 
     debug("options: %j", opts);
