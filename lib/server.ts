@@ -16,6 +16,7 @@ import type { CookieSerializeOptions } from "cookie";
 import type { CorsOptions, CorsOptionsDelegate } from "cors";
 import type { Duplex } from "stream";
 import { WebTransport } from "./transports/webtransport";
+import { TextDecoder } from "util";
 
 const debug = debugModule("engine");
 
