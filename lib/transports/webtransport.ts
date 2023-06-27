@@ -39,7 +39,15 @@ export class WT extends Transport {
       this.opts.transportOptions[this.name]
     );
 
-    this.transport.closed.then(() => this.onClose());
+    this.transport.closed
+      .then(() => {
+        debug("transport closed gracefully");
+        this.onClose();
+      })
+      .catch((err) => {
+        debug("transport closed due to %s", err);
+        this.onError("webtransport error", err);
+      });
 
     // note: we could have used async/await, but that would require some additional polyfills
     this.transport.ready.then(() => {
@@ -50,23 +58,28 @@ export class WT extends Transport {
         let binaryFlag;
 
         const read = () => {
-          reader.read().then(({ done, value }) => {
-            if (done) {
-              debug("session is closed");
-              return;
-            }
-            debug("received chunk: %o", value);
-            if (!binaryFlag && value.byteLength === 1 && value[0] === 54) {
-              binaryFlag = true;
-            } else {
-              // TODO expose binarytype
-              this.onPacket(
-                decodePacketFromBinary(value, binaryFlag, "arraybuffer")
-              );
-              binaryFlag = false;
-            }
-            read();
-          });
+          reader
+            .read()
+            .then(({ done, value }) => {
+              if (done) {
+                debug("session is closed");
+                return;
+              }
+              debug("received chunk: %o", value);
+              if (!binaryFlag && value.byteLength === 1 && value[0] === 54) {
+                binaryFlag = true;
+              } else {
+                // TODO expose binarytype
+                this.onPacket(
+                  decodePacketFromBinary(value, binaryFlag, "arraybuffer")
+                );
+                binaryFlag = false;
+              }
+              read();
+            })
+            .catch((err) => {
+              debug("an error occurred while reading: %s", err);
+            });
         };
 
         read();
