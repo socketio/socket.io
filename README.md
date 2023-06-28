@@ -31,6 +31,7 @@ Table of Contents:
 - [Transport upgrading](#transport-upgrading)
 - [Timeouts](#timeouts)
 - [Difference between v2 and v3](#difference-between-v2-and-v3)
+- [Test suite](#test-suite)
 
 ## Revision
 
@@ -511,3 +512,34 @@ does not receive any data within `pingTimeout + pingInterval`.
 - add support for binary data
 
 v2 is included in Socket.IO v0.9, while v3 is included in Socket.IO v1/v2.
+
+## Test suite
+
+The test suite in the `test-suite/` directory lets you check the compliance of a server implementation.
+
+Usage:
+
+- in Node.js: `npm ci && npm test`
+- in a browser: simply open the `index.html` file in your browser
+
+For reference, here is expected configuration for the JavaScript server to pass all tests:
+
+```js
+import { listen } from "engine.io";
+
+const server = listen(3000, {
+  pingInterval: 300,
+  pingTimeout: 200,
+  allowEIO3: true,
+  maxPayload: 1e6,
+  cors: {
+    origin: "*"
+  }
+});
+
+server.on("connection", socket => {
+  socket.on("data", (...args) => {
+    socket.send(...args);
+  });
+});
+```
