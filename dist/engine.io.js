@@ -1,5 +1,5 @@
 /*!
- * Engine.IO v6.5.0
+ * Engine.IO v6.5.1
  * (c) 2014-2023 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -1744,7 +1744,9 @@
 
         this.transport = new WebTransport(this.createUri("https"), this.opts.transportOptions[this.name]);
         this.transport.closed.then(function () {
-          return _this.onClose();
+          _this.onClose();
+        })["catch"](function (err) {
+          _this.onError("webtransport error", err);
         }); // note: we could have used async/await, but that would require some additional polyfills
 
         this.transport.ready.then(function () {
@@ -1772,7 +1774,7 @@
                 }
 
                 read();
-              });
+              })["catch"](function (err) {});
             };
 
             read();
@@ -1976,7 +1978,7 @@
           threshold: 1024
         },
         transportOptions: {},
-        closeOnBeforeunload: true
+        closeOnBeforeunload: false
       }, opts);
       _this.opts.path = _this.opts.path.replace(/\/$/, "") + (_this.opts.addTrailingSlash ? "/" : "");
 
@@ -2045,13 +2047,13 @@
 
         if (this.id) query.sid = this.id;
 
-        var opts = _extends({}, this.opts.transportOptions[name], this.opts, {
+        var opts = _extends({}, this.opts, {
           query: query,
           socket: this,
           hostname: this.hostname,
           secure: this.secure,
           port: this.port
-        });
+        }, this.opts.transportOptions[name]);
 
         return new transports[name](opts);
       }
