@@ -170,7 +170,7 @@ export interface SocketOptions {
 
   /**
    * Whether to automatically close the connection whenever the beforeunload event is received.
-   * @default true
+   * @default false
    */
   closeOnBeforeunload: boolean;
 
@@ -347,7 +347,7 @@ export class Socket extends Emitter<
           threshold: 1024,
         },
         transportOptions: {},
-        closeOnBeforeunload: true,
+        closeOnBeforeunload: false,
       },
       opts
     );
