@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [4.7.1](#471-2023-06-28) (Jun 2023)
 - [4.7.0](#470-2023-06-22) (Jun 2023)
 - [4.6.2](#462-2023-05-31) (May 2023)
 - [4.6.1](#461-2023-02-20) (Feb 2023)
@@ -59,6 +60,21 @@
 
 
 # Release notes
+
+## [4.7.1](https://github.com/socketio/socket.io-client/compare/4.7.0...4.7.1) (2023-06-28)
+
+Some bug fixes are included from the `engine.io-client` package:
+
+* make closeOnBeforeunload default to false ([a63066b](https://github.com/socketio/engine.io-client/commit/a63066bdc8ae9e6746c3113d06c2ead78f4a4851))
+* **webtransport:** properly handle abruptly closed connections ([cf6aa1f](https://github.com/socketio/engine.io-client/commit/cf6aa1f43c27a56c076bf26fddfce74bfeb65040))
+
+
+### Dependencies
+
+- [`engine.io-client@~6.5.1`](https://github.com/socketio/engine.io-client/releases/tag/6.5.1) ([diff](https://github.com/socketio/engine.io-client/compare/6.5.0...6.5.1))
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [4.7.0](https://github.com/socketio/socket.io-client/compare/4.6.2...4.7.0) (2023-06-22)
 
