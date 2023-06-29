@@ -1,0 +1,11 @@
+{
+  "name": "webtransport",
+  "version": "0.0.1",
+  "description": "",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@fails-components/webtransport": "^0.1.7",
+    "socket.io": "^4.7.1"
+  }
+}

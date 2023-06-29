@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Socket.IO WebTransport exampleqg</title>
+  </head>
+  <body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io({
+        transportOptions: {
+          webtransport: {
+            hostname: "127.0.0.1"
+          }
+        }
+      });
+
+      socket.on("connect", () => {
+        console.log(`connect ${socket.id}`);
+
+        socket.io.engine.on("upgrade", (transport) => {
+          console.log(`transport upgraded to ${transport.name}`);
+        });
+      });
+
+      socket.on("connect_error", (err) => {
+        console.log(`connect_error due to ${err.message}`);
+      });
+
+      socket.on("disconnect", (reason) => {
+        console.log(`disconnect due to ${reason}`);
+      });
+    </script>
+  </body>
+</html>
