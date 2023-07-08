@@ -557,7 +557,7 @@ describe("Engine.IO protocol", () => {
         `${WS_URL}/engine.io/?EIO=4&transport=websocket&sid=${sid}`
       );
 
-      await waitFor(socket2, "error");
+      await waitFor(socket2, "close");
 
       socket.send("4hello");
 
