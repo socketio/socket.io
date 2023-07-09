@@ -79,6 +79,6 @@
     "wrapper.mjs"
   ],
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=10.2.0"
   }
 }
