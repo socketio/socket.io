@@ -37,15 +37,16 @@ describe("@socket.io/cluster-adapter", () => {
         PORT,
       });
 
-      const clientSocket = ioc(`http://localhost:${PORT}`);
-      clientSocket.on("connect", async () => {
-        workers.push(worker);
-        clientSockets.push(clientSocket);
-        if (clientSockets.length === NODES_COUNT) {
-          await sleep(100);
+      worker.on("listening", () => {
+        const clientSocket = ioc(`http://localhost:${PORT}`);
 
-          done();
-        }
+        clientSocket.on("connect", async () => {
+          workers.push(worker);
+          clientSockets.push(clientSocket);
+          if (clientSockets.length === NODES_COUNT) {
+            done();
+          }
+        });
       });
     }
   });
