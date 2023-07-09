@@ -14,8 +14,8 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 14
-          - 18
+          - 12
+          - 20
 
     steps:
       - name: Checkout repository
