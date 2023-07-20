@@ -758,6 +758,8 @@ export class Socket<
     }
 
     this._cleanup();
+    this.client._remove(this);
+    this.connected = false;
     this.emitReserved("disconnect", reason, description);
     return;
   }
@@ -770,8 +772,6 @@ export class Socket<
   _cleanup() {
     this.leaveAll();
     this.nsp._remove(this);
-    this.client._remove(this);
-    this.connected = false;
     this.join = noop;
   }
 
