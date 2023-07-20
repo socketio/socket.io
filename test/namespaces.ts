@@ -667,7 +667,8 @@ describe("namespaces", () => {
       c1.on("connect_error", () => {
         setTimeout(() => {
           expect(io._nsps.has("/dynamic-101")).to.be(true);
-          success(done, io);
+          expect(io._nsps.get("/dynamic-101")!.sockets.size).to.be(0);
+          success(done, io, c1);
         }, 100);
       });
     });
@@ -686,7 +687,7 @@ describe("namespaces", () => {
       c1.on("connect_error", () => {
         setTimeout(() => {
           expect(io._nsps.has("/dynamic-101")).to.be(false);
-          success(done, io);
+          success(done, io, c1);
         }, 100);
       });
     });
@@ -712,8 +713,8 @@ describe("namespaces", () => {
         c2.on("connect_error", () => {
           setTimeout(() => {
             expect(io._nsps.has("/dynamic-101")).to.be(true);
-            c1.off("connect_error");
-            success(done, io);
+            expect(io._nsps.get("/dynamic-101")!.sockets.size).to.be(1);
+            success(done, io, c1, c2);
           }, 100);
         });
       });
