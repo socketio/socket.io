@@ -653,6 +653,76 @@ describe("namespaces", () => {
       io.of(/^\/dynamic-\d+$/);
     });
 
+    it("should NOT clean up namespace when cleanupEmptyChildNamespaces is OFF and client is rejected in middleware", (done) => {
+      const io = new Server(0, { cleanupEmptyChildNamespaces: false });
+      io.of(/^\/dynamic-\d+$/).use((socket, next) => {
+        next(new Error("You shall not pass!"));
+      });
+      const c1 = createClient(io, "/dynamic-101");
+
+      c1.on("connect", () => {
+        done(new Error("Should not connect"));
+      });
+
+      c1.on("connect_error", () => {
+        setTimeout(() => {
+          expect(io._nsps.has("/dynamic-101")).to.be(true);
+          expect(io._nsps.get("/dynamic-101")!.sockets.size).to.be(0);
+          success(done, io, c1);
+        }, 100);
+      });
+    });
+
+    it("should clean up namespace when cleanupEmptyChildNamespaces is ON and client is rejected in middleware", (done) => {
+      const io = new Server(0, { cleanupEmptyChildNamespaces: true });
+      io.of(/^\/dynamic-\d+$/).use((socket, next) => {
+        next(new Error("You shall not pass!"));
+      });
+      const c1 = createClient(io, "/dynamic-101");
+
+      c1.on("connect", () => {
+        done(new Error("Should not connect"));
+      });
+
+      c1.on("connect_error", () => {
+        setTimeout(() => {
+          expect(io._nsps.has("/dynamic-101")).to.be(false);
+          success(done, io, c1);
+        }, 100);
+      });
+    });
+
+    it("should NOT clean up namespace when cleanupEmptyChildNamespaces is ON and client is rejected in middleware but there are other clients connected", (done) => {
+      const io = new Server(0, { cleanupEmptyChildNamespaces: true });
+      let clientIdxToReject = 0;
+      io.of(/^\/dynamic-\d+$/).use((socket, next) => {
+        if (clientIdxToReject) {
+          next(new Error("You shall not pass!"));
+        } else {
+          next();
+        }
+        clientIdxToReject++;
+      });
+      const c1 = createClient(io, "/dynamic-101");
+
+      c1.on("connect", () => {
+        const c2 = createClient(io, "/dynamic-101");
+        c2.on("connect", () => {
+          done(new Error("Client 2 should not connect"));
+        });
+        c2.on("connect_error", () => {
+          setTimeout(() => {
+            expect(io._nsps.has("/dynamic-101")).to.be(true);
+            expect(io._nsps.get("/dynamic-101")!.sockets.size).to.be(1);
+            success(done, io, c1, c2);
+          }, 100);
+        });
+      });
+      c1.on("connect_error", () => {
+        done(new Error("Client 1 should not get an error"));
+      });
+    });
+
     it("should attach a child namespace to its parent upon manual creation", () => {
       const io = new Server(0);
       const parentNamespace = io.of(/^\/dynamic-\d+$/);
