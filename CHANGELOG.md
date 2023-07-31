@@ -1,5 +1,6 @@
 # History
 
+- [5.2.0](#520-2023-07-31) (Jul 2023)
 - [5.1.0](#510-2023-06-11) (Jun 2023)
 - [5.0.7](#507-2023-05-24) (May 2023)
 - [5.0.6](#506-2023-01-16) (Jan 2023)
@@ -8,19 +9,28 @@
 - [5.0.3](#503-2022-01-17) (Jan 2022)
 - [5.0.2](#502-2021-11-14) (Nov 2021)
 - [5.0.1](#501-2021-10-15) (Oct 2021)
-- [5.0.0](#500-2021-10-04) (Oct 2021)
+- [**5.0.0**](#500-2021-10-04) (Oct 2021) (major: TypeScript rewrite)
 - [4.0.3](#403-2021-08-29) (Aug 2021)
 - [4.0.2](#402-2020-12-07) (Dec 2020)
 - [2.2.1](#221-2020-09-30) (Sep 2020) (from the [2.2.x](https://github.com/socketio/engine.io-parser/tree/2.2.x) branch)
 - [4.0.1](#401-2020-09-10) (Sep 2020)
-- [4.0.0](#400-2020-09-08) (Sep 2020)
+- [**4.0.0**](#400-2020-09-08) (Sep 2020) (major: Engine.IO v4)
 - [2.2.0](#220-2019-09-13) (Sep 2019)
 
 
 
 # Release notes
 
-# [5.1.0](https://github.com/socketio/engine.io-parser/compare/5.0.7...5.1.0) (2023-06-11)
+## [5.2.0](https://github.com/socketio/engine.io-parser/compare/5.1.0...5.2.0) (2023-07-31)
+
+
+### Features
+
+* prepend a header to each WebTransport chunk ([6142324](https://github.com/socketio/engine.io-parser/commit/6142324fa61204393028f3f58f336d053030ea5f))
+
+
+
+## [5.1.0](https://github.com/socketio/engine.io-parser/compare/5.0.7...5.1.0) (2023-06-11)
 
 
 ### Features
