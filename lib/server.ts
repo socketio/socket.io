@@ -16,12 +16,11 @@ import type { CookieSerializeOptions } from "cookie";
 import type { CorsOptions, CorsOptionsDelegate } from "cors";
 import type { Duplex } from "stream";
 import { WebTransport } from "./transports/webtransport";
-import { TextDecoder } from "util";
+import { createPacketDecoderStream } from "engine.io-parser";
 
 const debug = debugModule("engine");
 
 const kResponseHeaders = Symbol("responseHeaders");
-const TEXT_DECODER = new TextDecoder();
 
 type Transport = "polling" | "websocket";
 
@@ -149,15 +148,13 @@ type Middleware = (
   next: (err?: any) => void
 ) => void;
 
-function parseSessionId(handshake: string) {
-  if (handshake.startsWith("0{")) {
-    try {
-      const parsed = JSON.parse(handshake.substring(1));
-      if (typeof parsed.sid === "string") {
-        return parsed.sid;
-      }
-    } catch (e) {}
-  }
+function parseSessionId(data: string) {
+  try {
+    const parsed = JSON.parse(data);
+    if (typeof parsed.sid === "string") {
+      return parsed.sid;
+    }
+  } catch (e) {}
 }
 
 export abstract class BaseServer extends EventEmitter {
@@ -536,7 +533,11 @@ export abstract class BaseServer extends EventEmitter {
     }
 
     const stream = result.value;
-    const reader = stream.readable.getReader();
+    const transformStream = createPacketDecoderStream(
+      this.opts.maxHttpBufferSize,
+      "nodebuffer"
+    );
+    const reader = stream.readable.pipeThrough(transformStream).getReader();
 
     // reading the first packet of the stream
     const { value, done } = await reader.read();
@@ -546,12 +547,13 @@ export abstract class BaseServer extends EventEmitter {
     }
 
     clearTimeout(timeout);
-    const handshake = TEXT_DECODER.decode(value);
 
-    // handshake is either
-    // "0" => new session
-    // '0{"sid":"xxxx"}' => upgrade
-    if (handshake === "0") {
+    if (value.type !== "open") {
+      debug("invalid WebTransport handshake");
+      return session.close();
+    }
+
+    if (value.data === undefined) {
       const transport = new WebTransport(session, stream, reader);
 
       // note: we cannot use "this.generateId()", because there is no "req" argument
@@ -572,7 +574,7 @@ export abstract class BaseServer extends EventEmitter {
       return;
     }
 
-    const sid = parseSessionId(handshake);
+    const sid = parseSessionId(value.data);
 
     if (!sid) {
       debug("invalid WebTransport handshake");

@@ -39,7 +39,7 @@
     "cookie": "~0.4.1",
     "cors": "~2.8.5",
     "debug": "~4.3.1",
-    "engine.io-parser": "~5.1.0",
+    "engine.io-parser": "~5.2.1",
     "ws": "~8.11.0"
   },
   "devDependencies": {
