@@ -1,6 +1,12 @@
 import { encodePacket, encodePacketToBinary } from "./encodePacket.js";
 import { decodePacket } from "./decodePacket.js";
-import { Packet, PacketType, RawData, BinaryType } from "./commons.js";
+import {
+  Packet,
+  PacketType,
+  RawData,
+  BinaryType,
+  ERROR_PACKET
+} from "./commons.js";
 
 const SEPARATOR = String.fromCharCode(30); // see https://en.wikipedia.org/wiki/Delimiter#ASCII_delimited_text
 
@@ -40,30 +46,106 @@ const decodePayload = (
   return packets;
 };
 
+const HEADER_LENGTH = 4;
+
+export function createPacketEncoderStream() {
+  return new TransformStream({
+    transform(packet: Packet, controller) {
+      encodePacketToBinary(packet, encodedPacket => {
+        const header = new Uint8Array(HEADER_LENGTH);
+        // last 31 bits indicate the length of the payload
+        new DataView(header.buffer).setUint32(0, encodedPacket.length);
+        // first bit indicates whether the payload is plain text (0) or binary (1)
+        if (packet.data && typeof packet.data !== "string") {
+          header[0] |= 0x80;
+        }
+        controller.enqueue(header);
+        controller.enqueue(encodedPacket);
+      });
+    }
+  });
+}
+
 let TEXT_DECODER;
 
-export function decodePacketFromBinary(
-  data: Uint8Array,
-  isBinary: boolean,
+function totalLength(chunks: Uint8Array[]) {
+  return chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+}
+
+function concatChunks(chunks: Uint8Array[], size: number) {
+  if (chunks[0].length === size) {
+    return chunks.shift();
+  }
+  const buffer = new Uint8Array(size);
+  let j = 0;
+  for (let i = 0; i < size; i++) {
+    buffer[i] = chunks[0][j++];
+    if (j === chunks[0].length) {
+      chunks.shift();
+      j = 0;
+    }
+  }
+  if (chunks.length && j < chunks[0].length) {
+    chunks[0] = chunks[0].slice(j);
+  }
+  return buffer;
+}
+
+export function createPacketDecoderStream(
+  maxPayload: number,
   binaryType: BinaryType
 ) {
   if (!TEXT_DECODER) {
-    // lazily created for compatibility with old browser platforms
     TEXT_DECODER = new TextDecoder();
   }
-  // 48 === "0".charCodeAt(0) (OPEN packet type)
-  // 54 === "6".charCodeAt(0) (NOOP packet type)
-  const isPlainBinary = isBinary || data[0] < 48 || data[0] > 54;
-  return decodePacket(
-    isPlainBinary ? data : TEXT_DECODER.decode(data),
-    binaryType
-  );
+  const chunks: Uint8Array[] = [];
+  let expectedSize = -1;
+  let isBinary = false;
+
+  return new TransformStream({
+    transform(chunk: Uint8Array, controller) {
+      chunks.push(chunk);
+      while (true) {
+        const expectHeader = expectedSize === -1;
+        if (expectHeader) {
+          if (totalLength(chunks) < HEADER_LENGTH) {
+            break;
+          }
+          const headerArray = concatChunks(chunks, HEADER_LENGTH);
+          const header = new DataView(
+            headerArray.buffer,
+            headerArray.byteOffset,
+            headerArray.length
+          ).getUint32(0);
+
+          isBinary = header >> 31 === -1;
+          expectedSize = header & 0x7fffffff;
+
+          if (expectedSize === 0 || expectedSize > maxPayload) {
+            controller.enqueue(ERROR_PACKET);
+            break;
+          }
+        } else {
+          if (totalLength(chunks) < expectedSize) {
+            break;
+          }
+          const data = concatChunks(chunks, expectedSize);
+          controller.enqueue(
+            decodePacket(
+              isBinary ? data : TEXT_DECODER.decode(data),
+              binaryType
+            )
+          );
+          expectedSize = -1;
+        }
+      }
+    }
+  });
 }
 
 export const protocol = 4;
 export {
   encodePacket,
-  encodePacketToBinary,
   encodePayload,
   decodePacket,
   decodePayload,
