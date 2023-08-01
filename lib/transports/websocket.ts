@@ -1,9 +1,7 @@
 import { Transport } from "../transport.js";
-import { encode } from "../contrib/parseqs.js";
 import { yeast } from "../contrib/yeast.js";
 import { pick } from "../util.js";
 import {
-  defaultBinaryType,
   nextTick,
   usingBrowserWebSocket,
   WebSocket,
@@ -84,7 +82,7 @@ export class WS extends Transport {
       return this.emitReserved("error", err);
     }
 
-    this.ws.binaryType = this.socket.binaryType || defaultBinaryType;
+    this.ws.binaryType = this.socket.binaryType;
 
     this.addEventListeners();
   }

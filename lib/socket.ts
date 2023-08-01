@@ -7,6 +7,7 @@ import { Emitter } from "@socket.io/component-emitter";
 import { protocol } from "engine.io-parser";
 import type { Packet, BinaryType, PacketType, RawData } from "engine.io-parser";
 import { CloseDetails, Transport } from "./transport.js";
+import { defaultBinaryType } from "./transports/websocket-constructor.js";
 
 const debug = debugModule("engine.io-client:socket"); // debug()
 
@@ -253,7 +254,7 @@ export class Socket extends Emitter<
 > {
   public id: string;
   public transport: Transport;
-  public binaryType: BinaryType;
+  public binaryType: BinaryType = defaultBinaryType;
   public readyState: SocketState;
   public writeBuffer: Packet[] = [];
 

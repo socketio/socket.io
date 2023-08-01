@@ -43,8 +43,7 @@ export class WT extends Transport {
       this.transport.createBidirectionalStream().then((stream) => {
         const decoderStream = createPacketDecoderStream(
           Number.MAX_SAFE_INTEGER,
-          // TODO expose binarytype
-          "arraybuffer"
+          this.socket.binaryType
         );
         const reader = stream.readable.pipeThrough(decoderStream).getReader();
 

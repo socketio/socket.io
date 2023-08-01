@@ -260,7 +260,28 @@ describe("WebTransport", () => {
     });
   });
 
-  it("should send some binary data (server to client)", (done) => {
+  it("should send some binary data (server to client) (as ArrayBuffer)", (done) => {
+    setup({}, ({ engine, h3Server, certificate }) => {
+      const socket = createSocket(h3Server.port, certificate, {
+        transports: ["webtransport"],
+      });
+
+      socket.binaryType = "arraybuffer";
+
+      engine.on("connection", (serverSocket) => {
+        serverSocket.send(Uint8Array.from([1, 2, 3]));
+      });
+
+      socket.on("message", (data) => {
+        expect(data).to.be.an(ArrayBuffer);
+        expect(new Uint8Array(data)).to.eql(Uint8Array.of(1, 2, 3));
+
+        success(engine, h3Server, done);
+      });
+    });
+  });
+
+  it("should send some binary data (server to client) (as Buffer)", (done) => {
     setup({}, ({ engine, h3Server, certificate }) => {
       const socket = createSocket(h3Server.port, certificate, {
         transports: ["webtransport"],
@@ -271,8 +292,8 @@ describe("WebTransport", () => {
       });
 
       socket.on("message", (data) => {
-        expect(data).to.be.an(ArrayBuffer);
-        expect(new Uint8Array(data)).to.eql(Uint8Array.of(1, 2, 3));
+        expect(Buffer.isBuffer(data)).to.be(true);
+        expect(data).to.eql(Uint8Array.of(1, 2, 3));
 
         success(engine, h3Server, done);
       });
