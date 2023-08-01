@@ -1,24 +1,13 @@
 import { Transport } from "../transport.js";
 import { nextTick } from "./websocket-constructor.js";
 import {
-  encodePacketToBinary,
-  decodePacketFromBinary,
   Packet,
+  createPacketDecoderStream,
+  createPacketEncoderStream,
 } from "engine.io-parser";
 import debugModule from "debug"; // debug()
 
 const debug = debugModule("engine.io-client:webtransport"); // debug()
-
-function shouldIncludeBinaryHeader(packet, encoded) {
-  // 48 === "0".charCodeAt(0) (OPEN packet type)
-  // 54 === "6".charCodeAt(0) (NOOP packet type)
-  return (
-    packet.type === "message" &&
-    typeof packet.data !== "string" &&
-    encoded[0] >= 48 &&
-    encoded[0] <= 54
-  );
-}
 
 export class WT extends Transport {
   private transport: any;
@@ -52,10 +41,16 @@ export class WT extends Transport {
     // note: we could have used async/await, but that would require some additional polyfills
     this.transport.ready.then(() => {
       this.transport.createBidirectionalStream().then((stream) => {
-        const reader = stream.readable.getReader();
-        this.writer = stream.writable.getWriter();
+        const decoderStream = createPacketDecoderStream(
+          Number.MAX_SAFE_INTEGER,
+          // TODO expose binarytype
+          "arraybuffer"
+        );
+        const reader = stream.readable.pipeThrough(decoderStream).getReader();
 
-        let binaryFlag;
+        const encoderStream = createPacketEncoderStream();
+        encoderStream.readable.pipeTo(stream.writable);
+        this.writer = encoderStream.writable.getWriter();
 
         const read = () => {
           reader
@@ -66,15 +61,7 @@ export class WT extends Transport {
                 return;
               }
               debug("received chunk: %o", value);
-              if (!binaryFlag && value.byteLength === 1 && value[0] === 54) {
-                binaryFlag = true;
-              } else {
-                // TODO expose binarytype
-                this.onPacket(
-                  decodePacketFromBinary(value, binaryFlag, "arraybuffer")
-                );
-                binaryFlag = false;
-              }
+              this.onPacket(value);
               read();
             })
             .catch((err) => {
@@ -84,10 +71,11 @@ export class WT extends Transport {
 
         read();
 
-        const handshake = this.query.sid ? `0{"sid":"${this.query.sid}"}` : "0";
-        this.writer
-          .write(new TextEncoder().encode(handshake))
-          .then(() => this.onOpen());
+        const packet: Packet = { type: "open" };
+        if (this.query.sid) {
+          packet.data = `{"sid":"${this.query.sid}"}`;
+        }
+        this.writer.write(packet).then(() => this.onOpen());
       });
     });
   }
@@ -99,20 +87,13 @@ export class WT extends Transport {
       const packet = packets[i];
       const lastPacket = i === packets.length - 1;
 
-      encodePacketToBinary(packet, (data) => {
-        if (shouldIncludeBinaryHeader(packet, data)) {
-          debug("writing binary header");
-          this.writer.write(Uint8Array.of(54));
+      this.writer.write(packet).then(() => {
+        if (lastPacket) {
+          nextTick(() => {
+            this.writable = true;
+            this.emitReserved("drain");
+          }, this.setTimeoutFn);
         }
-        debug("writing chunk: %o", data);
-        this.writer.write(data).then(() => {
-          if (lastPacket) {
-            nextTick(() => {
-              this.writable = true;
-              this.emitReserved("drain");
-            }, this.setTimeoutFn);
-          }
-        });
       });
     }
   }

@@ -45,7 +45,7 @@
   "dependencies": {
     "@socket.io/component-emitter": "~3.1.0",
     "debug": "~4.3.1",
-    "engine.io-parser": "~5.1.0",
+    "engine.io-parser": "~5.2.1",
     "ws": "~8.11.0",
     "xmlhttprequest-ssl": "~2.0.0"
   },
@@ -63,7 +63,7 @@
     "@types/sinonjs__fake-timers": "^6.0.3",
     "babel-loader": "^8.2.2",
     "blob": "0.0.5",
-    "engine.io": "^6.5.0-alpha.1",
+    "engine.io": "^6.5.2-alpha.1",
     "expect.js": "^0.3.1",
     "express": "^4.17.1",
     "mocha": "^10.2.0",

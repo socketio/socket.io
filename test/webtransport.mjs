@@ -5,9 +5,11 @@ import { Server } from "engine.io";
 import { Socket } from "../build/esm-debug/index.js";
 import { generateWebTransportCertificate } from "./util-wt.mjs";
 import { createServer } from "http";
+import { TransformStream } from "stream/web";
 
 if (typeof window === "undefined") {
   global.WebTransport = WebTransport;
+  global.TransformStream = TransformStream;
 }
 
 async function setup(opts, cb) {
