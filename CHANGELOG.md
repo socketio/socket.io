@@ -1,5 +1,6 @@
 # History
 
+- [5.2.1](#521-2023-08-01) (Aug 2023)
 - [5.2.0](#520-2023-07-31) (Jul 2023)
 - [5.1.0](#510-2023-06-11) (Jun 2023)
 - [5.0.7](#507-2023-05-24) (May 2023)
@@ -20,6 +21,12 @@
 
 
 # Release notes
+
+## [5.2.1](https://github.com/socketio/engine.io-parser/compare/5.2.0...5.2.1) (2023-08-01)
+
+The format of the WebTransport frame has been slightly updated.
+
+
 
 ## [5.2.0](https://github.com/socketio/engine.io-parser/compare/5.1.0...5.2.0) (2023-07-31)
 
