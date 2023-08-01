@@ -79,7 +79,7 @@ describe("engine.io-parser", () => {
         });
 
         const header = await reader.read();
-        expect(header.value).to.eql(Uint8Array.of(0, 0, 0, 5));
+        expect(header.value).to.eql(Uint8Array.of(5));
 
         const payload = await reader.read();
         expect(payload.value).to.eql(Uint8Array.of(52, 49, 226, 130, 172));
@@ -99,7 +99,7 @@ describe("engine.io-parser", () => {
         });
 
         const header = await reader.read();
-        expect(header.value).to.eql(Uint8Array.of(128, 0, 0, 3));
+        expect(header.value).to.eql(Uint8Array.of(131));
 
         const payload = await reader.read();
         expect(payload.value === data).to.be(true);
@@ -117,7 +117,7 @@ describe("engine.io-parser", () => {
         });
 
         const header = await reader.read();
-        expect(header.value).to.eql(Uint8Array.of(128, 0, 0, 3));
+        expect(header.value).to.eql(Uint8Array.of(131));
 
         const payload = await reader.read();
         expect(payload.value).to.eql(Uint8Array.of(1, 2, 3));
@@ -135,10 +135,52 @@ describe("engine.io-parser", () => {
         });
 
         const header = await reader.read();
-        expect(header.value).to.eql(Uint8Array.of(128, 0, 0, 6));
+        expect(header.value).to.eql(Uint8Array.of(134));
 
         const payload = await reader.read();
         expect(payload.value).to.eql(Uint8Array.of(1, 0, 2, 0, 1, 1));
+      });
+
+      it("should encode a binary packet (Uint8Array - medium)", async () => {
+        const stream = createPacketEncoderStream();
+
+        const writer = stream.writable.getWriter();
+        const reader = stream.readable.getReader();
+
+        const data = new Uint8Array(12345);
+
+        writer.write({
+          type: "message",
+          data
+        });
+
+        const header = await reader.read();
+        expect(header.value).to.eql(Uint8Array.of(254, 48, 57));
+
+        const payload = await reader.read();
+        expect(payload.value === data).to.be(true);
+      });
+
+      it("should encode a binary packet (Uint8Array - big)", async () => {
+        const stream = createPacketEncoderStream();
+
+        const writer = stream.writable.getWriter();
+        const reader = stream.readable.getReader();
+
+        const data = new Uint8Array(123456789);
+
+        writer.write({
+          type: "message",
+          data
+        });
+
+        const header = await reader.read();
+        expect(header.value).to.eql(
+          Uint8Array.of(255, 0, 0, 0, 0, 7, 91, 205, 21)
+        );
+
+        const payload = await reader.read();
+        expect(payload.value === data).to.be(true);
       });
     });
 
@@ -149,7 +191,7 @@ describe("engine.io-parser", () => {
         const writer = stream.writable.getWriter();
         const reader = stream.readable.getReader();
 
-        writer.write(Uint8Array.of(0, 0, 0, 5));
+        writer.write(Uint8Array.of(5));
         writer.write(Uint8Array.of(52, 49, 226, 130, 172));
 
         const packet = await reader.read();
@@ -165,9 +207,6 @@ describe("engine.io-parser", () => {
         const writer = stream.writable.getWriter();
         const reader = stream.readable.getReader();
 
-        writer.write(Uint8Array.of(0));
-        writer.write(Uint8Array.of(0));
-        writer.write(Uint8Array.of(0));
         writer.write(Uint8Array.of(5));
         writer.write(Uint8Array.of(52));
         writer.write(Uint8Array.of(49));
@@ -175,15 +214,9 @@ describe("engine.io-parser", () => {
         writer.write(Uint8Array.of(130));
         writer.write(Uint8Array.of(172));
 
-        writer.write(Uint8Array.of(0));
-        writer.write(Uint8Array.of(0));
-        writer.write(Uint8Array.of(0));
         writer.write(Uint8Array.of(1));
         writer.write(Uint8Array.of(50));
 
-        writer.write(Uint8Array.of(0));
-        writer.write(Uint8Array.of(0));
-        writer.write(Uint8Array.of(0));
         writer.write(Uint8Array.of(1));
         writer.write(Uint8Array.of(51));
 
@@ -203,29 +236,7 @@ describe("engine.io-parser", () => {
         const writer = stream.writable.getWriter();
         const reader = stream.readable.getReader();
 
-        writer.write(
-          Uint8Array.of(
-            0,
-            0,
-            0,
-            5,
-            52,
-            49,
-            226,
-            130,
-            172,
-            0,
-            0,
-            0,
-            1,
-            50,
-            0,
-            0,
-            0,
-            1,
-            51
-          )
-        );
+        writer.write(Uint8Array.of(5, 52, 49, 226, 130, 172, 1, 50, 1, 51));
 
         const { value } = await reader.read();
         expect(value).to.eql({ type: "message", data: "1€" });
@@ -243,7 +254,7 @@ describe("engine.io-parser", () => {
         const writer = stream.writable.getWriter();
         const reader = stream.readable.getReader();
 
-        writer.write(Uint8Array.of(128, 0, 0, 3, 1, 2, 3));
+        writer.write(Uint8Array.of(131, 1, 2, 3));
 
         const { value } = await reader.read();
 
@@ -258,7 +269,7 @@ describe("engine.io-parser", () => {
         const writer = stream.writable.getWriter();
         const reader = stream.readable.getReader();
 
-        writer.write(Uint8Array.of(0, 0, 1, 0));
+        writer.write(Uint8Array.of(11));
 
         const packet = await reader.read();
         expect(packet.value).to.eql({ type: "error", data: "parser error" });
@@ -270,7 +281,7 @@ describe("engine.io-parser", () => {
         const writer = stream.writable.getWriter();
         const reader = stream.readable.getReader();
 
-        writer.write(Uint8Array.of(0, 0, 0, 0));
+        writer.write(Uint8Array.of(0));
 
         const packet = await reader.read();
         expect(packet.value).to.eql({ type: "error", data: "parser error" });

@@ -46,15 +46,27 @@ const decodePayload = (
   return packets;
 };
 
-const HEADER_LENGTH = 4;
-
 export function createPacketEncoderStream() {
   return new TransformStream({
     transform(packet: Packet, controller) {
       encodePacketToBinary(packet, encodedPacket => {
-        const header = new Uint8Array(HEADER_LENGTH);
-        // last 31 bits indicate the length of the payload
-        new DataView(header.buffer).setUint32(0, encodedPacket.length);
+        const payloadLength = encodedPacket.length;
+        let header;
+        // inspired by the WebSocket format: https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers#decoding_payload_length
+        if (payloadLength < 126) {
+          header = new Uint8Array(1);
+          new DataView(header.buffer).setUint8(0, payloadLength);
+        } else if (payloadLength < 65536) {
+          header = new Uint8Array(3);
+          const view = new DataView(header.buffer);
+          view.setUint8(0, 126);
+          view.setUint16(1, payloadLength);
+        } else {
+          header = new Uint8Array(9);
+          const view = new DataView(header.buffer);
+          view.setUint8(0, 127);
+          view.setBigUint64(1, BigInt(payloadLength));
+        }
         // first bit indicates whether the payload is plain text (0) or binary (1)
         if (packet.data && typeof packet.data !== "string") {
           header[0] |= 0x80;
@@ -91,6 +103,13 @@ function concatChunks(chunks: Uint8Array[], size: number) {
   return buffer;
 }
 
+const enum State {
+  READ_HEADER,
+  READ_EXTENDED_LENGTH_16,
+  READ_EXTENDED_LENGTH_64,
+  READ_PAYLOAD
+}
+
 export function createPacketDecoderStream(
   maxPayload: number,
   binaryType: BinaryType
@@ -99,44 +118,78 @@ export function createPacketDecoderStream(
     TEXT_DECODER = new TextDecoder();
   }
   const chunks: Uint8Array[] = [];
-  let expectedSize = -1;
+  let state = State.READ_HEADER;
+  let expectedLength = -1;
   let isBinary = false;
 
   return new TransformStream({
     transform(chunk: Uint8Array, controller) {
       chunks.push(chunk);
       while (true) {
-        const expectHeader = expectedSize === -1;
-        if (expectHeader) {
-          if (totalLength(chunks) < HEADER_LENGTH) {
+        if (state === State.READ_HEADER) {
+          if (totalLength(chunks) < 1) {
             break;
           }
-          const headerArray = concatChunks(chunks, HEADER_LENGTH);
-          const header = new DataView(
+          const header = concatChunks(chunks, 1);
+          isBinary = (header[0] & 0x80) === 0x80;
+          expectedLength = header[0] & 0x7f;
+          if (expectedLength < 126) {
+            state = State.READ_PAYLOAD;
+          } else if (expectedLength === 126) {
+            state = State.READ_EXTENDED_LENGTH_16;
+          } else {
+            state = State.READ_EXTENDED_LENGTH_64;
+          }
+        } else if (state === State.READ_EXTENDED_LENGTH_16) {
+          if (totalLength(chunks) < 2) {
+            break;
+          }
+          const headerArray = concatChunks(chunks, 2);
+          expectedLength = new DataView(
             headerArray.buffer,
             headerArray.byteOffset,
             headerArray.length
-          ).getUint32(0);
+          ).getUint16(0);
+          state = State.READ_PAYLOAD;
+        } else if (state === State.READ_EXTENDED_LENGTH_64) {
+          if (totalLength(chunks) < 8) {
+            break;
+          }
+          const headerArray = concatChunks(chunks, 8);
 
-          isBinary = header >> 31 === -1;
-          expectedSize = header & 0x7fffffff;
+          const view = new DataView(
+            headerArray.buffer,
+            headerArray.byteOffset,
+            headerArray.length
+          );
 
-          if (expectedSize === 0 || expectedSize > maxPayload) {
+          const n = view.getUint32(0);
+
+          if (n > Math.pow(2, 53 - 32) - 1) {
+            // the maximum safe integer in JavaScript is 2^53 - 1
             controller.enqueue(ERROR_PACKET);
             break;
           }
+
+          expectedLength = n * Math.pow(2, 32) + view.getUint32(4);
+          state = State.READ_PAYLOAD;
         } else {
-          if (totalLength(chunks) < expectedSize) {
+          if (totalLength(chunks) < expectedLength) {
             break;
           }
-          const data = concatChunks(chunks, expectedSize);
+          const data = concatChunks(chunks, expectedLength);
           controller.enqueue(
             decodePacket(
               isBinary ? data : TEXT_DECODER.decode(data),
               binaryType
             )
           );
-          expectedSize = -1;
+          state = State.READ_HEADER;
+        }
+
+        if (expectedLength === 0 || expectedLength > maxPayload) {
+          controller.enqueue(ERROR_PACKET);
+          break;
         }
       }
     }

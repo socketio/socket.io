@@ -128,7 +128,7 @@ describe("engine.io-parser (browser only)", () => {
         });
 
         const header = await reader.read();
-        expect(header.value).to.eql(Uint8Array.of(128, 0, 0, 3));
+        expect(header.value).to.eql(Uint8Array.of(131));
 
         const payload = await reader.read();
         expect(payload.value).to.eql(Uint8Array.of(1, 2, 3));
@@ -142,7 +142,7 @@ describe("engine.io-parser (browser only)", () => {
         const writer = stream.writable.getWriter();
         const reader = stream.readable.getReader();
 
-        writer.write(Uint8Array.of(128, 0, 0, 3, 1, 2, 3));
+        writer.write(Uint8Array.of(131, 1, 2, 3));
 
         const { value } = await reader.read();
 
