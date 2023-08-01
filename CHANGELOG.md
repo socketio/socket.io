@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [6.5.2](#652-2023-08-01) (Aug 2023)
 - [6.5.1](#651-2023-06-28) (Jun 2023)
 - [6.5.0](#650-2023-06-16) (Jun 2023)
 - [6.4.0](#640-2023-02-06) (Feb 2023)
@@ -37,6 +38,21 @@
 - [4.1.0](#410-2021-01-14) (Jan 2021)
 
 # Release notes
+
+## [6.5.2](https://github.com/socketio/engine.io-client/compare/6.5.1...6.5.2) (2023-08-01)
+
+
+### Bug Fixes
+
+* **webtransport:** add proper framing ([d55c39e](https://github.com/socketio/engine.io-client/commit/d55c39e0ed5cb7b3a34875a398efc111c91184f6))
+* **webtransport:** honor the binaryType attribute ([8270e00](https://github.com/socketio/engine.io-client/commit/8270e00d5b865278d136a4d349b344cbc2b38dc5))
+
+
+### Dependencies
+
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [6.5.1](https://github.com/socketio/engine.io-client/compare/6.5.0...6.5.1) (2023-06-28)
 
