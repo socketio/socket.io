@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [4.7.2](#472-2023-08-02) (Aug 2023)
 - [4.7.1](#471-2023-06-28) (Jun 2023)
 - [4.7.0](#470-2023-06-22) (Jun 2023)
 - [4.6.2](#462-2023-05-31) (May 2023)
@@ -59,6 +60,23 @@
 
 
 # Release notes
+
+## [4.7.2](https://github.com/socketio/socket.io/compare/4.7.1...4.7.2) (2023-08-02)
+
+
+### Bug Fixes
+
+* clean up child namespace when client is rejected in middleware ([#4773](https://github.com/socketio/socket.io/issues/4773)) ([0731c0d](https://github.com/socketio/socket.io/commit/0731c0d2f497d5cce596ea1ec32a67c08bcccbcd))
+* **webtransport:** properly handle WebTransport-only connections ([3468a19](https://github.com/socketio/socket.io/commit/3468a197afe87e65eb0d779fabd347fe683013ab))
+* **webtransport:** add proper framing ([a306db0](https://github.com/socketio/engine.io/commit/a306db09e8ddb367c7d62f45fec920f979580b7c))
+
+
+### Dependencies
+
+- [`engine.io@~6.5.2`](https://github.com/socketio/engine.io/releases/tag/6.5.2) ([diff](https://github.com/socketio/engine.io/compare/6.5.0...6.5.2))
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [4.7.1](https://github.com/socketio/socket.io/compare/4.7.0...4.7.1) (2023-06-28)
 
