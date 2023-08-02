@@ -684,6 +684,23 @@ describe("socket", () => {
     });
   });
 
+  it("should handshake a client without access to the Engine.IO request (WebTransport-only connection)", (done) => {
+    const io = new Server(0);
+    const clientSocket = createClient(io, "/");
+
+    io.engine.on("connection", (socket) => {
+      delete socket.request;
+    });
+
+    io.on("connection", (socket) => {
+      expect(socket.handshake.secure).to.be(true);
+      expect(socket.handshake.headers).to.eql({});
+      expect(socket.handshake.query).to.eql({});
+
+      success(done, io, clientSocket);
+    });
+  });
+
   it("should handle very large json", function (done) {
     this.timeout(30000);
     const io = new Server(0, { perMessageDeflate: false });
