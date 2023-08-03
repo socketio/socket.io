@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.7.1
+ * Socket.IO v4.7.2
  * (c) 2014-2023 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -466,16 +466,124 @@
     }
     return packets;
   };
+  function createPacketEncoderStream() {
+    return new TransformStream({
+      transform: function transform(packet, controller) {
+        encodePacketToBinary(packet, function (encodedPacket) {
+          var payloadLength = encodedPacket.length;
+          var header;
+          // inspired by the WebSocket format: https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers#decoding_payload_length
+          if (payloadLength < 126) {
+            header = new Uint8Array(1);
+            new DataView(header.buffer).setUint8(0, payloadLength);
+          } else if (payloadLength < 65536) {
+            header = new Uint8Array(3);
+            var view = new DataView(header.buffer);
+            view.setUint8(0, 126);
+            view.setUint16(1, payloadLength);
+          } else {
+            header = new Uint8Array(9);
+            var _view = new DataView(header.buffer);
+            _view.setUint8(0, 127);
+            _view.setBigUint64(1, BigInt(payloadLength));
+          }
+          // first bit indicates whether the payload is plain text (0) or binary (1)
+          if (packet.data && typeof packet.data !== "string") {
+            header[0] |= 0x80;
+          }
+          controller.enqueue(header);
+          controller.enqueue(encodedPacket);
+        });
+      }
+    });
+  }
   var TEXT_DECODER;
-  function decodePacketFromBinary(data, isBinary, binaryType) {
+  function totalLength(chunks) {
+    return chunks.reduce(function (acc, chunk) {
+      return acc + chunk.length;
+    }, 0);
+  }
+  function concatChunks(chunks, size) {
+    if (chunks[0].length === size) {
+      return chunks.shift();
+    }
+    var buffer = new Uint8Array(size);
+    var j = 0;
+    for (var i = 0; i < size; i++) {
+      buffer[i] = chunks[0][j++];
+      if (j === chunks[0].length) {
+        chunks.shift();
+        j = 0;
+      }
+    }
+    if (chunks.length && j < chunks[0].length) {
+      chunks[0] = chunks[0].slice(j);
+    }
+    return buffer;
+  }
+  function createPacketDecoderStream(maxPayload, binaryType) {
     if (!TEXT_DECODER) {
-      // lazily created for compatibility with old browser platforms
       TEXT_DECODER = new TextDecoder();
     }
-    // 48 === "0".charCodeAt(0) (OPEN packet type)
-    // 54 === "6".charCodeAt(0) (NOOP packet type)
-    var isPlainBinary = isBinary || data[0] < 48 || data[0] > 54;
-    return decodePacket(isPlainBinary ? data : TEXT_DECODER.decode(data), binaryType);
+    var chunks = [];
+    var state = 0 /* READ_HEADER */;
+    var expectedLength = -1;
+    var isBinary = false;
+    return new TransformStream({
+      transform: function transform(chunk, controller) {
+        chunks.push(chunk);
+        while (true) {
+          if (state === 0 /* READ_HEADER */) {
+            if (totalLength(chunks) < 1) {
+              break;
+            }
+            var header = concatChunks(chunks, 1);
+            isBinary = (header[0] & 0x80) === 0x80;
+            expectedLength = header[0] & 0x7f;
+            if (expectedLength < 126) {
+              state = 3 /* READ_PAYLOAD */;
+            } else if (expectedLength === 126) {
+              state = 1 /* READ_EXTENDED_LENGTH_16 */;
+            } else {
+              state = 2 /* READ_EXTENDED_LENGTH_64 */;
+            }
+          } else if (state === 1 /* READ_EXTENDED_LENGTH_16 */) {
+            if (totalLength(chunks) < 2) {
+              break;
+            }
+            var headerArray = concatChunks(chunks, 2);
+            expectedLength = new DataView(headerArray.buffer, headerArray.byteOffset, headerArray.length).getUint16(0);
+            state = 3 /* READ_PAYLOAD */;
+          } else if (state === 2 /* READ_EXTENDED_LENGTH_64 */) {
+            if (totalLength(chunks) < 8) {
+              break;
+            }
+            var _headerArray = concatChunks(chunks, 8);
+            var view = new DataView(_headerArray.buffer, _headerArray.byteOffset, _headerArray.length);
+            var n = view.getUint32(0);
+            if (n > Math.pow(2, 53 - 32) - 1) {
+              // the maximum safe integer in JavaScript is 2^53 - 1
+              controller.enqueue(ERROR_PACKET);
+              break;
+            }
+            expectedLength = n * Math.pow(2, 32) + view.getUint32(4);
+            state = 3 /* READ_PAYLOAD */;
+          } else {
+            if (totalLength(chunks) < expectedLength) {
+              break;
+            }
+            var data = concatChunks(chunks, expectedLength);
+            controller.enqueue(decodePacket(isBinary ? data : TEXT_DECODER.decode(data), binaryType));
+            state = 0 /* READ_HEADER */;
+          }
+
+          if (expectedLength === 0 || expectedLength > maxPayload) {
+            controller.enqueue(ERROR_PACKET);
+            break;
+          }
+        }
+      }
+    });
   }
   var protocol$1 = 4;
 
@@ -1455,7 +1563,7 @@
         } catch (err) {
           return this.emitReserved("error", err);
         }
-        this.ws.binaryType = this.socket.binaryType || defaultBinaryType;
+        this.ws.binaryType = this.socket.binaryType;
         this.addEventListeners();
       }
       /**
@@ -1565,11 +1673,6 @@
     return WS;
   }(Transport);
 
-  function shouldIncludeBinaryHeader(packet, encoded) {
-    // 48 === "0".charCodeAt(0) (OPEN packet type)
-    // 54 === "6".charCodeAt(0) (NOOP packet type)
-    return packet.type === "message" && typeof packet.data !== "string" && encoded[0] >= 48 && encoded[0] <= 54;
-  }
   var WT = /*#__PURE__*/function (_Transport) {
     _inherits(WT, _Transport);
     var _super = _createSuper(WT);
@@ -1600,9 +1703,11 @@
         // note: we could have used async/await, but that would require some additional polyfills
         this.transport.ready.then(function () {
           _this.transport.createBidirectionalStream().then(function (stream) {
-            var reader = stream.readable.getReader();
-            _this.writer = stream.writable.getWriter();
-            var binaryFlag;
+            var decoderStream = createPacketDecoderStream(Number.MAX_SAFE_INTEGER, _this.socket.binaryType);
+            var reader = stream.readable.pipeThrough(decoderStream).getReader();
+            var encoderStream = createPacketEncoderStream();
+            encoderStream.readable.pipeTo(stream.writable);
+            _this.writer = encoderStream.writable.getWriter();
             var read = function read() {
               reader.read().then(function (_ref) {
                 var done = _ref.done,
@@ -1610,19 +1715,18 @@
                 if (done) {
                   return;
                 }
-                if (!binaryFlag && value.byteLength === 1 && value[0] === 54) {
-                  binaryFlag = true;
-                } else {
-                  // TODO expose binarytype
-                  _this.onPacket(decodePacketFromBinary(value, binaryFlag, "arraybuffer"));
-                  binaryFlag = false;
-                }
+                _this.onPacket(value);
                 read();
               })["catch"](function (err) {});
             };
             read();
-            var handshake = _this.query.sid ? "0{\"sid\":\"".concat(_this.query.sid, "\"}") : "0";
-            _this.writer.write(new TextEncoder().encode(handshake)).then(function () {
+            var packet = {
+              type: "open"
+            };
+            if (_this.query.sid) {
+              packet.data = "{\"sid\":\"".concat(_this.query.sid, "\"}");
+            }
+            _this.writer.write(packet).then(function () {
               return _this.onOpen();
             });
           });
@@ -1636,18 +1740,13 @@
         var _loop = function _loop() {
           var packet = packets[i];
           var lastPacket = i === packets.length - 1;
-          encodePacketToBinary(packet, function (data) {
-            if (shouldIncludeBinaryHeader(packet, data)) {
-              _this2.writer.write(Uint8Array.of(54));
+          _this2.writer.write(packet).then(function () {
+            if (lastPacket) {
+              nextTick(function () {
+                _this2.writable = true;
+                _this2.emitReserved("drain");
+              }, _this2.setTimeoutFn);
             }
-            _this2.writer.write(data).then(function () {
-              if (lastPacket) {
-                nextTick(function () {
-                  _this2.writable = true;
-                  _this2.emitReserved("drain");
-                }, _this2.setTimeoutFn);
-              }
-            });
           });
         };
         for (var i = 0; i < packets.length; i++) {
@@ -1749,6 +1848,7 @@
       var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       _classCallCheck(this, Socket);
       _this = _super.call(this);
+      _this.binaryType = defaultBinaryType;
       _this.writeBuffer = [];
       if (uri && "object" === _typeof(uri)) {
         opts = uri;
@@ -2038,12 +2138,12 @@
           this.emitReserved("packet", packet);
           // Socket is live - any packet counts
           this.emitReserved("heartbeat");
+          this.resetPingTimeout();
           switch (packet.type) {
             case "open":
               this.onHandshake(JSON.parse(packet.data));
               break;
             case "ping":
-              this.resetPingTimeout();
               this.sendPacket("pong");
               this.emitReserved("ping");
               this.emitReserved("pong");

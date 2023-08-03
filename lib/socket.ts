@@ -292,16 +292,16 @@ export class Socket<
    */
   private buildHandshake(auth: object): Handshake {
     return {
-      headers: this.request.headers,
+      headers: this.request?.headers || {},
       time: new Date() + "",
       address: this.conn.remoteAddress,
-      xdomain: !!this.request.headers.origin,
+      xdomain: !!this.request?.headers.origin,
       // @ts-ignore
-      secure: !!this.request.connection.encrypted,
+      secure: !this.request || !!this.request.connection.encrypted,
       issued: +new Date(),
-      url: this.request.url!,
+      url: this.request?.url!,
       // @ts-ignore
-      query: this.request._query,
+      query: this.request?._query || {},
       auth,
     };
   }
