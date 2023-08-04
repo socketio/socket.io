@@ -263,6 +263,42 @@ describe("engine.io-parser", () => {
         expect(areArraysEqual(value.data, Uint8Array.of(1, 2, 3)));
       });
 
+      it("should decode a binary packet (ArrayBuffer) (medium)", async () => {
+        const stream = createPacketDecoderStream(1e6, "arraybuffer");
+        const payload = new Uint8Array(12345);
+
+        const writer = stream.writable.getWriter();
+        const reader = stream.readable.getReader();
+
+        writer.write(Uint8Array.of(254));
+        writer.write(Uint8Array.of(48, 57));
+        writer.write(payload);
+
+        const { value } = await reader.read();
+
+        expect(value.type).to.eql("message");
+        expect(value.data).to.be.an(ArrayBuffer);
+        expect(areArraysEqual(value.data, payload));
+      });
+
+      it("should decode a binary packet (ArrayBuffer) (big)", async () => {
+        const stream = createPacketDecoderStream(1e10, "arraybuffer");
+        const payload = new Uint8Array(123456789);
+
+        const writer = stream.writable.getWriter();
+        const reader = stream.readable.getReader();
+
+        writer.write(Uint8Array.of(255));
+        writer.write(Uint8Array.of(0, 0, 0, 0, 7, 91, 205, 21));
+        writer.write(payload);
+
+        const { value } = await reader.read();
+
+        expect(value.type).to.eql("message");
+        expect(value.data).to.be.an(ArrayBuffer);
+        expect(areArraysEqual(value.data, payload));
+      });
+
       it("should return an error packet if the length of the payload is too big", async () => {
         const stream = createPacketDecoderStream(10, "arraybuffer");
 
@@ -282,6 +318,18 @@ describe("engine.io-parser", () => {
         const reader = stream.readable.getReader();
 
         writer.write(Uint8Array.of(0));
+
+        const packet = await reader.read();
+        expect(packet.value).to.eql({ type: "error", data: "parser error" });
+      });
+
+      it("should return an error packet if the length of the payload is bigger than Number.MAX_SAFE_INTEGER", async () => {
+        const stream = createPacketDecoderStream(1e6, "arraybuffer");
+
+        const writer = stream.writable.getWriter();
+        const reader = stream.readable.getReader();
+
+        writer.write(Uint8Array.of(255, 1, 0, 0, 0, 0, 0, 0, 0, 0));
 
         const packet = await reader.read();
         expect(packet.value).to.eql({ type: "error", data: "parser error" });
