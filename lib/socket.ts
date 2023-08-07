@@ -87,6 +87,8 @@ export const RESERVED_EVENTS: ReadonlySet<string | Symbol> = new Set<
   "removeListener",
 ]);
 
+export interface SocketRequest extends IncomingMessage {}
+
 /**
  * The handshake details
  */
@@ -990,7 +992,7 @@ export class Socket<
   /**
    * A reference to the request that originated the underlying Engine.IO Socket.
    */
-  public get request(): IncomingMessage {
+  public get request(): SocketRequest {
     return this.client.request;
   }
 
