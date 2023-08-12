@@ -67,7 +67,7 @@ io.engine.on("initial_headers", (headers, req) => {
   }
 });
 
-io.on("connect", (socket) => {
+io.on("connection", (socket) => {
   const req = socket.request;
 
   socket.join(req.session.id);

@@ -62,7 +62,7 @@ describe("namespaces", () => {
     const io = new Server(0);
     const clientSocket = createClient(io);
 
-    io.on("connect", (socket) => {
+    io.on("connection", (socket) => {
       expect(socket).to.be.a(Socket);
       success(done, io, clientSocket);
     });

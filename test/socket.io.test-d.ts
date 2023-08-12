@@ -24,7 +24,7 @@ describe("server", () => {
               expectType<DisconnectReason>(reason);
             });
           });
-          sio.on("connect", (s) => {
+          sio.on("connection", (s) => {
             expectType<Socket<DefaultEventsMap, DefaultEventsMap>>(s);
           });
           done();

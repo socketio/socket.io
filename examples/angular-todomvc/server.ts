@@ -15,7 +15,7 @@ interface Todo {
 
 let todos: Array<Todo> = [];
 
-io.on("connect", (socket) => {
+io.on("connection", (socket) => {
     socket.emit("todos", todos);
 
     // note: we could also create a CRUD (create/read/update/delete) service for the todo list

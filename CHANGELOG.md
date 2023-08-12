@@ -855,7 +855,7 @@ new Server(3000, {
 const socket = io("/admin");
 
 // server-side
-io.on("connect", socket => {
+io.on("connection", socket => {
   // not triggered anymore
 })
 
@@ -1006,7 +1006,7 @@ new Server(3000, {
 const socket = io("/admin");
 
 // server-side
-io.on("connect", socket => {
+io.on("connection", socket => {
   // not triggered anymore
 })
 
