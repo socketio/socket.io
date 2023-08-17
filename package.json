@@ -6,6 +6,7 @@
   "main": "./build/engine.io.js",
   "types": "./build/engine.io.d.ts",
   "exports": {
+    "types": "./build/engine.io.d.ts",
     "import": "./wrapper.mjs",
     "require": "./build/engine.io.js"
   },
