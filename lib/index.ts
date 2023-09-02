@@ -37,7 +37,9 @@ import {
   AllButLast,
   Last,
   FirstArg,
-  SecondArg,
+  FirstNonErrorArg,
+  DecorateAcknowledgementsWithMultipleResponses,
+  DecorateAcknowledgements,
 } from "./typed-events";
 import { patchAdapter, restoreAdapter, serveFile } from "./uws";
 import corsMiddleware from "cors";
@@ -140,7 +142,7 @@ export class Server<
   SocketData = any
 > extends StrictEventEmitter<
   ServerSideEvents,
-  EmitEvents,
+  DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
   ServerReservedEventsMap<
     ListenEvents,
     EmitEvents,
@@ -862,7 +864,7 @@ export class Server<
   public emitWithAck<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
     ...args: AllButLast<EventParams<EmitEvents, Ev>>
-  ): Promise<SecondArg<Last<EventParams<EmitEvents, Ev>>>> {
+  ): Promise<FirstNonErrorArg<Last<EventParams<EmitEvents, Ev>>>[]> {
     return this.sockets.emitWithAck(ev, ...args);
   }
 

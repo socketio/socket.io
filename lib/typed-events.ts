@@ -178,7 +178,12 @@ export abstract class StrictEventEmitter<
     >[];
   }
 }
-
+export type MultiplyArray<T extends unknown[]> = {
+  [K in keyof T]: T[K][];
+};
+export type FirstNonErrorTuple<T extends unknown[]> = T[0] extends Error
+  ? T[1]
+  : T[0];
 export type Last<T extends any[]> = T extends [...infer H, infer L] ? L : any;
 export type AllButLast<T extends any[]> = T extends [...infer H, infer L]
   ? H
@@ -192,19 +197,28 @@ export type SecondArg<T> = T extends (
 ) => infer Result
   ? Param
   : any;
-
+export type FirstNonErrorArg<T> = T extends (
+  ...args: infer Params
+) => infer Result
+  ? FirstNonErrorTuple<Params>
+  : any;
 type PrependTimeoutError<T extends any[]> = {
   [K in keyof T]: T[K] extends (...args: infer Params) => infer Result
-    ? (err: Error, ...args: Params) => Result
+    ? Params[0] extends Error
+      ? T[K]
+      : (err: Error, ...args: Params) => Result
     : T[K];
 };
-
 type ExpectMultipleResponses<T extends any[]> = {
-  [K in keyof T]: T[K] extends (err: Error, arg: infer Param) => infer Result
-    ? (err: Error, arg: Param[]) => Result
+  [K in keyof T]: T[K] extends (
+    err: Error,
+    ...args: infer Params
+  ) => infer Result
+    ? (err: Error, ...arg: MultiplyArray<Params>) => Result
+    : T[K] extends (...args: infer Params) => infer Result
+    ? (...args: MultiplyArray<Params>) => Result
     : T[K];
 };
-
 /**
  * Utility type to decorate the acknowledgement callbacks with a timeout error.
  *

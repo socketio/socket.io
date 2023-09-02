@@ -8,10 +8,9 @@ import type {
   EventsMap,
   TypedEventBroadcaster,
   DecorateAcknowledgements,
-  DecorateAcknowledgementsWithTimeoutAndMultipleResponses,
   AllButLast,
   Last,
-  SecondArg,
+  FirstNonErrorArg,
 } from "./typed-events";
 
 export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
@@ -177,7 +176,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
   public timeout(timeout: number) {
     const flags = Object.assign({}, this.flags, { timeout });
     return new BroadcastOperator<
-      DecorateAcknowledgementsWithTimeoutAndMultipleResponses<EmitEvents>,
+      DecorateAcknowledgements<EmitEvents>,
       SocketData
     >(this.adapter, this.rooms, this.exceptRooms, flags);
   }
@@ -303,7 +302,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
   public emitWithAck<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
     ...args: AllButLast<EventParams<EmitEvents, Ev>>
-  ): Promise<SecondArg<Last<EventParams<EmitEvents, Ev>>>> {
+  ): Promise<FirstNonErrorArg<Last<EventParams<EmitEvents, Ev>>>> {
     return new Promise((resolve, reject) => {
       args.push((err, responses) => {
         if (err) {

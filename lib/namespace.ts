@@ -10,7 +10,9 @@ import {
   AllButLast,
   Last,
   FirstArg,
-  SecondArg,
+  DecorateAcknowledgementsWithMultipleResponses,
+  FirstNonErrorArg,
+  DecorateAcknowledgements,
 } from "./typed-events";
 import type { Client } from "./client";
 import debugModule from "debug";
@@ -252,7 +254,10 @@ export class Namespace<
    * @return a new {@link BroadcastOperator} instance for chaining
    */
   public to(room: Room | Room[]) {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).to(room);
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).to(room);
   }
 
   /**
@@ -268,7 +273,10 @@ export class Namespace<
    * @return a new {@link BroadcastOperator} instance for chaining
    */
   public in(room: Room | Room[]) {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).in(room);
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).in(room);
   }
 
   /**
@@ -290,9 +298,10 @@ export class Namespace<
    * @return a new {@link BroadcastOperator} instance for chaining
    */
   public except(room: Room | Room[]) {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).except(
-      room
-    );
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).except(room);
   }
 
   /**
@@ -458,10 +467,11 @@ export class Namespace<
   public emitWithAck<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
     ...args: AllButLast<EventParams<EmitEvents, Ev>>
-  ): Promise<SecondArg<Last<EventParams<EmitEvents, Ev>>>> {
-    return new BroadcastOperator<EmitEvents, SocketData>(
-      this.adapter
-    ).emitWithAck(ev, ...args);
+  ): Promise<FirstNonErrorArg<Last<EventParams<EmitEvents, Ev>>>[]> {
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).emitWithAck(ev, ...args);
   }
 
   /**
@@ -612,9 +622,10 @@ export class Namespace<
    * @return self
    */
   public compress(compress: boolean) {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).compress(
-      compress
-    );
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).compress(compress);
   }
 
   /**
@@ -630,7 +641,10 @@ export class Namespace<
    * @return self
    */
   public get volatile() {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).volatile;
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).volatile;
   }
 
   /**
@@ -645,7 +659,10 @@ export class Namespace<
    * @return a new {@link BroadcastOperator} instance for chaining
    */
   public get local() {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).local;
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).local;
   }
 
   /**
@@ -664,10 +681,18 @@ export class Namespace<
    *
    * @param timeout
    */
-  public timeout(timeout: number) {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).timeout(
-      timeout
-    );
+  public timeout(
+    timeout: number
+  ): BroadcastOperator<
+    DecorateAcknowledgements<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>
+    >,
+    SocketData
+  > {
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).timeout(timeout);
   }
 
   /**

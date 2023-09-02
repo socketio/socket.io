@@ -2,7 +2,7 @@
 import { Namespace, Server, Socket } from "..";
 import type { DefaultEventsMap } from "../lib/typed-events";
 import { createServer } from "http";
-import { expectError, expectType } from "tsd";
+import { expectError, expectNotAssignable, expectType } from "tsd";
 import { Adapter } from "socket.io-adapter";
 import type { DisconnectReason } from "../lib/socket";
 
@@ -61,8 +61,7 @@ describe("server", () => {
           }
 
           sio.on(Events.CONNECTION, (socket) => {
-            // TODO(#3833): Make this expect `Socket<DefaultEventsMap, DefaultEventsMap>`
-            expectType<any>(socket);
+            expectType<Socket<DefaultEventsMap, DefaultEventsMap>>(socket);
 
             socket.on("test", (a, b, c) => {
               expectType<any>(a);
@@ -260,45 +259,141 @@ describe("server", () => {
         const srv = createServer();
         const sio = new Server<ClientToServerEvents, ServerToClientEvents>(srv);
         srv.listen(() => {
+          // No Callback
           sio.emit("helloFromServer", "hi", 1);
           sio.to("room").emit("helloFromServer", "hi", 1);
           sio.timeout(1000).emit("helloFromServer", "hi", 1);
 
+          // One arg
+          sio.emit("ackFromServerSingleArg", true, "123", (...args) => {
+            expectType<[string[]]>(args);
+          });
+          // One arg + timeout
           sio
-            .timeout(1000)
-            .emit("multipleAckFromServer", true, "123", (err, c) => {
-              expectType<Error>(err);
-              expectType<string[]>(c);
+            .timeout(1)
+            .emit("ackFromServerSingleArg", true, "123", (...args) => {
+              expectType<[Error, string[]]>(args);
+            });
+          // One arg + room
+          sio.to("1").emit("ackFromServerSingleArg", true, "123", (...args) => {
+            expectType<[string[]]>(args);
+          });
+          sio.in("1").emit("ackFromServerSingleArg", true, "123", (...args) => {
+            expectType<[string[]]>(args);
+          });
+          sio
+            .except("1")
+            .emit("ackFromServerSingleArg", true, "123", (...args) => {
+              expectType<[string[]]>(args);
+            });
+          // One arg + timeout + room
+          sio
+            .timeout(1)
+            .in("1")
+            .emit("ackFromServerSingleArg", true, "123", (...args) => {
+              expectType<[Error, string[]]>(args);
+            });
+          // One arg + timeout + room + timeout + room
+          sio
+            .timeout(1)
+            .to("1")
+            .timeout(1)
+            .to("1")
+            .emit("ackFromServerSingleArg", true, "123", (...args) => {
+              expectType<[Error, string[]]>(args);
+            });
+
+          // Two args
+          sio.emit("ackFromServer", true, "123", (...args) => {
+            expectType<[boolean[], string[]]>(args);
+          });
+          // Two args + timeout
+          sio.timeout(1).emit("ackFromServer", true, "123", (...args) => {
+            expectType<[Error, boolean[], string[]]>(args);
+          });
+          // Two args + room
+          sio.to("1").emit("ackFromServer", true, "123", (...args) => {
+            expectType<[boolean[], string[]]>(args);
+          });
+          // Two args + timeout + room
+          sio
+            .timeout(1)
+            .in("1")
+            .emit("ackFromServer", true, "123", (...args) => {
+              expectType<[Error, boolean[], string[]]>(args);
+            });
+          // Two args + timeout + room + timeout + room
+          sio
+            .timeout(1)
+            .to("1")
+            .timeout(1)
+            .to("1")
+            .emit("ackFromServer", true, "123", (...args) => {
+              expectType<[Error, boolean[], string[]]>(args);
             });
 
           sio.on("connection", (s) => {
+            // No args
             s.emit("helloFromServer", "hi", 10);
 
-            s.emit("ackFromServer", true, "123", (c, d) => {
-              expectType<boolean>(c);
-              expectType<string>(d);
+            // One arg
+            s.emit("ackFromServerSingleArg", true, "1", (...args) => {
+              expectType<[string]>(args);
             });
-
-            s.timeout(1000).emit("ackFromServer", true, "123", (err, c, d) => {
-              expectType<Error>(err);
-              expectType<boolean>(c);
-              expectType<string>(d);
+            // One arg + timeout
+            s.timeout(1).emit(
+              "ackFromServerSingleArg",
+              true,
+              "1",
+              (...args) => {
+                expectType<[Error, string]>(args);
+              }
+            );
+            // One arg + room
+            s.to("1").emit("ackFromServerSingleArg", true, "1", (...args) => {
+              expectType<[string[]]>(args);
             });
-
-            s.timeout(1000)
-              .to("room")
-              .emit("multipleAckFromServer", true, "123", (err, c) => {
-                expectType<Error>(err);
-                expectType<string[]>(c);
+            // One arg + timeout + room
+            s.timeout(1)
+              .in("1")
+              .emit("ackFromServerSingleArg", true, "1", (...args) => {
+                expectType<[Error, string[]]>(args);
+              });
+            // One arg + timeout + room + timeout + room
+            s.timeout(1)
+              .to("1")
+              .timeout(1)
+              .to("1")
+              .emit("ackFromServerSingleArg", true, "1", (...args) => {
+                expectType<[Error, string[]]>(args);
               });
 
-            s.to("room")
-              .timeout(1000)
-              .emit("multipleAckFromServer", true, "123", (err, c) => {
-                expectType<Error>(err);
-                expectType<string[]>(c);
+            // Two args
+            s.emit("ackFromServer", true, "1", (...args) => {
+              expectType<[boolean, string]>(args);
+            });
+            // Two args + timeout
+            s.timeout(1).emit("ackFromServer", true, "1", (...args) => {
+              expectType<[Error, boolean, string]>(args);
+            });
+            // Two args + room
+            s.to("1").emit("ackFromServer", true, "1", (...args) => {
+              expectType<[boolean[], string[]]>(args);
+            });
+            // Two args + timeout + room
+            s.timeout(1)
+              .in("1")
+              .emit("ackFromServer", true, "1", (...args) => {
+                expectType<[Error, boolean[], string[]]>(args);
               });
-
+            // Two args + timeout + room + timeout + room
+            s.timeout(1)
+              .to("1")
+              .timeout(1)
+              .to("1")
+              .emit("ackFromServer", true, "1", (...args) => {
+                expectType<[Error, boolean[], string[]]>(args);
+              });
             done();
           });
         });
@@ -330,30 +425,200 @@ describe("server", () => {
         const srv = createServer();
         const sio = new Server<ClientToServerEvents, ServerToClientEvents>(srv);
         srv.listen(async () => {
-          const value = await sio
-            .timeout(1000)
-            .emitWithAck("multipleAckFromServer", true, "123");
-          expectType<string[]>(value);
+          // One arg in callback
+          expectType<string[]>(
+            await sio.emitWithAck("ackFromServerSingleArg", true, "123")
+          );
+          // One arg + timeout
+          expectType<string[]>(
+            await sio
+              .timeout(1)
+              .emitWithAck("ackFromServerSingleArg", true, "123")
+          );
+          // One arg + timeout + timeout
+          expectType<string[]>(
+            await sio
+              .timeout(1)
+              .timeout(1)
+              .emitWithAck("ackFromServerSingleArg", true, "123")
+          );
+          // One arg + room
+          expectType<string[]>(
+            await sio.to("1").emitWithAck("ackFromServerSingleArg", true, "123")
+          );
+          expectType<string[]>(
+            await sio.in("1").emitWithAck("ackFromServerSingleArg", true, "123")
+          );
+          expectType<string[]>(
+            await sio
+              .except("1")
+              .emitWithAck("ackFromServerSingleArg", true, "123")
+          );
+          // One arg + timeout + room + timeout + room
+          expectType<string[]>(
+            await sio
+              .timeout(1)
+              .to("1")
+              .timeout(1)
+              .to("1")
+              .emitWithAck("ackFromServerSingleArg", true, "123")
+          );
+
+          // Two args in callback
+          expectType<boolean[]>(
+            await sio.emitWithAck("ackFromServer", true, "123")
+          );
+          // Two args + timeout
+          expectType<boolean[]>(
+            await sio.timeout(1).emitWithAck("ackFromServer", true, "123")
+          );
+          // Two args + timeout + timeout
+          expectType<boolean[]>(
+            await sio
+              .timeout(1)
+              .timeout(1)
+              .emitWithAck("ackFromServer", true, "123")
+          );
+          // Two args + room
+          expectType<boolean[]>(
+            await sio.to("1").emitWithAck("ackFromServer", true, "123")
+          );
+          // Two args + timeout + room
+          expectType<boolean[]>(
+            await sio
+              .timeout(1)
+              .to("1")
+              .emitWithAck("ackFromServer", true, "123")
+          );
+          // Two args + timeout + room + timeout + room
+          expectType<boolean[]>(
+            await sio
+              .timeout(1)
+              .to("1")
+              .timeout(1)
+              .to("1")
+              .emitWithAck("ackFromServer", true, "123")
+          );
 
           sio.on("connection", async (s) => {
-            const value1 = await s
-              .timeout(1000)
-              .to("room")
-              .emitWithAck("multipleAckFromServer", true, "123");
-            expectType<string[]>(value1);
-
-            const value2 = await s
-              .to("room")
-              .timeout(1000)
-              .emitWithAck("multipleAckFromServer", true, "123");
-            expectType<string[]>(value2);
-
-            const value3 = await s.emitWithAck(
-              "ackFromServerSingleArg",
-              true,
-              "123"
+            // One arg in callback
+            expectType<string>(
+              await s.emitWithAck("ackFromServerSingleArg", true, "123")
             );
-            expectType<string>(value3);
+            // One arg + timeout
+            expectType<string>(
+              await s
+                .timeout(1)
+                .emitWithAck("ackFromServerSingleArg", true, "123")
+            );
+            // One arg + room
+            expectType<string[]>(
+              await s.to("1").emitWithAck("ackFromServerSingleArg", true, "123")
+            );
+            // One arg + room + timeout + room
+            expectType<string[]>(
+              await s
+                .to("1")
+                .timeout(1)
+                .to("1")
+                .emitWithAck("ackFromServerSingleArg", true, "123")
+            );
+
+            // Two args in callback
+            expectType<boolean>(
+              await s.emitWithAck("ackFromServer", true, "123")
+            );
+            // Two args + timeout
+            expectType<boolean>(
+              await s.timeout(1).emitWithAck("ackFromServer", true, "123")
+            );
+            // Two args + room
+            expectType<boolean[]>(
+              await s.to("1").emitWithAck("ackFromServer", true, "123")
+            );
+            // Two args + room + timeout + room
+            expectType<boolean[]>(
+              await s
+                .to("1")
+                .timeout(1)
+                .to("1")
+                .emitWithAck("ackFromServer", true, "123")
+            );
+
+            done();
+          });
+        });
+      });
+    });
+    describe("namespace", () => {
+      describe("emitWithAck", () => {
+        it("accepts arguments of the correct types", (done) => {
+          const srv = createServer();
+          const sio = new Server<ClientToServerEvents, ServerToClientEvents>(
+            srv
+          );
+          const nio = sio.of("/test");
+          srv.listen(async () => {
+            // One arg in callback
+            expectType<string[]>(
+              await nio.emitWithAck("ackFromServerSingleArg", true, "123")
+            );
+            // One arg + timeout
+            expectType<string[]>(
+              await nio
+                .timeout(1)
+                .emitWithAck("ackFromServerSingleArg", true, "123")
+            );
+            // One arg + timeout + timeout
+            expectType<string[]>(
+              await nio
+                .timeout(1)
+                .timeout(1)
+                .emitWithAck("ackFromServerSingleArg", true, "123")
+            );
+            // One arg + room
+            expectType<string[]>(
+              await nio
+                .to("1")
+                .emitWithAck("ackFromServerSingleArg", true, "123")
+            );
+            expectType<string[]>(
+              await nio
+                .in("1")
+                .emitWithAck("ackFromServerSingleArg", true, "123")
+            );
+            expectType<string[]>(
+              await nio
+                .except("1")
+                .emitWithAck("ackFromServerSingleArg", true, "123")
+            );
+
+            // Two args in callback
+            expectType<boolean[]>(
+              await nio.emitWithAck("ackFromServer", true, "123")
+            );
+            // Two args + timeout
+            expectType<boolean[]>(
+              await nio.timeout(1).emitWithAck("ackFromServer", true, "123")
+            );
+            // Two args + timeout + timeout
+            expectType<boolean[]>(
+              await nio
+                .timeout(1)
+                .timeout(1)
+                .emitWithAck("ackFromServer", true, "123")
+            );
+            // Two args + room
+            expectType<boolean[]>(
+              await nio.to("1").emitWithAck("ackFromServer", true, "123")
+            );
+            // Two args + timeout + room
+            expectType<boolean[]>(
+              await nio
+                .timeout(1)
+                .to("1")
+                .emitWithAck("ackFromServer", true, "123")
+            );
 
             done();
           });
@@ -401,6 +666,10 @@ describe("server", () => {
           sio.of("/test").on("helloFromServerToServer", (message, x) => {
             expectType<string>(message);
             expectType<number>(x);
+          });
+
+          sio.on("ackFromServerToServer", (...args) => {
+            expectType<[string, (bar: number) => void]>(args);
           });
 
           sio.serverSideEmit("ackFromServerToServer", "foo", (err, bar) => {
