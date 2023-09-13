@@ -24,6 +24,8 @@ app.post("/incr", (req, res) => {
   const session = req.session;
   session.count = (session.count || 0) + 1;
   res.status(200).end("" + session.count);
+
+  io.to(session.id).emit("current count", session.count);
 });
 
 app.post("/logout", (req, res) => {
@@ -35,37 +37,9 @@ app.post("/logout", (req, res) => {
   });
 });
 
-const io = new Server(httpServer, {
-  allowRequest: (req, callback) => {
-    // with HTTP long-polling, we have access to the HTTP response here, but this is not
-    // the case with WebSocket, so we provide a dummy response object
-    const fakeRes = {
-      getHeader() {
-        return [];
-      },
-      setHeader(key, values) {
-        req.cookieHolder = values[0];
-      },
-      writeHead() {},
-    };
-    sessionMiddleware(req, fakeRes, () => {
-      if (req.session) {
-        // trigger the setHeader() above
-        fakeRes.writeHead();
-        // manually save the session (normally triggered by res.end())
-        req.session.save();
-      }
-      callback(null, true);
-    });
-  },
-});
+const io = new Server(httpServer);
 
-io.engine.on("initial_headers", (headers, req) => {
-  if (req.cookieHolder) {
-    headers["set-cookie"] = req.cookieHolder;
-    delete req.cookieHolder;
-  }
-});
+io.engine.use(sessionMiddleware);
 
 io.on("connection", (socket) => {
   const req = socket.request;
