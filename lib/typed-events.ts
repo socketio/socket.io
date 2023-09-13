@@ -178,9 +178,6 @@ export abstract class StrictEventEmitter<
     >[];
   }
 }
-export type MultiplyArray<T extends unknown[]> = {
-  [K in keyof T]: T[K][];
-};
 export type FirstNonErrorTuple<T extends unknown[]> = T[0] extends Error
   ? T[1]
   : T[0];
@@ -214,9 +211,9 @@ type ExpectMultipleResponses<T extends any[]> = {
     err: Error,
     ...args: infer Params
   ) => infer Result
-    ? (err: Error, ...arg: MultiplyArray<Params>) => Result
+    ? (err: Error, ...arg: [Params[0][]]) => Result
     : T[K] extends (...args: infer Params) => infer Result
-    ? (...args: MultiplyArray<Params>) => Result
+    ? (...args: [Params[0][]]) => Result
     : T[K];
 };
 /**

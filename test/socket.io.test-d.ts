@@ -305,22 +305,22 @@ describe("server", () => {
 
           // Two args
           sio.emit("ackFromServer", true, "123", (...args) => {
-            expectType<[boolean[], string[]]>(args);
+            expectType<[boolean[]]>(args);
           });
           // Two args + timeout
           sio.timeout(1).emit("ackFromServer", true, "123", (...args) => {
-            expectType<[Error, boolean[], string[]]>(args);
+            expectType<[Error, boolean[]]>(args);
           });
           // Two args + room
           sio.to("1").emit("ackFromServer", true, "123", (...args) => {
-            expectType<[boolean[], string[]]>(args);
+            expectType<[boolean[]]>(args);
           });
           // Two args + timeout + room
           sio
             .timeout(1)
             .in("1")
             .emit("ackFromServer", true, "123", (...args) => {
-              expectType<[Error, boolean[], string[]]>(args);
+              expectType<[Error, boolean[]]>(args);
             });
           // Two args + timeout + room + timeout + room
           sio
@@ -329,7 +329,7 @@ describe("server", () => {
             .timeout(1)
             .to("1")
             .emit("ackFromServer", true, "123", (...args) => {
-              expectType<[Error, boolean[], string[]]>(args);
+              expectType<[Error, boolean[]]>(args);
             });
 
           sio.on("connection", (s) => {
@@ -378,13 +378,13 @@ describe("server", () => {
             });
             // Two args + room
             s.to("1").emit("ackFromServer", true, "1", (...args) => {
-              expectType<[boolean[], string[]]>(args);
+              expectType<[boolean[]]>(args);
             });
             // Two args + timeout + room
             s.timeout(1)
               .in("1")
               .emit("ackFromServer", true, "1", (...args) => {
-                expectType<[Error, boolean[], string[]]>(args);
+                expectType<[Error, boolean[]]>(args);
               });
             // Two args + timeout + room + timeout + room
             s.timeout(1)
@@ -392,7 +392,7 @@ describe("server", () => {
               .timeout(1)
               .to("1")
               .emit("ackFromServer", true, "1", (...args) => {
-                expectType<[Error, boolean[], string[]]>(args);
+                expectType<[Error, boolean[]]>(args);
               });
             done();
           });
