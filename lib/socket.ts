@@ -39,6 +39,10 @@ export interface SocketOptions {
 
   /**
    * `http.Agent` to use, defaults to `false` (NodeJS only)
+   *
+   * Note: the type should be "undefined | http.Agent | https.Agent | false", but this would break browser-only clients.
+   *
+   * @see https://nodejs.org/api/http.html#httprequestoptions-callback
    */
   agent: string | boolean;
 
