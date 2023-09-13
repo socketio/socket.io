@@ -1,0 +1,20 @@
+{
+  "name": "express-session-example",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Example with express-session (https://github.com/expressjs/session)",
+  "scripts": {
+    "start": "ts-node index.ts"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.17",
+    "@types/express-session": "^1.17.7",
+    "@types/node": "^20.6.0",
+    "express": "~4.17.3",
+    "express-session": "~1.17.2",
+    "socket.io": "^4.7.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}

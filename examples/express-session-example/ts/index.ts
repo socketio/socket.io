@@ -1,7 +1,14 @@
-import express from "express";
+import express = require("express");
 import { createServer } from "http";
 import { Server } from "socket.io";
 import session from "express-session";
+import { type Request } from "express";
+
+declare module "express-session" {
+  interface SessionData {
+    count: number;
+  }
+}
 
 const port = process.env.PORT || 3000;
 
@@ -17,7 +24,7 @@ const sessionMiddleware = session({
 app.use(sessionMiddleware);
 
 app.get("/", (req, res) => {
-  res.sendFile("./index.html", { root: process.cwd() });
+  res.sendFile(new URL("./index.html", import.meta.url).pathname);
 });
 
 app.post("/incr", (req, res) => {
@@ -42,7 +49,7 @@ const io = new Server(httpServer);
 io.engine.use(sessionMiddleware);
 
 io.on("connection", (socket) => {
-  const req = socket.request;
+  const req = socket.request as Request;
 
   socket.join(req.session.id);
 
