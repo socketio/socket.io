@@ -1,7 +1,14 @@
-import express from "express";
+import express = require("express");
 import { createServer } from "http";
 import { Server } from "socket.io";
 import session from "express-session";
+import { type Request } from "express";
+
+declare module "express-session" {
+  interface SessionData {
+    count: number;
+  }
+}
 
 const port = process.env.PORT || 3000;
 
@@ -17,13 +24,15 @@ const sessionMiddleware = session({
 app.use(sessionMiddleware);
 
 app.get("/", (req, res) => {
-  res.sendFile("./index.html", { root: process.cwd() });
+  res.sendFile(new URL("./index.html", import.meta.url).pathname);
 });
 
 app.post("/incr", (req, res) => {
   const session = req.session;
   session.count = (session.count || 0) + 1;
   res.status(200).end("" + session.count);
+
+  io.to(session.id).emit("current count", session.count);
 });
 
 app.post("/logout", (req, res) => {
@@ -35,40 +44,12 @@ app.post("/logout", (req, res) => {
   });
 });
 
-const io = new Server(httpServer, {
-  allowRequest: (req, callback) => {
-    // with HTTP long-polling, we have access to the HTTP response here, but this is not
-    // the case with WebSocket, so we provide a dummy response object
-    const fakeRes = {
-      getHeader() {
-        return [];
-      },
-      setHeader(key, values) {
-        req.cookieHolder = values[0];
-      },
-      writeHead() {},
-    };
-    sessionMiddleware(req, fakeRes, () => {
-      if (req.session) {
-        // trigger the setHeader() above
-        fakeRes.writeHead();
-        // manually save the session (normally triggered by res.end())
-        req.session.save();
-      }
-      callback(null, true);
-    });
-  },
-});
+const io = new Server(httpServer);
 
-io.engine.on("initial_headers", (headers, req) => {
-  if (req.cookieHolder) {
-    headers["set-cookie"] = req.cookieHolder;
-    delete req.cookieHolder;
-  }
-});
+io.engine.use(sessionMiddleware);
 
 io.on("connection", (socket) => {
-  const req = socket.request;
+  const req = socket.request as Request;
 
   socket.join(req.session.id);
 

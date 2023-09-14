@@ -52,6 +52,10 @@
       socket.on("disconnect", () => {
         ioStatus.innerText = "disconnected";
       });
+
+      socket.on("current count", (count) => {
+        ioCount.innerText = count;
+      });
     </script>
   </body>
 </html>
