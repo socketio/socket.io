@@ -7,6 +7,7 @@ import {
   DecorateAcknowledgementsWithMultipleResponses,
   DefaultEventsMap,
   EventNames,
+  EventNamesWithAck,
   EventParams,
   EventsMap,
   FirstNonErrorArg,
@@ -383,7 +384,7 @@ export class Socket<
    *
    * @return a Promise that will be fulfilled when the client acknowledges the event
    */
-  public emitWithAck<Ev extends EventNames<EmitEvents>>(
+  public emitWithAck<Ev extends EventNamesWithAck<EmitEvents>>(
     ev: Ev,
     ...args: AllButLast<EventParams<EmitEvents, Ev>>
   ): Promise<FirstNonErrorArg<Last<EventParams<EmitEvents, Ev>>>> {

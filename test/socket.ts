@@ -9,6 +9,7 @@ import {
 } from "./support/util";
 import { Server } from "..";
 import expect from "expect.js";
+import { EventNamesWithAck } from "../lib/typed-events";
 
 describe("socket", () => {
   it("should not fire events more than once after manually reconnecting", (done) => {
@@ -606,9 +607,11 @@ describe("socket", () => {
   });
 
   it("should emit an event and wait for the acknowledgement", (done) => {
-    const io = new Server(0);
-    const socket = createClient(io);
-
+    type Events = {
+      hi: (a: number, b: number, cb: (c: number) => void) => void;
+    };
+    const io = new Server<{}, Events>(0);
+    const socket = createClient<Events, Events>(io);
     io.on("connection", async (s) => {
       socket.on("hi", (a, b, fn) => {
         expect(a).to.be(1);

@@ -11,6 +11,7 @@ import type {
   AllButLast,
   Last,
   FirstNonErrorArg,
+  EventNamesWithError,
 } from "./typed-events";
 
 export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
@@ -299,7 +300,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    *
    * @return a Promise that will be fulfilled when all clients have acknowledged the event
    */
-  public emitWithAck<Ev extends EventNames<EmitEvents>>(
+  public emitWithAck<Ev extends EventNamesWithError<EmitEvents>>(
     ev: Ev,
     ...args: AllButLast<EventParams<EmitEvents, Ev>>
   ): Promise<FirstNonErrorArg<Last<EventParams<EmitEvents, Ev>>>> {

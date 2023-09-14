@@ -1,10 +1,15 @@
 "use strict";
-import { Namespace, Server, Socket } from "..";
-import type { DefaultEventsMap } from "../lib/typed-events";
+import { BroadcastOperator, Namespace, Server, Socket } from "..";
+import type {
+  DefaultEventsMap,
+  EventNames,
+  EventsMap,
+} from "../lib/typed-events";
 import { createServer } from "http";
-import { expectError, expectNotAssignable, expectType } from "tsd";
+import { expectError, expectNever, expectNotAssignable, expectType } from "tsd";
 import { Adapter } from "socket.io-adapter";
 import type { DisconnectReason } from "../lib/socket";
+import type { Simplify } from "type-fest";
 
 // This file is run by tsd, not mocha.
 
@@ -84,6 +89,8 @@ describe("server", () => {
         const srv = createServer();
         const sio = new Server(srv);
         srv.listen(() => {
+          sio.emit("random", 1, "2", [3]);
+          sio.emit("no parameters");
           sio.on("connection", (s) => {
             s.emit("random", 1, "2", [3]);
             s.emit("no parameters");
@@ -184,38 +191,304 @@ describe("server", () => {
       });
     });
   });
+  type ToEmit<Map extends EventsMap, Ev extends keyof Map = keyof Map> = (
+    ev: Ev,
+    ...args: Parameters<Map[Ev]>
+  ) => boolean;
+  type ToEmitWithAck<
+    Map extends EventsMap,
+    Ev extends keyof Map = keyof Map
+  > = (ev: Ev, ...args: Parameters<Map[Ev]>) => ReturnType<Map[Ev]>;
+  interface ClientToServerEvents {
+    helloFromClient: (message: string) => void;
+    ackFromClient: (
+      a: string,
+      b: number,
+      ack: (c: string, d: number) => void
+    ) => void;
+  }
 
+  interface ServerToClientEvents {
+    helloFromServer: (message: string, x: number) => void;
+    ackFromServer: (
+      a: boolean,
+      b: string,
+      ack: (c: boolean, d: string) => void
+    ) => void;
+    ackFromServerSingleArg: (
+      a: boolean,
+      b: string,
+      ack: (c: string) => void
+    ) => void;
+    onlyCallback: (a: () => void) => void;
+  }
+  // While these could be generated using the types from typed-events,
+  // it's likely better to just write them out, so that both the types and this are tested properly
+  interface ServerToClientEventsNoAck {
+    helloFromServer: (message: string, x: number) => void;
+    ackFromServer: (a: boolean, b: string) => void;
+    ackFromServerSingleArg: (a: boolean, b: string) => void;
+    onlyCallback: () => void;
+  }
+  interface ServerToClientEventsWithError {
+    helloFromServer: (message: string, x: number) => void;
+    ackFromServer: (
+      a: boolean,
+      b: string,
+      ack: (err: Error, c: boolean, d: string) => void
+    ) => void;
+    ackFromServerSingleArg: (
+      a: boolean,
+      b: string,
+      ack: (err: Error, c: string) => void
+    ) => void;
+    onlyCallback: (a: (err: Error) => void) => void;
+  }
+
+  interface ServerToClientEventsWithMultiple {
+    helloFromServer: (message: string, x: number) => void;
+    ackFromServer: (a: boolean, b: string, ack: (c: boolean[]) => void) => void;
+    ackFromServerSingleArg: (
+      a: boolean,
+      b: string,
+      ack: (c: string[]) => void
+    ) => void;
+    onlyCallback: (a: () => void) => void;
+  }
+  interface ServerToClientEventsWithMultipleAndError {
+    helloFromServer: (message: string, x: number) => void;
+    ackFromServer: (
+      a: boolean,
+      b: string,
+      ack: (err: Error, c: boolean[]) => void
+    ) => void;
+    ackFromServerSingleArg: (
+      a: boolean,
+      b: string,
+      ack: (err: Error, c: string[]) => void
+    ) => void;
+    onlyCallback: (a: (err: Error) => void) => void;
+  }
+  interface ServerToClientEventsWithMultipleWithAck {
+    ackFromServer: (a: boolean, b: string) => Promise<boolean[]>;
+    ackFromServerSingleArg: (a: boolean, b: string) => Promise<string[]>;
+    // This should technically be `undefined[]`, but this doesn't work currently *only* with emitWithAck
+    // you can use an empty callback with emit, but not emitWithAck
+    onlyCallback: () => Promise<undefined>;
+  }
+  interface ServerToClientEventsWithAck {
+    ackFromServer: (a: boolean, b: string) => Promise<boolean>;
+    ackFromServerSingleArg: (a: boolean, b: string) => Promise<string>;
+    // This doesn't work currently *only* with emitWithAck
+    // you can use an empty callback with emit, but not emitWithAck
+    onlyCallback: () => Promise<undefined>;
+  }
+  describe("Emitting Types", () => {
+    describe("Broadcast Operator", () => {
+      it("works untyped", () => {
+        const untyped = new Server();
+        untyped.emit("random", 1, 2, Function, Boolean);
+        untyped.of("/").emit("random2", 2, "string", Server);
+        expectType<Promise<any>>(untyped.to("1").emitWithAck("random", "test"));
+        expectType<(ev: string, ...args: any[]) => Promise<any>>(
+          untyped.to("1").emitWithAck<string>
+        );
+      });
+      it("has the correct types", () => {
+        // Ensuring that all paths to BroadcastOperator have the correct types
+        // means that we only need one set of tests for emitting once the
+        // socket/namespace/server becomes a broadcast emitter
+        const sio = new Server<ClientToServerEvents, ServerToClientEvents>();
+        const nio = sio.of("/");
+        for (const emitter of [sio, nio]) {
+          expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
+            emitter.to("1")
+          );
+          expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
+            emitter.in("1")
+          );
+          expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
+            emitter.except("1")
+          );
+          expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
+            emitter.except("1")
+          );
+          expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
+            emitter.compress(true)
+          );
+          expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
+            emitter.volatile
+          );
+          expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
+            emitter.local
+          );
+          expectType<
+            BroadcastOperator<ServerToClientEventsWithMultipleAndError, any>
+          >(emitter.timeout(0));
+          expectType<
+            BroadcastOperator<ServerToClientEventsWithMultipleAndError, any>
+          >(emitter.timeout(0).timeout(0));
+        }
+        sio.on("connection", (s) => {
+          expectType<
+            Socket<
+              ClientToServerEvents,
+              ServerToClientEventsWithError,
+              DefaultEventsMap,
+              any
+            >
+          >(s.timeout(0));
+          expectType<
+            BroadcastOperator<ServerToClientEventsWithMultipleAndError, any>
+          >(s.timeout(0).broadcast);
+          // ensure that turning socket to a broadcast works correctly
+          expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
+            s.broadcast
+          );
+          expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
+            s.in("1")
+          );
+          expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
+            s.except("1")
+          );
+          expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
+            s.to("1")
+          );
+          // Ensure that adding a timeout to a broadcast works after the fact
+          expectType<
+            BroadcastOperator<ServerToClientEventsWithMultipleAndError, any>
+          >(s.broadcast.timeout(0));
+          // Ensure that adding a timeout to a broadcast works after the fact
+          expectType<
+            BroadcastOperator<ServerToClientEventsWithMultipleAndError, any>
+          >(s.broadcast.timeout(0).timeout(0));
+        });
+      });
+      it("has the correct types for `emit`", () => {
+        const sio = new Server<ClientToServerEvents, ServerToClientEvents>();
+        expectType<
+          ToEmit<ServerToClientEventsWithMultipleAndError, "helloFromServer">
+        >(sio.timeout(0).emit<"helloFromServer">);
+        expectType<
+          ToEmit<
+            ServerToClientEventsWithMultipleAndError,
+            "ackFromServerSingleArg"
+          >
+        >(sio.timeout(0).emit<"ackFromServerSingleArg">);
+        expectType<
+          ToEmit<ServerToClientEventsWithMultipleAndError, "ackFromServer">
+        >(sio.timeout(0).emit<"ackFromServer">);
+        expectType<
+          ToEmit<ServerToClientEventsWithMultipleAndError, "onlyCallback">
+        >(sio.timeout(0).emit<"onlyCallback">);
+      });
+      it("has the correct types for `emitWithAck`", () => {
+        const sio = new Server<ClientToServerEvents, ServerToClientEvents>();
+        const sansTimeout = sio.in("1");
+        // Without timeout, emitWithAck shouldn't accept any events
+        expectType<never>(
+          undefined as Parameters<typeof sansTimeout["emitWithAck"]>[0]
+        );
+        // @ts-expect-error - "helloFromServer" doesn't have a callback and is thus excluded
+        sio.timeout(0).emitWithAck("helloFromServer");
+        expectType<
+          ToEmitWithAck<
+            ServerToClientEventsWithMultipleWithAck,
+            "ackFromServerSingleArg"
+          >
+        >(sio.timeout(0).emitWithAck<"ackFromServerSingleArg">);
+        expectType<
+          ToEmitWithAck<
+            ServerToClientEventsWithMultipleWithAck,
+            "ackFromServer"
+          >
+        >(sio.timeout(0).emitWithAck<"ackFromServer">);
+        expectType<
+          ToEmitWithAck<ServerToClientEventsWithMultipleWithAck, "onlyCallback">
+        >(sio.timeout(0).emitWithAck<"onlyCallback">);
+      });
+    });
+    describe("emit", () => {
+      it("Infers correct types", () => {
+        const sio = new Server<ClientToServerEvents, ServerToClientEvents>();
+        const nio = sio.of("/test");
+        expectType<ToEmit<ServerToClientEventsNoAck, "helloFromServer">>(
+          // These errors will dissapear once the TS version is updated from 4.7.4
+          // the TSD instance is using a newer version of TS than the workspace version
+          // to enable the ability to compare against `any`
+          sio.emit<"helloFromServer">
+        );
+        expectType<ToEmit<ServerToClientEventsNoAck, "ackFromServerSingleArg">>(
+          sio.emit<"ackFromServerSingleArg">
+        );
+        expectType<ToEmit<ServerToClientEventsNoAck, "ackFromServer">>(
+          sio.emit<"ackFromServer">
+        );
+        expectType<ToEmit<ServerToClientEventsNoAck, "onlyCallback">>(
+          sio.emit<"onlyCallback">
+        );
+        expectType<ToEmit<ServerToClientEventsNoAck, "helloFromServer">>(
+          nio.emit<"helloFromServer">
+        );
+        expectType<ToEmit<ServerToClientEventsNoAck, "ackFromServerSingleArg">>(
+          nio.emit<"ackFromServerSingleArg">
+        );
+        expectType<ToEmit<ServerToClientEventsNoAck, "ackFromServer">>(
+          nio.emit<"ackFromServer">
+        );
+        expectType<ToEmit<ServerToClientEventsNoAck, "onlyCallback">>(
+          nio.emit<"onlyCallback">
+        );
+        sio.on("connection", (s) => {
+          expectType<ToEmit<ServerToClientEvents, "helloFromServer">>(
+            s.emit<"helloFromServer">
+          );
+          expectType<ToEmit<ServerToClientEvents, "ackFromServerSingleArg">>(
+            s.emit<"ackFromServerSingleArg">
+          );
+          expectType<ToEmit<ServerToClientEvents, "ackFromServer">>(
+            s.emit<"ackFromServer">
+          );
+          expectType<ToEmit<ServerToClientEvents, "onlyCallback">>(
+            s.emit<"onlyCallback">
+          );
+        });
+      });
+    });
+    describe("emitWithAck", () => {
+      it("works untyped", () => {
+        const untyped = new Server();
+        expectType<Promise<any>>(untyped.to("1").emitWithAck("random", "test"));
+      });
+      it("Infers correct types", () => {
+        const sio = new Server<ClientToServerEvents, ServerToClientEvents>();
+        sio.on("connection", (s) => {
+          // @ts-expect-error - "helloFromServer" doesn't have a callback and is thus excluded
+          s.emitWithAck("helloFromServer");
+          expectType<
+            ToEmitWithAck<ServerToClientEventsWithAck, "ackFromServerSingleArg">
+          >(s.emitWithAck<"ackFromServerSingleArg">);
+          expectType<
+            ToEmitWithAck<ServerToClientEventsWithAck, "ackFromServer">
+          >(s.emitWithAck<"ackFromServer">);
+          expectType<
+            ToEmitWithAck<ServerToClientEventsWithAck, "onlyCallback">
+          >(s.emitWithAck<"onlyCallback">);
+
+          expectType<
+            ToEmitWithAck<ServerToClientEventsWithAck, "ackFromServerSingleArg">
+          >(s.timeout(0).emitWithAck<"ackFromServerSingleArg">);
+          expectType<
+            ToEmitWithAck<ServerToClientEventsWithAck, "ackFromServer">
+          >(s.timeout(0).emitWithAck<"ackFromServer">);
+          expectType<
+            ToEmitWithAck<ServerToClientEventsWithAck, "onlyCallback">
+          >(s.timeout(0).emitWithAck<"onlyCallback">);
+        });
+      });
+    });
+  });
   describe("listen and emit event maps", () => {
-    interface ClientToServerEvents {
-      helloFromClient: (message: string) => void;
-      ackFromClient: (
-        a: string,
-        b: number,
-        ack: (c: string, d: number) => void
-      ) => void;
-    }
-
-    interface ServerToClientEvents {
-      helloFromServer: (message: string, x: number) => void;
-      ackFromServer: (
-        a: boolean,
-        b: string,
-        ack: (c: boolean, d: string) => void
-      ) => void;
-
-      ackFromServerSingleArg: (
-        a: boolean,
-        b: string,
-        ack: (c: string) => void
-      ) => void;
-
-      multipleAckFromServer: (
-        a: boolean,
-        b: string,
-        ack: (c: string) => void
-      ) => void;
-    }
-
     describe("on", () => {
       it("infers correct types for listener parameters", (done) => {
         const srv = createServer();
@@ -249,378 +522,6 @@ describe("server", () => {
                 done();
               })
             );
-          });
-        });
-      });
-    });
-
-    describe("emit", () => {
-      it("accepts arguments of the correct types", (done) => {
-        const srv = createServer();
-        const sio = new Server<ClientToServerEvents, ServerToClientEvents>(srv);
-        srv.listen(() => {
-          // No Callback
-          sio.emit("helloFromServer", "hi", 1);
-          sio.to("room").emit("helloFromServer", "hi", 1);
-          sio.timeout(1000).emit("helloFromServer", "hi", 1);
-
-          // One arg
-          sio.emit("ackFromServerSingleArg", true, "123", (...args) => {
-            expectType<[string[]]>(args);
-          });
-          // One arg + timeout
-          sio
-            .timeout(1)
-            .emit("ackFromServerSingleArg", true, "123", (...args) => {
-              expectType<[Error, string[]]>(args);
-            });
-          // One arg + room
-          sio.to("1").emit("ackFromServerSingleArg", true, "123", (...args) => {
-            expectType<[string[]]>(args);
-          });
-          sio.in("1").emit("ackFromServerSingleArg", true, "123", (...args) => {
-            expectType<[string[]]>(args);
-          });
-          sio
-            .except("1")
-            .emit("ackFromServerSingleArg", true, "123", (...args) => {
-              expectType<[string[]]>(args);
-            });
-          // One arg + timeout + room
-          sio
-            .timeout(1)
-            .in("1")
-            .emit("ackFromServerSingleArg", true, "123", (...args) => {
-              expectType<[Error, string[]]>(args);
-            });
-          // One arg + timeout + room + timeout + room
-          sio
-            .timeout(1)
-            .to("1")
-            .timeout(1)
-            .to("1")
-            .emit("ackFromServerSingleArg", true, "123", (...args) => {
-              expectType<[Error, string[]]>(args);
-            });
-
-          // Two args
-          sio.emit("ackFromServer", true, "123", (...args) => {
-            expectType<[boolean[]]>(args);
-          });
-          // Two args + timeout
-          sio.timeout(1).emit("ackFromServer", true, "123", (...args) => {
-            expectType<[Error, boolean[]]>(args);
-          });
-          // Two args + room
-          sio.to("1").emit("ackFromServer", true, "123", (...args) => {
-            expectType<[boolean[]]>(args);
-          });
-          // Two args + timeout + room
-          sio
-            .timeout(1)
-            .in("1")
-            .emit("ackFromServer", true, "123", (...args) => {
-              expectType<[Error, boolean[]]>(args);
-            });
-          // Two args + timeout + room + timeout + room
-          sio
-            .timeout(1)
-            .to("1")
-            .timeout(1)
-            .to("1")
-            .emit("ackFromServer", true, "123", (...args) => {
-              expectType<[Error, boolean[]]>(args);
-            });
-
-          sio.on("connection", (s) => {
-            // No args
-            s.emit("helloFromServer", "hi", 10);
-
-            // One arg
-            s.emit("ackFromServerSingleArg", true, "1", (...args) => {
-              expectType<[string]>(args);
-            });
-            // One arg + timeout
-            s.timeout(1).emit(
-              "ackFromServerSingleArg",
-              true,
-              "1",
-              (...args) => {
-                expectType<[Error, string]>(args);
-              }
-            );
-            // One arg + room
-            s.to("1").emit("ackFromServerSingleArg", true, "1", (...args) => {
-              expectType<[string[]]>(args);
-            });
-            // One arg + timeout + room
-            s.timeout(1)
-              .in("1")
-              .emit("ackFromServerSingleArg", true, "1", (...args) => {
-                expectType<[Error, string[]]>(args);
-              });
-            // One arg + timeout + room + timeout + room
-            s.timeout(1)
-              .to("1")
-              .timeout(1)
-              .to("1")
-              .emit("ackFromServerSingleArg", true, "1", (...args) => {
-                expectType<[Error, string[]]>(args);
-              });
-
-            // Two args
-            s.emit("ackFromServer", true, "1", (...args) => {
-              expectType<[boolean, string]>(args);
-            });
-            // Two args + timeout
-            s.timeout(1).emit("ackFromServer", true, "1", (...args) => {
-              expectType<[Error, boolean, string]>(args);
-            });
-            // Two args + room
-            s.to("1").emit("ackFromServer", true, "1", (...args) => {
-              expectType<[boolean[]]>(args);
-            });
-            // Two args + timeout + room
-            s.timeout(1)
-              .in("1")
-              .emit("ackFromServer", true, "1", (...args) => {
-                expectType<[Error, boolean[]]>(args);
-              });
-            // Two args + timeout + room + timeout + room
-            s.timeout(1)
-              .to("1")
-              .timeout(1)
-              .to("1")
-              .emit("ackFromServer", true, "1", (...args) => {
-                expectType<[Error, boolean[]]>(args);
-              });
-            done();
-          });
-        });
-      });
-
-      it("does not accept arguments of wrong types", (done) => {
-        const srv = createServer();
-        const sio = new Server<ClientToServerEvents, ServerToClientEvents>(srv);
-        srv.listen(() => {
-          expectError(sio.emit("helloFromClient"));
-          expectError(sio.to("room").emit("helloFromClient"));
-          expectError(sio.timeout(1000).to("room").emit("helloFromClient"));
-
-          sio.on("connection", (s) => {
-            expectError(s.emit("helloFromClient", "hi"));
-            expectError(s.emit("helloFromServer", "hi", 10, "10"));
-            expectError(s.emit("helloFromServer", "hi", "10"));
-            expectError(s.emit("helloFromServer", 0, 0));
-            expectError(s.emit("wrong name", 10));
-            expectError(s.emit("wrong name"));
-            done();
-          });
-        });
-      });
-    });
-
-    describe("emitWithAck", () => {
-      it("accepts arguments of the correct types", (done) => {
-        const srv = createServer();
-        const sio = new Server<ClientToServerEvents, ServerToClientEvents>(srv);
-        srv.listen(async () => {
-          // One arg in callback
-          expectType<string[]>(
-            await sio.emitWithAck("ackFromServerSingleArg", true, "123")
-          );
-          // One arg + timeout
-          expectType<string[]>(
-            await sio
-              .timeout(1)
-              .emitWithAck("ackFromServerSingleArg", true, "123")
-          );
-          // One arg + timeout + timeout
-          expectType<string[]>(
-            await sio
-              .timeout(1)
-              .timeout(1)
-              .emitWithAck("ackFromServerSingleArg", true, "123")
-          );
-          // One arg + room
-          expectType<string[]>(
-            await sio.to("1").emitWithAck("ackFromServerSingleArg", true, "123")
-          );
-          expectType<string[]>(
-            await sio.in("1").emitWithAck("ackFromServerSingleArg", true, "123")
-          );
-          expectType<string[]>(
-            await sio
-              .except("1")
-              .emitWithAck("ackFromServerSingleArg", true, "123")
-          );
-          // One arg + timeout + room + timeout + room
-          expectType<string[]>(
-            await sio
-              .timeout(1)
-              .to("1")
-              .timeout(1)
-              .to("1")
-              .emitWithAck("ackFromServerSingleArg", true, "123")
-          );
-
-          // Two args in callback
-          expectType<boolean[]>(
-            await sio.emitWithAck("ackFromServer", true, "123")
-          );
-          // Two args + timeout
-          expectType<boolean[]>(
-            await sio.timeout(1).emitWithAck("ackFromServer", true, "123")
-          );
-          // Two args + timeout + timeout
-          expectType<boolean[]>(
-            await sio
-              .timeout(1)
-              .timeout(1)
-              .emitWithAck("ackFromServer", true, "123")
-          );
-          // Two args + room
-          expectType<boolean[]>(
-            await sio.to("1").emitWithAck("ackFromServer", true, "123")
-          );
-          // Two args + timeout + room
-          expectType<boolean[]>(
-            await sio
-              .timeout(1)
-              .to("1")
-              .emitWithAck("ackFromServer", true, "123")
-          );
-          // Two args + timeout + room + timeout + room
-          expectType<boolean[]>(
-            await sio
-              .timeout(1)
-              .to("1")
-              .timeout(1)
-              .to("1")
-              .emitWithAck("ackFromServer", true, "123")
-          );
-
-          sio.on("connection", async (s) => {
-            // One arg in callback
-            expectType<string>(
-              await s.emitWithAck("ackFromServerSingleArg", true, "123")
-            );
-            // One arg + timeout
-            expectType<string>(
-              await s
-                .timeout(1)
-                .emitWithAck("ackFromServerSingleArg", true, "123")
-            );
-            // One arg + room
-            expectType<string[]>(
-              await s.to("1").emitWithAck("ackFromServerSingleArg", true, "123")
-            );
-            // One arg + room + timeout + room
-            expectType<string[]>(
-              await s
-                .to("1")
-                .timeout(1)
-                .to("1")
-                .emitWithAck("ackFromServerSingleArg", true, "123")
-            );
-
-            // Two args in callback
-            expectType<boolean>(
-              await s.emitWithAck("ackFromServer", true, "123")
-            );
-            // Two args + timeout
-            expectType<boolean>(
-              await s.timeout(1).emitWithAck("ackFromServer", true, "123")
-            );
-            // Two args + room
-            expectType<boolean[]>(
-              await s.to("1").emitWithAck("ackFromServer", true, "123")
-            );
-            // Two args + room + timeout + room
-            expectType<boolean[]>(
-              await s
-                .to("1")
-                .timeout(1)
-                .to("1")
-                .emitWithAck("ackFromServer", true, "123")
-            );
-
-            done();
-          });
-        });
-      });
-    });
-    describe("namespace", () => {
-      describe("emitWithAck", () => {
-        it("accepts arguments of the correct types", (done) => {
-          const srv = createServer();
-          const sio = new Server<ClientToServerEvents, ServerToClientEvents>(
-            srv
-          );
-          const nio = sio.of("/test");
-          srv.listen(async () => {
-            // One arg in callback
-            expectType<string[]>(
-              await nio.emitWithAck("ackFromServerSingleArg", true, "123")
-            );
-            // One arg + timeout
-            expectType<string[]>(
-              await nio
-                .timeout(1)
-                .emitWithAck("ackFromServerSingleArg", true, "123")
-            );
-            // One arg + timeout + timeout
-            expectType<string[]>(
-              await nio
-                .timeout(1)
-                .timeout(1)
-                .emitWithAck("ackFromServerSingleArg", true, "123")
-            );
-            // One arg + room
-            expectType<string[]>(
-              await nio
-                .to("1")
-                .emitWithAck("ackFromServerSingleArg", true, "123")
-            );
-            expectType<string[]>(
-              await nio
-                .in("1")
-                .emitWithAck("ackFromServerSingleArg", true, "123")
-            );
-            expectType<string[]>(
-              await nio
-                .except("1")
-                .emitWithAck("ackFromServerSingleArg", true, "123")
-            );
-
-            // Two args in callback
-            expectType<boolean[]>(
-              await nio.emitWithAck("ackFromServer", true, "123")
-            );
-            // Two args + timeout
-            expectType<boolean[]>(
-              await nio.timeout(1).emitWithAck("ackFromServer", true, "123")
-            );
-            // Two args + timeout + timeout
-            expectType<boolean[]>(
-              await nio
-                .timeout(1)
-                .timeout(1)
-                .emitWithAck("ackFromServer", true, "123")
-            );
-            // Two args + room
-            expectType<boolean[]>(
-              await nio.to("1").emitWithAck("ackFromServer", true, "123")
-            );
-            // Two args + timeout + room
-            expectType<boolean[]>(
-              await nio
-                .timeout(1)
-                .to("1")
-                .emitWithAck("ackFromServer", true, "123")
-            );
-
-            done();
           });
         });
       });

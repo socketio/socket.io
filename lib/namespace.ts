@@ -13,6 +13,7 @@ import {
   DecorateAcknowledgementsWithMultipleResponses,
   FirstNonErrorArg,
   DecorateAcknowledgements,
+  RemoveAcknowledgements,
 } from "./typed-events";
 import type { Client } from "./client";
 import debugModule from "debug";
@@ -119,7 +120,7 @@ export class Namespace<
   SocketData = any
 > extends StrictEventEmitter<
   ServerSideEvents,
-  EmitEvents,
+  RemoveAcknowledgements<EmitEvents>,
   NamespaceReservedEventsMap<
     ListenEvents,
     EmitEvents,
@@ -441,37 +442,12 @@ export class Namespace<
    */
   public emit<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
-    ...args: EventParams<EmitEvents, Ev>
+    ...args: EventParams<RemoveAcknowledgements<EmitEvents>, Ev>
   ): boolean {
     return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).emit(
       ev,
       ...args
     );
-  }
-
-  /**
-   * Emits an event and waits for an acknowledgement from all clients.
-   *
-   * @example
-   * const myNamespace = io.of("/my-namespace");
-   *
-   * try {
-   *   const responses = await myNamespace.timeout(1000).emitWithAck("some-event");
-   *   console.log(responses); // one response per client
-   * } catch (e) {
-   *   // some clients did not acknowledge the event in the given delay
-   * }
-   *
-   * @return a Promise that will be fulfilled when all clients have acknowledged the event
-   */
-  public emitWithAck<Ev extends EventNames<EmitEvents>>(
-    ev: Ev,
-    ...args: AllButLast<EventParams<EmitEvents, Ev>>
-  ): Promise<FirstNonErrorArg<Last<EventParams<EmitEvents, Ev>>>[]> {
-    return new BroadcastOperator<
-      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
-      SocketData
-    >(this.adapter).emitWithAck(ev, ...args);
   }
 
   /**
