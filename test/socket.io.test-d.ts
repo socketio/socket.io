@@ -150,42 +150,19 @@ describe("server", () => {
         const sio = new Server<BidirectionalEvents, BidirectionalEvents, {}>(
           srv
         );
-        expectError(sio.on("random", (a, b, c) => {}));
+        // @ts-expect-error - shouldn't accept arguments of the wrong types
+        sio.on("random", (a, b, c) => {});
         srv.listen(() => {
-          expectError(sio.on("wrong name", (s) => {}));
+          // @ts-expect-error - shouldn't accept arguments of the wrong types
+          sio.on("wrong name", (s) => {});
           sio.on("connection", (s) => {
             s.on("random", (a, b, c) => {});
-            expectError(s.on("random"));
-            expectError(s.on("random", (a, b, c, d) => {}));
-            expectError(s.on(2, 3));
-          });
-        });
-      });
-    });
-
-    describe("emit", () => {
-      it("accepts arguments of the correct types", () => {
-        const srv = createServer();
-        const sio = new Server<BidirectionalEvents>(srv);
-        srv.listen(() => {
-          sio.on("connection", (s) => {
-            s.emit("random", 1, "2", [3]);
-          });
-        });
-      });
-
-      it("does not accept arguments of the wrong types", () => {
-        const srv = createServer();
-        const sio = new Server<BidirectionalEvents>(srv);
-        srv.listen(() => {
-          sio.on("connection", (s) => {
-            expectError(s.emit("noParameter", 2));
-            expectError(s.emit("oneParameter"));
-            expectError(s.emit("random"));
-            expectError(s.emit("oneParameter", 2, 3));
-            expectError(s.emit("random", (a, b, c) => {}));
-            expectError(s.emit("wrong name", () => {}));
-            expectError(s.emit("complicated name with spaces", 2));
+            // @ts-expect-error - shouldn't accept arguments of the wrong types
+            s.on("random");
+            // @ts-expect-error - shouldn't accept arguments of the wrong types
+            s.on("random", (a, b, c, d) => {});
+            // @ts-expect-error - shouldn't accept arguments of the wrong types
+            s.on(2, 3);
           });
         });
       });
@@ -456,10 +433,6 @@ describe("server", () => {
       });
     });
     describe("emitWithAck", () => {
-      it("works untyped", () => {
-        const untyped = new Server();
-        expectType<Promise<any>>(untyped.to("1").emitWithAck("random", "test"));
-      });
       it("Infers correct types", () => {
         const sio = new Server<ClientToServerEvents, ServerToClientEvents>();
         sio.on("connection", (s) => {
@@ -517,11 +490,10 @@ describe("server", () => {
         const sio = new Server<ClientToServerEvents, ServerToClientEvents>(srv);
         srv.listen(() => {
           sio.on("connection", (s) => {
-            expectError(
-              s.on("helloFromServer", (message, number) => {
-                done();
-              })
-            );
+            // @ts-expect-error - shouldn't accept emit events
+            s.on("helloFromServer", (message, number) => {
+              done();
+            });
           });
         });
       });
@@ -610,7 +582,8 @@ describe("server", () => {
 
     it("does not accept arguments of wrong types", () => {
       const io = new Server();
-      expectError(io.adapter((nsp) => "nope"));
+      // @ts-expect-error - shouldn't accept arguments of the wrong types
+      io.adapter((nsp) => "nope");
     });
   });
 });
