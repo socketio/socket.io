@@ -9,7 +9,6 @@ import {
 } from "./support/util";
 import { Server } from "..";
 import expect from "expect.js";
-import { EventNamesWithAck } from "../lib/typed-events";
 
 describe("socket", () => {
   it("should not fire events more than once after manually reconnecting", (done) => {

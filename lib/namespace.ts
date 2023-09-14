@@ -11,7 +11,6 @@ import {
   Last,
   FirstArg,
   DecorateAcknowledgementsWithMultipleResponses,
-  FirstNonErrorArg,
   DecorateAcknowledgements,
   RemoveAcknowledgements,
 } from "./typed-events";

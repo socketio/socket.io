@@ -1,15 +1,10 @@
 "use strict";
-import { BroadcastOperator, Namespace, Server, Socket } from "..";
-import type {
-  DefaultEventsMap,
-  EventNames,
-  EventsMap,
-} from "../lib/typed-events";
 import { createServer } from "http";
-import { expectError, expectNever, expectNotAssignable, expectType } from "tsd";
 import { Adapter } from "socket.io-adapter";
+import { expectType } from "tsd";
+import { BroadcastOperator, Server, Socket } from "..";
 import type { DisconnectReason } from "../lib/socket";
-import type { Simplify } from "type-fest";
+import type { DefaultEventsMap, EventsMap } from "../lib/typed-events";
 
 // This file is run by tsd, not mocha.
 
@@ -362,12 +357,14 @@ describe("server", () => {
       it("has the correct types for `emitWithAck`", () => {
         const sio = new Server<ClientToServerEvents, ServerToClientEvents>();
         const sansTimeout = sio.in("1");
-        // Without timeout, emitWithAck shouldn't accept any events
+        // Without timeout, `emitWithAck` shouldn't accept any events
         expectType<never>(
           undefined as Parameters<typeof sansTimeout["emitWithAck"]>[0]
         );
         // @ts-expect-error - "helloFromServer" doesn't have a callback and is thus excluded
         sio.timeout(0).emitWithAck("helloFromServer");
+        // @ts-expect-error - "onlyCallback" doesn't have a callback and is thus excluded
+        sio.timeout(0).emitWithAck("onlyCallback");
         expectType<
           ToEmitWithAck<
             ServerToClientEventsWithMultipleWithAck,
@@ -380,9 +377,6 @@ describe("server", () => {
             "ackFromServer"
           >
         >(sio.timeout(0).emitWithAck<"ackFromServer">);
-        expectType<
-          ToEmitWithAck<ServerToClientEventsWithMultipleWithAck, "onlyCallback">
-        >(sio.timeout(0).emitWithAck<"onlyCallback">);
       });
     });
     describe("emit", () => {
@@ -438,15 +432,16 @@ describe("server", () => {
         sio.on("connection", (s) => {
           // @ts-expect-error - "helloFromServer" doesn't have a callback and is thus excluded
           s.emitWithAck("helloFromServer");
+          // @ts-expect-error - "onlyCallback" doesn't have a callback and is thus excluded
+          s.emitWithAck("onlyCallback");
+          // @ts-expect-error - "onlyCallback" doesn't have a callback and is thus excluded
+          s.timeout(0).emitWithAck("onlyCallback");
           expectType<
             ToEmitWithAck<ServerToClientEventsWithAck, "ackFromServerSingleArg">
           >(s.emitWithAck<"ackFromServerSingleArg">);
           expectType<
             ToEmitWithAck<ServerToClientEventsWithAck, "ackFromServer">
           >(s.emitWithAck<"ackFromServer">);
-          expectType<
-            ToEmitWithAck<ServerToClientEventsWithAck, "onlyCallback">
-          >(s.emitWithAck<"onlyCallback">);
 
           expectType<
             ToEmitWithAck<ServerToClientEventsWithAck, "ackFromServerSingleArg">
@@ -454,9 +449,6 @@ describe("server", () => {
           expectType<
             ToEmitWithAck<ServerToClientEventsWithAck, "ackFromServer">
           >(s.timeout(0).emitWithAck<"ackFromServer">);
-          expectType<
-            ToEmitWithAck<ServerToClientEventsWithAck, "onlyCallback">
-          >(s.timeout(0).emitWithAck<"onlyCallback">);
         });
       });
     });

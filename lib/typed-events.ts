@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
-import type { IfAny, IfNever, LastArrayElement, Simplify } from "type-fest";
-
+import type { IfAny, LastArrayElement } from "type-fest";
+export type { LastArrayElement as Last } from "type-fest";
 /**
  * An events map is an interface that maps event names to their value, which
  * represents the type of the `on` listener.
@@ -17,48 +17,6 @@ export interface DefaultEventsMap {
   [event: string]: (...args: any[]) => void;
 }
 
-type ServerEvents = {
-  hi: (a: number, b: number, ack: (c: number) => void) => void;
-  three: (
-    a: number,
-    b: number,
-    ack: (c: number, d: number, e: number) => void
-  ) => void;
-  bye: (a: number, b: number) => void;
-  err: (a: number, cb: (error: Error) => void) => void;
-  err1: (a: number, cb: (error: Error, test: number) => void) => void;
-  zero: (cb: () => void) => void;
-};
-
-type TEventsWithAck = EventNamesWithAck<ServerEvents>;
-
-type T0 = LastArrayElement<Parameters<ServerEvents["err"]>> extends (
-  error: Error,
-  ...args: any[]
-) => any
-  ? true
-  : false;
-
-type T1 = EventNamesWithError<ServerEvents>;
-
-type T1a = LooseParameters<
-  LastArrayElement<Parameters<ServerEvents["bye"]>>
->[0];
-type T1b = IfAny<
-  LastArrayElement<Parameters<ServerEvents["bye"]>> | ServerEvents["bye"],
-  "bye",
-  true
->;
-
-type Dec = RemoveAcknowledgements<ServerEvents>;
-type Dec0 = ExpectMultipleResponses<Parameters<ServerEvents["zero"]>>;
-type Dec1 = ExpectMultipleResponses<Parameters<ServerEvents["hi"]>>;
-type Dec2 = ExpectMultipleResponses<Parameters<ServerEvents["three"]>>;
-type DecE0 = ExpectMultipleResponses<Parameters<ServerEvents["err"]>>;
-type DecE1 = ExpectMultipleResponses<Parameters<ServerEvents["err1"]>>;
-
-type LooseParameters<T> = T extends (...args: infer P) => any ? P : never;
-
 /**
  * Returns a union type containing all the keys of an event map.
  */
@@ -66,6 +24,8 @@ export type EventNames<Map extends EventsMap> = keyof Map & (string | symbol);
 
 /**
  * Returns a union type containing all the keys of an event map that have an acknowledgement callback.
+ *
+ * That also have *some* data coming in.
  */
 export type EventNamesWithAck<
   Map extends EventsMap,
@@ -75,7 +35,9 @@ export type EventNamesWithAck<
   K,
   K extends (
     LastArrayElement<Parameters<Map[K]>> extends (...args: any[]) => any
-      ? K
+      ? FirstNonErrorArg<LastArrayElement<Parameters<Map[K]>>> extends void
+        ? never
+        : K
       : never
   )
     ? K
@@ -257,22 +219,15 @@ export abstract class StrictEventEmitter<
 export type FirstNonErrorTuple<T extends unknown[]> = T[0] extends Error
   ? T[1]
   : T[0];
-export type Last<T extends any[]> = T extends [...infer H, infer L] ? L : any;
 export type AllButLast<T extends any[]> = T extends [...infer H, infer L]
   ? H
   : any[];
-export type FirstArg<T> = T extends (arg: infer Param) => infer Result
-  ? Param
-  : any;
-export type SecondArg<T> = T extends (
-  err: Error,
-  arg: infer Param
-) => infer Result
-  ? Param
-  : any;
-export type FirstNonErrorArg<T> = T extends (
-  ...args: infer Params
-) => infer Result
+/**
+ * Like `Parameters<T>`, but doesn't require `T` to be a function ahead of time.
+ */
+type LooseParameters<T> = T extends (...args: infer P) => any ? P : never;
+export type FirstArg<T> = T extends (arg: infer Param) => any ? Param : any;
+export type FirstNonErrorArg<T> = T extends (...args: infer Params) => any
   ? FirstNonErrorTuple<Params>
   : any;
 type PrependTimeoutError<T extends any[]> = {

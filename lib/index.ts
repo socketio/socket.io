@@ -37,9 +37,6 @@ import {
   AllButLast,
   Last,
   FirstArg,
-  FirstNonErrorArg,
-  DecorateAcknowledgementsWithMultipleResponses,
-  DecorateAcknowledgements,
   RemoveAcknowledgements,
 } from "./typed-events";
 import { patchAdapter, restoreAdapter, serveFile } from "./uws";
