@@ -36,8 +36,10 @@ import {
   DecorateAcknowledgementsWithTimeoutAndMultipleResponses,
   AllButLast,
   Last,
-  FirstArg,
   RemoveAcknowledgements,
+  EventNamesWithAck,
+  FirstNonErrorArg,
+  DecorateAcknowledgementsWithMultipleResponses,
 } from "./typed-events";
 import { patchAdapter, restoreAdapter, serveFile } from "./uws";
 import corsMiddleware from "cors";
@@ -928,10 +930,10 @@ export class Server<
    *
    * @return a Promise that will be fulfilled when all servers have acknowledged the event
    */
-  public serverSideEmitWithAck<Ev extends EventNames<ServerSideEvents>>(
+  public serverSideEmitWithAck<Ev extends EventNamesWithAck<ServerSideEvents>>(
     ev: Ev,
     ...args: AllButLast<EventParams<ServerSideEvents, Ev>>
-  ): Promise<FirstArg<Last<EventParams<ServerSideEvents, Ev>>>[]> {
+  ): Promise<FirstNonErrorArg<Last<EventParams<ServerSideEvents, Ev>>>[]> {
     return this.sockets.serverSideEmitWithAck(ev, ...args);
   }
 

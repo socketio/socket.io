@@ -9,10 +9,11 @@ import {
   DecorateAcknowledgementsWithTimeoutAndMultipleResponses,
   AllButLast,
   Last,
-  FirstArg,
   DecorateAcknowledgementsWithMultipleResponses,
   DecorateAcknowledgements,
   RemoveAcknowledgements,
+  EventNamesWithAck,
+  FirstNonErrorArg,
 } from "./typed-events";
 import type { Client } from "./client";
 import debugModule from "debug";
@@ -542,10 +543,10 @@ export class Namespace<
    *
    * @return a Promise that will be fulfilled when all servers have acknowledged the event
    */
-  public serverSideEmitWithAck<Ev extends EventNames<ServerSideEvents>>(
+  public serverSideEmitWithAck<Ev extends EventNamesWithAck<ServerSideEvents>>(
     ev: Ev,
     ...args: AllButLast<EventParams<ServerSideEvents, Ev>>
-  ): Promise<FirstArg<Last<EventParams<ServerSideEvents, Ev>>>[]> {
+  ): Promise<FirstNonErrorArg<Last<EventParams<ServerSideEvents, Ev>>>[]> {
     return new Promise((resolve, reject) => {
       args.push((err, responses) => {
         if (err) {

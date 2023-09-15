@@ -533,6 +533,9 @@ describe("server", () => {
             expectType<number>(x);
           });
 
+          //@ts-expect-error - "helloFromServerToServer" does not have a callback
+          sio.serverSideEmitWithAck("helloFromServerToServer", "hello");
+
           sio.on("ackFromServerToServer", (...args) => {
             expectType<[string, (bar: number) => void]>(args);
           });
