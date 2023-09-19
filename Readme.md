@@ -704,6 +704,7 @@ const io = new Server(3000, {
   pingInterval: 300,
   pingTimeout: 200,
   maxPayload: 1000000,
+  connectTimeout: 1000,
   cors: {
     origin: "*"
   }

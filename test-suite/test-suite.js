@@ -507,6 +507,15 @@ describe("Socket.IO protocol", () => {
 
       await waitFor(socket, "close");
     });
+
+    
+    it("should close the connection if no handshake is received", async () => {
+      const socket = new WebSocket(
+          `${WS_URL}/socket.io/?EIO=4&transport=websocket`
+      );
+
+      await waitFor(socket, "close");
+    });
   });
 
   describe("disconnect", () => {
