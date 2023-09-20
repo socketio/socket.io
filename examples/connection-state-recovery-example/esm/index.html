@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Connection state recovery | Socket.IO</title>
+  </head>
+  <body>
+    <p>Status: <span id="connectionStatus">disconnected</span></p>
+    <p>Recovered? <span id="recoveryStatus">-</span></p>
+
+    <p>Latest messages:</p>
+    <ul id="messages"></ul>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const $connectionStatus = document.getElementById("connectionStatus");
+      const $recoveryStatus = document.getElementById("recoveryStatus");
+      const $messages = document.getElementById("messages");
+
+      const socket = io({
+        reconnectionDelay: 5000 // 1000 by default
+      });
+
+      socket.on("connect", () => {
+        $connectionStatus.innerText = "connected";
+        $recoveryStatus.innerText = "" + socket.recovered;
+
+        setTimeout(() => {
+          // close the low-level connection and trigger a reconnection
+          socket.io.engine.close();
+        }, Math.random() * 5000 + 1000);
+      });
+
+      socket.on("disconnect", () => {
+        $connectionStatus.innerText = "disconnected";
+        $recoveryStatus.innerText = "-"
+      });
+
+      socket.on("ping", (value) => {
+        const item = document.createElement("li");
+        item.textContent = value;
+        $messages.prepend(item);
+        if ($messages.childElementCount > 10) {
+          $messages.removeChild($messages.lastChild);
+        }
+      });
+    </script>
+  </body>
+</html>

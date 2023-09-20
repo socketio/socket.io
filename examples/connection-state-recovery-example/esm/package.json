@@ -1,0 +1,13 @@
+{
+  "name": "connection-state-recovery-example",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Example with connection state recovery",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "socket.io": "^4.7.2"
+  }
+}
