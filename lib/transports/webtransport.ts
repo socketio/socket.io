@@ -14,7 +14,9 @@ export class WebTransport extends Transport {
     super({ _query: { EIO: "4" } });
 
     const transformStream = createPacketEncoderStream();
-    transformStream.readable.pipeTo(stream.writable);
+    transformStream.readable.pipeTo(stream.writable).catch(() => {
+      debug("the stream was closed");
+    });
     this.writer = transformStream.writable.getWriter();
 
     (async () => {
