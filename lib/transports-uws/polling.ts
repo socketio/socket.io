@@ -423,6 +423,8 @@ export class Polling extends Transport {
       headers["X-XSS-Protection"] = "0";
     }
 
+    headers["cache-control"] = "no-store";
+
     this.emit("headers", headers, req);
     return headers;
   }

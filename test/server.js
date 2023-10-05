@@ -3443,13 +3443,12 @@ describe("server", () => {
   });
 
   describe("response headers", () => {
-    function testForHeaders(headers, done) {
+    function testForHeaders(headers, callback) {
       const engine = listen((port) => {
         engine.on("connection", (conn) => {
           conn.transport.once("headers", (headers) => {
-            expect(headers["X-XSS-Protection"]).to.be("0");
+            callback(headers);
             conn.close();
-            done();
           });
           conn.send("hi");
         });
@@ -3465,7 +3464,10 @@ describe("server", () => {
         "user-agent":
           "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; Tablet PC 2.0)",
       };
-      testForHeaders(headers, done);
+      testForHeaders(headers, (headers) => {
+        expect(headers["X-XSS-Protection"]).to.be("0");
+        done();
+      });
     });
 
     it("should contain X-XSS-Protection: 0 for IE11", (done) => {
@@ -3473,7 +3475,17 @@ describe("server", () => {
         "user-agent":
           "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko",
       };
-      testForHeaders(headers, done);
+      testForHeaders(headers, (headers) => {
+        expect(headers["X-XSS-Protection"]).to.be("0");
+        done();
+      });
+    });
+
+    it("should include a 'cache-control' header", (done) => {
+      testForHeaders({}, (headers) => {
+        expect(headers["cache-control"]).to.be("no-store");
+        done();
+      });
     });
 
     it("should emit a 'initial_headers' event (polling)", (done) => {
