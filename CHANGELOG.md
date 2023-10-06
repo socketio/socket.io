@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [6.5.3](#653-2023-10-06) (Oct 2023)
 - [6.5.2](#652-2023-08-01) (Aug 2023)
 - [6.5.1](#651-2023-06-27) (Jun 2023)
 - [6.5.0](#650-2023-06-16) (Jun 2023)
@@ -49,6 +50,21 @@
 
 
 # Release notes
+
+## [6.5.3](https://github.com/socketio/engine.io/compare/6.5.2...6.5.3) (2023-10-06)
+
+
+### Bug Fixes
+
+* improve compatibility with node16 module resolution ([#689](https://github.com/socketio/engine.io/issues/689)) ([c6bf8c0](https://github.com/socketio/engine.io/commit/c6bf8c0f571aad7a5917f43860c8c3d74a9b429b)), closes [/github.com/microsoft/TypeScript/issues/46770#issuecomment-966612103](https://github.com//github.com/microsoft/TypeScript/issues/46770/issues/issuecomment-966612103)
+* **webtransport:** properly handle abruptly closed connections ([ff1c861](https://github.com/socketio/engine.io/commit/ff1c8615483bab25acc9cf04fb40339b0bd78812))
+
+
+### Dependencies
+
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [6.5.2](https://github.com/socketio/engine.io/compare/6.5.1...6.5.2) (2023-08-01)
 
