@@ -1,6 +1,4 @@
 import { EventEmitter } from "events";
-import type { IfAny, LastArrayElement } from "type-fest";
-export type { LastArrayElement as Last } from "type-fest";
 /**
  * An events map is an interface that maps event names to their value, which
  * represents the type of the `on` listener.
@@ -31,11 +29,11 @@ export type EventNamesWithAck<
   Map extends EventsMap,
   K extends EventNames<Map> = EventNames<Map>
 > = IfAny<
-  LastArrayElement<Parameters<Map[K]>> | Map[K],
+  Last<Parameters<Map[K]>> | Map[K],
   K,
   K extends (
-    LastArrayElement<Parameters<Map[K]>> extends (...args: any[]) => any
-      ? FirstNonErrorArg<LastArrayElement<Parameters<Map[K]>>> extends void
+    Last<Parameters<Map[K]>> extends (...args: any[]) => any
+      ? FirstNonErrorArg<Last<Parameters<Map[K]>>> extends void
         ? never
         : K
       : never
@@ -48,12 +46,10 @@ export type EventNamesWithError<
   Map extends EventsMap,
   K extends EventNamesWithAck<Map> = EventNamesWithAck<Map>
 > = IfAny<
-  LastArrayElement<Parameters<Map[K]>> | Map[K],
+  Last<Parameters<Map[K]>> | Map[K],
   K,
   K extends (
-    LooseParameters<LastArrayElement<Parameters<Map[K]>>>[0] extends Error
-      ? K
-      : never
+    LooseParameters<Last<Parameters<Map[K]>>>[0] extends Error ? K : never
   )
     ? K
     : never
@@ -216,6 +212,47 @@ export abstract class StrictEventEmitter<
     >[];
   }
 }
+/**
+Returns a boolean for whether the given type is `any`.
+
+@link https://stackoverflow.com/a/49928360/1490091
+
+Useful in type utilities, such as disallowing `any`s to be passed to a function.
+
+@author sindresorhus
+@link https://github.com/sindresorhus/type-fest
+*/
+type IsAny<T> = 0 extends 1 & T ? true : false;
+
+/**
+An if-else-like type that resolves depending on whether the given type is `any`.
+
+@see {@link IsAny}
+
+@author sindresorhus
+@link https://github.com/sindresorhus/type-fest
+*/
+type IfAny<T, TypeIfAny = true, TypeIfNotAny = false> = IsAny<T> extends true
+  ? TypeIfAny
+  : TypeIfNotAny;
+
+/**
+Extracts the type of the last element of an array.
+
+Use-case: Defining the return type of functions that extract the last element of an array, for example [`lodash.last`](https://lodash.com/docs/4.17.15#last).
+
+@author sindresorhus
+@link https://github.com/sindresorhus/type-fest
+*/
+export type Last<ValueType extends readonly unknown[]> =
+  ValueType extends readonly [infer ElementType]
+    ? ElementType
+    : ValueType extends readonly [infer _, ...infer Tail]
+    ? Last<Tail>
+    : ValueType extends ReadonlyArray<infer ElementType>
+    ? ElementType
+    : never;
+
 export type FirstNonErrorTuple<T extends unknown[]> = T[0] extends Error
   ? T[1]
   : T[0];
@@ -304,7 +341,7 @@ export type DecorateAcknowledgementsWithMultipleResponses<E> = {
 
 export type RemoveAcknowledgements<E> = {
   [K in keyof E]: E[K] extends (...args: infer Params) => infer Result
-    ? LastArrayElement<Params> extends (...args: any[]) => any
+    ? Last<Params> extends (...args: any[]) => any
       ? (...args: AllButLast<Params>) => Result
       : E[K]
     : E[K];
