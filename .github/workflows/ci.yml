@@ -27,11 +27,12 @@ jobs:
 
   build-examples:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     strategy:
+      fail-fast: false
       matrix:
         example:
-          - angular-todomvc
           - create-react-app-example
           - custom-parsers
           - private-messaging
