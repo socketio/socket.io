@@ -41,6 +41,27 @@ export type EventNamesWithAck<
     ? K
     : never
 >;
+/**
+ * Returns a union type containing all the keys of an event map that have an acknowledgement callback.
+ *
+ * That also have *some* data coming in.
+ */
+export type EventNamesWithoutAck<
+  Map extends EventsMap,
+  K extends EventNames<Map> = EventNames<Map>
+> = IfAny<
+  Last<Parameters<Map[K]>> | Map[K],
+  K,
+  K extends (
+    Last<Parameters<Map[K]>> extends (...args: any[]) => any ? never : K
+  )
+    ? K
+    : never
+>;
+
+export type RemoveAcknowledgements<E extends EventsMap> = {
+  [K in EventNamesWithoutAck<E>]: E[K];
+};
 
 export type EventNamesWithError<
   Map extends EventsMap,
@@ -336,13 +357,5 @@ export type DecorateAcknowledgementsWithTimeoutAndMultipleResponses<E> = {
 export type DecorateAcknowledgementsWithMultipleResponses<E> = {
   [K in keyof E]: E[K] extends (...args: infer Params) => infer Result
     ? (...args: ExpectMultipleResponses<Params>) => Result
-    : E[K];
-};
-
-export type RemoveAcknowledgements<E> = {
-  [K in keyof E]: E[K] extends (...args: infer Params) => infer Result
-    ? Last<Params> extends (...args: any[]) => any
-      ? (...args: AllButLast<Params>) => Result
-      : E[K]
     : E[K];
 };

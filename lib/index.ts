@@ -863,7 +863,9 @@ export class Server<
    * @return self
    */
   public send(...args: EventParams<EmitEvents, "message">): this {
-    this.sockets.emit("message", ...args);
+    // This type-cast is needed because EmitEvents likely doesn't have `message` as a key.
+    // if you specify the EmitEvents, the type of args will be never.
+    this.sockets.emit("message" as any, ...args);
     return this;
   }
 
@@ -873,7 +875,9 @@ export class Server<
    * @return self
    */
   public write(...args: EventParams<EmitEvents, "message">): this {
-    this.sockets.emit("message", ...args);
+    // This type-cast is needed because EmitEvents likely doesn't have `message` as a key.
+    // if you specify the EmitEvents, the type of args will be never.
+    this.sockets.emit("message" as any, ...args);
     return this;
   }
 

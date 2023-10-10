@@ -14,6 +14,7 @@ import {
   RemoveAcknowledgements,
   EventNamesWithAck,
   FirstNonErrorArg,
+  EventNamesWithoutAck,
 } from "./typed-events";
 import type { Client } from "./client";
 import debugModule from "debug";
@@ -440,9 +441,9 @@ export class Namespace<
    *
    * @return Always true
    */
-  public emit<Ev extends EventNames<EmitEvents>>(
+  public emit<Ev extends EventNamesWithoutAck<EmitEvents>>(
     ev: Ev,
-    ...args: EventParams<RemoveAcknowledgements<EmitEvents>, Ev>
+    ...args: EventParams<EmitEvents, Ev>
   ): boolean {
     return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).emit(
       ev,
@@ -468,7 +469,9 @@ export class Namespace<
    * @return self
    */
   public send(...args: EventParams<EmitEvents, "message">): this {
-    this.emit("message", ...args);
+    // This type-cast is needed because EmitEvents likely doesn't have `message` as a key.
+    // if you specify the EmitEvents, the type of args will be never.
+    this.emit("message" as any, ...args);
     return this;
   }
 
@@ -478,7 +481,9 @@ export class Namespace<
    * @return self
    */
   public write(...args: EventParams<EmitEvents, "message">): this {
-    this.emit("message", ...args);
+    // This type-cast is needed because EmitEvents likely doesn't have `message` as a key.
+    // if you specify the EmitEvents, the type of args will be never.
+    this.emit("message" as any, ...args);
     return this;
   }
 
