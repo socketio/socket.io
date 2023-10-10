@@ -39,7 +39,6 @@ import {
   RemoveAcknowledgements,
   EventNamesWithAck,
   FirstNonErrorArg,
-  DecorateAcknowledgementsWithMultipleResponses,
 } from "./typed-events";
 import { patchAdapter, restoreAdapter, serveFile } from "./uws";
 import corsMiddleware from "cors";
