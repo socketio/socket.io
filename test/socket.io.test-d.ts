@@ -2,7 +2,7 @@
 import { createServer } from "http";
 import { Adapter } from "socket.io-adapter";
 import { expectType } from "tsd";
-import { BroadcastOperator, Server, Socket } from "..";
+import { BroadcastOperator, Server, Socket } from "../lib/index";
 import type { DisconnectReason } from "../lib/socket";
 import type { DefaultEventsMap, EventsMap } from "../lib/typed-events";
 
