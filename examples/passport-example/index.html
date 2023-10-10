@@ -15,7 +15,10 @@
         </form>
         <script src="/socket.io/socket.io.js"></script>
         <script>
-          const socket = io();
+          const socket = io("ws://localhost:3000", {
+            // set this option to send cookies for session-management to work
+            withCredentials: true
+          });
           const socketIdSpan = document.getElementById("socketId");
           const usernameSpan = document.getElementById("username");
 
