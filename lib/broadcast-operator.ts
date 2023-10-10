@@ -516,11 +516,10 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
    *
    * @param timeout
    */
-  public timeout(timeout: number) {
-    return this.operator.timeout(timeout) as BroadcastOperator<
-      DecorateAcknowledgements<EmitEvents>,
-      SocketData
-    >;
+  public timeout(
+    timeout: number
+  ): BroadcastOperator<DecorateAcknowledgements<EmitEvents>, SocketData> {
+    return this.operator.timeout(timeout);
   }
 
   public emit<Ev extends EventNames<EmitEvents>>(
