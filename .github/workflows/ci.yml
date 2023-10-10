@@ -33,9 +33,7 @@ jobs:
       fail-fast: false
       matrix:
         example:
-          - create-react-app-example
           - custom-parsers
-          - private-messaging
           - typescript
           - webpack-build
           - webpack-build-server
