@@ -30,7 +30,6 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x] # only use latest LTS to avoid overloading CI
         example:
           - angular-todomvc
           - create-react-app-example
@@ -41,11 +40,14 @@ jobs:
           - webpack-build-server
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Use Node.js 20
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20
+          
       - name: Build ${{ matrix.example }}
         run: |
           cd examples/${{ matrix.example }}
