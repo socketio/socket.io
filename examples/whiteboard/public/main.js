@@ -59,19 +59,29 @@
     drawing = true;
     current.x = e.clientX||e.touches[0].clientX;
     current.y = e.clientY||e.touches[0].clientY;
+    current.x -= current.fixX;
+    current.y -= current.fixY;
   }
 
   function onMouseUp(e){
     if (!drawing) { return; }
+    let newX = e.clientX || e.touches[0].clientX;
+    let newY = e.clientY || e.touches[0].clientY;
+    newX -= current.fixX;
+    newY -= current.fixY;
     drawing = false;
-    drawLine(current.x, current.y, e.clientX||e.touches[0].clientX, e.clientY||e.touches[0].clientY, current.color, true);
+    drawLine(current.x, current.y, newX, newY, current.color, true);
   }
 
   function onMouseMove(e){
     if (!drawing) { return; }
+    let newX = e.clientX || e.touches[0].clientX;
+    let newY = e.clientY || e.touches[0].clientY;
+    newX -= current.fixX;
+    newY -= current.fixY;
     drawLine(current.x, current.y, e.clientX||e.touches[0].clientX, e.clientY||e.touches[0].clientY, current.color, true);
-    current.x = e.clientX||e.touches[0].clientX;
-    current.y = e.clientY||e.touches[0].clientY;
+    current.x = newX;
+    current.y = newY;
   }
 
   function onColorUpdate(e){
@@ -101,6 +111,13 @@
   function onResize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    fixOffset()
   }
 
+  // Fix offset when scrolled
+  window.addEventListener('scroll', fixOffset, false);
+  function fixOffset() {
+    current.fixX = canvas.getBoundingClientRect().left;
+    current.fixY = canvas.getBoundingClientRect().top;
+  }
 })();
