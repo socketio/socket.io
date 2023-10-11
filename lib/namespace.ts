@@ -662,14 +662,7 @@ export class Namespace<
    *
    * @param timeout
    */
-  public timeout(
-    timeout: number
-  ): BroadcastOperator<
-    DecorateAcknowledgements<
-      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>
-    >,
-    SocketData
-  > {
+  public timeout(timeout: number) {
     return new BroadcastOperator<
       DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
       SocketData

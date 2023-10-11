@@ -234,37 +234,37 @@ export abstract class StrictEventEmitter<
   }
 }
 /**
-Returns a boolean for whether the given type is `any`.
-
-@link https://stackoverflow.com/a/49928360/1490091
-
-Useful in type utilities, such as disallowing `any`s to be passed to a function.
-
-@author sindresorhus
-@link https://github.com/sindresorhus/type-fest
-*/
+ * Returns a boolean for whether the given type is `any`.
+ *
+ * @link https://stackoverflow.com/a/49928360/1490091
+ *
+ * Useful in type utilities, such as disallowing `any`s to be passed to a function.
+ *
+ * @author sindresorhus
+ * @link https://github.com/sindresorhus/type-fest
+ */
 type IsAny<T> = 0 extends 1 & T ? true : false;
 
 /**
-An if-else-like type that resolves depending on whether the given type is `any`.
-
-@see {@link IsAny}
-
-@author sindresorhus
-@link https://github.com/sindresorhus/type-fest
-*/
+ * An if-else-like type that resolves depending on whether the given type is `any`.
+ *
+ * @see {@link IsAny}
+ *
+ * @author sindresorhus
+ * @link https://github.com/sindresorhus/type-fest
+ */
 type IfAny<T, TypeIfAny = true, TypeIfNotAny = false> = IsAny<T> extends true
   ? TypeIfAny
   : TypeIfNotAny;
 
 /**
-Extracts the type of the last element of an array.
-
-Use-case: Defining the return type of functions that extract the last element of an array, for example [`lodash.last`](https://lodash.com/docs/4.17.15#last).
-
-@author sindresorhus
-@link https://github.com/sindresorhus/type-fest
-*/
+ * Extracts the type of the last element of an array.
+ *
+ * Use-case: Defining the return type of functions that extract the last element of an array, for example [`lodash.last`](https://lodash.com/docs/4.17.15#last).
+ *
+ * @author sindresorhus
+ * @link https://github.com/sindresorhus/type-fest
+ */
 export type Last<ValueType extends readonly unknown[]> =
   ValueType extends readonly [infer ElementType]
     ? ElementType
@@ -284,7 +284,7 @@ export type AllButLast<T extends any[]> = T extends [...infer H, infer L]
  * Like `Parameters<T>`, but doesn't require `T` to be a function ahead of time.
  */
 type LooseParameters<T> = T extends (...args: infer P) => any ? P : never;
-export type FirstArg<T> = T extends (arg: infer Param) => any ? Param : any;
+
 export type FirstNonErrorArg<T> = T extends (...args: infer Params) => any
   ? FirstNonErrorTuple<Params>
   : any;

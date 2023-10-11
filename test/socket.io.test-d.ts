@@ -2,13 +2,13 @@
 import { createServer } from "http";
 import { Adapter } from "socket.io-adapter";
 import { expectType } from "tsd";
-import { BroadcastOperator, Server, Socket } from "../lib/index";
-import type { DisconnectReason } from "../lib/socket";
-import type {
-  DefaultEventsMap,
-  EventNamesWithoutAck,
-  EventsMap,
-} from "../lib/typed-events";
+import {
+  BroadcastOperator,
+  Server,
+  Socket,
+  type DisconnectReason,
+} from "../lib/index";
+import type { DefaultEventsMap, EventsMap } from "../lib/typed-events";
 
 // This file is run by tsd, not mocha.
 
