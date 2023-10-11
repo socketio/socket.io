@@ -606,9 +606,11 @@ describe("socket", () => {
   });
 
   it("should emit an event and wait for the acknowledgement", (done) => {
-    const io = new Server(0);
-    const socket = createClient(io);
-
+    type Events = {
+      hi: (a: number, b: number, cb: (c: number) => void) => void;
+    };
+    const io = new Server<{}, Events>(0);
+    const socket = createClient<Events, Events>(io);
     io.on("connection", async (s) => {
       socket.on("hi", (a, b, fn) => {
         expect(a).to.be(1);

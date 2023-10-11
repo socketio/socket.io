@@ -1,5 +1,4 @@
 import { EventEmitter } from "events";
-
 /**
  * An events map is an interface that maps event names to their value, which
  * represents the type of the `on` listener.
@@ -20,6 +19,62 @@ export interface DefaultEventsMap {
  * Returns a union type containing all the keys of an event map.
  */
 export type EventNames<Map extends EventsMap> = keyof Map & (string | symbol);
+
+/**
+ * Returns a union type containing all the keys of an event map that have an acknowledgement callback.
+ *
+ * That also have *some* data coming in.
+ */
+export type EventNamesWithAck<
+  Map extends EventsMap,
+  K extends EventNames<Map> = EventNames<Map>
+> = IfAny<
+  Last<Parameters<Map[K]>> | Map[K],
+  K,
+  K extends (
+    Last<Parameters<Map[K]>> extends (...args: any[]) => any
+      ? FirstNonErrorArg<Last<Parameters<Map[K]>>> extends void
+        ? never
+        : K
+      : never
+  )
+    ? K
+    : never
+>;
+/**
+ * Returns a union type containing all the keys of an event map that have an acknowledgement callback.
+ *
+ * That also have *some* data coming in.
+ */
+export type EventNamesWithoutAck<
+  Map extends EventsMap,
+  K extends EventNames<Map> = EventNames<Map>
+> = IfAny<
+  Last<Parameters<Map[K]>> | Map[K],
+  K,
+  K extends (
+    Last<Parameters<Map[K]>> extends (...args: any[]) => any ? never : K
+  )
+    ? K
+    : never
+>;
+
+export type RemoveAcknowledgements<E extends EventsMap> = {
+  [K in EventNamesWithoutAck<E>]: E[K];
+};
+
+export type EventNamesWithError<
+  Map extends EventsMap,
+  K extends EventNamesWithAck<Map> = EventNamesWithAck<Map>
+> = IfAny<
+  Last<Parameters<Map[K]>> | Map[K],
+  K,
+  K extends (
+    LooseParameters<Last<Parameters<Map[K]>>>[0] extends Error ? K : never
+  )
+    ? K
+    : never
+>;
 
 /** The tuple type representing the parameters of an event listener */
 export type EventParams<
@@ -178,33 +233,96 @@ export abstract class StrictEventEmitter<
     >[];
   }
 }
+/**
+Returns a boolean for whether the given type is `any`.
 
-export type Last<T extends any[]> = T extends [...infer H, infer L] ? L : any;
+@link https://stackoverflow.com/a/49928360/1490091
+
+Useful in type utilities, such as disallowing `any`s to be passed to a function.
+
+@author sindresorhus
+@link https://github.com/sindresorhus/type-fest
+*/
+type IsAny<T> = 0 extends 1 & T ? true : false;
+
+/**
+An if-else-like type that resolves depending on whether the given type is `any`.
+
+@see {@link IsAny}
+
+@author sindresorhus
+@link https://github.com/sindresorhus/type-fest
+*/
+type IfAny<T, TypeIfAny = true, TypeIfNotAny = false> = IsAny<T> extends true
+  ? TypeIfAny
+  : TypeIfNotAny;
+
+/**
+Extracts the type of the last element of an array.
+
+Use-case: Defining the return type of functions that extract the last element of an array, for example [`lodash.last`](https://lodash.com/docs/4.17.15#last).
+
+@author sindresorhus
+@link https://github.com/sindresorhus/type-fest
+*/
+export type Last<ValueType extends readonly unknown[]> =
+  ValueType extends readonly [infer ElementType]
+    ? ElementType
+    : ValueType extends readonly [infer _, ...infer Tail]
+    ? Last<Tail>
+    : ValueType extends ReadonlyArray<infer ElementType>
+    ? ElementType
+    : never;
+
+export type FirstNonErrorTuple<T extends unknown[]> = T[0] extends Error
+  ? T[1]
+  : T[0];
 export type AllButLast<T extends any[]> = T extends [...infer H, infer L]
   ? H
   : any[];
-export type FirstArg<T> = T extends (arg: infer Param) => infer Result
-  ? Param
+/**
+ * Like `Parameters<T>`, but doesn't require `T` to be a function ahead of time.
+ */
+type LooseParameters<T> = T extends (...args: infer P) => any ? P : never;
+export type FirstArg<T> = T extends (arg: infer Param) => any ? Param : any;
+export type FirstNonErrorArg<T> = T extends (...args: infer Params) => any
+  ? FirstNonErrorTuple<Params>
   : any;
-export type SecondArg<T> = T extends (
-  err: Error,
-  arg: infer Param
-) => infer Result
-  ? Param
-  : any;
-
 type PrependTimeoutError<T extends any[]> = {
   [K in keyof T]: T[K] extends (...args: infer Params) => infer Result
-    ? (err: Error, ...args: Params) => Result
+    ? Params[0] extends Error
+      ? T[K]
+      : (err: Error, ...args: Params) => Result
     : T[K];
 };
 
+export type MultiplyArray<T extends unknown[]> = {
+  [K in keyof T]: T[K][];
+};
+type InferFirstAndPreserveLabel<T extends any[]> = T extends [any, ...infer R]
+  ? T extends [...infer H, ...R]
+    ? H
+    : never
+  : never;
+
+/**
+ * Utility type to decorate the acknowledgement callbacks multiple values
+ * on the first non error element while removing any elements after
+ */
 type ExpectMultipleResponses<T extends any[]> = {
-  [K in keyof T]: T[K] extends (err: Error, arg: infer Param) => infer Result
-    ? (err: Error, arg: Param[]) => Result
+  [K in keyof T]: T[K] extends (...args: infer Params) => infer Result
+    ? Params extends [Error]
+      ? (err: Error) => Result
+      : Params extends [Error, ...infer Rest]
+      ? (
+          err: Error,
+          ...args: InferFirstAndPreserveLabel<MultiplyArray<Rest>>
+        ) => Result
+      : Params extends []
+      ? () => Result
+      : (...args: InferFirstAndPreserveLabel<MultiplyArray<Params>>) => Result
     : T[K];
 };
-
 /**
  * Utility type to decorate the acknowledgement callbacks with a timeout error.
  *

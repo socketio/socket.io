@@ -8,10 +8,10 @@ import type {
   EventsMap,
   TypedEventBroadcaster,
   DecorateAcknowledgements,
-  DecorateAcknowledgementsWithTimeoutAndMultipleResponses,
   AllButLast,
   Last,
-  SecondArg,
+  FirstNonErrorArg,
+  EventNamesWithError,
 } from "./typed-events";
 
 export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
@@ -177,7 +177,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
   public timeout(timeout: number) {
     const flags = Object.assign({}, this.flags, { timeout });
     return new BroadcastOperator<
-      DecorateAcknowledgementsWithTimeoutAndMultipleResponses<EmitEvents>,
+      DecorateAcknowledgements<EmitEvents>,
       SocketData
     >(this.adapter, this.rooms, this.exceptRooms, flags);
   }
@@ -300,10 +300,10 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    *
    * @return a Promise that will be fulfilled when all clients have acknowledged the event
    */
-  public emitWithAck<Ev extends EventNames<EmitEvents>>(
+  public emitWithAck<Ev extends EventNamesWithError<EmitEvents>>(
     ev: Ev,
     ...args: AllButLast<EventParams<EmitEvents, Ev>>
-  ): Promise<SecondArg<Last<EventParams<EmitEvents, Ev>>>> {
+  ): Promise<FirstNonErrorArg<Last<EventParams<EmitEvents, Ev>>>> {
     return new Promise((resolve, reject) => {
       args.push((err, responses) => {
         if (err) {
@@ -516,11 +516,10 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
    *
    * @param timeout
    */
-  public timeout(timeout: number) {
-    return this.operator.timeout(timeout) as BroadcastOperator<
-      DecorateAcknowledgements<EmitEvents>,
-      SocketData
-    >;
+  public timeout(
+    timeout: number
+  ): BroadcastOperator<DecorateAcknowledgements<EmitEvents>, SocketData> {
+    return this.operator.timeout(timeout);
   }
 
   public emit<Ev extends EventNames<EmitEvents>>(

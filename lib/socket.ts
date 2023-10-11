@@ -7,9 +7,10 @@ import {
   DecorateAcknowledgementsWithMultipleResponses,
   DefaultEventsMap,
   EventNames,
+  EventNamesWithAck,
   EventParams,
   EventsMap,
-  FirstArg,
+  FirstNonErrorArg,
   Last,
   StrictEventEmitter,
 } from "./typed-events";
@@ -383,10 +384,10 @@ export class Socket<
    *
    * @return a Promise that will be fulfilled when the client acknowledges the event
    */
-  public emitWithAck<Ev extends EventNames<EmitEvents>>(
+  public emitWithAck<Ev extends EventNamesWithAck<EmitEvents>>(
     ev: Ev,
     ...args: AllButLast<EventParams<EmitEvents, Ev>>
-  ): Promise<FirstArg<Last<EventParams<EmitEvents, Ev>>>> {
+  ): Promise<FirstNonErrorArg<Last<EventParams<EmitEvents, Ev>>>> {
     // the timeout flag is optional
     const withErr = this.flags.timeout !== undefined;
     return new Promise((resolve, reject) => {

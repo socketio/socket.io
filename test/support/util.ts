@@ -6,6 +6,7 @@ import {
   SocketOptions,
 } from "socket.io-client";
 import request from "supertest";
+import type { DefaultEventsMap, EventsMap } from "../../lib/typed-events";
 
 const expect = require("expect.js");
 const i = expect.stringify;
@@ -30,11 +31,14 @@ expect.Assertion.prototype.contain = function (...args) {
   return contain.apply(this, args);
 };
 
-export function createClient(
+export function createClient<
+  CTS extends EventsMap = DefaultEventsMap,
+  STC extends EventsMap = DefaultEventsMap
+>(
   io: Server,
   nsp: string = "/",
   opts?: Partial<ManagerOptions & SocketOptions>
-): ClientSocket {
+): ClientSocket<STC, CTS> {
   // @ts-ignore
   const port = io.httpServer.address().port;
   return ioc(`http://localhost:${port}${nsp}`, opts);

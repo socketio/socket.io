@@ -2,9 +2,9 @@ import { Namespace } from "./namespace";
 import type { Server, RemoteSocket } from "./index";
 import type {
   EventParams,
-  EventNames,
   EventsMap,
   DefaultEventsMap,
+  EventNamesWithoutAck,
 } from "./typed-events";
 import type { BroadcastOptions } from "socket.io-adapter";
 import debugModule from "debug";
@@ -56,7 +56,7 @@ export class ParentNamespace<
     this.adapter = { broadcast };
   }
 
-  public emit<Ev extends EventNames<EmitEvents>>(
+  public emit<Ev extends EventNamesWithoutAck<EmitEvents>>(
     ev: Ev,
     ...args: EventParams<EmitEvents, Ev>
   ): boolean {

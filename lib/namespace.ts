@@ -9,8 +9,12 @@ import {
   DecorateAcknowledgementsWithTimeoutAndMultipleResponses,
   AllButLast,
   Last,
-  FirstArg,
-  SecondArg,
+  DecorateAcknowledgementsWithMultipleResponses,
+  DecorateAcknowledgements,
+  RemoveAcknowledgements,
+  EventNamesWithAck,
+  FirstNonErrorArg,
+  EventNamesWithoutAck,
 } from "./typed-events";
 import type { Client } from "./client";
 import debugModule from "debug";
@@ -117,7 +121,7 @@ export class Namespace<
   SocketData = any
 > extends StrictEventEmitter<
   ServerSideEvents,
-  EmitEvents,
+  RemoveAcknowledgements<EmitEvents>,
   NamespaceReservedEventsMap<
     ListenEvents,
     EmitEvents,
@@ -252,7 +256,10 @@ export class Namespace<
    * @return a new {@link BroadcastOperator} instance for chaining
    */
   public to(room: Room | Room[]) {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).to(room);
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).to(room);
   }
 
   /**
@@ -268,7 +275,10 @@ export class Namespace<
    * @return a new {@link BroadcastOperator} instance for chaining
    */
   public in(room: Room | Room[]) {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).in(room);
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).in(room);
   }
 
   /**
@@ -290,9 +300,10 @@ export class Namespace<
    * @return a new {@link BroadcastOperator} instance for chaining
    */
   public except(room: Room | Room[]) {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).except(
-      room
-    );
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).except(room);
   }
 
   /**
@@ -430,7 +441,7 @@ export class Namespace<
    *
    * @return Always true
    */
-  public emit<Ev extends EventNames<EmitEvents>>(
+  public emit<Ev extends EventNamesWithoutAck<EmitEvents>>(
     ev: Ev,
     ...args: EventParams<EmitEvents, Ev>
   ): boolean {
@@ -438,30 +449,6 @@ export class Namespace<
       ev,
       ...args
     );
-  }
-
-  /**
-   * Emits an event and waits for an acknowledgement from all clients.
-   *
-   * @example
-   * const myNamespace = io.of("/my-namespace");
-   *
-   * try {
-   *   const responses = await myNamespace.timeout(1000).emitWithAck("some-event");
-   *   console.log(responses); // one response per client
-   * } catch (e) {
-   *   // some clients did not acknowledge the event in the given delay
-   * }
-   *
-   * @return a Promise that will be fulfilled when all clients have acknowledged the event
-   */
-  public emitWithAck<Ev extends EventNames<EmitEvents>>(
-    ev: Ev,
-    ...args: AllButLast<EventParams<EmitEvents, Ev>>
-  ): Promise<SecondArg<Last<EventParams<EmitEvents, Ev>>>> {
-    return new BroadcastOperator<EmitEvents, SocketData>(
-      this.adapter
-    ).emitWithAck(ev, ...args);
   }
 
   /**
@@ -482,7 +469,9 @@ export class Namespace<
    * @return self
    */
   public send(...args: EventParams<EmitEvents, "message">): this {
-    this.emit("message", ...args);
+    // This type-cast is needed because EmitEvents likely doesn't have `message` as a key.
+    // if you specify the EmitEvents, the type of args will be never.
+    this.emit("message" as any, ...args);
     return this;
   }
 
@@ -492,7 +481,9 @@ export class Namespace<
    * @return self
    */
   public write(...args: EventParams<EmitEvents, "message">): this {
-    this.emit("message", ...args);
+    // This type-cast is needed because EmitEvents likely doesn't have `message` as a key.
+    // if you specify the EmitEvents, the type of args will be never.
+    this.emit("message" as any, ...args);
     return this;
   }
 
@@ -557,10 +548,10 @@ export class Namespace<
    *
    * @return a Promise that will be fulfilled when all servers have acknowledged the event
    */
-  public serverSideEmitWithAck<Ev extends EventNames<ServerSideEvents>>(
+  public serverSideEmitWithAck<Ev extends EventNamesWithAck<ServerSideEvents>>(
     ev: Ev,
     ...args: AllButLast<EventParams<ServerSideEvents, Ev>>
-  ): Promise<FirstArg<Last<EventParams<ServerSideEvents, Ev>>>[]> {
+  ): Promise<FirstNonErrorArg<Last<EventParams<ServerSideEvents, Ev>>>[]> {
     return new Promise((resolve, reject) => {
       args.push((err, responses) => {
         if (err) {
@@ -612,9 +603,10 @@ export class Namespace<
    * @return self
    */
   public compress(compress: boolean) {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).compress(
-      compress
-    );
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).compress(compress);
   }
 
   /**
@@ -630,7 +622,10 @@ export class Namespace<
    * @return self
    */
   public get volatile() {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).volatile;
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).volatile;
   }
 
   /**
@@ -645,7 +640,10 @@ export class Namespace<
    * @return a new {@link BroadcastOperator} instance for chaining
    */
   public get local() {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).local;
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).local;
   }
 
   /**
@@ -664,10 +662,18 @@ export class Namespace<
    *
    * @param timeout
    */
-  public timeout(timeout: number) {
-    return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).timeout(
-      timeout
-    );
+  public timeout(
+    timeout: number
+  ): BroadcastOperator<
+    DecorateAcknowledgements<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>
+    >,
+    SocketData
+  > {
+    return new BroadcastOperator<
+      DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
+      SocketData
+    >(this.adapter).timeout(timeout);
   }
 
   /**

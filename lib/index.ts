@@ -36,8 +36,9 @@ import {
   DecorateAcknowledgementsWithTimeoutAndMultipleResponses,
   AllButLast,
   Last,
-  FirstArg,
-  SecondArg,
+  RemoveAcknowledgements,
+  EventNamesWithAck,
+  FirstNonErrorArg,
 } from "./typed-events";
 import { patchAdapter, restoreAdapter, serveFile } from "./uws";
 import corsMiddleware from "cors";
@@ -140,7 +141,7 @@ export class Server<
   SocketData = any
 > extends StrictEventEmitter<
   ServerSideEvents,
-  EmitEvents,
+  RemoveAcknowledgements<EmitEvents>,
   ServerReservedEventsMap<
     ListenEvents,
     EmitEvents,
@@ -847,26 +848,6 @@ export class Server<
   }
 
   /**
-   * Emits an event and waits for an acknowledgement from all clients.
-   *
-   * @example
-   * try {
-   *   const responses = await io.timeout(1000).emitWithAck("some-event");
-   *   console.log(responses); // one response per client
-   * } catch (e) {
-   *   // some clients did not acknowledge the event in the given delay
-   * }
-   *
-   * @return a Promise that will be fulfilled when all clients have acknowledged the event
-   */
-  public emitWithAck<Ev extends EventNames<EmitEvents>>(
-    ev: Ev,
-    ...args: AllButLast<EventParams<EmitEvents, Ev>>
-  ): Promise<SecondArg<Last<EventParams<EmitEvents, Ev>>>> {
-    return this.sockets.emitWithAck(ev, ...args);
-  }
-
-  /**
    * Sends a `message` event to all clients.
    *
    * This method mimics the WebSocket.send() method.
@@ -882,7 +863,9 @@ export class Server<
    * @return self
    */
   public send(...args: EventParams<EmitEvents, "message">): this {
-    this.sockets.emit("message", ...args);
+    // This type-cast is needed because EmitEvents likely doesn't have `message` as a key.
+    // if you specify the EmitEvents, the type of args will be never.
+    this.sockets.emit("message" as any, ...args);
     return this;
   }
 
@@ -892,7 +875,9 @@ export class Server<
    * @return self
    */
   public write(...args: EventParams<EmitEvents, "message">): this {
-    this.sockets.emit("message", ...args);
+    // This type-cast is needed because EmitEvents likely doesn't have `message` as a key.
+    // if you specify the EmitEvents, the type of args will be never.
+    this.sockets.emit("message" as any, ...args);
     return this;
   }
 
@@ -948,10 +933,10 @@ export class Server<
    *
    * @return a Promise that will be fulfilled when all servers have acknowledged the event
    */
-  public serverSideEmitWithAck<Ev extends EventNames<ServerSideEvents>>(
+  public serverSideEmitWithAck<Ev extends EventNamesWithAck<ServerSideEvents>>(
     ev: Ev,
     ...args: AllButLast<EventParams<ServerSideEvents, Ev>>
-  ): Promise<FirstArg<Last<EventParams<ServerSideEvents, Ev>>>[]> {
+  ): Promise<FirstNonErrorArg<Last<EventParams<ServerSideEvents, Ev>>>[]> {
     return this.sockets.serverSideEmitWithAck(ev, ...args);
   }
 
