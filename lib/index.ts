@@ -1,6 +1,6 @@
 import http = require("http");
 import type { Server as HTTPSServer } from "https";
-import type { Http2SecureServer } from "http2";
+import type { Http2SecureServer, Http2Server } from "http2";
 import { createReadStream } from "fs";
 import { createDeflate, createGzip, createBrotliCompress } from "zlib";
 import accepts = require("accepts");
@@ -55,6 +55,9 @@ type ParentNspNameMatchFn = (
 ) => void;
 
 type AdapterConstructor = typeof Adapter | ((nsp: Namespace) => Adapter);
+type TServerInstance<TBoolAcceptNumber extends boolean = false> = TBoolAcceptNumber extends true
+  ? http.Server | HTTPSServer | Http2SecureServer | Http2Server | number
+  : http.Server | HTTPSServer | Http2SecureServer | Http2Server
 
 interface ServerOptions extends EngineOptions, AttachOptions {
   /**
@@ -203,7 +206,7 @@ export class Server<
    * @private
    */
   _connectTimeout: number;
-  private httpServer: http.Server | HTTPSServer | Http2SecureServer;
+  private httpServer: TServerInstance<false>;
   private _corsMiddleware: (
     req: http.IncomingMessage,
     res: http.ServerResponse,
@@ -218,27 +221,21 @@ export class Server<
    */
   constructor(opts?: Partial<ServerOptions>);
   constructor(
-    srv?: http.Server | HTTPSServer | Http2SecureServer | number,
+    srv?: TServerInstance<true>,
     opts?: Partial<ServerOptions>
   );
   constructor(
     srv:
       | undefined
       | Partial<ServerOptions>
-      | http.Server
-      | HTTPSServer
-      | Http2SecureServer
-      | number,
+      | TServerInstance<true>,
     opts?: Partial<ServerOptions>
   );
   constructor(
     srv:
       | undefined
       | Partial<ServerOptions>
-      | http.Server
-      | HTTPSServer
-      | Http2SecureServer
-      | number,
+      | TServerInstance<true>,
     opts: Partial<ServerOptions> = {}
   ) {
     super();
@@ -272,7 +269,7 @@ export class Server<
     this.sockets = this.of("/");
     if (srv || typeof srv == "number")
       this.attach(
-        srv as http.Server | HTTPSServer | Http2SecureServer | number
+        srv as TServerInstance<true>
       );
 
     if (this.opts.cors) {
@@ -407,7 +404,7 @@ export class Server<
    * @return self
    */
   public listen(
-    srv: http.Server | HTTPSServer | Http2SecureServer | number,
+    srv: TServerInstance<true>,
     opts: Partial<ServerOptions> = {}
   ): this {
     return this.attach(srv, opts);
@@ -421,7 +418,7 @@ export class Server<
    * @return self
    */
   public attach(
-    srv: http.Server | HTTPSServer | Http2SecureServer | number,
+    srv: TServerInstance<true>,
     opts: Partial<ServerOptions> = {}
   ): this {
     if ("function" == typeof srv) {
@@ -527,7 +524,7 @@ export class Server<
    * @private
    */
   private initEngine(
-    srv: http.Server | HTTPSServer | Http2SecureServer,
+    srv: TServerInstance<false>,
     opts: EngineOptions & AttachOptions
   ): void {
     // initialize engine
@@ -551,7 +548,7 @@ export class Server<
    * @private
    */
   private attachServe(
-    srv: http.Server | HTTPSServer | Http2SecureServer
+    srv: TServerInstance<false>
   ): void {
     debug("attaching client serving req handler");
 
