@@ -55,9 +55,10 @@ type ParentNspNameMatchFn = (
 ) => void;
 
 type AdapterConstructor = typeof Adapter | ((nsp: Namespace) => Adapter);
-type TServerInstance<TBoolAcceptNumber extends boolean = false> = TBoolAcceptNumber extends true
-  ? http.Server | HTTPSServer | Http2SecureServer | Http2Server | number
-  : http.Server | HTTPSServer | Http2SecureServer | Http2Server
+type TServerInstance<TBoolAcceptNumber extends boolean = false> =
+  TBoolAcceptNumber extends true
+    ? http.Server | HTTPSServer | Http2SecureServer | Http2Server | number
+    : http.Server | HTTPSServer | Http2SecureServer | Http2Server;
 
 interface ServerOptions extends EngineOptions, AttachOptions {
   /**
@@ -220,22 +221,13 @@ export class Server<
    * @param [opts]
    */
   constructor(opts?: Partial<ServerOptions>);
+  constructor(srv?: TServerInstance<true>, opts?: Partial<ServerOptions>);
   constructor(
-    srv?: TServerInstance<true>,
+    srv: undefined | Partial<ServerOptions> | TServerInstance<true>,
     opts?: Partial<ServerOptions>
   );
   constructor(
-    srv:
-      | undefined
-      | Partial<ServerOptions>
-      | TServerInstance<true>,
-    opts?: Partial<ServerOptions>
-  );
-  constructor(
-    srv:
-      | undefined
-      | Partial<ServerOptions>
-      | TServerInstance<true>,
+    srv: undefined | Partial<ServerOptions> | TServerInstance<true>,
     opts: Partial<ServerOptions> = {}
   ) {
     super();
@@ -268,9 +260,7 @@ export class Server<
     opts.cleanupEmptyChildNamespaces = !!opts.cleanupEmptyChildNamespaces;
     this.sockets = this.of("/");
     if (srv || typeof srv == "number")
-      this.attach(
-        srv as TServerInstance<true>
-      );
+      this.attach(srv as TServerInstance<true>);
 
     if (this.opts.cors) {
       this._corsMiddleware = corsMiddleware(this.opts.cors);
@@ -547,9 +537,7 @@ export class Server<
    * @param srv http server
    * @private
    */
-  private attachServe(
-    srv: TServerInstance<false>
-  ): void {
+  private attachServe(srv: TServerInstance<false>): void {
     debug("attaching client serving req handler");
 
     const evs = srv.listeners("request").slice(0);
