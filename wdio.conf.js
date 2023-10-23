@@ -70,7 +70,7 @@ if (process.env.CI === "true") {
       "appium:automationName": "UiAutomator2",
       "sauce:options": Object.assign(
         {
-          appiumVersion: "1.22.1",
+          appiumVersion: "2.0.0",
         },
         BASE_SAUCE_OPTIONS
       ),
