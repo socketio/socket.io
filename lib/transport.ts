@@ -8,7 +8,7 @@ import { encode } from "./contrib/parseqs.js";
 
 const debug = debugModule("engine.io-client:transport"); // debug()
 
-class TransportError extends Error {
+export class TransportError extends Error {
   public readonly type = "TransportError";
 
   constructor(
