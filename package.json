@@ -12,14 +12,24 @@
     "./dist/engine.io.min.js": "./dist/engine.io.min.js",
     ".": {
       "import": {
+        "types": "./build/esm/index.d.ts",
         "node": "./build/esm-debug/index.js",
         "default": "./build/esm/index.js"
       },
-      "require": "./build/cjs/index.js"
+      "require": {
+        "types": "./build/cjs/index.d.ts",
+        "default": "./build/cjs/index.js"
+      }
     },
     "./debug": {
-      "import": "./build/esm-debug/index.js",
-      "require": "./build/cjs/index.js"
+      "import": {
+        "types": "./build/esm/index.d.ts",
+        "default": "./build/esm-debug/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/index.d.ts",
+        "default": "./build/cjs/index.js"
+      }
     }
   },
   "types": "build/esm/index.d.ts",
