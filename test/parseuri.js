@@ -1,6 +1,7 @@
 // imported from https://github.com/galkn/parseuri
 const expect = require("expect.js");
 const parseuri = require("..").parse;
+const { repeat } = require("./util");
 
 describe("parseuri", function () {
   it("should parse an uri", function () {
@@ -64,5 +65,7 @@ describe("parseuri", function () {
     expect(relativeWithQuery.host).to.be("");
     expect(relativeWithQuery.path).to.be("/foo");
     expect(relativeWithQuery.query).to.be("bar=@example.com");
+
+    expect(() => parseuri(repeat("a", 2001))).to.throwError("URI too long");
   });
 });

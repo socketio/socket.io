@@ -23,7 +23,11 @@ const parts = [
     'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'
 ];
 
-export function parse(str) {
+export function parse(str: string) {
+    if (str.length > 2000) {
+        throw "URI too long";
+    }
+
     const src = str,
         b = str.indexOf('['),
         e = str.indexOf(']');
