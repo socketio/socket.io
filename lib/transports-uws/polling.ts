@@ -55,6 +55,8 @@ export class Polling extends Transport {
    */
   onRequest(req) {
     const res = req.res;
+    // remove the reference to the ServerResponse object (as the first request of the session is kept in memory by default)
+    req.res = null;
 
     if (req.getMethod() === "get") {
       this.onPollRequest(req, res);
