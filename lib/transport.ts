@@ -52,6 +52,7 @@ export abstract class Transport extends EventEmitter {
     this.discarded = false;
     this.protocol = req._query.EIO === "4" ? 4 : 3; // 3rd revision by default
     this.parser = this.protocol === 4 ? parser_v4 : parser_v3;
+    this.supportsBinary = !(req._query && req._query.b64);
   }
 
   /**

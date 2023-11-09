@@ -464,12 +464,6 @@ export abstract class BaseServer extends EventEmitter {
       } else if ("websocket" === transportName) {
         transport.perMessageDeflate = this.opts.perMessageDeflate;
       }
-
-      if (req._query && req._query.b64) {
-        transport.supportsBinary = false;
-      } else {
-        transport.supportsBinary = true;
-      }
     } catch (e) {
       debug('error handshaking to transport "%s"', transportName);
       this.emit("connection_error", {
@@ -862,11 +856,6 @@ export class Server extends BaseServer {
         websocket.removeListener("error", onUpgradeError);
 
         const transport = this.createTransport(req._query.transport, req);
-        if (req._query && req._query.b64) {
-          transport.supportsBinary = false;
-        } else {
-          transport.supportsBinary = true;
-        }
         transport.perMessageDeflate = this.opts.perMessageDeflate;
         client.maybeUpgrade(transport);
       }
