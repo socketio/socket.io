@@ -15,13 +15,15 @@ const debug = debugModule("engine:transport");
 
 function noop() {}
 
+type ReadyState = "open" | "closing" | "closed";
+
 export abstract class Transport extends EventEmitter {
   public sid: string;
-  public writable: boolean;
+  public writable = false;
   public protocol: number;
 
-  protected _readyState: string;
-  protected discarded: boolean;
+  protected _readyState: ReadyState = "open";
+  protected discarded = false;
   protected parser: any;
   protected req: IncomingMessage & { cleanup: Function };
   protected supportsBinary: boolean;
@@ -30,7 +32,7 @@ export abstract class Transport extends EventEmitter {
     return this._readyState;
   }
 
-  set readyState(state) {
+  set readyState(state: ReadyState) {
     debug(
       "readyState updated from %s to %s (%s)",
       this._readyState,
@@ -43,13 +45,11 @@ export abstract class Transport extends EventEmitter {
   /**
    * Transport constructor.
    *
-   * @param {http.IncomingMessage} request
+   * @param {http.IncomingMessage} req
    * @api public
    */
   constructor(req) {
     super();
-    this.readyState = "open";
-    this.discarded = false;
     this.protocol = req._query.EIO === "4" ? 4 : 3; // 3rd revision by default
     this.parser = this.protocol === 4 ? parser_v4 : parser_v3;
     this.supportsBinary = !(req._query && req._query.b64);
@@ -67,7 +67,7 @@ export abstract class Transport extends EventEmitter {
   /**
    * Called with an incoming HTTP request.
    *
-   * @param {http.IncomingMessage} request
+   * @param {http.IncomingMessage} req
    * @api protected
    */
   protected onRequest(req) {
@@ -90,8 +90,8 @@ export abstract class Transport extends EventEmitter {
   /**
    * Called with a transport error.
    *
-   * @param {String} message error
-   * @param {Object} error description
+   * @param {String} msg - message error
+   * @param {Object} desc - error description
    * @api protected
    */
   protected onError(msg: string, desc?) {

@@ -12,22 +12,24 @@ export interface SendOptions {
   compress?: boolean;
 }
 
+type ReadyState = "opening" | "open" | "closing" | "closed";
+
 export class Socket extends EventEmitter {
   public readonly protocol: number;
   // TODO for the next major release: do not keep the reference to the first HTTP request, as it stays in memory
   public readonly request: IncomingMessage;
   public readonly remoteAddress: string;
 
-  public _readyState: string;
+  public _readyState: ReadyState = "opening";
   public transport: Transport;
 
   private server: Server;
-  private upgrading: boolean;
-  private upgraded: boolean;
-  private writeBuffer: Packet[];
-  private packetsFn: Array<() => void>;
-  private sentCallbackFn: any[];
-  private cleanupFn: any[];
+  private upgrading = false;
+  private upgraded = false;
+  private writeBuffer: Packet[] = [];
+  private packetsFn: Array<() => void> = [];
+  private sentCallbackFn: any[] = [];
+  private cleanupFn: any[] = [];
   private pingTimeoutTimer;
   private pingIntervalTimer;
 
@@ -43,7 +45,7 @@ export class Socket extends EventEmitter {
     return this._readyState;
   }
 
-  set readyState(state) {
+  set readyState(state: ReadyState) {
     debug("readyState updated from %s to %s", this._readyState, state);
     this._readyState = state;
   }
@@ -57,13 +59,6 @@ export class Socket extends EventEmitter {
     super();
     this.id = id;
     this.server = server;
-    this.upgrading = false;
-    this.upgraded = false;
-    this.readyState = "opening";
-    this.writeBuffer = [];
-    this.packetsFn = [];
-    this.sentCallbackFn = [];
-    this.cleanupFn = [];
     this.request = req;
     this.protocol = protocol;
 
@@ -179,7 +174,7 @@ export class Socket extends EventEmitter {
   /**
    * Called upon transport error.
    *
-   * @param {Error} error object
+   * @param {Error} err - error object
    * @api private
    */
   private onError(err) {
