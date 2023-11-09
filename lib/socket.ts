@@ -28,8 +28,6 @@ export class Socket extends EventEmitter {
   private packetsFn: Array<() => void>;
   private sentCallbackFn: any[];
   private cleanupFn: any[];
-  private checkIntervalTimer;
-  private upgradeTimeoutTimer;
   private pingTimeoutTimer;
   private pingIntervalTimer;
 
@@ -81,8 +79,6 @@ export class Socket extends EventEmitter {
       //  see https://github.com/fails-components/webtransport/issues/114
     }
 
-    this.checkIntervalTimer = null;
-    this.upgradeTimeoutTimer = null;
     this.pingTimeoutTimer = null;
     this.pingIntervalTimer = null;
 
@@ -265,7 +261,7 @@ export class Socket extends EventEmitter {
     this.upgrading = true;
 
     // set transport upgrade timer
-    this.upgradeTimeoutTimer = setTimeout(() => {
+    const upgradeTimeoutTimer = setTimeout(() => {
       debug("client did not complete upgrade - closing transport");
       cleanup();
       if ("open" === transport.readyState) {
@@ -273,13 +269,15 @@ export class Socket extends EventEmitter {
       }
     }, this.server.opts.upgradeTimeout);
 
+    let checkIntervalTimer;
+
     const onPacket = (packet) => {
       if ("ping" === packet.type && "probe" === packet.data) {
         debug("got probe ping packet, sending pong");
         transport.send([{ type: "pong", data: "probe" }]);
         this.emit("upgrading", transport);
-        clearInterval(this.checkIntervalTimer);
-        this.checkIntervalTimer = setInterval(check, 100);
+        clearInterval(checkIntervalTimer);
+        checkIntervalTimer = setInterval(check, 100);
       } else if ("upgrade" === packet.type && this.readyState !== "closed") {
         debug("got upgrade packet - upgrading");
         cleanup();
@@ -311,11 +309,8 @@ export class Socket extends EventEmitter {
     const cleanup = () => {
       this.upgrading = false;
 
-      clearInterval(this.checkIntervalTimer);
-      this.checkIntervalTimer = null;
-
-      clearTimeout(this.upgradeTimeoutTimer);
-      this.upgradeTimeoutTimer = null;
+      clearInterval(checkIntervalTimer);
+      clearTimeout(upgradeTimeoutTimer);
 
       transport.removeListener("packet", onPacket);
       transport.removeListener("close", onTransportClose);
@@ -384,9 +379,6 @@ export class Socket extends EventEmitter {
       clearTimeout(this.pingIntervalTimer);
       clearTimeout(this.pingTimeoutTimer);
 
-      clearInterval(this.checkIntervalTimer);
-      this.checkIntervalTimer = null;
-      clearTimeout(this.upgradeTimeoutTimer);
       // clean writeBuffer in next tick, so developers can still
       // grab the writeBuffer on 'close' event
       process.nextTick(() => {
