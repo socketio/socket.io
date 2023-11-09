@@ -2,6 +2,7 @@
 
 ## 2023
 
+- [6.5.3](#653-2023-11-09) (Nov 2023)
 - [6.5.2](#652-2023-08-01) (Aug 2023)
 - [6.5.1](#651-2023-06-28) (Jun 2023)
 - [6.5.0](#650-2023-06-16) (Jun 2023)
@@ -38,6 +39,21 @@
 - [4.1.0](#410-2021-01-14) (Jan 2021)
 
 # Release notes
+
+## [6.5.3](https://github.com/socketio/engine.io-client/compare/6.5.2...6.5.3) (2023-11-09)
+
+
+### Bug Fixes
+
+* add a maximum length for the URL ([707597d](https://github.com/socketio/engine.io-client/commit/707597df26abfa1e6b569b2a62918dfcc8b80b5d))
+* improve compatibility with node16 module resolution ([#711](https://github.com/socketio/engine.io-client/issues/711)) ([46ef851](https://github.com/socketio/engine.io-client/commit/46ef8512edac758069ed4d519f7517bafbace4a9))
+
+
+### Dependencies
+
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [6.5.2](https://github.com/socketio/engine.io-client/compare/6.5.1...6.5.2) (2023-08-01)
 
