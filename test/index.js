@@ -22,6 +22,7 @@ if (typeof ArrayBuffer !== "undefined") {
   require("./binary-fallback");
 }
 
-if (Blob) {
+// Blob is available in Node.js since v18, but not yet supported by the `engine.io-parser` package
+if (Blob && env.browser) {
   require("./blob");
 }
