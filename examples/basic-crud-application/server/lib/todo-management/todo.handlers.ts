@@ -2,8 +2,13 @@ import { Errors, mapErrorDetails, sanitizeErrorMessage } from "../util";
 import { v4 as uuid } from "uuid";
 import { Components } from "../app";
 import Joi = require("joi");
-import { Todo, TodoID } from "./todo.repository";
-import { ClientEvents, Response, ServerEvents } from "../events";
+import {
+  Todo,
+  TodoID,
+  ClientEvents,
+  Response,
+  ServerEvents,
+} from "../../../common/events";
 import { Socket } from "socket.io";
 
 const idSchema = Joi.string().guid({
@@ -19,8 +24,7 @@ const todoSchema = Joi.object({
   completed: Joi.boolean().required(),
 });
 
-export default function (components: Components) {
-  const { todoRepository } = components;
+export default function ({ todoRepository }: Components) {
   return {
     createTodo: async function (
       payload: Omit<Todo, "id">,

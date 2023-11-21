@@ -1,6 +1,6 @@
 import { Server as HttpServer } from "http";
 import { Server, ServerOptions } from "socket.io";
-import { ClientEvents, ServerEvents } from "./events";
+import { ClientEvents, ServerEvents } from "../../common/events";
 import { TodoRepository } from "./todo-management/todo.repository";
 import createTodoHandlers from "./todo-management/todo.handlers";
 

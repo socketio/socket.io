@@ -1,9 +1,18 @@
-import { Todo, TodoID } from "./todo-management/todo.repository";
-import { ValidationErrorItem } from "joi";
+export type TodoID = string;
+
+export interface Todo {
+  id: TodoID;
+  completed: boolean;
+  title: string;
+}
 
 interface Error {
   error: string;
-  errorDetails?: ValidationErrorItem[];
+  errorDetails?: {
+    message: string;
+    path: Array<string | number>;
+    type: string;
+  }[];
 }
 
 interface Success<T> {

@@ -1,17 +1,21 @@
 import { Component } from '@angular/core';
-import { TodoStore, Todo } from './store';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
+import {type Todo, TodoStore} from "./store";
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule, RouterOutlet, ReactiveFormsModule],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrl: './app.component.css',
+  providers: [TodoStore]
 })
 export class AppComponent {
-  todoStore: TodoStore;
-  newTodoText = '';
+  newTodoText = new FormControl('');
 
-  constructor(todoStore: TodoStore) {
-    this.todoStore = todoStore;
+  constructor(readonly todoStore: TodoStore) {
   }
 
   stopEditing(todo: Todo, editedTitle: string) {
@@ -51,9 +55,9 @@ export class AppComponent {
   }
 
   addTodo() {
-    if (this.newTodoText.trim().length) {
-      this.todoStore.add(this.newTodoText);
-      this.newTodoText = '';
+    if (this.newTodoText.value?.trim().length) {
+      this.todoStore.add(this.newTodoText.value!);
+      this.newTodoText.setValue('');
     }
   }
 }
