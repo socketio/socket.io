@@ -55,10 +55,12 @@ type ParentNspNameMatchFn = (
 ) => void;
 
 type AdapterConstructor = typeof Adapter | ((nsp: Namespace) => Adapter);
-type TServerInstance<TBoolAcceptNumber extends boolean = false> =
-  TBoolAcceptNumber extends true
-    ? http.Server | HTTPSServer | Http2SecureServer | Http2Server | number
-    : http.Server | HTTPSServer | Http2SecureServer | Http2Server;
+
+type TServerInstance =
+  | http.Server
+  | HTTPSServer
+  | Http2SecureServer
+  | Http2Server;
 
 interface ServerOptions extends EngineOptions, AttachOptions {
   /**
@@ -207,7 +209,7 @@ export class Server<
    * @private
    */
   _connectTimeout: number;
-  private httpServer: TServerInstance<false>;
+  private httpServer: TServerInstance;
   private _corsMiddleware: (
     req: http.IncomingMessage,
     res: http.ServerResponse,
@@ -221,13 +223,13 @@ export class Server<
    * @param [opts]
    */
   constructor(opts?: Partial<ServerOptions>);
-  constructor(srv?: TServerInstance<true>, opts?: Partial<ServerOptions>);
+  constructor(srv?: TServerInstance | number, opts?: Partial<ServerOptions>);
   constructor(
-    srv: undefined | Partial<ServerOptions> | TServerInstance<true>,
+    srv: undefined | Partial<ServerOptions> | TServerInstance | number,
     opts?: Partial<ServerOptions>
   );
   constructor(
-    srv: undefined | Partial<ServerOptions> | TServerInstance<true>,
+    srv: undefined | Partial<ServerOptions> | TServerInstance | number,
     opts: Partial<ServerOptions> = {}
   ) {
     super();
@@ -260,7 +262,7 @@ export class Server<
     opts.cleanupEmptyChildNamespaces = !!opts.cleanupEmptyChildNamespaces;
     this.sockets = this.of("/");
     if (srv || typeof srv == "number")
-      this.attach(srv as TServerInstance<true>);
+      this.attach(srv as TServerInstance | number);
 
     if (this.opts.cors) {
       this._corsMiddleware = corsMiddleware(this.opts.cors);
@@ -394,7 +396,7 @@ export class Server<
    * @return self
    */
   public listen(
-    srv: TServerInstance<true>,
+    srv: TServerInstance | number,
     opts: Partial<ServerOptions> = {}
   ): this {
     return this.attach(srv, opts);
@@ -408,7 +410,7 @@ export class Server<
    * @return self
    */
   public attach(
-    srv: TServerInstance<true>,
+    srv: TServerInstance | number,
     opts: Partial<ServerOptions> = {}
   ): this {
     if ("function" == typeof srv) {
@@ -514,7 +516,7 @@ export class Server<
    * @private
    */
   private initEngine(
-    srv: TServerInstance<false>,
+    srv: TServerInstance,
     opts: EngineOptions & AttachOptions
   ): void {
     // initialize engine
@@ -537,7 +539,7 @@ export class Server<
    * @param srv http server
    * @private
    */
-  private attachServe(srv: TServerInstance<false>): void {
+  private attachServe(srv: TServerInstance): void {
     debug("attaching client serving req handler");
 
     const evs = srv.listeners("request").slice(0);
