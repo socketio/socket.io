@@ -50,6 +50,7 @@ jobs:
           - webpack-build
           - webpack-build-server
           - basic-crud-application/angular-client
+          - basic-crud-application/vue-client
 
     steps:
       - name: Checkout repository
