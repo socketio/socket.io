@@ -771,7 +771,10 @@ describe("connection", () => {
     });
   }
 
-  if (global.Blob && null != textBlobBuilder("xxx")) {
+  // Blob is available in Node.js since v18, but not yet supported by the `engine.io-parser` package
+  const isBrowser = typeof window !== "undefined";
+
+  if (isBrowser && global.Blob && textBlobBuilder("xxx") !== null) {
     it("should send binary data (as a Blob)", () => {
       return wrap((done) => {
         const socket = io(BASE_URL, { forceNew: true });
