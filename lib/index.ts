@@ -28,11 +28,7 @@ function lookup(
   opts?: Partial<ManagerOptions & SocketOptions>
 ): Socket;
 function lookup(
-  uri: string | Partial<ManagerOptions & SocketOptions>,
-  opts?: Partial<ManagerOptions & SocketOptions>
-): Socket;
-function lookup(
-  uri: string | Partial<ManagerOptions & SocketOptions>,
+  uri?: string | Partial<ManagerOptions & SocketOptions>,
   opts?: Partial<ManagerOptions & SocketOptions>
 ): Socket {
   if (typeof uri === "object") {

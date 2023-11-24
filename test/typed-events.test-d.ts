@@ -1,9 +1,20 @@
 import { io, Socket } from "..";
 import type { DefaultEventsMap } from "@socket.io/component-emitter";
 import { expectError, expectType } from "tsd";
-import { createServer } from "http";
 
 // This file is run by tsd, not mocha.
+
+describe("init", () => {
+  io();
+  io("https://example.com");
+  io({
+    forceNew: true,
+  });
+  io("https://example.com", {
+    forceNew: true,
+  });
+  io(process.env.NODE_ENV === "production" ? "https://example.com" : undefined);
+});
 
 describe("typed events", () => {
   describe("no event map", () => {
