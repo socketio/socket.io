@@ -1,6 +1,7 @@
 import { io, Socket } from "socket.io-client";
-import { ClientEvents, ServerEvents } from "../../../server/lib/events";
+import { ClientEvents, ServerEvents } from "../../../common/events";
 import { environment } from '../environments/environment';
+import {Injectable} from "@angular/core";
 
 export interface Todo {
   id: string,
@@ -18,6 +19,7 @@ const mapTodo = (todo: any) => {
   }
 }
 
+@Injectable()
 export class TodoStore {
   public todos: Array<Todo> = [];
   private socket: Socket<ServerEvents, ClientEvents>;

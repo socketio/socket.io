@@ -49,16 +49,18 @@ jobs:
           - typescript
           - webpack-build
           - webpack-build-server
+          - basic-crud-application/angular-client
+          - basic-crud-application/vue-client
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        
+
       - name: Use Node.js 20
         uses: actions/setup-node@v3
         with:
           node-version: 20
-          
+
       - name: Build ${{ matrix.example }}
         run: |
           cd examples/${{ matrix.example }}
