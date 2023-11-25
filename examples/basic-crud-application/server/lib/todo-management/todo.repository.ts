@@ -1,18 +1,11 @@
 import { Errors } from "../util";
+import { Todo, TodoID } from "../../../common/events";
 
 abstract class CrudRepository<T, ID> {
   abstract findAll(): Promise<T[]>;
   abstract findById(id: ID): Promise<T>;
   abstract save(entity: T): Promise<void>;
   abstract deleteById(id: ID): Promise<void>;
-}
-
-export type TodoID = string;
-
-export interface Todo {
-  id: TodoID;
-  completed: boolean;
-  title: string;
 }
 
 export abstract class TodoRepository extends CrudRepository<Todo, TodoID> {}
