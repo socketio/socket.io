@@ -252,7 +252,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
         responses.length === expectedClientCount
       ) {
         clearTimeout(timer);
-        if (this.flags.expectSingleResponse) ack.apply(this, responses);
+        if (this.flags.expectSingleResponse) ack.apply(this, responses[0]);
         else ack.apply(this, [null, responses]);
       }
     };
