@@ -236,6 +236,8 @@ export class Socket<
   private readonly adapter: Adapter;
   private acks: Map<number, () => void> = new Map();
   private fns: Array<(event: Event, next: (err?: Error) => void) => void> = [];
+  private outFns: Array<(event: Event, next: (err?: Error) => void) => void> =
+    [];
   private flags: BroadcastFlags = {};
   private _anyListeners?: Array<(...args: any[]) => void>;
   private _anyOutgoingListeners?: Array<(...args: any[]) => void>;
@@ -955,6 +957,21 @@ export class Socket<
   }
 
   /**
+   * Sets up a socketmiddleware for outgoing requests.
+   *
+   *
+   *
+   * @param {Function} fn - middleware function (event, next)
+   * @returns {Socket} self
+   */
+  public useOutgoing(
+    fn: (event: Event, next: (err?: Error) => void) => void
+  ): this {
+    this.fns.push(fn);
+    return this;
+  }
+
+  /**
    * Executes the middleware for an incoming event.
    *
    * @param {Array} event - event that will get emitted
@@ -972,6 +989,26 @@ export class Socket<
 
         // if no middleware left, summon callback
         if (!fns[i + 1]) return fn(null);
+
+        // go on to next
+        run(i + 1);
+      });
+    }
+
+    run(0);
+  }
+
+  private runOutgoing(event, fn: (err: Error | null) => void): void {
+    const outFns = this.outFns.slice(0);
+    if (!outFns.length) return fn(null);
+
+    function run(i: number) {
+      outFns[i](event, function (err) {
+        // upon error, short-circuit
+        if (err) return fn(err);
+
+        // if no middleware left, summon callback
+        if (!outFns[i + 1]) return fn(null);
 
         // go on to next
         run(i + 1);
