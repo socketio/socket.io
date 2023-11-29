@@ -339,32 +339,39 @@ export class Socket<
       type: PacketType.EVENT,
       data: data,
     };
+    // running the middlewares for outgoing events
+    this.runOutgoing(data, (err) => {
+      // if error, abbort the event
+      if (err) {
+        this.emitReserved("error", err);
+        return;
+      }
 
-    // access last argument to see if it's an ACK callback
-    if (typeof data[data.length - 1] === "function") {
-      const id = this.nsp._ids++;
-      debug("emitting packet with ack id %d", id);
+      // access last argument to see if it's an ACK callback
+      if (typeof data[data.length - 1] === "function") {
+        const id = this.nsp._ids++;
+        debug("emitting packet with ack id %d", id);
 
-      this.registerAckCallback(id, data.pop());
-      packet.id = id;
-    }
+        this.registerAckCallback(id, data.pop());
+        packet.id = id;
+      }
 
-    const flags = Object.assign({}, this.flags);
-    this.flags = {};
+      const flags = Object.assign({}, this.flags);
+      this.flags = {};
 
-    // @ts-ignore
-    if (this.nsp.server.opts.connectionStateRecovery) {
-      // this ensures the packet is stored and can be transmitted upon reconnection
-      this.adapter.broadcast(packet, {
-        rooms: new Set([this.id]),
-        except: new Set(),
-        flags,
-      });
-    } else {
-      this.notifyOutgoingListeners(packet);
-      this.packet(packet, flags);
-    }
-
+      // @ts-ignore
+      if (this.nsp.server.opts.connectionStateRecovery) {
+        // this ensures the packet is stored and can be transmitted upon reconnection
+        this.adapter.broadcast(packet, {
+          rooms: new Set([this.id]),
+          except: new Set(),
+          flags,
+        });
+      } else {
+        this.notifyOutgoingListeners(packet);
+        this.packet(packet, flags);
+      }
+    });
     return true;
   }
 
@@ -967,7 +974,7 @@ export class Socket<
   public useOutgoing(
     fn: (event: Event, next: (err?: Error) => void) => void
   ): this {
-    this.fns.push(fn);
+    this.outFns.push(fn);
     return this;
   }
 
