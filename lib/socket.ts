@@ -966,8 +966,21 @@ export class Socket<
   /**
    * Sets up a socketmiddleware for outgoing requests.
    *
-   *
-   *
+   * Can be used to hook right before acknowlegement callbacks get ran.
+   * @example
+   * io.on("connection", (socket) => {
+   *   socket.useOutgoing((event, next) => {
+   *     if (event.length && typeof event[event.length - 1] === 'function') {
+   *       const callback = event[event.length - 1];
+   *       event[event.length - 1] = (...args) => {
+   *         // able to hook right before the acknowledgement callback is executed.
+   *         callback(...args);
+   *       }
+   *     }
+   *     // do not forget to call next
+   *     next();
+   *   });
+   * });
    * @param {Function} fn - middleware function (event, next)
    * @returns {Socket} self
    */
@@ -1005,6 +1018,13 @@ export class Socket<
     run(0);
   }
 
+  /**
+   * Executes the middleware for an outgoing event.
+   *
+   * @param {Array} event - event that will get emitted to client
+   * @param {Function} fn - last fn call in the middleware
+   * @private
+   */
   private runOutgoing(event, fn: (err: Error | null) => void): void {
     const outFns = this.outFns.slice(0);
     if (!outFns.length) return fn(null);
