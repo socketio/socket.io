@@ -55,4 +55,43 @@ describe("socket outgoing middleware", () => {
       socket.emit("join", "woot");
     });
   });
+
+  it("should allow wrapping the acknowledgement callback", (done) => {
+    const io = new Server(0);
+    let run = 0;
+    const clientSocket = createClient(io, "/", { multiplex: false });
+    clientSocket.on("join", (arg1, acknowledge) => {
+      expect(typeof acknowledge).to.be("function");
+      run++;
+      expect(run).to.be(2);
+      acknowledge();
+    });
+    io.on("connection", (socket) => {
+      socket.useOutgoing((event, next) => {
+        const callback = event[event.length - 1];
+        expect(typeof callback).to.be("function");
+        event[event.length - 1] = (...args) => {
+          run++;
+          expect(run).to.be(3);
+          callback(...args);
+        };
+
+        run++;
+        expect(run).to.be(1);
+        next();
+      });
+
+      socket
+        .emitWithAck("join", "woot")
+        .then(() => {
+          run++;
+          expect(run).to.be(4);
+          success(done, io, clientSocket);
+        })
+        .catch((err) => {
+          if (err) done(err);
+          else done(new Error("acknowledgement rejected"));
+        });
+    });
+  });
 });
