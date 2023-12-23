@@ -5,6 +5,5 @@ const URL =
 
 export const socket = io(URL, {
   ackTimeout: 5000,
-  autoConnect: false,
-  retries: 3,
+  autoConnect: false,  
 });

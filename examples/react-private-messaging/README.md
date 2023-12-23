@@ -18,3 +18,6 @@ npm install
 npm start
 ```
 
+Here's what the interface looks like
+![Alt text](image.png)
+
