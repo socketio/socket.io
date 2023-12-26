@@ -1,8 +1,7 @@
-import express = require("express");
+import express, { type Request } from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import session from "express-session";
-import { type Request } from "express";
 
 declare module "express-session" {
   interface SessionData {
