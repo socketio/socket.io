@@ -151,7 +151,7 @@ export class Socket<
   public readonly io: Manager<ListenEvents, EmitEvents>;
 
   /**
-   * A unique identifier for the session.
+   * A unique identifier for the session. `undefined` when the socket is not connected.
    *
    * @example
    * const socket = io();
@@ -162,7 +162,7 @@ export class Socket<
    *   console.log(socket.id); // "G5p5..."
    * });
    */
-  public id: string;
+  public id: string | undefined;
 
   /**
    * The session ID used for connection state recovery, which must not be shared (unlike {@link id}).
