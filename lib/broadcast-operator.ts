@@ -237,7 +237,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
       timedOut = true;
       ack.apply(this, [
         new Error("operation has timed out"),
-        this.flags.expectSingleResponse ? responses[0] : responses,
+        this.flags.expectSingleResponse ? null : responses,
       ]);
     }, this.flags.timeout);
 
@@ -252,8 +252,10 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
         responses.length === expectedClientCount
       ) {
         clearTimeout(timer);
-        if (this.flags.expectSingleResponse) ack.apply(this, responses[0]);
-        else ack.apply(this, [null, responses]);
+        ack.apply(this, [
+          null,
+          this.flags.expectSingleResponse ? responses[0] : responses,
+        ]);
       }
     };
 
