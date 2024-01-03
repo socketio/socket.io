@@ -1,5 +1,9 @@
 # History
 
+## 2024
+
+- [4.7.3](#473-2024-01-03) (Jan 2024)
+
 ## 2023
 
 - [4.7.2](#472-2023-08-02) (Aug 2023)
@@ -61,6 +65,23 @@
 
 
 # Release notes
+
+## [4.7.3](https://github.com/socketio/socket.io-client/compare/4.7.2...4.7.3) (2024-01-03)
+
+
+### Bug Fixes
+
+* improve compatibility with node16 module resolution ([#1595](https://github.com/socketio/socket.io-client/issues/1595)) ([605de78](https://github.com/socketio/socket.io-client/commit/605de78d2cd7303bf25d9e2146e2b707dbf63d4f))
+* **typings:** accept string | undefined as init argument ([5a3eafe](https://github.com/socketio/socket.io-client/commit/5a3eafed1c4118ac3a06ec81a24491eec7d0655f))
+* **typings:** fix the type of the socket#id attribute ([f9c16f2](https://github.com/socketio/socket.io-client/commit/f9c16f226512fc8a8df461e3a07e392720462165))
+
+
+### Dependencies
+
+- [`engine.io-client@~6.5.2`](https://github.com/socketio/engine.io-client/releases/tag/6.5.2) (no change)
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [4.7.2](https://github.com/socketio/socket.io-client/compare/4.7.1...4.7.2) (2023-08-02)
 
