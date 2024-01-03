@@ -1,5 +1,9 @@
 # History
 
+## 2024
+
+- [4.7.3](#473-2024-01-03) (Jan 2024)
+
 ## 2023
 
 - [4.7.2](#472-2023-08-02) (Aug 2023)
@@ -60,6 +64,22 @@
 
 
 # Release notes
+
+## [4.7.3](https://github.com/socketio/socket.io/compare/4.7.2...4.7.3) (2024-01-03)
+
+
+### Bug Fixes
+
+* return the first response when broadcasting to a single socket ([#4878](https://github.com/socketio/socket.io/issues/4878)) ([df8e70f](https://github.com/socketio/socket.io/commit/df8e70f79822e3887b4f21ca718af8a53bbda2c4))
+* **typings:** allow to bind to a non-secure Http2Server ([#4853](https://github.com/socketio/socket.io/issues/4853)) ([8c9ebc3](https://github.com/socketio/socket.io/commit/8c9ebc30e5452ff9381af5d79f547394fa55633c))
+
+
+### Dependencies
+
+- [`engine.io@~6.5.2`](https://github.com/socketio/engine.io/releases/tag/6.5.2) (no change)
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [4.7.2](https://github.com/socketio/socket.io/compare/4.7.1...4.7.2) (2023-08-02)
 
