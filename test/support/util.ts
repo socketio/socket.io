@@ -63,6 +63,16 @@ export function successFn(
   return () => success(done, sio, ...clientSockets);
 }
 
+/**
+ * Asserts a condition so that typescript will recognize the assertion!
+ *
+ * Uses expect's `ok` check on condition
+ * @param condition
+ */
+export function assert(condition: any): asserts condition {
+  expect(condition).to.be.ok();
+}
+
 export function getPort(io: Server): number {
   // @ts-ignore
   return io.httpServer.address().port;
