@@ -222,11 +222,11 @@ describe("connection state recovery", () => {
 
     class DummyAdapter extends Adapter {
       override persistSession(session) {
-        expect.fail();
+        expect().fail();
       }
 
       override restoreSession(pid, offset) {
-        expect.fail();
+        expect().fail();
         return Promise.reject("should not happen");
       }
     }

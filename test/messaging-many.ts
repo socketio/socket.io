@@ -526,7 +526,7 @@ describe("messaging many", () => {
     ]).then(async () => {
       try {
         await io.timeout(200).emitWithAck("some event");
-        expect.fail();
+        expect().fail();
       } catch (err) {
         expect(err).to.be.an(Error);
         // @ts-ignore
