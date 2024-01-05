@@ -62,7 +62,7 @@ describe("timeout", () => {
     io.on("connection", async (socket) => {
       try {
         await socket.timeout(50).emitWithAck("unknown");
-        expect.fail();
+        expect().fail();
       } catch (err) {
         expect(err).to.be.an(Error);
         success(done, io, client);

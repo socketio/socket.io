@@ -1,3 +1,4 @@
+/// <reference types="./expectjs" />
 import type { Server } from "../..";
 import {
   io as ioc,
