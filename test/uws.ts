@@ -7,6 +7,7 @@ import { Server } from "..";
 import { io as ioc, Socket as ClientSocket } from "socket.io-client";
 import request from "supertest";
 import expect from "expect.js";
+import { assert } from "./support/util";
 
 const createPartialDone = (done: (err?: Error) => void, count: number) => {
   let i = 0;
@@ -134,6 +135,8 @@ describe("socket.io with uWebSocket.js-based engine", () => {
     clientWSOnly.on("hello", partialDone);
     clientPollingOnly.on("hello", partialDone);
     clientCustomNamespace.on("hello", shouldNotHappen(done));
+    assert(clientWSOnly.id);
+    assert(clientPollingOnly.id);
 
     io.of("/").sockets.get(clientWSOnly.id)!.join("room1");
     io.of("/").sockets.get(clientPollingOnly.id)!.join("room1");
@@ -148,6 +151,8 @@ describe("socket.io with uWebSocket.js-based engine", () => {
     clientWSOnly.on("hello", partialDone);
     clientPollingOnly.on("hello", partialDone);
     clientCustomNamespace.on("hello", shouldNotHappen(done));
+    assert(clientWSOnly.id);
+    assert(clientPollingOnly.id);
 
     io.of("/").sockets.get(clientWSOnly.id)!.join("room1");
     io.of("/").sockets.get(clientPollingOnly.id)!.join("room2");
@@ -163,6 +168,8 @@ describe("socket.io with uWebSocket.js-based engine", () => {
     clientPollingOnly.on("hello", shouldNotHappen(done));
     clientCustomNamespace.on("hello", shouldNotHappen(done));
 
+    assert(clientWSOnly.id);
+    assert(clientPollingOnly.id);
     io.of("/").sockets.get(clientWSOnly.id)!.join("room1");
     io.of("/").sockets.get(clientPollingOnly.id)!.join("room2");
 
@@ -177,6 +184,9 @@ describe("socket.io with uWebSocket.js-based engine", () => {
     clientPollingOnly.on("hello", partialDone);
     clientCustomNamespace.on("hello", shouldNotHappen(done));
 
+    assert(client.id);
+    assert(clientWSOnly.id);
+    assert(clientPollingOnly.id);
     io.of("/").sockets.get(client.id)!.join("room1");
     io.of("/").sockets.get(clientPollingOnly.id)!.join("room1");
 
@@ -189,6 +199,7 @@ describe("socket.io with uWebSocket.js-based engine", () => {
   it("should not crash when socket is disconnected before the upgrade", (done) => {
     client.on("disconnect", () => done());
 
+    assert(client.id);
     io.of("/").sockets.get(client.id)!.disconnect();
   });
 

@@ -6,6 +6,7 @@ import {
   createClient,
   successFn,
   createPartialDone,
+  assert,
 } from "./support/util";
 
 describe("namespaces", () => {
@@ -417,6 +418,7 @@ describe("namespaces", () => {
     socket1.on("a", successFn(done, io, socket1, socket2));
 
     socket2.on("connect", () => {
+      assert(socket2.id);
       io.except(socket2.id).emit("a");
     });
   });
@@ -435,6 +437,7 @@ describe("namespaces", () => {
     socket1.on("a", successFn(done, io, socket1, socket2));
 
     socket2.on("connect", () => {
+      assert(socket2.id);
       nsp.except(socket2.id).emit("a");
     });
   });
