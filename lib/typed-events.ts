@@ -52,9 +52,11 @@ export type EventNamesWithoutAck<
 > = IfAny<
   Last<Parameters<Map[K]>> | Map[K],
   K,
-  K extends (
-    Last<Parameters<Map[K]>> extends (...args: any[]) => any ? never : K
-  )
+  K extends (Parameters<Map[K]> extends never[] ? K : never)
+    ? K
+    : K extends (
+        Last<Parameters<Map[K]>> extends (...args: any[]) => any ? never : K
+      )
     ? K
     : never
 >;

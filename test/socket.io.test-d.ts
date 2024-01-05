@@ -187,6 +187,7 @@ describe("server", () => {
     Ev extends keyof Map = keyof Map
   > = (ev: Ev, ...args: Parameters<Map[Ev]>) => ReturnType<Map[Ev]>;
   interface ClientToServerEvents {
+    noArgs: () => void;
     helloFromClient: (message: string) => void;
     ackFromClient: (
       a: string,
@@ -196,6 +197,7 @@ describe("server", () => {
   }
 
   interface ServerToClientEvents {
+    noArgs: () => void;
     helloFromServer: (message: string, x: number) => void;
     ackFromServer: (
       a: boolean,
@@ -212,12 +214,14 @@ describe("server", () => {
   // While these could be generated using the types from typed-events,
   // it's likely better to just write them out, so that both the types and this are tested properly
   interface ServerToClientEventsNoAck {
+    noArgs: () => void;
     helloFromServer: (message: string, x: number) => void;
     ackFromServer: never;
     ackFromServerSingleArg: never;
     onlyCallback: never;
   }
   interface ServerToClientEventsWithError {
+    noArgs: () => void;
     helloFromServer: (message: string, x: number) => void;
     ackFromServer: (
       a: boolean,
@@ -233,6 +237,7 @@ describe("server", () => {
   }
 
   interface ServerToClientEventsWithMultiple {
+    noArgs: () => void;
     helloFromServer: (message: string, x: number) => void;
     ackFromServer: (a: boolean, b: string, ack: (c: boolean[]) => void) => void;
     ackFromServerSingleArg: (
@@ -243,6 +248,7 @@ describe("server", () => {
     onlyCallback: (a: () => void) => void;
   }
   interface ServerToClientEventsWithMultipleAndError {
+    noArgs: () => void;
     helloFromServer: (message: string, x: number) => void;
     ackFromServer: (
       a: boolean,
@@ -383,6 +389,9 @@ describe("server", () => {
       });
       it("has the correct types for `emit`", () => {
         const sio = new Server<ClientToServerEvents, ServerToClientEvents>();
+        expectType<ToEmit<ServerToClientEventsWithMultipleAndError, "noArgs">>(
+          sio.timeout(0).emit<"noArgs">
+        );
         expectType<
           ToEmit<ServerToClientEventsWithMultipleAndError, "helloFromServer">
         >(sio.timeout(0).emit<"helloFromServer">);
@@ -406,6 +415,8 @@ describe("server", () => {
         expectType<never>(
           undefined as Parameters<typeof sansTimeout["emitWithAck"]>[0]
         );
+        // @ts-expect-error - "noArgs" doesn't have a callback and is thus excluded
+        sio.timeout(0).emitWithAck("noArgs");
         // @ts-expect-error - "helloFromServer" doesn't have a callback and is thus excluded
         sio.timeout(0).emitWithAck("helloFromServer");
         // @ts-expect-error - "onlyCallback" doesn't have a callback and is thus excluded
@@ -428,7 +439,9 @@ describe("server", () => {
       it("Infers correct types", () => {
         const sio = new Server<ClientToServerEvents, ServerToClientEvents>();
         const nio = sio.of("/test");
-
+        expectType<ToEmit<ServerToClientEventsNoAck, "noArgs">>(
+          sio.emit<"noArgs">
+        );
         expectType<ToEmit<ServerToClientEventsNoAck, "helloFromServer">>(
           // These errors will dissapear once the TS version is updated from 4.7.4
           // the TSD instance is using a newer version of TS than the workspace version
@@ -439,6 +452,7 @@ describe("server", () => {
           nio.emit<"helloFromServer">
         );
         sio.on("connection", (s) => {
+          expectType<ToEmit<ServerToClientEvents, "noArgs">>(s.emit<"noArgs">);
           expectType<ToEmit<ServerToClientEvents, "helloFromServer">>(
             s.emit<"helloFromServer">
           );
@@ -474,6 +488,8 @@ describe("server", () => {
       it("Infers correct types", () => {
         const sio = new Server<ClientToServerEvents, ServerToClientEvents>();
         sio.on("connection", (s) => {
+          // @ts-expect-error - "noArgs" doesn't have a callback and is thus excluded
+          s.emitWithAck("noArgs");
           // @ts-expect-error - "helloFromServer" doesn't have a callback and is thus excluded
           s.emitWithAck("helloFromServer");
           // @ts-expect-error - "onlyCallback" doesn't have a callback and is thus excluded
@@ -506,6 +522,10 @@ describe("server", () => {
         srv.listen(() => {
           sio.on("connection", (s) => {
             expectType<Socket<ClientToServerEvents, ServerToClientEvents>>(s);
+            s.on("noArgs", (...args) => {
+              expectType<[]>(args);
+              done();
+            });
             s.on("helloFromClient", (message) => {
               expectType<string>(message);
               done();
@@ -527,6 +547,10 @@ describe("server", () => {
         srv.listen(() => {
           sio.on("connection", (s) => {
             // @ts-expect-error - shouldn't accept emit events
+            s.on("noArgs", (message, number) => {
+              done();
+            });
+            // @ts-expect-error - shouldn't accept emit events
             s.on("helloFromServer", (message, number) => {
               done();
             });
@@ -538,14 +562,17 @@ describe("server", () => {
 
   describe("listen and emit event maps for the serverSideEmit method", () => {
     interface ClientToServerEvents {
+      noArgs: () => void;
       helloFromClient: (message: string) => void;
     }
 
     interface ServerToClientEvents {
+      noArgs: () => void;
       helloFromServer: (message: string, x: number) => void;
     }
 
     interface InterServerEvents {
+      noArgs: () => void;
       helloFromServerToServer: (message: string, x: number) => void;
       ackFromServerToServer: (foo: string, cb: (bar: number) => void) => void;
     }
@@ -563,20 +590,29 @@ describe("server", () => {
           Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents>
         >(sio);
         srv.listen(async () => {
+          sio.serverSideEmit("noArgs");
           sio.serverSideEmit("helloFromServerToServer", "hello", 10);
           sio
             .of("/test")
             .serverSideEmit("helloFromServerToServer", "hello", 10);
 
+          sio.on("noArgs", (...args) => {
+            expectType<[]>(args);
+          });
           sio.on("helloFromServerToServer", (message, x) => {
             expectType<string>(message);
             expectType<number>(x);
+          });
+          sio.of("/test").on("noArgs", (...args) => {
+            expectType<[]>(args);
           });
           sio.of("/test").on("helloFromServerToServer", (message, x) => {
             expectType<string>(message);
             expectType<number>(x);
           });
 
+          //@ts-expect-error - "helloFromServerToServer" does not have a callback
+          sio.serverSideEmitWithAck("noArgs");
           //@ts-expect-error - "helloFromServerToServer" does not have a callback
           sio.serverSideEmitWithAck("helloFromServerToServer", "hello");
 
