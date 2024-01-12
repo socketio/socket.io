@@ -5,6 +5,8 @@ This example shows how to retrieve the authentication context from a basic [Expr
 
 ![Passport example](assets/passport_example.gif)
 
+Please read the related guide: https://socket.io/how-to/use-with-passport
+
 ## How to use
 
 ```

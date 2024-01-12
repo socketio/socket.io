@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Passport example</title>
+    </head>
+    <body>
+        <p>Authenticated!</p>
+
+        <table>
+            <tbody>
+            <tr>
+                <td>Status</td>
+                <td><span id="status">Disconnected</span></td>
+            </tr>
+            <tr>
+                <td>Socket ID</td>
+                <td><span id="socket-id"></span></td>
+            </tr>
+            <tr>
+                <td>Username</td>
+                <td><span id="username"></span></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <form action="/logout" method="post">
+            <div>
+                <input type="submit" value="Log out" />
+            </div>
+        </form>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+          const socket = io();
+          const socketIdSpan = document.getElementById('socket-id');
+          const usernameSpan = document.getElementById('username');
+          const statusSpan = document.getElementById('status');
+
+          socket.on('connect', () => {
+            statusSpan.innerText = 'connected';
+            socketIdSpan.innerText = socket.id;
+
+            socket.emit('whoami', (username) => {
+              usernameSpan.innerText = username;
+            });
+          });
+
+          socket.on('disconnect', () => {
+            statusSpan.innerText = 'disconnected';
+            socketIdSpan.innerText = '-';
+          });
+        </script>
+    </body>
+</html>
