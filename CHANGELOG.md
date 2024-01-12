@@ -2,6 +2,7 @@
 
 ## 2024
 
+- [4.7.4](#474-2024-01-12) (Jan 2024)
 - [4.7.3](#473-2024-01-03) (Jan 2024)
 
 ## 2023
@@ -64,6 +65,21 @@
 
 
 # Release notes
+
+## [4.7.4](https://github.com/socketio/socket.io/compare/4.7.3...4.7.4) (2024-01-12)
+
+
+### Bug Fixes
+
+* **typings:** calling io.emit with no arguments incorrectly errored ([cb6d2e0](https://github.com/socketio/socket.io/commit/cb6d2e02aa7ec03c2de1817d35cffa1128b107ef)), closes [#4914](https://github.com/socketio/socket.io/issues/4914)
+
+
+### Dependencies
+
+- [`engine.io@~6.5.2`](https://github.com/socketio/engine.io/releases/tag/6.5.2) (no change)
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [4.7.3](https://github.com/socketio/socket.io/compare/4.7.2...4.7.3) (2024-01-03)
 
