@@ -20,7 +20,6 @@ const sessionMiddleware = session({
 
 app.use(sessionMiddleware);
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(passport.initialize());
 app.use(passport.session());
 
 app.get("/", (req, res) => {
@@ -78,19 +77,28 @@ passport.deserializeUser((user, cb) => {
 
 const io = new Server(httpServer);
 
-io.engine.use(sessionMiddleware);
-io.engine.use(passport.initialize());
-io.engine.use(passport.session());
+function onlyForHandshake(middleware) {
+  return (req, res, next) => {
+    const isHandshake = req._query.sid === undefined;
+    if (isHandshake) {
+      middleware(req, res, next);
+    } else {
+      next();
+    }
+  };
+}
 
+io.engine.use(onlyForHandshake(sessionMiddleware));
+io.engine.use(onlyForHandshake(passport.session()));
 io.engine.use(
-  (req, res, next) => {
+  onlyForHandshake((req, res, next) => {
     if (req.user) {
       next();
     } else {
       res.writeHead(401);
       res.end();
     }
-  },
+  }),
 );
 
 io.on("connection", (socket) => {

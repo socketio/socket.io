@@ -1,8 +1,8 @@
 import express = require("express");
-import { createServer, ServerResponse } from "http";
+import { createServer } from "http";
 import { Server } from "socket.io";
 import session from "express-session";
-import { type Request } from "express";
+import { type Request, type Response } from "express";
 import bodyParser = require("body-parser");
 import passport = require("passport");
 import { Strategy as LocalStrategy } from "passport-local";
@@ -91,19 +91,34 @@ passport.deserializeUser((user: Express.User, cb) => {
 
 const io = new Server(httpServer);
 
-io.engine.use(sessionMiddleware);
-io.engine.use(passport.initialize());
-io.engine.use(passport.session());
+function onlyForHandshake(
+  middleware: (req: Request, res: Response, next: any) => void,
+) {
+  return (
+    req: Request & { _query: Record<string, string> },
+    res: Response,
+    next: (err?: Error) => void,
+  ) => {
+    const isHandshake = req._query.sid === undefined;
+    if (isHandshake) {
+      middleware(req, res, next);
+    } else {
+      next();
+    }
+  };
+}
 
+io.engine.use(onlyForHandshake(sessionMiddleware));
+io.engine.use(onlyForHandshake(passport.session()));
 io.engine.use(
-  (req: { user: Express.User }, res: ServerResponse, next: Function) => {
+  onlyForHandshake((req, res, next) => {
     if (req.user) {
       next();
     } else {
       res.writeHead(401);
       res.end();
     }
-  },
+  }),
 );
 
 io.on("connection", (socket) => {

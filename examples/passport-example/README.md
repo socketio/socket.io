@@ -14,3 +14,33 @@ $ npm ci && npm start
 ```
 
 And point your browser to `http://localhost:3000`. Optionally, specify a port by supplying the `PORT` env variable.
+
+## How it works
+
+The Socket.IO server retrieves the user context from the session:
+
+```js
+function onlyForHandshake(middleware) {
+  return (req, res, next) => {
+    const isHandshake = req._query.sid === undefined;
+    if (isHandshake) {
+      middleware(req, res, next);
+    } else {
+      next();
+    }
+  };
+}
+
+io.engine.use(onlyForHandshake(sessionMiddleware));
+io.engine.use(onlyForHandshake(passport.session()));
+io.engine.use(
+  onlyForHandshake((req, res, next) => {
+    if (req.user) {
+      next();
+    } else {
+      res.writeHead(401);
+      res.end();
+    }
+  }),
+);
+```
