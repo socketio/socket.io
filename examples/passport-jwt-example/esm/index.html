@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Passport JWT example</title>
+    </head>
+    <body>
+        <div id="login-panel" style="display: none">
+            <p>Not authenticated</p>
+            <form id="login-form">
+                <div>
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" value="john" />
+                    <br/>
+                </div>
+                <div>
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" value="changeit" />
+                </div>
+                <div>
+                    <input type="submit" value="Submit" />
+                </div>
+            </form>
+        </div>
+
+        <div id="home-panel" style="display: none">
+            <p>Authenticated!</p>
+
+            <table>
+                <tbody>
+                <tr>
+                    <td>Status</td>
+                    <td><span id="status">Disconnected</span></td>
+                </tr>
+                <tr>
+                    <td>Socket ID</td>
+                    <td><span id="socket-id"></span></td>
+                </tr>
+                <tr>
+                    <td>Username</td>
+                    <td><span id="name"></span></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <form id="logout-form">
+                <div>
+                    <input type="submit" value="Log out" />
+                </div>
+            </form>
+        </div>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            const loginPanel = document.getElementById('login-panel');
+            const homePanel = document.getElementById('home-panel');
+            const loginForm = document.getElementById('login-form');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const statusSpan = document.getElementById('status');
+            const socketIdSpan = document.getElementById('socket-id');
+            const usernameSpan = document.getElementById('name');
+            const logoutForm = document.getElementById('logout-form');
+
+            let socket;
+
+            async function main() {
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    return showLoginPanel();
+                }
+
+                const res = await fetch('/self', {
+                    headers: {
+                        authorization: `bearer ${token}`
+                    }
+                });
+
+                if (res.status === 200) {
+                    showHomePanel();
+                } else {
+                    showLoginPanel();
+                }
+            }
+
+            function showHomePanel() {
+                loginPanel.style.display = 'none';
+                homePanel.style.display = 'block';
+
+                // this will only work if HTTP long-polling is enabled, since WebSockets do not support providing additional headers
+                socket = io({
+                    extraHeaders: {
+                        authorization: `bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                socket.on('connect', () => {
+                    statusSpan.innerText = 'connected';
+                    socketIdSpan.innerText = socket.id;
+
+                    socket.emit('whoami', (username) => {
+                        usernameSpan.innerText = username;
+                    });
+                });
+
+                socket.on('disconnect', () => {
+                    statusSpan.innerText = 'disconnected';
+                    socketIdSpan.innerText = '-';
+                });
+            }
+
+            function showLoginPanel() {
+                loginPanel.style.display = 'block';
+                homePanel.style.display = 'none';
+            }
+
+            loginForm.onsubmit = async function (e) {
+                e.preventDefault();
+
+                const res = await fetch('/login', {
+                    method: 'post',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: usernameInput.value,
+                        password: passwordInput.value
+                    })
+                })
+
+                if (res.status === 200) {
+                    const { token } = await res.json();
+                    localStorage.setItem('token', token);
+
+                    showHomePanel();
+                } else {
+                    passwordInput.value = '';
+                }
+            }
+
+            logoutForm.onsubmit = function (e) {
+                e.preventDefault();
+
+                socket.disconnect();
+                localStorage.removeItem('token');
+
+                showLoginPanel();
+            }
+
+            main();
+        </script>
+    </body>
+</html>

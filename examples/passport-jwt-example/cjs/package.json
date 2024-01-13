@@ -1,0 +1,21 @@
+{
+  "name": "passport-jwt-example",
+  "version": "0.0.1",
+  "private": true,
+  "type": "commonjs",
+  "description": "Example with passport and JWT (https://www.passportjs.org/packages/passport-jwt/)",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "~4.17.3",
+    "jsonwebtoken": "^9.0.2",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "prettier": "^3.1.1"
+  }
+}
