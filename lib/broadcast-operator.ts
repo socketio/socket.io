@@ -529,6 +529,13 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
     return this.operator.emit(ev, ...args);
   }
 
+  public emitWithAck<Ev extends EventNamesWithError<EmitEvents>>(
+    ev: Ev,
+    ...args: AllButLast<EventParams<EmitEvents, Ev>>
+  ): Promise<FirstNonErrorArg<Last<EventParams<EmitEvents, Ev>>>> {
+    return this.operator.emitWithAck(ev, ...args);
+  }
+
   /**
    * Joins a room.
    *
