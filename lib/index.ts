@@ -7,6 +7,9 @@ import {
   BinaryType,
   ERROR_PACKET,
 } from "./commons.js";
+// we can't import TransformStream as a value because it was added in Node.js v16.5.0, so it would break on older Node.js versions
+// reference: https://nodejs.org/api/webstreams.html#class-transformstream
+import type { TransformStream } from "node:stream/web";
 
 const SEPARATOR = String.fromCharCode(30); // see https://en.wikipedia.org/wiki/Delimiter#ASCII_delimited_text
 
@@ -47,6 +50,7 @@ const decodePayload = (
 };
 
 export function createPacketEncoderStream() {
+  // @ts-expect-error
   return new TransformStream({
     transform(packet: Packet, controller) {
       encodePacketToBinary(packet, (encodedPacket) => {
@@ -122,6 +126,7 @@ export function createPacketDecoderStream(
   let expectedLength = -1;
   let isBinary = false;
 
+  // @ts-expect-error
   return new TransformStream({
     transform(chunk: Uint8Array, controller) {
       chunks.push(chunk);
