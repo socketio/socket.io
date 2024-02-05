@@ -1,5 +1,6 @@
 # History
 
+- [5.2.2](#522-2024-02-05) (Feb 2024)
 - [5.2.1](#521-2023-08-01) (Aug 2023)
 - [5.2.0](#520-2023-07-31) (Jul 2023)
 - [5.1.0](#510-2023-06-11) (Jun 2023)
@@ -21,6 +22,15 @@
 
 
 # Release notes
+
+## [5.2.2](https://github.com/socketio/engine.io-parser/compare/5.2.1...5.2.2) (2024-02-05)
+
+
+### Bug Fixes
+
+* **typescript:** properly import the TransformStream type ([0305b4a](https://github.com/socketio/engine.io-parser/commit/0305b4a7a597e0f070ce8ea17106121f9ab369bc))
+
+
 
 ## [5.2.1](https://github.com/socketio/engine.io-parser/compare/5.2.0...5.2.1) (2023-08-01)
 
