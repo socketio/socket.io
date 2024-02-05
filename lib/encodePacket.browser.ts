@@ -7,7 +7,7 @@ const withNativeBlob =
 const withNativeArrayBuffer = typeof ArrayBuffer === "function";
 
 // ArrayBuffer.isView method is not defined in IE10
-const isView = obj => {
+const isView = (obj) => {
   return typeof ArrayBuffer.isView === "function"
     ? ArrayBuffer.isView(obj)
     : obj && obj.buffer instanceof ArrayBuffer;
@@ -16,7 +16,7 @@ const isView = obj => {
 const encodePacket = (
   { type, data }: Packet,
   supportsBinary: boolean,
-  callback: (encodedPacket: RawData) => void
+  callback: (encodedPacket: RawData) => void,
 ) => {
   if (withNativeBlob && data instanceof Blob) {
     if (supportsBinary) {
@@ -40,10 +40,10 @@ const encodePacket = (
 
 const encodeBlobAsBase64 = (
   data: Blob,
-  callback: (encodedPacket: RawData) => void
+  callback: (encodedPacket: RawData) => void,
 ) => {
   const fileReader = new FileReader();
-  fileReader.onload = function() {
+  fileReader.onload = function () {
     const content = (fileReader.result as string).split(",")[1];
     callback("b" + (content || ""));
   };
@@ -64,20 +64,17 @@ let TEXT_ENCODER;
 
 export function encodePacketToBinary(
   packet: Packet,
-  callback: (encodedPacket: RawData) => void
+  callback: (encodedPacket: RawData) => void,
 ) {
   if (withNativeBlob && packet.data instanceof Blob) {
-    return packet.data
-      .arrayBuffer()
-      .then(toArray)
-      .then(callback);
+    return packet.data.arrayBuffer().then(toArray).then(callback);
   } else if (
     withNativeArrayBuffer &&
     (packet.data instanceof ArrayBuffer || isView(packet.data))
   ) {
     return callback(toArray(packet.data));
   }
-  encodePacket(packet, false, encoded => {
+  encodePacket(packet, false, (encoded) => {
     if (!TEXT_ENCODER) {
       TEXT_ENCODER = new TextEncoder();
     }

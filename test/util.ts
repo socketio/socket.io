@@ -8,7 +8,7 @@ const areArraysEqual = (x, y) => {
   return true;
 };
 
-const createArrayBuffer = array => {
+const createArrayBuffer = (array) => {
   // Uint8Array.from() is not defined in IE 10/11
   const arrayBuffer = new ArrayBuffer(array.length);
   const view = new Uint8Array(arrayBuffer);

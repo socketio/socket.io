@@ -3,17 +3,17 @@ import {
   PACKET_TYPES_REVERSE,
   Packet,
   BinaryType,
-  RawData
+  RawData,
 } from "./commons.js";
 
 export const decodePacket = (
   encodedPacket: RawData,
-  binaryType?: BinaryType
+  binaryType?: BinaryType,
 ): Packet => {
   if (typeof encodedPacket !== "string") {
     return {
       type: "message",
-      data: mapBinary(encodedPacket, binaryType)
+      data: mapBinary(encodedPacket, binaryType),
     };
   }
   const type = encodedPacket.charAt(0);
@@ -21,7 +21,7 @@ export const decodePacket = (
     const buffer = Buffer.from(encodedPacket.substring(1), "base64");
     return {
       type: "message",
-      data: mapBinary(buffer, binaryType)
+      data: mapBinary(buffer, binaryType),
     };
   }
   if (!PACKET_TYPES_REVERSE[type]) {
@@ -30,10 +30,10 @@ export const decodePacket = (
   return encodedPacket.length > 1
     ? {
         type: PACKET_TYPES_REVERSE[type],
-        data: encodedPacket.substring(1)
+        data: encodedPacket.substring(1),
       }
     : {
-        type: PACKET_TYPES_REVERSE[type]
+        type: PACKET_TYPES_REVERSE[type],
       };
 };
 
@@ -47,7 +47,7 @@ const mapBinary = (data: RawData, binaryType?: BinaryType) => {
         // from HTTP long-polling
         return data.buffer.slice(
           data.byteOffset,
-          data.byteOffset + data.byteLength
+          data.byteOffset + data.byteLength,
         );
       } else {
         // from WebTransport (Uint8Array)

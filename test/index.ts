@@ -5,7 +5,7 @@ import {
   decodePayload,
   encodePacket,
   encodePayload,
-  Packet
+  Packet,
 } from "..";
 import * as expect from "expect.js";
 import { areArraysEqual } from "./util";
@@ -14,9 +14,9 @@ import "./node"; // replaced by "./browser" for the tests in the browser (see "b
 
 describe("engine.io-parser", () => {
   describe("single packet", () => {
-    it("should encode/decode a string", done => {
+    it("should encode/decode a string", (done) => {
       const packet: Packet = { type: "message", data: "test" };
-      encodePacket(packet, true, encodedPacket => {
+      encodePacket(packet, true, (encodedPacket) => {
         expect(encodedPacket).to.eql("4test");
         expect(decodePacket(encodedPacket)).to.eql(packet);
         done();
@@ -26,25 +26,25 @@ describe("engine.io-parser", () => {
     it("should fail to decode a malformed packet", () => {
       expect(decodePacket("")).to.eql({
         type: "error",
-        data: "parser error"
+        data: "parser error",
       });
       expect(decodePacket("a123")).to.eql({
         type: "error",
-        data: "parser error"
+        data: "parser error",
       });
     });
   });
 
   describe("payload", () => {
-    it("should encode/decode all packet types", done => {
+    it("should encode/decode all packet types", (done) => {
       const packets: Packet[] = [
         { type: "open" },
         { type: "close" },
         { type: "ping", data: "probe" },
         { type: "pong", data: "probe" },
-        { type: "message", data: "test" }
+        { type: "message", data: "test" },
       ];
-      encodePayload(packets, payload => {
+      encodePayload(packets, (payload) => {
         expect(payload).to.eql("0\x1e1\x1e2probe\x1e3probe\x1e4test");
         expect(decodePayload(payload)).to.eql(packets);
         done();
@@ -53,13 +53,13 @@ describe("engine.io-parser", () => {
 
     it("should fail to decode a malformed payload", () => {
       expect(decodePayload("{")).to.eql([
-        { type: "error", data: "parser error" }
+        { type: "error", data: "parser error" },
       ]);
       expect(decodePayload("{}")).to.eql([
-        { type: "error", data: "parser error" }
+        { type: "error", data: "parser error" },
       ]);
       expect(decodePayload('["a123", "a456"]')).to.eql([
-        { type: "error", data: "parser error" }
+        { type: "error", data: "parser error" },
       ]);
     });
   });
@@ -75,7 +75,7 @@ describe("engine.io-parser", () => {
 
         writer.write({
           type: "message",
-          data: "1€"
+          data: "1€",
         });
 
         const header = await reader.read();
@@ -95,7 +95,7 @@ describe("engine.io-parser", () => {
 
         writer.write({
           type: "message",
-          data
+          data,
         });
 
         const header = await reader.read();
@@ -113,7 +113,7 @@ describe("engine.io-parser", () => {
 
         writer.write({
           type: "message",
-          data: Uint8Array.of(1, 2, 3).buffer
+          data: Uint8Array.of(1, 2, 3).buffer,
         });
 
         const header = await reader.read();
@@ -131,7 +131,7 @@ describe("engine.io-parser", () => {
 
         writer.write({
           type: "message",
-          data: Uint16Array.from([1, 2, 257])
+          data: Uint16Array.from([1, 2, 257]),
         });
 
         const header = await reader.read();
@@ -151,7 +151,7 @@ describe("engine.io-parser", () => {
 
         writer.write({
           type: "message",
-          data
+          data,
         });
 
         const header = await reader.read();
@@ -171,12 +171,12 @@ describe("engine.io-parser", () => {
 
         writer.write({
           type: "message",
-          data
+          data,
         });
 
         const header = await reader.read();
         expect(header.value).to.eql(
-          Uint8Array.of(255, 0, 0, 0, 0, 7, 91, 205, 21)
+          Uint8Array.of(255, 0, 0, 0, 0, 7, 91, 205, 21),
         );
 
         const payload = await reader.read();
@@ -197,7 +197,7 @@ describe("engine.io-parser", () => {
         const packet = await reader.read();
         expect(packet.value).to.eql({
           type: "message",
-          data: "1€"
+          data: "1€",
         });
       });
 

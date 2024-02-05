@@ -3,11 +3,11 @@ import { PACKET_TYPES, Packet, RawData } from "./commons.js";
 export const encodePacket = (
   { type, data }: Packet,
   supportsBinary: boolean,
-  callback: (encodedPacket: RawData) => void
+  callback: (encodedPacket: RawData) => void,
 ) => {
   if (data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
     return callback(
-      supportsBinary ? data : "b" + toBuffer(data, true).toString("base64")
+      supportsBinary ? data : "b" + toBuffer(data, true).toString("base64"),
     );
   }
   // plain string
@@ -31,12 +31,12 @@ let TEXT_ENCODER;
 
 export function encodePacketToBinary(
   packet: Packet,
-  callback: (encodedPacket: RawData) => void
+  callback: (encodedPacket: RawData) => void,
 ) {
   if (packet.data instanceof ArrayBuffer || ArrayBuffer.isView(packet.data)) {
     return callback(toBuffer(packet.data, false));
   }
-  encodePacket(packet, true, encoded => {
+  encodePacket(packet, true, (encoded) => {
     if (!TEXT_ENCODER) {
       // lazily created for compatibility with Node.js 10
       TEXT_ENCODER = new TextEncoder();

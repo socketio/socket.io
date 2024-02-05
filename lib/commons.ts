@@ -8,7 +8,7 @@ PACKET_TYPES["upgrade"] = "5";
 PACKET_TYPES["noop"] = "6";
 
 const PACKET_TYPES_REVERSE = Object.create(null);
-Object.keys(PACKET_TYPES).forEach(key => {
+Object.keys(PACKET_TYPES).forEach((key) => {
   PACKET_TYPES_REVERSE[PACKET_TYPES[key]] = key;
 });
 

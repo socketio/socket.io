@@ -5,14 +5,14 @@ import {
   PacketType,
   RawData,
   BinaryType,
-  ERROR_PACKET
+  ERROR_PACKET,
 } from "./commons.js";
 
 const SEPARATOR = String.fromCharCode(30); // see https://en.wikipedia.org/wiki/Delimiter#ASCII_delimited_text
 
 const encodePayload = (
   packets: Packet[],
-  callback: (encodedPayload: string) => void
+  callback: (encodedPayload: string) => void,
 ) => {
   // some packets may be added to the array while encoding, so the initial length must be saved
   const length = packets.length;
@@ -21,7 +21,7 @@ const encodePayload = (
 
   packets.forEach((packet, i) => {
     // force base64 encoding for binary packets
-    encodePacket(packet, false, encodedPacket => {
+    encodePacket(packet, false, (encodedPacket) => {
       encodedPackets[i] = encodedPacket;
       if (++count === length) {
         callback(encodedPackets.join(SEPARATOR));
@@ -32,7 +32,7 @@ const encodePayload = (
 
 const decodePayload = (
   encodedPayload: string,
-  binaryType?: BinaryType
+  binaryType?: BinaryType,
 ): Packet[] => {
   const encodedPackets = encodedPayload.split(SEPARATOR);
   const packets = [];
@@ -49,7 +49,7 @@ const decodePayload = (
 export function createPacketEncoderStream() {
   return new TransformStream({
     transform(packet: Packet, controller) {
-      encodePacketToBinary(packet, encodedPacket => {
+      encodePacketToBinary(packet, (encodedPacket) => {
         const payloadLength = encodedPacket.length;
         let header;
         // inspired by the WebSocket format: https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers#decoding_payload_length
@@ -74,7 +74,7 @@ export function createPacketEncoderStream() {
         controller.enqueue(header);
         controller.enqueue(encodedPacket);
       });
-    }
+    },
   });
 }
 
@@ -107,12 +107,12 @@ const enum State {
   READ_HEADER,
   READ_EXTENDED_LENGTH_16,
   READ_EXTENDED_LENGTH_64,
-  READ_PAYLOAD
+  READ_PAYLOAD,
 }
 
 export function createPacketDecoderStream(
   maxPayload: number,
-  binaryType: BinaryType
+  binaryType: BinaryType,
 ) {
   if (!TEXT_DECODER) {
     TEXT_DECODER = new TextDecoder();
@@ -148,7 +148,7 @@ export function createPacketDecoderStream(
           expectedLength = new DataView(
             headerArray.buffer,
             headerArray.byteOffset,
-            headerArray.length
+            headerArray.length,
           ).getUint16(0);
           state = State.READ_PAYLOAD;
         } else if (state === State.READ_EXTENDED_LENGTH_64) {
@@ -160,7 +160,7 @@ export function createPacketDecoderStream(
           const view = new DataView(
             headerArray.buffer,
             headerArray.byteOffset,
-            headerArray.length
+            headerArray.length,
           );
 
           const n = view.getUint32(0);
@@ -181,8 +181,8 @@ export function createPacketDecoderStream(
           controller.enqueue(
             decodePacket(
               isBinary ? data : TEXT_DECODER.decode(data),
-              binaryType
-            )
+              binaryType,
+            ),
           );
           state = State.READ_HEADER;
         }
@@ -192,7 +192,7 @@ export function createPacketDecoderStream(
           break;
         }
       }
-    }
+    },
   });
 }
 
@@ -205,5 +205,5 @@ export {
   Packet,
   PacketType,
   RawData,
-  BinaryType
+  BinaryType,
 };

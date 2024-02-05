@@ -5,7 +5,7 @@ import {
   encodePayload,
   createPacketEncoderStream,
   createPacketDecoderStream,
-  Packet
+  Packet,
 } from "..";
 import * as expect from "expect.js";
 import { areArraysEqual, createArrayBuffer } from "./util";
@@ -15,12 +15,12 @@ const withNativeArrayBuffer = typeof ArrayBuffer === "function";
 describe("engine.io-parser (browser only)", () => {
   describe("single packet", () => {
     if (withNativeArrayBuffer) {
-      it("should encode/decode an ArrayBuffer", done => {
+      it("should encode/decode an ArrayBuffer", (done) => {
         const packet: Packet = {
           type: "message",
-          data: createArrayBuffer([1, 2, 3, 4])
+          data: createArrayBuffer([1, 2, 3, 4]),
         };
-        encodePacket(packet, true, encodedPacket => {
+        encodePacket(packet, true, (encodedPacket) => {
           expect(encodedPacket).to.be.an(ArrayBuffer);
           expect(areArraysEqual(encodedPacket, packet.data)).to.be(true);
           const decodedPacket = decodePacket(encodedPacket, "arraybuffer");
@@ -30,12 +30,12 @@ describe("engine.io-parser (browser only)", () => {
         });
       });
 
-      it("should encode/decode an ArrayBuffer as base64", done => {
+      it("should encode/decode an ArrayBuffer as base64", (done) => {
         const packet: Packet = {
           type: "message",
-          data: createArrayBuffer([1, 2, 3, 4])
+          data: createArrayBuffer([1, 2, 3, 4]),
         };
-        encodePacket(packet, false, encodedPacket => {
+        encodePacket(packet, false, (encodedPacket) => {
           expect(encodedPacket).to.eql("bAQIDBA==");
           const decodedPacket = decodePacket(encodedPacket, "arraybuffer");
           expect(decodedPacket.type).to.eql(packet.type);
@@ -45,10 +45,10 @@ describe("engine.io-parser (browser only)", () => {
         });
       });
 
-      it("should encode a typed array", done => {
+      it("should encode a typed array", (done) => {
         const buffer = createArrayBuffer([1, 2, 3, 4]);
         const data = new Int8Array(buffer, 1, 2);
-        encodePacket({ type: "message", data }, true, encodedPacket => {
+        encodePacket({ type: "message", data }, true, (encodedPacket) => {
           expect(encodedPacket).to.eql(data); // unmodified typed array
           done();
         });
@@ -56,12 +56,12 @@ describe("engine.io-parser (browser only)", () => {
     }
 
     if (typeof Blob === "function") {
-      it("should encode/decode a Blob", done => {
+      it("should encode/decode a Blob", (done) => {
         const packet: Packet = {
           type: "message",
-          data: new Blob(["1234", createArrayBuffer([1, 2, 3, 4])])
+          data: new Blob(["1234", createArrayBuffer([1, 2, 3, 4])]),
         };
-        encodePacket(packet, true, encodedPacket => {
+        encodePacket(packet, true, (encodedPacket) => {
           expect(encodedPacket).to.be.a(Blob);
           const decodedPacket = decodePacket(encodedPacket, "blob");
           expect(decodedPacket.type).to.eql("message");
@@ -70,12 +70,12 @@ describe("engine.io-parser (browser only)", () => {
         });
       });
 
-      it("should encode/decode a Blob as base64", done => {
+      it("should encode/decode a Blob as base64", (done) => {
         const packet: Packet = {
           type: "message",
-          data: new Blob(["1234", createArrayBuffer([1, 2, 3, 4])])
+          data: new Blob(["1234", createArrayBuffer([1, 2, 3, 4])]),
         };
-        encodePacket(packet, false, encodedPacket => {
+        encodePacket(packet, false, (encodedPacket) => {
           expect(encodedPacket).to.eql("bMTIzNAECAwQ=");
           const decodedPacket = decodePacket(encodedPacket, "blob");
           expect(decodedPacket.type).to.eql("message");
@@ -88,24 +88,24 @@ describe("engine.io-parser (browser only)", () => {
 
   describe("payload", () => {
     if (withNativeArrayBuffer) {
-      it("should encode/decode a string + ArrayBuffer payload", done => {
+      it("should encode/decode a string + ArrayBuffer payload", (done) => {
         const packets: Packet[] = [
           { type: "message", data: "test" },
-          { type: "message", data: createArrayBuffer([1, 2, 3, 4]) }
+          { type: "message", data: createArrayBuffer([1, 2, 3, 4]) },
         ];
-        encodePayload(packets, payload => {
+        encodePayload(packets, (payload) => {
           expect(payload).to.eql("4test\x1ebAQIDBA==");
           expect(decodePayload(payload, "arraybuffer")).to.eql(packets);
           done();
         });
       });
 
-      it("should encode/decode a string + a 0-length ArrayBuffer payload", done => {
+      it("should encode/decode a string + a 0-length ArrayBuffer payload", (done) => {
         const packets: Packet[] = [
           { type: "message", data: "test" },
-          { type: "message", data: createArrayBuffer([]) }
+          { type: "message", data: createArrayBuffer([]) },
         ];
-        encodePayload(packets, payload => {
+        encodePayload(packets, (payload) => {
           expect(payload).to.eql("4test\x1eb");
           expect(decodePayload(payload, "arraybuffer")).to.eql(packets);
           done();
@@ -124,7 +124,7 @@ describe("engine.io-parser (browser only)", () => {
 
         writer.write({
           type: "message",
-          data: new Blob([Uint8Array.from([1, 2, 3])])
+          data: new Blob([Uint8Array.from([1, 2, 3])]),
         });
 
         const header = await reader.read();

@@ -3,7 +3,7 @@ import {
   PACKET_TYPES_REVERSE,
   Packet,
   BinaryType,
-  RawData
+  RawData,
 } from "./commons.js";
 import { decode } from "./contrib/base64-arraybuffer.js";
 
@@ -11,19 +11,19 @@ const withNativeArrayBuffer = typeof ArrayBuffer === "function";
 
 export const decodePacket = (
   encodedPacket: RawData,
-  binaryType?: BinaryType
+  binaryType?: BinaryType,
 ): Packet => {
   if (typeof encodedPacket !== "string") {
     return {
       type: "message",
-      data: mapBinary(encodedPacket, binaryType)
+      data: mapBinary(encodedPacket, binaryType),
     };
   }
   const type = encodedPacket.charAt(0);
   if (type === "b") {
     return {
       type: "message",
-      data: decodeBase64Packet(encodedPacket.substring(1), binaryType)
+      data: decodeBase64Packet(encodedPacket.substring(1), binaryType),
     };
   }
   const packetType = PACKET_TYPES_REVERSE[type];
@@ -33,10 +33,10 @@ export const decodePacket = (
   return encodedPacket.length > 1
     ? {
         type: PACKET_TYPES_REVERSE[type],
-        data: encodedPacket.substring(1)
+        data: encodedPacket.substring(1),
       }
     : {
-        type: PACKET_TYPES_REVERSE[type]
+        type: PACKET_TYPES_REVERSE[type],
       };
 };
 
