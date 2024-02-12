@@ -70,6 +70,21 @@ describe("server attachment", () => {
         });
     });
 
+    it("should serve client (br)", (done) => {
+      const srv = createServer();
+      new Server(srv);
+      request(srv)
+        .get("/socket.io/socket.io.js")
+        .set("accept-encoding", "br")
+        .buffer(true)
+        .end((err, res) => {
+          if (err) return done(err);
+          expect(res.headers["content-encoding"]).to.be("br");
+          expect(res.status).to.be(200);
+          done();
+        });
+    });
+
     it("should serve client with necessary CORS headers", (done) => {
       const srv = createServer();
       new Server(srv, {

@@ -625,7 +625,6 @@ export class Server<
     switch (encoding) {
       case "br":
         res.writeHead(200, { "content-encoding": "br" });
-        readStream.pipe(createBrotliCompress()).pipe(res);
         pipeline(readStream, createBrotliCompress(), res, onError);
         break;
       case "gzip":
