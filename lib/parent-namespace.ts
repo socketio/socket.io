@@ -6,6 +6,7 @@ import type {
   DefaultEventsMap,
   EventNamesWithoutAck,
 } from "./typed-events";
+import { Adapter } from "socket.io-adapter";
 import type { BroadcastOptions } from "socket.io-adapter";
 import debugModule from "debug";
 
@@ -33,7 +34,7 @@ export class ParentNamespace<
   SocketData = any
 > extends Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData> {
   private static count: number = 0;
-  private children: Set<
+  private readonly children: Set<
     Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
   > = new Set();
 
@@ -47,13 +48,7 @@ export class ParentNamespace<
    * @private
    */
   _initAdapter(): void {
-    const broadcast = (packet: any, opts: BroadcastOptions) => {
-      this.children.forEach((nsp) => {
-        nsp.adapter.broadcast(packet, opts);
-      });
-    };
-    // @ts-ignore FIXME is there a way to declare an inner class in TypeScript?
-    this.adapter = { broadcast };
+    this.adapter = new ParentBroadcastAdapter(this, this.children);
   }
 
   public emit<Ev extends EventNamesWithoutAck<EmitEvents>>(
@@ -110,5 +105,21 @@ export class ParentNamespace<
     // note²: we cannot loop over each children namespace, because with multiple Socket.IO servers, a given namespace
     // may exist on one node but not exist on another (since it is created upon client connection)
     throw new Error("fetchSockets() is not supported on parent namespaces");
+  }
+}
+
+/**
+ * A dummy adapter that only supports broadcasting to child (concrete) namespaces.
+ * @private file
+ */
+class ParentBroadcastAdapter extends Adapter {
+  constructor(parentNsp: any, private readonly children: Set<Namespace>) {
+    super(parentNsp);
+  }
+
+  broadcast(packet: any, opts: BroadcastOptions) {
+    this.children.forEach((nsp) => {
+      nsp.adapter.broadcast(packet, opts);
+    });
   }
 }
