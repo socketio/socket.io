@@ -6,7 +6,7 @@ import type {
   DefaultEventsMap,
   EventNamesWithoutAck,
 } from "./typed-events";
-import {Adapter} from "socket.io-adapter";
+import { Adapter } from "socket.io-adapter";
 import type { BroadcastOptions } from "socket.io-adapter";
 import debugModule from "debug";
 
@@ -121,5 +121,5 @@ class ParentBroadcastAdapter extends Adapter {
     this.children.forEach((nsp) => {
       nsp.adapter.broadcast(packet, opts);
     });
-  };
+  }
 }
