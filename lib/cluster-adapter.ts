@@ -19,6 +19,16 @@ type DistributiveOmit<T, K extends keyof any> = T extends any
   ? Omit<T, K>
   : never;
 
+/**
+ * The unique ID of this server
+ */
+type ServerId = string;
+
+/**
+ * The id of a message (for the Connection state recovery)
+ */
+type Offset = string;
+
 export interface ClusterAdapterOptions {
   /**
    * The number of ms between two heartbeats.
@@ -49,7 +59,7 @@ export enum MessageType {
 }
 
 export type ClusterMessage = {
-  uid: string;
+  uid: ServerId;
   nsp: string;
 } & (
   | {
@@ -106,7 +116,7 @@ interface ClusterRequest {
 }
 
 export type ClusterResponse = {
-  uid: string;
+  uid: ServerId;
   nsp: string;
 } & (
   | {
@@ -167,7 +177,7 @@ function decodeOptions(opts): BroadcastOptions {
  * - call {@link ClusterAdapter#onMessage} and {@link ClusterAdapter#onResponse}
  */
 export abstract class ClusterAdapter extends Adapter {
-  protected readonly uid: string;
+  protected readonly uid: ServerId;
 
   private requests: Map<string, ClusterRequest> = new Map();
   private ackRequests: Map<string, ClusterAckRequest> = new Map();
@@ -418,7 +428,7 @@ export abstract class ClusterAdapter extends Adapter {
   private addOffsetIfNecessary(
     packet: any,
     opts: BroadcastOptions,
-    offset: string
+    offset: Offset
   ) {
     if (!this.nsp.server.opts.connectionStateRecovery) {
       return;
@@ -646,10 +656,10 @@ export abstract class ClusterAdapter extends Adapter {
    * @protected
    * @return an offset, if applicable
    */
-  protected abstract doPublish(message: ClusterMessage): Promise<string>;
+  protected abstract doPublish(message: ClusterMessage): Promise<Offset>;
 
   protected publishResponse(
-    requesterUid: string,
+    requesterUid: ServerId,
     response: Omit<ClusterResponse, "nsp" | "uid">
   ) {
     (response as ClusterResponse).uid = this.uid;
@@ -669,7 +679,7 @@ export abstract class ClusterAdapter extends Adapter {
    * @protected
    */
   protected abstract doPublishResponse(
-    requesterUid: string,
+    requesterUid: ServerId,
     response: ClusterResponse
   ): Promise<void>;
 }
@@ -686,7 +696,7 @@ export abstract class ClusterAdapterWithHeartbeat extends ClusterAdapter {
   private readonly _opts: Required<ClusterAdapterOptions>;
 
   private heartbeatTimer: NodeJS.Timeout;
-  private nodesMap: Map<string, number> = new Map(); // uid => timestamp of last message
+  private nodesMap: Map<ServerId, number> = new Map(); // uid => timestamp of last message
   private readonly cleanupTimer: NodeJS.Timeout | undefined;
   private customRequests: Map<string, CustomClusterRequest> = new Map();
 
@@ -941,7 +951,7 @@ export abstract class ClusterAdapterWithHeartbeat extends ClusterAdapter {
     }
   }
 
-  private removeNode(uid: string) {
+  private removeNode(uid: ServerId) {
     this.customRequests.forEach((request, requestId) => {
       request.missingUids.delete(uid);
       if (request.missingUids.size === 0) {
