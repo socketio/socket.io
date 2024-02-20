@@ -505,3 +505,5 @@ function shouldIncludePacket(
   const notExcluded = sessionRooms.every((room) => !opts.except.has(room));
   return included && notExcluded;
 }
+
+export { ClusterAdapter } from "./cluster-adapter";

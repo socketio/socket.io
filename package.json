@@ -13,9 +13,11 @@
   "types": "./dist/index.d.ts",
   "description": "default socket.io in-memory adapter",
   "dependencies": {
+    "debug": "~4.3.4",
     "ws": "~8.11.0"
   },
   "devDependencies": {
+    "@types/debug": "^4.1.12",
     "@types/mocha": "^10.0.1",
     "@types/node": "^14.11.2",
     "expect.js": "^0.3.1",
