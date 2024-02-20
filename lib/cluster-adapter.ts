@@ -390,7 +390,7 @@ export abstract class ClusterAdapter extends Adapter {
 
     if (!onlyLocal) {
       try {
-        const offset = await this.publish({
+        const offset = await this.publishAndReturnOffset({
           type: MessageType.BROADCAST,
           data: {
             packet,
@@ -623,7 +623,17 @@ export abstract class ClusterAdapter extends Adapter {
     });
   }
 
-  protected publish(message: DistributiveOmit<ClusterMessage, "nsp" | "uid">) {
+  protected publish(
+    message: DistributiveOmit<ClusterMessage, "nsp" | "uid">
+  ): void {
+    this.publishAndReturnOffset(message).catch((err) => {
+      debug("error while publishing message: %s", err);
+    });
+  }
+
+  protected publishAndReturnOffset(
+    message: DistributiveOmit<ClusterMessage, "nsp" | "uid">
+  ) {
     (message as ClusterMessage).uid = this.uid;
     (message as ClusterMessage).nsp = this.nsp.name;
     return this.doPublish(message as ClusterMessage);
@@ -644,7 +654,11 @@ export abstract class ClusterAdapter extends Adapter {
   ) {
     (response as ClusterResponse).uid = this.uid;
     (response as ClusterResponse).nsp = this.nsp.name;
-    return this.doPublishResponse(requesterUid, response as ClusterResponse);
+    this.doPublishResponse(requesterUid, response as ClusterResponse).catch(
+      (err) => {
+        debug("error while publishing response: %s", err);
+      }
+    );
   }
 
   /**
@@ -657,7 +671,7 @@ export abstract class ClusterAdapter extends Adapter {
   protected abstract doPublishResponse(
     requesterUid: string,
     response: ClusterResponse
-  );
+  ): Promise<void>;
 }
 
 interface CustomClusterRequest {
