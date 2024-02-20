@@ -299,6 +299,19 @@ export abstract class ClusterAdapter extends Adapter {
         break;
       }
 
+      // @ts-ignore
+      case MessageType.BROADCAST_CLIENT_COUNT:
+      // @ts-ignore
+      case MessageType.BROADCAST_ACK:
+      // @ts-ignore
+      case MessageType.FETCH_SOCKETS_RESPONSE:
+      // @ts-ignore
+      case MessageType.SERVER_SIDE_EMIT_RESPONSE:
+        // extending classes may not make a distinction between a ClusterMessage and a ClusterResponse payload and may
+        // always call the onMessage() method
+        this.onResponse(message);
+        break;
+
       default:
         debug("unknown message type: %s", message.type);
     }
