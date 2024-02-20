@@ -719,13 +719,14 @@ export abstract class ClusterAdapterWithHeartbeat extends ClusterAdapter {
 
   private scheduleHeartbeat() {
     if (this.heartbeatTimer) {
-      clearTimeout(this.heartbeatTimer);
+      this.heartbeatTimer.refresh();
+    } else {
+      this.heartbeatTimer = setTimeout(() => {
+        this.publish({
+          type: MessageType.HEARTBEAT,
+        });
+      }, this._opts.heartbeatInterval);
     }
-    this.heartbeatTimer = setTimeout(() => {
-      this.publish({
-        type: MessageType.HEARTBEAT,
-      });
-    }, this._opts.heartbeatInterval);
   }
 
   override close() {
