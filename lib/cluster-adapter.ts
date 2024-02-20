@@ -509,7 +509,7 @@ export abstract class ClusterAdapter extends Adapter {
     ]);
     const expectedResponseCount = serverCount - 1;
 
-    if (opts.flags?.local || expectedResponseCount === 0) {
+    if (opts.flags?.local || expectedResponseCount <= 0) {
       return localSockets;
     }
 
