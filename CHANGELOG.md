@@ -1,5 +1,6 @@
 # History
 
+- [2.5.3](#253-2024-02-21) (Feb 2024)
 - [2.5.2](#252-2023-01-12) (Jan 2023)
 - [2.5.1](#251-2023-01-06) (Jan 2023)
 - [2.5.0](#250-2023-01-06) (Jan 2023)
@@ -18,6 +19,49 @@
 
 
 # Release notes
+
+## [2.5.3](https://github.com/socketio/socket.io-adapter/compare/2.5.2...2.5.3) (2024-02-21)
+
+Two abstract classes were imported from the [Redis adapter repository](https://github.com/socketio/socket.io-redis-adapter/blob/bd32763043a2eb79a21dffd8820f20e598348adf/lib/cluster-adapter.ts):
+
+- the `ClusterAdapter` class, which manages the messages sent between the server instances of the cluster
+- the `ClusterAdapterWithHeartbeat` class, which extends the `ClusterAdapter` and adds a heartbeat mechanism in order to check the healthiness of the other instances
+
+Other adapters can then just extend those classes and only have to implement the pub/sub mechanism (and not the internal chit-chat protocol):
+
+```js
+class MyAdapter extends ClusterAdapterWithHeartbeat {
+  constructor(nsp, pubSub, opts) {
+    super(nsp, opts);
+    this.pubSub = pubSub;
+    pubSub.subscribe("main-channel", (message) => this.onMessage(message));
+    pubSub.subscribe("specific-channel#" + this.uid, (response) => this.onResponse(response));
+  }
+
+  doPublish(message) {
+    return this.pubSub.publish("main-channel", message);
+  }
+
+  doPublishResponse(requesterUid, response) {
+    return this.pubSub.publish("specific-channel#" + requesterUid, response);
+  }
+}
+```
+
+Besides, the number of "timeout reached: only x responses received out of y" errors (which can happen when a server instance leaves the cluster) should be greatly reduced by [this commit](https://github.com/socketio/socket.io-adapter/commit/0e23ff0cc671e3186510f7cfb8a4c1147457296f).
+
+
+### Bug Fixes
+
+* **cluster:** fix count in fetchSockets() method ([80af4e9](https://github.com/socketio/socket.io-adapter/commit/80af4e939c9caf89b0234ba1e676a3887c8d0ce6))
+* **cluster:** notify the other nodes when closing ([0e23ff0](https://github.com/socketio/socket.io-adapter/commit/0e23ff0cc671e3186510f7cfb8a4c1147457296f))
+
+
+### Performance Improvements
+
+* **cluster:** use timer.refresh() ([d99a71b](https://github.com/socketio/socket.io-adapter/commit/d99a71b5588f53f0b181eee989ab2ac939f965db))
+
+
 
 ## [2.5.2](https://github.com/socketio/socket.io-adapter/compare/2.5.1...2.5.2) (2023-01-12)
 
