@@ -506,4 +506,11 @@ function shouldIncludePacket(
   return included && notExcluded;
 }
 
-export { ClusterAdapter } from "./cluster-adapter";
+export {
+  ClusterAdapter,
+  ClusterAdapterWithHeartbeat,
+  ClusterMessage,
+  ClusterResponse,
+  ServerId,
+  Offset,
+} from "./cluster-adapter";
