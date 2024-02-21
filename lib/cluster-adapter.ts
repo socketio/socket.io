@@ -194,7 +194,7 @@ export abstract class ClusterAdapter extends Adapter {
    * @param offset
    * @protected
    */
-  protected async onMessage(message: ClusterMessage, offset?: string) {
+  protected onMessage(message: ClusterMessage, offset?: string) {
     if (message.uid === this.uid) {
       return debug("[%s] ignore message from self", this.uid);
     }
@@ -274,26 +274,26 @@ export abstract class ClusterAdapter extends Adapter {
           this.uid,
           message.data.opts
         );
-        const localSockets = await super.fetchSockets(
-          decodeOptions(message.data.opts)
-        );
-
-        this.publishResponse(message.uid, {
-          type: MessageType.FETCH_SOCKETS_RESPONSE,
-          data: {
-            requestId: message.data.requestId,
-            sockets: localSockets.map((socket) => {
-              // remove sessionStore from handshake, as it may contain circular references
-              const { sessionStore, ...handshake } = socket.handshake;
-              return {
-                id: socket.id,
-                handshake,
-                rooms: [...socket.rooms],
-                data: socket.data,
-              };
-            }),
-          },
-        });
+        super
+          .fetchSockets(decodeOptions(message.data.opts))
+          .then((localSockets) => {
+            this.publishResponse(message.uid, {
+              type: MessageType.FETCH_SOCKETS_RESPONSE,
+              data: {
+                requestId: message.data.requestId,
+                sockets: localSockets.map((socket) => {
+                  // remove sessionStore from handshake, as it may contain circular references
+                  const { sessionStore, ...handshake } = socket.handshake;
+                  return {
+                    id: socket.id,
+                    handshake,
+                    rooms: [...socket.rooms],
+                    data: socket.data,
+                  };
+                }),
+              },
+            });
+          });
         break;
       }
 
@@ -775,7 +775,7 @@ export abstract class ClusterAdapterWithHeartbeat extends ClusterAdapter {
     }
   }
 
-  override async onMessage(message: ClusterMessage, offset?: string) {
+  override onMessage(message: ClusterMessage, offset?: string) {
     if (message.uid === this.uid) {
       return debug("[%s] ignore message from self", this.uid);
     }
