@@ -3,7 +3,7 @@ import { Server, Socket as ServerSocket } from "socket.io";
 import { io as ioc, Socket as ClientSocket } from "socket.io-client";
 import expect = require("expect.js");
 import type { AddressInfo } from "net";
-import { times, shouldNotHappen } from "./util";
+import { times, shouldNotHappen, sleep } from "./util";
 import {
   ClusterAdapterWithHeartbeat,
   type ClusterMessage,
@@ -243,6 +243,8 @@ describe("cluster adapter", () => {
     it("makes all socket instances join the specified room", async () => {
       servers[0].socketsJoin("room1");
 
+      await sleep();
+
       expect(serverSockets[0].rooms.has("room1")).to.be(true);
       expect(serverSockets[1].rooms.has("room1")).to.be(true);
       expect(serverSockets[2].rooms.has("room1")).to.be(true);
@@ -253,6 +255,8 @@ describe("cluster adapter", () => {
       serverSockets[2].join("room1");
 
       servers[0].in("room1").socketsJoin("room2");
+
+      await sleep();
 
       expect(serverSockets[0].rooms.has("room2")).to.be(true);
       expect(serverSockets[1].rooms.has("room2")).to.be(false);
@@ -275,6 +279,8 @@ describe("cluster adapter", () => {
 
       servers[0].socketsLeave("room1");
 
+      await sleep();
+
       expect(serverSockets[0].rooms.has("room1")).to.be(false);
       expect(serverSockets[1].rooms.has("room1")).to.be(false);
       expect(serverSockets[2].rooms.has("room1")).to.be(false);
@@ -286,6 +292,8 @@ describe("cluster adapter", () => {
       serverSockets[2].join(["room2"]);
 
       servers[0].in("room1").socketsLeave("room2");
+
+      await sleep();
 
       expect(serverSockets[0].rooms.has("room2")).to.be(false);
       expect(serverSockets[1].rooms.has("room2")).to.be(false);
@@ -316,6 +324,22 @@ describe("cluster adapter", () => {
         });
       });
 
+      servers[0].disconnectSockets(true);
+    });
+
+    it("sends a packet before all socket instances disconnect", (done) => {
+      const partialDone = times(3, done);
+
+      clientSockets.forEach((clientSocket) => {
+        clientSocket.on("disconnect", shouldNotHappen(done));
+
+        clientSocket.on("bye", () => {
+          clientSocket.off("disconnect");
+          clientSocket.on("disconnect", partialDone);
+        });
+      });
+
+      servers[0].emit("bye");
       servers[0].disconnectSockets(true);
     });
   });

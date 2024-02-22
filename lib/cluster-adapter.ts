@@ -503,55 +503,64 @@ export abstract class ClusterAdapter extends Adapter {
     super.broadcastWithAck(packet, opts, clientCountCallback, ack);
   }
 
-  override addSockets(opts: BroadcastOptions, rooms: Room[]) {
+  override async addSockets(opts: BroadcastOptions, rooms: Room[]) {
+    const onlyLocal = opts.flags?.local;
+
+    if (!onlyLocal) {
+      try {
+        await this.publishAndReturnOffset({
+          type: MessageType.SOCKETS_JOIN,
+          data: {
+            opts: encodeOptions(opts),
+            rooms,
+          },
+        });
+      } catch (e) {
+        debug("[%s] error while publishing message: %s", this.uid, e.message);
+      }
+    }
+
     super.addSockets(opts, rooms);
-
-    const onlyLocal = opts.flags?.local;
-    if (onlyLocal) {
-      return;
-    }
-
-    this.publish({
-      type: MessageType.SOCKETS_JOIN,
-      data: {
-        opts: encodeOptions(opts),
-        rooms,
-      },
-    });
   }
 
-  override delSockets(opts: BroadcastOptions, rooms: Room[]) {
+  override async delSockets(opts: BroadcastOptions, rooms: Room[]) {
+    const onlyLocal = opts.flags?.local;
+
+    if (!onlyLocal) {
+      try {
+        await this.publishAndReturnOffset({
+          type: MessageType.SOCKETS_LEAVE,
+          data: {
+            opts: encodeOptions(opts),
+            rooms,
+          },
+        });
+      } catch (e) {
+        debug("[%s] error while publishing message: %s", this.uid, e.message);
+      }
+    }
+
     super.delSockets(opts, rooms);
-
-    const onlyLocal = opts.flags?.local;
-    if (onlyLocal) {
-      return;
-    }
-
-    this.publish({
-      type: MessageType.SOCKETS_LEAVE,
-      data: {
-        opts: encodeOptions(opts),
-        rooms,
-      },
-    });
   }
 
-  override disconnectSockets(opts: BroadcastOptions, close: boolean) {
-    super.disconnectSockets(opts, close);
-
+  override async disconnectSockets(opts: BroadcastOptions, close: boolean) {
     const onlyLocal = opts.flags?.local;
-    if (onlyLocal) {
-      return;
+
+    if (!onlyLocal) {
+      try {
+        await this.publishAndReturnOffset({
+          type: MessageType.DISCONNECT_SOCKETS,
+          data: {
+            opts: encodeOptions(opts),
+            close,
+          },
+        });
+      } catch (e) {
+        debug("[%s] error while publishing message: %s", this.uid, e.message);
+      }
     }
 
-    this.publish({
-      type: MessageType.DISCONNECT_SOCKETS,
-      data: {
-        opts: encodeOptions(opts),
-        close,
-      },
-    });
+    super.disconnectSockets(opts, close);
   }
 
   async fetchSockets(opts: BroadcastOptions): Promise<any[]> {
