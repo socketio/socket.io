@@ -1,9 +1,5 @@
-import {
-  Adapter,
-  type BroadcastFlags,
-  type BroadcastOptions,
-  type Room,
-} from "./index";
+import { Adapter } from "./index";
+import type { BroadcastFlags, BroadcastOptions, Room } from "./index";
 import { debug as debugModule } from "debug";
 import { randomBytes } from "crypto";
 
