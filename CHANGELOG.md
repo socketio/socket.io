@@ -1,5 +1,6 @@
 # History
 
+- [2.5.4](#254-2024-02-22) (Feb 2024)
 - [2.5.3](#253-2024-02-21) (Feb 2024)
 - [2.5.2](#252-2023-01-12) (Jan 2023)
 - [2.5.1](#251-2023-01-06) (Jan 2023)
@@ -19,6 +20,16 @@
 
 
 # Release notes
+
+## [2.5.4](https://github.com/socketio/socket.io-adapter/compare/2.5.3...2.5.4) (2024-02-22)
+
+
+### Bug Fixes
+
+* ensure the order of the commands ([a13f35f](https://github.com/socketio/socket.io-adapter/commit/a13f35f0e6b85bbba07f99ee2440e914f1429d83))
+* **types:** ensure compatibility with TypeScript < 4.5 ([ca397f3](https://github.com/socketio/socket.io-adapter/commit/ca397f3afe06ed9390db52b70a506a9721e091d8))
+
+
 
 ## [2.5.3](https://github.com/socketio/socket.io-adapter/compare/2.5.2...2.5.3) (2024-02-21)
 
