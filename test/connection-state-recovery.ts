@@ -221,11 +221,11 @@ describe("connection state recovery", () => {
     const httpServer = createServer().listen(0);
 
     class DummyAdapter extends Adapter {
-      override persistSession(session) {
+      persistSession(session) {
         expect().fail();
       }
 
-      override restoreSession(pid, offset) {
+      restoreSession(pid, offset) {
         expect().fail();
         return Promise.reject("should not happen");
       }
