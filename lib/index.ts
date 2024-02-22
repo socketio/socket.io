@@ -509,8 +509,10 @@ function shouldIncludePacket(
 export {
   ClusterAdapter,
   ClusterAdapterWithHeartbeat,
+  ClusterAdapterOptions,
   ClusterMessage,
   ClusterResponse,
+  MessageType,
   ServerId,
   Offset,
 } from "./cluster-adapter";
