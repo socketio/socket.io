@@ -17,7 +17,7 @@ type ReadyState = "opening" | "open" | "closing" | "closed";
 export class Socket extends EventEmitter {
   public readonly protocol: number;
   // TODO for the next major release: do not keep the reference to the first HTTP request, as it stays in memory
-  public readonly request: IncomingMessage;
+  public request: IncomingMessage;
   public readonly remoteAddress: string;
 
   public _readyState: ReadyState = "opening";
