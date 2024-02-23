@@ -742,13 +742,17 @@ export class Server<
    * @param [fn] optional, called as `fn([err])` on error OR all conns closed
    */
   public close(fn?: (err?: Error) => void): void {
-    for (const socket of this.sockets.sockets.values()) {
-      socket._onclose("server shutting down");
-    }
+    this._nsps.forEach((nsp) => {
+      nsp.sockets.forEach((socket) => {
+        socket._onclose("server shutting down");
+      });
+
+      nsp.adapter.close();
+    });
 
     this.engine.close();
 
-    // restore the Adapter prototype
+    // restore the Adapter prototype, when the Socket.IO server was attached to a uWebSockets.js server
     restoreAdapter();
 
     if (this.httpServer) {
