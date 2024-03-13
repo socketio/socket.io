@@ -744,11 +744,11 @@ export class Server<
   public async close(fn?: (err?: Error) => void): Promise<void> {
     await Promise.allSettled(
       [...this._nsps.values()].map(async (nsp) => {
-      nsp.sockets.forEach((socket) => {
-        socket._onclose("server shutting down");
-      });
+        nsp.sockets.forEach((socket) => {
+          socket._onclose("server shutting down");
+        });
 
-      await nsp.adapter.close();
+        await nsp.adapter.close();
       })
     );
 
