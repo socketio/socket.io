@@ -2,6 +2,7 @@
 
 ## 2024
 
+- [4.7.5](#475-2024-03-14) (Mar 2024)
 - [4.7.4](#474-2024-01-12) (Jan 2024)
 - [4.7.3](#473-2024-01-03) (Jan 2024)
 
@@ -66,6 +67,21 @@
 
 
 # Release notes
+
+## [4.7.5](https://github.com/socketio/socket.io-client/compare/4.7.4...4.7.5) (2024-03-14)
+
+
+### Bug Fixes
+
+* discard acknowledgements upon disconnection ([34cbfbb](https://github.com/socketio/socket.io-client/commit/34cbfbb532ae333f4dd034138e8f87cb80a8e382))
+
+
+### Dependencies
+
+- [`engine.io-client@~6.5.2`](https://github.com/socketio/engine.io-client/releases/tag/6.5.2) (no change)
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [4.7.4](https://github.com/socketio/socket.io-client/compare/4.7.3...4.7.4) (2024-01-12)
 
