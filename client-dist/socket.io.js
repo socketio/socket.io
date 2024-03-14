@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.7.4
+ * Socket.IO v4.7.5
  * (c) 2014-2024 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -3022,6 +3022,29 @@
        */
       _this._queueSeq = 0;
       _this.ids = 0;
+      /**
+       * A map containing acknowledgement handlers.
+       *
+       * The `withError` attribute is used to differentiate handlers that accept an error as first argument:
+       *
+       * - `socket.emit("test", (err, value) => { ... })` with `ackTimeout` option
+       * - `socket.timeout(5000).emit("test", (err, value) => { ... })`
+       * - `const value = await socket.emitWithAck("test")`
+       *
+       * From those that don't:
+       *
+       * - `socket.emit("test", (value) => { ... });`
+       *
+       * In the first case, the handlers will be called with an error when:
+       *
+       * - the timeout is reached
+       * - the socket gets disconnected
+       *
+       * In the second case, the handlers will be simply discarded upon disconnection, since the client will never receive
+       * an acknowledgement from the server.
+       *
+       * @private
+       */
       _this.acks = {};
       _this.flags = {};
       _this.io = io;
@@ -3216,14 +3239,16 @@
           }
           ack.call(_this2, new Error("operation has timed out"));
         }, timeout);
-        this.acks[id] = function () {
+        var fn = function fn() {
           // @ts-ignore
           _this2.io.clearTimeoutFn(timer);
           for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
             args[_key3] = arguments[_key3];
           }
-          ack.apply(_this2, [null].concat(args));
+          ack.apply(_this2, args);
         };
+        fn.withError = true;
+        this.acks[id] = fn;
       }
       /**
        * Emits an event and waits for an acknowledgement
@@ -3248,16 +3273,12 @@
         for (var _len4 = arguments.length, args = new Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
           args[_key4 - 1] = arguments[_key4];
         }
-        // the timeout flag is optional
-        var withErr = this.flags.timeout !== undefined || this._opts.ackTimeout !== undefined;
         return new Promise(function (resolve, reject) {
-          args.push(function (arg1, arg2) {
-            if (withErr) {
-              return arg1 ? reject(arg1) : resolve(arg2);
-            } else {
-              return resolve(arg1);
-            }
-          });
+          var fn = function fn(arg1, arg2) {
+            return arg1 ? reject(arg1) : resolve(arg2);
+          };
+          fn.withError = true;
+          args.push(fn);
           _this3.emit.apply(_this3, [ev].concat(args));
         });
       }
@@ -3405,6 +3426,31 @@
         this.connected = false;
         delete this.id;
         this.emitReserved("disconnect", reason, description);
+        this._clearAcks();
+      }
+      /**
+       * Clears the acknowledgement handlers upon disconnection, since the client will never receive an acknowledgement from
+       * the server.
+       *
+       * @private
+       */
+    }, {
+      key: "_clearAcks",
+      value: function _clearAcks() {
+        var _this6 = this;
+        Object.keys(this.acks).forEach(function (id) {
+          var isBuffered = _this6.sendBuffer.some(function (packet) {
+            return String(packet.id) === id;
+          });
+          if (!isBuffered) {
+            // note: handlers that do not accept an error as first argument are ignored here
+            var ack = _this6.acks[id];
+            delete _this6.acks[id];
+            if (ack.withError) {
+              ack.call(_this6, new Error("socket has been disconnected"));
+            }
+          }
+        });
       }
       /**
        * Called with socket packet.
@@ -3512,7 +3558,7 @@
         };
       }
       /**
-       * Called upon a server acknowlegement.
+       * Called upon a server acknowledgement.
        *
        * @param packet
        * @private
@@ -3521,10 +3567,16 @@
       key: "onack",
       value: function onack(packet) {
         var ack = this.acks[packet.id];
-        if ("function" === typeof ack) {
-          ack.apply(this, packet.data);
-          delete this.acks[packet.id];
+        if (typeof ack !== "function") {
+          return;
         }
+        delete this.acks[packet.id];
+        // @ts-ignore FIXME ack is incorrectly inferred as 'never'
+        if (ack.withError) {
+          packet.data.unshift(null);
+        }
+        // @ts-ignore
+        ack.apply(this, packet.data);
       }
       /**
        * Called upon server connect.
@@ -3550,14 +3602,14 @@
     }, {
       key: "emitBuffered",
       value: function emitBuffered() {
-        var _this6 = this;
+        var _this7 = this;
         this.receiveBuffer.forEach(function (args) {
-          return _this6.emitEvent(args);
+          return _this7.emitEvent(args);
         });
         this.receiveBuffer = [];
         this.sendBuffer.forEach(function (packet) {
-          _this6.notifyOutgoingListeners(packet);
-          _this6.packet(packet);
+          _this7.notifyOutgoingListeners(packet);
+          _this7.packet(packet);
         });
         this.sendBuffer = [];
       }

@@ -2,6 +2,7 @@
 
 ## 2024
 
+- [4.7.5](#475-2024-03-14) (Mar 2024)
 - [4.7.4](#474-2024-01-12) (Jan 2024)
 - [4.7.3](#473-2024-01-03) (Jan 2024)
 
@@ -65,6 +66,22 @@
 
 
 # Release notes
+
+## [4.7.5](https://github.com/socketio/socket.io/compare/4.7.4...4.7.5) (2024-03-14)
+
+
+### Bug Fixes
+
+* close the adapters when the server is closed ([bf64870](https://github.com/socketio/socket.io/commit/bf64870957e626a73e0544716a1a41a4ba5093bb))
+* remove duplicate pipeline when serving bundle ([e426f3e](https://github.com/socketio/socket.io/commit/e426f3e8e1bfea5720c32d30a3663303200ee6ad))
+
+
+### Dependencies
+
+- [`engine.io@~6.5.2`](https://github.com/socketio/engine.io/releases/tag/6.5.2) (no change)
+- [`ws@~8.11.0`](https://github.com/websockets/ws/releases/tag/8.11.0) (no change)
+
+
 
 ## [4.7.4](https://github.com/socketio/socket.io/compare/4.7.3...4.7.4) (2024-01-12)
 
