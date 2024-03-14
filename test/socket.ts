@@ -651,7 +651,7 @@ describe("socket", () => {
       });
     });
 
-    it("should use the default value", () => {
+    it("should use the default timeout value", () => {
       return wrap((done) => {
         const socket = io(BASE_URL + "/", {
           ackTimeout: 50,
@@ -660,6 +660,129 @@ describe("socket", () => {
         socket.emit("unknown", (err) => {
           expect(err).to.be.an(Error);
           success(done, socket);
+        });
+      });
+    });
+
+    describe("acknowledgement upon disconnection", () => {
+      it("should not ack upon disconnection (callback)", () => {
+        return wrap((done) => {
+          const socket = io(BASE_URL, {
+            forceNew: true,
+          });
+
+          socket.on("connect", () => {
+            socket.emit("echo", "a", (_value) => {
+              done(new Error("should not happen"));
+            });
+
+            socket.disconnect();
+
+            // @ts-ignore property 'acks' is private
+            expect(Object.keys(socket.acks).length).to.eql(0);
+
+            setTimeout(() => success(done, socket), 100);
+          });
+        });
+      });
+
+      it("should ack with an error upon disconnection (callback & timeout)", () => {
+        return wrap((done) => {
+          const socket = io(BASE_URL, {
+            forceNew: true,
+          });
+
+          socket.on("connect", () => {
+            socket.timeout(10_000).emit("echo", "a", (err) => {
+              expect(err).to.be.an(Error);
+
+              // @ts-ignore property 'acks' is private
+              expect(Object.keys(socket.acks).length).to.eql(0);
+
+              success(done, socket);
+            });
+
+            socket.disconnect();
+          });
+        });
+      });
+
+      it("should ack with an error upon disconnection (callback & ackTimeout)", () => {
+        return wrap((done) => {
+          const socket = io(BASE_URL, {
+            forceNew: true,
+            ackTimeout: 10_000,
+          });
+
+          socket.on("connect", () => {
+            socket.emit("echo", "a", (err) => {
+              expect(err).to.be.an(Error);
+
+              success(done, socket);
+            });
+
+            socket.disconnect();
+          });
+        });
+      });
+
+      it("should ack with an error upon disconnection (promise)", () => {
+        return wrap((done) => {
+          const socket = io(BASE_URL, {
+            forceNew: true,
+          });
+
+          socket.on("connect", () => {
+            socket.emitWithAck("echo", "a").catch((err) => {
+              expect(err).to.be.an(Error);
+
+              success(done, socket);
+            });
+
+            socket.disconnect();
+          });
+        });
+      });
+
+      it("should ack with an error upon disconnection (promise & timeout)", () => {
+        return wrap((done) => {
+          const socket = io(BASE_URL, {
+            forceNew: true,
+          });
+
+          socket.on("connect", () => {
+            socket
+              .timeout(10_000)
+              .emitWithAck("echo", "a")
+              .catch((err) => {
+                expect(err).to.be.an(Error);
+
+                success(done, socket);
+              });
+
+            socket.disconnect();
+          });
+        });
+      });
+
+      it("should not discard an unsent ack (callback)", () => {
+        return wrap((done) => {
+          const socket = io(BASE_URL, {
+            forceNew: true,
+          });
+
+          socket.once("connect", () => {
+            socket.disconnect();
+
+            // the packet will be buffered and sent upon reconnection
+            socket.emit("echo", "a", (value) => {
+              expect(value).to.eql("a");
+
+              success(done, socket);
+            });
+
+            setTimeout(() => socket.connect(), 100);
+          });
         });
       });
     });

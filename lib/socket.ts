@@ -241,7 +241,33 @@ export class Socket<
   private readonly _opts: SocketOptions;
 
   private ids: number = 0;
-  private acks: object = {};
+  /**
+   * A map containing acknowledgement handlers.
+   *
+   * The `withError` attribute is used to differentiate handlers that accept an error as first argument:
+   *
+   * - `socket.emit("test", (err, value) => { ... })` with `ackTimeout` option
+   * - `socket.timeout(5000).emit("test", (err, value) => { ... })`
+   * - `const value = await socket.emitWithAck("test")`
+   *
+   * From those that don't:
+   *
+   * - `socket.emit("test", (value) => { ... });`
+   *
+   * In the first case, the handlers will be called with an error when:
+   *
+   * - the timeout is reached
+   * - the socket gets disconnected
+   *
+   * In the second case, the handlers will be simply discarded upon disconnection, since the client will never receive
+   * an acknowledgement from the server.
+   *
+   * @private
+   */
+  private acks: Record<
+    string,
+    ((...args: any[]) => void) & { withError?: boolean }
+  > = {};
   private flags: Flags = {};
   private subs?: Array<VoidFunction>;
   private _anyListeners: Array<(...args: any[]) => void>;
@@ -409,7 +435,7 @@ export class Socket<
       const id = this.ids++;
       debug("emitting packet with ack id %d", id);
 
-      const ack = args.pop() as Function;
+      const ack = args.pop() as (...args: any[]) => void;
       this._registerAckCallback(id, ack);
       packet.id = id;
     }
@@ -438,7 +464,7 @@ export class Socket<
   /**
    * @private
    */
-  private _registerAckCallback(id: number, ack: Function) {
+  private _registerAckCallback(id: number, ack: (...args: any[]) => void) {
     const timeout = this.flags.timeout ?? this._opts.ackTimeout;
     if (timeout === undefined) {
       this.acks[id] = ack;
@@ -458,11 +484,14 @@ export class Socket<
       ack.call(this, new Error("operation has timed out"));
     }, timeout);
 
-    this.acks[id] = (...args) => {
+    const fn = (...args: any[]) => {
       // @ts-ignore
       this.io.clearTimeoutFn(timer);
-      ack.apply(this, [null, ...args]);
+      ack.apply(this, args);
     };
+    fn.withError = true;
+
+    this.acks[id] = fn;
   }
 
   /**
@@ -485,17 +514,12 @@ export class Socket<
     ev: Ev,
     ...args: AllButLast<EventParams<EmitEvents, Ev>>
   ): Promise<FirstArg<Last<EventParams<EmitEvents, Ev>>>> {
-    // the timeout flag is optional
-    const withErr =
-      this.flags.timeout !== undefined || this._opts.ackTimeout !== undefined;
     return new Promise((resolve, reject) => {
-      args.push((arg1, arg2) => {
-        if (withErr) {
-          return arg1 ? reject(arg1) : resolve(arg2);
-        } else {
-          return resolve(arg1);
-        }
-      });
+      const fn = (arg1, arg2) => {
+        return arg1 ? reject(arg1) : resolve(arg2);
+      };
+      fn.withError = true;
+      args.push(fn);
       this.emit(ev, ...(args as any[] as EventParams<EmitEvents, Ev>));
     });
   }
@@ -647,6 +671,30 @@ export class Socket<
     this.connected = false;
     delete this.id;
     this.emitReserved("disconnect", reason, description);
+    this._clearAcks();
+  }
+
+  /**
+   * Clears the acknowledgement handlers upon disconnection, since the client will never receive an acknowledgement from
+   * the server.
+   *
+   * @private
+   */
+  private _clearAcks() {
+    Object.keys(this.acks).forEach((id) => {
+      const isBuffered = this.sendBuffer.some(
+        (packet) => String(packet.id) === id
+      );
+      if (!isBuffered) {
+        // note: handlers that do not accept an error as first argument are ignored here
+        const ack = this.acks[id];
+        delete this.acks[id];
+
+        if (ack.withError) {
+          ack.call(this, new Error("socket has been disconnected"));
+        }
+      }
+    });
   }
 
   /**
@@ -756,20 +804,25 @@ export class Socket<
   }
 
   /**
-   * Called upon a server acknowlegement.
+   * Called upon a server acknowledgement.
    *
    * @param packet
    * @private
    */
   private onack(packet: Packet): void {
     const ack = this.acks[packet.id];
-    if ("function" === typeof ack) {
-      debug("calling ack %s with %j", packet.id, packet.data);
-      ack.apply(this, packet.data);
-      delete this.acks[packet.id];
-    } else {
+    if (typeof ack !== "function") {
       debug("bad ack %s", packet.id);
+      return;
     }
+    delete this.acks[packet.id];
+    debug("calling ack %s with %j", packet.id, packet.data);
+    // @ts-ignore FIXME ack is incorrectly inferred as 'never'
+    if (ack.withError) {
+      packet.data.unshift(null);
+    }
+    // @ts-ignore
+    ack.apply(this, packet.data);
   }
 
   /**
