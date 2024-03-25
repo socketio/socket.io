@@ -55,6 +55,8 @@ jobs:
           - webpack-build-server
           - basic-crud-application/angular-client
           - basic-crud-application/vue-client
+          - nextjs-pages-router-api-route
+          - nextjs-pages-router-custom-server
 
     steps:
       - name: Checkout repository
