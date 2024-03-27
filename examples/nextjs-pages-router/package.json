@@ -1,5 +1,5 @@
 {
-  "name": "nextjs-pages-router-custom-server",
+  "name": "nextjs-pages-router",
   "version": "0.1.0",
   "private": true,
   "type": "module",
