@@ -16,6 +16,7 @@ describe("socket.io", () => {
   require("./messaging-many");
   require("./middleware");
   require("./socket-middleware");
+  require("./socket-outgoing-middleware");
   require("./v2-compatibility");
   require("./socket-timeout");
   require("./uws");
