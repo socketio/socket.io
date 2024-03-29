@@ -57,6 +57,7 @@ jobs:
           - basic-crud-application/vue-client
           - nextjs-pages-router
           - nextjs-app-router
+          - nuxt-example
 
     steps:
       - name: Checkout repository
