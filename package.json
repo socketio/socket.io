@@ -12,9 +12,9 @@
       "emitter/index.js": "index.js"
     }
   },
-  "main": "index.js",
-  "module": "index.mjs",
-  "types": "index.d.ts",
+  "main": "./lib/cjs/index.js",
+  "module": "./lib/esm/index.js",
+  "types": "./lib/esm/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/socketio/emitter.git"
@@ -23,9 +23,6 @@
     "test": "make test"
   },
   "files": [
-    "index.js",
-    "index.mjs",
-    "index.d.ts",
-    "LICENSE"
+    "lib/"
   ]
 }
