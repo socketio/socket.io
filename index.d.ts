@@ -130,7 +130,7 @@ export class Emitter<
      * @param ev Reserved event name
      * @param args Arguments to emit along with the event
      */
-    protected _emitReserved<Ev extends EventNames<ReservedEvents>>(
+    protected emitReserved<Ev extends EventNames<ReservedEvents>>(
         ev: Ev,
         ...args: EventParams<ReservedEvents, Ev>
     ): this;

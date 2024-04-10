@@ -141,7 +141,7 @@ Emitter.prototype.emit = function(event){
 };
 
 // alias used for reserved events (protected method)
-Emitter.prototype._emitReserved = Emitter.prototype.emit;
+Emitter.prototype.emitReserved = Emitter.prototype.emit;
 
 /**
  * Return array of callbacks for `event`.
