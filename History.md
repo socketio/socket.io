@@ -1,12 +1,19 @@
 # History
 
-- [**4.0.0**](#400-2022-11-22) (Nov 2022)
-- [3.1.0](#310-2022-04-17) (Apr 2022)
-- [**3.0.0**](#300-2021-10-14) (Oct 2021)
-
-
+| Version                      | Date         |
+|------------------------------|--------------|
+| [3.1.1](#311-2024-04-10)     | April 2024   |
+| [**4.0.0**](#400-2022-11-22) | October 2021 |
+| [3.1.0](#310-2022-04-17)     | April 2022   |
+| [**3.0.0**](#300-2021-10-14) | October 2021 |
 
 # Release notes
+
+## [3.1.1](https://github.com/socketio/emitter/compare/4.0.0...3.1.1) (2024-04-10)
+
+This release contains a rework of the dual CommonJS/ES packages. Instead of relying on the `.mjs` file extension, which causes [some problems](https://github.com/socketio/socket.io-client/issues/1598), we will use two `package.json` files, one with `"type": "commonjs"` and the other with `"type": "module"`.
+
+
 
 ## [4.0.0](https://github.com/socketio/emitter/compare/3.1.0...4.0.0) (2022-11-22)
 

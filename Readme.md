@@ -2,6 +2,8 @@
 
   Event emitter component.
 
+This project is a fork of the [`component-emitter`](https://github.com/sindresorhus/component-emitter) project, with [Socket.IO](https://socket.io/)-specific TypeScript typings.
+
 ## Installation
 
 ```
