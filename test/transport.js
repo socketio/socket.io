@@ -222,7 +222,11 @@ describe("Transport", () => {
         });
         polling.doOpen();
       });
-      it("should accept an `agent` option for XMLHttpRequest", (done) => {
+      it("should accept an `agent` option for XMLHttpRequest", function (done) {
+        if (env.useFetch) {
+          return this.skip();
+        }
+
         const polling = new eio.transports.polling({
           path: "/engine.io",
           hostname: "localhost",

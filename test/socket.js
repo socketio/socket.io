@@ -1,6 +1,12 @@
 const expect = require("expect.js");
 const { Socket } = require("../");
-const { isIE11, isAndroid, isEdge, isIPad } = require("./support/env");
+const {
+  isIE11,
+  isAndroid,
+  isEdge,
+  isIPad,
+  useFetch,
+} = require("./support/env");
 const FakeTimers = require("@sinonjs/fake-timers");
 const { repeat } = require("./util");
 
@@ -92,11 +98,15 @@ describe("Socket", function () {
       socket.on("error", (err) => {
         expect(err).to.be.an(Error);
         expect(err.type).to.eql("TransportError");
-        expect(err.message).to.eql("xhr post error");
         expect(err.description).to.eql(413);
-        // err.context is a XMLHttpRequest object
-        expect(err.context.readyState).to.eql(4);
-        expect(err.context.responseText).to.eql("");
+        if (useFetch) {
+          expect(err.message).to.eql("fetch write error");
+        } else {
+          expect(err.message).to.eql("xhr post error");
+          // err.context is a XMLHttpRequest object
+          expect(err.context.readyState).to.eql(4);
+          expect(err.context.responseText).to.eql("");
+        }
       });
 
       socket.on("close", (reason, details) => {
@@ -137,13 +147,17 @@ describe("Socket", function () {
       socket.on("error", (err) => {
         expect(err).to.be.an(Error);
         expect(err.type).to.eql("TransportError");
-        expect(err.message).to.eql("xhr poll error");
         expect(err.description).to.eql(400);
-        // err.context is a XMLHttpRequest object
-        expect(err.context.readyState).to.eql(4);
-        expect(err.context.responseText).to.eql(
-          '{"code":1,"message":"Session ID unknown"}'
-        );
+        if (useFetch) {
+          expect(err.message).to.eql("fetch read error");
+        } else {
+          expect(err.message).to.eql("xhr poll error");
+          // err.context is a XMLHttpRequest object
+          expect(err.context.readyState).to.eql(4);
+          expect(err.context.responseText).to.eql(
+            '{"code":1,"message":"Session ID unknown"}'
+          );
+        }
       });
 
       socket.on("close", (reason, details) => {

@@ -30,3 +30,7 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Run tests with fetch()
+        run: npm run test:node-fetch
+        if: ${{ matrix.node-version == '20' }} # fetch() was added in Node.js v18.0.0 (without experimental flag)

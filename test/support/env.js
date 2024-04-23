@@ -27,3 +27,11 @@ if (typeof location === "undefined") {
     port: 3000,
   };
 }
+
+exports.useFetch = !exports.browser && process.env.USE_FETCH !== undefined;
+
+if (exports.useFetch) {
+  console.warn("testing with fetch() instead of XMLHttpRequest");
+  const { transports, Fetch } = require("../..");
+  transports.polling = Fetch;
+}

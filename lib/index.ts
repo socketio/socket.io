@@ -8,3 +8,6 @@ export { transports } from "./transports/index.js";
 export { installTimerFunctions } from "./util.js";
 export { parse } from "./contrib/parseuri.js";
 export { nextTick } from "./transports/websocket-constructor.js";
+
+export { Fetch } from "./transports/polling-fetch.js";
+export { XHR } from "./transports/polling-xhr.js";

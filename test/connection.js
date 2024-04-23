@@ -199,7 +199,9 @@ describe("connection", function () {
 
   if (env.browser && typeof addEventListener === "function") {
     it("should close the socket when receiving a beforeunload event", (done) => {
-      const socket = new Socket();
+      const socket = new Socket({
+        closeOnBeforeunload: true,
+      });
 
       const createEvent = (name) => {
         if (typeof Event === "function") {

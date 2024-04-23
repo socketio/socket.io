@@ -70,8 +70,7 @@ export function parse(setCookieString: string): Cookie {
 export class CookieJar {
   private cookies = new Map<string, Cookie>();
 
-  public parseCookies(xhr: any) {
-    const values = xhr.getResponseHeader("set-cookie");
+  public parseCookies(values: string[]) {
     if (!values) {
       return;
     }
@@ -98,5 +97,15 @@ export class CookieJar {
       xhr.setDisableHeaderCheck(true);
       xhr.setRequestHeader("cookie", cookies.join("; "));
     }
+  }
+
+  public appendCookies(headers: Headers) {
+    this.cookies.forEach((cookie, name) => {
+      if (cookie.expires?.getTime() < Date.now()) {
+        this.cookies.delete(name);
+      } else {
+        headers.append("cookie", `${name}=${cookie.value}`);
+      }
+    });
   }
 }
