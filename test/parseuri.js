@@ -66,6 +66,6 @@ describe("parseuri", function () {
     expect(relativeWithQuery.path).to.be("/foo");
     expect(relativeWithQuery.query).to.be("bar=@example.com");
 
-    expect(() => parseuri(repeat("a", 2001))).to.throwError("URI too long");
+    expect(() => parseuri(repeat("a", 8001))).to.throwError("URI too long");
   });
 });

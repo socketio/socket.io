@@ -24,7 +24,7 @@ const parts = [
 ];
 
 export function parse(str: string) {
-    if (str.length > 2000) {
+    if (str.length > 8000) {
         throw "URI too long";
     }
 
