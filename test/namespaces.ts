@@ -505,6 +505,7 @@ describe("namespaces", () => {
         .on("connect", (socket) => {
           expect(socket.nsp.name).to.be("/dynamic-101");
           dynamicNsp.emit("hello", 1, "2", { 3: "4" });
+          dynamicNsp.to(socket.id).emit("there", 1, "2", { 3: "4" });
           partialDone();
         })
         .use((socket, next) => {

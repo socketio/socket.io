@@ -48,7 +48,7 @@ export class ParentNamespace<
    * @private
    */
   _initAdapter(): void {
-    this.adapter = new ParentBroadcastAdapter(this, this.children);
+    this.adapter = new ParentBroadcastAdapter(this);
   }
 
   public emit<Ev extends EventNamesWithoutAck<EmitEvents>>(
@@ -113,12 +113,12 @@ export class ParentNamespace<
  * @private file
  */
 class ParentBroadcastAdapter extends Adapter {
-  constructor(parentNsp: any, private readonly children: Set<Namespace>) {
+  constructor(private readonly parentNsp: any) {
     super(parentNsp);
   }
 
   broadcast(packet: any, opts: BroadcastOptions) {
-    this.children.forEach((nsp) => {
+    this.parentNsp.children.forEach((nsp) => {
       nsp.adapter.broadcast(packet, opts);
     });
   }
