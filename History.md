@@ -2,12 +2,22 @@
 
 | Version                      | Date         |
 |------------------------------|--------------|
+| [3.1.2](#312-2024-04-26)     | April 2024   |
 | [3.1.1](#311-2024-04-10)     | April 2024   |
 | [**4.0.0**](#400-2022-11-22) | October 2021 |
 | [3.1.0](#310-2022-04-17)     | April 2022   |
 | [**3.0.0**](#300-2021-10-14) | October 2021 |
 
 # Release notes
+
+## [3.1.2](https://github.com/socketio/emitter/compare/3.1.1...3.1.2) (2024-04-26)
+
+
+### Bug Fixes
+
+* point towards the CommonJS types ([e6aa1a3](https://github.com/socketio/emitter/commit/e6aa1a331c37697b9de7e91b7db286eac245c8d7))
+
+
 
 ## [3.1.1](https://github.com/socketio/emitter/compare/4.0.0...3.1.1) (2024-04-10)
 
