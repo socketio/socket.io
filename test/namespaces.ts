@@ -505,7 +505,6 @@ describe("namespaces", () => {
         .on("connect", (socket) => {
           expect(socket.nsp.name).to.be("/dynamic-101");
           dynamicNsp.emit("hello", 1, "2", { 3: "4" });
-          dynamicNsp.to(socket.id).emit("there", 1, "2", { 3: "4" });
           partialDone();
         })
         .use((socket, next) => {
@@ -522,6 +521,37 @@ describe("namespaces", () => {
         expect(a).to.eql(1);
         expect(b).to.eql("2");
         expect(c).to.eql({ 3: "4" });
+        partialDone();
+      });
+    });
+
+    it("should allow connections to dynamic namespaces with a regex and emit in a room", (done) => {
+      const io = new Server(0);
+      const socket = createClient(io, "/dynamic-101");
+      const partialDone = createPartialDone(4, successFn(done, io, socket));
+
+      let dynamicNsp = io
+        .of(/^\/dynamic-\d+$/)
+        .on("connect", (socket) => {
+          expect(socket.nsp.name).to.be("/dynamic-101");
+          socket.join("some-room");
+          dynamicNsp.to("some-room").emit("hello", 4, "3", { 2: "1" });
+          partialDone();
+        })
+        .use((socket, next) => {
+          next();
+          partialDone();
+        });
+      socket.on("connect_error", (err) => {
+        expect().fail();
+      });
+      socket.on("connect", () => {
+        partialDone();
+      });
+      socket.on("hello", (a, b, c) => {
+        expect(a).to.eql(4);
+        expect(b).to.eql("3");
+        expect(c).to.eql({ 2: "1" });
         partialDone();
       });
     });

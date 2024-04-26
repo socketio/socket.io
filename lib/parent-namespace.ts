@@ -113,12 +113,8 @@ export class ParentNamespace<
  * @private file
  */
 class ParentBroadcastAdapter extends Adapter {
-  constructor(private readonly parentNsp: any) {
-    super(parentNsp);
-  }
-
   broadcast(packet: any, opts: BroadcastOptions) {
-    this.parentNsp.children.forEach((nsp) => {
+    this.nsp.children.forEach((nsp) => {
       nsp.adapter.broadcast(packet, opts);
     });
   }
