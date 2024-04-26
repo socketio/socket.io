@@ -14,7 +14,7 @@
   },
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
-  "types": "./lib/esm/index.d.ts",
+  "types": "./lib/cjs/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/socketio/emitter.git"
