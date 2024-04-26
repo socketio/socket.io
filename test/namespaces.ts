@@ -525,6 +525,37 @@ describe("namespaces", () => {
       });
     });
 
+    it("should allow connections to dynamic namespaces with a regex and emit in a room", (done) => {
+      const io = new Server(0);
+      const socket = createClient(io, "/dynamic-101");
+      const partialDone = createPartialDone(4, successFn(done, io, socket));
+
+      let dynamicNsp = io
+        .of(/^\/dynamic-\d+$/)
+        .on("connect", (socket) => {
+          expect(socket.nsp.name).to.be("/dynamic-101");
+          socket.join("some-room");
+          dynamicNsp.to("some-room").emit("hello", 4, "3", { 2: "1" });
+          partialDone();
+        })
+        .use((socket, next) => {
+          next();
+          partialDone();
+        });
+      socket.on("connect_error", (err) => {
+        expect().fail();
+      });
+      socket.on("connect", () => {
+        partialDone();
+      });
+      socket.on("hello", (a, b, c) => {
+        expect(a).to.eql(4);
+        expect(b).to.eql("3");
+        expect(c).to.eql({ 2: "1" });
+        partialDone();
+      });
+    });
+
     it("should allow connections to dynamic namespaces with a function", (done) => {
       const io = new Server(0);
       const socket = createClient(io, "/dynamic-101");
