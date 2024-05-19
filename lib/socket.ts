@@ -231,21 +231,25 @@ interface SocketReservedEvents {
   handshake: (data: HandshakeData) => void;
   packet: (packet: Packet) => void;
   packetCreate: (packet: Packet) => void;
-  data: (data) => void;
-  message: (data) => void;
+  data: (data: RawData) => void;
+  message: (data: RawData) => void;
   drain: () => void;
   flush: () => void;
   heartbeat: () => void;
   ping: () => void;
   pong: () => void;
   error: (err: string | Error) => void;
-  upgrading: (transport) => void;
-  upgrade: (transport) => void;
+  upgrading: (transport: Transport) => void;
+  upgrade: (transport: Transport) => void;
   upgradeError: (err: Error) => void;
   close: (reason: string, description?: CloseDetails | Error) => void;
 }
 
 type SocketState = "opening" | "open" | "closing" | "closed";
+
+interface WriteOptions {
+  compress?: boolean;
+}
 
 export class Socket extends Emitter<
   Record<never, never>,
@@ -407,7 +411,7 @@ export class Socket extends Emitter<
    * @return {Transport}
    * @private
    */
-  private createTransport(name) {
+  private createTransport(name: string) {
     debug('creating transport "%s"', name);
     const query: any = Object.assign({}, this.opts.query);
 
@@ -481,7 +485,7 @@ export class Socket extends Emitter<
    *
    * @private
    */
-  private setTransport(transport) {
+  private setTransport(transport: Transport) {
     debug("setting transport %s", transport.name);
 
     if (this.transport) {
@@ -506,7 +510,7 @@ export class Socket extends Emitter<
    * @param {String} name - transport name
    * @private
    */
-  private probe(name) {
+  private probe(name: string) {
     debug('probing transport "%s"', name);
     let transport = this.createTransport(name);
     let failed = false;
@@ -654,7 +658,7 @@ export class Socket extends Emitter<
    *
    * @private
    */
-  private onPacket(packet) {
+  private onPacket(packet: Packet) {
     if (
       "opening" === this.readyState ||
       "open" === this.readyState ||
@@ -808,15 +812,23 @@ export class Socket extends Emitter<
    *
    * @param {String} msg - message.
    * @param {Object} options.
-   * @param {Function} callback function.
+   * @param {Function} fn - callback function.
    * @return {Socket} for chaining.
    */
-  public write(msg: RawData, options?, fn?) {
+  public write(msg: RawData, options?: WriteOptions, fn?: () => void) {
     this.sendPacket("message", msg, options, fn);
     return this;
   }
 
-  public send(msg: RawData, options?, fn?) {
+  /**
+   * Sends a message. Alias of {@link Socket#write}.
+   *
+   * @param {String} msg - message.
+   * @param {Object} options.
+   * @param {Function} fn - callback function.
+   * @return {Socket} for chaining.
+   */
+  public send(msg: RawData, options?: WriteOptions, fn?: () => void) {
     this.sendPacket("message", msg, options, fn);
     return this;
   }
@@ -830,7 +842,12 @@ export class Socket extends Emitter<
    * @param {Function} fn - callback function.
    * @private
    */
-  private sendPacket(type: PacketType, data?: RawData, options?, fn?) {
+  private sendPacket(
+    type: PacketType,
+    data?: RawData,
+    options?: WriteOptions,
+    fn?: () => void
+  ) {
     if ("function" === typeof data) {
       fn = data;
       data = undefined;
@@ -851,7 +868,7 @@ export class Socket extends Emitter<
     const packet = {
       type: type,
       data: data,
-      options: options,
+      options: options as { compress: boolean },
     };
     this.emitReserved("packetCreate", packet);
     this.writeBuffer.push(packet);
@@ -907,7 +924,7 @@ export class Socket extends Emitter<
    *
    * @private
    */
-  private onError(err) {
+  private onError(err: Error) {
     debug("socket error %j", err);
     Socket.priorWebsocketSuccess = false;
     this.emitReserved("error", err);
@@ -970,11 +987,9 @@ export class Socket extends Emitter<
    * @param {Array} upgrades - server upgrades
    * @private
    */
-  private filterUpgrades(upgrades) {
+  private filterUpgrades(upgrades: string[]) {
     const filteredUpgrades = [];
-    let i = 0;
-    const j = upgrades.length;
-    for (; i < j; i++) {
+    for (let i = 0; i < upgrades.length; i++) {
       if (~this.transports.indexOf(upgrades[i]))
         filteredUpgrades.push(upgrades[i]);
     }
