@@ -183,8 +183,9 @@ export interface SocketOptions {
   useNativeTimers: boolean;
 
   /**
-   * weather we should unref the reconnect timer when it is
-   * create automatically
+   * Whether the heartbeat timer should be unref'ed, in order not to keep the Node.js event loop active.
+   *
+   * @see https://nodejs.org/api/timers.html#timeoutunref
    * @default false
    */
   autoUnref: boolean;
