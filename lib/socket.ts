@@ -15,27 +15,27 @@ export interface SocketOptions {
   /**
    * The host that we're connecting to. Set from the URI passed when connecting
    */
-  host: string;
+  host?: string;
 
   /**
    * The hostname for our connection. Set from the URI passed when connecting
    */
-  hostname: string;
+  hostname?: string;
 
   /**
    * If this is a secure connection. Set from the URI passed when connecting
    */
-  secure: boolean;
+  secure?: boolean;
 
   /**
    * The port for our connection. Set from the URI passed when connecting
    */
-  port: string | number;
+  port?: string | number;
 
   /**
    * Any query parameters in our uri. Set from the URI passed when connecting
    */
-  query: { [key: string]: any };
+  query?: { [key: string]: any };
 
   /**
    * `http.Agent` to use, defaults to `false` (NodeJS only)
@@ -44,27 +44,27 @@ export interface SocketOptions {
    *
    * @see https://nodejs.org/api/http.html#httprequestoptions-callback
    */
-  agent: string | boolean;
+  agent?: string | boolean;
 
   /**
    * Whether the client should try to upgrade the transport from
    * long-polling to something better.
    * @default true
    */
-  upgrade: boolean;
+  upgrade?: boolean;
 
   /**
    * Forces base 64 encoding for polling transport even when XHR2
    * responseType is available and WebSocket even if the used standard
    * supports binary.
    */
-  forceBase64: boolean;
+  forceBase64?: boolean;
 
   /**
    * The param name to use as our timestamp key
    * @default 't'
    */
-  timestampParam: string;
+  timestampParam?: string;
 
   /**
    * Whether to add the timestamp with each transport request. Note: this
@@ -72,7 +72,7 @@ export interface SocketOptions {
    * are always stamped
    * @default false
    */
-  timestampRequests: boolean;
+  timestampRequests?: boolean;
 
   /**
    * A list of transports to try (in order). Engine.io always attempts to
@@ -81,7 +81,7 @@ export interface SocketOptions {
    *
    * @default ['polling','websocket', 'webtransport']
    */
-  transports: string[];
+  transports?: string[];
 
   /**
    * If true and if the previous websocket connection to the server succeeded,
@@ -92,50 +92,50 @@ export interface SocketOptions {
    * not block websockets.
    * @default false
    */
-  rememberUpgrade: boolean;
+  rememberUpgrade?: boolean;
 
   /**
    * Timeout for xhr-polling requests in milliseconds (0) (only for polling transport)
    */
-  requestTimeout: number;
+  requestTimeout?: number;
 
   /**
    * Transport options for Node.js client (headers etc)
    */
-  transportOptions: Object;
+  transportOptions?: Object;
 
   /**
    * (SSL) Certificate, Private key and CA certificates to use for SSL.
    * Can be used in Node.js client environment to manually specify
    * certificate information.
    */
-  pfx: string;
+  pfx?: string;
 
   /**
    * (SSL) Private key to use for SSL. Can be used in Node.js client
    * environment to manually specify certificate information.
    */
-  key: string;
+  key?: string;
 
   /**
    * (SSL) A string or passphrase for the private key or pfx. Can be
    * used in Node.js client environment to manually specify certificate
    * information.
    */
-  passphrase: string;
+  passphrase?: string;
 
   /**
    * (SSL) Public x509 certificate to use. Can be used in Node.js client
    * environment to manually specify certificate information.
    */
-  cert: string;
+  cert?: string;
 
   /**
    * (SSL) An authority certificate or array of authority certificates to
    * check the remote host against.. Can be used in Node.js client
    * environment to manually specify certificate information.
    */
-  ca: string | string[];
+  ca?: string | string[];
 
   /**
    * (SSL) A string describing the ciphers to use or exclude. Consult the
@@ -144,7 +144,7 @@ export interface SocketOptions {
    * details on the format.. Can be used in Node.js client environment to
    * manually specify certificate information.
    */
-  ciphers: string;
+  ciphers?: string;
 
   /**
    * (SSL) If true, the server certificate is verified against the list of
@@ -153,7 +153,7 @@ export interface SocketOptions {
    * is sent. Can be used in Node.js client environment to manually specify
    * certificate information.
    */
-  rejectUnauthorized: boolean;
+  rejectUnauthorized?: boolean;
 
   /**
    * Headers that will be passed for each request to the server (via xhr-polling and via websockets).
@@ -166,13 +166,13 @@ export interface SocketOptions {
    * client certificates, etc.) with cross-origin XHR polling requests
    * @default false
    */
-  withCredentials: boolean;
+  withCredentials?: boolean;
 
   /**
    * Whether to automatically close the connection whenever the beforeunload event is received.
    * @default false
    */
-  closeOnBeforeunload: boolean;
+  closeOnBeforeunload?: boolean;
 
   /**
    * Whether to always use the native timeouts. This allows the client to
@@ -180,7 +180,7 @@ export interface SocketOptions {
    * mock clocks are installed.
    * @default false
    */
-  useNativeTimers: boolean;
+  useNativeTimers?: boolean;
 
   /**
    * Whether the heartbeat timer should be unref'ed, in order not to keep the Node.js event loop active.
@@ -188,26 +188,26 @@ export interface SocketOptions {
    * @see https://nodejs.org/api/timers.html#timeoutunref
    * @default false
    */
-  autoUnref: boolean;
+  autoUnref?: boolean;
 
   /**
    * parameters of the WebSocket permessage-deflate extension (see ws module api docs). Set to false to disable.
    * @default false
    */
-  perMessageDeflate: { threshold: number };
+  perMessageDeflate?: { threshold: number };
 
   /**
    * The path to get our client file from, in the case of the server
    * serving it
    * @default '/engine.io'
    */
-  path: string;
+  path?: string;
 
   /**
    * Whether we should add a trailing slash to the request path.
    * @default true
    */
-  addTrailingSlash: boolean;
+  addTrailingSlash?: boolean;
 
   /**
    * Either a single protocol string or an array of protocol strings. These strings are used to indicate sub-protocols,
@@ -215,7 +215,7 @@ export interface SocketOptions {
    * be able to handle different types of interactions depending on the specified protocol)
    * @default []
    */
-  protocols: string | string[];
+  protocols?: string | string[];
 }
 
 interface HandshakeData {
@@ -285,7 +285,9 @@ export class Socket extends Emitter<
    * @param {String|Object} uri - uri or options
    * @param {Object} opts - options
    */
-  constructor(uri, opts: Partial<SocketOptions> = {}) {
+  constructor(uri?: string, opts?: SocketOptions);
+  constructor(opts: SocketOptions);
+  constructor(uri?: string | SocketOptions, opts: SocketOptions = {}) {
     super();
 
     if (uri && "object" === typeof uri) {
@@ -294,11 +296,12 @@ export class Socket extends Emitter<
     }
 
     if (uri) {
-      uri = parse(uri);
-      opts.hostname = uri.host;
-      opts.secure = uri.protocol === "https" || uri.protocol === "wss";
-      opts.port = uri.port;
-      if (uri.query) opts.query = uri.query;
+      const parsedUri = parse(uri as string);
+      opts.hostname = parsedUri.host;
+      opts.secure =
+        parsedUri.protocol === "https" || parsedUri.protocol === "wss";
+      opts.port = parsedUri.port;
+      if (parsedUri.query) opts.query = parsedUri.query;
     } else if (opts.host) {
       opts.hostname = parse(opts.host).host;
     }
