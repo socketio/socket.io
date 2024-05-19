@@ -95,11 +95,6 @@ export interface SocketOptions {
   rememberUpgrade: boolean;
 
   /**
-   * Are we only interested in transports that support binary?
-   */
-  onlyBinaryUpgrades: boolean;
-
-  /**
    * Timeout for xhr-polling requests in milliseconds (0) (only for polling transport)
    */
   requestTimeout: number;

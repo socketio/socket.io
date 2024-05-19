@@ -255,8 +255,6 @@ Exposed as `eio` in the browser standalone build.
         (see [ws module](https://github.com/einaros/ws) api docs). Set to `false` to disable. (`true`)
         - `threshold` (`Number`): data is compressed only if the byte size is above this value. This option is ignored on the browser. (`1024`)
       - `extraHeaders` (`Object`): Headers that will be passed for each request to the server (via xhr-polling and via websockets). These values then can be used during handshake or for special proxies. Can only be used in Node.js client environment.
-      - `onlyBinaryUpgrades` (`Boolean`): whether transport upgrades should be restricted to transports supporting binary data (`false`)
-      - `forceNode` (`Boolean`): Uses NodeJS implementation for websockets - even if there is a native Browser-Websocket available, which is preferred by default over the NodeJS implementation. (This is useful when using hybrid platforms like nw.js or electron) (`false`, NodeJS only)
       - `localAddress` (`String`): the local IP address to connect to
       - `autoUnref` (`Boolean`): whether the transport should be `unref`'d upon creation. This calls `unref` on the underlying timers and sockets so that the program is allowed to exit if they are the only timers/sockets in the event system (Node.js only)
       - `useNativeTimers` (`Boolean`): Whether to always use the native timeouts. This allows the client to reconnect when the native timeout functions are overridden, such as when mock clocks are installed with [`@sinonjs/fake-timers`](https://github.com/sinonjs/fake-timers).
