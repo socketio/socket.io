@@ -448,34 +448,23 @@ export class Socket extends Emitter<
    * @private
    */
   private open() {
-    let transport;
-    if (
-      this.opts.rememberUpgrade &&
-      Socket.priorWebsocketSuccess &&
-      this.transports.indexOf("websocket") !== -1
-    ) {
-      transport = "websocket";
-    } else if (0 === this.transports.length) {
+    if (this.transports.length === 0) {
       // Emit error on next tick so it can be listened to
       this.setTimeoutFn(() => {
         this.emitReserved("error", "No transports available");
       }, 0);
       return;
-    } else {
-      transport = this.transports[0];
     }
+
+    const transportName =
+      this.opts.rememberUpgrade &&
+      Socket.priorWebsocketSuccess &&
+      this.transports.indexOf("websocket") !== -1
+        ? "websocket"
+        : this.transports[0];
     this.readyState = "opening";
 
-    // Retry with the next transport if the transport is disabled (jsonp: false)
-    try {
-      transport = this.createTransport(transport);
-    } catch (e) {
-      debug("error while creating transport: %s", e);
-      this.transports.shift();
-      this.open();
-      return;
-    }
-
+    const transport = this.createTransport(transportName);
     transport.open();
     this.setTransport(transport);
   }
