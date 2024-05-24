@@ -169,6 +169,7 @@ export class Server<
    *
    */
   public engine: BaseServer;
+  public httpServer: TServerInstance;
 
   /** @private */
   readonly _parser: typeof parser;
@@ -209,7 +210,6 @@ export class Server<
    * @private
    */
   _connectTimeout: number;
-  private httpServer: TServerInstance;
   private _corsMiddleware: (
     req: http.IncomingMessage,
     res: http.ServerResponse,
