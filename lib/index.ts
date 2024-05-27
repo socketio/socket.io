@@ -169,6 +169,11 @@ export class Server<
    *
    */
   public engine: BaseServer;
+  /**
+   * The underlying Node.js HTTP server.
+   *
+   * @see https://nodejs.org/api/http.html
+   */
   public httpServer: TServerInstance;
 
   /** @private */
