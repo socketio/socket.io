@@ -169,6 +169,12 @@ export class Server<
    *
    */
   public engine: BaseServer;
+  /**
+   * The underlying Node.js HTTP server.
+   *
+   * @see https://nodejs.org/api/http.html
+   */
+  public httpServer: TServerInstance;
 
   /** @private */
   readonly _parser: typeof parser;
@@ -209,7 +215,6 @@ export class Server<
    * @private
    */
   _connectTimeout: number;
-  private httpServer: TServerInstance;
   private _corsMiddleware: (
     req: http.IncomingMessage,
     res: http.ServerResponse,

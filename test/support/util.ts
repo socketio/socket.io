@@ -7,6 +7,7 @@ import {
   SocketOptions,
 } from "socket.io-client";
 import request from "supertest";
+import type { AddressInfo } from "node:net";
 import type { DefaultEventsMap, EventsMap } from "../../lib/typed-events";
 
 const expect = require("expect.js");
@@ -40,8 +41,7 @@ export function createClient<
   nsp: string = "/",
   opts?: Partial<ManagerOptions & SocketOptions>
 ): ClientSocket<STC, CTS> {
-  // @ts-ignore
-  const port = io.httpServer.address().port;
+  const port = (io.httpServer.address() as AddressInfo).port;
   return ioc(`http://localhost:${port}${nsp}`, opts);
 }
 
@@ -74,8 +74,7 @@ export function assert(condition: any): asserts condition {
 }
 
 export function getPort(io: Server): number {
-  // @ts-ignore
-  return io.httpServer.address().port;
+  return (io.httpServer.address() as AddressInfo).port;
 }
 
 export function createPartialDone(count: number, done: (err?: Error) => void) {
