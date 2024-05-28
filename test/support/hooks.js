@@ -19,6 +19,12 @@ exports.mochaHooks = {
     engine = attach(httpServer, {
       pingInterval: 500,
       maxHttpBufferSize: 100,
+      allowRequest: (req, fn) => {
+        const denyRequest = new URL(`http://${req.url}`).searchParams.has(
+          "deny"
+        );
+        fn(null, !denyRequest);
+      },
     });
 
     rollup(rollupConfig).then(async (bundle) => {

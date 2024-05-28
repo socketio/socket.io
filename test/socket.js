@@ -37,6 +37,66 @@ describe("Socket", function () {
     });
   });
 
+  it("should connect with the 2nd transport if tryAllTransports is `true` (polling)", (done) => {
+    const socket = new Socket({
+      transports: ["websocket", "polling"],
+      transportOptions: {
+        websocket: {
+          query: {
+            deny: 1,
+          },
+        },
+      },
+      tryAllTransports: true,
+    });
+
+    socket.on("open", () => {
+      expect(socket.transport.name).to.eql("polling");
+      socket.close();
+      done();
+    });
+  });
+
+  it("should connect with the 2nd transport if tryAllTransports is `true` (websocket)", (done) => {
+    const socket = new Socket({
+      transports: ["polling", "websocket"],
+      transportOptions: {
+        polling: {
+          query: {
+            deny: 1,
+          },
+        },
+      },
+      tryAllTransports: true,
+    });
+
+    socket.on("open", () => {
+      expect(socket.transport.name).to.eql("websocket");
+      socket.close();
+      done();
+    });
+  });
+
+  it("should not connect with the 2nd transport if tryAllTransports is `false`", (done) => {
+    const socket = new Socket({
+      transports: ["polling", "websocket"],
+      transportOptions: {
+        polling: {
+          query: {
+            deny: 1,
+          },
+        },
+      },
+    });
+
+    socket.on("error", (err) => {
+      expect(err.message).to.eql(
+        useFetch ? "fetch read error" : "xhr poll error"
+      );
+      done();
+    });
+  });
+
   describe("fake timers", function () {
     before(function () {
       if (isIE11 || isAndroid || isEdge || isIPad) {

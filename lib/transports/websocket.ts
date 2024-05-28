@@ -17,6 +17,10 @@ const isReactNative =
   typeof navigator.product === "string" &&
   navigator.product.toLowerCase() === "reactnative";
 
+/**
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
+ * @see https://caniuse.com/mdn-api_websocket
+ */
 export class WS extends Transport {
   private ws: any;
 
@@ -37,11 +41,6 @@ export class WS extends Transport {
   }
 
   override doOpen() {
-    if (!this.check()) {
-      // let probe timeout
-      return;
-    }
-
     const uri = this.uri();
     const protocols = this.opts.protocols;
 
@@ -188,15 +187,5 @@ export class WS extends Transport {
     }
 
     return this.createUri(schema, query);
-  }
-
-  /**
-   * Feature detection for WebSocket.
-   *
-   * @return {Boolean} whether this transport is available.
-   * @private
-   */
-  private check() {
-    return !!WebSocket;
   }
 }

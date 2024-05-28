@@ -9,6 +9,10 @@ import debugModule from "debug"; // debug()
 
 const debug = debugModule("engine.io-client:webtransport"); // debug()
 
+/**
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/WebTransport
+ * @see https://caniuse.com/webtransport
+ */
 export class WT extends Transport {
   private transport: any;
   private writer: any;
@@ -18,15 +22,15 @@ export class WT extends Transport {
   }
 
   protected doOpen() {
-    // @ts-ignore
-    if (typeof WebTransport !== "function") {
-      return;
+    try {
+      // @ts-ignore
+      this.transport = new WebTransport(
+        this.createUri("https"),
+        this.opts.transportOptions[this.name]
+      );
+    } catch (err) {
+      return this.emitReserved("error", err);
     }
-    // @ts-ignore
-    this.transport = new WebTransport(
-      this.createUri("https"),
-      this.opts.transportOptions[this.name]
-    );
 
     this.transport.closed
       .then(() => {

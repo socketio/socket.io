@@ -84,6 +84,19 @@ export interface SocketOptions {
   transports?: string[];
 
   /**
+   * Whether all the transports should be tested, instead of just the first one.
+   *
+   * If set to `true`, the client will first try to connect with HTTP long-polling, and then with WebSocket in case of
+   * failure, and finally with WebTransport if the previous attempts have failed.
+   *
+   * If set to `false` (default), if the connection with HTTP long-polling fails, then the client will not test the
+   * other transports and will abort the connection.
+   *
+   * @default false
+   */
+  tryAllTransports?: boolean;
+
+  /**
    * If true and if the previous websocket connection to the server succeeded,
    * the connection attempt will bypass the normal upgrade process and will
    * initially try websocket. A connection attempt following a transport error
@@ -916,6 +929,17 @@ export class Socket extends Emitter<
   private onError(err: Error) {
     debug("socket error %j", err);
     Socket.priorWebsocketSuccess = false;
+
+    if (
+      this.opts.tryAllTransports &&
+      this.transports.length > 1 &&
+      this.readyState === "opening"
+    ) {
+      debug("trying next transport");
+      this.transports.shift();
+      return this.open();
+    }
+
     this.emitReserved("error", err);
     this.onClose("transport error", err);
   }
