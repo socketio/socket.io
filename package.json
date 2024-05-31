@@ -65,7 +65,6 @@
     "@babel/preset-env": "^7.12.7",
     "@fails-components/webtransport": "^0.1.7",
     "@rollup/plugin-babel": "^5.3.0",
-    "@rollup/plugin-commonjs": "^21.0.0",
     "@rollup/plugin-node-resolve": "^13.0.5",
     "@sinonjs/fake-timers": "^7.1.2",
     "@types/debug": "^4.1.12",
