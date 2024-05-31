@@ -1,37 +1,25 @@
 import { Polling } from "./polling.js";
-import {
-  CookieJar,
-  createCookieJar,
-  XHR as XMLHttpRequest,
-} from "./xmlhttprequest.js";
 import { Emitter } from "@socket.io/component-emitter";
 import type { SocketOptions } from "../socket.js";
 import { installTimerFunctions, pick } from "../util.js";
-import { globalThisShim as globalThis } from "../globalThis.js";
+import {
+  globalThisShim as globalThis,
+  createCookieJar,
+} from "../globals.node.js";
+import type { CookieJar } from "../globals.node.js";
 import type { RawData } from "engine.io-parser";
+import { hasCORS } from "../contrib/has-cors.js";
 import debugModule from "debug"; // debug()
 
 const debug = debugModule("engine.io-client:polling"); // debug()
 
 function empty() {}
 
-const hasXHR2 = (function () {
-  const xhr = new XMLHttpRequest({
-    xdomain: false,
-  });
-  return null != xhr.responseType;
-})();
-
-/**
- * HTTP long-polling based on `XMLHttpRequest`
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
- */
-export class XHR extends Polling {
-  private readonly xd: boolean;
+export abstract class BaseXHR extends Polling {
+  protected readonly xd: boolean;
+  protected readonly cookieJar?: CookieJar;
 
   private pollXhr: any;
-  private cookieJar?: CookieJar;
 
   /**
    * XHR Polling constructor.
@@ -56,11 +44,6 @@ export class XHR extends Polling {
           opts.hostname !== location.hostname) ||
         port !== opts.port;
     }
-    /**
-     * XHR supports binary
-     */
-    const forceBase64 = opts && opts.forceBase64;
-    this.supportsBinary = hasXHR2 && !forceBase64;
 
     if (this.opts.withCredentials) {
       this.cookieJar = createCookieJar();
@@ -70,13 +53,9 @@ export class XHR extends Polling {
   /**
    * Creates a request.
    *
-   * @param {String} method
    * @private
    */
-  request(opts = {}) {
-    Object.assign(opts, { xd: this.xd, cookieJar: this.cookieJar }, this.opts);
-    return new Request(this.uri(), opts);
-  }
+  abstract request(opts?: Record<string, any>);
 
   /**
    * Sends data.
@@ -118,8 +97,19 @@ interface RequestReservedEvents {
   error: (err: number | Error, context: unknown) => void; // context should be typed as XMLHttpRequest, but this type is not available on non-browser platforms
 }
 
-export class Request extends Emitter<{}, {}, RequestReservedEvents> {
-  private readonly opts: { xd; cookieJar: CookieJar } & SocketOptions;
+export type RequestOptions = SocketOptions & {
+  method?: string;
+  data?: RawData;
+  xd: boolean;
+  cookieJar: CookieJar;
+};
+
+export class Request extends Emitter<
+  Record<never, never>,
+  Record<never, never>,
+  RequestReservedEvents
+> {
+  private readonly opts: RequestOptions;
   private readonly method: string;
   private readonly uri: string;
   private readonly data: string | ArrayBuffer;
@@ -137,7 +127,11 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
    * @param {Object} options
    * @package
    */
-  constructor(uri, opts) {
+  constructor(
+    private readonly createRequest: (opts: RequestOptions) => XMLHttpRequest,
+    uri: string,
+    opts: RequestOptions
+  ) {
     super();
     installTimerFunctions(this, opts);
     this.opts = opts;
@@ -169,13 +163,14 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
     );
     opts.xdomain = !!this.opts.xd;
 
-    const xhr = (this.xhr = new XMLHttpRequest(opts));
+    const xhr = (this.xhr = this.createRequest(opts));
 
     try {
       debug("xhr open %s: %s", this.method, this.uri);
       xhr.open(this.method, this.uri, true);
       try {
         if (this.opts.extraHeaders) {
+          // @ts-ignore
           xhr.setDisableHeaderCheck && xhr.setDisableHeaderCheck(true);
           for (let i in this.opts.extraHeaders) {
             if (this.opts.extraHeaders.hasOwnProperty(i)) {
@@ -209,6 +204,7 @@ export class Request extends Emitter<{}, {}, RequestReservedEvents> {
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 3) {
           this.opts.cookieJar?.parseCookies(
+            // @ts-ignore
             xhr.getResponseHeader("set-cookie")
           );
         }
@@ -323,5 +319,51 @@ function unloadHandler() {
     if (Request.requests.hasOwnProperty(i)) {
       Request.requests[i].abort();
     }
+  }
+}
+
+const hasXHR2 = (function () {
+  const xhr = newRequest({
+    xdomain: false,
+  });
+  return xhr && xhr.responseType !== null;
+})();
+
+/**
+ * HTTP long-polling based on the built-in `XMLHttpRequest` object.
+ *
+ * Usage: browser
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+ */
+export class XHR extends BaseXHR {
+  constructor(opts) {
+    super(opts);
+    const forceBase64 = opts && opts.forceBase64;
+    this.supportsBinary = hasXHR2 && !forceBase64;
+  }
+
+  request(opts: Record<string, any> = {}) {
+    Object.assign(opts, { xd: this.xd, cookieJar: this.cookieJar }, this.opts);
+    return new Request(newRequest, this.uri(), opts as RequestOptions);
+  }
+}
+
+function newRequest(opts) {
+  const xdomain = opts.xdomain;
+
+  // XMLHttpRequest can be disabled on IE
+  try {
+    if ("undefined" !== typeof XMLHttpRequest && (!xdomain || hasCORS)) {
+      return new XMLHttpRequest();
+    }
+  } catch (e) {}
+
+  if (!xdomain) {
+    try {
+      return new globalThis[["Active"].concat("Object").join("X")](
+        "Microsoft.XMLHTTP"
+      );
+    } catch (e) {}
   }
 }

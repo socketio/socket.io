@@ -3,8 +3,8 @@
   "type": "commonjs",
   "browser": {
     "ws": false,
-    "./transports/xmlhttprequest.js": "./transports/xmlhttprequest.browser.js",
-    "./transports/websocket-constructor.js": "./transports/websocket-constructor.browser.js",
-    "./globalThis.js": "./globalThis.browser.js"
+    "./transports/polling-xhr.node.js": "./transports/polling-xhr.js",
+    "./transports/websocket.node.js": "./transports/websocket.js",
+    "./globals.node.js": "./globals.js"
   }
 }

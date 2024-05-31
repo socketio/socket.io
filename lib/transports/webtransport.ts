@@ -1,5 +1,5 @@
 import { Transport } from "../transport.js";
-import { nextTick } from "./websocket-constructor.js";
+import { nextTick } from "../globals.node.js";
 import {
   Packet,
   createPacketDecoderStream,
@@ -10,6 +10,10 @@ import debugModule from "debug"; // debug()
 const debug = debugModule("engine.io-client:webtransport"); // debug()
 
 /**
+ * WebTransport transport based on the built-in `WebTransport` object.
+ *
+ * Usage: browser, Node.js (with the `@fails-components/webtransport` package)
+ *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/WebTransport
  * @see https://caniuse.com/webtransport
  */

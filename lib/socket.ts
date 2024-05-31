@@ -1,13 +1,13 @@
-import { transports } from "./transports/index.js";
+import { transports as DEFAULT_TRANSPORTS } from "./transports/index.js";
 import { installTimerFunctions, byteLength } from "./util.js";
 import { decode } from "./contrib/parseqs.js";
 import { parse } from "./contrib/parseuri.js";
-import debugModule from "debug"; // debug()
 import { Emitter } from "@socket.io/component-emitter";
 import { protocol } from "engine.io-parser";
 import type { Packet, BinaryType, PacketType, RawData } from "engine.io-parser";
 import { CloseDetails, Transport } from "./transport.js";
-import { defaultBinaryType } from "./transports/websocket-constructor.js";
+import { defaultBinaryType } from "./globals.node.js";
+import debugModule from "debug"; // debug()
 
 const debug = debugModule("engine.io-client:socket"); // debug()
 
@@ -81,7 +81,7 @@ export interface SocketOptions {
    *
    * @default ['polling','websocket', 'webtransport']
    */
-  transports?: string[];
+  transports?: string[] | TransportCtor[];
 
   /**
    * Whether all the transports should be tested, instead of just the first one.
@@ -231,6 +231,12 @@ export interface SocketOptions {
   protocols?: string | string[];
 }
 
+type TransportCtor = { new (o: any): Transport };
+
+type BaseSocketOptions = Omit<SocketOptions, "transports"> & {
+  transports: TransportCtor[];
+};
+
 interface HandshakeData {
   sid: string;
   upgrades: string[];
@@ -264,7 +270,30 @@ interface WriteOptions {
   compress?: boolean;
 }
 
-export class Socket extends Emitter<
+/**
+ * This class provides a WebSocket-like interface to connect to an Engine.IO server. The connection will be established
+ * with one of the available low-level transports, like HTTP long-polling, WebSocket or WebTransport.
+ *
+ * This class comes without upgrade mechanism, which means that it will keep the first low-level transport that
+ * successfully establishes the connection.
+ *
+ * In order to allow tree-shaking, there are no transports included, that's why the `transports` option is mandatory.
+ *
+ * @example
+ * import { SocketWithoutUpgrade, WebSocket } from "engine.io-client";
+ *
+ * const socket = new SocketWithoutUpgrade({
+ *   transports: [WebSocket]
+ * });
+ *
+ * socket.on("open", () => {
+ *   socket.send("hello");
+ * });
+ *
+ * @see SocketWithUpgrade
+ * @see Socket
+ */
+export class SocketWithoutUpgrade extends Emitter<
   Record<never, never>,
   Record<never, never>,
   SocketReservedEvents
@@ -275,23 +304,24 @@ export class Socket extends Emitter<
   public readyState: SocketState;
   public writeBuffer: Packet[] = [];
 
+  protected readonly opts: BaseSocketOptions;
+  protected readonly transports: string[];
+  protected upgrading: boolean;
+  protected setTimeoutFn: typeof setTimeout;
+
   private prevBufferLen: number;
-  private upgrades: string[];
   private pingInterval: number;
   private pingTimeout: number;
   private pingTimeoutTimer: NodeJS.Timer;
-  private setTimeoutFn: typeof setTimeout;
   private clearTimeoutFn: typeof clearTimeout;
   private readonly beforeunloadEventListener: () => void;
   private readonly offlineEventListener: () => void;
-  private upgrading: boolean;
   private maxPayload?: number;
 
-  private readonly opts: Partial<SocketOptions>;
   private readonly secure: boolean;
   private readonly hostname: string;
   private readonly port: string | number;
-  private readonly transports: string[];
+  private readonly transportsByName: Record<string, TransportCtor>;
 
   static priorWebsocketSuccess: boolean;
   static protocol = protocol;
@@ -302,9 +332,7 @@ export class Socket extends Emitter<
    * @param {String|Object} uri - uri or options
    * @param {Object} opts - options
    */
-  constructor(uri?: string, opts?: SocketOptions);
-  constructor(opts: SocketOptions);
-  constructor(uri?: string | SocketOptions, opts: SocketOptions = {}) {
+  constructor(uri: string | BaseSocketOptions, opts: BaseSocketOptions) {
     super();
 
     if (uri && "object" === typeof uri) {
@@ -346,11 +374,14 @@ export class Socket extends Emitter<
         ? "443"
         : "80");
 
-    this.transports = opts.transports || [
-      "polling",
-      "websocket",
-      "webtransport",
-    ];
+    this.transports = [];
+    this.transportsByName = {};
+    opts.transports.forEach((t) => {
+      const transportName = t.prototype.name;
+      this.transports.push(transportName);
+      this.transportsByName[transportName] = t;
+    });
+
     this.writeBuffer = [];
     this.prevBufferLen = 0;
 
@@ -383,7 +414,6 @@ export class Socket extends Emitter<
 
     // set on handshake
     this.id = null;
-    this.upgrades = null;
     this.pingInterval = null;
     this.pingTimeout = null;
 
@@ -424,7 +454,7 @@ export class Socket extends Emitter<
    * @return {Transport}
    * @private
    */
-  private createTransport(name: string) {
+  protected createTransport(name: string) {
     debug('creating transport "%s"', name);
     const query: any = Object.assign({}, this.opts.query);
 
@@ -452,7 +482,7 @@ export class Socket extends Emitter<
 
     debug("options: %j", opts);
 
-    return new transports[name](opts);
+    return new this.transportsByName[name](opts);
   }
 
   /**
@@ -471,7 +501,7 @@ export class Socket extends Emitter<
 
     const transportName =
       this.opts.rememberUpgrade &&
-      Socket.priorWebsocketSuccess &&
+      SocketWithoutUpgrade.priorWebsocketSuccess &&
       this.transports.indexOf("websocket") !== -1
         ? "websocket"
         : this.transports[0];
@@ -487,7 +517,7 @@ export class Socket extends Emitter<
    *
    * @private
    */
-  private setTransport(transport: Transport) {
+  protected setTransport(transport: Transport) {
     debug("setting transport %s", transport.name);
 
     if (this.transport) {
@@ -507,152 +537,17 @@ export class Socket extends Emitter<
   }
 
   /**
-   * Probes a transport.
-   *
-   * @param {String} name - transport name
-   * @private
-   */
-  private probe(name: string) {
-    debug('probing transport "%s"', name);
-    let transport = this.createTransport(name);
-    let failed = false;
-
-    Socket.priorWebsocketSuccess = false;
-
-    const onTransportOpen = () => {
-      if (failed) return;
-
-      debug('probe transport "%s" opened', name);
-      transport.send([{ type: "ping", data: "probe" }]);
-      transport.once("packet", (msg) => {
-        if (failed) return;
-        if ("pong" === msg.type && "probe" === msg.data) {
-          debug('probe transport "%s" pong', name);
-          this.upgrading = true;
-          this.emitReserved("upgrading", transport);
-          if (!transport) return;
-          Socket.priorWebsocketSuccess = "websocket" === transport.name;
-
-          debug('pausing current transport "%s"', this.transport.name);
-          this.transport.pause(() => {
-            if (failed) return;
-            if ("closed" === this.readyState) return;
-            debug("changing transport and sending upgrade packet");
-
-            cleanup();
-
-            this.setTransport(transport);
-            transport.send([{ type: "upgrade" }]);
-            this.emitReserved("upgrade", transport);
-            transport = null;
-            this.upgrading = false;
-            this.flush();
-          });
-        } else {
-          debug('probe transport "%s" failed', name);
-          const err = new Error("probe error");
-          // @ts-ignore
-          err.transport = transport.name;
-          this.emitReserved("upgradeError", err);
-        }
-      });
-    };
-
-    function freezeTransport() {
-      if (failed) return;
-
-      // Any callback called by transport should be ignored since now
-      failed = true;
-
-      cleanup();
-
-      transport.close();
-      transport = null;
-    }
-
-    // Handle any error that happens while probing
-    const onerror = (err) => {
-      const error = new Error("probe error: " + err);
-      // @ts-ignore
-      error.transport = transport.name;
-
-      freezeTransport();
-
-      debug('probe transport "%s" failed because of error: %s', name, err);
-
-      this.emitReserved("upgradeError", error);
-    };
-
-    function onTransportClose() {
-      onerror("transport closed");
-    }
-
-    // When the socket is closed while we're probing
-    function onclose() {
-      onerror("socket closed");
-    }
-
-    // When the socket is upgraded while we're probing
-    function onupgrade(to) {
-      if (transport && to.name !== transport.name) {
-        debug('"%s" works - aborting "%s"', to.name, transport.name);
-        freezeTransport();
-      }
-    }
-
-    // Remove all listeners on the transport and on self
-    const cleanup = () => {
-      transport.removeListener("open", onTransportOpen);
-      transport.removeListener("error", onerror);
-      transport.removeListener("close", onTransportClose);
-      this.off("close", onclose);
-      this.off("upgrading", onupgrade);
-    };
-
-    transport.once("open", onTransportOpen);
-    transport.once("error", onerror);
-    transport.once("close", onTransportClose);
-
-    this.once("close", onclose);
-    this.once("upgrading", onupgrade);
-
-    if (
-      this.upgrades.indexOf("webtransport") !== -1 &&
-      name !== "webtransport"
-    ) {
-      // favor WebTransport
-      this.setTimeoutFn(() => {
-        if (!failed) {
-          transport.open();
-        }
-      }, 200);
-    } else {
-      transport.open();
-    }
-  }
-
-  /**
    * Called when connection is deemed open.
    *
    * @private
    */
-  private onOpen() {
+  protected onOpen() {
     debug("socket open");
     this.readyState = "open";
-    Socket.priorWebsocketSuccess = "websocket" === this.transport.name;
+    SocketWithoutUpgrade.priorWebsocketSuccess =
+      "websocket" === this.transport.name;
     this.emitReserved("open");
     this.flush();
-
-    // we check for `readyState` in case an `open`
-    // listener already closed the socket
-    if ("open" === this.readyState && this.opts.upgrade) {
-      debug("starting upgrade probes");
-      let i = 0;
-      const l = this.upgrades.length;
-      for (; i < l; i++) {
-        this.probe(this.upgrades[i]);
-      }
-    }
   }
 
   /**
@@ -708,11 +603,10 @@ export class Socket extends Emitter<
    * @param {Object} data - handshake obj
    * @private
    */
-  private onHandshake(data: HandshakeData) {
+  protected onHandshake(data: HandshakeData) {
     this.emitReserved("handshake", data);
     this.id = data.sid;
     this.transport.query.sid = data.sid;
-    this.upgrades = this.filterUpgrades(data.upgrades);
     this.pingInterval = data.pingInterval;
     this.pingTimeout = data.pingTimeout;
     this.maxPayload = data.maxPayload;
@@ -762,7 +656,7 @@ export class Socket extends Emitter<
    *
    * @private
    */
-  private flush() {
+  protected flush() {
     if (
       "closed" !== this.readyState &&
       this.transport.writable &&
@@ -928,7 +822,7 @@ export class Socket extends Emitter<
    */
   private onError(err: Error) {
     debug("socket error %j", err);
-    Socket.priorWebsocketSuccess = false;
+    SocketWithoutUpgrade.priorWebsocketSuccess = false;
 
     if (
       this.opts.tryAllTransports &&
@@ -993,6 +887,177 @@ export class Socket extends Emitter<
       this.prevBufferLen = 0;
     }
   }
+}
+
+/**
+ * This class provides a WebSocket-like interface to connect to an Engine.IO server. The connection will be established
+ * with one of the available low-level transports, like HTTP long-polling, WebSocket or WebTransport.
+ *
+ * This class comes with an upgrade mechanism, which means that once the connection is established with the first
+ * low-level transport, it will try to upgrade to a better transport.
+ *
+ * In order to allow tree-shaking, there are no transports included, that's why the `transports` option is mandatory.
+ *
+ * @example
+ * import { SocketWithUpgrade, WebSocket } from "engine.io-client";
+ *
+ * const socket = new SocketWithUpgrade({
+ *   transports: [WebSocket]
+ * });
+ *
+ * socket.on("open", () => {
+ *   socket.send("hello");
+ * });
+ *
+ * @see SocketWithoutUpgrade
+ * @see Socket
+ */
+export class SocketWithUpgrade extends SocketWithoutUpgrade {
+  private upgrades: string[] = [];
+
+  override onOpen() {
+    super.onOpen();
+
+    if ("open" === this.readyState && this.opts.upgrade) {
+      debug("starting upgrade probes");
+      let i = 0;
+      const l = this.upgrades.length;
+      for (; i < l; i++) {
+        this.probe(this.upgrades[i]);
+      }
+    }
+  }
+
+  /**
+   * Probes a transport.
+   *
+   * @param {String} name - transport name
+   * @private
+   */
+  private probe(name: string) {
+    debug('probing transport "%s"', name);
+    let transport = this.createTransport(name);
+    let failed = false;
+
+    SocketWithoutUpgrade.priorWebsocketSuccess = false;
+
+    const onTransportOpen = () => {
+      if (failed) return;
+
+      debug('probe transport "%s" opened', name);
+      transport.send([{ type: "ping", data: "probe" }]);
+      transport.once("packet", (msg) => {
+        if (failed) return;
+        if ("pong" === msg.type && "probe" === msg.data) {
+          debug('probe transport "%s" pong', name);
+          this.upgrading = true;
+          this.emitReserved("upgrading", transport);
+          if (!transport) return;
+          SocketWithoutUpgrade.priorWebsocketSuccess =
+            "websocket" === transport.name;
+
+          debug('pausing current transport "%s"', this.transport.name);
+          this.transport.pause(() => {
+            if (failed) return;
+            if ("closed" === this.readyState) return;
+            debug("changing transport and sending upgrade packet");
+
+            cleanup();
+
+            this.setTransport(transport);
+            transport.send([{ type: "upgrade" }]);
+            this.emitReserved("upgrade", transport);
+            transport = null;
+            this.upgrading = false;
+            this.flush();
+          });
+        } else {
+          debug('probe transport "%s" failed', name);
+          const err = new Error("probe error");
+          // @ts-ignore
+          err.transport = transport.name;
+          this.emitReserved("upgradeError", err);
+        }
+      });
+    };
+
+    function freezeTransport() {
+      if (failed) return;
+
+      // Any callback called by transport should be ignored since now
+      failed = true;
+
+      cleanup();
+
+      transport.close();
+      transport = null;
+    }
+
+    // Handle any error that happens while probing
+    const onerror = (err) => {
+      const error = new Error("probe error: " + err);
+      // @ts-ignore
+      error.transport = transport.name;
+
+      freezeTransport();
+
+      debug('probe transport "%s" failed because of error: %s', name, err);
+
+      this.emitReserved("upgradeError", error);
+    };
+
+    function onTransportClose() {
+      onerror("transport closed");
+    }
+
+    // When the socket is closed while we're probing
+    function onclose() {
+      onerror("socket closed");
+    }
+
+    // When the socket is upgraded while we're probing
+    function onupgrade(to) {
+      if (transport && to.name !== transport.name) {
+        debug('"%s" works - aborting "%s"', to.name, transport.name);
+        freezeTransport();
+      }
+    }
+
+    // Remove all listeners on the transport and on self
+    const cleanup = () => {
+      transport.removeListener("open", onTransportOpen);
+      transport.removeListener("error", onerror);
+      transport.removeListener("close", onTransportClose);
+      this.off("close", onclose);
+      this.off("upgrading", onupgrade);
+    };
+
+    transport.once("open", onTransportOpen);
+    transport.once("error", onerror);
+    transport.once("close", onTransportClose);
+
+    this.once("close", onclose);
+    this.once("upgrading", onupgrade);
+
+    if (
+      this.upgrades.indexOf("webtransport") !== -1 &&
+      name !== "webtransport"
+    ) {
+      // favor WebTransport
+      this.setTimeoutFn(() => {
+        if (!failed) {
+          transport.open();
+        }
+      }, 200);
+    } else {
+      transport.open();
+    }
+  }
+
+  override onHandshake(data: HandshakeData) {
+    this.upgrades = this.filterUpgrades(data.upgrades);
+    super.onHandshake(data);
+  }
 
   /**
    * Filters upgrades, returning only those matching client transports.
@@ -1007,5 +1072,43 @@ export class Socket extends Emitter<
         filteredUpgrades.push(upgrades[i]);
     }
     return filteredUpgrades;
+  }
+}
+
+/**
+ * This class provides a WebSocket-like interface to connect to an Engine.IO server. The connection will be established
+ * with one of the available low-level transports, like HTTP long-polling, WebSocket or WebTransport.
+ *
+ * This class comes with an upgrade mechanism, which means that once the connection is established with the first
+ * low-level transport, it will try to upgrade to a better transport.
+ *
+ * @example
+ * import { Socket } from "engine.io-client";
+ *
+ * const socket = new Socket();
+ *
+ * socket.on("open", () => {
+ *   socket.send("hello");
+ * });
+ *
+ * @see SocketWithoutUpgrade
+ * @see SocketWithUpgrade
+ */
+export class Socket extends SocketWithUpgrade {
+  constructor(uri?: string, opts?: SocketOptions);
+  constructor(opts: SocketOptions);
+  constructor(uri?: string | SocketOptions, opts: SocketOptions = {}) {
+    const o = typeof uri === "object" ? uri : opts;
+
+    if (
+      !o.transports ||
+      (o.transports && typeof o.transports[0] === "string")
+    ) {
+      o.transports = (o.transports || ["polling", "websocket", "webtransport"])
+        .map((transportName) => DEFAULT_TRANSPORTS[transportName])
+        .filter((t) => !!t);
+    }
+
+    super(uri as string, o as BaseSocketOptions);
   }
 }

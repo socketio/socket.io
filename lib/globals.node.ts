@@ -1,6 +1,6 @@
-import * as XMLHttpRequestModule from "xmlhttprequest-ssl";
-
-export const XHR = XMLHttpRequestModule.default || XMLHttpRequestModule;
+export const nextTick = process.nextTick;
+export const globalThisShim = global;
+export const defaultBinaryType = "nodebuffer";
 
 export function createCookieJar() {
   return new CookieJar();

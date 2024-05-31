@@ -1,5 +1,3 @@
-import { globalThisShim as globalThis } from "../globalThis.js";
-
 export const nextTick = (() => {
   const isPromiseAvailable =
     typeof Promise === "function" && typeof Promise.resolve === "function";
@@ -10,6 +8,16 @@ export const nextTick = (() => {
   }
 })();
 
-export const WebSocket = globalThis.WebSocket || globalThis.MozWebSocket;
-export const usingBrowserWebSocket = true;
+export const globalThisShim = (() => {
+  if (typeof self !== "undefined") {
+    return self;
+  } else if (typeof window !== "undefined") {
+    return window;
+  } else {
+    return Function("return this")();
+  }
+})();
+
 export const defaultBinaryType = "arraybuffer";
+
+export function createCookieJar() {}

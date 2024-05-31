@@ -1,4 +1,4 @@
-import { globalThisShim as globalThis } from "./globalThis.js";
+import { globalThisShim as globalThis } from "./globals.node.js";
 
 export function pick(obj, ...attr) {
   return attr.reduce((acc, k) => {

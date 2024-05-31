@@ -1,5 +1,5 @@
 const expect = require("expect.js");
-const { Socket } = require("../");
+const { Socket, NodeXHR, NodeWebSocket } = require("../");
 const {
   isIE11,
   isAndroid,
@@ -93,6 +93,30 @@ describe("Socket", function () {
       expect(err.message).to.eql(
         useFetch ? "fetch read error" : "xhr poll error"
       );
+      done();
+    });
+  });
+
+  it("should connect with a custom transport implementation (polling)", (done) => {
+    const socket = new Socket({
+      transports: [NodeXHR],
+    });
+
+    socket.on("open", () => {
+      expect(socket.transport.name).to.eql("polling");
+      socket.close();
+      done();
+    });
+  });
+
+  it("should connect with a custom transport implementation (websocket)", (done) => {
+    const socket = new Socket({
+      transports: [NodeWebSocket],
+    });
+
+    socket.on("open", () => {
+      expect(socket.transport.name).to.eql("websocket");
+      socket.close();
       done();
     });
   });

@@ -3,7 +3,7 @@ const { exec } = require("child_process");
 const { Socket } = require("../");
 const { repeat } = require("./util");
 const expect = require("expect.js");
-const { parse } = require("../build/cjs/transports/xmlhttprequest.js");
+const { parse } = require("../build/cjs/globals.node.js");
 
 describe("node.js", () => {
   describe("autoRef option", () => {

@@ -1,13 +1,10 @@
 import { Transport } from "../transport.js";
 import { yeast } from "../contrib/yeast.js";
 import { pick } from "../util.js";
-import {
-  nextTick,
-  usingBrowserWebSocket,
-  WebSocket,
-} from "./websocket-constructor.js";
-import debugModule from "debug"; // debug()
 import { encodePacket } from "engine.io-parser";
+import type { Packet, RawData } from "engine.io-parser";
+import { globalThisShim as globalThis, nextTick } from "../globals.node.js";
+import debugModule from "debug"; // debug()
 
 const debug = debugModule("engine.io-client:websocket"); // debug()
 
@@ -17,24 +14,8 @@ const isReactNative =
   typeof navigator.product === "string" &&
   navigator.product.toLowerCase() === "reactnative";
 
-/**
- * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
- * @see https://caniuse.com/mdn-api_websocket
- */
-export class WS extends Transport {
-  private ws: any;
-
-  /**
-   * WebSocket transport constructor.
-   *
-   * @param {Object} opts - connection options
-   * @protected
-   */
-  constructor(opts) {
-    super(opts);
-
-    this.supportsBinary = !opts.forceBase64;
-  }
+export abstract class BaseWS extends Transport {
+  protected ws: any;
 
   override get name() {
     return "websocket";
@@ -71,12 +52,7 @@ export class WS extends Transport {
     }
 
     try {
-      this.ws =
-        usingBrowserWebSocket && !isReactNative
-          ? protocols
-            ? new WebSocket(uri, protocols)
-            : new WebSocket(uri)
-          : new WebSocket(uri, protocols, opts);
+      this.ws = this.createSocket(uri, protocols, opts);
     } catch (err) {
       return this.emitReserved("error", err);
     }
@@ -85,6 +61,12 @@ export class WS extends Transport {
 
     this.addEventListeners();
   }
+
+  abstract createSocket(
+    uri: string,
+    protocols: string | string[] | undefined,
+    opts: Record<string, any>
+  );
 
   /**
    * Adds event listeners to the socket
@@ -117,33 +99,11 @@ export class WS extends Transport {
       const lastPacket = i === packets.length - 1;
 
       encodePacket(packet, this.supportsBinary, (data) => {
-        // always create a new object (GH-437)
-        const opts: { compress?: boolean } = {};
-        if (!usingBrowserWebSocket) {
-          if (packet.options) {
-            opts.compress = packet.options.compress;
-          }
-
-          if (this.opts.perMessageDeflate) {
-            const len =
-              // @ts-ignore
-              "string" === typeof data ? Buffer.byteLength(data) : data.length;
-            if (len < this.opts.perMessageDeflate.threshold) {
-              opts.compress = false;
-            }
-          }
-        }
-
         // Sometimes the websocket has already been closed but the browser didn't
         // have a chance of informing us about it yet, in that case send will
         // throw an error
         try {
-          if (usingBrowserWebSocket) {
-            // TypeError is thrown when passing the second argument on Safari
-            this.ws.send(data);
-          } else {
-            this.ws.send(data, opts);
-          }
+          this.doWrite(packet, data);
         } catch (e) {
           debug("websocket closed before onclose event");
         }
@@ -159,6 +119,8 @@ export class WS extends Transport {
       });
     }
   }
+
+  abstract doWrite(packet: Packet, data: RawData);
 
   override doClose() {
     if (typeof this.ws !== "undefined") {
@@ -187,5 +149,33 @@ export class WS extends Transport {
     }
 
     return this.createUri(schema, query);
+  }
+}
+
+const WebSocketCtor = globalThis.WebSocket || globalThis.MozWebSocket;
+
+/**
+ * WebSocket transport based on the built-in `WebSocket` object.
+ *
+ * Usage: browser, Deno, Bun
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
+ * @see https://caniuse.com/mdn-api_websocket
+ */
+export class WS extends BaseWS {
+  createSocket(
+    uri: string,
+    protocols: string | string[] | undefined,
+    opts: Record<string, any>
+  ) {
+    return !isReactNative
+      ? protocols
+        ? new WebSocketCtor(uri, protocols)
+        : new WebSocketCtor(uri)
+      : new WebSocketCtor(uri, protocols, opts);
+  }
+
+  doWrite(_packet: Packet, data: RawData) {
+    this.ws.send(data);
   }
 }

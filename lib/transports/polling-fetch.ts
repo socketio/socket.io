@@ -1,10 +1,13 @@
 import { Polling } from "./polling.js";
-import { CookieJar, createCookieJar } from "./xmlhttprequest.js";
+import { CookieJar, createCookieJar } from "../globals.node.js";
 
 /**
- * HTTP long-polling based on `fetch()`
+ * HTTP long-polling based on the built-in `fetch()` method.
+ *
+ * Usage: browser, Node.js (since v18), Deno, Bun
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/fetch
+ * @see https://caniuse.com/fetch
  */
 export class Fetch extends Polling {
   private readonly cookieJar?: CookieJar;

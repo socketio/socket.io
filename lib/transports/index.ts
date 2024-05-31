@@ -1,5 +1,5 @@
-import { XHR } from "./polling-xhr.js";
-import { WS } from "./websocket.js";
+import { XHR } from "./polling-xhr.node.js";
+import { WS } from "./websocket.node.js";
 import { WT } from "./webtransport.js";
 
 export const transports = {

@@ -64,6 +64,7 @@ export abstract class Transport extends Emitter<
     this.opts = opts;
     this.query = opts.query;
     this.socket = opts.socket;
+    this.supportsBinary = !opts.forceBase64;
   }
 
   /**

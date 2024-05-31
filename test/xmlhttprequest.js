@@ -1,5 +1,5 @@
 const expect = require("expect.js");
-const XMLHttpRequest = require("../build/cjs/transports/xmlhttprequest").XHR;
+const { newRequest } = require("../build/cjs/transports/polling-xhr.node.js");
 const env = require("./support/env");
 
 describe("XMLHttpRequest", () => {
@@ -7,7 +7,7 @@ describe("XMLHttpRequest", () => {
     describe("IE8_9", () => {
       context("when xdomain is false", () => {
         it("should have same properties as XMLHttpRequest does", () => {
-          const xhra = new XMLHttpRequest({
+          const xhra = newRequest({
             xdomain: false,
             xscheme: false,
             enablesXDR: false,
@@ -15,7 +15,7 @@ describe("XMLHttpRequest", () => {
           expect(xhra).to.be.an("object");
           expect(xhra).to.have.property("open");
           expect(xhra).to.have.property("onreadystatechange");
-          const xhrb = new XMLHttpRequest({
+          const xhrb = newRequest({
             xdomain: false,
             xscheme: false,
             enablesXDR: true,
@@ -23,7 +23,7 @@ describe("XMLHttpRequest", () => {
           expect(xhrb).to.be.an("object");
           expect(xhrb).to.have.property("open");
           expect(xhrb).to.have.property("onreadystatechange");
-          const xhrc = new XMLHttpRequest({
+          const xhrc = newRequest({
             xdomain: false,
             xscheme: true,
             enablesXDR: false,
@@ -31,7 +31,7 @@ describe("XMLHttpRequest", () => {
           expect(xhrc).to.be.an("object");
           expect(xhrc).to.have.property("open");
           expect(xhrc).to.have.property("onreadystatechange");
-          const xhrd = new XMLHttpRequest({
+          const xhrd = newRequest({
             xdomain: false,
             xscheme: true,
             enablesXDR: true,
@@ -45,7 +45,7 @@ describe("XMLHttpRequest", () => {
       context("when xdomain is true", () => {
         context("when xscheme is false and enablesXDR is true", () => {
           it("should have same properties as XDomainRequest does", () => {
-            const xhr = new XMLHttpRequest({
+            const xhr = newRequest({
               xdomain: true,
               xscheme: false,
               enablesXDR: true,
@@ -59,14 +59,14 @@ describe("XMLHttpRequest", () => {
 
         context("when xscheme is true", () => {
           it("should not have open in properties", () => {
-            const xhra = new XMLHttpRequest({
+            const xhra = newRequest({
               xdomain: true,
               xscheme: true,
               enablesXDR: false,
             });
             expect(xhra).to.be.an("object");
             expect(xhra).not.to.have.property("open");
-            const xhrb = new XMLHttpRequest({
+            const xhrb = newRequest({
               xdomain: true,
               xscheme: true,
               enablesXDR: true,
@@ -78,14 +78,14 @@ describe("XMLHttpRequest", () => {
 
         context("when enablesXDR is false", () => {
           it("should not have open in properties", () => {
-            const xhra = new XMLHttpRequest({
+            const xhra = newRequest({
               xdomain: true,
               xscheme: false,
               enablesXDR: false,
             });
             expect(xhra).to.be.an("object");
             expect(xhra).not.to.have.property("open");
-            const xhrb = new XMLHttpRequest({
+            const xhrb = newRequest({
               xdomain: true,
               xscheme: true,
               enablesXDR: false,
@@ -102,7 +102,7 @@ describe("XMLHttpRequest", () => {
     describe("IE10_11", () => {
       context("when enablesXDR is true and xscheme is false", () => {
         it("should have same properties as XMLHttpRequest does", () => {
-          const xhra = new XMLHttpRequest({
+          const xhra = newRequest({
             xdomain: false,
             xscheme: false,
             enablesXDR: true,
@@ -110,7 +110,7 @@ describe("XMLHttpRequest", () => {
           expect(xhra).to.be.an("object");
           expect(xhra).to.have.property("open");
           expect(xhra).to.have.property("onreadystatechange");
-          const xhrb = new XMLHttpRequest({
+          const xhrb = newRequest({
             xdomain: true,
             xscheme: false,
             enablesXDR: true,
