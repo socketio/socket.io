@@ -98,6 +98,7 @@
     "test:node-fetch": "USE_FETCH=1 npm run test:node",
     "test:browser": "zuul test/index.js",
     "build": "rollup -c support/rollup.config.umd.js && rollup -c support/rollup.config.esm.js",
+    "bundle-size": "node support/bundle-size.js",
     "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js' 'test/webtransport.mjs' 'support/**/*.js'",
     "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js' 'test/webtransport.mjs' 'support/**/*.js'",
     "prepack": "npm run compile"
