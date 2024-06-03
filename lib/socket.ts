@@ -6,7 +6,11 @@ import { Emitter } from "@socket.io/component-emitter";
 import { protocol } from "engine.io-parser";
 import type { Packet, BinaryType, PacketType, RawData } from "engine.io-parser";
 import { CloseDetails, Transport } from "./transport.js";
-import { defaultBinaryType } from "./globals.node.js";
+import {
+  CookieJar,
+  createCookieJar,
+  defaultBinaryType,
+} from "./globals.node.js";
 import debugModule from "debug"; // debug()
 
 const debug = debugModule("engine.io-client:socket"); // debug()
@@ -322,6 +326,10 @@ export class SocketWithoutUpgrade extends Emitter<
   private readonly hostname: string;
   private readonly port: string | number;
   private readonly transportsByName: Record<string, TransportCtor>;
+  /**
+   * The cookie jar will store the cookies sent by the server (Node. js only).
+   */
+  /* private */ readonly _cookieJar: CookieJar;
 
   static priorWebsocketSuccess: boolean;
   static protocol = protocol;
@@ -442,6 +450,10 @@ export class SocketWithoutUpgrade extends Emitter<
         };
         addEventListener("offline", this.offlineEventListener, false);
       }
+    }
+
+    if (this.opts.withCredentials) {
+      this._cookieJar = createCookieJar();
     }
 
     this.open();

@@ -68,7 +68,7 @@ export function parse(setCookieString: string): Cookie {
 }
 
 export class CookieJar {
-  private cookies = new Map<string, Cookie>();
+  private _cookies = new Map<string, Cookie>();
 
   public parseCookies(values: string[]) {
     if (!values) {
@@ -77,21 +77,27 @@ export class CookieJar {
     values.forEach((value) => {
       const parsed = parse(value);
       if (parsed) {
-        this.cookies.set(parsed.name, parsed);
+        this._cookies.set(parsed.name, parsed);
       }
     });
+  }
+
+  get cookies() {
+    const now = Date.now();
+    this._cookies.forEach((cookie, name) => {
+      if (cookie.expires?.getTime() < now) {
+        this._cookies.delete(name);
+      }
+    });
+    return this._cookies.entries();
   }
 
   public addCookies(xhr: any) {
     const cookies = [];
 
-    this.cookies.forEach((cookie, name) => {
-      if (cookie.expires?.getTime() < Date.now()) {
-        this.cookies.delete(name);
-      } else {
-        cookies.push(`${name}=${cookie.value}`);
-      }
-    });
+    for (const [name, cookie] of this.cookies) {
+      cookies.push(`${name}=${cookie.value}`);
+    }
 
     if (cookies.length) {
       xhr.setDisableHeaderCheck(true);
@@ -100,12 +106,8 @@ export class CookieJar {
   }
 
   public appendCookies(headers: Headers) {
-    this.cookies.forEach((cookie, name) => {
-      if (cookie.expires?.getTime() < Date.now()) {
-        this.cookies.delete(name);
-      } else {
-        headers.append("cookie", `${name}=${cookie.value}`);
-      }
-    });
+    for (const [name, cookie] of this.cookies) {
+      headers.append("cookie", `${name}=${cookie.value}`);
+    }
   }
 }

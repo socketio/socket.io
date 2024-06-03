@@ -10,16 +10,6 @@ import { CookieJar, createCookieJar } from "../globals.node.js";
  * @see https://caniuse.com/fetch
  */
 export class Fetch extends Polling {
-  private readonly cookieJar?: CookieJar;
-
-  constructor(opts) {
-    super(opts);
-
-    if (this.opts.withCredentials) {
-      this.cookieJar = createCookieJar();
-    }
-  }
-
   override doPoll() {
     this._fetch()
       .then((res) => {
@@ -56,7 +46,7 @@ export class Fetch extends Polling {
       headers.set("content-type", "text/plain;charset=UTF-8");
     }
 
-    this.cookieJar?.appendCookies(headers);
+    this.socket._cookieJar?.appendCookies(headers);
 
     return fetch(this.uri(), {
       method: isPost ? "POST" : "GET",
@@ -64,10 +54,8 @@ export class Fetch extends Polling {
       headers,
       credentials: this.opts.withCredentials ? "include" : "omit",
     }).then((res) => {
-      if (this.cookieJar) {
-        // @ts-ignore getSetCookie() was added in Node.js v19.7.0
-        this.cookieJar.parseCookies(res.headers.getSetCookie());
-      }
+      // @ts-ignore getSetCookie() was added in Node.js v19.7.0
+      this.socket._cookieJar?.parseCookies(res.headers.getSetCookie());
 
       return res;
     });

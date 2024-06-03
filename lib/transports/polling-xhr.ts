@@ -17,7 +17,6 @@ function empty() {}
 
 export abstract class BaseXHR extends Polling {
   protected readonly xd: boolean;
-  protected readonly cookieJar?: CookieJar;
 
   private pollXhr: any;
 
@@ -43,10 +42,6 @@ export abstract class BaseXHR extends Polling {
         (typeof location !== "undefined" &&
           opts.hostname !== location.hostname) ||
         port !== opts.port;
-    }
-
-    if (this.opts.withCredentials) {
-      this.cookieJar = createCookieJar();
     }
   }
 
@@ -344,7 +339,7 @@ export class XHR extends BaseXHR {
   }
 
   request(opts: Record<string, any> = {}) {
-    Object.assign(opts, { xd: this.xd, cookieJar: this.cookieJar }, this.opts);
+    Object.assign(opts, { xd: this.xd }, this.opts);
     return new Request(newRequest, this.uri(), opts as RequestOptions);
   }
 }

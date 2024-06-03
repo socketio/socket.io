@@ -12,7 +12,11 @@ const XMLHttpRequest = XMLHttpRequestModule.default || XMLHttpRequestModule;
  */
 export class XHR extends BaseXHR {
   request(opts: Record<string, any> = {}) {
-    Object.assign(opts, { xd: this.xd, cookieJar: this.cookieJar }, this.opts);
+    Object.assign(
+      opts,
+      { xd: this.xd, cookieJar: this.socket?._cookieJar },
+      this.opts
+    );
     return new Request(
       (opts) => new XMLHttpRequest(opts),
       this.uri(),

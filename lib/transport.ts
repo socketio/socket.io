@@ -2,9 +2,9 @@ import { decodePacket } from "engine.io-parser";
 import type { Packet, RawData } from "engine.io-parser";
 import { Emitter } from "@socket.io/component-emitter";
 import { installTimerFunctions } from "./util.js";
-import debugModule from "debug"; // debug()
-import { SocketOptions } from "./socket.js";
+import type { Socket, SocketOptions } from "./socket.js";
 import { encode } from "./contrib/parseqs.js";
+import debugModule from "debug"; // debug()
 
 const debug = debugModule("engine.io-client:transport"); // debug()
 
@@ -48,7 +48,7 @@ export abstract class Transport extends Emitter<
   protected opts: SocketOptions;
   protected supportsBinary: boolean;
   protected readyState: TransportState;
-  protected socket: any;
+  protected socket: Socket;
   protected setTimeoutFn: typeof setTimeout;
 
   /**
