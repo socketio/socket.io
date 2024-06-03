@@ -6,7 +6,7 @@ const { createServer } = require("http");
 const { attach } = require("engine.io");
 const { rollup } = require("rollup");
 
-const rollupConfig = require("../../support/rollup.config.umd.js");
+const rollupConfig = require("../../support/rollup.config.umd.js")[1];
 const { serialize } = require("cookie");
 
 let httpServer, engine;
@@ -29,7 +29,7 @@ exports.mochaHooks = {
 
     rollup(rollupConfig).then(async (bundle) => {
       await bundle.write({
-        ...rollupConfig.output[1],
+        ...rollupConfig.output,
         file: "./test/support/public/engine.io.min.js",
         sourcemap: false,
       });
