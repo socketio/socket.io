@@ -313,19 +313,19 @@ export class SocketWithoutUpgrade extends Emitter<
   protected upgrading: boolean;
   protected setTimeoutFn: typeof setTimeout;
 
-  private prevBufferLen: number;
-  private pingInterval: number;
-  private pingTimeout: number;
-  private pingTimeoutTimer: NodeJS.Timer;
+  private _prevBufferLen: number = 0;
+  private _pingInterval: number = -1;
+  private _pingTimeout: number = -1;
+  private _maxPayload?: number = -1;
+  private _pingTimeoutTimer: NodeJS.Timer;
   private clearTimeoutFn: typeof clearTimeout;
-  private readonly beforeunloadEventListener: () => void;
-  private readonly offlineEventListener: () => void;
-  private maxPayload?: number;
+  private readonly _beforeunloadEventListener: () => void;
+  private readonly _offlineEventListener: () => void;
 
   private readonly secure: boolean;
   private readonly hostname: string;
   private readonly port: string | number;
-  private readonly transportsByName: Record<string, TransportCtor>;
+  private readonly _transportsByName: Record<string, TransportCtor>;
   /**
    * The cookie jar will store the cookies sent by the server (Node. js only).
    */
@@ -383,15 +383,12 @@ export class SocketWithoutUpgrade extends Emitter<
         : "80");
 
     this.transports = [];
-    this.transportsByName = {};
+    this._transportsByName = {};
     opts.transports.forEach((t) => {
       const transportName = t.prototype.name;
       this.transports.push(transportName);
-      this.transportsByName[transportName] = t;
+      this._transportsByName[transportName] = t;
     });
-
-    this.writeBuffer = [];
-    this.prevBufferLen = 0;
 
     this.opts = Object.assign(
       {
@@ -420,35 +417,31 @@ export class SocketWithoutUpgrade extends Emitter<
       this.opts.query = decode(this.opts.query);
     }
 
-    // set on handshake
-    this.id = null;
-    this.pingInterval = null;
-    this.pingTimeout = null;
-
-    // set on heartbeat
-    this.pingTimeoutTimer = null;
-
     if (typeof addEventListener === "function") {
       if (this.opts.closeOnBeforeunload) {
         // Firefox closes the connection when the "beforeunload" event is emitted but not Chrome. This event listener
         // ensures every browser behaves the same (no "disconnect" event at the Socket.IO level when the page is
         // closed/reloaded)
-        this.beforeunloadEventListener = () => {
+        this._beforeunloadEventListener = () => {
           if (this.transport) {
             // silently close the transport
             this.transport.removeAllListeners();
             this.transport.close();
           }
         };
-        addEventListener("beforeunload", this.beforeunloadEventListener, false);
+        addEventListener(
+          "beforeunload",
+          this._beforeunloadEventListener,
+          false
+        );
       }
       if (this.hostname !== "localhost") {
-        this.offlineEventListener = () => {
-          this.onClose("transport close", {
+        this._offlineEventListener = () => {
+          this._onClose("transport close", {
             description: "network connection lost",
           });
         };
-        addEventListener("offline", this.offlineEventListener, false);
+        addEventListener("offline", this._offlineEventListener, false);
       }
     }
 
@@ -456,7 +449,7 @@ export class SocketWithoutUpgrade extends Emitter<
       this._cookieJar = createCookieJar();
     }
 
-    this.open();
+    this._open();
   }
 
   /**
@@ -494,7 +487,7 @@ export class SocketWithoutUpgrade extends Emitter<
 
     debug("options: %j", opts);
 
-    return new this.transportsByName[name](opts);
+    return new this._transportsByName[name](opts);
   }
 
   /**
@@ -502,7 +495,7 @@ export class SocketWithoutUpgrade extends Emitter<
    *
    * @private
    */
-  private open() {
+  private _open() {
     if (this.transports.length === 0) {
       // Emit error on next tick so it can be listened to
       this.setTimeoutFn(() => {
@@ -542,10 +535,10 @@ export class SocketWithoutUpgrade extends Emitter<
 
     // set up transport listeners
     transport
-      .on("drain", this.onDrain.bind(this))
-      .on("packet", this.onPacket.bind(this))
-      .on("error", this.onError.bind(this))
-      .on("close", (reason) => this.onClose("transport close", reason));
+      .on("drain", this._onDrain.bind(this))
+      .on("packet", this._onPacket.bind(this))
+      .on("error", this._onError.bind(this))
+      .on("close", (reason) => this._onClose("transport close", reason));
   }
 
   /**
@@ -567,7 +560,7 @@ export class SocketWithoutUpgrade extends Emitter<
    *
    * @private
    */
-  private onPacket(packet: Packet) {
+  private _onPacket(packet: Packet) {
     if (
       "opening" === this.readyState ||
       "open" === this.readyState ||
@@ -579,7 +572,7 @@ export class SocketWithoutUpgrade extends Emitter<
 
       // Socket is live - any packet counts
       this.emitReserved("heartbeat");
-      this.resetPingTimeout();
+      this._resetPingTimeout();
 
       switch (packet.type) {
         case "open":
@@ -587,7 +580,7 @@ export class SocketWithoutUpgrade extends Emitter<
           break;
 
         case "ping":
-          this.sendPacket("pong");
+          this._sendPacket("pong");
           this.emitReserved("ping");
           this.emitReserved("pong");
           break;
@@ -596,7 +589,7 @@ export class SocketWithoutUpgrade extends Emitter<
           const err = new Error("server error");
           // @ts-ignore
           err.code = packet.data;
-          this.onError(err);
+          this._onError(err);
           break;
 
         case "message":
@@ -619,13 +612,13 @@ export class SocketWithoutUpgrade extends Emitter<
     this.emitReserved("handshake", data);
     this.id = data.sid;
     this.transport.query.sid = data.sid;
-    this.pingInterval = data.pingInterval;
-    this.pingTimeout = data.pingTimeout;
-    this.maxPayload = data.maxPayload;
+    this._pingInterval = data.pingInterval;
+    this._pingTimeout = data.pingTimeout;
+    this._maxPayload = data.maxPayload;
     this.onOpen();
     // In case open handler closes socket
     if ("closed" === this.readyState) return;
-    this.resetPingTimeout();
+    this._resetPingTimeout();
   }
 
   /**
@@ -633,13 +626,13 @@ export class SocketWithoutUpgrade extends Emitter<
    *
    * @private
    */
-  private resetPingTimeout() {
-    this.clearTimeoutFn(this.pingTimeoutTimer);
-    this.pingTimeoutTimer = this.setTimeoutFn(() => {
-      this.onClose("ping timeout");
-    }, this.pingInterval + this.pingTimeout);
+  private _resetPingTimeout() {
+    this.clearTimeoutFn(this._pingTimeoutTimer);
+    this._pingTimeoutTimer = this.setTimeoutFn(() => {
+      this._onClose("ping timeout");
+    }, this._pingInterval + this._pingTimeout);
     if (this.opts.autoUnref) {
-      this.pingTimeoutTimer.unref();
+      this._pingTimeoutTimer.unref();
     }
   }
 
@@ -648,13 +641,13 @@ export class SocketWithoutUpgrade extends Emitter<
    *
    * @private
    */
-  private onDrain() {
-    this.writeBuffer.splice(0, this.prevBufferLen);
+  private _onDrain() {
+    this.writeBuffer.splice(0, this._prevBufferLen);
 
     // setting prevBufferLen = 0 is very important
     // for example, when upgrading, upgrade packet is sent over,
     // and a nonzero prevBufferLen could cause problems on `drain`
-    this.prevBufferLen = 0;
+    this._prevBufferLen = 0;
 
     if (0 === this.writeBuffer.length) {
       this.emitReserved("drain");
@@ -675,12 +668,12 @@ export class SocketWithoutUpgrade extends Emitter<
       !this.upgrading &&
       this.writeBuffer.length
     ) {
-      const packets = this.getWritablePackets();
+      const packets = this._getWritablePackets();
       debug("flushing %d packets in socket", packets.length);
       this.transport.send(packets);
       // keep track of current length of writeBuffer
       // splice writeBuffer and callbackBuffer on `drain`
-      this.prevBufferLen = packets.length;
+      this._prevBufferLen = packets.length;
       this.emitReserved("flush");
     }
   }
@@ -691,9 +684,9 @@ export class SocketWithoutUpgrade extends Emitter<
    *
    * @private
    */
-  private getWritablePackets() {
+  private _getWritablePackets() {
     const shouldCheckPayloadSize =
-      this.maxPayload &&
+      this._maxPayload &&
       this.transport.name === "polling" &&
       this.writeBuffer.length > 1;
     if (!shouldCheckPayloadSize) {
@@ -705,13 +698,13 @@ export class SocketWithoutUpgrade extends Emitter<
       if (data) {
         payloadSize += byteLength(data);
       }
-      if (i > 0 && payloadSize > this.maxPayload) {
+      if (i > 0 && payloadSize > this._maxPayload) {
         debug("only send %d out of %d packets", i, this.writeBuffer.length);
         return this.writeBuffer.slice(0, i);
       }
       payloadSize += 2; // separator + packet type
     }
-    debug("payload size is %d (max: %d)", payloadSize, this.maxPayload);
+    debug("payload size is %d (max: %d)", payloadSize, this._maxPayload);
     return this.writeBuffer;
   }
 
@@ -724,7 +717,7 @@ export class SocketWithoutUpgrade extends Emitter<
    * @return {Socket} for chaining.
    */
   public write(msg: RawData, options?: WriteOptions, fn?: () => void) {
-    this.sendPacket("message", msg, options, fn);
+    this._sendPacket("message", msg, options, fn);
     return this;
   }
 
@@ -737,7 +730,7 @@ export class SocketWithoutUpgrade extends Emitter<
    * @return {Socket} for chaining.
    */
   public send(msg: RawData, options?: WriteOptions, fn?: () => void) {
-    this.sendPacket("message", msg, options, fn);
+    this._sendPacket("message", msg, options, fn);
     return this;
   }
 
@@ -750,7 +743,7 @@ export class SocketWithoutUpgrade extends Emitter<
    * @param {Function} fn - callback function.
    * @private
    */
-  private sendPacket(
+  private _sendPacket(
     type: PacketType,
     data?: RawData,
     options?: WriteOptions,
@@ -789,7 +782,7 @@ export class SocketWithoutUpgrade extends Emitter<
    */
   public close() {
     const close = () => {
-      this.onClose("forced close");
+      this._onClose("forced close");
       debug("socket closing - telling transport to close");
       this.transport.close();
     };
@@ -832,7 +825,7 @@ export class SocketWithoutUpgrade extends Emitter<
    *
    * @private
    */
-  private onError(err: Error) {
+  private _onError(err: Error) {
     debug("socket error %j", err);
     SocketWithoutUpgrade.priorWebsocketSuccess = false;
 
@@ -843,11 +836,11 @@ export class SocketWithoutUpgrade extends Emitter<
     ) {
       debug("trying next transport");
       this.transports.shift();
-      return this.open();
+      return this._open();
     }
 
     this.emitReserved("error", err);
-    this.onClose("transport error", err);
+    this._onClose("transport error", err);
   }
 
   /**
@@ -855,7 +848,7 @@ export class SocketWithoutUpgrade extends Emitter<
    *
    * @private
    */
-  private onClose(reason: string, description?: CloseDetails | Error) {
+  private _onClose(reason: string, description?: CloseDetails | Error) {
     if (
       "opening" === this.readyState ||
       "open" === this.readyState ||
@@ -864,7 +857,7 @@ export class SocketWithoutUpgrade extends Emitter<
       debug('socket close with reason: "%s"', reason);
 
       // clear timers
-      this.clearTimeoutFn(this.pingTimeoutTimer);
+      this.clearTimeoutFn(this._pingTimeoutTimer);
 
       // stop event from firing again for transport
       this.transport.removeAllListeners("close");
@@ -878,10 +871,10 @@ export class SocketWithoutUpgrade extends Emitter<
       if (typeof removeEventListener === "function") {
         removeEventListener(
           "beforeunload",
-          this.beforeunloadEventListener,
+          this._beforeunloadEventListener,
           false
         );
-        removeEventListener("offline", this.offlineEventListener, false);
+        removeEventListener("offline", this._offlineEventListener, false);
       }
 
       // set ready state
@@ -896,7 +889,7 @@ export class SocketWithoutUpgrade extends Emitter<
       // clean buffers after, so users can still
       // grab the buffers on `close` event
       this.writeBuffer = [];
-      this.prevBufferLen = 0;
+      this._prevBufferLen = 0;
     }
   }
 }
@@ -925,17 +918,15 @@ export class SocketWithoutUpgrade extends Emitter<
  * @see Socket
  */
 export class SocketWithUpgrade extends SocketWithoutUpgrade {
-  private upgrades: string[] = [];
+  private _upgrades: string[] = [];
 
   override onOpen() {
     super.onOpen();
 
     if ("open" === this.readyState && this.opts.upgrade) {
       debug("starting upgrade probes");
-      let i = 0;
-      const l = this.upgrades.length;
-      for (; i < l; i++) {
-        this.probe(this.upgrades[i]);
+      for (let i = 0; i < this._upgrades.length; i++) {
+        this._probe(this._upgrades[i]);
       }
     }
   }
@@ -946,7 +937,7 @@ export class SocketWithUpgrade extends SocketWithoutUpgrade {
    * @param {String} name - transport name
    * @private
    */
-  private probe(name: string) {
+  private _probe(name: string) {
     debug('probing transport "%s"', name);
     let transport = this.createTransport(name);
     let failed = false;
@@ -1052,7 +1043,7 @@ export class SocketWithUpgrade extends SocketWithoutUpgrade {
     this.once("upgrading", onupgrade);
 
     if (
-      this.upgrades.indexOf("webtransport") !== -1 &&
+      this._upgrades.indexOf("webtransport") !== -1 &&
       name !== "webtransport"
     ) {
       // favor WebTransport
@@ -1067,7 +1058,7 @@ export class SocketWithUpgrade extends SocketWithoutUpgrade {
   }
 
   override onHandshake(data: HandshakeData) {
-    this.upgrades = this.filterUpgrades(data.upgrades);
+    this._upgrades = this._filterUpgrades(data.upgrades);
     super.onHandshake(data);
   }
 
@@ -1077,7 +1068,7 @@ export class SocketWithUpgrade extends SocketWithoutUpgrade {
    * @param {Array} upgrades - server upgrades
    * @private
    */
-  private filterUpgrades(upgrades: string[]) {
+  private _filterUpgrades(upgrades: string[]) {
     const filteredUpgrades = [];
     for (let i = 0; i < upgrades.length; i++) {
       if (~this.transports.indexOf(upgrades[i]))

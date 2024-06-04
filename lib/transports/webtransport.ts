@@ -18,8 +18,8 @@ const debug = debugModule("engine.io-client:webtransport"); // debug()
  * @see https://caniuse.com/webtransport
  */
 export class WT extends Transport {
-  private transport: any;
-  private writer: any;
+  private _transport: any;
+  private _writer: any;
 
   get name() {
     return "webtransport";
@@ -28,7 +28,7 @@ export class WT extends Transport {
   protected doOpen() {
     try {
       // @ts-ignore
-      this.transport = new WebTransport(
+      this._transport = new WebTransport(
         this.createUri("https"),
         this.opts.transportOptions[this.name]
       );
@@ -36,7 +36,7 @@ export class WT extends Transport {
       return this.emitReserved("error", err);
     }
 
-    this.transport.closed
+    this._transport.closed
       .then(() => {
         debug("transport closed gracefully");
         this.onClose();
@@ -47,8 +47,8 @@ export class WT extends Transport {
       });
 
     // note: we could have used async/await, but that would require some additional polyfills
-    this.transport.ready.then(() => {
-      this.transport.createBidirectionalStream().then((stream) => {
+    this._transport.ready.then(() => {
+      this._transport.createBidirectionalStream().then((stream) => {
         const decoderStream = createPacketDecoderStream(
           Number.MAX_SAFE_INTEGER,
           this.socket.binaryType
@@ -57,7 +57,7 @@ export class WT extends Transport {
 
         const encoderStream = createPacketEncoderStream();
         encoderStream.readable.pipeTo(stream.writable);
-        this.writer = encoderStream.writable.getWriter();
+        this._writer = encoderStream.writable.getWriter();
 
         const read = () => {
           reader
@@ -82,7 +82,7 @@ export class WT extends Transport {
         if (this.query.sid) {
           packet.data = `{"sid":"${this.query.sid}"}`;
         }
-        this.writer.write(packet).then(() => this.onOpen());
+        this._writer.write(packet).then(() => this.onOpen());
       });
     });
   }
@@ -94,7 +94,7 @@ export class WT extends Transport {
       const packet = packets[i];
       const lastPacket = i === packets.length - 1;
 
-      this.writer.write(packet).then(() => {
+      this._writer.write(packet).then(() => {
         if (lastPacket) {
           nextTick(() => {
             this.writable = true;
@@ -106,6 +106,6 @@ export class WT extends Transport {
   }
 
   protected doClose() {
-    this.transport?.close();
+    this._transport?.close();
   }
 }

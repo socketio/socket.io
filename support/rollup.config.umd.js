@@ -47,7 +47,15 @@ module.exports = [
       format: "umd",
       name: "eio",
       sourcemap: true,
-      plugins: [terser()],
+      plugins: [
+        terser({
+          mangle: {
+            properties: {
+              regex: /^_/,
+            },
+          },
+        }),
+      ],
       banner,
     },
     plugins: [

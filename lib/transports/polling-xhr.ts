@@ -2,10 +2,7 @@ import { Polling } from "./polling.js";
 import { Emitter } from "@socket.io/component-emitter";
 import type { SocketOptions } from "../socket.js";
 import { installTimerFunctions, pick } from "../util.js";
-import {
-  globalThisShim as globalThis,
-  createCookieJar,
-} from "../globals.node.js";
+import { globalThisShim as globalThis } from "../globals.node.js";
 import type { CookieJar } from "../globals.node.js";
 import type { RawData } from "engine.io-parser";
 import { hasCORS } from "../contrib/has-cors.js";
@@ -104,14 +101,14 @@ export class Request extends Emitter<
   Record<never, never>,
   RequestReservedEvents
 > {
-  private readonly opts: RequestOptions;
-  private readonly method: string;
-  private readonly uri: string;
-  private readonly data: string | ArrayBuffer;
+  private readonly _opts: RequestOptions;
+  private readonly _method: string;
+  private readonly _uri: string;
+  private readonly _data: string | ArrayBuffer;
 
-  private xhr: any;
+  private _xhr: any;
   private setTimeoutFn: typeof setTimeout;
-  private index: number;
+  private _index: number;
 
   static requestsCount = 0;
   static requests = {};
@@ -129,13 +126,13 @@ export class Request extends Emitter<
   ) {
     super();
     installTimerFunctions(this, opts);
-    this.opts = opts;
+    this._opts = opts;
 
-    this.method = opts.method || "GET";
-    this.uri = uri;
-    this.data = undefined !== opts.data ? opts.data : null;
+    this._method = opts.method || "GET";
+    this._uri = uri;
+    this._data = undefined !== opts.data ? opts.data : null;
 
-    this.create();
+    this._create();
   }
 
   /**
@@ -143,9 +140,9 @@ export class Request extends Emitter<
    *
    * @private
    */
-  private create() {
+  private _create() {
     const opts = pick(
-      this.opts,
+      this._opts,
       "agent",
       "pfx",
       "key",
@@ -156,26 +153,26 @@ export class Request extends Emitter<
       "rejectUnauthorized",
       "autoUnref"
     );
-    opts.xdomain = !!this.opts.xd;
+    opts.xdomain = !!this._opts.xd;
 
-    const xhr = (this.xhr = this.createRequest(opts));
+    const xhr = (this._xhr = this.createRequest(opts));
 
     try {
-      debug("xhr open %s: %s", this.method, this.uri);
-      xhr.open(this.method, this.uri, true);
+      debug("xhr open %s: %s", this._method, this._uri);
+      xhr.open(this._method, this._uri, true);
       try {
-        if (this.opts.extraHeaders) {
+        if (this._opts.extraHeaders) {
           // @ts-ignore
           xhr.setDisableHeaderCheck && xhr.setDisableHeaderCheck(true);
-          for (let i in this.opts.extraHeaders) {
-            if (this.opts.extraHeaders.hasOwnProperty(i)) {
-              xhr.setRequestHeader(i, this.opts.extraHeaders[i]);
+          for (let i in this._opts.extraHeaders) {
+            if (this._opts.extraHeaders.hasOwnProperty(i)) {
+              xhr.setRequestHeader(i, this._opts.extraHeaders[i]);
             }
           }
         }
       } catch (e) {}
 
-      if ("POST" === this.method) {
+      if ("POST" === this._method) {
         try {
           xhr.setRequestHeader("Content-type", "text/plain;charset=UTF-8");
         } catch (e) {}
@@ -185,20 +182,20 @@ export class Request extends Emitter<
         xhr.setRequestHeader("Accept", "*/*");
       } catch (e) {}
 
-      this.opts.cookieJar?.addCookies(xhr);
+      this._opts.cookieJar?.addCookies(xhr);
 
       // ie6 check
       if ("withCredentials" in xhr) {
-        xhr.withCredentials = this.opts.withCredentials;
+        xhr.withCredentials = this._opts.withCredentials;
       }
 
-      if (this.opts.requestTimeout) {
-        xhr.timeout = this.opts.requestTimeout;
+      if (this._opts.requestTimeout) {
+        xhr.timeout = this._opts.requestTimeout;
       }
 
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 3) {
-          this.opts.cookieJar?.parseCookies(
+          this._opts.cookieJar?.parseCookies(
             // @ts-ignore
             xhr.getResponseHeader("set-cookie")
           );
@@ -206,31 +203,31 @@ export class Request extends Emitter<
 
         if (4 !== xhr.readyState) return;
         if (200 === xhr.status || 1223 === xhr.status) {
-          this.onLoad();
+          this._onLoad();
         } else {
           // make sure the `error` event handler that's user-set
           // does not throw in the same tick and gets caught here
           this.setTimeoutFn(() => {
-            this.onError(typeof xhr.status === "number" ? xhr.status : 0);
+            this._onError(typeof xhr.status === "number" ? xhr.status : 0);
           }, 0);
         }
       };
 
-      debug("xhr data %s", this.data);
-      xhr.send(this.data);
+      debug("xhr data %s", this._data);
+      xhr.send(this._data);
     } catch (e) {
       // Need to defer since .create() is called directly from the constructor
       // and thus the 'error' event can only be only bound *after* this exception
       // occurs.  Therefore, also, we cannot throw here at all.
       this.setTimeoutFn(() => {
-        this.onError(e);
+        this._onError(e);
       }, 0);
       return;
     }
 
     if (typeof document !== "undefined") {
-      this.index = Request.requestsCount++;
-      Request.requests[this.index] = this;
+      this._index = Request.requestsCount++;
+      Request.requests[this._index] = this;
     }
   }
 
@@ -239,9 +236,9 @@ export class Request extends Emitter<
    *
    * @private
    */
-  private onError(err: number | Error) {
-    this.emitReserved("error", err, this.xhr);
-    this.cleanup(true);
+  private _onError(err: number | Error) {
+    this.emitReserved("error", err, this._xhr);
+    this._cleanup(true);
   }
 
   /**
@@ -249,23 +246,23 @@ export class Request extends Emitter<
    *
    * @private
    */
-  private cleanup(fromError?) {
-    if ("undefined" === typeof this.xhr || null === this.xhr) {
+  private _cleanup(fromError?) {
+    if ("undefined" === typeof this._xhr || null === this._xhr) {
       return;
     }
-    this.xhr.onreadystatechange = empty;
+    this._xhr.onreadystatechange = empty;
 
     if (fromError) {
       try {
-        this.xhr.abort();
+        this._xhr.abort();
       } catch (e) {}
     }
 
     if (typeof document !== "undefined") {
-      delete Request.requests[this.index];
+      delete Request.requests[this._index];
     }
 
-    this.xhr = null;
+    this._xhr = null;
   }
 
   /**
@@ -273,12 +270,12 @@ export class Request extends Emitter<
    *
    * @private
    */
-  private onLoad() {
-    const data = this.xhr.responseText;
+  private _onLoad() {
+    const data = this._xhr.responseText;
     if (data !== null) {
       this.emitReserved("data", data);
       this.emitReserved("success");
-      this.cleanup();
+      this._cleanup();
     }
   }
 
@@ -288,7 +285,7 @@ export class Request extends Emitter<
    * @package
    */
   public abort() {
-    this.cleanup();
+    this._cleanup();
   }
 }
 

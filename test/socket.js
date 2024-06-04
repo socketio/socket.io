@@ -16,7 +16,7 @@ describe("Socket", function () {
   describe("filterUpgrades", () => {
     it("should return only available transports", () => {
       const socket = new Socket({ transports: ["polling"] });
-      expect(socket.filterUpgrades(["polling", "websocket"])).to.eql([
+      expect(socket._filterUpgrades(["polling", "websocket"])).to.eql([
         "polling",
       ]);
       socket.close();
@@ -29,7 +29,6 @@ describe("Socket", function () {
     socket.on("error", (error) => {
       errorMessage = error;
     });
-    socket.open();
     setTimeout(() => {
       expect(errorMessage).to.be("No transports available");
       socket.close();
@@ -135,7 +134,6 @@ describe("Socket", function () {
       socket.on("error", (error) => {
         errorMessage = error;
       });
-      socket.open();
       clock.tick(1); // Should trigger error emit.
       expect(errorMessage).to.be("No transports available");
       clock.uninstall();

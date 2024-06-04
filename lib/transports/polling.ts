@@ -6,7 +6,7 @@ import debugModule from "debug"; // debug()
 const debug = debugModule("engine.io-client:polling"); // debug()
 
 export abstract class Polling extends Transport {
-  private polling: boolean = false;
+  private _polling: boolean = false;
 
   override get name() {
     return "polling";
@@ -19,7 +19,7 @@ export abstract class Polling extends Transport {
    * @protected
    */
   override doOpen() {
-    this.poll();
+    this._poll();
   }
 
   /**
@@ -37,10 +37,10 @@ export abstract class Polling extends Transport {
       onPause();
     };
 
-    if (this.polling || !this.writable) {
+    if (this._polling || !this.writable) {
       let total = 0;
 
-      if (this.polling) {
+      if (this._polling) {
         debug("we are currently polling - waiting to pause");
         total++;
         this.once("pollComplete", function () {
@@ -67,9 +67,9 @@ export abstract class Polling extends Transport {
    *
    * @private
    */
-  poll() {
+  private _poll() {
     debug("polling");
-    this.polling = true;
+    this._polling = true;
     this.doPoll();
     this.emitReserved("poll");
   }
@@ -103,11 +103,11 @@ export abstract class Polling extends Transport {
     // if an event did not trigger closing
     if ("closed" !== this.readyState) {
       // if we got data we're not polling
-      this.polling = false;
+      this._polling = false;
       this.emitReserved("pollComplete");
 
       if ("open" === this.readyState) {
-        this.poll();
+        this._poll();
       } else {
         debug('ignoring poll - transport state "%s"', this.readyState);
       }

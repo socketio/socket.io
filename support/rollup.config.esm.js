@@ -14,7 +14,15 @@ module.exports = {
     file: "./dist/engine.io.esm.min.js",
     format: "esm",
     sourcemap: true,
-    plugins: [terser()],
+    plugins: [
+      terser({
+        mangle: {
+          properties: {
+            regex: /^_/,
+          },
+        },
+      }),
+    ],
     banner,
   },
   plugins: [
