@@ -1,5 +1,6 @@
 const expect = require("expect.js");
 const { Socket, protocol } = require("..");
+const { randomString } = require("../build/cjs/util.js");
 
 const expectedPort =
   typeof location !== "undefined" && "https:" === location.protocol
@@ -98,5 +99,15 @@ describe("engine.io-client", () => {
     const client = new Socket({ host: "::1" });
     expect(client.hostname).to.be("::1");
     expect(client.port).to.be(expectedPort);
+  });
+
+  it("should generate a random string", () => {
+    const a = randomString();
+    const b = randomString();
+    const c = randomString();
+
+    expect(a.length).to.eql(8);
+    expect(a).to.not.equal(b);
+    expect(b).to.not.equal(c);
   });
 });

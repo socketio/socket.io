@@ -1,6 +1,5 @@
 import { Transport } from "../transport.js";
-import { yeast } from "../contrib/yeast.js";
-import { pick } from "../util.js";
+import { pick, randomString } from "../util.js";
 import { encodePacket } from "engine.io-parser";
 import type { Packet, RawData } from "engine.io-parser";
 import { globalThisShim as globalThis, nextTick } from "../globals.node.js";
@@ -140,7 +139,7 @@ export abstract class BaseWS extends Transport {
 
     // append timestamp to URI
     if (this.opts.timestampRequests) {
-      query[this.opts.timestampParam] = yeast();
+      query[this.opts.timestampParam] = randomString();
     }
 
     // communicate binary support capabilities

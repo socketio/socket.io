@@ -1,5 +1,5 @@
 import { Transport } from "../transport.js";
-import { yeast } from "../contrib/yeast.js";
+import { randomString } from "../util.js";
 import { encodePayload, decodePayload } from "engine.io-parser";
 import debugModule from "debug"; // debug()
 
@@ -164,7 +164,7 @@ export abstract class Polling extends Transport {
 
     // cache busting is forced
     if (false !== this.opts.timestampRequests) {
-      query[this.opts.timestampParam] = yeast();
+      query[this.opts.timestampParam] = randomString();
     }
 
     if (!this.supportsBinary && !query.sid) {

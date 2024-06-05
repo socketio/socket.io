@@ -53,3 +53,13 @@ function utf8Length(str) {
   }
   return length;
 }
+
+/**
+ * Generates a random 8-characters string.
+ */
+export function randomString() {
+  return (
+    Date.now().toString(36).substring(3) +
+    Math.random().toString(36).substring(2, 5)
+  );
+}
