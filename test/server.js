@@ -2759,13 +2759,23 @@ describe("server", () => {
         });
       });
 
-      it("should execute in multipart packet", (done) => {
+      it("should execute in multipart packet (websocket)", (done) => {
         const engine = listen((port) => {
-          const socket = new ClientSocket(`ws://localhost:${port}`);
+          const socket = new ClientSocket(`ws://localhost:${port}`, {
+            transports: ["websocket"],
+          });
           let i = 0;
           let j = 0;
 
           engine.on("connection", (conn) => {
+            conn.send("d", (transport) => {
+              i++;
+            });
+
+            conn.send("c", (transport) => {
+              i++;
+            });
+
             conn.send("b", (transport) => {
               i++;
             });

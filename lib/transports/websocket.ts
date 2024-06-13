@@ -46,15 +46,6 @@ export class WebSocket extends Transport {
   }
 
   /**
-   * Advertise framing support.
-   *
-   * @api public
-   */
-  get supportsFraming() {
-    return true;
-  }
-
-  /**
    * Writes a packet payload.
    *
    * @param {Array} packets

@@ -373,6 +373,21 @@ describe("WebTransport", () => {
     });
   });
 
+  it("should invoke send callbacks (server to client)", (done) => {
+    setup({}, async ({ engine, h3Server, socket, reader }) => {
+      const messageCount = 4;
+      let receivedCallbacks = 0;
+
+      for (let i = 0; i < messageCount; i++) {
+        socket.send("hello", () => {
+          if (++receivedCallbacks === messageCount) {
+            success(engine, h3Server, done);
+          }
+        });
+      }
+    });
+  });
+
   it("should send some binary data (client to server)", (done) => {
     setup({}, async ({ engine, h3Server, socket, writer }) => {
       socket.on("data", (data) => {

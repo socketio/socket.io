@@ -42,10 +42,6 @@ export class Polling extends Transport {
     return "polling";
   }
 
-  get supportsFraming() {
-    return false;
-  }
-
   /**
    * Overrides onRequest.
    *

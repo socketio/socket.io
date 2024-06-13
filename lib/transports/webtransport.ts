@@ -44,10 +44,6 @@ export class WebTransport extends Transport {
     return "webtransport";
   }
 
-  get supportsFraming() {
-    return true;
-  }
-
   async send(packets) {
     this.writable = false;
 

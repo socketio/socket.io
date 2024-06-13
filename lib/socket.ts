@@ -14,6 +14,8 @@ export interface SendOptions {
 
 type ReadyState = "opening" | "open" | "closing" | "closed";
 
+type SendCallback = (transport: Transport) => void;
+
 export class Socket extends EventEmitter {
   public readonly protocol: number;
   // TODO for the next major release: do not keep the reference to the first HTTP request, as it stays in memory
@@ -27,8 +29,8 @@ export class Socket extends EventEmitter {
   private upgrading = false;
   private upgraded = false;
   private writeBuffer: Packet[] = [];
-  private packetsFn: Array<() => void> = [];
-  private sentCallbackFn: any[] = [];
+  private packetsFn: SendCallback[] = [];
+  private sentCallbackFn: SendCallback[][] = [];
   private cleanupFn: any[] = [];
   private pingTimeoutTimer;
   private pingIntervalTimer;
@@ -395,19 +397,11 @@ export class Socket extends EventEmitter {
     // the message was sent successfully, execute the callback
     const onDrain = () => {
       if (this.sentCallbackFn.length > 0) {
-        const seqFn = this.sentCallbackFn.splice(0, 1)[0];
-        if ("function" === typeof seqFn) {
-          debug("executing send callback");
-          seqFn(this.transport);
-        } else if (Array.isArray(seqFn)) {
-          debug("executing batch send callback");
-          const l = seqFn.length;
-          let i = 0;
-          for (; i < l; i++) {
-            if ("function" === typeof seqFn[i]) {
-              seqFn[i](this.transport);
-            }
-          }
+        debug("executing batch send callback");
+        const seqFn = this.sentCallbackFn.shift();
+        const l = seqFn.length;
+        for (let i = 0; i < l; i++) {
+          seqFn[i](this.transport);
         }
       }
     };
@@ -428,7 +422,7 @@ export class Socket extends EventEmitter {
    * @return {Socket} for chaining
    * @api public
    */
-  public send(data: RawData, options?: SendOptions, callback?: () => void) {
+  public send(data: RawData, options?: SendOptions, callback?: SendCallback) {
     this.sendPacket("message", data, options, callback);
     return this;
   }
@@ -440,7 +434,7 @@ export class Socket extends EventEmitter {
    * @param options
    * @param callback
    */
-  public write(data: RawData, options?: SendOptions, callback?: () => void) {
+  public write(data: RawData, options?: SendOptions, callback?: SendCallback) {
     this.sendPacket("message", data, options, callback);
     return this;
   }
@@ -459,7 +453,7 @@ export class Socket extends EventEmitter {
     type: PacketType,
     data?: RawData,
     options: SendOptions = {},
-    callback?: () => void
+    callback?: SendCallback
   ) {
     if ("function" === typeof options) {
       callback = options;
@@ -485,7 +479,7 @@ export class Socket extends EventEmitter {
       this.writeBuffer.push(packet);
 
       // add send callback to object, if defined
-      if (callback) this.packetsFn.push(callback);
+      if ("function" === typeof callback) this.packetsFn.push(callback);
 
       this.flush();
     }
@@ -507,11 +501,7 @@ export class Socket extends EventEmitter {
       this.server.emit("flush", this, this.writeBuffer);
       const wbuf = this.writeBuffer;
       this.writeBuffer = [];
-      if (!this.transport.supportsFraming) {
-        this.sentCallbackFn.push(this.packetsFn);
-      } else {
-        this.sentCallbackFn.push.apply(this.sentCallbackFn, this.packetsFn);
-      }
+      this.sentCallbackFn.push(this.packetsFn);
       this.packetsFn = [];
       this.transport.send(wbuf);
       this.emit("drain");

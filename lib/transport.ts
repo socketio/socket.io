@@ -138,11 +138,6 @@ export abstract class Transport extends EventEmitter {
   }
 
   /**
-   * Advertise framing support.
-   */
-  abstract get supportsFraming();
-
-  /**
    * The name of the transport.
    */
   abstract get name();
