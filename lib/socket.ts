@@ -223,23 +223,38 @@ export class Socket extends EventEmitter {
   private setTransport(transport) {
     const onError = this.onError.bind(this);
     const onPacket = this.onPacket.bind(this);
-    const flush = this.flush.bind(this);
+    const onDrain = this.onDrain.bind(this);
     const onClose = this.onClose.bind(this, "transport close");
 
     this.transport = transport;
     this.transport.once("error", onError);
     this.transport.on("packet", onPacket);
-    this.transport.on("drain", flush);
+    this.transport.on("drain", onDrain);
     this.transport.once("close", onClose);
-    // this function will manage packet events (also message callbacks)
-    this.setupSendCallback();
 
     this.cleanupFn.push(function () {
       transport.removeListener("error", onError);
       transport.removeListener("packet", onPacket);
-      transport.removeListener("drain", flush);
+      transport.removeListener("drain", onDrain);
       transport.removeListener("close", onClose);
     });
+  }
+
+  /**
+   * Upon transport "drain" event
+   *
+   * @private
+   */
+  private onDrain() {
+    this.flush();
+
+    if (this.sentCallbackFn.length > 0) {
+      debug("executing batch send callback");
+      const seqFn = this.sentCallbackFn.shift();
+      for (let i = 0; i < seqFn.length; i++) {
+        seqFn[i](this.transport);
+      }
+    }
   }
 
   /**
@@ -386,31 +401,6 @@ export class Socket extends EventEmitter {
       this.clearTransport();
       this.emit("close", reason, description);
     }
-  }
-
-  /**
-   * Setup and manage send callback
-   *
-   * @api private
-   */
-  private setupSendCallback() {
-    // the message was sent successfully, execute the callback
-    const onDrain = () => {
-      if (this.sentCallbackFn.length > 0) {
-        debug("executing batch send callback");
-        const seqFn = this.sentCallbackFn.shift();
-        const l = seqFn.length;
-        for (let i = 0; i < l; i++) {
-          seqFn[i](this.transport);
-        }
-      }
-    };
-
-    this.transport.on("drain", onDrain);
-
-    this.cleanupFn.push(() => {
-      this.transport.removeListener("drain", onDrain);
-    });
   }
 
   /**
