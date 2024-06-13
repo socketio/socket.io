@@ -251,8 +251,10 @@ export class Socket extends EventEmitter {
     if (this.sentCallbackFn.length > 0) {
       debug("executing batch send callback");
       const seqFn = this.sentCallbackFn.shift();
-      for (let i = 0; i < seqFn.length; i++) {
-        seqFn[i](this.transport);
+      if (seqFn) {
+        for (let i = 0; i < seqFn.length; i++) {
+          seqFn[i](this.transport);
+        }
       }
     }
   }
@@ -491,8 +493,14 @@ export class Socket extends EventEmitter {
       this.server.emit("flush", this, this.writeBuffer);
       const wbuf = this.writeBuffer;
       this.writeBuffer = [];
-      this.sentCallbackFn.push(this.packetsFn);
-      this.packetsFn = [];
+
+      if (this.packetsFn.length) {
+        this.sentCallbackFn.push(this.packetsFn);
+        this.packetsFn = [];
+      } else {
+        this.sentCallbackFn.push(null);
+      }
+
       this.transport.send(wbuf);
       this.emit("drain");
       this.server.emit("drain", this);
