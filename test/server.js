@@ -2889,25 +2889,6 @@ describe("server", () => {
     });
 
     describe("pre-encoded content", () => {
-      it("should use the pre-encoded content", (done) => {
-        engine = listen((port) => {
-          client = new ClientSocket(`ws://localhost:${port}`, {
-            transports: ["websocket"],
-          });
-
-          engine.on("connection", (conn) => {
-            conn.send("test", {
-              wsPreEncoded: "4test pre-encoded",
-            });
-          });
-
-          client.on("message", (msg) => {
-            expect(msg).to.be("test pre-encoded");
-            done();
-          });
-        });
-      });
-
       it("should use the pre-encoded frame", function (done) {
         if (process.env.EIO_WS_ENGINE === "uws") {
           return this.skip();

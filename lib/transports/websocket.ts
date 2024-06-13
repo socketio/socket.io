@@ -85,9 +85,7 @@ export class WebSocket extends Transport {
         this.socket.send(data, opts, onSent);
       };
 
-      if (packet.options && typeof packet.options.wsPreEncoded === "string") {
-        send(packet.options.wsPreEncoded);
-      } else if (this._canSendPreEncodedFrame(packet)) {
+      if (this._canSendPreEncodedFrame(packet)) {
         // the WebSocket frame was computed with WebSocket.Sender.frame()
         // see https://github.com/websockets/ws/issues/617#issuecomment-283002469
         this.socket._sender.sendFrame(packet.options.wsPreEncodedFrame, onSent);
