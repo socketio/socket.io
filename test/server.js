@@ -3337,68 +3337,6 @@ describe("server", () => {
     });
   });
 
-  describe("permessage-deflate", () => {
-    it("should set threshold", function (done) {
-      if (process.env.EIO_WS_ENGINE === "uws") {
-        return this.skip();
-      }
-      const engine = listen(
-        { transports: ["websocket"], perMessageDeflate: { threshold: 0 } },
-        (port) => {
-          engine.on("connection", (conn) => {
-            const socket = conn.transport.socket;
-            const send = socket.send;
-            socket.send = (data, opts, callback) => {
-              socket.send = send;
-              socket.send(data, opts, callback);
-
-              expect(opts.compress).to.be(true);
-              conn.close();
-              done();
-            };
-
-            const buf = Buffer.allocUnsafe(100);
-            for (let i = 0; i < buf.length; i++) buf[i] = i % 0xff;
-            conn.send(buf, { compress: true });
-          });
-          new ClientSocket(`http://localhost:${port}`, {
-            transports: ["websocket"],
-          });
-        }
-      );
-    });
-
-    it("should not compress when the byte size is below threshold", function (done) {
-      if (process.env.EIO_WS_ENGINE === "uws") {
-        return this.skip();
-      }
-      const engine = listen(
-        { transports: ["websocket"], perMessageDeflate: true },
-        (port) => {
-          engine.on("connection", (conn) => {
-            const socket = conn.transport.socket;
-            const send = socket.send;
-            socket.send = (data, opts, callback) => {
-              socket.send = send;
-              socket.send(data, opts, callback);
-
-              expect(opts.compress).to.be(false);
-              conn.close();
-              done();
-            };
-
-            const buf = Buffer.allocUnsafe(100);
-            for (let i = 0; i < buf.length; i++) buf[i] = i % 0xff;
-            conn.send(buf, { compress: true });
-          });
-          new ClientSocket(`http://localhost:${port}`, {
-            transports: ["websocket"],
-          });
-        }
-      );
-    });
-  });
-
   describe("extraHeaders", function () {
     this.timeout(5000);
 
