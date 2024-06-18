@@ -14,7 +14,7 @@
   "description": "default socket.io in-memory adapter",
   "dependencies": {
     "debug": "~4.3.4",
-    "ws": "~8.11.0"
+    "ws": "~8.17.1"
   },
   "devDependencies": {
     "@types/debug": "^4.1.12",
