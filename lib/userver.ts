@@ -137,6 +137,7 @@ export class uServer extends BaseServer {
 
       if (req._query.sid) {
         debug("setting new request for existing client");
+        // @ts-ignore
         this.clients[req._query.sid].transport.onRequest(req);
       } else {
         const closeConnection = (errorCode, errorContext) =>
@@ -194,7 +195,7 @@ export class uServer extends BaseServer {
         } else {
           debug("upgrading existing transport");
           transport = this.createTransport(req._query.transport, req);
-          client.maybeUpgrade(transport);
+          client._maybeUpgrade(transport);
         }
       } else {
         transport = await this.handshake(

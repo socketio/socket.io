@@ -26,8 +26,8 @@ export class Socket extends EventEmitter {
   public transport: Transport;
 
   private server: Server;
-  private upgrading = false;
-  private upgraded = false;
+  /* private */ upgrading = false;
+  /* private */ upgraded = false;
   private writeBuffer: Packet[] = [];
   private packetsFn: SendCallback[] = [];
   private sentCallbackFn: SendCallback[][] = [];
@@ -264,7 +264,7 @@ export class Socket extends EventEmitter {
    * @param {Transport} transport
    * @api private
    */
-  private maybeUpgrade(transport) {
+  /* private */ _maybeUpgrade(transport: Transport) {
     debug(
       'might upgrade socket transport from "%s" to "%s"',
       this.transport.name,

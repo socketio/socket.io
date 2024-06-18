@@ -160,7 +160,8 @@ function parseSessionId(data: string) {
 export abstract class BaseServer extends EventEmitter {
   public opts: ServerOptions;
 
-  protected clients: any;
+  // TODO for the next major release: use a Map instead
+  protected clients: Record<string, Socket>;
   public clientsCount: number;
   protected middlewares: Middleware[] = [];
 
@@ -590,7 +591,7 @@ export abstract class BaseServer extends EventEmitter {
       debug("upgrading existing transport");
 
       const transport = new WebTransport(session, stream, reader);
-      client.maybeUpgrade(transport);
+      client._maybeUpgrade(transport);
     }
   }
 
@@ -857,7 +858,7 @@ export class Server extends BaseServer {
 
         const transport = this.createTransport(req._query.transport, req);
         transport.perMessageDeflate = this.opts.perMessageDeflate;
-        client.maybeUpgrade(transport);
+        client._maybeUpgrade(transport);
       }
     } else {
       const closeConnection = (errorCode, errorContext) =>
