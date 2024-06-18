@@ -112,9 +112,7 @@ export class Socket extends EventEmitter {
 
     if (this.protocol === 3) {
       // in protocol v3, the client sends a ping, and the server answers with a pong
-      this.resetPingTimeout(
-        this.server.opts.pingInterval + this.server.opts.pingTimeout
-      );
+      this.resetPingTimeout();
     } else {
       // in protocol v4, the server sends a ping, and the client answers with a pong
       this.schedulePing();
@@ -193,7 +191,7 @@ export class Socket extends EventEmitter {
         this.server.opts.pingTimeout
       );
       this.sendPacket("ping");
-      this.resetPingTimeout(this.server.opts.pingTimeout);
+      this.resetPingTimeout();
     }, this.server.opts.pingInterval);
   }
 
@@ -202,12 +200,17 @@ export class Socket extends EventEmitter {
    *
    * @api private
    */
-  private resetPingTimeout(timeout) {
+  private resetPingTimeout() {
     clearTimeout(this.pingTimeoutTimer);
-    this.pingTimeoutTimer = setTimeout(() => {
-      if (this.readyState === "closed") return;
-      this.onClose("ping timeout");
-    }, timeout);
+    this.pingTimeoutTimer = setTimeout(
+      () => {
+        if (this.readyState === "closed") return;
+        this.onClose("ping timeout");
+      },
+      this.protocol === 3
+        ? this.server.opts.pingInterval + this.server.opts.pingTimeout
+        : this.server.opts.pingTimeout
+    );
   }
 
   /**
