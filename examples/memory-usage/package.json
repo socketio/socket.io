@@ -5,6 +5,6 @@
   "description": "",
   "type": "module",
   "dependencies": {
-    "engine.io-client": "^6.5.3"
+    "engine.io-client": "^6.5.4"
   }
 }
