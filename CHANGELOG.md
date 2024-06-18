@@ -1,5 +1,6 @@
 # History
 
+- [2.5.5](#255-2024-06-18) (Jun 2024)
 - [2.5.4](#254-2024-02-22) (Feb 2024)
 - [2.5.3](#253-2024-02-21) (Feb 2024)
 - [2.5.2](#252-2023-01-12) (Jan 2023)
@@ -20,6 +21,14 @@
 
 
 # Release notes
+
+## [2.5.5](https://github.com/socketio/socket.io-adapter/compare/2.5.4...2.5.5) (2024-06-18)
+
+This release contains a bump of the `ws` dependency, which includes an important [security fix](https://github.com/websockets/ws/commit/e55e5106f10fcbaac37cfa89759e4cc0d073a52c).
+
+Advisory: https://github.com/advisories/GHSA-3h5v-q93c-6h6q
+
+
 
 ## [2.5.4](https://github.com/socketio/socket.io-adapter/compare/2.5.3...2.5.4) (2024-02-22)
 
