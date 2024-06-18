@@ -135,12 +135,6 @@ export class Socket extends EventEmitter {
     debug(`received packet ${packet.type}`);
     this.emit("packet", packet);
 
-    // Reset ping timeout on any packet, incoming data is a good sign of
-    // other side's liveness
-    this.resetPingTimeout(
-      this.server.opts.pingInterval + this.server.opts.pingTimeout
-    );
-
     switch (packet.type) {
       case "ping":
         if (this.transport.protocol !== 3) {
@@ -148,6 +142,7 @@ export class Socket extends EventEmitter {
           return;
         }
         debug("got ping");
+        this.pingTimeoutTimer.refresh();
         this.sendPacket("pong");
         this.emit("heartbeat");
         break;
@@ -158,6 +153,7 @@ export class Socket extends EventEmitter {
           return;
         }
         debug("got pong");
+        clearTimeout(this.pingTimeoutTimer);
         this.pingIntervalTimer.refresh();
         this.emit("heartbeat");
         break;
