@@ -1,3 +1,12 @@
+## [2.5.1](https://github.com/socketio/socket.io/compare/2.5.0...2.5.1) (2024-06-19)
+
+
+### Bug Fixes
+
+* add a noop handler for the error event ([d30630b](https://github.com/socketio/socket.io/commit/d30630ba10562bf987f4d2b42440fc41a828119c))
+
+
+
 # [2.5.0](https://github.com/socketio/socket.io/compare/2.4.1...2.5.0) (2022-06-26)
 
 
