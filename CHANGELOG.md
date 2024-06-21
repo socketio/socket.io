@@ -2,6 +2,7 @@
 
 | Version                                                                                                     | Release date   | Bundle size (UMD min+gzip) |
 |-------------------------------------------------------------------------------------------------------------|----------------|----------------------------|
+| [6.6.0](#660-2024-06-21)                                                                                    | June 2024      | `8.6 KB`                   |
 | [6.5.4](#654-2024-06-18) (from the [6.5.x](https://github.com/socketio/engine.io-client/tree/6.5.x) branch) | June 2024      | `8.8 KB`                   |
 | [3.5.4](#354-2024-06-18) (from the [3.5.x](https://github.com/socketio/engine.io-client/tree/3.5.x) branch) | June 2024      | `-`                        |
 | [6.5.3](#653-2023-11-09)                                                                                    | November 2023  | `8.8 KB`                   |
@@ -36,6 +37,28 @@
 | [4.1.0](#410-2021-01-14)                                                                                    | January 2021   | `9.1 KB`                   |
 
 # Release notes
+
+## [6.6.0](https://github.com/socketio/engine.io-client/compare/6.5.3...6.6.0) (2024-06-21)
+
+
+### Bug Fixes
+
+* add some randomness to the cache busting string generator ([b624c50](https://github.com/socketio/engine.io-client/commit/b624c508325615fe5f0ba82293d14831d8861324))
+* fix cookie management with WebSocket (Node.js only) ([e105551](https://github.com/socketio/engine.io-client/commit/e105551ef17ff8a23aa3ebdea9119619ae4208ad))
+
+
+### Features
+
+* add HTTP long-polling implementation based on fetch() ([b11763b](https://github.com/socketio/engine.io-client/commit/b11763beecfe4622867b4dec9d1db77460733ffb))
+* add the ability to test all transports ([579b243](https://github.com/socketio/engine.io-client/commit/579b243e89ac7dc58233f9844ef70817364ecf52))
+* allow to provide a list of transport implementations ([f4d898e](https://github.com/socketio/engine.io-client/commit/f4d898ee9652939a4550a41ac0e8143056154c0a))
+
+
+### Dependencies
+
+- [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) (no change)
+
+
 
 ## [6.5.4](https://github.com/socketio/engine.io-client/compare/6.5.3...6.5.4) (2024-06-18)
 
