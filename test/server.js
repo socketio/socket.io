@@ -2701,6 +2701,29 @@ describe("server", () => {
         });
       });
 
+      it("should execute when message sent during polling upgrade window", (done) => {
+        const engine = listen((port) => {
+          const socket = new ClientSocket(`ws://localhost:${port}`, {
+            transports: ["polling", "websocket"],
+          });
+
+          const partialDone = createPartialDone(() => {
+            engine.httpServer?.close();
+            socket.close();
+            done();
+          }, 2);
+
+          engine.on("connection", (conn) => {
+            conn.on("upgrading", () => {
+              conn.send("a", partialDone);
+            });
+          });
+          socket.on("open", () => {
+            socket.on("message", partialDone);
+          });
+        });
+      });
+
       it("should execute when message sent (websocket)", (done) => {
         const engine = listen({ allowUpgrades: false }, (port) => {
           const socket = new ClientSocket(`ws://localhost:${port}`, {

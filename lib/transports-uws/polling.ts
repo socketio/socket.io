@@ -97,7 +97,7 @@ export class Polling extends Transport {
     res.onAborted(onClose);
 
     this.writable = true;
-    this.emit("drain");
+    this.emit("ready");
 
     // if we're still writable but had a pending close, trigger an empty send
     if (this.writable && this.shouldClose) {
@@ -291,6 +291,7 @@ export class Polling extends Transport {
     debug('writing "%s"', data);
     this.doWrite(data, options, () => {
       this.req.cleanup();
+      this.emit("drain");
     });
   }
 

@@ -60,8 +60,9 @@ export class WebSocket extends Transport {
         this.socket.send(data, isBinary, compress);
 
         if (isLast) {
-          this.writable = true;
           this.emit("drain");
+          this.writable = true;
+          this.emit("ready");
         }
       };
 

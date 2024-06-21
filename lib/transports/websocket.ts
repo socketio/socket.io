@@ -103,8 +103,9 @@ export class WebSocket extends Transport {
     if (err) {
       this.onError("write error", err.stack);
     } else {
-      this.writable = true;
       this.emit("drain");
+      this.writable = true;
+      this.emit("ready");
     }
   };
 

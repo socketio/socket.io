@@ -221,18 +221,21 @@ export class Socket extends EventEmitter {
    */
   private setTransport(transport) {
     const onError = this.onError.bind(this);
+    const onReady = () => this.flush();
     const onPacket = this.onPacket.bind(this);
     const onDrain = this.onDrain.bind(this);
     const onClose = this.onClose.bind(this, "transport close");
 
     this.transport = transport;
     this.transport.once("error", onError);
+    this.transport.on("ready", onReady);
     this.transport.on("packet", onPacket);
     this.transport.on("drain", onDrain);
     this.transport.once("close", onClose);
 
     this.cleanupFn.push(function () {
       transport.removeListener("error", onError);
+      transport.removeListener("ready", onReady);
       transport.removeListener("packet", onPacket);
       transport.removeListener("drain", onDrain);
       transport.removeListener("close", onClose);
@@ -245,8 +248,6 @@ export class Socket extends EventEmitter {
    * @private
    */
   private onDrain() {
-    this.flush();
-
     if (this.sentCallbackFn.length > 0) {
       debug("executing batch send callback");
       const seqFn = this.sentCallbackFn.shift();

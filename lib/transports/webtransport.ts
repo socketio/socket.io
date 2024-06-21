@@ -56,8 +56,9 @@ export class WebTransport extends Transport {
       debug("error while writing: %s", e.message);
     }
 
-    this.writable = true;
     this.emit("drain");
+    this.writable = true;
+    this.emit("ready");
   }
 
   doClose(fn) {

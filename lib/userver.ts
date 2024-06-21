@@ -80,7 +80,7 @@ export class uServer extends BaseServer {
           const transport = ws.getUserData().transport;
           transport.socket = ws;
           transport.writable = true;
-          transport.emit("drain");
+          transport.emit("ready");
         },
         message: (ws, message, isBinary) => {
           ws.getUserData().transport.onData(
