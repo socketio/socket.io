@@ -15,6 +15,7 @@ export class Polling extends Transport {
   public maxHttpBufferSize: number;
   public httpCompression: any;
 
+  private req: HttpRequest & { cleanup: () => void };
   private res: HttpResponse;
   private dataReq: HttpRequest;
   private dataRes: HttpResponse;

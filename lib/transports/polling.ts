@@ -16,6 +16,7 @@ export class Polling extends Transport {
   public maxHttpBufferSize: number;
   public httpCompression: any;
 
+  private req: EngineRequest;
   private res: ServerResponse;
   private dataReq: IncomingMessage;
   private dataRes: ServerResponse;

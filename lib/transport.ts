@@ -54,7 +54,6 @@ export abstract class Transport extends EventEmitter {
    * @protected
    */
   protected parser: any;
-  protected req: EngineRequest;
   /**
    * Whether the transport supports binary payloads (else it will be base64-encoded)
    * @protected
@@ -99,13 +98,10 @@ export abstract class Transport extends EventEmitter {
   /**
    * Called with an incoming HTTP request.
    *
-   * @param {http.IncomingMessage} req
+   * @param req
    * @package
    */
-  onRequest(req) {
-    debug("setting request");
-    this.req = req;
-  }
+  onRequest(req: any) {}
 
   /**
    * Closes the transport.
