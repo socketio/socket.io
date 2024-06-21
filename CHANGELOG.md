@@ -1,61 +1,71 @@
 # History
 
-## 2024
-
-- [6.5.5](#655-2024-06-18) (Jun 2024) (from the [6.5.x](https://github.com/socketio/engine.io/tree/6.5.x) branch)
-- [3.6.2](#362-2024-06-18) (Jun 2024) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)
-
-## 2023
-
-- [6.5.4](#654-2023-11-09) (Nov 2023)
-- [6.5.3](#653-2023-10-06) (Oct 2023)
-- [6.5.2](#652-2023-08-01) (Aug 2023)
-- [6.5.1](#651-2023-06-27) (Jun 2023)
-- [6.5.0](#650-2023-06-16) (Jun 2023)
-- [6.4.2](#642-2023-05-02) (May 2023)
-- [6.4.1](#641-2023-02-20) (Feb 2023)
-- [6.4.0](#640-2023-02-06) (Feb 2023)
-- [6.3.1](#631-2023-01-12) (Jan 2023)
-- [6.3.0](#630-2023-01-10) (Jan 2023)
-
-## 2022
-
-- [3.6.1](#361-2022-11-20) (Nov 2022) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)
-- [6.2.1](#621-2022-11-20) (Nov 2022)
-- [3.6.0](#360-2022-06-06) (Jun 2022) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)
-- [6.2.0](#620-2022-04-17) (Apr 2022)
-- [6.1.3](#613-2022-02-23) (Feb 2022)
-- [6.1.2](#612-2022-01-18) (Jan 2022)
-- [6.1.1](#611-2022-01-11) (Jan 2022)
-
-## 2021
-
-- [6.1.0](#610-2021-11-08) (Nov 2021)
-- [6.0.1](#601-2021-11-06) (Nov 2021)
-- [**6.0.0**](#600-2021-10-08) (Oct 2021)
-- [5.2.0](#520-2021-08-29) (Aug 2021)
-- [5.1.1](#511-2021-05-16) (May 2021)
-- [5.1.0](#510-2021-05-04) (May 2021)
-- [**5.0.0**](#500-2021-03-10) (Mar 2021)
-- [4.1.1](#411-2021-02-02) (Feb 2021)
-- [4.1.0](#410-2021-01-14) (Jan 2021)
-- [4.0.6](#406-2021-01-04) (Jan 2021)
-
-## 2020
-
-- [3.5.0](#350-2020-12-30) (Dec 2020) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)
-- [4.0.5](#405-2020-12-07) (Dec 2020)
-- [4.0.4](#404-2020-11-17) (Nov 2020)
-- [4.0.3](#403-2020-11-17) (Nov 2020)
-- [4.0.2](#402-2020-11-09) (Nov 2020)
-- [4.0.1](#401-2020-10-21) (Oct 2020)
-- [**4.0.0**](#400-2020-09-10) (Sep 2020)
-- [3.4.2](#342-2020-06-04) (Jun 2020)
-- [3.4.1](#341-2020-04-17) (Apr 2020)
-
+| Version                                                                                              | Release date   |
+|------------------------------------------------------------------------------------------------------|----------------|
+| [6.6.0](#660-2024-06-21)                                                                             | June 2024      |
+| [6.5.5](#655-2024-06-18) (from the [6.5.x](https://github.com/socketio/engine.io/tree/6.5.x) branch) | June 2024      |
+| [3.6.2](#362-2024-06-18) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)     | June 2024      |
+| [6.5.4](#654-2023-11-09)                                                                             | November 2023  |
+| [6.5.3](#653-2023-10-06)                                                                             | October 2023   |
+| [6.5.2](#652-2023-08-01)                                                                             | August 2023    |
+| [6.5.1](#651-2023-06-27)                                                                             | June 2023      |
+| [6.5.0](#650-2023-06-16)                                                                             | June 2023      |
+| [6.4.2](#642-2023-05-02)                                                                             | May 2023       |
+| [6.4.1](#641-2023-02-20)                                                                             | February 2023  |
+| [6.4.0](#640-2023-02-06)                                                                             | February 2023  |
+| [6.3.1](#631-2023-01-12)                                                                             | January 2023   |
+| [6.3.0](#630-2023-01-10)                                                                             | January 2023   |
+| [3.6.1](#361-2022-11-20) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)     | November 2022  |
+| [6.2.1](#621-2022-11-20)                                                                             | November 2022  |
+| [3.6.0](#360-2022-06-06) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)     | June 2022      |
+| [6.2.0](#620-2022-04-17)                                                                             | April 2022     |
+| [6.1.3](#613-2022-02-23)                                                                             | February 2022  |
+| [6.1.2](#612-2022-01-18)                                                                             | January 2022   |
+| [6.1.1](#611-2022-01-11)                                                                             | January 2021   |
+| [6.1.0](#610-2021-11-08)                                                                             | November 2022  |
+| [6.0.1](#601-2021-11-06)                                                                             | November 2021  |
+| [**6.0.0**](#600-2021-10-08)                                                                         | October 2021   |
+| [5.2.0](#520-2021-08-29)                                                                             | August 2021    |
+| [5.1.1](#511-2021-05-16)                                                                             | May 2021       |
+| [5.1.0](#510-2021-05-04)                                                                             | May 2021       |
+| [**5.0.0**](#500-2021-03-10)                                                                         | March 2021     |
+| [4.1.1](#411-2021-02-02)                                                                             | February 2021  |
+| [4.1.0](#410-2021-01-14)                                                                             | January 2021   |
+| [4.0.6](#406-2021-01-04)                                                                             | January 2021   |
+| [3.5.0](#350-2020-12-30) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)     | December 2020  |
+| [4.0.5](#405-2020-12-07)                                                                             | December 2020  |
+| [4.0.4](#404-2020-11-17)                                                                             | November 2020  |
+| [4.0.3](#403-2020-11-17)                                                                             | November 2020  |
+| [4.0.2](#402-2020-11-09)                                                                             | November 2020  |
+| [4.0.1](#401-2020-10-21)                                                                             | October 2020   |
+| [**4.0.0**](#400-2020-09-10)                                                                         | September 2020 |
+| [3.4.2](#342-2020-06-04)                                                                             | June 2020      |
+| [3.4.1](#341-2020-04-17)                                                                             | April 2020     |
 
 
 # Release notes
+
+## [6.6.0](https://github.com/socketio/engine.io/compare/6.5.4...6.6.0) (2024-06-21)
+
+
+### Bug Fixes
+
+* fix `websocket` and `webtransport` send callbacks ([#699](https://github.com/socketio/engine.io/issues/699)) ([fc21c4a](https://github.com/socketio/engine.io/commit/fc21c4a05f9d50d7efd62aa7a937fadce385e919))
+* properly call the send callback during upgrade ([362bc78](https://github.com/socketio/engine.io/commit/362bc78191c607e6b7c7f2b2e7e7ddb2fe53101c))
+* **types:** make socket.request writable ([#697](https://github.com/socketio/engine.io/issues/697)) ([0efa04b](https://github.com/socketio/engine.io/commit/0efa04b5841816d18b0c6ebf7c5f592f8382978a))
+
+
+### Performance Improvements
+
+* do not reset the hearbeat timer on each packet ([5359bae](https://github.com/socketio/engine.io/commit/5359bae683e2a25742bd4989d0355a8fc10d294e))
+* **websocket:** use bound callbacks ([9a68c8c](https://github.com/socketio/engine.io/commit/9a68c8ce93cc1bc0bc1a30548558da49860f4acd))
+
+
+### Dependencies
+
+- [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) (no change)
+
+
 
 ## [6.5.5](https://github.com/socketio/engine.io/compare/6.5.4...6.5.5) (2024-06-18)
 
