@@ -11,7 +11,6 @@ export class WebSocket extends Transport {
    * WebSocket transport
    *
    * @param req
-   * @api public
    */
   constructor(req) {
     super(req);
@@ -21,8 +20,6 @@ export class WebSocket extends Transport {
 
   /**
    * Transport name
-   *
-   * @api public
    */
   get name() {
     return "websocket";
@@ -30,8 +27,6 @@ export class WebSocket extends Transport {
 
   /**
    * Advertise upgrade support.
-   *
-   * @api public
    */
   get handlesUpgrades() {
     return true;
@@ -41,7 +36,7 @@ export class WebSocket extends Transport {
    * Writes a packet payload.
    *
    * @param {Array} packets
-   * @api private
+   * @private
    */
   send(packets) {
     this.writable = false;
@@ -77,7 +72,7 @@ export class WebSocket extends Transport {
   /**
    * Closes the transport.
    *
-   * @api private
+   * @private
    */
   doClose(fn) {
     debug("closing");

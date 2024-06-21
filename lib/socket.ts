@@ -1,10 +1,10 @@
 import { EventEmitter } from "events";
 import debugModule from "debug";
-import { IncomingMessage } from "http";
-import { Transport } from "./transport";
-import { Server } from "./server";
+import type { IncomingMessage } from "http";
+import type { EngineRequest, Transport } from "./transport";
+import type { BaseServer } from "./server";
 import { setTimeout, clearTimeout } from "timers";
-import { Packet, PacketType, RawData } from "engine.io-parser";
+import type { Packet, PacketType, RawData } from "engine.io-parser";
 
 const debug = debugModule("engine:socket");
 
@@ -17,15 +17,38 @@ type ReadyState = "opening" | "open" | "closing" | "closed";
 type SendCallback = (transport: Transport) => void;
 
 export class Socket extends EventEmitter {
+  /**
+   * The revision of the protocol:
+   *
+   * - 3rd is used in Engine.IO v3 / Socket.IO v2
+   * - 4th is used in Engine.IO v4 and above / Socket.IO v3 and above
+   *
+   * It is found in the `EIO` query parameters of the HTTP requests.
+   *
+   * @see https://github.com/socketio/engine.io-protocol
+   */
   public readonly protocol: number;
-  // TODO for the next major release: do not keep the reference to the first HTTP request, as it stays in memory
+  /**
+   * A reference to the first HTTP request of the session
+   *
+   * TODO for the next major release: remove it
+   */
   public request: IncomingMessage;
+  /**
+   * The IP address of the client.
+   */
   public readonly remoteAddress: string;
 
+  /**
+   * The current state of the socket.
+   */
   public _readyState: ReadyState = "opening";
+  /**
+   * The current low-level transport.
+   */
   public transport: Transport;
 
-  private server: Server;
+  private server: BaseServer;
   /* private */ upgrading = false;
   /* private */ upgraded = false;
   private writeBuffer: Packet[] = [];
@@ -52,12 +75,13 @@ export class Socket extends EventEmitter {
     this._readyState = state;
   }
 
-  /**
-   * Client class (abstract).
-   *
-   * @api private
-   */
-  constructor(id, server, transport, req, protocol) {
+  constructor(
+    id: string,
+    server: BaseServer,
+    transport: Transport,
+    req: EngineRequest,
+    protocol: number
+  ) {
     super();
     this.id = id;
     this.server = server;
@@ -86,7 +110,7 @@ export class Socket extends EventEmitter {
   /**
    * Called upon transport considered open.
    *
-   * @api private
+   * @private
    */
   private onOpen() {
     this.readyState = "open";
@@ -123,7 +147,7 @@ export class Socket extends EventEmitter {
    * Called upon transport packet.
    *
    * @param {Object} packet
-   * @api private
+   * @private
    */
   private onPacket(packet: Packet) {
     if ("open" !== this.readyState) {
@@ -136,7 +160,7 @@ export class Socket extends EventEmitter {
     switch (packet.type) {
       case "ping":
         if (this.transport.protocol !== 3) {
-          this.onError("invalid heartbeat direction");
+          this.onError(new Error("invalid heartbeat direction"));
           return;
         }
         debug("got ping");
@@ -147,7 +171,7 @@ export class Socket extends EventEmitter {
 
       case "pong":
         if (this.transport.protocol === 3) {
-          this.onError("invalid heartbeat direction");
+          this.onError(new Error("invalid heartbeat direction"));
           return;
         }
         debug("got pong");
@@ -171,9 +195,9 @@ export class Socket extends EventEmitter {
    * Called upon transport error.
    *
    * @param {Error} err - error object
-   * @api private
+   * @private
    */
-  private onError(err) {
+  private onError(err: Error) {
     debug("transport error");
     this.onClose("transport error", err);
   }
@@ -182,7 +206,7 @@ export class Socket extends EventEmitter {
    * Pings client every `this.pingInterval` and expects response
    * within `this.pingTimeout` or closes connection.
    *
-   * @api private
+   * @private
    */
   private schedulePing() {
     this.pingIntervalTimer = setTimeout(() => {
@@ -198,7 +222,7 @@ export class Socket extends EventEmitter {
   /**
    * Resets ping timeout.
    *
-   * @api private
+   * @private
    */
   private resetPingTimeout() {
     clearTimeout(this.pingTimeoutTimer);
@@ -217,9 +241,9 @@ export class Socket extends EventEmitter {
    * Attaches handlers for the given transport.
    *
    * @param {Transport} transport
-   * @api private
+   * @private
    */
-  private setTransport(transport) {
+  private setTransport(transport: Transport) {
     const onError = this.onError.bind(this);
     const onReady = () => this.flush();
     const onPacket = this.onPacket.bind(this);
@@ -263,7 +287,7 @@ export class Socket extends EventEmitter {
    * Upgrades socket to the given transport
    *
    * @param {Transport} transport
-   * @api private
+   * @private
    */
   /* private */ _maybeUpgrade(transport: Transport) {
     debug(
@@ -357,7 +381,7 @@ export class Socket extends EventEmitter {
   /**
    * Clears listeners and timers associated with current transport.
    *
-   * @api private
+   * @private
    */
   private clearTransport() {
     let cleanup;
@@ -412,7 +436,6 @@ export class Socket extends EventEmitter {
    * @param {Object} options
    * @param {Function} callback
    * @return {Socket} for chaining
-   * @api public
    */
   public send(data: RawData, options?: SendOptions, callback?: SendCallback) {
     this.sendPacket("message", data, options, callback);
@@ -439,7 +462,7 @@ export class Socket extends EventEmitter {
    * @param {Object} options
    * @param {Function} callback
    *
-   * @api private
+   * @private
    */
   private sendPacket(
     type: PacketType,
@@ -480,7 +503,7 @@ export class Socket extends EventEmitter {
   /**
    * Attempts to flush the packets buffer.
    *
-   * @api private
+   * @private
    */
   private flush() {
     if (
@@ -510,14 +533,12 @@ export class Socket extends EventEmitter {
   /**
    * Get available upgrades for this socket.
    *
-   * @api private
+   * @private
    */
   private getAvailableUpgrades() {
     const availableUpgrades = [];
     const allUpgrades = this.server.upgrades(this.transport.name);
-    let i = 0;
-    const l = allUpgrades.length;
-    for (; i < l; ++i) {
+    for (let i = 0; i < allUpgrades.length; ++i) {
       const upg = allUpgrades[i];
       if (this.server.opts.transports.indexOf(upg) !== -1) {
         availableUpgrades.push(upg);
@@ -531,7 +552,6 @@ export class Socket extends EventEmitter {
    *
    * @param {Boolean} discard - optional, discard the transport
    * @return {Socket} for chaining
-   * @api public
    */
   public close(discard?: boolean) {
     if ("open" !== this.readyState) return;
@@ -558,9 +578,9 @@ export class Socket extends EventEmitter {
    * Closes the underlying transport.
    *
    * @param {Boolean} discard
-   * @api private
+   * @private
    */
-  private closeTransport(discard) {
+  private closeTransport(discard: boolean) {
     debug("closing the transport (discard? %s)", discard);
     if (discard) this.transport.discard();
     this.transport.close(this.onClose.bind(this, "forced close"));

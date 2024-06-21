@@ -1,8 +1,9 @@
-import { Transport } from "../transport";
+import { EngineRequest, Transport } from "../transport";
 import { createGzip, createDeflate } from "zlib";
 import * as accepts from "accepts";
 import debugModule from "debug";
-import { IncomingMessage, ServerResponse } from "http";
+import type { IncomingMessage, ServerResponse } from "http";
+import type { Packet, RawData } from "engine.io-parser";
 
 const debug = debugModule("engine:polling");
 
@@ -18,14 +19,12 @@ export class Polling extends Transport {
   private res: ServerResponse;
   private dataReq: IncomingMessage;
   private dataRes: ServerResponse;
-  private shouldClose: Function;
+  private shouldClose: () => void;
 
   private readonly closeTimeout: number;
 
   /**
    * HTTP polling constructor.
-   *
-   * @api public.
    */
   constructor(req) {
     super(req);
@@ -35,8 +34,6 @@ export class Polling extends Transport {
 
   /**
    * Transport name
-   *
-   * @api public
    */
   get name() {
     return "polling";
@@ -45,10 +42,10 @@ export class Polling extends Transport {
   /**
    * Overrides onRequest.
    *
-   * @param {http.IncomingMessage}
-   * @api private
+   * @param {EngineRequest} req
+   * @package
    */
-  onRequest(req: IncomingMessage & { res: ServerResponse }) {
+  onRequest(req: EngineRequest) {
     const res = req.res;
     // remove the reference to the ServerResponse object (as the first request of the session is kept in memory by default)
     req.res = null;
@@ -66,9 +63,9 @@ export class Polling extends Transport {
   /**
    * The client sends a request awaiting for us to send data.
    *
-   * @api private
+   * @private
    */
-  onPollRequest(req, res) {
+  private onPollRequest(req: EngineRequest, res: ServerResponse) {
     if (this.req) {
       debug("request overlap");
       // assert: this.res, '.req and .res should be (un)set together'
@@ -108,9 +105,9 @@ export class Polling extends Transport {
   /**
    * The client sends a request with data.
    *
-   * @api private
+   * @private
    */
-  onDataRequest(req: IncomingMessage, res: ServerResponse) {
+  private onDataRequest(req: IncomingMessage, res: ServerResponse) {
     if (this.dataReq) {
       // assert: this.dataRes, '.dataReq and .dataRes should be (un)set together'
       this.onError("data request overlap from client");
@@ -165,7 +162,7 @@ export class Polling extends Transport {
         // text/html is required instead of text/plain to avoid an
         // unwanted download dialog on certain user-agents (GH-43)
         "Content-Type": "text/html",
-        "Content-Length": 2,
+        "Content-Length": "2",
       };
 
       res.writeHead(200, this.headers(req, headers));
@@ -182,10 +179,10 @@ export class Polling extends Transport {
   /**
    * Processes the incoming data payload.
    *
-   * @param {String} encoded payload
-   * @api private
+   * @param data - encoded payload
+   * @protected
    */
-  onData(data) {
+  override onData(data: RawData) {
     debug('received "%s"', data);
     const callback = (packet) => {
       if ("close" === packet.type) {
@@ -207,7 +204,7 @@ export class Polling extends Transport {
   /**
    * Overrides onClose.
    *
-   * @api private
+   * @private
    */
   onClose() {
     if (this.writable) {
@@ -217,13 +214,7 @@ export class Polling extends Transport {
     super.onClose();
   }
 
-  /**
-   * Writes a packet payload.
-   *
-   * @param {Object} packet
-   * @api private
-   */
-  send(packets) {
+  send(packets: Packet[]) {
     this.writable = false;
 
     if (this.shouldClose) {
@@ -252,9 +243,9 @@ export class Polling extends Transport {
    *
    * @param {String} data
    * @param {Object} options
-   * @api private
+   * @private
    */
-  write(data, options) {
+  private write(data, options) {
     debug('writing "%s"', data);
     this.doWrite(data, options, () => {
       this.req.cleanup();
@@ -265,9 +256,9 @@ export class Polling extends Transport {
   /**
    * Performs the write.
    *
-   * @api private
+   * @protected
    */
-  doWrite(data, options, callback) {
+  protected doWrite(data, options, callback) {
     // explicit UTF-8 is required for pages not served under utf
     const isString = typeof data === "string";
     const contentType = isString
@@ -319,9 +310,9 @@ export class Polling extends Transport {
   /**
    * Compresses data.
    *
-   * @api private
+   * @private
    */
-  compress(data, encoding, callback) {
+  private compress(data, encoding, callback) {
     debug("compressing");
 
     const buffers = [];
@@ -342,9 +333,9 @@ export class Polling extends Transport {
   /**
    * Closes the transport.
    *
-   * @api private
+   * @private
    */
-  doClose(fn) {
+  override doClose(fn: () => void) {
     debug("closing");
 
     let closeTimeoutTimer;
@@ -377,13 +368,11 @@ export class Polling extends Transport {
   /**
    * Returns headers for a response.
    *
-   * @param {http.IncomingMessage} request
-   * @param {Object} extra headers
-   * @api private
+   * @param {http.IncomingMessage} req
+   * @param {Object} headers - extra headers
+   * @private
    */
-  headers(req, headers) {
-    headers = headers || {};
-
+  private headers(req: IncomingMessage, headers: Record<string, string> = {}) {
     // prevent XSS warnings on IE
     // https://github.com/LearnBoost/socket.io/pull/1333
     const ua = req.headers["user-agent"];

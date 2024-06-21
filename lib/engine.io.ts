@@ -17,7 +17,6 @@ export const protocol = parser.protocol;
  * @param {Function} callback
  * @param {Object} options
  * @return {Server} websocket.io server
- * @api public
  */
 
 function listen(port, options: AttachOptions & ServerOptions, fn) {
@@ -46,7 +45,6 @@ function listen(port, options: AttachOptions & ServerOptions, fn) {
  * @param {http.Server} server
  * @param {Object} options
  * @return {Server} engine server
- * @api public
  */
 
 function attach(server, options: AttachOptions & ServerOptions) {

@@ -24,8 +24,6 @@ export class Polling extends Transport {
 
   /**
    * HTTP polling constructor.
-   *
-   * @api public.
    */
   constructor(req) {
     super(req);
@@ -35,8 +33,6 @@ export class Polling extends Transport {
 
   /**
    * Transport name
-   *
-   * @api public
    */
   get name() {
     return "polling";
@@ -47,7 +43,7 @@ export class Polling extends Transport {
    *
    * @param req
    *
-   * @api private
+   * @private
    */
   onRequest(req) {
     const res = req.res;
@@ -67,7 +63,7 @@ export class Polling extends Transport {
   /**
    * The client sends a request awaiting for us to send data.
    *
-   * @api private
+   * @private
    */
   onPollRequest(req, res) {
     if (this.req) {
@@ -109,7 +105,7 @@ export class Polling extends Transport {
   /**
    * The client sends a request with data.
    *
-   * @api private
+   * @private
    */
   onDataRequest(req, res) {
     if (this.dataReq) {
@@ -206,7 +202,7 @@ export class Polling extends Transport {
   /**
    * Cleanup request.
    *
-   * @api private
+   * @private
    */
   private onDataRequestCleanup() {
     this.dataReq = this.dataRes = null;
@@ -216,7 +212,7 @@ export class Polling extends Transport {
    * Processes the incoming data payload.
    *
    * @param {String} encoded payload
-   * @api private
+   * @private
    */
   onData(data) {
     debug('received "%s"', data);
@@ -240,7 +236,7 @@ export class Polling extends Transport {
   /**
    * Overrides onClose.
    *
-   * @api private
+   * @private
    */
   onClose() {
     if (this.writable) {
@@ -254,7 +250,7 @@ export class Polling extends Transport {
    * Writes a packet payload.
    *
    * @param {Object} packet
-   * @api private
+   * @private
    */
   send(packets) {
     this.writable = false;
@@ -285,7 +281,7 @@ export class Polling extends Transport {
    *
    * @param {String} data
    * @param {Object} options
-   * @api private
+   * @private
    */
   write(data, options) {
     debug('writing "%s"', data);
@@ -298,7 +294,7 @@ export class Polling extends Transport {
   /**
    * Performs the write.
    *
-   * @api private
+   * @private
    */
   doWrite(data, options, callback) {
     // explicit UTF-8 is required for pages not served under utf
@@ -355,7 +351,7 @@ export class Polling extends Transport {
   /**
    * Compresses data.
    *
-   * @api private
+   * @private
    */
   compress(data, encoding, callback) {
     debug("compressing");
@@ -378,7 +374,7 @@ export class Polling extends Transport {
   /**
    * Closes the transport.
    *
-   * @api private
+   * @private
    */
   doClose(fn) {
     debug("closing");
@@ -410,7 +406,7 @@ export class Polling extends Transport {
    *
    * @param req - request
    * @param {Object} extra headers
-   * @api private
+   * @private
    */
   headers(req, headers) {
     headers = headers || {};

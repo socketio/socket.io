@@ -30,7 +30,7 @@ export class uServer extends BaseServer {
   /**
    * Prepares a request by processing the query string.
    *
-   * @api private
+   * @private
    */
   private prepare(req, res: HttpResponse) {
     req.method = req.getMethod().toUpperCase();

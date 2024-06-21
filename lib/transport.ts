@@ -2,30 +2,63 @@ import { EventEmitter } from "events";
 import * as parser_v4 from "engine.io-parser";
 import * as parser_v3 from "./parser-v3/index";
 import debugModule from "debug";
-import { IncomingMessage } from "http";
-import { Packet } from "engine.io-parser";
+import type { IncomingMessage, ServerResponse } from "http";
+import { Packet, RawData } from "engine.io-parser";
 
 const debug = debugModule("engine:transport");
-
-/**
- * Noop function.
- *
- * @api private
- */
 
 function noop() {}
 
 type ReadyState = "open" | "closing" | "closed";
 
+export type EngineRequest = IncomingMessage & {
+  _query: Record<string, string>;
+  res?: ServerResponse;
+  cleanup?: Function;
+  websocket?: any;
+};
+
 export abstract class Transport extends EventEmitter {
+  /**
+   * The session ID.
+   */
   public sid: string;
+  /**
+   * Whether the transport is currently ready to send packets.
+   */
   public writable = false;
+  /**
+   * The revision of the protocol:
+   *
+   * - 3 is used in Engine.IO v3 / Socket.IO v2
+   * - 4 is used in Engine.IO v4 and above / Socket.IO v3 and above
+   *
+   * It is found in the `EIO` query parameters of the HTTP requests.
+   *
+   * @see https://github.com/socketio/engine.io-protocol
+   */
   public protocol: number;
 
+  /**
+   * The current state of the transport.
+   * @protected
+   */
   protected _readyState: ReadyState = "open";
+  /**
+   * Whether the transport is discarded and can be safely closed (used during upgrade).
+   * @protected
+   */
   protected discarded = false;
+  /**
+   * The parser to use (depends on the revision of the {@link Transport#protocol}.
+   * @protected
+   */
   protected parser: any;
-  protected req: IncomingMessage & { cleanup: Function };
+  protected req: EngineRequest;
+  /**
+   * Whether the transport supports binary payloads (else it will be base64-encoded)
+   * @protected
+   */
   protected supportsBinary: boolean;
 
   get readyState() {
@@ -45,10 +78,9 @@ export abstract class Transport extends EventEmitter {
   /**
    * Transport constructor.
    *
-   * @param {http.IncomingMessage} req
-   * @api public
+   * @param {EngineRequest} req
    */
-  constructor(req) {
+  constructor(req: { _query: Record<string, string> }) {
     super();
     this.protocol = req._query.EIO === "4" ? 4 : 3; // 3rd revision by default
     this.parser = this.protocol === 4 ? parser_v4 : parser_v3;
@@ -58,7 +90,7 @@ export abstract class Transport extends EventEmitter {
   /**
    * Flags the transport as discarded.
    *
-   * @api private
+   * @package
    */
   discard() {
     this.discarded = true;
@@ -68,9 +100,9 @@ export abstract class Transport extends EventEmitter {
    * Called with an incoming HTTP request.
    *
    * @param {http.IncomingMessage} req
-   * @api protected
+   * @package
    */
-  protected onRequest(req) {
+  onRequest(req) {
     debug("setting request");
     this.req = req;
   }
@@ -78,9 +110,9 @@ export abstract class Transport extends EventEmitter {
   /**
    * Closes the transport.
    *
-   * @api private
+   * @package
    */
-  close(fn?) {
+  close(fn?: () => void) {
     if ("closed" === this.readyState || "closing" === this.readyState) return;
 
     this.readyState = "closing";
@@ -92,7 +124,7 @@ export abstract class Transport extends EventEmitter {
    *
    * @param {String} msg - message error
    * @param {Object} desc - error description
-   * @api protected
+   * @protected
    */
   protected onError(msg: string, desc?) {
     if (this.listeners("error").length) {
@@ -111,7 +143,7 @@ export abstract class Transport extends EventEmitter {
    * Called with parsed out a packets from the data stream.
    *
    * @param {Object} packet
-   * @api protected
+   * @protected
    */
   protected onPacket(packet: Packet) {
     this.emit("packet", packet);
@@ -121,16 +153,16 @@ export abstract class Transport extends EventEmitter {
    * Called with the encoded packet data.
    *
    * @param {String} data
-   * @api protected
+   * @protected
    */
-  protected onData(data) {
+  protected onData(data: RawData) {
     this.onPacket(this.parser.decodePacket(data));
   }
 
   /**
    * Called upon transport close.
    *
-   * @api protected
+   * @protected
    */
   protected onClose() {
     this.readyState = "closed";
@@ -140,7 +172,7 @@ export abstract class Transport extends EventEmitter {
   /**
    * The name of the transport.
    */
-  abstract get name();
+  abstract get name(): string;
 
   /**
    * Sends an array of packets.
@@ -148,10 +180,10 @@ export abstract class Transport extends EventEmitter {
    * @param {Array} packets
    * @package
    */
-  abstract send(packets);
+  abstract send(packets: Packet[]): void;
 
   /**
    * Closes the transport.
    */
-  abstract doClose(fn?);
+  abstract doClose(fn?: () => void): void;
 }

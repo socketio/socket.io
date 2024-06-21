@@ -1,5 +1,6 @@
 import { Polling } from "./polling";
 import * as qs from "querystring";
+import type { RawData } from "engine.io-parser";
 
 const rDoubleSlashes = /\\\\n/g;
 const rSlashes = /(\\)?\\n/g;
@@ -10,8 +11,6 @@ export class JSONP extends Polling {
 
   /**
    * JSON-P polling transport.
-   *
-   * @api public
    */
   constructor(req) {
     super(req);
@@ -20,16 +19,10 @@ export class JSONP extends Polling {
     this.foot = ");";
   }
 
-  /**
-   * Handles incoming data.
-   * Due to a bug in \n handling by browsers, we expect a escaped string.
-   *
-   * @api private
-   */
-  onData(data) {
+  override onData(data: RawData) {
     // we leverage the qs module so that we get built-in DoS protection
     // and the fast alternative to decodeURIComponent
-    data = qs.parse(data).d;
+    data = qs.parse(data).d as string;
     if ("string" === typeof data) {
       // client will send already escaped newlines as \\\\n and newlines as \\n
       // \\n must be replaced with \n and \\\\n with \\n
@@ -40,12 +33,7 @@ export class JSONP extends Polling {
     }
   }
 
-  /**
-   * Performs the write.
-   *
-   * @api private
-   */
-  doWrite(data, options, callback) {
+  override doWrite(data, options, callback) {
     // we must output valid javascript, not valid json
     // see: http://timelessrepo.com/json-isnt-a-javascript-subset
     const js = JSON.stringify(data)

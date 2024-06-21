@@ -1,4 +1,4 @@
-import { Transport } from "../transport";
+import { EngineRequest, Transport } from "../transport";
 import debugModule from "debug";
 import type { Packet, RawData } from "engine.io-parser";
 
@@ -11,10 +11,9 @@ export class WebSocket extends Transport {
   /**
    * WebSocket transport
    *
-   * @param {http.IncomingMessage}
-   * @api public
+   * @param {EngineRequest} req
    */
-  constructor(req) {
+  constructor(req: EngineRequest) {
     super(req);
     this.socket = req.websocket;
     this.socket.on("message", (data, isBinary) => {
@@ -30,8 +29,6 @@ export class WebSocket extends Transport {
 
   /**
    * Transport name
-   *
-   * @api public
    */
   get name() {
     return "websocket";
@@ -39,8 +36,6 @@ export class WebSocket extends Transport {
 
   /**
    * Advertise upgrade support.
-   *
-   * @api public
    */
   get handlesUpgrades() {
     return true;

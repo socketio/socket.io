@@ -11,8 +11,6 @@ export default {
 
 /**
  * Polling polymorphic constructor.
- *
- * @api private
  */
 
 function polling(req) {
