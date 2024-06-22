@@ -156,10 +156,11 @@ const WebSocketCtor = globalThis.WebSocket || globalThis.MozWebSocket;
 /**
  * WebSocket transport based on the built-in `WebSocket` object.
  *
- * Usage: browser, Deno, Bun
+ * Usage: browser, Node.js (since v21), Deno, Bun
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
  * @see https://caniuse.com/mdn-api_websocket
+ * @see https://nodejs.org/api/globals.html#websocket
  */
 export class WS extends BaseWS {
   createSocket(

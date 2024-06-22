@@ -41,17 +41,91 @@
 ## [6.6.0](https://github.com/socketio/engine.io-client/compare/6.5.3...6.6.0) (2024-06-21)
 
 
+### Features
+
+#### Custom transport implementations
+
+The `transports` option now accepts an array of transport implementations:
+
+```js
+import { Socket, XHR, WebSocket } from "engine.io-client";
+
+const socket = new Socket({
+  transports: [XHR, WebSocket]
+});
+```
+
+Here is the list of provided implementations:
+
+| Transport       | Description                                                                                          |
+|-----------------|------------------------------------------------------------------------------------------------------|
+| `Fetch`         | HTTP long-polling based on the built-in `fetch()` method.                                            |
+| `NodeXHR`       | HTTP long-polling based on the `XMLHttpRequest` object provided by the `xmlhttprequest-ssl` package. |
+| `XHR`           | HTTP long-polling based on the built-in `XMLHttpRequest` object.                                     |
+| `NodeWebSocket` | WebSocket transport based on the `WebSocket` object provided by the `ws` package.                    |
+| `WebSocket`     | WebSocket transport based on the built-in `WebSocket` object.                                        |
+| `WebTransport`  | WebTransport transport based on the built-in `WebTransport` object.                                  |
+
+Usage:
+
+| Transport       | browser            | Node.js                | Deno               | Bun                |
+|-----------------|--------------------|------------------------|--------------------|--------------------|
+| `Fetch`         | :white_check_mark: | :white_check_mark: (1) | :white_check_mark: | :white_check_mark: |
+| `NodeXHR`       |                    | :white_check_mark:     | :white_check_mark: | :white_check_mark: |
+| `XHR`           | :white_check_mark: |                        |                    |                    |
+| `NodeWebSocket` |                    | :white_check_mark:     | :white_check_mark: | :white_check_mark: |
+| `WebSocket`     | :white_check_mark: | :white_check_mark: (2) | :white_check_mark: | :white_check_mark: |
+| `WebTransport`  | :white_check_mark: | :white_check_mark:     |                    |                    |
+
+(1) since [v18.0.0](https://nodejs.org/api/globals.html#fetch)
+(2) since [v21.0.0](https://nodejs.org/api/globals.html#websocket)
+
+Added in [f4d898e](https://github.com/socketio/engine.io-client/commit/f4d898ee9652939a4550a41ac0e8143056154c0a) and [b11763b](https://github.com/socketio/engine.io-client/commit/b11763beecfe4622867b4dec9d1db77460733ffb).
+
+
+#### Transport tree-shaking
+
+The feature above also comes with the ability to exclude the code related to unused transports (a.k.a. "tree-shaking"):
+
+```js
+import { SocketWithoutUpgrade, WebSocket } from "engine.io-client";
+
+const socket = new SocketWithoutUpgrade({
+  transports: [WebSocket]
+});
+```
+
+In that case, the code related to HTTP long-polling and WebTransport will be excluded from the final bundle.
+
+Added in [f4d898e](https://github.com/socketio/engine.io-client/commit/f4d898ee9652939a4550a41ac0e8143056154c0a)
+
+
+#### Test each low-level transports
+
+When setting the `tryAllTransports` option to `true`, if the first transport (usually, HTTP long-polling) fails, then the other transports will be tested too:
+
+```js
+import { Socket } from "engine.io-client";
+
+const socket = new Socket({
+  tryAllTransports: true
+});
+```
+
+This feature is useful in two cases:
+
+- when HTTP long-polling is disabled on the server, or if CORS fails
+- when WebSocket is tested first (with `transports: ["websocket", "polling"]`)
+
+The only potential downside is that the connection attempt could take more time in case of failure, as there have been reports of WebSocket connection errors taking several seconds before being detected (that's one reason for using HTTP long-polling first). That's why the option defaults to `false` for now.
+
+Added in [579b243](https://github.com/socketio/engine.io-client/commit/579b243e89ac7dc58233f9844ef70817364ecf52).
+
+
 ### Bug Fixes
 
 * add some randomness to the cache busting string generator ([b624c50](https://github.com/socketio/engine.io-client/commit/b624c508325615fe5f0ba82293d14831d8861324))
 * fix cookie management with WebSocket (Node.js only) ([e105551](https://github.com/socketio/engine.io-client/commit/e105551ef17ff8a23aa3ebdea9119619ae4208ad))
-
-
-### Features
-
-* add HTTP long-polling implementation based on fetch() ([b11763b](https://github.com/socketio/engine.io-client/commit/b11763beecfe4622867b4dec9d1db77460733ffb))
-* add the ability to test all transports ([579b243](https://github.com/socketio/engine.io-client/commit/579b243e89ac7dc58233f9844ef70817364ecf52))
-* allow to provide a list of transport implementations ([f4d898e](https://github.com/socketio/engine.io-client/commit/f4d898ee9652939a4550a41ac0e8143056154c0a))
 
 
 ### Dependencies

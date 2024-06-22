@@ -8,6 +8,7 @@ import { CookieJar, createCookieJar } from "../globals.node.js";
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/fetch
  * @see https://caniuse.com/fetch
+ * @see https://nodejs.org/api/globals.html#fetch
  */
 export class Fetch extends Polling {
   override doPoll() {
