@@ -236,6 +236,8 @@ export class Socket<
   private readonly adapter: Adapter;
   private acks: Map<number, () => void> = new Map();
   private fns: Array<(event: Event, next: (err?: Error) => void) => void> = [];
+  private outFns: Array<(event: Event, next: (err?: Error) => void) => void> =
+    [];
   private flags: BroadcastFlags = {};
   private _anyListeners?: Array<(...args: any[]) => void>;
   private _anyOutgoingListeners?: Array<(...args: any[]) => void>;
@@ -337,32 +339,39 @@ export class Socket<
       type: PacketType.EVENT,
       data: data,
     };
+    // running the middlewares for outgoing events
+    this.runOutgoing(data, (err) => {
+      // if error, abbort the event
+      if (err) {
+        this.emitReserved("error", err);
+        return;
+      }
 
-    // access last argument to see if it's an ACK callback
-    if (typeof data[data.length - 1] === "function") {
-      const id = this.nsp._ids++;
-      debug("emitting packet with ack id %d", id);
+      // access last argument to see if it's an ACK callback
+      if (typeof data[data.length - 1] === "function") {
+        const id = this.nsp._ids++;
+        debug("emitting packet with ack id %d", id);
 
-      this.registerAckCallback(id, data.pop());
-      packet.id = id;
-    }
+        this.registerAckCallback(id, data.pop());
+        packet.id = id;
+      }
 
-    const flags = Object.assign({}, this.flags);
-    this.flags = {};
+      const flags = Object.assign({}, this.flags);
+      this.flags = {};
 
-    // @ts-ignore
-    if (this.nsp.server.opts.connectionStateRecovery) {
-      // this ensures the packet is stored and can be transmitted upon reconnection
-      this.adapter.broadcast(packet, {
-        rooms: new Set([this.id]),
-        except: new Set(),
-        flags,
-      });
-    } else {
-      this.notifyOutgoingListeners(packet);
-      this.packet(packet, flags);
-    }
-
+      // @ts-ignore
+      if (this.nsp.server.opts.connectionStateRecovery) {
+        // this ensures the packet is stored and can be transmitted upon reconnection
+        this.adapter.broadcast(packet, {
+          rooms: new Set([this.id]),
+          except: new Set(),
+          flags,
+        });
+      } else {
+        this.notifyOutgoingListeners(packet);
+        this.packet(packet, flags);
+      }
+    });
     return true;
   }
 
@@ -955,6 +964,34 @@ export class Socket<
   }
 
   /**
+   * Sets up a socketmiddleware for outgoing requests.
+   *
+   * Can be used to hook right before acknowlegement callbacks get ran.
+   * @example
+   * io.on("connection", (socket) => {
+   *   socket.useOutgoing((event, next) => {
+   *     if (event.length && typeof event[event.length - 1] === 'function') {
+   *       const callback = event[event.length - 1];
+   *       event[event.length - 1] = (...args) => {
+   *         // able to hook right before the acknowledgement callback is executed.
+   *         callback(...args);
+   *       }
+   *     }
+   *     // do not forget to call next
+   *     next();
+   *   });
+   * });
+   * @param {Function} fn - middleware function (event, next)
+   * @returns {Socket} self
+   */
+  public useOutgoing(
+    fn: (event: Event, next: (err?: Error) => void) => void
+  ): this {
+    this.outFns.push(fn);
+    return this;
+  }
+
+  /**
    * Executes the middleware for an incoming event.
    *
    * @param {Array} event - event that will get emitted
@@ -972,6 +1009,33 @@ export class Socket<
 
         // if no middleware left, summon callback
         if (!fns[i + 1]) return fn(null);
+
+        // go on to next
+        run(i + 1);
+      });
+    }
+
+    run(0);
+  }
+
+  /**
+   * Executes the middleware for an outgoing event.
+   *
+   * @param {Array} event - event that will get emitted to client
+   * @param {Function} fn - last fn call in the middleware
+   * @private
+   */
+  private runOutgoing(event, fn: (err: Error | null) => void): void {
+    const outFns = this.outFns.slice(0);
+    if (!outFns.length) return fn(null);
+
+    function run(i: number) {
+      outFns[i](event, function (err) {
+        // upon error, short-circuit
+        if (err) return fn(err);
+
+        // if no middleware left, summon callback
+        if (!outFns[i + 1]) return fn(null);
 
         // go on to next
         run(i + 1);
