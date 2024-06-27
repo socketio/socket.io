@@ -1116,4 +1116,4 @@ export {
   BroadcastOperator,
   RemoteSocket,
 };
-export { Event } from "./socket";
+export { Event, SocketRequest } from "./socket";
