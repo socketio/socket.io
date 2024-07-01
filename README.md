@@ -285,6 +285,8 @@ Once the [handshake](#handshake) is completed, the client and the server can exc
 
 The serialization of an Engine.IO packet depends on the type of the payload (plaintext or binary) and on the transport.
 
+The character encoding is UTF-8 for plain text and for base64-encoded binary payloads.
+
 ### HTTP long-polling
 
 Due to the nature of the HTTP long-polling transport, multiple packets might be concatenated in a single payload in order to increase throughput.
