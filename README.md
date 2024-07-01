@@ -238,7 +238,7 @@ At a given interval (the `pingInterval` value sent in the handshake) the server 
 
 If the server does not receive a `pong` packet back, then it SHOULD consider that the connection is closed.
 
-Conversely, if the client does not receive a `pong` packet within `pingInterval + pingTimeout`, then it SHOULD consider that the connection is closed.
+Conversely, if the client does not receive a `ping` packet within `pingInterval + pingTimeout`, then it SHOULD consider that the connection is closed.
 
 ### Upgrade
 
