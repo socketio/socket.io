@@ -1,0 +1,136 @@
+{
+  "name": "socket.io-client",
+  "version": "4.7.5",
+  "description": "Realtime application framework client",
+  "keywords": [
+    "realtime",
+    "framework",
+    "websocket",
+    "tcp",
+    "events",
+    "client"
+  ],
+  "files": [
+    "dist/",
+    "build/"
+  ],
+  "type": "commonjs",
+  "main": "./build/cjs/index.js",
+  "module": "./build/esm/index.js",
+  "exports": {
+    "./package.json": "./package.json",
+    "./dist/socket.io.js": "./dist/socket.io.js",
+    "./dist/socket.io.js.map": "./dist/socket.io.js.map",
+    ".": {
+      "import": {
+        "types": "./build/esm/index.d.ts",
+        "node": "./build/esm-debug/index.js",
+        "default": "./build/esm/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/index.d.ts",
+        "default": "./build/cjs/index.js"
+      }
+    },
+    "./debug": {
+      "import": {
+        "types": "./build/esm/index.d.ts",
+        "default": "./build/esm-debug/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/index.d.ts",
+        "default": "./build/cjs/index.js"
+      }
+    }
+  },
+  "types": "./build/esm/index.d.ts",
+  "dependencies": {
+    "@socket.io/component-emitter": "~3.1.0",
+    "debug": "~4.3.2",
+    "engine.io-client": "~6.5.2",
+    "socket.io-parser": "~4.2.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/plugin-transform-object-assign": "^7.14.5",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/register": "^7.18.9",
+    "@rollup/plugin-alias": "^3.1.5",
+    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-commonjs": "^21.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.5",
+    "@sinonjs/fake-timers": "^7.1.2",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.7.6",
+    "@types/sinonjs__fake-timers": "^6.0.3",
+    "@wdio/cli": "^7.26.0",
+    "@wdio/local-runner": "^7.26.0",
+    "@wdio/mocha-framework": "^7.26.0",
+    "@wdio/sauce-service": "^7.26.0",
+    "@wdio/spec-reporter": "^7.26.0",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.1.0",
+    "babel-preset-es2015": "6.24.1",
+    "base64-arraybuffer": "^0.1.5",
+    "expect.js": "0.3.1",
+    "has-cors": "^1.1.0",
+    "mocha": "^10.1.0",
+    "prettier": "^2.3.2",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.58.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "socket.io": "^4.6.0-alpha1",
+    "socket.io-msgpack-parser": "^3.0.0",
+    "text-blob-builder": "0.0.1",
+    "ts-loader": "^8.3.0",
+    "ts-node": "^10.2.1",
+    "tsd": "^0.17.0",
+    "typescript": "^4.4.2"
+  },
+  "scripts": {
+    "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && ./postcompile.sh",
+    "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
+    "test:node": "mocha --require ts-node/register --reporter dot --require test/support/hooks.ts --timeout 5000 --exit test/index.ts",
+    "test:browser": "ts-node test/browser-runner.ts",
+    "test:types": "tsd",
+    "build": "rollup -c support/rollup.config.umd.js && rollup -c support/rollup.config.esm.js && rollup -c support/rollup.config.umd.msgpack.js",
+    "format:check": "prettier --check \"*.js\" \"lib/**/*.ts\" \"test/**/*.ts\" \"support/**/*.js\"",
+    "format:fix": "prettier --write \"*.js\" \"lib/**/*.ts\" \"test/**/*.ts\" \"support/**/*.js\"",
+    "prepack": "npm run compile"
+  },
+  "contributors": [
+    {
+      "name": "Guillermo Rauch",
+      "email": "rauchg@gmail.com"
+    },
+    {
+      "name": "Arnout Kazemier",
+      "email": "info@3rd-eden.com"
+    },
+    {
+      "name": "Vladimir Dronnikov",
+      "email": "dronnikov@gmail.com"
+    },
+    {
+      "name": "Einar Otto Stangvik",
+      "email": "einaros@gmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/socketio/socket.io-client.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "tsd": {
+    "directory": "test"
+  },
+  "browser": {
+    "./test/node.ts": false
+  },
+  "overrides": {
+    "@types/estree": "0.0.52"
+  }
+}
