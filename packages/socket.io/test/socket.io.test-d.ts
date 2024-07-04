@@ -413,7 +413,7 @@ describe("server", () => {
         const sansTimeout = sio.in("1");
         // Without timeout, `emitWithAck` shouldn't accept any events
         expectType<never>(
-          undefined as Parameters<typeof sansTimeout["emitWithAck"]>[0]
+          undefined as Parameters<(typeof sansTimeout)["emitWithAck"]>[0]
         );
         // @ts-expect-error - "noArgs" doesn't have a callback and is thus excluded
         sio.timeout(0).emitWithAck("noArgs");

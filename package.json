@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/socket.io-parser",
+    "packages/socket.io-client",
+    "packages/socket.io"
+  ],
+  "overrides": {
+    "@types/estree": "0.0.52",
+    "@types/lodash": "4.14.189"
+  },
+  "devDependencies": {
+    "@types/node": "18.15.3"
+  }
+}

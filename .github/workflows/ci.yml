@@ -32,14 +32,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # in order to test our compliance with TypeScript v4.2 (older versions are not tested)
       - name: Install TypeScript 4.2
         run: npm i typescript@4.2
         if: ${{ matrix.node-version == '16' }}
 
+      - name: Compile each package
+        run: npm run compile --workspaces
+
       - name: Run tests
-        run: npm test
-        env:
-          CI: true
+        run: npm test --workspaces
 
   build-examples:
     runs-on: ubuntu-latest

@@ -404,6 +404,7 @@ export class Manager<
       on(socket, "data", this.ondata.bind(this)),
       on(socket, "error", this.onerror.bind(this)),
       on(socket, "close", this.onclose.bind(this)),
+      // @ts-ignore
       on(this.decoder, "decoded", this.ondecoded.bind(this))
     );
   }

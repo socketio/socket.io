@@ -29,7 +29,6 @@
     "@babel/preset-env": "~7.9.6",
     "@babel/register": "^7.18.9",
     "@types/debug": "^4.1.5",
-    "@types/node": "^14.11.1",
     "@wdio/cli": "^7.26.0",
     "@wdio/local-runner": "^7.26.0",
     "@wdio/mocha-framework": "^7.26.0",
