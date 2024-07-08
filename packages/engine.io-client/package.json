@@ -1,0 +1,123 @@
+{
+  "name": "engine.io-client",
+  "description": "Client for the realtime Engine",
+  "license": "MIT",
+  "version": "6.6.0",
+  "main": "./build/cjs/index.js",
+  "module": "./build/esm/index.js",
+  "exports": {
+    "./package.json": "./package.json",
+    "./dist/engine.io.esm.min.js": "./dist/engine.io.esm.min.js",
+    "./dist/engine.io.js": "./dist/engine.io.js",
+    "./dist/engine.io.min.js": "./dist/engine.io.min.js",
+    ".": {
+      "import": {
+        "types": "./build/esm/index.d.ts",
+        "node": "./build/esm-debug/index.js",
+        "default": "./build/esm/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/index.d.ts",
+        "default": "./build/cjs/index.js"
+      }
+    },
+    "./debug": {
+      "import": {
+        "types": "./build/esm/index.d.ts",
+        "default": "./build/esm-debug/index.js"
+      },
+      "require": {
+        "types": "./build/cjs/index.d.ts",
+        "default": "./build/cjs/index.js"
+      }
+    }
+  },
+  "types": "build/esm/index.d.ts",
+  "homepage": "https://github.com/socketio/engine.io-client",
+  "contributors": [
+    {
+      "name": "Guillermo Rauch",
+      "email": "rauchg@gmail.com"
+    },
+    {
+      "name": "Vladimir Dronnikov",
+      "email": "dronnikov@gmail.com"
+    },
+    {
+      "name": "Christoph Dorn",
+      "web": "https://github.com/cadorn"
+    },
+    {
+      "name": "Mark Mokryn",
+      "email": "mokesmokes@gmail.com"
+    }
+  ],
+  "dependencies": {
+    "@socket.io/component-emitter": "~3.1.0",
+    "debug": "~4.3.1",
+    "engine.io-parser": "~5.2.1",
+    "ws": "~8.17.1",
+    "xmlhttprequest-ssl": "~2.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.9",
+    "@babel/plugin-transform-object-assign": "^7.12.1",
+    "@babel/preset-env": "^7.12.7",
+    "@fails-components/webtransport": "^0.1.7",
+    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-commonjs": "^21.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.5",
+    "@sinonjs/fake-timers": "^7.1.2",
+    "@types/debug": "^4.1.12",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.10.1",
+    "@types/sinonjs__fake-timers": "^6.0.3",
+    "babel-loader": "^8.2.2",
+    "blob": "0.0.5",
+    "engine.io": "^6.5.2-alpha.1",
+    "expect.js": "^0.3.1",
+    "express": "^4.17.1",
+    "mocha": "^10.2.0",
+    "node-forge": "^1.3.1",
+    "prettier": "^2.8.1",
+    "rollup": "^2.58.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "socket.io-browsers": "~1.0.4",
+    "typescript": "^4.9.5",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12",
+    "webpack-remove-debug": "^0.1.0",
+    "zuul": "~3.11.1",
+    "zuul-builder-webpack": "^1.2.0",
+    "zuul-ngrok": "4.0.0"
+  },
+  "scripts": {
+    "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && ./postcompile.sh",
+    "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
+    "test:node": "mocha --bail --require test/support/hooks.js test/index.js test/webtransport.mjs",
+    "test:node-fetch": "USE_FETCH=1 npm run test:node",
+    "test:browser": "zuul test/index.js",
+    "build": "rimraf ./dist && rollup -c support/rollup.config.umd.js && rollup -c support/rollup.config.esm.js",
+    "bundle-size": "node support/bundle-size.js",
+    "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.js' 'test/webtransport.mjs' 'support/**/*.js'",
+    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.js' 'test/webtransport.mjs' 'support/**/*.js'",
+    "prepack": "npm run compile"
+  },
+  "browser": {
+    "./test/node.js": false,
+    "./build/esm/transports/polling-xhr.node.js": "./build/esm/transports/polling-xhr.js",
+    "./build/esm/transports/websocket.node.js": "./build/esm/transports/websocket.js",
+    "./build/esm/globals.node.js": "./build/esm/globals.js",
+    "./build/cjs/transports/polling-xhr.node.js": "./build/cjs/transports/polling-xhr.js",
+    "./build/cjs/transports/websocket.node.js": "./build/cjs/transports/websocket.js",
+    "./build/cjs/globals.node.js": "./build/cjs/globals.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/socketio/engine.io-client.git"
+  },
+  "files": [
+    "build/",
+    "dist/"
+  ]
+}
