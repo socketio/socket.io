@@ -1,0 +1,85 @@
+{
+  "name": "engine.io",
+  "version": "6.6.0",
+  "description": "The realtime engine behind Socket.IO. Provides the foundation of a bidirectional connection between client and server",
+  "type": "commonjs",
+  "main": "./build/engine.io.js",
+  "types": "./build/engine.io.d.ts",
+  "exports": {
+    "types": "./build/engine.io.d.ts",
+    "import": "./wrapper.mjs",
+    "require": "./build/engine.io.js"
+  },
+  "author": "Guillermo Rauch <guillermo@learnboost.com>",
+  "homepage": "https://github.com/socketio/engine.io",
+  "contributors": [
+    {
+      "name": "Eugen Dueck",
+      "web": "https://github.com/EugenDueck"
+    },
+    {
+      "name": "Afshin Mehrabani",
+      "web": "https://github.com/afshinm"
+    },
+    {
+      "name": "Christoph Dorn",
+      "web": "https://github.com/cadorn"
+    },
+    {
+      "name": "Mark Mokryn",
+      "email": "mokesmokes@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@types/cookie": "^0.4.1",
+    "@types/cors": "^2.8.12",
+    "@types/node": ">=10.0.0",
+    "accepts": "~1.3.4",
+    "base64id": "2.0.0",
+    "cookie": "~0.4.1",
+    "cors": "~2.8.5",
+    "debug": "~4.3.1",
+    "engine.io-parser": "~5.2.1",
+    "ws": "~8.17.1"
+  },
+  "devDependencies": {
+    "@fails-components/webtransport": "^0.1.7",
+    "babel-eslint": "^8.0.2",
+    "eiows": "^4.1.2",
+    "engine.io-client": "6.5.0",
+    "engine.io-client-v3": "npm:engine.io-client@3.5.2",
+    "expect.js": "^0.3.1",
+    "express-session": "^1.17.3",
+    "helmet": "^6.0.1",
+    "mocha": "^9.1.3",
+    "node-forge": "^1.3.1",
+    "prettier": "^2.8.2",
+    "rimraf": "^3.0.2",
+    "superagent": "^3.8.1",
+    "typescript": "^4.4.3",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.30.0"
+  },
+  "scripts": {
+    "compile": "rimraf ./build && tsc",
+    "test": "npm run compile && npm run format:check && npm run test:default && npm run test:compat-v3",
+    "test:default": "mocha --bail --exit",
+    "test:compat-v3": "EIO_CLIENT=3 mocha --exit",
+    "test:eiows": "EIO_WS_ENGINE=eiows mocha --exit",
+    "test:uws": "EIO_WS_ENGINE=uws mocha --exit",
+    "format:check": "prettier --check \"wrapper.mjs\" \"lib/**/*.ts\" \"test/**/*.js\" \"test/webtransport.mjs\"",
+    "format:fix": "prettier --write \"wrapper.mjs\" \"lib/**/*.ts\" \"test/**/*.js\" \"test/webtransport.mjs\"",
+    "prepack": "npm run compile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:socketio/engine.io.git"
+  },
+  "files": [
+    "build/",
+    "wrapper.mjs"
+  ],
+  "engines": {
+    "node": ">=10.2.0"
+  }
+}

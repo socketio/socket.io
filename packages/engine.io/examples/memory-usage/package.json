@@ -1,0 +1,10 @@
+{
+  "name": "memory-usage",
+  "version": "0.0.1",
+  "private": true,
+  "description": "",
+  "type": "module",
+  "dependencies": {
+    "engine.io-client": "^6.5.4"
+  }
+}
