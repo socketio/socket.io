@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Test suite for the Engine.IO protocol</title>
+  <link rel="stylesheet" href="https://unpkg.com/mocha@9/mocha.css" />
+</head>
+<body>
+
+<div id="mocha"></div>
+
+<script src="https://unpkg.com/mocha@9/mocha.js"></script>
+<script src="https://unpkg.com/chai@4/chai.js" ></script>
+<script src="https://unpkg.com/chai-string@1/chai-string.js" ></script>
+
+<script class="mocha-init">
+  mocha.setup("bdd");
+  mocha.checkLeaks();
+</script>
+
+<script type="module" src="test-suite.js"></script>
+
+<script class="mocha-exec">
+  mocha.run();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "engine.io-protocol-test-suite",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "format": "prettier -w *.js",
+    "test": "mocha test-suite.js"
+  },
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "chai-string": "^1.5.0",
+    "mocha": "^9.2.1",
+    "node-fetch": "^3.2.0",
+    "prettier": "^2.5.1",
+    "ws": "^8.5.0"
+  }
+}
