@@ -1,0 +1,59 @@
+{
+  "name": "engine.io-parser",
+  "description": "Parser for the client for the realtime Engine",
+  "license": "MIT",
+  "version": "5.2.2",
+  "main": "./build/cjs/index.js",
+  "module": "./build/esm/index.js",
+  "exports": {
+    "import": "./build/esm/index.js",
+    "require": "./build/cjs/index.js"
+  },
+  "types": "build/esm/index.d.ts",
+  "homepage": "https://github.com/socketio/engine.io-parser",
+  "devDependencies": {
+    "@babel/core": "~7.9.6",
+    "@babel/preset-env": "~7.9.6",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.9.6",
+    "babelify": "^10.0.0",
+    "benchmark": "^2.1.4",
+    "expect.js": "0.3.1",
+    "mocha": "^5.2.0",
+    "nyc": "~15.0.1",
+    "prettier": "^3.2.5",
+    "rimraf": "^3.0.2",
+    "socket.io-browsers": "^1.0.4",
+    "ts-node": "^10.2.1",
+    "tsify": "^5.0.4",
+    "typescript": "^4.4.3",
+    "zuul": "3.11.1",
+    "zuul-ngrok": "4.0.0"
+  },
+  "scripts": {
+    "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && ./postcompile.sh",
+    "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
+    "test:node": "nyc mocha -r ts-node/register test/index.ts",
+    "test:browser": "zuul test/index.ts --no-coverage",
+    "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.ts'",
+    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.ts'",
+    "prepack": "npm run compile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:socketio/engine.io-parser.git"
+  },
+  "files": [
+    "build/"
+  ],
+  "browser": {
+    "./test/node": "./test/browser",
+    "./build/esm/encodePacket.js": "./build/esm/encodePacket.browser.js",
+    "./build/esm/decodePacket.js": "./build/esm/decodePacket.browser.js",
+    "./build/cjs/encodePacket.js": "./build/cjs/encodePacket.browser.js",
+    "./build/cjs/decodePacket.js": "./build/cjs/decodePacket.browser.js"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  }
+}
