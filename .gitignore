@@ -1,8 +1,0 @@
-node_modules
-.DS_Store
-build
-components
-/coverage
-npm-debug.log
-.idea
-test/support/public/engine.io.min.js
