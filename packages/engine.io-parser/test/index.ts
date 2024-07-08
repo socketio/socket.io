@@ -7,7 +7,7 @@ import {
   encodePayload,
   Packet,
 } from "..";
-import * as expect from "expect.js";
+import expect = require("expect.js");
 import { areArraysEqual } from "./util";
 
 import "./node"; // replaced by "./browser" for the tests in the browser (see "browser" field in the package.json file)

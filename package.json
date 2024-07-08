@@ -1,6 +1,11 @@
 {
   "private": true,
   "workspaces": [
+    "packages/socket.io-component-emitter",
+    "packages/engine.io-parser",
+    "packages/engine.io",
+    "packages/engine.io-client",
+    "packages/socket.io-adapter",
     "packages/socket.io-parser",
     "packages/socket.io-client",
     "packages/socket.io"

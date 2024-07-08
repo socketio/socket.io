@@ -7,7 +7,7 @@ import {
   createPacketDecoderStream,
   Packet,
 } from "..";
-import * as expect from "expect.js";
+import expect = require("expect.js");
 import { areArraysEqual, createArrayBuffer } from "./util";
 
 const withNativeArrayBuffer = typeof ArrayBuffer === "function";

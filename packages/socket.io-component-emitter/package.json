@@ -20,7 +20,7 @@
     "url": "https://github.com/socketio/emitter.git"
   },
   "scripts": {
-    "test": "make test"
+    "test": "mocha --require should --reporter spec"
   },
   "files": [
     "lib/"

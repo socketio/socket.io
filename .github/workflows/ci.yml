@@ -15,9 +15,10 @@ jobs:
     timeout-minutes: 10
 
     strategy:
+      fail-fast: false
       matrix:
         node-version:
-          - 16
+          - 18
           - 20
 
     steps:
@@ -38,7 +39,7 @@ jobs:
         if: ${{ matrix.node-version == '16' }}
 
       - name: Compile each package
-        run: npm run compile --workspaces
+        run: npm run compile --workspaces --if-present
 
       - name: Run tests
         run: npm test --workspaces

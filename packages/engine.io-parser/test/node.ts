@@ -7,7 +7,7 @@ import {
   createPacketDecoderStream,
   createPacketEncoderStream,
 } from "..";
-import * as expect from "expect.js";
+import expect = require("expect.js");
 import { areArraysEqual } from "./util";
 
 describe("engine.io-parser (node.js only)", () => {

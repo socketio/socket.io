@@ -630,7 +630,7 @@ describe("socket", () => {
 
         try {
           await socket.timeout(50).emitWithAck("unknown");
-          expect.fail();
+          expect().fail();
         } catch (e) {
           success(done, socket);
         }
@@ -646,7 +646,7 @@ describe("socket", () => {
           expect(value).to.be(42);
           success(done, socket);
         } catch (e) {
-          expect.fail();
+          expect().fail();
         }
       });
     });
