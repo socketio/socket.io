@@ -1,4 +1,4 @@
-import Launcher from "@wdio/cli";
+import { Launcher } from "@wdio/cli";
 import { createServer } from "./support/server";
 
 const launcher = new Launcher("./wdio.conf.js");

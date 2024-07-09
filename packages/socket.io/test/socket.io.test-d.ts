@@ -285,8 +285,9 @@ describe("server", () => {
         sio.send(1, "2", [3]);
         // @ts-expect-error - ServerToClientEvents doesn't have a message event
         nio.send(1, "2", [3]);
-        // This correctly becomes an error in TS 5.3.2, so when updating typescript, this should expect-error
+        // @ts-expect-error
         sio.send();
+        // @ts-expect-error
         nio.send();
       });
       it("has the correct types", () => {

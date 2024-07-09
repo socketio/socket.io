@@ -3,7 +3,7 @@ const { exec } = require("child_process");
 
 describe("autoUnref option", function () {
   before(function () {
-    if (process.env.WDIO_WORKER !== undefined) {
+    if (process.env.WDIO_WORKER_ID !== undefined) {
       return this.skip();
     }
   });

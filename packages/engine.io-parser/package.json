@@ -11,23 +11,7 @@
   },
   "types": "build/esm/index.d.ts",
   "devDependencies": {
-    "@babel/core": "~7.9.6",
-    "@babel/preset-env": "~7.9.6",
-    "@types/mocha": "^9.0.0",
-    "@types/node": "^16.9.6",
-    "babelify": "^10.0.0",
-    "benchmark": "^2.1.4",
-    "expect.js": "0.3.1",
-    "mocha": "^5.2.0",
-    "nyc": "~15.0.1",
-    "prettier": "^3.2.5",
-    "rimraf": "^3.0.2",
-    "socket.io-browsers": "^1.0.4",
-    "ts-node": "^10.2.1",
-    "tsify": "^5.0.4",
-    "typescript": "^4.4.3",
-    "zuul": "3.11.1",
-    "zuul-ngrok": "4.0.0"
+    "prettier": "^3.3.2"
   },
   "scripts": {
     "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && ./postcompile.sh",

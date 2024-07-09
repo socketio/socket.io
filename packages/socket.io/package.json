@@ -58,22 +58,6 @@
     "socket.io-adapter": "~2.5.2",
     "socket.io-parser": "~4.2.4"
   },
-  "devDependencies": {
-    "@types/mocha": "^9.0.0",
-    "expect.js": "0.3.1",
-    "mocha": "^10.0.0",
-    "nyc": "^15.1.0",
-    "prettier": "^2.3.2",
-    "rimraf": "^3.0.2",
-    "socket.io-client": "4.7.5",
-    "socket.io-client-v2": "npm:socket.io-client@^2.4.0",
-    "superagent": "^8.0.0",
-    "supertest": "^6.1.6",
-    "ts-node": "^10.2.1",
-    "tsd": "^0.27.0",
-    "typescript": "^4.4.2",
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.30.0"
-  },
   "contributors": [
     {
       "name": "Guillermo Rauch",

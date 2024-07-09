@@ -2,6 +2,7 @@ import { EventEmitter } from "events";
 import { yeast } from "./contrib/yeast";
 import WebSocket = require("ws");
 
+// @ts-expect-error
 const canPreComputeFrame = typeof WebSocket?.Sender?.frame === "function";
 
 /**
@@ -241,6 +242,7 @@ export class Adapter extends EventEmitter {
       // "4" being the "message" packet type in the Engine.IO protocol
       const data = Buffer.from("4" + encodedPackets[0]);
       // see https://github.com/websockets/ws/issues/617#issuecomment-283002469
+      // @ts-expect-error
       packetOpts.wsPreEncodedFrame = WebSocket.Sender.frame(data, {
         readOnly: false,
         mask: false,

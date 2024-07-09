@@ -13,6 +13,12 @@ const request = require("superagent");
 const cookieMod = require("cookie");
 const { WebSocket } = require("ws");
 
+const IS_CLIENT_V3 = process.env.EIO_CLIENT === "3";
+
+// client methods have been prefixed with "_" to improve mangling
+const onErrorMethod = IS_CLIENT_V3 ? "onError" : "_onError";
+const sendPacketMethod = IS_CLIENT_V3 ? "sendPacket" : "_sendPacket";
+
 /**
  * Tests.
  */
@@ -833,8 +839,8 @@ describe("server", () => {
             expect(conn.writeBuffer.length).to.be(1);
             setTimeout(() => {
               expect(conn.writeBuffer.length).to.be(0); // writeBuffer has been cleared
+              done();
             }, 10);
-            done();
           });
           conn.writeBuffer.push({ type: "message", data: "foo" });
           conn.onError("");
@@ -851,11 +857,11 @@ describe("server", () => {
             expect(socket.writeBuffer.length).to.be(1);
             setTimeout(() => {
               expect(socket.writeBuffer.length).to.be(0);
+              done();
             }, 10);
-            done();
           });
           socket.writeBuffer.push({ type: "message", data: "foo" });
-          socket.onError("");
+          socket[onErrorMethod]("");
         });
       });
     });
@@ -864,7 +870,7 @@ describe("server", () => {
       const opts = { allowUpgrades: false, pingInterval: 5, pingTimeout: 5 };
       const engine = listen(opts, (port) => {
         const socket = new ClientSocket(`http://localhost:${port}`);
-        socket.sendPacket = () => {};
+        socket[sendPacketMethod] = () => {};
         engine.on("connection", (conn) => {
           conn.on("close", (reason) => {
             expect(reason).to.be("ping timeout");
@@ -929,8 +935,8 @@ describe("server", () => {
         });
 
         socket.on("open", () => {
-          // override onPacket and Transport#onClose to simulate an inactive server after handshake
-          socket.sendPacket = () => {};
+          // override sendPacket and Transport#onClose to simulate an inactive server after handshake
+          socket[sendPacketMethod] = () => {};
           socket.transport.removeListener("packet");
           socket.transport.removeListener("close");
           socket.on("close", onClose);
@@ -1166,7 +1172,10 @@ describe("server", () => {
               expect(serverSocket).to.be.an("object");
 
               // OPENED readyState is expected - we are actually polling
-              expect(socket.transport.pollXhr.xhr.readyState).to.be(1);
+              expect(
+                socket.transport.pollXhr[IS_CLIENT_V3 ? "xhr" : "_xhr"]
+                  .readyState
+              ).to.be(1);
 
               // 2 requests sent to the server over an unique port means
               // we should have been assigned 2 sockets
@@ -1325,7 +1334,7 @@ describe("server", () => {
       }
     );
 
-    if (process.env.EIO_CLIENT === "3") {
+    if (IS_CLIENT_V3) {
       it(
         "should trigger with connection `ping timeout` " +
           "after `pingInterval + pingTimeout`",
@@ -1511,7 +1520,7 @@ describe("server", () => {
           transports: ["websocket"],
         });
         // override to simulate an inactive client
-        socket.sendPacket = socket.onHeartbeat = () => {};
+        socket[sendPacketMethod] = () => {};
       });
     });
 
@@ -1530,7 +1539,7 @@ describe("server", () => {
           transports: ["polling"],
         });
         // override to simulate an inactive client
-        socket.sendPacket = socket.onHeartbeat = () => {};
+        socket[sendPacketMethod] = () => {};
       });
     });
 
@@ -2082,7 +2091,7 @@ describe("server", () => {
             method: "POST",
           });
 
-          req.write(process.env.EIO_CLIENT === "3" ? "4:41" : "41");
+          req.write(IS_CLIENT_V3 ? "4:41" : "41");
           req.write("2");
           req.write("3");
           req.end();
@@ -2986,11 +2995,7 @@ describe("server", () => {
           engine.on("connection", (conn) => {
             conn.on("packet", (packet) => {
               conn.close();
-              if (process.env.EIO_CLIENT === "3") {
-                expect(packet.type).to.be("ping");
-              } else {
-                expect(packet.type).to.be("pong");
-              }
+              expect(packet.type).to.be(IS_CLIENT_V3 ? "ping" : "pong");
               done();
             });
           });
@@ -3022,11 +3027,7 @@ describe("server", () => {
           engine.on("connection", (conn) => {
             conn.on("packetCreate", (packet) => {
               conn.close();
-              if (process.env.EIO_CLIENT === "3") {
-                expect(packet.type).to.be("pong");
-              } else {
-                expect(packet.type).to.be("ping");
-              }
+              expect(packet.type).to.be(IS_CLIENT_V3 ? "pong" : "ping");
               done();
             });
           });
