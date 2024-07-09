@@ -11,7 +11,6 @@
     "require": "./build/engine.io.js"
   },
   "author": "Guillermo Rauch <guillermo@learnboost.com>",
-  "homepage": "https://github.com/socketio/engine.io",
   "contributors": [
     {
       "name": "Eugen Dueck",
@@ -71,9 +70,13 @@
     "format:fix": "prettier --write \"wrapper.mjs\" \"lib/**/*.ts\" \"test/**/*.js\" \"test/webtransport.mjs\"",
     "prepack": "npm run compile"
   },
+  "homepage": "https://github.com/socketio/socket.io/tree/main/packages/engine.io#readme",
   "repository": {
     "type": "git",
-    "url": "git@github.com:socketio/engine.io.git"
+    "url": "https://github.com/socketio/socket.io.git"
+  },
+  "bugs": {
+    "url": "https://github.com/socketio/socket.io/issues"
   },
   "files": [
     "build/",
