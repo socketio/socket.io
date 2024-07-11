@@ -4,8 +4,6 @@ name: Publish
 
 on:
   push:
-    branches:
-      - main
     tags:
       # expected format: <package>@<version> (example: socket.io@1.2.3)
       - '*@*'
