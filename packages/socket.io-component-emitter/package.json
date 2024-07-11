@@ -14,7 +14,7 @@
   "homepage": "https://github.com/socketio/socket.io/tree/main/packages/socket.io-component-emitter#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/socketio/socket.io.git"
+    "url": "git+https://github.com/socketio/socket.io.git"
   },
   "bugs": {
     "url": "https://github.com/socketio/socket.io/issues"
