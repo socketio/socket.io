@@ -630,7 +630,7 @@ export class SocketWithoutUpgrade extends Emitter<
   private _resetPingTimeout() {
     this.clearTimeoutFn(this._pingTimeoutTimer);
     const delay = this._pingInterval + this._pingTimeout
-    this._pingTimeoutTime = performance.now() + delay
+    this._pingTimeoutTime = Date.now() + delay
     this._pingTimeoutTimer = this.setTimeoutFn(() => {
       this._onClose("ping timeout");
     }, delay);
@@ -722,7 +722,7 @@ export class SocketWithoutUpgrade extends Emitter<
       return
     }
 
-    const expired = performance.now() >= this._pingTimeoutTime
+    const expired = Date.now() >= this._pingTimeoutTime
     if (expired) {
       debug("`checkHeartbeat` detected missed ping so closing connection");
       this._onClose("ping timeout");
