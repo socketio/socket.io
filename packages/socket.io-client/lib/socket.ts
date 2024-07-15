@@ -440,6 +440,9 @@ export class Socket<
       packet.id = id;
     }
 
+    // check synchronously if we've missed a heartbeat, potentially causing a disconnection
+    this.io.checkHeartbeat()
+
     const isTransportWritable =
       this.io.engine &&
       this.io.engine.transport &&

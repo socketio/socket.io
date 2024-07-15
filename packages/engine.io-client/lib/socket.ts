@@ -318,6 +318,7 @@ export class SocketWithoutUpgrade extends Emitter<
   private _pingTimeout: number = -1;
   private _maxPayload?: number = -1;
   private _pingTimeoutTimer: NodeJS.Timer;
+  private _pingTimeoutTime: number | null = null;
   private clearTimeoutFn: typeof clearTimeout;
   private readonly _beforeunloadEventListener: () => void;
   private readonly _offlineEventListener: () => void;
@@ -628,9 +629,11 @@ export class SocketWithoutUpgrade extends Emitter<
    */
   private _resetPingTimeout() {
     this.clearTimeoutFn(this._pingTimeoutTimer);
+    const delay = this._pingInterval + this._pingTimeout
+    this._pingTimeoutTime = performance.now() + delay
     this._pingTimeoutTimer = this.setTimeoutFn(() => {
       this._onClose("ping timeout");
-    }, this._pingInterval + this._pingTimeout);
+    }, delay);
     if (this.opts.autoUnref) {
       this._pingTimeoutTimer.unref();
     }
@@ -706,6 +709,26 @@ export class SocketWithoutUpgrade extends Emitter<
     }
     debug("payload size is %d (max: %d)", payloadSize, this._maxPayload);
     return this.writeBuffer;
+  }
+
+  /**
+   * Check synchronously if we've missed a heartbeat, and if we have will close the connection
+   * with reason "ping timeout".
+   * 
+   * @return {Socket} for chaining.
+   */
+  public checkHeartbeat() {
+    if (this._pingTimeoutTime === null) {
+      return
+    }
+
+    const expired = performance.now() >= this._pingTimeoutTime
+    if (expired) {
+      debug("`checkHeartbeat` detected missed ping so closing connection");
+      this._onClose("ping timeout");
+    }
+
+    return this
   }
 
   /**
@@ -858,6 +881,7 @@ export class SocketWithoutUpgrade extends Emitter<
 
       // clear timers
       this.clearTimeoutFn(this._pingTimeoutTimer);
+      this._pingTimeoutTime = null
 
       // stop event from firing again for transport
       this.transport.removeAllListeners("close");

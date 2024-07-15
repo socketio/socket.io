@@ -492,6 +492,10 @@ export class Manager<
     this._close();
   }
 
+  checkHeartbeat() {
+    this.engine?.checkHeartbeat()
+  }
+
   /**
    * Writes a packet.
    *
