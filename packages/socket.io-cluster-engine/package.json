@@ -1,6 +1,6 @@
 {
-  "name": "@socket.io/clustered-engine",
-  "version": "0.0.1",
+  "name": "@socket.io/cluster-engine",
+  "version": "0.1.0",
   "description": "A cluster-friendly engine to share load between multiple Node.js processes (without sticky sessions)",
   "type": "commonjs",
   "license": "MIT",

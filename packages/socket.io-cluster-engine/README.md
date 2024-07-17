@@ -1,10 +1,11 @@
-# Socket.IO clustered engine
+# Socket.IO cluster engine
 
 A cluster-friendly engine to share load between multiple Node.js processes (without sticky sessions).
 
 **Table of contents**
 
 <!-- TOC -->
+  * [Installation](#installation)
   * [Usage](#usage)
     * [Node.js cluster](#nodejs-cluster)
     * [Redis](#redis)
@@ -14,6 +15,14 @@ A cluster-friendly engine to share load between multiple Node.js processes (with
   * [License](#license)
 <!-- TOC -->
 
+## Installation
+
+```
+npm i @socket.io/cluster-engine
+```
+
+NPM: https://npmjs.com/package/@socket.io/cluster-engine
+
 ## Usage
 
 ### Node.js cluster
@@ -22,7 +31,7 @@ A cluster-friendly engine to share load between multiple Node.js processes (with
 import cluster from "node:cluster";
 import process from "node:process";
 import { availableParallelism } from "node:os";
-import { setupPrimary, NodeClusterEngine } from "@socket.io/clustered-engine";
+import { setupPrimary, NodeClusterEngine } from "@socket.io/cluster-engine";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 
@@ -74,7 +83,7 @@ if (cluster.isPrimary) {
 ```js
 import { createServer } from "node:http";
 import { createClient } from "redis";
-import { RedisEngine } from "@socket.io/clustered-engine";
+import { RedisEngine } from "@socket.io/cluster-engine";
 import { Server } from "socket.io";
 
 const httpServer = createServer((req, res) => {
@@ -109,7 +118,7 @@ import cluster from "node:cluster";
 import process from "node:process";
 import { availableParallelism } from "node:os";
 import { createClient } from "redis";
-import { setupPrimaryWithRedis, NodeClusterEngine } from "@socket.io/clustered-engine";
+import { setupPrimaryWithRedis, NodeClusterEngine } from "@socket.io/cluster-engine";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 
