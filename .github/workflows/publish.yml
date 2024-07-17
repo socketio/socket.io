@@ -6,7 +6,7 @@ on:
   push:
     tags:
       # expected format: <package>@<version> (example: socket.io@1.2.3)
-      - '*@*'
+      - '**@*'
 
 jobs:
   publish:
