@@ -3,6 +3,8 @@ import expect = require("expect.js");
 import { handshake, url } from "./util";
 import { setupPrimary } from "../lib";
 
+const WORKER_COUNT = 3;
+
 cluster.setupPrimary({
   exec: "./test/worker.js",
   // @ts-expect-error
@@ -13,7 +15,7 @@ setupPrimary();
 
 describe("cluster", () => {
   beforeEach((done) => {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < WORKER_COUNT; i++) {
       const worker = cluster.fork();
 
       if (i === 2) {
@@ -23,16 +25,18 @@ describe("cluster", () => {
   });
 
   afterEach((done) => {
-    for (const worker of Object.values(cluster.workers)) {
-      worker.kill();
-    }
+    let i = 0;
     function onExit() {
-      if (Object.keys(cluster.workers).length === 0) {
+      if (++i === WORKER_COUNT) {
         cluster.off("exit", onExit);
         done();
       }
     }
     cluster.on("exit", onExit);
+
+    for (const worker of Object.values(cluster.workers)) {
+      worker.kill();
+    }
   });
 
   it("should ping/pong", (done) => {
