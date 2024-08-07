@@ -322,6 +322,9 @@ export class Namespace<
     debug("adding socket to nsp %s", this.name);
     const socket = await this._createSocket(client, auth);
 
+    // track socket
+    this.sockets.set(socket.id, socket);
+
     if (
       // @ts-ignore
       this.server.opts.connectionStateRecovery?.skipMiddlewares &&
@@ -389,9 +392,6 @@ export class Namespace<
       socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
     ) => void
   ) {
-    // track socket
-    this.sockets.set(socket.id, socket);
-
     // it's paramount that the internal `onconnect` logic
     // fires before user-set events to prevent state order
     // violations (such as a disconnection before the connection
