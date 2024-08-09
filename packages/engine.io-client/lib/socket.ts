@@ -631,8 +631,8 @@ export class SocketWithoutUpgrade extends Emitter<
    */
   private _resetPingTimeout() {
     this.clearTimeoutFn(this._pingTimeoutTimer);
-    const delay = this._pingInterval + this._pingTimeout
-    this._pingTimeoutTime = Date.now() + delay
+    const delay = this._pingInterval + this._pingTimeout;
+    this._pingTimeoutTime = Date.now() + delay;
     this._pingTimeoutTimer = this.setTimeoutFn(() => {
       this._onClose("ping timeout");
     }, delay);
@@ -715,9 +715,9 @@ export class SocketWithoutUpgrade extends Emitter<
 
   /**
    * Returns `true` if the connection is responding to heartbeats.
-   * 
+   *
    * If heartbeats are disabled this will always return `true`.
-   * 
+   *
    * @return {boolean}
    */
   public isResponsive() {
@@ -725,7 +725,9 @@ export class SocketWithoutUpgrade extends Emitter<
 
     const responsive = Date.now() < this._pingTimeoutTime;
     if (!responsive && !this._scheduledDisconnectFromIsResponsive) {
-      debug("`isResponsive` detected missed ping so scheduling connection close");
+      debug(
+        "`isResponsive` detected missed ping so scheduling connection close"
+      );
       this._scheduledDisconnectFromIsResponsive = true;
 
       nextTick(() => {
@@ -888,7 +890,7 @@ export class SocketWithoutUpgrade extends Emitter<
 
       // clear timers
       this.clearTimeoutFn(this._pingTimeoutTimer);
-      this._pingTimeoutTime = null
+      this._pingTimeoutTime = null;
 
       // stop event from firing again for transport
       this.transport.removeAllListeners("close");
