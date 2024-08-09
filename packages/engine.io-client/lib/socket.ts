@@ -631,6 +631,8 @@ export class SocketWithoutUpgrade extends Emitter<
    */
   private _resetPingTimeout() {
     this.clearTimeoutFn(this._pingTimeoutTimer);
+    if (this._pingInterval <= 0 || this._pingTimeout <= 0) return;
+
     const delay = this._pingInterval + this._pingTimeout;
     this._pingTimeoutTime = Date.now() + delay;
     this._pingTimeoutTimer = this.setTimeoutFn(() => {
@@ -721,7 +723,7 @@ export class SocketWithoutUpgrade extends Emitter<
    * @return {boolean}
    */
   public isResponsive() {
-    if (this.readyState === 'closed') return false;
+    if (this.readyState === "closed") return false;
     if (this._pingTimeoutTime === null) return true;
 
     const responsive = Date.now() < this._pingTimeoutTime;
