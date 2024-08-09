@@ -440,9 +440,6 @@ export class Socket<
       packet.id = id;
     }
 
-    // check synchronously if we've missed a heartbeat, potentially causing a disconnection
-    this.io.checkHeartbeat()
-
     const isTransportWritable =
       this.io.engine &&
       this.io.engine.transport &&
@@ -452,7 +449,7 @@ export class Socket<
       this.flags.volatile && (!isTransportWritable || !this.connected);
     if (discardPacket) {
       debug("discard packet as the transport is not currently writable");
-    } else if (this.connected) {
+    } else if (this.connected && (this.flags.volatile || this.io.isResponsive())) {
       this.notifyOutgoingListeners(packet);
       this.packet(packet);
     } else {

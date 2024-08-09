@@ -492,8 +492,15 @@ export class Manager<
     this._close();
   }
 
-  checkHeartbeat() {
-    this.engine?.checkHeartbeat()
+  /**
+   * Returns `true` if the connection is responding to heartbeats.
+   * 
+   * If heartbeats are disabled this will always return `true`.
+   * 
+   * @return {boolean}
+   */
+  isResponsive() {
+    return this.engine.isResponsive ? this.engine.isResponsive() : true;
   }
 
   /**
