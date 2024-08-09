@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>App</title>
+</head>
+<body>
+  <p>Status: <span id="status"></span></p>
+  <p>Transport: <span id="transport"></span></p>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const statusSpan = document.getElementById("status");
+    const transportSpan = document.getElementById("transport");
+    const socket = io({
+      // transports: ["polling"],
+      // transports: ["websocket"],
+    });
+
+    statusSpan.innerText = "Disconnected";
+    transportSpan.innerText = "N/A";
+
+    socket.on("connect", () => {
+      statusSpan.innerText = "Connected";
+      transportSpan.innerText = socket.io.engine.transport.name;
+      socket.io.engine.on("upgrade", (transport) => {
+        transportSpan.innerText = transport.name;
+      });
+      console.log(`connect ${socket.id}`);
+
+      socket.emit("hello", "world", (val) => {
+        console.log(`got ${val}`);
+      });
+    });
+
+    socket.on("connect_error", (err) => {
+      console.log(`connect_error due to ${err.message}`);
+    });
+
+    socket.on("disconnect", (reason) => {
+      statusSpan.innerText = "Disconnected";
+      transportSpan.innerText = "N/A";
+      console.log(`disconnect due to ${reason}`);
+    });
+  </script>
+</body>
+</html>

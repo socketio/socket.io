@@ -160,7 +160,9 @@ called `io`.
 ```js
 const app = require('fastify')();
 app.register(require('fastify-socket.io'));
-app.io.on('connection', () => { /* … */ });
+app.ready().then(() => {
+    app.io.on('connection', () => { /* … */ });
+})
 app.listen(3000);
 ```
 

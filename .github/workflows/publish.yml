@@ -6,7 +6,7 @@ on:
   push:
     tags:
       # expected format: <package>@<version> (example: socket.io@1.2.3)
-      - '*@*'
+      - '**@*'
 
 jobs:
   publish:
@@ -27,6 +27,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Compile each package
+        run: npm run compile --workspaces --if-present
 
       - name: Publish package
         run: npm publish --workspace=${GITHUB_REF_NAME%@*} --provenance --access public
