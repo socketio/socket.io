@@ -32,7 +32,7 @@ describe("v2 compatibility", () => {
       `http://localhost:${getPort(io)}/the-namespace`,
       {
         multiplex: false,
-      }
+      },
     );
     clientSocket.query = { test: "123" };
 

@@ -123,7 +123,7 @@ describe("server", () => {
             const value1 = await s.emitWithAck(
               "ackFromServerSingleArg",
               true,
-              "123"
+              "123",
             );
             expectType<any>(value1);
           });
@@ -158,7 +158,7 @@ describe("server", () => {
       it("does not accept arguments of wrong types", (done) => {
         const srv = createServer();
         const sio = new Server<BidirectionalEvents, BidirectionalEvents, {}>(
-          srv
+          srv,
         );
         // @ts-expect-error - shouldn't accept arguments of the wrong types
         sio.on("random", (a, b, c) => {});
@@ -184,7 +184,7 @@ describe("server", () => {
   ) => boolean;
   type ToEmitWithAck<
     Map extends EventsMap,
-    Ev extends keyof Map = keyof Map
+    Ev extends keyof Map = keyof Map,
   > = (ev: Ev, ...args: Parameters<Map[Ev]>) => ReturnType<Map[Ev]>;
   interface ClientToServerEvents {
     noArgs: () => void;
@@ -192,7 +192,7 @@ describe("server", () => {
     ackFromClient: (
       a: string,
       b: number,
-      ack: (c: string, d: number) => void
+      ack: (c: string, d: number) => void,
     ) => void;
   }
 
@@ -202,12 +202,12 @@ describe("server", () => {
     ackFromServer: (
       a: boolean,
       b: string,
-      ack: (c: boolean, d: string) => void
+      ack: (c: boolean, d: string) => void,
     ) => void;
     ackFromServerSingleArg: (
       a: boolean,
       b: string,
-      ack: (c: string) => void
+      ack: (c: string) => void,
     ) => void;
     onlyCallback: (a: () => void) => void;
   }
@@ -226,12 +226,12 @@ describe("server", () => {
     ackFromServer: (
       a: boolean,
       b: string,
-      ack: (err: Error, c: boolean, d: string) => void
+      ack: (err: Error, c: boolean, d: string) => void,
     ) => void;
     ackFromServerSingleArg: (
       a: boolean,
       b: string,
-      ack: (err: Error, c: string) => void
+      ack: (err: Error, c: string) => void,
     ) => void;
     onlyCallback: (a: (err: Error) => void) => void;
   }
@@ -243,7 +243,7 @@ describe("server", () => {
     ackFromServerSingleArg: (
       a: boolean,
       b: string,
-      ack: (c: string[]) => void
+      ack: (c: string[]) => void,
     ) => void;
     onlyCallback: (a: () => void) => void;
   }
@@ -253,12 +253,12 @@ describe("server", () => {
     ackFromServer: (
       a: boolean,
       b: string,
-      ack: (err: Error, c: boolean[]) => void
+      ack: (err: Error, c: boolean[]) => void,
     ) => void;
     ackFromServerSingleArg: (
       a: boolean,
       b: string,
-      ack: (err: Error, c: string[]) => void
+      ack: (err: Error, c: string[]) => void,
     ) => void;
     onlyCallback: (a: (err: Error) => void) => void;
   }
@@ -315,7 +315,7 @@ describe("server", () => {
         untyped.of("/").emit("random2", 2, "string", Server);
         expectType<Promise<any>>(untyped.to("1").emitWithAck("random", "test"));
         expectType<(ev: string, ...args: any[]) => Promise<any>>(
-          untyped.to("1").emitWithAck<string>
+          untyped.to("1").emitWithAck<string>,
         );
       });
       it("has the correct types", () => {
@@ -326,25 +326,25 @@ describe("server", () => {
         const nio = sio.of("/");
         for (const emitter of [sio, nio]) {
           expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
-            emitter.to("1")
+            emitter.to("1"),
           );
           expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
-            emitter.in("1")
+            emitter.in("1"),
           );
           expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
-            emitter.except("1")
+            emitter.except("1"),
           );
           expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
-            emitter.except("1")
+            emitter.except("1"),
           );
           expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
-            emitter.compress(true)
+            emitter.compress(true),
           );
           expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
-            emitter.volatile
+            emitter.volatile,
           );
           expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
-            emitter.local
+            emitter.local,
           );
           expectType<
             BroadcastOperator<ServerToClientEventsWithMultipleAndError, any>
@@ -367,16 +367,16 @@ describe("server", () => {
           >(s.timeout(0).broadcast);
           // ensure that turning socket to a broadcast works correctly
           expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
-            s.broadcast
+            s.broadcast,
           );
           expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
-            s.in("1")
+            s.in("1"),
           );
           expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
-            s.except("1")
+            s.except("1"),
           );
           expectType<BroadcastOperator<ServerToClientEventsWithMultiple, any>>(
-            s.to("1")
+            s.to("1"),
           );
           // Ensure that adding a timeout to a broadcast works after the fact
           expectType<
@@ -391,7 +391,7 @@ describe("server", () => {
       it("has the correct types for `emit`", () => {
         const sio = new Server<ClientToServerEvents, ServerToClientEvents>();
         expectType<ToEmit<ServerToClientEventsWithMultipleAndError, "noArgs">>(
-          sio.timeout(0).emit<"noArgs">
+          sio.timeout(0).emit<"noArgs">,
         );
         expectType<
           ToEmit<ServerToClientEventsWithMultipleAndError, "helloFromServer">
@@ -414,7 +414,7 @@ describe("server", () => {
         const sansTimeout = sio.in("1");
         // Without timeout, `emitWithAck` shouldn't accept any events
         expectType<never>(
-          undefined as Parameters<(typeof sansTimeout)["emitWithAck"]>[0]
+          undefined as Parameters<(typeof sansTimeout)["emitWithAck"]>[0],
         );
         // @ts-expect-error - "noArgs" doesn't have a callback and is thus excluded
         sio.timeout(0).emitWithAck("noArgs");
@@ -441,33 +441,33 @@ describe("server", () => {
         const sio = new Server<ClientToServerEvents, ServerToClientEvents>();
         const nio = sio.of("/test");
         expectType<ToEmit<ServerToClientEventsNoAck, "noArgs">>(
-          sio.emit<"noArgs">
+          sio.emit<"noArgs">,
         );
         expectType<ToEmit<ServerToClientEventsNoAck, "noArgs">>(
-          nio.emit<"noArgs">
+          nio.emit<"noArgs">,
         );
         expectType<ToEmit<ServerToClientEventsNoAck, "helloFromServer">>(
           // These errors will dissapear once the TS version is updated from 4.7.4
           // the TSD instance is using a newer version of TS than the workspace version
           // to enable the ability to compare against `any`
-          sio.emit<"helloFromServer">
+          sio.emit<"helloFromServer">,
         );
         expectType<ToEmit<ServerToClientEventsNoAck, "helloFromServer">>(
-          nio.emit<"helloFromServer">
+          nio.emit<"helloFromServer">,
         );
         sio.on("connection", (s) => {
           expectType<ToEmit<ServerToClientEvents, "noArgs">>(s.emit<"noArgs">);
           expectType<ToEmit<ServerToClientEvents, "helloFromServer">>(
-            s.emit<"helloFromServer">
+            s.emit<"helloFromServer">,
           );
           expectType<ToEmit<ServerToClientEvents, "ackFromServerSingleArg">>(
-            s.emit<"ackFromServerSingleArg">
+            s.emit<"ackFromServerSingleArg">,
           );
           expectType<ToEmit<ServerToClientEvents, "ackFromServer">>(
-            s.emit<"ackFromServer">
+            s.emit<"ackFromServer">,
           );
           expectType<ToEmit<ServerToClientEvents, "onlyCallback">>(
-            s.emit<"onlyCallback">
+            s.emit<"onlyCallback">,
           );
         });
       });
@@ -631,7 +631,7 @@ describe("server", () => {
 
           const value = await sio.serverSideEmitWithAck(
             "ackFromServerToServer",
-            "foo"
+            "foo",
           );
           expectType<number[]>(value);
 
@@ -652,7 +652,10 @@ describe("server", () => {
       io.adapter(Adapter);
 
       class MyCustomAdapter extends Adapter {
-        constructor(nsp, readonly opts) {
+        constructor(
+          nsp,
+          readonly opts,
+        ) {
           super(nsp);
         }
       }
