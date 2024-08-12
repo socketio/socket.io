@@ -5,12 +5,12 @@ const BlobBuilderImpl =
   typeof BlobBuilder !== "undefined"
     ? BlobBuilder
     : typeof WebKitBlobBuilder !== "undefined"
-    ? WebKitBlobBuilder
-    : typeof MSBlobBuilder !== "undefined"
-    ? MSBlobBuilder
-    : typeof MozBlobBuilder !== "undefined"
-    ? MozBlobBuilder
-    : false;
+      ? WebKitBlobBuilder
+      : typeof MSBlobBuilder !== "undefined"
+        ? MSBlobBuilder
+        : typeof MozBlobBuilder !== "undefined"
+          ? MozBlobBuilder
+          : false;
 
 describe("Blob", () => {
   it("encodes a Blob", () => {
