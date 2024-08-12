@@ -17,7 +17,7 @@ describe("messaging many", () => {
 
     const partialDone = createPartialDone(
       2,
-      successFn(done, io, socket1, socket2, socket3),
+      successFn(done, io, socket1, socket2, socket3)
     );
 
     socket1.on("a", (a) => {
@@ -53,7 +53,7 @@ describe("messaging many", () => {
 
     const partialDone = createPartialDone(
       2,
-      successFn(done, io, socket1, socket2, socket3),
+      successFn(done, io, socket1, socket2, socket3)
     );
 
     socket1.on("bin", (a) => {
@@ -142,7 +142,7 @@ describe("messaging many", () => {
 
     const partialDone = createPartialDone(
       2,
-      successFn(done, io, socket1, socket2),
+      successFn(done, io, socket1, socket2)
     );
 
     socket2.on("a", () => {
@@ -178,7 +178,7 @@ describe("messaging many", () => {
 
     const partialDone = createPartialDone(
       2,
-      successFn(done, io, socket1, socket2, socket3),
+      successFn(done, io, socket1, socket2, socket3)
     );
 
     socket1.emit("join", "woot");
@@ -221,7 +221,7 @@ describe("messaging many", () => {
 
     const partialDone = createPartialDone(
       2,
-      successFn(done, io, socket1, socket2, socket3),
+      successFn(done, io, socket1, socket2, socket3)
     );
 
     socket1.emit("join", "woot");

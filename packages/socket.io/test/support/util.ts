@@ -25,7 +25,7 @@ expect.Assertion.prototype.contain = function (...args) {
         },
         function () {
           return "expected " + i(this.obj) + " to not contain " + i(obj);
-        },
+        }
       );
     });
     return this;
@@ -39,7 +39,7 @@ export function createClient<
 >(
   io: Server,
   nsp: string = "/",
-  opts?: Partial<ManagerOptions & SocketOptions>,
+  opts?: Partial<ManagerOptions & SocketOptions>
 ): ClientSocket<STC, CTS> {
   const port = (io.httpServer.address() as AddressInfo).port;
   return ioc(`http://localhost:${port}${nsp}`, opts);

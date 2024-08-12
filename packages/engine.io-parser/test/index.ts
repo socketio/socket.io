@@ -176,7 +176,7 @@ describe("engine.io-parser", () => {
 
         const header = await reader.read();
         expect(header.value).to.eql(
-          Uint8Array.of(255, 0, 0, 0, 0, 7, 91, 205, 21),
+          Uint8Array.of(255, 0, 0, 0, 0, 7, 91, 205, 21)
         );
 
         const payload = await reader.read();

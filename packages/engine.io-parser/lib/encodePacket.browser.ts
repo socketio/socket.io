@@ -16,7 +16,7 @@ const isView = (obj) => {
 const encodePacket = (
   { type, data }: Packet,
   supportsBinary: boolean,
-  callback: (encodedPacket: RawData) => void,
+  callback: (encodedPacket: RawData) => void
 ) => {
   if (withNativeBlob && data instanceof Blob) {
     if (supportsBinary) {
@@ -40,7 +40,7 @@ const encodePacket = (
 
 const encodeBlobAsBase64 = (
   data: Blob,
-  callback: (encodedPacket: RawData) => void,
+  callback: (encodedPacket: RawData) => void
 ) => {
   const fileReader = new FileReader();
   fileReader.onload = function () {
@@ -64,7 +64,7 @@ let TEXT_ENCODER;
 
 export function encodePacketToBinary(
   packet: Packet,
-  callback: (encodedPacket: RawData) => void,
+  callback: (encodedPacket: RawData) => void
 ) {
   if (withNativeBlob && packet.data instanceof Blob) {
     return packet.data.arrayBuffer().then(toArray).then(callback);

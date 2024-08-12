@@ -7,7 +7,10 @@ import { type ServerOptions } from "engine.io";
 import { url, handshake } from "./util";
 
 class InMemoryEngine extends ClusterEngine {
-  constructor(readonly eventBus: EventEmitter, opts?: ServerOptions) {
+  constructor(
+    readonly eventBus: EventEmitter,
+    opts?: ServerOptions
+  ) {
     super(opts);
     eventBus.on("message", (message) => this.onMessage(message));
   }

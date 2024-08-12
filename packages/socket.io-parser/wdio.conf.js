@@ -72,7 +72,7 @@ if (process.env.CI === "true") {
         {
           appiumVersion: "2.0.0",
         },
-        BASE_SAUCE_OPTIONS,
+        BASE_SAUCE_OPTIONS
       ),
     },
     {
@@ -85,7 +85,7 @@ if (process.env.CI === "true") {
         {
           appiumVersion: "2.0.0",
         },
-        BASE_SAUCE_OPTIONS,
+        BASE_SAUCE_OPTIONS
       ),
     },
   ];

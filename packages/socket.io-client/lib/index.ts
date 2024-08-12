@@ -25,11 +25,11 @@ const cache: Record<string, Manager> = {};
 function lookup(opts?: Partial<ManagerOptions & SocketOptions>): Socket;
 function lookup(
   uri: string,
-  opts?: Partial<ManagerOptions & SocketOptions>,
+  opts?: Partial<ManagerOptions & SocketOptions>
 ): Socket;
 function lookup(
   uri?: string | Partial<ManagerOptions & SocketOptions>,
-  opts?: Partial<ManagerOptions & SocketOptions>,
+  opts?: Partial<ManagerOptions & SocketOptions>
 ): Socket {
   if (typeof uri === "object") {
     opts = uri;

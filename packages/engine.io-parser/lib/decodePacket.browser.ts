@@ -11,7 +11,7 @@ const withNativeArrayBuffer = typeof ArrayBuffer === "function";
 
 export const decodePacket = (
   encodedPacket: RawData,
-  binaryType?: BinaryType,
+  binaryType?: BinaryType
 ): Packet => {
   if (typeof encodedPacket !== "string") {
     return {

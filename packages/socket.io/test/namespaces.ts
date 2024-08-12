@@ -389,7 +389,7 @@ describe("namespaces", () => {
     const io = new Server();
 
     expect(() => io.emit("connect")).to.throwException(
-      /"connect" is a reserved event name/,
+      /"connect" is a reserved event name/
     );
   });
 
@@ -660,9 +660,7 @@ describe("namespaces", () => {
 
           c2.on("connect_error", () => {
             done(
-              new Error(
-                "Client got error when connecting to dynamic namespace",
-              ),
+              new Error("Client got error when connecting to dynamic namespace")
             );
           });
         }, 100);

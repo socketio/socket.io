@@ -17,7 +17,7 @@ describe("server attachment", () => {
         .end((err, res) => {
           if (err) return done(err);
           expect(res.headers["content-type"]).to.be(
-            "application/javascript; charset=utf-8",
+            "application/javascript; charset=utf-8"
           );
           expect(res.headers.etag).to.be('"' + clientVersion + '"');
           expect(res.headers["x-sourcemap"]).to.be(undefined);
@@ -36,7 +36,7 @@ describe("server attachment", () => {
         .end((err, res) => {
           if (err) return done(err);
           expect(res.headers["content-type"]).to.be(
-            "application/json; charset=utf-8",
+            "application/json; charset=utf-8"
           );
           expect(res.headers.etag).to.be('"' + clientVersion + '"');
           expect(res.text).to.match(/engine\.io/);
@@ -48,7 +48,7 @@ describe("server attachment", () => {
     it("should serve client", testSource("socket.io.js"));
     it(
       "should serve client with query string",
-      testSource("socket.io.js?buster=" + Date.now()),
+      testSource("socket.io.js?buster=" + Date.now())
     );
     it("should serve source map", testSourceMap("socket.io.js.map"));
     it("should serve client (min)", testSource("socket.io.min.js"));
@@ -99,7 +99,7 @@ describe("server attachment", () => {
         .end((err, res) => {
           if (err) return done(err);
           expect(res.headers["access-control-allow-origin"]).to.be(
-            "https://good-origin.com",
+            "https://good-origin.com"
           );
           expect(res.status).to.be(200);
           done();
@@ -108,19 +108,19 @@ describe("server attachment", () => {
 
     it(
       "should serve bundle with msgpack parser",
-      testSource("socket.io.msgpack.min.js"),
+      testSource("socket.io.msgpack.min.js")
     );
 
     it(
       "should serve source map for bundle with msgpack parser",
-      testSourceMap("socket.io.msgpack.min.js.map"),
+      testSourceMap("socket.io.msgpack.min.js.map")
     );
 
     it("should serve the ESM bundle", testSource("socket.io.esm.min.js"));
 
     it(
       "should serve the source map for the ESM bundle",
-      testSourceMap("socket.io.esm.min.js.map"),
+      testSourceMap("socket.io.esm.min.js.map")
     );
 
     it("should handle 304", (done) => {

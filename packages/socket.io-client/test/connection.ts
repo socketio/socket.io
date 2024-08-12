@@ -576,7 +576,7 @@ describe("connection", () => {
           reconnectionAttempts: 2,
         });
         let delay = Math.floor(
-          manager.reconnectionDelay() * manager.randomizationFactor() * 0.5,
+          manager.reconnectionDelay() * manager.randomizationFactor() * 0.5
         );
         delay = Math.max(delay, 10);
 

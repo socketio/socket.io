@@ -23,7 +23,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
     private readonly exceptRooms: Set<Room> = new Set<Room>(),
     private readonly flags: BroadcastFlags & {
       expectSingleResponse?: boolean;
-    } = {},
+    } = {}
   ) {}
 
   /**
@@ -53,7 +53,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
       this.adapter,
       rooms,
       this.exceptRooms,
-      this.flags,
+      this.flags
     );
   }
 
@@ -98,7 +98,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
       this.adapter,
       this.rooms,
       exceptRooms,
-      this.flags,
+      this.flags
     );
   }
 
@@ -117,7 +117,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
       this.adapter,
       this.rooms,
       this.exceptRooms,
-      flags,
+      flags
     );
   }
 
@@ -137,7 +137,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
       this.adapter,
       this.rooms,
       this.exceptRooms,
-      flags,
+      flags
     );
   }
 
@@ -156,7 +156,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
       this.adapter,
       this.rooms,
       this.exceptRooms,
-      flags,
+      flags
     );
   }
 
@@ -276,7 +276,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
         // each client sends an acknowledgement
         responses.push(clientResponse);
         checkCompleteness();
-      },
+      }
     );
 
     this.adapter.serverCount().then((serverCount) => {
@@ -326,7 +326,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
   public allSockets(): Promise<Set<SocketId>> {
     if (!this.adapter) {
       throw new Error(
-        "No adapter for this namespace, are you trying to get the list of clients of a dynamic namespace?",
+        "No adapter for this namespace, are you trying to get the list of clients of a dynamic namespace?"
       );
     }
     return this.adapter.sockets(this.rooms);
@@ -371,7 +371,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
           } else {
             return new RemoteSocket(
               this.adapter,
-              socket as SocketDetails<SocketData>,
+              socket as SocketDetails<SocketData>
             );
           }
         });
@@ -400,7 +400,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
         except: this.exceptRooms,
         flags: this.flags,
       },
-      Array.isArray(room) ? room : [room],
+      Array.isArray(room) ? room : [room]
     );
   }
 
@@ -425,7 +425,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
         except: this.exceptRooms,
         flags: this.flags,
       },
-      Array.isArray(room) ? room : [room],
+      Array.isArray(room) ? room : [room]
     );
   }
 
@@ -450,7 +450,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
         except: this.exceptRooms,
         flags: this.flags,
       },
-      close,
+      close
     );
   }
 }
@@ -489,7 +489,7 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
       new Set(),
       {
         expectSingleResponse: true, // so that remoteSocket.emit() with acknowledgement behaves like socket.emit()
-      },
+      }
     );
   }
 
@@ -517,7 +517,7 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
    * @param timeout
    */
   public timeout(
-    timeout: number,
+    timeout: number
   ): BroadcastOperator<DecorateAcknowledgements<EmitEvents>, SocketData> {
     return this.operator.timeout(timeout);
   }

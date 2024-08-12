@@ -22,11 +22,11 @@ describe("handshake", () => {
         expect(res.status).to.be(204);
 
         expect(res.headers["access-control-allow-origin"]).to.be(
-          "http://localhost:54023",
+          "http://localhost:54023"
         );
         expect(res.headers["access-control-allow-methods"]).to.be("GET,POST");
         expect(res.headers["access-control-allow-headers"]).to.be(
-          "content-type",
+          "content-type"
         );
         expect(res.headers["access-control-allow-credentials"]).to.be("true");
         success(done, io);
@@ -50,7 +50,7 @@ describe("handshake", () => {
         expect(res.status).to.be(200);
 
         expect(res.headers["access-control-allow-origin"]).to.be(
-          "http://localhost:54024",
+          "http://localhost:54024"
         );
         expect(res.headers["access-control-allow-credentials"]).to.be("true");
         success(done, io);

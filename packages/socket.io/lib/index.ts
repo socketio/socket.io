@@ -51,7 +51,7 @@ const dotMapRegex = /\.map/;
 type ParentNspNameMatchFn = (
   name: string,
   auth: { [key: string]: any },
-  fn: (err: Error | null, success: boolean) => void,
+  fn: (err: Error | null, success: boolean) => void
 ) => void;
 
 type AdapterConstructor = typeof Adapter | ((nsp: Namespace) => Adapter);
@@ -218,7 +218,7 @@ export class Server<
   private _corsMiddleware: (
     req: http.IncomingMessage,
     res: http.ServerResponse,
-    next: () => void,
+    next: () => void
   ) => void;
 
   /**
@@ -231,11 +231,11 @@ export class Server<
   constructor(srv?: TServerInstance | number, opts?: Partial<ServerOptions>);
   constructor(
     srv: undefined | Partial<ServerOptions> | TServerInstance | number,
-    opts?: Partial<ServerOptions>,
+    opts?: Partial<ServerOptions>
   );
   constructor(
     srv: undefined | Partial<ServerOptions> | TServerInstance | number,
-    opts: Partial<ServerOptions> = {},
+    opts: Partial<ServerOptions> = {}
   ) {
     super();
     if (
@@ -258,7 +258,7 @@ export class Server<
           maxDisconnectionDuration: 2 * 60 * 1000,
           skipMiddlewares: true,
         },
-        opts.connectionStateRecovery,
+        opts.connectionStateRecovery
       );
       this.adapter(opts.adapter || SessionAwareAdapter);
     } else {
@@ -308,8 +308,8 @@ export class Server<
     fn: (
       nsp:
         | Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
-        | false,
-    ) => void,
+        | false
+    ) => void
   ): void {
     if (this.parentNsps.size === 0) return fn(false);
 
@@ -356,7 +356,7 @@ export class Server<
     this.clientPathRegex = new RegExp(
       "^" +
         escapedPath +
-        "/socket\\.io(\\.msgpack|\\.esm)?(\\.min)?\\.js(\\.map)?(?:\\?|$)",
+        "/socket\\.io(\\.msgpack|\\.esm)?(\\.min)?\\.js(\\.map)?(?:\\?|$)"
     );
     return this;
   }
@@ -383,7 +383,7 @@ export class Server<
   public adapter(): AdapterConstructor | undefined;
   public adapter(v: AdapterConstructor): this;
   public adapter(
-    v?: AdapterConstructor,
+    v?: AdapterConstructor
   ): AdapterConstructor | undefined | this {
     if (!arguments.length) return this._adapter;
     this._adapter = v;
@@ -402,7 +402,7 @@ export class Server<
    */
   public listen(
     srv: TServerInstance | number,
-    opts: Partial<ServerOptions> = {},
+    opts: Partial<ServerOptions> = {}
   ): this {
     return this.attach(srv, opts);
   }
@@ -416,7 +416,7 @@ export class Server<
    */
   public attach(
     srv: TServerInstance | number,
-    opts: Partial<ServerOptions> = {},
+    opts: Partial<ServerOptions> = {}
   ): this {
     if ("function" == typeof srv) {
       const msg =
@@ -501,7 +501,7 @@ export class Server<
         res.writeHeader("cache-control", "public, max-age=0");
         res.writeHeader(
           "content-type",
-          "application/" + (isMap ? "json" : "javascript") + "; charset=utf-8",
+          "application/" + (isMap ? "json" : "javascript") + "; charset=utf-8"
         );
         res.writeHeader("etag", expectedEtag);
 
@@ -522,7 +522,7 @@ export class Server<
    */
   private initEngine(
     srv: TServerInstance,
-    opts: EngineOptions & AttachOptions,
+    opts: EngineOptions & AttachOptions
   ): void {
     // initialize engine
     debug("creating engine.io instance with opts %j", opts);
@@ -598,7 +598,7 @@ export class Server<
     res.setHeader("Cache-Control", "public, max-age=0");
     res.setHeader(
       "Content-Type",
-      "application/" + (isMap ? "json" : "javascript") + "; charset=utf-8",
+      "application/" + (isMap ? "json" : "javascript") + "; charset=utf-8"
     );
     res.setHeader("ETag", expectedEtag);
 
@@ -614,10 +614,10 @@ export class Server<
   private static sendFile(
     filename: string,
     req: http.IncomingMessage,
-    res: http.ServerResponse,
+    res: http.ServerResponse
   ): void {
     const readStream = createReadStream(
-      path.join(__dirname, "../client-dist/", filename),
+      path.join(__dirname, "../client-dist/", filename)
     );
     const encoding = accepts(req).encodings(["br", "gzip", "deflate"]);
 
@@ -696,8 +696,8 @@ export class Server<
   public of(
     name: string | RegExp | ParentNspNameMatchFn,
     fn?: (
-      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
-    ) => void,
+      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+    ) => void
   ): Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData> {
     if (typeof name === "function" || name instanceof RegExp) {
       const parentNsp = new ParentNamespace(this);
@@ -707,7 +707,7 @@ export class Server<
       } else {
         this.parentNsps.set(
           (nsp, conn, next) => next(null, (name as RegExp).test(nsp)),
-          parentNsp,
+          parentNsp
         );
         this.parentNamespacesFromRegExp.set(name, parentNsp);
       }
@@ -783,8 +783,8 @@ export class Server<
   public use(
     fn: (
       socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
-      next: (err?: ExtendedError) => void,
-    ) => void,
+      next: (err?: ExtendedError) => void
+    ) => void
   ): this {
     this.sockets.use(fn);
     return this;
@@ -1096,7 +1096,7 @@ export class Server<
 const emitterMethods = Object.keys(EventEmitter.prototype).filter(
   function (key) {
     return typeof EventEmitter.prototype[key] === "function";
-  },
+  }
 );
 
 emitterMethods.forEach(function (fn) {

@@ -110,7 +110,7 @@ describe("socket.io-parser", () => {
   it("throw an error upon parsing error", () => {
     const isInvalidPayload = (str) =>
       expect(() => new Decoder().add(str)).to.throwException(
-        /^invalid payload$/,
+        /^invalid payload$/
       );
 
     isInvalidPayload('442["some","data"');
@@ -126,11 +126,11 @@ describe("socket.io-parser", () => {
     isInvalidPayload('2["disconnect","123"]');
 
     expect(() => new Decoder().add("999")).to.throwException(
-      /^unknown packet type 9$/,
+      /^unknown packet type 9$/
     );
 
     expect(() => new Decoder().add(999)).to.throwException(
-      /^Unknown type: 999$/,
+      /^Unknown type: 999$/
     );
   });
 
@@ -154,7 +154,7 @@ describe("socket.io-parser", () => {
       isPacketValid({
         type: 0,
         nsp: "/",
-      }),
+      })
     ).to.eql(true);
 
     expect(
@@ -162,7 +162,7 @@ describe("socket.io-parser", () => {
         type: 0,
         nsp: "/admin",
         data: "invalid",
-      }),
+      })
     ).to.eql(false);
 
     expect(
@@ -170,7 +170,7 @@ describe("socket.io-parser", () => {
         type: 0,
         nsp: "/",
         data: [],
-      }),
+      })
     ).to.eql(false);
 
     expect(
@@ -178,7 +178,7 @@ describe("socket.io-parser", () => {
         type: 1,
         nsp: "/admin",
         data: {},
-      }),
+      })
     ).to.eql(false);
 
     expect(
@@ -186,7 +186,7 @@ describe("socket.io-parser", () => {
         type: 2,
         nsp: "/admin",
         data: "invalid",
-      }),
+      })
     ).to.eql(false);
 
     expect(
@@ -194,7 +194,7 @@ describe("socket.io-parser", () => {
         type: 2,
         nsp: "/admin",
         data: {},
-      }),
+      })
     ).to.eql(false);
 
     expect(
@@ -202,7 +202,7 @@ describe("socket.io-parser", () => {
         type: 2,
         nsp: "/",
         data: { toString: "foo" },
-      }),
+      })
     ).to.eql(false);
 
     expect(
@@ -210,7 +210,7 @@ describe("socket.io-parser", () => {
         type: 2,
         nsp: "/",
         data: [true, "foo"],
-      }),
+      })
     ).to.eql(false);
 
     expect(
@@ -218,7 +218,7 @@ describe("socket.io-parser", () => {
         type: 2,
         nsp: "/",
         data: [null, "bar"],
-      }),
+      })
     ).to.eql(false);
 
     expect(
@@ -226,7 +226,7 @@ describe("socket.io-parser", () => {
         type: 2,
         nsp: "/",
         data: ["connect"],
-      }),
+      })
     ).to.eql(false);
 
     expect(
@@ -234,7 +234,7 @@ describe("socket.io-parser", () => {
         type: 2,
         nsp: "/",
         data: ["disconnect", "123"],
-      }),
+      })
     ).to.eql(false);
   });
 });

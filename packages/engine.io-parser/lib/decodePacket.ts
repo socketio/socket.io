@@ -8,7 +8,7 @@ import {
 
 export const decodePacket = (
   encodedPacket: RawData,
-  binaryType?: BinaryType,
+  binaryType?: BinaryType
 ): Packet => {
   if (typeof encodedPacket !== "string") {
     return {
@@ -47,7 +47,7 @@ const mapBinary = (data: RawData, binaryType?: BinaryType) => {
         // from HTTP long-polling
         return data.buffer.slice(
           data.byteOffset,
-          data.byteOffset + data.byteLength,
+          data.byteOffset + data.byteLength
         );
       } else {
         // from WebTransport (Uint8Array)

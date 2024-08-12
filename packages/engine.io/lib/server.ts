@@ -632,7 +632,10 @@ export abstract class BaseServer extends EventEmitter {
  * @see https://nodejs.org/api/http.html#class-httpserverresponse
  */
 class WebSocketResponse {
-  constructor(readonly req, readonly socket: Duplex) {
+  constructor(
+    readonly req,
+    readonly socket: Duplex
+  ) {
     // temporarily store the response headers on the req object (see the "headers" event)
     req[kResponseHeaders] = {};
   }

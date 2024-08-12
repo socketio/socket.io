@@ -12,7 +12,7 @@ const SEPARATOR = String.fromCharCode(30); // see https://en.wikipedia.org/wiki/
 
 const encodePayload = (
   packets: Packet[],
-  callback: (encodedPayload: string) => void,
+  callback: (encodedPayload: string) => void
 ) => {
   // some packets may be added to the array while encoding, so the initial length must be saved
   const length = packets.length;
@@ -32,7 +32,7 @@ const encodePayload = (
 
 const decodePayload = (
   encodedPayload: string,
-  binaryType?: BinaryType,
+  binaryType?: BinaryType
 ): Packet[] => {
   const encodedPackets = encodedPayload.split(SEPARATOR);
   const packets = [];
@@ -112,7 +112,7 @@ const enum State {
 
 export function createPacketDecoderStream(
   maxPayload: number,
-  binaryType: BinaryType,
+  binaryType: BinaryType
 ): any {
   if (!TEXT_DECODER) {
     TEXT_DECODER = new TextDecoder();
@@ -148,7 +148,7 @@ export function createPacketDecoderStream(
           expectedLength = new DataView(
             headerArray.buffer,
             headerArray.byteOffset,
-            headerArray.length,
+            headerArray.length
           ).getUint16(0);
           state = State.READ_PAYLOAD;
         } else if (state === State.READ_EXTENDED_LENGTH_64) {
@@ -160,7 +160,7 @@ export function createPacketDecoderStream(
           const view = new DataView(
             headerArray.buffer,
             headerArray.byteOffset,
-            headerArray.length,
+            headerArray.length
           );
 
           const n = view.getUint32(0);
@@ -181,8 +181,8 @@ export function createPacketDecoderStream(
           controller.enqueue(
             decodePacket(
               isBinary ? data : TEXT_DECODER.decode(data),
-              binaryType,
-            ),
+              binaryType
+            )
           );
           state = State.READ_HEADER;
         }

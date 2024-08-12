@@ -152,11 +152,11 @@ export class Manager<
   constructor(uri?: string, opts?: Partial<ManagerOptions>);
   constructor(
     uri?: string | Partial<ManagerOptions>,
-    opts?: Partial<ManagerOptions>,
+    opts?: Partial<ManagerOptions>
   );
   constructor(
     uri?: string | Partial<ManagerOptions>,
-    opts?: Partial<ManagerOptions>,
+    opts?: Partial<ManagerOptions>
   ) {
     super();
     if (uri && "object" === typeof uri) {
@@ -405,7 +405,7 @@ export class Manager<
       on(socket, "error", this.onerror.bind(this)),
       on(socket, "close", this.onclose.bind(this)),
       // @ts-ignore
-      on(this.decoder, "decoded", this.ondecoded.bind(this)),
+      on(this.decoder, "decoded", this.ondecoded.bind(this))
     );
   }
 

@@ -381,8 +381,8 @@ export class SocketWithoutUpgrade extends Emitter<
       (typeof location !== "undefined" && location.port
         ? location.port
         : this.secure
-        ? "443"
-        : "80");
+          ? "443"
+          : "80");
 
     this.transports = [];
     this._transportsByName = {};

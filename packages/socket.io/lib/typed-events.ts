@@ -158,7 +158,7 @@ export abstract class StrictEventEmitter<
    */
   on<Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>>(
     ev: Ev,
-    listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>,
+    listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>
   ): this {
     return super.on(ev, listener);
   }
@@ -171,7 +171,7 @@ export abstract class StrictEventEmitter<
    */
   once<Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>>(
     ev: Ev,
-    listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>,
+    listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>
   ): this {
     return super.once(ev, listener);
   }
@@ -226,7 +226,7 @@ export abstract class StrictEventEmitter<
    * @returns Array of listeners subscribed to `event`
    */
   listeners<Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>>(
-    event: Ev,
+    event: Ev
   ): ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>[] {
     return super.listeners(event) as ReservedOrUserListener<
       ReservedEvents,

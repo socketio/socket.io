@@ -10,7 +10,11 @@ const debug = debugModule("engine:webtransport");
 export class WebTransport extends Transport {
   private readonly writer;
 
-  constructor(private readonly session, stream, reader) {
+  constructor(
+    private readonly session,
+    stream,
+    reader
+  ) {
     super({ _query: { EIO: "4" } });
 
     const transformStream = createPacketEncoderStream();

@@ -34,10 +34,10 @@ export interface NamespaceReservedEventsMap<
   SocketData,
 > {
   connect: (
-    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
+    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
   ) => void;
   connection: (
-    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
+    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
   ) => void;
 }
 
@@ -53,12 +53,7 @@ export interface ServerReservedEventsMap<
     SocketData
   > {
   new_namespace: (
-    namespace: Namespace<
-      ListenEvents,
-      EmitEvents,
-      ServerSideEvents,
-      SocketData
-    >,
+    namespace: Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
   ) => void;
 }
 
@@ -154,7 +149,7 @@ export class Namespace<
   _fns: Array<
     (
       socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
-      next: (err?: ExtendedError) => void,
+      next: (err?: ExtendedError) => void
     ) => void
   > = [];
 
@@ -169,7 +164,7 @@ export class Namespace<
    */
   constructor(
     server: Server<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
-    name: string,
+    name: string
   ) {
     super();
     this.server = server;
@@ -205,8 +200,8 @@ export class Namespace<
   public use(
     fn: (
       socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
-      next: (err?: ExtendedError) => void,
-    ) => void,
+      next: (err?: ExtendedError) => void
+    ) => void
   ): this {
     this._fns.push(fn);
     return this;
@@ -221,7 +216,7 @@ export class Namespace<
    */
   private run(
     socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
-    fn: (err: ExtendedError | null) => void,
+    fn: (err: ExtendedError | null) => void
   ) {
     const fns = this._fns.slice(0);
     if (!fns.length) return fn(null);
@@ -321,8 +316,8 @@ export class Namespace<
     client: Client<ListenEvents, EmitEvents, ServerSideEvents>,
     auth: Record<string, unknown>,
     fn: (
-      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
-    ) => void,
+      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+    ) => void
   ) {
     debug("adding socket to nsp %s", this.name);
     const socket = await this._createSocket(client, auth);
@@ -364,7 +359,7 @@ export class Namespace<
 
   private async _createSocket(
     client: Client<ListenEvents, EmitEvents, ServerSideEvents>,
-    auth: Record<string, unknown>,
+    auth: Record<string, unknown>
   ) {
     const sessionId = auth.pid;
     const offset = auth.offset;
@@ -391,8 +386,8 @@ export class Namespace<
   private _doConnect(
     socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
     fn: (
-      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
-    ) => void,
+      socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+    ) => void
   ) {
     // track socket
     this.sockets.set(socket.id, socket);
@@ -415,7 +410,7 @@ export class Namespace<
    * @private
    */
   _remove(
-    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
+    socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
   ): void {
     if (this.sockets.has(socket.id)) {
       this.sockets.delete(socket.id);
@@ -452,7 +447,7 @@ export class Namespace<
   ): boolean {
     return new BroadcastOperator<EmitEvents, SocketData>(this.adapter).emit(
       ev,
-      ...args,
+      ...args
     );
   }
 
@@ -568,7 +563,7 @@ export class Namespace<
       });
       this.serverSideEmit(
         ev,
-        ...(args as any[] as EventParams<ServerSideEvents, Ev>),
+        ...(args as any[] as EventParams<ServerSideEvents, Ev>)
       );
     });
   }
@@ -592,7 +587,7 @@ export class Namespace<
    */
   public allSockets(): Promise<Set<SocketId>> {
     return new BroadcastOperator<EmitEvents, SocketData>(
-      this.adapter,
+      this.adapter
     ).allSockets();
   }
 
@@ -702,7 +697,7 @@ export class Namespace<
    */
   public fetchSockets() {
     return new BroadcastOperator<EmitEvents, SocketData>(
-      this.adapter,
+      this.adapter
     ).fetchSockets();
   }
 
@@ -724,7 +719,7 @@ export class Namespace<
    */
   public socketsJoin(room: Room | Room[]) {
     return new BroadcastOperator<EmitEvents, SocketData>(
-      this.adapter,
+      this.adapter
     ).socketsJoin(room);
   }
 
@@ -746,7 +741,7 @@ export class Namespace<
    */
   public socketsLeave(room: Room | Room[]) {
     return new BroadcastOperator<EmitEvents, SocketData>(
-      this.adapter,
+      this.adapter
     ).socketsLeave(room);
   }
 
@@ -768,7 +763,7 @@ export class Namespace<
    */
   public disconnectSockets(close: boolean = false) {
     return new BroadcastOperator<EmitEvents, SocketData>(
-      this.adapter,
+      this.adapter
     ).disconnectSockets(close);
   }
 }

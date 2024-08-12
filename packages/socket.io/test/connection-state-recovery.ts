@@ -59,7 +59,7 @@ describe("connection state recovery", () => {
     await eioPush(
       httpServer,
       newSid,
-      `40{"pid":"${pid}","offset":"${offset}"}`,
+      `40{"pid":"${pid}","offset":"${offset}"}`
     );
 
     const payload = await eioPoll(httpServer, newSid);
