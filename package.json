@@ -1,4 +1,5 @@
 {
+  "name": "socket.io",
   "private": true,
   "workspaces": [
     "packages/socket.io-component-emitter",
