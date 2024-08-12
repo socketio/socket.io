@@ -10,9 +10,6 @@
     "require": "./build/cjs/index.js"
   },
   "types": "build/esm/index.d.ts",
-  "devDependencies": {
-    "prettier": "^3.3.2"
-  },
   "scripts": {
     "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && ./postcompile.sh",
     "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
