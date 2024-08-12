@@ -92,7 +92,7 @@ describe("typed events", () => {
         const value = await socket.emitWithAck(
           "ackFromClientSingleArg",
           "1",
-          2
+          2,
         );
         expectType<any>(value);
 
@@ -155,12 +155,12 @@ describe("typed events", () => {
       ackFromClient: (
         a: string,
         b: number,
-        ack: (c: string, d: boolean) => void
+        ack: (c: string, d: boolean) => void,
       ) => void;
       ackFromClientSingleArg: (
         a: string,
         b: number,
-        ack: (c: string) => void
+        ack: (c: string) => void,
       ) => void;
       ackFromClientNoArg: (ack: () => void) => void;
     }
@@ -232,7 +232,7 @@ describe("typed events", () => {
         const value = await socket.emitWithAck(
           "ackFromClientSingleArg",
           "1",
-          2
+          2,
         );
         expectType<string>(value);
 

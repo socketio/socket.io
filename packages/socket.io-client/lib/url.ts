@@ -39,7 +39,7 @@ type ParsedUrl = {
 export function url(
   uri: string | ParsedUrl,
   path: string = "",
-  loc?: Location
+  loc?: Location,
 ): ParsedUrl {
   let obj = uri as ParsedUrl;
 
