@@ -54,7 +54,7 @@
     "base64id": "~2.0.0",
     "cors": "~2.8.5",
     "debug": "~4.3.2",
-    "engine.io": "~6.5.2",
+    "engine.io": "~6.6.0",
     "socket.io-adapter": "~2.5.2",
     "socket.io-parser": "~4.2.4"
   },
