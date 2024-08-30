@@ -50,7 +50,7 @@ export class TodoStore {
   }
 
   removeCompleted() {
-    this.todos = this.getWithCompleted(false);
+    this.todos = this.getRemaining();
     this.updateStore();
   }
 

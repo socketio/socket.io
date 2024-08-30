@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <body>
+    <p>Status: <span id="status"></span></p>
+    <p>Transport: <span id="transport"></span></p>
+
+    <script>
+      const { registerListeners, emit } = require("./index");
+
+      const statusSpan = document.getElementById("status");
+      const transportSpan = document.getElementById("transport");
+
+      statusSpan.innerText = "Disconnected";
+      transportSpan.innerText = "N/A";
+
+      registerListeners({ statusSpan, transportSpan });
+
+      emit("hello", "world");
+    </script>
+  </body>
+</html>

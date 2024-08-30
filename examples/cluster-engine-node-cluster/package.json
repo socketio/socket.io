@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "name": "cluster-engine-node-cluster",
+  "version": "0.0.1",
+  "type": "module",
+  "dependencies": {
+    "@socket.io/cluster-adapter": "^0.2.2",
+    "@socket.io/cluster-engine": "^0.1.0",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5"
+  }
+}

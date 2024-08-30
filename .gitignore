@@ -12,3 +12,4 @@ coverage
 .idea
 .nyc_output
 dist/
+build/

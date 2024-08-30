@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "outDir": "build/esm/",
+    "target": "es2018",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "declaration": true
+  },
+  "include": [
+    "./lib/**/*"
+  ]
+}

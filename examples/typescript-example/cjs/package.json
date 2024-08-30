@@ -1,0 +1,20 @@
+{
+  "name": "typescript-example",
+  "version": "1.0.0",
+  "description": "An example with TypeScript",
+  "type": "commonjs",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start:server": "ts-node server.ts",
+    "start:client": "ts-node client.ts"
+  },
+  "author": "Damien Arrachequesne",
+  "license": "MIT",
+  "dependencies": {
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
