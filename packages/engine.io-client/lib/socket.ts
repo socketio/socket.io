@@ -85,7 +85,7 @@ export interface SocketOptions {
    *
    * @default ['polling','websocket', 'webtransport']
    */
-  transports?: string[] | TransportCtor[];
+  transports?: ("polling" | "websocket" | "webtransport" | string)[] | TransportCtor[];
 
   /**
    * Whether all the transports should be tested, instead of just the first one.
