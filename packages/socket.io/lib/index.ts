@@ -746,14 +746,16 @@ export class Server<
    *
    * @param [fn] optional, called as `fn([err])` on error OR all conns closed
    */
-  public close(fn?: (err?: Error) => void): void {
-    this._nsps.forEach((nsp) => {
-      nsp.sockets.forEach((socket) => {
-        socket._onclose("server shutting down");
-      });
+  public async close(fn?: (err?: Error) => void): Promise<void> {
+    await Promise.allSettled(
+      [...this._nsps.values()].map(async (nsp) => {
+        nsp.sockets.forEach((socket) => {
+          socket._onclose("server shutting down");
+        });
 
-      nsp.adapter.close();
-    });
+        await nsp.adapter.close();
+      })
+    );
 
     this.engine.close();
 
