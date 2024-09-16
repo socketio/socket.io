@@ -141,9 +141,68 @@ interface ServerOptions extends EngineOptions, AttachOptions {
  * io.listen(3000);
  */
 export class Server<
+  /**
+   * Types for the events received from the clients.
+   *
+   * @example
+   * interface ClientToServerEvents {
+   *   hello: (arg: string) => void;
+   * }
+   *
+   * const io = new Server<ClientToServerEvents>();
+   *
+   * io.on("connection", (socket) => {
+   *   socket.on("hello", (arg) => {
+   *     // `arg` is inferred as string
+   *   });
+   * });
+   */
   ListenEvents extends EventsMap = DefaultEventsMap,
+  /**
+   * Types for the events sent to the clients.
+   *
+   * @example
+   * interface ServerToClientEvents {
+   *   hello: (arg: string) => void;
+   * }
+   *
+   * const io = new Server<DefaultEventMap, ServerToClientEvents>();
+   *
+   * io.emit("hello", "world");
+   */
   EmitEvents extends EventsMap = ListenEvents,
+  /**
+   * Types for the events received from and sent to the other servers.
+   *
+   * @example
+   * interface InterServerEvents {
+   *   ping: (arg: number) => void;
+   * }
+   *
+   * const io = new Server<DefaultEventMap, DefaultEventMap, ServerToClientEvents>();
+   *
+   * io.serverSideEmit("ping", 123);
+   *
+   * io.on("ping", (arg) => {
+   *   // `arg` is inferred as number
+   * });
+   */
   ServerSideEvents extends EventsMap = DefaultEventsMap,
+  /**
+   * Additional properties that can be attached to the socket instance.
+   *
+   * Note: any property can be attached directly to the socket instance (`socket.foo = "bar"`), but the `data` object
+   * will be included when calling {@link Server#fetchSockets}.
+   *
+   * @example
+   * io.on("connection", (socket) => {
+   *   socket.data.eventsCount = 0;
+   *
+   *   socket.onAny(() => {
+   *     socket.data.eventsCount++;
+   *   });
+   * });
+   */
   SocketData = any,
 > extends StrictEventEmitter<
   ServerSideEvents,
@@ -1117,5 +1176,6 @@ export {
   Namespace,
   BroadcastOperator,
   RemoteSocket,
+  DefaultEventsMap,
 };
 export { Event } from "./socket";
