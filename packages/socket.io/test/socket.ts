@@ -807,7 +807,7 @@ describe("socket", () => {
     io.on("connection", (s) => {
       s.conn.on("upgrade", () => {
         console.log(
-          "\u001b[96mNote: warning expected and normal in test.\u001b[39m"
+          "\u001b[96mNote: warning expected and normal in test.\u001b[39m",
         );
         // @ts-ignore
         socket.io.engine.write("5woooot");
@@ -825,7 +825,7 @@ describe("socket", () => {
     io.on("connection", (s) => {
       s.conn.on("upgrade", () => {
         console.log(
-          "\u001b[96mNote: warning expected and normal in test.\u001b[39m"
+          "\u001b[96mNote: warning expected and normal in test.\u001b[39m",
         );
         // @ts-ignore
         socket.io.engine.write('44["handle me please"]');
@@ -883,7 +883,7 @@ describe("socket", () => {
     const socket = createClient(io);
     io.on("connection", (s) => {
       expect(() => s.emit("connect_error")).to.throwException(
-        /"connect_error" is a reserved event name/
+        /"connect_error" is a reserved event name/,
       );
       socket.close();
       success(done, io, socket);
@@ -1112,7 +1112,7 @@ describe("socket", () => {
 
       const partialDone = createPartialDone(
         3,
-        successFn(done, io, socket1, socket2, socket3)
+        successFn(done, io, socket1, socket2, socket3),
       );
 
       socket1.on("disconnect", partialDone);

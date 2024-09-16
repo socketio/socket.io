@@ -143,7 +143,7 @@ describe("server", () => {
               expect(res.body.message).to.be("Thou shall not pass");
               partialDone();
             });
-        }
+        },
       );
     });
 
@@ -161,7 +161,7 @@ describe("server", () => {
           client.on("error", () => {
             done();
           });
-        }
+        },
       );
     });
 
@@ -243,7 +243,7 @@ describe("server", () => {
         });
 
         const socket = new WebSocket(
-          `ws://localhost:${port}/engine.io/?EIO=4&transport=__proto__`
+          `ws://localhost:${port}/engine.io/?EIO=4&transport=__proto__`,
         );
 
         socket.onerror = partialDone;
@@ -262,7 +262,7 @@ describe("server", () => {
             // hack-obtain sid
             const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              `io=${sid}; Path=/; HttpOnly; SameSite=Lax`
+              `io=${sid}; Path=/; HttpOnly; SameSite=Lax`,
             );
             done();
           });
@@ -278,7 +278,7 @@ describe("server", () => {
             expect(err).to.be(null);
             const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              `woot=${sid}; Path=/; HttpOnly; SameSite=Lax`
+              `woot=${sid}; Path=/; HttpOnly; SameSite=Lax`,
             );
             done();
           });
@@ -294,7 +294,7 @@ describe("server", () => {
             expect(err).to.be(null);
             const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              `io=${sid}; Path=/custom; HttpOnly; SameSite=Lax`
+              `io=${sid}; Path=/custom; HttpOnly; SameSite=Lax`,
             );
             done();
           });
@@ -310,7 +310,7 @@ describe("server", () => {
             expect(err).to.be(null);
             const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              `io=${sid}; SameSite=Lax`
+              `io=${sid}; SameSite=Lax`,
             );
             done();
           });
@@ -326,7 +326,7 @@ describe("server", () => {
             expect(err).to.be(null);
             const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              `io=${sid}; Path=/; HttpOnly; SameSite=Lax`
+              `io=${sid}; Path=/; HttpOnly; SameSite=Lax`,
             );
             done();
           });
@@ -342,7 +342,7 @@ describe("server", () => {
             expect(err).to.be(null);
             const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              `io=${sid}; Path=/; HttpOnly; SameSite=Strict`
+              `io=${sid}; Path=/; HttpOnly; SameSite=Strict`,
             );
             done();
           });
@@ -358,7 +358,7 @@ describe("server", () => {
             expect(err).to.be(null);
             const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              `io=${sid}; Path=/; SameSite=Lax`
+              `io=${sid}; Path=/; SameSite=Lax`,
             );
             done();
           });
@@ -374,7 +374,7 @@ describe("server", () => {
             expect(err).to.be(null);
             const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              `io=${sid}; Path=/; HttpOnly; SameSite=Lax`
+              `io=${sid}; Path=/; HttpOnly; SameSite=Lax`,
             );
             done();
           });
@@ -681,14 +681,14 @@ describe("server", () => {
               expect(res.body.code).to.be(3);
               expect(res.body.message).to.be("Bad request");
               expect(res.header["access-control-allow-credentials"]).to.be(
-                "true"
+                "true",
               );
               expect(res.header["access-control-allow-origin"]).to.be(
-                "http://engine.io"
+                "http://engine.io",
               );
               partialDone();
             });
-        }
+        },
       );
     });
 
@@ -1130,7 +1130,7 @@ describe("server", () => {
             expect(res.statusCode).to.eql(400);
             res.resume();
             res.on("end", done);
-          }
+          },
         );
         req.end();
       });
@@ -1174,7 +1174,7 @@ describe("server", () => {
               // OPENED readyState is expected - we are actually polling
               expect(
                 socket.transport.pollXhr[IS_CLIENT_V3 ? "xhr" : "_xhr"]
-                  .readyState
+                  .readyState,
               ).to.be(1);
 
               // 2 requests sent to the server over an unique port means
@@ -1194,7 +1194,7 @@ describe("server", () => {
             }, 50);
           });
         });
-      }
+      },
     );
 
     it("should not trigger with connection: close header", ($done) => {
@@ -1260,7 +1260,7 @@ describe("server", () => {
             done();
           }, 200);
         });
-      }
+      },
     );
 
     it(
@@ -1295,7 +1295,7 @@ describe("server", () => {
             done();
           }, 100);
         });
-      }
+      },
     );
 
     it(
@@ -1331,7 +1331,7 @@ describe("server", () => {
             });
           });
         });
-      }
+      },
     );
 
     if (IS_CLIENT_V3) {
@@ -1370,7 +1370,7 @@ describe("server", () => {
               });
             });
           });
-        }
+        },
       );
     } else {
       it(
@@ -1408,7 +1408,7 @@ describe("server", () => {
               });
             });
           });
-        }
+        },
       );
     }
 
@@ -1435,7 +1435,7 @@ describe("server", () => {
             socket.send("test");
           });
         });
-      }
+      },
     );
 
     // tests https://github.com/LearnBoost/engine.io-client/issues/207
@@ -1727,7 +1727,7 @@ describe("server", () => {
         engine.on("connection", (conn) => {
           conn.on("message", (msg) => {
             done(
-              new Error("Test invalidation (message is longer than allowed)")
+              new Error("Test invalidation (message is longer than allowed)"),
             );
           });
         });
@@ -1749,7 +1749,7 @@ describe("server", () => {
         engine.on("connection", (conn) => {
           conn.on("message", (msg) => {
             done(
-              new Error("Test invalidation (message is longer than allowed)")
+              new Error("Test invalidation (message is longer than allowed)"),
             );
           });
         });
@@ -2060,7 +2060,7 @@ describe("server", () => {
           client.on("open", () => {
             client.send("a".repeat(1e6));
           });
-        }
+        },
       );
     });
 
@@ -2202,7 +2202,7 @@ describe("server", () => {
             });
           });
         });
-      }
+      },
     );
 
     it("should support chinese", (done) => {
@@ -2546,7 +2546,7 @@ describe("server", () => {
                 j,
                 ((value) => {
                   j++;
-                })(j)
+                })(j),
               );
             }
 
@@ -2585,7 +2585,7 @@ describe("server", () => {
                 j,
                 ((value) => {
                   j++;
-                })(j)
+                })(j),
               );
             }
 
@@ -2999,7 +2999,7 @@ describe("server", () => {
               done();
             });
           });
-        }
+        },
       );
     });
   });
@@ -3031,7 +3031,7 @@ describe("server", () => {
               done();
             });
           });
-        }
+        },
       );
     });
   });
@@ -3174,11 +3174,11 @@ describe("server", () => {
                     .on("error", done)
                     .on("end", done)
                     .resume();
-                }
+                },
               );
-            }
+            },
           );
-        }
+        },
       );
     });
 
@@ -3212,11 +3212,11 @@ describe("server", () => {
                     .on("error", done)
                     .on("end", done)
                     .resume();
-                }
+                },
               );
-            }
+            },
           );
-        }
+        },
       );
     });
 
@@ -3250,11 +3250,11 @@ describe("server", () => {
                 (res) => {
                   expect(res.headers["content-encoding"]).to.equal("gzip");
                   done();
-                }
+                },
               );
-            }
+            },
           );
-        }
+        },
       );
     });
 
@@ -3284,11 +3284,11 @@ describe("server", () => {
                 (res) => {
                   expect(res.headers["content-encoding"]).to.be(undefined);
                   done();
-                }
+                },
               );
-            }
+            },
           );
-        }
+        },
       );
     });
 
@@ -3318,11 +3318,11 @@ describe("server", () => {
                 (res) => {
                   expect(res.headers["content-encoding"]).to.be(undefined);
                   done();
-                }
+                },
               );
-            }
+            },
           );
-        }
+        },
       );
     });
 
@@ -3352,11 +3352,11 @@ describe("server", () => {
                 (res) => {
                   expect(res.headers["content-encoding"]).to.be(undefined);
                   done();
-                }
+                },
               );
-            }
+            },
           );
-        }
+        },
       );
     });
   });
@@ -3599,20 +3599,20 @@ describe("server", () => {
               expect(res.status).to.be(204);
               expect(res.body).to.be.empty();
               expect(res.header["access-control-allow-origin"]).to.be(
-                "http://engine.io"
+                "http://engine.io",
               );
               expect(res.header["access-control-allow-methods"]).to.be(
-                "GET,HEAD,PUT,PATCH,POST,DELETE"
+                "GET,HEAD,PUT,PATCH,POST,DELETE",
               );
               expect(res.header["access-control-allow-headers"]).to.be(
-                "my-header"
+                "my-header",
               );
               expect(res.header["access-control-allow-credentials"]).to.be(
-                "true"
+                "true",
               );
               done();
             });
-        }
+        },
       );
     });
 
@@ -3629,20 +3629,20 @@ describe("server", () => {
               expect(res.status).to.be(200);
               expect(res.body).to.be.empty();
               expect(res.header["access-control-allow-origin"]).to.be(
-                "http://engine.io"
+                "http://engine.io",
               );
               expect(res.header["access-control-allow-methods"]).to.be(
-                undefined
+                undefined,
               );
               expect(res.header["access-control-allow-headers"]).to.be(
-                undefined
+                undefined,
               );
               expect(res.header["access-control-allow-credentials"]).to.be(
-                "true"
+                "true",
               );
               done();
             });
-        }
+        },
       );
     });
 
@@ -3663,14 +3663,14 @@ describe("server", () => {
               expect(res.status).to.be(204);
               expect(res.body).to.be.empty();
               expect(res.header["access-control-allow-origin"]).to.be(
-                undefined
+                undefined,
               );
               expect(res.header["access-control-allow-credentials"]).to.be(
-                undefined
+                undefined,
               );
               done();
             });
-        }
+        },
       );
     });
 
@@ -3697,24 +3697,24 @@ describe("server", () => {
               expect(res.status).to.be(200);
               expect(res.body).to.be.empty();
               expect(res.header["access-control-allow-origin"]).to.be(
-                "http://good-domain.com"
+                "http://good-domain.com",
               );
               expect(res.header["access-control-allow-methods"]).to.be(
-                "GET,PUT,POST"
+                "GET,PUT,POST",
               );
               expect(res.header["access-control-allow-headers"]).to.be(
-                "my-header"
+                "my-header",
               );
               expect(res.header["access-control-expose-headers"]).to.be(
-                "my-exposed-header"
+                "my-exposed-header",
               );
               expect(res.header["access-control-allow-credentials"]).to.be(
-                "true"
+                "true",
               );
               expect(res.header["access-control-max-age"]).to.be("123");
               done();
             });
-        }
+        },
       );
     });
 
@@ -3739,7 +3739,7 @@ describe("server", () => {
             client.close();
             done();
           });
-        }
+        },
       );
     });
   });
@@ -3767,7 +3767,7 @@ describe("server", () => {
               done();
             });
           });
-        }
+        },
       );
     });
   });

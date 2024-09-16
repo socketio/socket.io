@@ -9,7 +9,7 @@ import { url, handshake } from "./util";
 class InMemoryEngine extends ClusterEngine {
   constructor(
     readonly eventBus: EventEmitter,
-    opts?: ServerOptions
+    opts?: ServerOptions,
   ) {
     super(opts);
     eventBus.on("message", (message) => this.onMessage(message));
@@ -293,7 +293,7 @@ describe("in-memory", () => {
       const sid = await handshake(3000);
 
       const socket = new WebSocket(
-        `ws://localhost:3001/engine.io/?EIO=4&transport=websocket&sid=${sid}`
+        `ws://localhost:3001/engine.io/?EIO=4&transport=websocket&sid=${sid}`,
       );
 
       socket.onopen = () => {
@@ -341,7 +341,7 @@ describe("in-memory", () => {
       expect(res.status).to.eql(200);
 
       const socket = new WebSocket(
-        `ws://localhost:3001/engine.io/?EIO=4&transport=websocket&sid=${sid}`
+        `ws://localhost:3001/engine.io/?EIO=4&transport=websocket&sid=${sid}`,
       );
 
       socket.onopen = () => {

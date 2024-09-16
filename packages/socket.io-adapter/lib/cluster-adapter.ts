@@ -203,7 +203,7 @@ export abstract class ClusterAdapter extends Adapter {
       "[%s] new event of type %d from %s",
       this.uid,
       message.type,
-      message.uid
+      message.uid,
     );
 
     switch (message.type) {
@@ -217,7 +217,7 @@ export abstract class ClusterAdapter extends Adapter {
               debug(
                 "[%s] waiting for %d client acknowledgements",
                 this.uid,
-                clientCount
+                clientCount,
               );
               this.publishResponse(message.uid, {
                 type: MessageType.BROADCAST_CLIENT_COUNT,
@@ -231,7 +231,7 @@ export abstract class ClusterAdapter extends Adapter {
               debug(
                 "[%s] received acknowledgement with value %j",
                 this.uid,
-                arg
+                arg,
               );
               this.publishResponse(message.uid, {
                 type: MessageType.BROADCAST_ACK,
@@ -240,7 +240,7 @@ export abstract class ClusterAdapter extends Adapter {
                   packet: arg,
                 },
               });
-            }
+            },
           );
         } else {
           const packet = message.data.packet;
@@ -264,7 +264,7 @@ export abstract class ClusterAdapter extends Adapter {
       case MessageType.DISCONNECT_SOCKETS:
         super.disconnectSockets(
           decodeOptions(message.data.opts),
-          message.data.close
+          message.data.close,
         );
         break;
 
@@ -272,7 +272,7 @@ export abstract class ClusterAdapter extends Adapter {
         debug(
           "[%s] calling fetchSockets with opts %j",
           this.uid,
-          message.data.opts
+          message.data.opts,
         );
         super
           .fetchSockets(decodeOptions(message.data.opts))
@@ -356,7 +356,7 @@ export abstract class ClusterAdapter extends Adapter {
       "[%s] received response %s to request %s",
       this.uid,
       response.type,
-      requestId
+      requestId,
     );
 
     switch (response.type) {
@@ -381,7 +381,7 @@ export abstract class ClusterAdapter extends Adapter {
 
         request.current++;
         response.data.sockets.forEach((socket) =>
-          request.responses.push(socket)
+          request.responses.push(socket),
         );
 
         if (request.current === request.expected) {
@@ -433,7 +433,7 @@ export abstract class ClusterAdapter extends Adapter {
         return debug(
           "[%s] error while broadcasting message: %s",
           this.uid,
-          e.message
+          e.message,
         );
       }
     }
@@ -453,7 +453,7 @@ export abstract class ClusterAdapter extends Adapter {
   private addOffsetIfNecessary(
     packet: any,
     opts: BroadcastOptions,
-    offset: Offset
+    offset: Offset,
   ) {
     if (!this.nsp.server.opts.connectionStateRecovery) {
       return;
@@ -473,7 +473,7 @@ export abstract class ClusterAdapter extends Adapter {
     packet: any,
     opts: BroadcastOptions,
     clientCountCallback: (clientCount: number) => void,
-    ack: (...args: any[]) => void
+    ack: (...args: any[]) => void,
   ) {
     const onlyLocal = opts?.flags?.local;
     if (!onlyLocal) {
@@ -582,8 +582,8 @@ export abstract class ClusterAdapter extends Adapter {
         if (storedRequest) {
           reject(
             new Error(
-              `timeout reached: only ${storedRequest.current} responses received out of ${storedRequest.expected}`
-            )
+              `timeout reached: only ${storedRequest.current} responses received out of ${storedRequest.expected}`,
+            ),
           );
           this.requests.delete(requestId);
         }
@@ -627,7 +627,7 @@ export abstract class ClusterAdapter extends Adapter {
     debug(
       '[%s] waiting for %d responses to "serverSideEmit" request',
       this.uid,
-      expectedResponseCount
+      expectedResponseCount,
     );
 
     if (expectedResponseCount <= 0) {
@@ -641,9 +641,9 @@ export abstract class ClusterAdapter extends Adapter {
       if (storedRequest) {
         ack(
           new Error(
-            `timeout reached: only ${storedRequest.current} responses received out of ${storedRequest.expected}`
+            `timeout reached: only ${storedRequest.current} responses received out of ${storedRequest.expected}`,
           ),
-          storedRequest.responses
+          storedRequest.responses,
         );
         this.requests.delete(requestId);
       }
@@ -669,7 +669,7 @@ export abstract class ClusterAdapter extends Adapter {
   }
 
   protected publish(
-    message: DistributiveOmit<ClusterMessage, "nsp" | "uid">
+    message: DistributiveOmit<ClusterMessage, "nsp" | "uid">,
   ): void {
     this.publishAndReturnOffset(message).catch((err) => {
       debug("[%s] error while publishing message: %s", this.uid, err);
@@ -677,7 +677,7 @@ export abstract class ClusterAdapter extends Adapter {
   }
 
   protected publishAndReturnOffset(
-    message: DistributiveOmit<ClusterMessage, "nsp" | "uid">
+    message: DistributiveOmit<ClusterMessage, "nsp" | "uid">,
   ) {
     (message as ClusterMessage).uid = this.uid;
     (message as ClusterMessage).nsp = this.nsp.name;
@@ -695,14 +695,14 @@ export abstract class ClusterAdapter extends Adapter {
 
   protected publishResponse(
     requesterUid: ServerId,
-    response: Omit<ClusterResponse, "nsp" | "uid">
+    response: Omit<ClusterResponse, "nsp" | "uid">,
   ) {
     (response as ClusterResponse).uid = this.uid;
     (response as ClusterResponse).nsp = this.nsp.name;
     this.doPublishResponse(requesterUid, response as ClusterResponse).catch(
       (err) => {
         debug("[%s] error while publishing response: %s", this.uid, err);
-      }
+      },
     );
   }
 
@@ -715,7 +715,7 @@ export abstract class ClusterAdapter extends Adapter {
    */
   protected abstract doPublishResponse(
     requesterUid: ServerId,
-    response: ClusterResponse
+    response: ClusterResponse,
   ): Promise<void>;
 }
 
@@ -742,7 +742,7 @@ export abstract class ClusterAdapterWithHeartbeat extends ClusterAdapter {
         heartbeatInterval: 5_000,
         heartbeatTimeout: 10_000,
       },
-      opts
+      opts,
     );
     this.cleanupTimer = setInterval(() => {
       const now = Date.now();
@@ -798,7 +798,7 @@ export abstract class ClusterAdapterWithHeartbeat extends ClusterAdapter {
       "[%s] new event of type %d from %s",
       this.uid,
       message.type,
-      message.uid
+      message.uid,
     );
 
     switch (message.type) {
@@ -846,7 +846,7 @@ export abstract class ClusterAdapterWithHeartbeat extends ClusterAdapter {
     debug(
       '[%s] waiting for %d responses to "serverSideEmit" request',
       this.uid,
-      expectedResponseCount
+      expectedResponseCount,
     );
 
     if (expectedResponseCount <= 0) {
@@ -860,9 +860,9 @@ export abstract class ClusterAdapterWithHeartbeat extends ClusterAdapter {
       if (storedRequest) {
         ack(
           new Error(
-            `timeout reached: missing ${storedRequest.missingUids.size} responses`
+            `timeout reached: missing ${storedRequest.missingUids.size} responses`,
           ),
-          storedRequest.responses
+          storedRequest.responses,
         );
         this.customRequests.delete(requestId);
       }
@@ -911,8 +911,8 @@ export abstract class ClusterAdapterWithHeartbeat extends ClusterAdapter {
         if (storedRequest) {
           reject(
             new Error(
-              `timeout reached: missing ${storedRequest.missingUids.size} responses`
-            )
+              `timeout reached: missing ${storedRequest.missingUids.size} responses`,
+            ),
           );
           this.customRequests.delete(requestId);
         }
@@ -944,7 +944,7 @@ export abstract class ClusterAdapterWithHeartbeat extends ClusterAdapter {
       "[%s] received response %s to request %s",
       this.uid,
       response.type,
-      requestId
+      requestId,
     );
 
     switch (response.type) {
@@ -956,7 +956,7 @@ export abstract class ClusterAdapterWithHeartbeat extends ClusterAdapter {
         }
 
         (response.data.sockets as any[]).forEach((socket) =>
-          request.responses.push(socket)
+          request.responses.push(socket),
         );
 
         request.missingUids.delete(response.uid);

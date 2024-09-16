@@ -408,7 +408,7 @@ export class SocketWithoutUpgrade extends Emitter<
         transportOptions: {},
         closeOnBeforeunload: false,
       },
-      opts
+      opts,
     );
 
     this.opts.path =
@@ -434,7 +434,7 @@ export class SocketWithoutUpgrade extends Emitter<
         addEventListener(
           "beforeunload",
           this._beforeunloadEventListener,
-          false
+          false,
         );
       }
       if (this.hostname !== "localhost") {
@@ -484,7 +484,7 @@ export class SocketWithoutUpgrade extends Emitter<
         secure: this.secure,
         port: this.port,
       },
-      this.opts.transportOptions[name]
+      this.opts.transportOptions[name],
     );
 
     debug("options: %j", opts);
@@ -749,7 +749,7 @@ export class SocketWithoutUpgrade extends Emitter<
     type: PacketType,
     data?: RawData,
     options?: WriteOptions,
-    fn?: () => void
+    fn?: () => void,
   ) {
     if ("function" === typeof data) {
       fn = data;
@@ -874,7 +874,7 @@ export class SocketWithoutUpgrade extends Emitter<
         removeEventListener(
           "beforeunload",
           this._beforeunloadEventListener,
-          false
+          false,
         );
         removeEventListener("offline", this._offlineEventListener, false);
       }

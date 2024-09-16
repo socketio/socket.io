@@ -17,7 +17,7 @@ async function setup(opts, cb) {
     [{ shortName: "CN", value: "localhost" }],
     {
       days: 14, // the total length of the validity period MUST NOT exceed two weeks (https://w3c.github.io/webtransport/#custom-certificate-requirements)
-    }
+    },
   );
 
   const engine = new Server(opts);
@@ -73,8 +73,8 @@ function createSocket(port, certificate, opts) {
           },
         },
       },
-      opts
-    )
+      opts,
+    ),
   );
 }
 
@@ -113,7 +113,7 @@ describe("WebTransport", () => {
           httpServer.close();
           success(engine, h3Server, done);
         });
-      }
+      },
     );
   });
 
@@ -137,7 +137,7 @@ describe("WebTransport", () => {
           httpServer.close();
           success(engine, h3Server, done);
         });
-      }
+      },
     );
   });
 
@@ -160,7 +160,7 @@ describe("WebTransport", () => {
             success(engine, h3Server, done);
           }
         });
-      }
+      },
     );
   });
 

@@ -31,7 +31,7 @@ async function setupServer(opts, cb) {
     [{ shortName: "CN", value: "localhost" }],
     {
       days: 14, // the total length of the validity period MUST NOT exceed two weeks (https://w3c.github.io/webtransport/#custom-certificate-requirements)
-    }
+    },
   );
 
   const engine = new eio.Server(opts);
@@ -76,7 +76,7 @@ function setup(opts, cb) {
             value: certificate.hash,
           },
         ],
-      }
+      },
     );
 
     await client.ready;
@@ -106,7 +106,7 @@ describe("WebTransport", () => {
     setupServer({}, async ({ engine, h3Server, certificate }) => {
       const partialDone = createPartialDone(
         () => success(engine, h3Server, done),
-        2
+        2,
       );
 
       engine.on("connection", (socket) => {
@@ -123,7 +123,7 @@ describe("WebTransport", () => {
               value: certificate.hash,
             },
           ],
-        }
+        },
       );
 
       await client.ready;
@@ -188,7 +188,7 @@ describe("WebTransport", () => {
                     value: certificate.hash,
                   },
                 ],
-              }
+              },
             );
 
             await client.ready;
@@ -216,14 +216,14 @@ describe("WebTransport", () => {
 
             await writer.write(Uint8Array.of(31));
             await writer.write(
-              TEXT_ENCODER.encode(`0{"sid":"${payload.sid}"}`)
+              TEXT_ENCODER.encode(`0{"sid":"${payload.sid}"}`),
             );
             await writer.write(Uint8Array.of(6));
             await writer.write(TEXT_ENCODER.encode(`2probe`));
             await writer.write(Uint8Array.of(1));
             await writer.write(TEXT_ENCODER.encode(`5`));
           });
-      }
+      },
     );
   });
 
@@ -242,7 +242,7 @@ describe("WebTransport", () => {
                 value: certificate.hash,
               },
             ],
-          }
+          },
         );
 
         await client.ready;
@@ -250,7 +250,7 @@ describe("WebTransport", () => {
         client.closed.then(() => {
           success(engine, h3Server, done);
         });
-      }
+      },
     );
   });
 
@@ -269,7 +269,7 @@ describe("WebTransport", () => {
                 value: certificate.hash,
               },
             ],
-          }
+          },
         );
 
         await client.ready;
@@ -281,7 +281,7 @@ describe("WebTransport", () => {
         client.closed.then(() => {
           success(engine, h3Server, done);
         });
-      }
+      },
     );
   });
 
@@ -304,7 +304,7 @@ describe("WebTransport", () => {
         }
 
         success(engine, h3Server, done);
-      }
+      },
     );
   });
 
@@ -322,7 +322,7 @@ describe("WebTransport", () => {
         });
 
         client.closed.then(() => success(engine, h3Server, partialDone));
-      }
+      },
     );
   });
 
@@ -440,7 +440,7 @@ describe("WebTransport", () => {
 
       const header = await reader.read();
       expect(header.value).to.eql(
-        Uint8Array.of(255, 0, 0, 0, 0, 0, 15, 66, 64)
+        Uint8Array.of(255, 0, 0, 0, 0, 0, 15, 66, 64),
       );
 
       const chunk1 = await reader.read();

@@ -16,7 +16,7 @@ describe("parser", () => {
           expect(decoded.data).to.eql("€€€€");
           done();
         });
-      }
+      },
     );
   });
 });

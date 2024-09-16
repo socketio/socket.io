@@ -13,7 +13,7 @@ export class WebTransport extends Transport {
   constructor(
     private readonly session,
     stream,
-    reader
+    reader,
   ) {
     super({ _query: { EIO: "4" } });
 

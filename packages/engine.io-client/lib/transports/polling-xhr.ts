@@ -122,7 +122,7 @@ export class Request extends Emitter<
   constructor(
     private readonly createRequest: (opts: RequestOptions) => XMLHttpRequest,
     uri: string,
-    opts: RequestOptions
+    opts: RequestOptions,
   ) {
     super();
     installTimerFunctions(this, opts);
@@ -151,7 +151,7 @@ export class Request extends Emitter<
       "ca",
       "ciphers",
       "rejectUnauthorized",
-      "autoUnref"
+      "autoUnref",
     );
     opts.xdomain = !!this._opts.xd;
 
@@ -197,7 +197,7 @@ export class Request extends Emitter<
         if (xhr.readyState === 3) {
           this._opts.cookieJar?.parseCookies(
             // @ts-ignore
-            xhr.getResponseHeader("set-cookie")
+            xhr.getResponseHeader("set-cookie"),
           );
         }
 
@@ -354,7 +354,7 @@ function newRequest(opts) {
   if (!xdomain) {
     try {
       return new globalThis[["Active"].concat("Object").join("X")](
-        "Microsoft.XMLHTTP"
+        "Microsoft.XMLHTTP",
       );
     } catch (e) {}
   }

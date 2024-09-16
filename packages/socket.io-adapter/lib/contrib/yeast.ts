@@ -3,7 +3,7 @@
 
 const alphabet =
     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_".split(
-      ""
+      "",
     ),
   length = 64,
   map = {};

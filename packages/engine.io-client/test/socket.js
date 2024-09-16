@@ -90,7 +90,7 @@ describe("Socket", function () {
 
     socket.on("error", (err) => {
       expect(err.message).to.eql(
-        useFetch ? "fetch read error" : "xhr poll error"
+        useFetch ? "fetch read error" : "xhr poll error",
       );
       done();
     });
@@ -237,7 +237,7 @@ describe("Socket", function () {
           // err.context is a XMLHttpRequest object
           expect(err.context.readyState).to.eql(4);
           expect(err.context.responseText).to.eql(
-            '{"code":1,"message":"Session ID unknown"}'
+            '{"code":1,"message":"Session ID unknown"}',
           );
         }
       });

@@ -93,7 +93,7 @@ describe("engine", () => {
             "Upgrade: IRC/6.9",
             "",
             "",
-          ].join("\r\n")
+          ].join("\r\n"),
         );
 
         const check = setTimeout(() => {
@@ -122,7 +122,7 @@ describe("engine", () => {
               "Upgrade: IRC/6.9",
               "",
               "",
-            ].join("\r\n")
+            ].join("\r\n"),
           );
 
           setTimeout(() => {
@@ -154,7 +154,7 @@ describe("engine", () => {
               "Upgrade: IRC/6.9",
               "",
               "",
-            ].join("\r\n")
+            ].join("\r\n"),
           );
 
           // send from client to server
@@ -198,7 +198,7 @@ describe("engine", () => {
               "Upgrade: IRC/6.9",
               "",
               "",
-            ].join("\r\n")
+            ].join("\r\n"),
           );
 
           // test that socket is still open by writing after the timeout period
@@ -245,7 +245,7 @@ describe("engine", () => {
               server.once("close", done);
               server.close();
             });
-          }
+          },
         );
       });
     });

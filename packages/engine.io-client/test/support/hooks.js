@@ -21,7 +21,7 @@ exports.mochaHooks = {
       maxHttpBufferSize: 100,
       allowRequest: (req, fn) => {
         const denyRequest = new URL(`http://${req.url}`).searchParams.has(
-          "deny"
+          "deny",
         );
         fn(null, !denyRequest);
       },

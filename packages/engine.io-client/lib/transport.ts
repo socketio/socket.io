@@ -14,7 +14,7 @@ export class TransportError extends Error {
   constructor(
     reason: string,
     readonly description: any,
-    readonly context: any
+    readonly context: any,
   ) {
     super(reason);
   }
@@ -79,7 +79,7 @@ export abstract class Transport extends Emitter<
   protected onError(reason: string, description: any, context?: any) {
     super.emitReserved(
       "error",
-      new TransportError(reason, description, context)
+      new TransportError(reason, description, context),
     );
     return this;
   }

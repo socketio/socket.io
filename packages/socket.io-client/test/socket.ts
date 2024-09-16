@@ -336,7 +336,7 @@ describe("socket", () => {
     const socket = io(BASE_URL + "/no", { forceNew: true });
 
     expect(() => socket.emit("disconnecting", "goodbye")).to.throwException(
-      /"disconnecting" is a reserved event name/
+      /"disconnecting" is a reserved event name/,
     );
   });
 

@@ -18,7 +18,7 @@ class EventEmitterAdapter extends ClusterAdapterWithHeartbeat {
 
   constructor(
     nsp,
-    readonly eventBus
+    readonly eventBus,
   ) {
     super(nsp, {});
     this.eventBus.on("message", (message) => {
@@ -33,7 +33,7 @@ class EventEmitterAdapter extends ClusterAdapterWithHeartbeat {
 
   protected doPublishResponse(
     requesterUid: string,
-    response: ClusterResponse
+    response: ClusterResponse,
   ): Promise<void> {
     this.eventBus.emit("message", response);
     return Promise.resolve();
