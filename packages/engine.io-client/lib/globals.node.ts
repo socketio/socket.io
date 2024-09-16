@@ -55,7 +55,7 @@ export function parse(setCookieString: string): Cookie {
       case "Max-Age":
         const expiration = new Date();
         expiration.setUTCSeconds(
-          expiration.getUTCSeconds() + parseInt(value, 10)
+          expiration.getUTCSeconds() + parseInt(value, 10),
         );
         cookie.expires = expiration;
         break;

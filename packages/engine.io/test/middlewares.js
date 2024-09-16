@@ -38,7 +38,7 @@ describe("middlewares", () => {
       });
 
       const socket = new WebSocket(
-        `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`
+        `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`,
       );
 
       socket.on("upgrade", (res) => {
@@ -131,7 +131,7 @@ describe("middlewares", () => {
       });
 
       const socket = new WebSocket(
-        `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`
+        `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`,
       );
 
       socket.addEventListener("error", () => {
@@ -169,7 +169,7 @@ describe("middlewares", () => {
       engine.use(helmet());
 
       const socket = new WebSocket(
-        `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`
+        `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`,
       );
 
       socket.on("upgrade", (res) => {
@@ -196,7 +196,7 @@ describe("middlewares", () => {
           resave: false,
           saveUninitialized: true,
           cookie: {},
-        })
+        }),
       );
 
       request
@@ -206,7 +206,7 @@ describe("middlewares", () => {
           expect(err).to.be(null);
           // expect(res.status).to.eql(200);
           expect(res.headers["set-cookie"][0].startsWith("connect.sid=")).to.be(
-            true
+            true,
           );
 
           if (engine.httpServer) {
@@ -225,16 +225,16 @@ describe("middlewares", () => {
           resave: false,
           saveUninitialized: true,
           cookie: {},
-        })
+        }),
       );
 
       const socket = new WebSocket(
-        `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`
+        `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`,
       );
 
       socket.on("upgrade", (res) => {
         expect(res.headers["set-cookie"][0].startsWith("connect.sid=")).to.be(
-          true
+          true,
         );
 
         if (engine.httpServer) {
@@ -280,7 +280,7 @@ describe("middlewares", () => {
         });
 
         const socket = new WebSocket(
-          `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`
+          `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`,
         );
 
         socket.addEventListener("error", () => {

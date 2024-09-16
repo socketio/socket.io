@@ -100,7 +100,7 @@ describe("Transport", () => {
         timestampRequests: false,
       });
       expect(polling.uri()).to.contain(
-        "http://localhost:3000/engine.io?sid=test"
+        "http://localhost:3000/engine.io?sid=test",
       );
     });
 
@@ -124,7 +124,7 @@ describe("Transport", () => {
         timestampRequests: true,
       });
       expect(polling.uri()).to.match(
-        /http:\/\/localhost\/engine\.io\?(j=[0-9]+&)?(t=[0-9A-Za-z-_]+)/
+        /http:\/\/localhost\/engine\.io\?(j=[0-9]+&)?(t=[0-9A-Za-z-_]+)/,
       );
     });
 
@@ -180,7 +180,7 @@ describe("Transport", () => {
         timestampRequests: true,
       });
       expect(ws.uri()).to.match(
-        /ws:\/\/localhost\/engine\.io\?woot=[0-9A-Za-z-_]+/
+        /ws:\/\/localhost\/engine\.io\?woot=[0-9A-Za-z-_]+/,
       );
     });
 

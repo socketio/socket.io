@@ -47,7 +47,7 @@ describe("utility methods", () => {
           ioc(`http://localhost:${port}`, {
             // FIXME needed so that clients are properly closed
             transports: ["websocket"],
-          })
+          }),
         );
       }
 

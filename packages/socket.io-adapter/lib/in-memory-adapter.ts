@@ -198,7 +198,7 @@ export class Adapter extends EventEmitter {
     packet: any,
     opts: BroadcastOptions,
     clientCountCallback: (clientCount: number) => void,
-    ack: (...args: any[]) => void
+    ack: (...args: any[]) => void,
   ) {
     const flags = opts.flags || {};
     const packetOpts = {
@@ -375,7 +375,7 @@ export class Adapter extends EventEmitter {
    */
   public serverSideEmit(packet: any[]): void {
     console.warn(
-      "this adapter does not support the serverSideEmit() functionality"
+      "this adapter does not support the serverSideEmit() functionality",
     );
   }
 
@@ -391,7 +391,7 @@ export class Adapter extends EventEmitter {
    */
   public restoreSession(
     pid: PrivateSessionId,
-    offset: string
+    offset: string,
   ): Promise<Session> {
     return null;
   }
@@ -444,7 +444,7 @@ export class SessionAwareAdapter extends Adapter {
 
   override restoreSession(
     pid: PrivateSessionId,
-    offset: string
+    offset: string,
   ): Promise<Session> {
     const session = this.sessions.get(pid);
     if (!session) {
@@ -500,7 +500,7 @@ export class SessionAwareAdapter extends Adapter {
 
 function shouldIncludePacket(
   sessionRooms: Room[],
-  opts: BroadcastOptions
+  opts: BroadcastOptions,
 ): boolean {
   const included =
     opts.rooms.size === 0 || sessionRooms.some((room) => opts.rooms.has(room));

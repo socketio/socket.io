@@ -15,12 +15,12 @@ export class XHR extends BaseXHR {
     Object.assign(
       opts,
       { xd: this.xd, cookieJar: this.socket?._cookieJar },
-      this.opts
+      this.opts,
     );
     return new Request(
       (opts) => new XMLHttpRequest(opts),
       this.uri(),
-      opts as RequestOptions
+      opts as RequestOptions,
     );
   }
 }

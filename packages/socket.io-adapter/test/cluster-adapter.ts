@@ -16,7 +16,10 @@ const NODES_COUNT = 3;
 class EventEmitterAdapter extends ClusterAdapterWithHeartbeat {
   private offset = 1;
 
-  constructor(nsp, readonly eventBus) {
+  constructor(
+    nsp,
+    readonly eventBus,
+  ) {
     super(nsp, {});
     this.eventBus.on("message", (message) => {
       this.onMessage(message as ClusterMessage);
@@ -30,7 +33,7 @@ class EventEmitterAdapter extends ClusterAdapterWithHeartbeat {
 
   protected doPublishResponse(
     requesterUid: string,
-    response: ClusterResponse
+    response: ClusterResponse,
   ): Promise<void> {
     this.eventBus.emit("message", response);
     return Promise.resolve();

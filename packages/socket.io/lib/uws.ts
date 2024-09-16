@@ -76,7 +76,7 @@ export function patchAdapter(app /* : TemplatedApp */) {
       app.publish(
         topic,
         isBinary ? encodedPacket : "4" + encodedPacket,
-        isBinary
+        isBinary,
       );
     });
 
@@ -93,7 +93,7 @@ function subscribe(
   namespaceName: string,
   socket: Socket,
   isNew: boolean,
-  rooms: Set<Room>
+  rooms: Set<Room>,
 ) {
   // @ts-ignore
   const sessionId = socket.conn.id;
@@ -144,7 +144,7 @@ export function serveFile(res /* : HttpResponse */, filepath: string) {
       res.onWritable((offset) => {
         const [ok, done] = res.tryEnd(
           arrayBufferChunk.slice(offset - lastOffset),
-          size
+          size,
         );
 
         if (!done && ok) {

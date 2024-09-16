@@ -179,7 +179,7 @@ describe("middleware", () => {
 
     const partialDone = createPartialDone(
       2,
-      successFn(done, io, socket1, socket2)
+      successFn(done, io, socket1, socket2),
     );
 
     io.of("/chat").use((socket, next) => {

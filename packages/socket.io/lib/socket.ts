@@ -66,11 +66,11 @@ export interface SocketReservedEventsMap {
 export interface EventEmitterReservedEventsMap {
   newListener: (
     eventName: string | Symbol,
-    listener: (...args: any[]) => void
+    listener: (...args: any[]) => void,
   ) => void;
   removeListener: (
     eventName: string | Symbol,
-    listener: (...args: any[]) => void
+    listener: (...args: any[]) => void,
   ) => void;
 }
 
@@ -180,7 +180,7 @@ export class Socket<
   ListenEvents extends EventsMap = DefaultEventsMap,
   EmitEvents extends EventsMap = ListenEvents,
   ServerSideEvents extends EventsMap = DefaultEventsMap,
-  SocketData = any
+  SocketData = any,
 > extends StrictEventEmitter<
   ListenEvents,
   EmitEvents,
@@ -252,7 +252,7 @@ export class Socket<
     readonly nsp: Namespace<ListenEvents, EmitEvents, ServerSideEvents>,
     readonly client: Client<ListenEvents, EmitEvents, ServerSideEvents>,
     auth: Record<string, unknown>,
-    previousSession?: Session
+    previousSession?: Session,
   ) {
     super();
     this.server = nsp.server;
@@ -529,7 +529,7 @@ export class Socket<
    */
   private packet(
     packet: Omit<Packet, "nsp"> & Partial<Pick<Packet, "nsp">>,
-    opts: any = {}
+    opts: any = {},
   ): void {
     packet.nsp = this.nsp.name;
     opts.compress = false !== opts.compress;
@@ -556,7 +556,7 @@ export class Socket<
 
     return this.adapter.addAll(
       this.id,
-      new Set(Array.isArray(rooms) ? rooms : [rooms])
+      new Set(Array.isArray(rooms) ? rooms : [rooms]),
     );
   }
 
@@ -893,7 +893,7 @@ export class Socket<
    * @returns self
    */
   public timeout(
-    timeout: number
+    timeout: number,
   ): Socket<
     ListenEvents,
     DecorateAcknowledgements<EmitEvents>,

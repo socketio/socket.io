@@ -78,7 +78,7 @@ export interface ServerOptions {
    */
   allowRequest?: (
     req: IncomingMessage,
-    fn: (err: string | null | undefined, success: boolean) => void
+    fn: (err: string | null | undefined, success: boolean) => void,
   ) => void;
   /**
    * The low-level transports that are enabled. WebTransport is disabled by default and must be manually enabled:
@@ -146,7 +146,7 @@ export interface ServerOptions {
 type Middleware = (
   req: IncomingMessage,
   res: ServerResponse,
-  next: (err?: any) => void
+  next: (err?: any) => void,
 ) => void;
 
 function parseSessionId(data: string) {
@@ -192,7 +192,7 @@ export abstract class BaseServer extends EventEmitter {
         cors: false,
         allowEIO3: false,
       },
-      opts
+      opts,
     );
 
     if (opts.cookie) {
@@ -204,7 +204,7 @@ export abstract class BaseServer extends EventEmitter {
           httpOnly: opts.cookie.path !== false,
           sameSite: "lax",
         },
-        opts.cookie
+        opts.cookie,
       );
     }
 
@@ -217,7 +217,7 @@ export abstract class BaseServer extends EventEmitter {
         {
           threshold: 1024,
         },
-        opts.perMessageDeflate
+        opts.perMessageDeflate,
       );
     }
 
@@ -263,7 +263,7 @@ export abstract class BaseServer extends EventEmitter {
   protected verify(
     req: any,
     upgrade: boolean,
-    fn: (errorCode?: number, errorContext?: any) => void
+    fn: (errorCode?: number, errorContext?: any) => void,
   ) {
     // transport check
     const transport = req._query.transport;
@@ -361,7 +361,7 @@ export abstract class BaseServer extends EventEmitter {
   protected _applyMiddlewares(
     req: IncomingMessage,
     res: ServerResponse,
-    callback: (err?: any) => void
+    callback: (err?: any) => void,
   ) {
     if (this.middlewares.length === 0) {
       debug("no middleware to apply, skipping");
@@ -424,7 +424,7 @@ export abstract class BaseServer extends EventEmitter {
   protected async handshake(
     transportName: string,
     req: any,
-    closeConnection: (errorCode?: number, errorContext?: any) => void
+    closeConnection: (errorCode?: number, errorContext?: any) => void,
   ) {
     const protocol = req._query.EIO === "4" ? 4 : 3; // 3rd revision by default
     if (protocol === 3 && !this.opts.allowEIO3) {
@@ -519,7 +519,7 @@ export abstract class BaseServer extends EventEmitter {
   public async onWebTransportSession(session: any) {
     const timeout = setTimeout(() => {
       debug(
-        "the client failed to establish a bidirectional stream in the given period"
+        "the client failed to establish a bidirectional stream in the given period",
       );
       session.close();
     }, this.opts.upgradeTimeout);
@@ -535,7 +535,7 @@ export abstract class BaseServer extends EventEmitter {
     const stream = result.value;
     const transformStream = createPacketDecoderStream(
       this.opts.maxHttpBufferSize,
-      "nodebuffer"
+      "nodebuffer",
     );
     const reader = stream.readable.pipeThrough(transformStream).getReader();
 
@@ -632,7 +632,10 @@ export abstract class BaseServer extends EventEmitter {
  * @see https://nodejs.org/api/http.html#class-httpserverresponse
  */
 class WebSocketResponse {
-  constructor(readonly req, readonly socket: Duplex) {
+  constructor(
+    readonly req,
+    readonly socket: Duplex,
+  ) {
     // temporarily store the response headers on the req object (see the "headers" event)
     req[kResponseHeaders] = {};
   }
@@ -776,7 +779,7 @@ export class Server extends BaseServer {
   public handleUpgrade(
     req: EngineRequest,
     socket: Duplex,
-    upgradeHead: Buffer
+    upgradeHead: Buffer,
   ) {
     this.prepare(req);
 
@@ -953,7 +956,7 @@ function abortRequest(res, errorCode, errorContext) {
     JSON.stringify({
       code: errorCode,
       message,
-    })
+    }),
   );
 }
 
@@ -968,7 +971,7 @@ function abortRequest(res, errorCode, errorContext) {
 function abortUpgrade(
   socket,
   errorCode,
-  errorContext: { message?: string } = {}
+  errorContext: { message?: string } = {},
 ) {
   socket.on("error", () => {
     debug("ignoring error from closed connection");
@@ -984,7 +987,7 @@ function abortUpgrade(
         length +
         "\r\n" +
         "\r\n" +
-        message
+        message,
     );
   }
   socket.destroy();

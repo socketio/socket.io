@@ -107,7 +107,7 @@ type ClusterRequest = {
 function isClientLockable(
   client: Socket,
   transportName: string,
-  lockType: "read" | "write"
+  lockType: "read" | "write",
 ) {
   switch (transportName) {
     case "polling":
@@ -166,7 +166,7 @@ export abstract class ClusterEngine extends Server {
         noopUpgradeInterval: 200,
         delayedConnectionTimeout: 300,
       },
-      opts
+      opts,
     );
   }
 
@@ -188,7 +188,7 @@ export abstract class ClusterEngine extends Server {
         const success = isClientLockable(
           client,
           transportName,
-          message.data.type
+          message.data.type,
         );
 
         this.publishMessage({
@@ -340,7 +340,7 @@ export abstract class ClusterEngine extends Server {
   private _forwardFlushWhenPolling(
     client: Socket,
     sid: SessionId,
-    senderId: NodeId
+    senderId: NodeId,
   ) {
     // @ts-expect-error req is private
     client.transport.req = true;
@@ -370,7 +370,7 @@ export abstract class ClusterEngine extends Server {
   private _forwardFlushWhenWebSocket(
     client: Socket,
     sid: SessionId,
-    senderId: NodeId
+    senderId: NodeId,
   ) {
     client.transport.writable = true;
     client.transport.send = (packets) => {
@@ -392,7 +392,7 @@ export abstract class ClusterEngine extends Server {
   override verify(
     req: IncomingMessage & { _query: Record<string, string> },
     upgrade: boolean,
-    fn: (errorCode?: number, context?: any) => void
+    fn: (errorCode?: number, context?: any) => void,
   ): void {
     super.verify(req, upgrade, (errorCode: number, errorContext: any) => {
       if (errorCode !== Server.errors.UNKNOWN_SID) {
@@ -419,7 +419,7 @@ export abstract class ClusterEngine extends Server {
       };
 
       this._acquireLock(sid, transportName, lockType, onSuccess, () =>
-        fn(errorCode, errorContext)
+        fn(errorCode, errorContext),
       );
     });
   }
@@ -429,7 +429,7 @@ export abstract class ClusterEngine extends Server {
     transportName: string,
     lockType: "read" | "write",
     onSuccess: (senderId: NodeId) => void,
-    onError: () => void
+    onError: () => void,
   ) {
     const requestId = ++this._requestCount as RequestId;
 
@@ -460,27 +460,27 @@ export abstract class ClusterEngine extends Server {
     sid: SessionId,
     transport: Transport,
     lockType: "read" | "write",
-    senderId: NodeId
+    senderId: NodeId,
   ) {
     if (lockType === "read") {
       this._remoteTransports.set(sid, transport);
     }
 
     transport.on("packet", async (packet: Packet) =>
-      this._onPacket(sid, senderId, packet)
+      this._onPacket(sid, senderId, packet),
     );
     transport.once("error", () =>
-      this._onClose(sid, senderId, "transport error")
+      this._onClose(sid, senderId, "transport error"),
     );
     transport.once("close", () =>
-      this._onClose(sid, senderId, "transport close")
+      this._onClose(sid, senderId, "transport close"),
     );
   }
 
   private _tryUpgrade(
     transport: Transport,
     onSuccess: () => void,
-    onError: () => void
+    onError: () => void,
   ) {
     debug("starting upgrade process");
 
@@ -532,7 +532,7 @@ export abstract class ClusterEngine extends Server {
   private _onClose(
     sid: SessionId,
     senderId: NodeId,
-    reason: "transport error" | "transport close"
+    reason: "transport error" | "transport close",
   ) {
     this.publishMessage({
       senderId: this._nodeId,
@@ -563,7 +563,7 @@ export abstract class ClusterEngine extends Server {
       () => this._onUpgradeSuccess(sid, transport, req, senderId),
       () => {
         debug("upgrade failure");
-      }
+      },
     );
   }
 
@@ -571,7 +571,7 @@ export abstract class ClusterEngine extends Server {
     sid: SessionId,
     transport: Transport,
     req: any,
-    senderId: NodeId
+    senderId: NodeId,
   ) {
     debug("upgrade success");
     this._hookTransport(sid, transport, "read", senderId);
@@ -655,7 +655,7 @@ export abstract class ClusterEngine extends Server {
 
     socket[kDelayedTimer] = setTimeout(
       () => this._doConnect(socket),
-      this._opts.delayedConnectionTimeout
+      this._opts.delayedConnectionTimeout,
     );
   }
 
@@ -664,7 +664,7 @@ export abstract class ClusterEngine extends Server {
       return;
     }
     debug(
-      "the client has not upgraded yet, so the connection process is completed here"
+      "the client has not upgraded yet, so the connection process is completed here",
     );
     socket[kDelayed] = false;
     socket.off("packet", socket[kPacketListener]);

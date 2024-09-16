@@ -31,7 +31,7 @@ function channelName(prefix: string, nodeId?: string) {
 export function setupPrimaryWithRedis(
   pubClient: any,
   subClient: any,
-  opts?: PrimaryWithRedisOptions
+  opts?: PrimaryWithRedisOptions,
 ) {
   const primaryId = randomUUID();
   const prefix = opts?.channelPrefix || "engine.io";
@@ -81,7 +81,7 @@ export function setupPrimaryWithRedis(
     "message",
     (
       sourceWorker,
-      message: Message & { _source?: string; _primaryId?: string }
+      message: Message & { _source?: string; _primaryId?: string },
     ) => {
       if (message._source !== MESSAGE_SOURCE) {
         debug("ignore message from unknown source");
@@ -117,7 +117,7 @@ export function setupPrimaryWithRedis(
 
       debug("publish message to channel %s", channel);
       pubClient.publish(channel, encode(message));
-    }
+    },
   );
 }
 
@@ -179,14 +179,14 @@ const RETURN_BUFFERS = true;
 function SUBSCRIBE(
   redisClient: any,
   channels: string[],
-  listener: (message: Buffer) => void
+  listener: (message: Buffer) => void,
 ) {
   if (isRedisClient(redisClient)) {
     redisClient.subscribe(channels, listener, RETURN_BUFFERS);
   } else {
     redisClient.subscribe(channels);
     redisClient.on("messageBuffer", (_channel: Buffer, message: Buffer) =>
-      listener(message)
+      listener(message),
     );
   }
 }

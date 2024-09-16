@@ -27,7 +27,7 @@ export type EventNames<Map extends EventsMap> = keyof Map & (string | symbol);
  */
 export type EventNamesWithAck<
   Map extends EventsMap,
-  K extends EventNames<Map> = EventNames<Map>
+  K extends EventNames<Map> = EventNames<Map>,
 > = IfAny<
   Last<Parameters<Map[K]>> | Map[K],
   K,
@@ -48,17 +48,17 @@ export type EventNamesWithAck<
  */
 export type EventNamesWithoutAck<
   Map extends EventsMap,
-  K extends EventNames<Map> = EventNames<Map>
+  K extends EventNames<Map> = EventNames<Map>,
 > = IfAny<
   Last<Parameters<Map[K]>> | Map[K],
   K,
   K extends (Parameters<Map[K]> extends never[] ? K : never)
     ? K
     : K extends (
-        Last<Parameters<Map[K]>> extends (...args: any[]) => any ? never : K
-      )
-    ? K
-    : never
+          Last<Parameters<Map[K]>> extends (...args: any[]) => any ? never : K
+        )
+      ? K
+      : never
 >;
 
 export type RemoveAcknowledgements<E extends EventsMap> = {
@@ -67,7 +67,7 @@ export type RemoveAcknowledgements<E extends EventsMap> = {
 
 export type EventNamesWithError<
   Map extends EventsMap,
-  K extends EventNamesWithAck<Map> = EventNamesWithAck<Map>
+  K extends EventNamesWithAck<Map> = EventNamesWithAck<Map>,
 > = IfAny<
   Last<Parameters<Map[K]>> | Map[K],
   K,
@@ -81,7 +81,7 @@ export type EventNamesWithError<
 /** The tuple type representing the parameters of an event listener */
 export type EventParams<
   Map extends EventsMap,
-  Ev extends EventNames<Map>
+  Ev extends EventNames<Map>,
 > = Parameters<Map[Ev]>;
 
 /**
@@ -89,7 +89,7 @@ export type EventParams<
  */
 export type ReservedOrUserEventNames<
   ReservedEventsMap extends EventsMap,
-  UserEvents extends EventsMap
+  UserEvents extends EventsMap,
 > = EventNames<ReservedEventsMap> | EventNames<UserEvents>;
 
 /**
@@ -99,13 +99,13 @@ export type ReservedOrUserEventNames<
 export type ReservedOrUserListener<
   ReservedEvents extends EventsMap,
   UserEvents extends EventsMap,
-  Ev extends ReservedOrUserEventNames<ReservedEvents, UserEvents>
+  Ev extends ReservedOrUserEventNames<ReservedEvents, UserEvents>,
 > = FallbackToUntypedListener<
   Ev extends EventNames<ReservedEvents>
     ? ReservedEvents[Ev]
     : Ev extends EventNames<UserEvents>
-    ? UserEvents[Ev]
-    : never
+      ? UserEvents[Ev]
+      : never
 >;
 
 /**
@@ -145,7 +145,7 @@ export interface TypedEventBroadcaster<EmitEvents extends EventsMap> {
 export abstract class StrictEventEmitter<
     ListenEvents extends EventsMap,
     EmitEvents extends EventsMap,
-    ReservedEvents extends EventsMap = {}
+    ReservedEvents extends EventsMap = {},
   >
   extends EventEmitter
   implements TypedEventBroadcaster<EmitEvents>
@@ -158,7 +158,7 @@ export abstract class StrictEventEmitter<
    */
   on<Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>>(
     ev: Ev,
-    listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>
+    listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>,
   ): this {
     return super.on(ev, listener);
   }
@@ -171,7 +171,7 @@ export abstract class StrictEventEmitter<
    */
   once<Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>>(
     ev: Ev,
-    listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>
+    listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>,
   ): this {
     return super.once(ev, listener);
   }
@@ -226,7 +226,7 @@ export abstract class StrictEventEmitter<
    * @returns Array of listeners subscribed to `event`
    */
   listeners<Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>>(
-    event: Ev
+    event: Ev,
   ): ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>[] {
     return super.listeners(event) as ReservedOrUserListener<
       ReservedEvents,
@@ -255,9 +255,8 @@ type IsAny<T> = 0 extends 1 & T ? true : false;
  * @author sindresorhus
  * @link https://github.com/sindresorhus/type-fest
  */
-type IfAny<T, TypeIfAny = true, TypeIfNotAny = false> = IsAny<T> extends true
-  ? TypeIfAny
-  : TypeIfNotAny;
+type IfAny<T, TypeIfAny = true, TypeIfNotAny = false> =
+  IsAny<T> extends true ? TypeIfAny : TypeIfNotAny;
 
 /**
  * Extracts the type of the last element of an array.
@@ -271,10 +270,10 @@ export type Last<ValueType extends readonly unknown[]> =
   ValueType extends readonly [infer ElementType]
     ? ElementType
     : ValueType extends readonly [infer _, ...infer Tail]
-    ? Last<Tail>
-    : ValueType extends ReadonlyArray<infer ElementType>
-    ? ElementType
-    : never;
+      ? Last<Tail>
+      : ValueType extends ReadonlyArray<infer ElementType>
+        ? ElementType
+        : never;
 
 export type FirstNonErrorTuple<T extends unknown[]> = T[0] extends Error
   ? T[1]
@@ -316,13 +315,15 @@ type ExpectMultipleResponses<T extends any[]> = {
     ? Params extends [Error]
       ? (err: Error) => Result
       : Params extends [Error, ...infer Rest]
-      ? (
-          err: Error,
-          ...args: InferFirstAndPreserveLabel<MultiplyArray<Rest>>
-        ) => Result
-      : Params extends []
-      ? () => Result
-      : (...args: InferFirstAndPreserveLabel<MultiplyArray<Params>>) => Result
+        ? (
+            err: Error,
+            ...args: InferFirstAndPreserveLabel<MultiplyArray<Rest>>
+          ) => Result
+        : Params extends []
+          ? () => Result
+          : (
+              ...args: InferFirstAndPreserveLabel<MultiplyArray<Params>>
+            ) => Result
     : T[K];
 };
 /**

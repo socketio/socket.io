@@ -69,7 +69,7 @@ export abstract class Transport extends EventEmitter {
       "readyState updated from %s to %s (%s)",
       this._readyState,
       state,
-      this.name
+      this.name,
     );
     this._readyState = state;
   }

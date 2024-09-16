@@ -153,7 +153,7 @@ describe("socket.io-adapter", () => {
               expect(opts.wsPreEncodedFrame.length).to.eql(2);
               expect(opts.wsPreEncodedFrame[0]).to.eql(Buffer.from([129, 4]));
               expect(opts.wsPreEncodedFrame[1]).to.eql(
-                Buffer.from([52, 49, 50, 51])
+                Buffer.from([52, 49, 50, 51]),
               );
             },
           },
@@ -352,7 +352,7 @@ describe("socket.io-adapter", () => {
         {
           rooms: new Set(),
           except: new Set(),
-        }
+        },
       );
 
       const offset = packetData[1];
@@ -398,7 +398,7 @@ describe("socket.io-adapter", () => {
         {
           rooms: new Set(),
           except: new Set(),
-        }
+        },
       );
 
       adapter.broadcast(
@@ -410,7 +410,7 @@ describe("socket.io-adapter", () => {
         {
           rooms: new Set(),
           except: new Set(),
-        }
+        },
       );
 
       adapter.broadcast(
@@ -422,7 +422,7 @@ describe("socket.io-adapter", () => {
         {
           rooms: new Set(["r1"]),
           except: new Set(),
-        }
+        },
       );
 
       adapter.broadcast(
@@ -434,7 +434,7 @@ describe("socket.io-adapter", () => {
         {
           rooms: new Set(),
           except: new Set(["r2"]),
-        }
+        },
       );
 
       adapter.broadcast(
@@ -446,7 +446,7 @@ describe("socket.io-adapter", () => {
         {
           rooms: new Set(),
           except: new Set(["r3"]),
-        }
+        },
       );
 
       adapter.broadcast(
@@ -459,7 +459,7 @@ describe("socket.io-adapter", () => {
         {
           rooms: new Set(),
           except: new Set(),
-        }
+        },
       );
 
       adapter.broadcast(
@@ -471,7 +471,7 @@ describe("socket.io-adapter", () => {
         {
           rooms: new Set(),
           except: new Set(),
-        }
+        },
       );
 
       adapter.broadcast(
@@ -486,7 +486,7 @@ describe("socket.io-adapter", () => {
           flags: {
             volatile: true,
           },
-        }
+        },
       );
 
       const offset = packetData[1];

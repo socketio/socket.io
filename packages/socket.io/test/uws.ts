@@ -212,7 +212,7 @@ describe("socket.io with uWebSocket.js-based engine", () => {
       .end((err, res) => {
         if (err) return done(err);
         expect(res.headers["content-type"]).to.be(
-          "application/javascript; charset=utf-8"
+          "application/javascript; charset=utf-8",
         );
         expect(res.headers.etag).to.be('"' + clientVersion + '"');
         expect(res.headers["x-sourcemap"]).to.be(undefined);

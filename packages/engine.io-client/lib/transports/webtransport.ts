@@ -30,7 +30,7 @@ export class WT extends Transport {
       // @ts-ignore
       this._transport = new WebTransport(
         this.createUri("https"),
-        this.opts.transportOptions[this.name]
+        this.opts.transportOptions[this.name],
       );
     } catch (err) {
       return this.emitReserved("error", err);
@@ -51,7 +51,7 @@ export class WT extends Transport {
       this._transport.createBidirectionalStream().then((stream) => {
         const decoderStream = createPacketDecoderStream(
           Number.MAX_SAFE_INTEGER,
-          this.socket.binaryType
+          this.socket.binaryType,
         );
         const reader = stream.readable.pipeThrough(decoderStream).getReader();
 
