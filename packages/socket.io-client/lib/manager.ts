@@ -531,7 +531,6 @@ export class Manager<
     this.skipReconnect = true;
     this._reconnecting = false;
     this.onclose("forced close");
-    if (this.engine) this.engine.close();
   }
 
   /**
@@ -544,7 +543,11 @@ export class Manager<
   }
 
   /**
-   * Called upon engine close.
+   * Called when:
+   *
+   * - the low-level engine is closed
+   * - the parser encountered a badly formatted packet
+   * - all sockets are disconnected
    *
    * @private
    */
@@ -552,6 +555,7 @@ export class Manager<
     debug("closed due to %s", reason);
 
     this.cleanup();
+    this.engine?.close();
     this.backoff.reset();
     this._readyState = "closed";
     this.emitReserved("close", reason, description);

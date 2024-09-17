@@ -4,6 +4,7 @@ import hasCORS from "has-cors";
 import { install } from "@sinonjs/fake-timers";
 import textBlobBuilder from "text-blob-builder";
 import { BASE_URL, wrap } from "./support/util";
+import { nextTick } from "engine.io-client";
 
 describe("connection", () => {
   it("should connect to localhost", () => {
@@ -893,6 +894,32 @@ describe("connection", () => {
           socketFoo.disconnect();
           done();
         });
+      });
+    });
+  });
+
+  it("should close the engine upon decoding exception", () => {
+    return wrap((done) => {
+      const manager = new Manager(BASE_URL, {
+        autoConnect: true,
+        reconnectionDelay: 50,
+      });
+
+      let engine = manager.engine;
+
+      manager.on("open", () => {
+        nextTick(() => {
+          // @ts-expect-error emit() is private
+          manager.engine.emit("data", "bad");
+        });
+      });
+
+      manager.on("reconnect", () => {
+        expect(manager.engine === engine).to.be(false);
+        expect(engine.readyState).to.eql("closed");
+
+        manager._close();
+        done();
       });
     });
   });
