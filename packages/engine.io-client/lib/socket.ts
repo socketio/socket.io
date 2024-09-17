@@ -10,9 +10,9 @@ import {
   CookieJar,
   createCookieJar,
   defaultBinaryType,
+  nextTick,
 } from "./globals.node.js";
 import debugModule from "debug"; // debug()
-import { nextTick } from "./globals.js";
 
 const debug = debugModule("engine.io-client:socket"); // debug()
 
