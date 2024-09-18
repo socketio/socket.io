@@ -574,7 +574,6 @@ export class SocketWithoutUpgrade extends Emitter<
 
       // Socket is live - any packet counts
       this.emitReserved("heartbeat");
-      this._resetPingTimeout();
 
       switch (packet.type) {
         case "open":
@@ -585,6 +584,7 @@ export class SocketWithoutUpgrade extends Emitter<
           this._sendPacket("pong");
           this.emitReserved("ping");
           this.emitReserved("pong");
+          this._resetPingTimeout();
           break;
 
         case "error":
