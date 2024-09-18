@@ -201,6 +201,9 @@ export class Manager<
   public reconnection(v?: boolean): this | boolean {
     if (!arguments.length) return this._reconnection;
     this._reconnection = !!v;
+    if (!v) {
+      this.skipReconnect = true;
+    }
     return this;
   }
 

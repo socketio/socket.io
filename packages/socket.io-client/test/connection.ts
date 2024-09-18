@@ -520,6 +520,28 @@ describe("connection", () => {
     });
   });
 
+  it("should stop trying to reconnect", () => {
+    return wrap((done) => {
+      const manager = new Manager("http://localhost:9823", {
+        reconnectionDelay: 10,
+      });
+
+      manager.on("reconnect_error", () => {
+        // disable current reconnection loop
+        manager.reconnection(false);
+
+        manager.on("reconnect_attempt", () => {
+          done(new Error("should not happen"));
+        });
+
+        setTimeout(() => {
+          manager._close();
+          done();
+        }, 100);
+      });
+    });
+  });
+
   // Ignore incorrect connection test for old IE due to no support for
   // `script.onerror` (see: http://requirejs.org/docs/api.html#ieloadfail)
   if (!global.document || hasCORS) {
