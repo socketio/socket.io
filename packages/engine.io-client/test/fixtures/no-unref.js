@@ -5,4 +5,4 @@ const socket = new Socket("http://localhost:3000", {
 
 setTimeout(() => {
   console.log("process should not exit");
-}, 500);
+}, 50);

@@ -10,4 +10,4 @@ socket.on("open", () => {
 
 setTimeout(() => {
   console.log("process should exit now");
-}, 500);
+}, 50);

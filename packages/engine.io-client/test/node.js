@@ -34,7 +34,7 @@ describe("node.js", () => {
         isComplete = true;
         process.kill();
         done();
-      }, 1000);
+      }, 100);
     });
   });
 

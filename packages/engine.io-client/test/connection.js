@@ -59,7 +59,7 @@ describe("connection", function () {
       setTimeout(() => {
         expect(noPacket).to.be(true);
         done();
-      }, 1200);
+      }, 200);
     });
   });
 
@@ -177,7 +177,7 @@ describe("connection", function () {
         setTimeout(() => {
           expect(noPacket).to.be(true);
           done();
-        }, 1200);
+        }, 200);
       });
     });
 
