@@ -1634,6 +1634,67 @@ describe("server", () => {
       });
     });
 
+    it("should discard the packets in the writeBuffer when stopping the server", (done) => {
+      engine = listen((port) => {
+        const clientSocket = new ClientSocket(`ws://localhost:${port}`);
+
+        clientSocket.on("data", () => {
+          done(new Error("should not happen"));
+        });
+
+        clientSocket.on("close", (reason) => {
+          expect(reason).to.eql("transport error");
+
+          clientSocket.close();
+          done();
+        });
+
+        engine.on("connection", (socket) => {
+          socket.write("hello");
+          engine.close();
+        });
+      });
+    });
+
+    it("should discard the packets in the writeBuffer when stopping the server (2)", (done) => {
+      engine = listen((port) => {
+        const clientSocket = new ClientSocket(`ws://localhost:${port}`);
+
+        clientSocket.on("data", () => {
+          done(new Error("should not happen"));
+        });
+
+        clientSocket.on("close", (reason) => {
+          expect(reason).to.eql("transport error");
+
+          clientSocket.close();
+          done();
+        });
+
+        engine.on("connection", (socket) => {
+          socket.write("hello");
+          socket.close(); // readyState is now "closing"
+          engine.close();
+        });
+      });
+    });
+
+    it("should not discard the packets in the writeBuffer when closing gracefully", (done) => {
+      engine = listen((port) => {
+        const clientSocket = new ClientSocket(`ws://localhost:${port}`);
+
+        clientSocket.on("data", (val) => {
+          expect(val).to.eql("hello");
+          done();
+        });
+
+        engine.on("connection", (socket) => {
+          socket.write("hello");
+          socket.close();
+        });
+      });
+    });
+
     describe("graceful close", () => {
       before(function () {
         if (process.env.EIO_WS_ENGINE === "uws") {

@@ -554,6 +554,13 @@ export class Socket extends EventEmitter {
    * @return {Socket} for chaining
    */
   public close(discard?: boolean) {
+    if (
+      discard &&
+      (this.readyState === "open" || this.readyState === "closing")
+    ) {
+      return this.closeTransport(discard);
+    }
+
     if ("open" !== this.readyState) return;
 
     this.readyState = "closing";
@@ -570,7 +577,7 @@ export class Socket extends EventEmitter {
       return;
     }
 
-    debug("the buffer is empty, closing the transport right away", discard);
+    debug("the buffer is empty, closing the transport right away");
     this.closeTransport(discard);
   }
 
@@ -581,7 +588,7 @@ export class Socket extends EventEmitter {
    * @private
    */
   private closeTransport(discard: boolean) {
-    debug("closing the transport (discard? %s)", discard);
+    debug("closing the transport (discard? %s)", !!discard);
     if (discard) this.transport.discard();
     this.transport.close(this.onClose.bind(this, "forced close"));
   }
