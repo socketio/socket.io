@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import expect from "expect.js";
+import expect = require("expect.js");
 
 export function createServer() {
   const server = new Server(3210, {

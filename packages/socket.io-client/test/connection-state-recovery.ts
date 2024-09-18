@@ -1,4 +1,4 @@
-import expect from "expect.js";
+import expect = require("expect.js");
 import { io } from "..";
 import { wrap, BASE_URL, success } from "./support/util";
 
@@ -7,6 +7,7 @@ describe("connection state recovery", () => {
     return wrap((done) => {
       const socket = io(BASE_URL, {
         forceNew: true,
+        reconnectionDelay: 10,
       });
 
       expect(socket.recovered).to.eql(false);

@@ -1,4 +1,4 @@
-import expect from "expect.js";
+import expect = require("expect.js");
 import { io } from "..";
 import { wrap, BASE_URL, success } from "./support/util";
 
@@ -120,7 +120,7 @@ describe("socket", () => {
 
   it("should change socket.id upon reconnection", () => {
     return wrap((done) => {
-      const socket = io(BASE_URL, { forceNew: true });
+      const socket = io(BASE_URL, { forceNew: true, reconnectionDelay: 10 });
       socket.on("connect", () => {
         const id = socket.id;
 
@@ -328,7 +328,7 @@ describe("socket", () => {
       setTimeout(() => {
         expect(count).to.eql(1);
         success(done, socket);
-      }, 200);
+      }, 100);
     });
   });
 
@@ -630,7 +630,7 @@ describe("socket", () => {
 
         try {
           await socket.timeout(50).emitWithAck("unknown");
-          expect().fail();
+          done(new Error("should not happen"));
         } catch (e) {
           success(done, socket);
         }
@@ -646,7 +646,7 @@ describe("socket", () => {
           expect(value).to.be(42);
           success(done, socket);
         } catch (e) {
-          expect().fail();
+          done(new Error("should not happen"));
         }
       });
     });

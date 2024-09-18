@@ -34,6 +34,6 @@ describe("autoUnref option", function () {
     setTimeout(() => {
       process.kill();
       done();
-    }, 1000);
+    }, 100);
   });
 });

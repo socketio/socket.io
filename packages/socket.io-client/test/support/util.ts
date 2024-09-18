@@ -11,7 +11,19 @@
  * @param fn
  */
 export function wrap(fn: (done: (err?: Error) => void) => void) {
-  return new Promise<Error>((resolve) => fn(resolve));
+  let once = true;
+  return new Promise<void>((resolve, reject) => {
+    fn((err) => {
+      if (!once) {
+        throw "done() was called multiple times";
+      } else if (err) {
+        reject(err);
+      } else {
+        once = false;
+        resolve();
+      }
+    });
+  });
 }
 
 export function success(done, socket) {

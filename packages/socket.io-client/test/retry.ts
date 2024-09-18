@@ -1,4 +1,4 @@
-import expect from "expect.js";
+import expect = require("expect.js");
 import { io } from "..";
 import { wrap, BASE_URL, success } from "./support/util";
 
