@@ -1177,5 +1177,6 @@ export {
   BroadcastOperator,
   RemoteSocket,
   DefaultEventsMap,
+  ExtendedError,
 };
 export { Event } from "./socket";
