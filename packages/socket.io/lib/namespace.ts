@@ -150,8 +150,7 @@ export class Namespace<
     SocketData
   >;
 
-  /** @private */
-  _fns: Array<
+  protected _fns: Array<
     (
       socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
       next: (err?: ExtendedError) => void,
@@ -221,18 +220,19 @@ export class Namespace<
    */
   private run(
     socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
-    fn: (err: ExtendedError | null) => void,
+    fn: (err?: ExtendedError) => void,
   ) {
+    if (!this._fns) return fn();
+
     const fns = this._fns.slice(0);
-    if (!fns.length) return fn(null);
 
     function run(i: number) {
-      fns[i](socket, function (err) {
+      fns[i](socket, (err) => {
         // upon error, short-circuit
         if (err) return fn(err);
 
         // if no middleware left, summon callback
-        if (!fns[i + 1]) return fn(null);
+        if (!fns[i + 1]) return fn();
 
         // go on to next
         run(i + 1);

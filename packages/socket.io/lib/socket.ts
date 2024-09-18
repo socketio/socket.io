@@ -961,17 +961,18 @@ export class Socket<
    * @param {Function} fn - last fn call in the middleware
    * @private
    */
-  private run(event: Event, fn: (err: Error | null) => void): void {
+  private run(event: Event, fn: (err?: Error) => void): void {
+    if (!this.fns.length) return fn();
+
     const fns = this.fns.slice(0);
-    if (!fns.length) return fn(null);
 
     function run(i: number) {
-      fns[i](event, function (err) {
+      fns[i](event, (err) => {
         // upon error, short-circuit
         if (err) return fn(err);
 
         // if no middleware left, summon callback
-        if (!fns[i + 1]) return fn(null);
+        if (!fns[i + 1]) return fn();
 
         // go on to next
         run(i + 1);
