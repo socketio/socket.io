@@ -10,6 +10,7 @@ import {
   CookieJar,
   createCookieJar,
   defaultBinaryType,
+  nextTick,
 } from "./globals.node.js";
 import debugModule from "debug"; // debug()
 
@@ -320,6 +321,11 @@ export class SocketWithoutUpgrade extends Emitter<
   private _pingTimeout: number = -1;
   private _maxPayload?: number = -1;
   private _pingTimeoutTimer: NodeJS.Timer;
+  /**
+   * The expiration timestamp of the {@link _pingTimeoutTimer} object is tracked, in case the timer is throttled and the
+   * callback is not fired on time. This can happen for example when a laptop is suspended or when a phone is locked.
+   */
+  private _pingTimeoutTime = Infinity;
   private clearTimeoutFn: typeof clearTimeout;
   private readonly _beforeunloadEventListener: () => void;
   private readonly _offlineEventListener: () => void;
@@ -630,9 +636,11 @@ export class SocketWithoutUpgrade extends Emitter<
    */
   private _resetPingTimeout() {
     this.clearTimeoutFn(this._pingTimeoutTimer);
+    const delay = this._pingInterval + this._pingTimeout;
+    this._pingTimeoutTime = Date.now() + delay;
     this._pingTimeoutTimer = this.setTimeoutFn(() => {
       this._onClose("ping timeout");
-    }, this._pingInterval + this._pingTimeout);
+    }, delay);
     if (this.opts.autoUnref) {
       this._pingTimeoutTimer.unref();
     }
@@ -708,6 +716,31 @@ export class SocketWithoutUpgrade extends Emitter<
     }
     debug("payload size is %d (max: %d)", payloadSize, this._maxPayload);
     return this.writeBuffer;
+  }
+
+  /**
+   * Checks whether the heartbeat timer has expired but the socket has not yet been notified.
+   *
+   * Note: this method is private for now because it does not really fit the WebSocket API, but if we put it in the
+   * `write()` method then the message would not be buffered by the Socket.IO client.
+   *
+   * @return {boolean}
+   * @private
+   */
+  /* private */ _hasPingExpired() {
+    if (!this._pingTimeoutTime) return true;
+
+    const hasExpired = Date.now() > this._pingTimeoutTime;
+    if (hasExpired) {
+      debug("throttled timer detected, scheduling connection close");
+      this._pingTimeoutTime = 0;
+
+      nextTick(() => {
+        this._onClose("ping timeout");
+      }, this.setTimeoutFn);
+    }
+
+    return hasExpired;
   }
 
   /**

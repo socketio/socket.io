@@ -440,16 +440,13 @@ export class Socket<
       packet.id = id;
     }
 
-    const isTransportWritable =
-      this.io.engine &&
-      this.io.engine.transport &&
-      this.io.engine.transport.writable;
+    const isTransportWritable = this.io.engine?.transport?.writable;
+    const isConnected = this.connected && !this.io.engine?._hasPingExpired();
 
-    const discardPacket =
-      this.flags.volatile && (!isTransportWritable || !this.connected);
+    const discardPacket = this.flags.volatile && !isTransportWritable;
     if (discardPacket) {
       debug("discard packet as the transport is not currently writable");
-    } else if (this.connected) {
+    } else if (isConnected) {
       this.notifyOutgoingListeners(packet);
       this.packet(packet);
     } else {

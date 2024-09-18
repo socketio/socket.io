@@ -787,4 +787,33 @@ describe("socket", () => {
       });
     });
   });
+
+  describe("throttled timer", () => {
+    it("should buffer the event and send it upon reconnection", () => {
+      return wrap((done) => {
+        let hasReconnected = false;
+
+        const socket = io(BASE_URL, {
+          forceNew: true,
+          reconnectionDelay: 10,
+        });
+
+        socket.once("connect", () => {
+          // @ts-expect-error simulate a throttled timer
+          socket.io.engine._pingTimeoutTime = Date.now() - 1;
+
+          socket.emit("echo", "123", (value) => {
+            expect(hasReconnected).to.be(true);
+            expect(value).to.eql("123");
+
+            success(done, socket);
+          });
+        });
+
+        socket.io.once("reconnect", () => {
+          hasReconnected = true;
+        });
+      });
+    });
+  });
 });
