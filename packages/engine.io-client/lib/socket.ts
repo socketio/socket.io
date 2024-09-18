@@ -16,6 +16,10 @@ import debugModule from "debug"; // debug()
 
 const debug = debugModule("engine.io-client:socket"); // debug()
 
+const withEventListeners =
+  typeof addEventListener === "function" &&
+  typeof removeEventListener === "function";
+
 export interface SocketOptions {
   /**
    * The host that we're connecting to. Set from the URI passed when connecting
@@ -425,7 +429,7 @@ export class SocketWithoutUpgrade extends Emitter<
       this.opts.query = decode(this.opts.query);
     }
 
-    if (typeof addEventListener === "function") {
+    if (withEventListeners) {
       if (this.opts.closeOnBeforeunload) {
         // Firefox closes the connection when the "beforeunload" event is emitted but not Chrome. This event listener
         // ensures every browser behaves the same (no "disconnect" event at the Socket.IO level when the page is
@@ -903,13 +907,17 @@ export class SocketWithoutUpgrade extends Emitter<
       // ignore further transport communication
       this.transport.removeAllListeners();
 
-      if (typeof removeEventListener === "function") {
-        removeEventListener(
-          "beforeunload",
-          this._beforeunloadEventListener,
-          false,
-        );
-        removeEventListener("offline", this._offlineEventListener, false);
+      if (withEventListeners) {
+        if (this._beforeunloadEventListener) {
+          removeEventListener(
+            "beforeunload",
+            this._beforeunloadEventListener,
+            false,
+          );
+        }
+        if (this._offlineEventListener) {
+          removeEventListener("offline", this._offlineEventListener, false);
+        }
       }
 
       // set ready state
