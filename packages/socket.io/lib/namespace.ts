@@ -222,7 +222,7 @@ export class Namespace<
     socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
     fn: (err?: ExtendedError) => void,
   ) {
-    if (!this._fns) return fn();
+    if (!this._fns.length) return fn();
 
     const fns = this._fns.slice(0);
 
