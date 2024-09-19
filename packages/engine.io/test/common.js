@@ -4,6 +4,17 @@ const { Socket } =
     ? require("engine.io-client-v3")
     : require("engine.io-client");
 
+switch (process.env.EIO_WS_ENGINE) {
+  case "uws":
+    console.log(
+      "[WARN] testing with uWebSockets.js instead of Node.js built-in HTTP server",
+    );
+    break;
+  case "eiows":
+    console.log("[WARN] testing with eiows instead of ws");
+    break;
+}
+
 /**
  * Listen shortcut that fires a callback on an ephemeral port.
  */

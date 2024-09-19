@@ -135,25 +135,27 @@ export function serveFile(res /* : HttpResponse */, filepath: string) {
   const onDataChunk = (chunk: Buffer) => {
     const arrayBufferChunk = toArrayBuffer(chunk);
 
-    const lastOffset = res.getWriteOffset();
-    const [ok, done] = res.tryEnd(arrayBufferChunk, size);
+    res.cork(() => {
+      const lastOffset = res.getWriteOffset();
+      const [ok, done] = res.tryEnd(arrayBufferChunk, size);
 
-    if (!done && !ok) {
-      readStream.pause();
+      if (!done && !ok) {
+        readStream.pause();
 
-      res.onWritable((offset) => {
-        const [ok, done] = res.tryEnd(
-          arrayBufferChunk.slice(offset - lastOffset),
-          size,
-        );
+        res.onWritable((offset) => {
+          const [ok, done] = res.tryEnd(
+            arrayBufferChunk.slice(offset - lastOffset),
+            size,
+          );
 
-        if (!done && ok) {
-          readStream.resume();
-        }
+          if (!done && ok) {
+            readStream.resume();
+          }
 
-        return ok;
-      });
-    }
+          return ok;
+        });
+      }
+    });
   };
 
   res.onAborted(destroyReadStream);

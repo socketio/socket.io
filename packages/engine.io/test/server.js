@@ -817,7 +817,7 @@ describe("server", () => {
           .end((err, res) => {
             if (process.env.EIO_WS_ENGINE === "uws") {
               expect(err).to.not.be(null);
-              expect(err.message).to.be("socket hang up");
+              expect(err.status).to.be(404);
             } else {
               expect(err).to.be(null);
               // this should not work, but it is kept for backward-compatibility

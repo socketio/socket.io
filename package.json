@@ -68,7 +68,7 @@
     "ts-node": "^10.9.2",
     "tsd": "^0.31.1",
     "typescript": "^5.5.3",
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.30.0",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.48.0",
     "wdio-geckodriver-service": "^5.0.2"
   }
 }
