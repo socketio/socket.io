@@ -205,6 +205,26 @@ describe("server", () => {
       });
     });
 
+    it("should prevent the client from upgrading twice", (done) => {
+      engine = listen((port) => {
+        const client = new ClientSocket(`ws://localhost:${port}`);
+
+        client.on("upgrade", () => {
+          const socket = new WebSocket(
+            `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket&sid=${client.id}`,
+          );
+
+          socket.on("error", () => {});
+
+          socket.on("close", () => {
+            client.close();
+
+            done();
+          });
+        });
+      });
+    });
+
     it("should disallow `__proto__` as transport (polling)", (done) => {
       const partialDone = createPartialDone(done, 2);
 

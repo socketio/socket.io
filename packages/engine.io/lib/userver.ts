@@ -185,13 +185,13 @@ export class uServer extends BaseServer {
         const client = this.clients[id];
         if (!client) {
           debug("upgrade attempt for closed client");
-          res.close();
+          return res.close();
         } else if (client.upgrading) {
           debug("transport has already been trying to upgrade");
-          res.close();
+          return res.close();
         } else if (client.upgraded) {
           debug("transport had already been upgraded");
-          res.close();
+          return res.close();
         } else {
           debug("upgrading existing transport");
           transport = this.createTransport(req._query.transport, req);
