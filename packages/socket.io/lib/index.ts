@@ -25,7 +25,8 @@ import {
 import * as parser from "socket.io-parser";
 import type { Encoder } from "socket.io-parser";
 import debugModule from "debug";
-import { Socket, DisconnectReason } from "./socket";
+import { Socket } from "./socket";
+import { DisconnectReason } from "./socket-types";
 import type { BroadcastOperator, RemoteSocket } from "./broadcast-operator";
 import {
   EventsMap,

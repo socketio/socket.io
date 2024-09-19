@@ -1,5 +1,5 @@
 import type { BroadcastFlags, Room, SocketId } from "socket.io-adapter";
-import { Handshake, RESERVED_EVENTS, Socket } from "./socket";
+import { Handshake, RESERVED_EVENTS } from "./socket-types";
 import { PacketType } from "socket.io-parser";
 import type { Adapter } from "socket.io-adapter";
 import type {
@@ -365,9 +365,8 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
       })
       .then((sockets) => {
         return sockets.map((socket) => {
-          if (socket instanceof Socket) {
-            // FIXME the TypeScript compiler complains about missing private properties
-            return socket as unknown as RemoteSocket<EmitEvents, SocketData>;
+          if (socket.server) {
+            return socket as RemoteSocket<EmitEvents, SocketData>; // local instance
           } else {
             return new RemoteSocket(
               this.adapter,
