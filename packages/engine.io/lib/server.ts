@@ -662,6 +662,9 @@ class WebSocketResponse {
   }
 }
 
+/**
+ * An Engine.IO server based on Node.js built-in HTTP server and the `ws` package for WebSocket connections.
+ */
 export class Server extends BaseServer {
   public httpServer?: HttpServer;
   private ws: any;

@@ -23,6 +23,10 @@ export interface uOptions {
   maxBackpressure?: number;
 }
 
+/**
+ * An Engine.IO server based on the `uWebSockets.js` package.
+ */
+// TODO export it into its own package
 export class uServer extends BaseServer {
   protected init() {}
   protected cleanup() {}

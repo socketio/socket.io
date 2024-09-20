@@ -7,11 +7,7 @@ import accepts = require("accepts");
 import { pipeline } from "stream";
 import path = require("path");
 import { attach, Server as Engine, uServer } from "engine.io";
-import type {
-  ServerOptions as EngineOptions,
-  AttachOptions,
-  BaseServer,
-} from "engine.io";
+import type { ServerOptions as EngineOptions, AttachOptions } from "engine.io";
 import { Client } from "./client";
 import { EventEmitter } from "events";
 import { ExtendedError, Namespace, ServerReservedEventsMap } from "./namespace";
@@ -228,7 +224,7 @@ export class Server<
    * const clientsCount = io.engine.clientsCount;
    *
    */
-  public engine: BaseServer;
+  public engine: Engine;
   /**
    * The underlying Node.js HTTP server.
    *
@@ -712,7 +708,9 @@ export class Server<
    * @param engine engine.io (or compatible) server
    * @return self
    */
-  public bind(engine: BaseServer): this {
+  public bind(engine: any): this {
+    // TODO apply strict types to the engine: "connection" event, `close()` and a method to serve static content
+    //  this would allow to provide any custom engine, like one based on Deno or Bun built-in HTTP server
     this.engine = engine;
     this.engine.on("connection", this.onconnection.bind(this));
     return this;
