@@ -47,7 +47,15 @@ const prodBundle = {
     format: "umd",
     name: "io",
     sourcemap: true,
-    plugins: [terser()],
+    plugins: [
+      terser({
+        mangle: {
+          properties: {
+            regex: /^_/,
+          },
+        },
+      }),
+    ],
     banner,
   },
   plugins: [

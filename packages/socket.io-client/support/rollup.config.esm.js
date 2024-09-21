@@ -15,7 +15,15 @@ module.exports = {
     file: "./dist/socket.io.esm.min.js",
     format: "esm",
     sourcemap: true,
-    plugins: [terser()],
+    plugins: [
+      terser({
+        mangle: {
+          properties: {
+            regex: /^_/,
+          },
+        },
+      }),
+    ],
     banner,
   },
   plugins: [
