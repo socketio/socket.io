@@ -1,6 +1,6 @@
 {
   "name": "socket.io-client",
-  "version": "4.7.5",
+  "version": "4.8.0",
   "description": "Realtime application framework client",
   "keywords": [
     "realtime",
@@ -47,7 +47,7 @@
   "dependencies": {
     "@socket.io/component-emitter": "~3.1.0",
     "debug": "~4.3.2",
-    "engine.io-client": "~6.6.0",
+    "engine.io-client": "~6.6.1",
     "socket.io-parser": "~4.2.4"
   },
   "scripts": {

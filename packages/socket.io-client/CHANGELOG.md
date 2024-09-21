@@ -2,6 +2,7 @@
 
 | Version                                                                                                     | Release date   | Bundle size (UMD min+gzip) |
 |-------------------------------------------------------------------------------------------------------------|----------------|----------------------------|
+| [4.8.0](#480-2024-09-21)                                                                                    | September 2024 | `14.4 KB`                  |
 | [4.7.5](#475-2024-03-14)                                                                                    | March 2024     | `14.6 KB`                  |
 | [4.7.4](#474-2024-01-12)                                                                                    | January 2024   | `14.5 KB`                  |
 | [4.7.3](#473-2024-01-03)                                                                                    | January 2024   | `14.5 KB`                  |
@@ -49,6 +50,88 @@
 
 
 # Release notes
+
+# [4.8.0](https://github.com/socketio/socket.io/compare/socket.io-client@4.7.5...socket.io-client@4.8.0) (2024-09-21)
+
+### Features
+
+#### Custom transport implementations
+
+The `transports` option now accepts an array of transport implementations:
+
+```js
+import { io } from "socket.io-client";
+import { XHR, WebSocket } from "engine.io-client";
+
+const socket = io({
+  transports: [XHR, WebSocket]
+});
+```
+
+Here is the list of provided implementations:
+
+| Transport       | Description                                                                                          |
+|-----------------|------------------------------------------------------------------------------------------------------|
+| `Fetch`         | HTTP long-polling based on the built-in `fetch()` method.                                            |
+| `NodeXHR`       | HTTP long-polling based on the `XMLHttpRequest` object provided by the `xmlhttprequest-ssl` package. |
+| `XHR`           | HTTP long-polling based on the built-in `XMLHttpRequest` object.                                     |
+| `NodeWebSocket` | WebSocket transport based on the `WebSocket` object provided by the `ws` package.                    |
+| `WebSocket`     | WebSocket transport based on the built-in `WebSocket` object.                                        |
+| `WebTransport`  | WebTransport transport based on the built-in `WebTransport` object.                                  |
+
+Usage:
+
+| Transport       | browser            | Node.js                | Deno               | Bun                |
+|-----------------|--------------------|------------------------|--------------------|--------------------|
+| `Fetch`         | :white_check_mark: | :white_check_mark: (1) | :white_check_mark: | :white_check_mark: |
+| `NodeXHR`       |                    | :white_check_mark:     | :white_check_mark: | :white_check_mark: |
+| `XHR`           | :white_check_mark: |                        |                    |                    |
+| `NodeWebSocket` |                    | :white_check_mark:     | :white_check_mark: | :white_check_mark: |
+| `WebSocket`     | :white_check_mark: | :white_check_mark: (2) | :white_check_mark: | :white_check_mark: |
+| `WebTransport`  | :white_check_mark: | :white_check_mark:     |                    |                    |
+
+(1) since [v18.0.0](https://nodejs.org/api/globals.html#fetch)
+(2) since [v21.0.0](https://nodejs.org/api/globals.html#websocket)
+
+Added in [f4d898e](https://github.com/socketio/engine.io-client/commit/f4d898ee9652939a4550a41ac0e8143056154c0a) and [b11763b](https://github.com/socketio/engine.io-client/commit/b11763beecfe4622867b4dec9d1db77460733ffb).
+
+
+#### Test each low-level transports
+
+When setting the `tryAllTransports` option to `true`, if the first transport (usually, HTTP long-polling) fails, then the other transports will be tested too:
+
+```js
+import { io } from "socket.io-client";
+
+const socket = io({
+  tryAllTransports: true
+});
+```
+
+This feature is useful in two cases:
+
+- when HTTP long-polling is disabled on the server, or if CORS fails
+- when WebSocket is tested first (with `transports: ["websocket", "polling"]`)
+
+The only potential downside is that the connection attempt could take more time in case of failure, as there have been reports of WebSocket connection errors taking several seconds before being detected (that's one reason for using HTTP long-polling first). That's why the option defaults to `false` for now.
+
+Added in [579b243](https://github.com/socketio/engine.io-client/commit/579b243e89ac7dc58233f9844ef70817364ecf52).
+
+
+### Bug Fixes
+
+* accept string | undefined as init argument (bis) ([60c757f](https://github.com/socketio/socket.io/commit/60c757f718d400e052c3160ee377bbe4973277c9))
+* allow to manually stop the reconnection loop ([13c6d2e](https://github.com/socketio/socket.io/commit/13c6d2e89deb1e6c6c8c7245118f9b37d66537cb))
+* close the engine upon decoding exception ([04c8dd9](https://github.com/socketio/socket.io/commit/04c8dd979ce40acaceec1f4507c1ae69325d6158))
+* do not send a packet on an expired connection ([#5134](https://github.com/socketio/socket.io/issues/5134)) ([8adcfbf](https://github.com/socketio/socket.io/commit/8adcfbfde50679095ec2abe376650cf2b6814325))
+
+
+### Dependencies
+
+- [`engine.io-client@~6.6.1`](https://github.com/socketio/engine.io-client/releases/tag/6.5.2) ([diff](https://github.com/socketio/engine.io-client/compare/6.5.3...6.6.0) and [diff](https://github.com/socketio/socket.io/compare/engine.io-client@6.6.0...engine.io-client@6.6.1))
+- [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) ([diff](https://github.com/websockets/ws/compare/8.11.0...8.17.1))
+
+
 
 ## [4.7.5](https://github.com/socketio/socket.io-client/compare/4.7.4...4.7.5) (2024-03-14)
 
