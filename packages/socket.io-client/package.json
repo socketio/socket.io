@@ -57,6 +57,7 @@
     "test:browser": "ts-node test/browser-runner.ts",
     "test:types": "tsd",
     "build": "rollup -c support/rollup.config.umd.js && rollup -c support/rollup.config.esm.js && rollup -c support/rollup.config.umd.msgpack.js",
+    "bundle-size": "node support/bundle-size.js",
     "format:check": "prettier --check \"*.js\" \"lib/**/*.ts\" \"test/**/*.ts\" \"support/**/*.js\"",
     "format:fix": "prettier --write \"*.js\" \"lib/**/*.ts\" \"test/**/*.ts\" \"support/**/*.js\"",
     "prepack": "npm run compile"
