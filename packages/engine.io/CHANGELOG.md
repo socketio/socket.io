@@ -2,6 +2,7 @@
 
 | Version                                                                                              | Release date   |
 |------------------------------------------------------------------------------------------------------|----------------|
+| [6.6.1](#661-2024-09-21)                                                                             | September 2024 |
 | [6.6.0](#660-2024-06-21)                                                                             | June 2024      |
 | [6.5.5](#655-2024-06-18) (from the [6.5.x](https://github.com/socketio/engine.io/tree/6.5.x) branch) | June 2024      |
 | [3.6.2](#362-2024-06-18) (from the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch)     | June 2024      |
@@ -44,6 +45,21 @@
 
 
 # Release notes
+
+## [6.6.1](https://github.com/socketio/socket.io/compare/engine.io@6.6.0...engine.io@6.6.1) (2024-09-21)
+
+
+### Bug Fixes
+
+* discard all pending packets when the server is closed ([923a12e](https://github.com/socketio/socket.io/commit/923a12e2de83ecaa75746a575e71a4739815d5c5))
+* **uws:** prevent the client from upgrading twice ([d5095fe](https://github.com/socketio/socket.io/commit/d5095fe98c3976673c19f433c0114d06dbd8de1b))
+
+
+### Dependencies
+
+- [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) (no change)
+
+
 
 ## [6.6.0](https://github.com/socketio/engine.io/compare/6.5.4...6.6.0) (2024-06-21)
 
