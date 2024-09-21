@@ -27,7 +27,15 @@ const devBundle = {
     babel({
       babelHelpers: "bundled",
       presets: [["@babel/env"]],
-      plugins: ["@babel/plugin-transform-object-assign"],
+      plugins: [
+        "@babel/plugin-transform-object-assign",
+        [
+          "@babel/plugin-transform-classes",
+          {
+            loose: true,
+          },
+        ],
+      ],
     }),
   ],
 };
@@ -49,7 +57,15 @@ const prodBundle = {
     babel({
       babelHelpers: "bundled",
       presets: [["@babel/env"]],
-      plugins: ["@babel/plugin-transform-object-assign"],
+      plugins: [
+        "@babel/plugin-transform-object-assign",
+        [
+          "@babel/plugin-transform-classes",
+          {
+            loose: true,
+          },
+        ],
+      ],
     }),
   ],
 };
