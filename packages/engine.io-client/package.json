@@ -56,7 +56,7 @@
     "debug": "~4.3.1",
     "engine.io-parser": "~5.2.1",
     "ws": "~8.17.1",
-    "xmlhttprequest-ssl": "~2.0.0"
+    "xmlhttprequest-ssl": "~2.1.1"
   },
   "scripts": {
     "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && ./postcompile.sh",
