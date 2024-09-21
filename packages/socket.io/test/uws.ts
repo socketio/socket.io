@@ -53,10 +53,10 @@ describe("socket.io with uWebSocket.js-based engine", () => {
     });
 
     const partialDone = createPartialDone(done, 4);
-    client.on("connect", partialDone);
+    client.once("connect", partialDone);
     clientWSOnly.once("connect", partialDone);
-    clientPollingOnly.on("connect", partialDone);
-    clientCustomNamespace.on("connect", partialDone);
+    clientPollingOnly.once("connect", partialDone);
+    clientCustomNamespace.once("connect", partialDone);
   });
 
   afterEach(() => {
@@ -174,6 +174,31 @@ describe("socket.io with uWebSocket.js-based engine", () => {
     io.of("/").sockets.get(clientPollingOnly.id)!.join("room2");
 
     io.except("room2").emit("hello");
+  });
+
+  it("should work when joining a room in a middleware", (done) => {
+    io.use((socket, next) => {
+      socket.join("test");
+      next();
+    });
+
+    client.disconnect().connect();
+    clientPollingOnly.disconnect().connect();
+    clientWSOnly.disconnect().connect();
+    clientCustomNamespace.disconnect().connect();
+
+    const partialDone = createPartialDone(done, 3);
+
+    client.on("hello", partialDone);
+    clientWSOnly.on("hello", partialDone);
+    clientPollingOnly.on("hello", partialDone);
+    clientCustomNamespace.on("hello", shouldNotHappen(done));
+
+    io.on("connection", () => {
+      if (io.of("/").sockets.size === 3) {
+        io.to("test").emit("hello");
+      }
+    });
   });
 
   it("should work even after leaving room", (done) => {

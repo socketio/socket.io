@@ -197,12 +197,21 @@ describe("middleware", () => {
     io.use((socket, next) => {
       expect(socket.connected).to.be(false);
       expect(socket.disconnected).to.be(true);
+
+      expect(io.of("/").sockets.size).to.eql(0);
+      // @ts-expect-error
+      expect(io.of("/")._preConnectSockets.size).to.eql(1);
+
       next();
     });
 
     io.on("connection", (socket) => {
       expect(socket.connected).to.be(true);
       expect(socket.disconnected).to.be(false);
+
+      expect(io.of("/").sockets.size).to.eql(1);
+      // @ts-expect-error
+      expect(io.of("/")._preConnectSockets.size).to.eql(0);
 
       success(done, io, clientSocket);
     });

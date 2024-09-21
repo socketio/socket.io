@@ -14,7 +14,8 @@ export function patchAdapter(app /* : TemplatedApp */) {
   Adapter.prototype.addAll = function (id, rooms) {
     const isNew = !this.sids.has(id);
     addAll.call(this, id, rooms);
-    const socket: Socket = this.nsp.sockets.get(id);
+    const socket: Socket =
+      this.nsp.sockets.get(id) || this.nsp._preConnectSockets.get(id);
     if (!socket) {
       return;
     }
@@ -34,7 +35,8 @@ export function patchAdapter(app /* : TemplatedApp */) {
 
   Adapter.prototype.del = function (id, room) {
     del.call(this, id, room);
-    const socket: Socket = this.nsp.sockets.get(id);
+    const socket: Socket =
+      this.nsp.sockets.get(id) || this.nsp._preConnectSockets.get(id);
     if (socket && socket.conn.transport.name === "websocket") {
       // @ts-ignore
       const sessionId = socket.conn.id;

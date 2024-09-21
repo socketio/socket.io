@@ -10,7 +10,6 @@ import {
   AllButLast,
   Last,
   DecorateAcknowledgementsWithMultipleResponses,
-  DecorateAcknowledgements,
   RemoveAcknowledgements,
   EventNamesWithAck,
   FirstNonErrorArg,
@@ -135,7 +134,19 @@ export class Namespace<
   >
 > {
   public readonly name: string;
+
+  /**
+   * A map of currently connected sockets.
+   */
   public readonly sockets: Map<
+    SocketId,
+    Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+  > = new Map();
+
+  /**
+   * A map of currently connecting sockets.
+   */
+  private _preConnectSockets: Map<
     SocketId,
     Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
   > = new Map();
@@ -327,6 +338,8 @@ export class Namespace<
     debug("adding socket to nsp %s", this.name);
     const socket = await this._createSocket(client, auth);
 
+    this._preConnectSockets.set(socket.id, socket);
+
     if (
       // @ts-ignore
       this.server.opts.connectionStateRecovery?.skipMiddlewares &&
@@ -394,7 +407,7 @@ export class Namespace<
       socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
     ) => void,
   ) {
-    // track socket
+    this._preConnectSockets.delete(socket.id);
     this.sockets.set(socket.id, socket);
 
     // it's paramount that the internal `onconnect` logic
@@ -417,11 +430,7 @@ export class Namespace<
   _remove(
     socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
   ): void {
-    if (this.sockets.has(socket.id)) {
-      this.sockets.delete(socket.id);
-    } else {
-      debug("ignoring remove for %s", socket.id);
-    }
+    this.sockets.delete(socket.id) || this._preConnectSockets.delete(socket.id);
   }
 
   /**
