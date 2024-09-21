@@ -7,6 +7,8 @@ on:
       - 'packages/engine.io-client/**'
       - 'packages/socket.io-parser/**'
       - 'packages/socket.io-client/**'
+    tags-ignore:
+      - '**@*'
 
 permissions:
   contents: read
