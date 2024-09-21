@@ -20,6 +20,24 @@ const withEventListeners =
   typeof addEventListener === "function" &&
   typeof removeEventListener === "function";
 
+const OFFLINE_EVENT_LISTENERS = [];
+
+if (withEventListeners) {
+  // within a ServiceWorker, any event handler for the 'offline' event must be added on the initial evaluation of the
+  // script, so we create one single event listener here which will forward the event to the socket instances
+  addEventListener(
+    "offline",
+    () => {
+      debug(
+        "closing %d connection(s) because the network was lost",
+        OFFLINE_EVENT_LISTENERS.length,
+      );
+      OFFLINE_EVENT_LISTENERS.forEach((listener) => listener());
+    },
+    false,
+  );
+}
+
 export interface SocketOptions {
   /**
    * The host that we're connecting to. Set from the URI passed when connecting
@@ -448,12 +466,13 @@ export class SocketWithoutUpgrade extends Emitter<
         );
       }
       if (this.hostname !== "localhost") {
+        debug("adding listener for the 'offline' event");
         this._offlineEventListener = () => {
           this._onClose("transport close", {
             description: "network connection lost",
           });
         };
-        addEventListener("offline", this._offlineEventListener, false);
+        OFFLINE_EVENT_LISTENERS.push(this._offlineEventListener);
       }
     }
 
@@ -916,7 +935,11 @@ export class SocketWithoutUpgrade extends Emitter<
           );
         }
         if (this._offlineEventListener) {
-          removeEventListener("offline", this._offlineEventListener, false);
+          const i = OFFLINE_EVENT_LISTENERS.indexOf(this._offlineEventListener);
+          if (i !== -1) {
+            debug("removing listener for the 'offline' event");
+            OFFLINE_EVENT_LISTENERS.splice(i, 1);
+          }
         }
       }
 
