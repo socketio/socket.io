@@ -10,25 +10,15 @@ const banner = `/*!
  * Released under the MIT License.
  */`;
 
-module.exports = {
-  input: "./build/esm/browser-entrypoint.js",
-  output: [
-    {
-      file: "./dist/socket.io.js",
-      format: "umd",
-      name: "io",
-      sourcemap: true,
-      banner,
-    },
-    {
-      file: "./dist/socket.io.min.js",
-      format: "umd",
-      name: "io",
-      sourcemap: true,
-      plugins: [terser()],
-      banner,
-    },
-  ],
+const devBundle = {
+  input: "./build/esm-debug/browser-entrypoint.js",
+  output: {
+    file: "./dist/socket.io.js",
+    format: "umd",
+    name: "io",
+    sourcemap: true,
+    banner,
+  },
   plugins: [
     nodeResolve({
       browser: true,
@@ -41,3 +31,27 @@ module.exports = {
     }),
   ],
 };
+
+const prodBundle = {
+  input: "./build/esm/browser-entrypoint.js",
+  output: {
+    file: "./dist/socket.io.min.js",
+    format: "umd",
+    name: "io",
+    sourcemap: true,
+    plugins: [terser()],
+    banner,
+  },
+  plugins: [
+    nodeResolve({
+      browser: true,
+    }),
+    babel({
+      babelHelpers: "bundled",
+      presets: [["@babel/env"]],
+      plugins: ["@babel/plugin-transform-object-assign"],
+    }),
+  ],
+};
+
+module.exports = [devBundle, prodBundle];
