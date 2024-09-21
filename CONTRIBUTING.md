@@ -150,3 +150,18 @@ For a specific workspace:
 ```bash
 npm test --workspace=socket.io
 ```
+
+### Generate the changelog
+
+Install the [`conventional-changelog-cli`](https://www.npmjs.com/package/conventional-changelog-cli) package:
+
+```bash
+npm i -g conventional-changelog-cli
+```
+
+Then run:
+
+```bash
+cd packages/engine.io-client
+conventional-changelog -p angular --tag-prefix "engine.io-client@" --commit-path .
+```

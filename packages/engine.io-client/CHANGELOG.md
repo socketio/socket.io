@@ -2,6 +2,7 @@
 
 | Version                                                                                                     | Release date   | Bundle size (UMD min+gzip) |
 |-------------------------------------------------------------------------------------------------------------|----------------|----------------------------|
+| [6.6.1](#661-2024-09-21)                                                                                    | September 2024 | `8.7 KB`                   |
 | [6.6.0](#660-2024-06-21)                                                                                    | June 2024      | `8.6 KB`                   |
 | [6.5.4](#654-2024-06-18) (from the [6.5.x](https://github.com/socketio/engine.io-client/tree/6.5.x) branch) | June 2024      | `8.8 KB`                   |
 | [3.5.4](#354-2024-06-18) (from the [3.5.x](https://github.com/socketio/engine.io-client/tree/3.5.x) branch) | June 2024      | `-`                        |
@@ -37,6 +38,27 @@
 | [4.1.0](#410-2021-01-14)                                                                                    | January 2021   | `9.1 KB`                   |
 
 # Release notes
+
+## [6.6.1](https://github.com/socketio/socket.io/compare/engine.io-client@6.6.0...engine.io-client@6.6.1) (2024-09-21)
+
+
+### Bug Fixes
+
+* move 'offline' event listener at the top ([8a2f5a3](https://github.com/socketio/socket.io/commit/8a2f5a3da0addb386e7a0f4970e1a9696b82797e))
+* only remove the event listener if it exists ([9b3c9ab](https://github.com/socketio/socket.io/commit/9b3c9abecab028822357beb6e2b502f548e312eb)), closes [/github.com/socketio/socket.io/issues/5088#issuecomment-2217202350](https://github.com//github.com/socketio/socket.io/issues/5088/issues/issuecomment-2217202350)
+* do not send a packet on an expired connection ([#5134](https://github.com/socketio/socket.io/issues/5134)) ([8adcfbf](https://github.com/socketio/socket.io/commit/8adcfbfde50679095ec2abe376650cf2b6814325))
+
+
+### Performance Improvements
+
+* do not reset the heartbeat timer on each packet ([7a23dde](https://github.com/socketio/socket.io/commit/7a23dde6efff3079edeeda951fe0ee25516da833))
+
+
+### Dependencies
+
+- [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) (no change)
+
+
 
 ## [6.6.0](https://github.com/socketio/engine.io-client/compare/6.5.3...6.6.0) (2024-06-21)
 
