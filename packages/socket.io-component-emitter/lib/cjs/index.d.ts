@@ -82,6 +82,11 @@ export class Emitter<
      *
      * @param ev Name of the event
      * @param listener Callback function
+     * @reserved
+     * - "connect": This event is fired by the Socket instance upon connection **and** reconnection.
+     * - "connect_error": This event is fired upon connection failure.
+     * - "disconnect": This event is fired upon disconnection.
+     * @see [client-api-events](https://socket.io/docs/v4/client-api/#events-1)
      */
     on<Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>>(
         ev: Ev,
