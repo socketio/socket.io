@@ -67,7 +67,7 @@ export class ParentNamespace<
   ): Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData> {
     debug("creating child namespace %s", name);
     const namespace = new Namespace(this.server, name);
-    this._fns.forEach((fn) => namespace.use(fn));
+    this["_fns"].forEach((fn) => namespace.use(fn));
     this.listeners("connect").forEach((listener) =>
       namespace.on("connect", listener),
     );
