@@ -2,8 +2,8 @@ name: CI
 
 on:
   push:
-    tags-ignore:
-      - '**@*'
+    branches:
+      - '**'
   pull_request:
   schedule:
     - cron: '0 0 * * 0'

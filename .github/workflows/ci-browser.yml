@@ -2,13 +2,13 @@ name: CI (browser)
 
 on:
   push:
+    branches:
+      - '**'
     paths:
       - 'packages/engine.io-parser/**'
       - 'packages/engine.io-client/**'
       - 'packages/socket.io-parser/**'
       - 'packages/socket.io-client/**'
-    tags-ignore:
-      - '**@*'
 
 permissions:
   contents: read
