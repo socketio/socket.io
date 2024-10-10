@@ -161,7 +161,7 @@ export class Namespace<
     SocketData
   >;
 
-  protected _fns: Array<
+  private _fns: Array<
     (
       socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
       next: (err?: ExtendedError) => void,
@@ -185,6 +185,23 @@ export class Namespace<
     this.server = server;
     this.name = name;
     this._initAdapter();
+  }
+
+  protected static copyMiddleware<
+    ListenEvents extends EventsMap,
+    EmitEvents extends EventsMap,
+    ServerSideEvents extends EventsMap,
+    SocketData
+  >(
+    destination: Namespace<
+      ListenEvents,
+      EmitEvents,
+      ServerSideEvents,
+      SocketData
+    >,
+    source: Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
+  ) {
+    source._fns.forEach((fn) => destination.use(fn));
   }
 
   /**
