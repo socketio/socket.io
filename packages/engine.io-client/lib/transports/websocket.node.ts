@@ -15,7 +15,7 @@ export class WS extends BaseWS {
     uri: string,
     protocols: string | string[] | undefined,
     opts: Record<string, any>,
-  ) {
+  ): WebSocket {
     if (this.socket?._cookieJar) {
       opts.headers = opts.headers || {};
 
