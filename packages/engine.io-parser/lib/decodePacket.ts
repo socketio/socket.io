@@ -51,7 +51,7 @@ const mapBinary = (data: RawData, binaryType?: BinaryType) => {
         );
       } else {
         // from WebTransport (Uint8Array)
-        return data.buffer;
+        return data.slice().buffer;
       }
     case "nodebuffer":
     default:
