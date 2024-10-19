@@ -1,3 +1,8 @@
+if (process.env.EIO_CLIENT === "3" && process.versions.node.startsWith("22")) {
+  // FIXME WebSocket error with engine.io-client@3
+  global.WebSocket = null;
+}
+
 const { listen, uServer } = require("..");
 const { Socket } =
   process.env.EIO_CLIENT === "3"

@@ -7,8 +7,6 @@ if (env.browser) {
   require("./node");
 }
 
-const Blob = require("blob");
-
 require("./engine.io-client");
 require("./socket");
 require("./transport");
@@ -23,6 +21,6 @@ if (typeof ArrayBuffer !== "undefined") {
 }
 
 // Blob is available in Node.js since v18, but not yet supported by the `engine.io-parser` package
-if (Blob && env.browser) {
+if (typeof Blob === "function" && env.browser) {
   require("./blob");
 }
