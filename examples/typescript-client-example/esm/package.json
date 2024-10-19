@@ -1,0 +1,17 @@
+{
+  "name": "typescript-client-example-esm",
+  "version": "0.0.1",
+  "description": "An example with TypeScript",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start": "node --no-warnings=ExperimentalWarning --loader ts-node/esm client.ts"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "socket.io-client": "^4.8.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

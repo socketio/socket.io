@@ -19,6 +19,8 @@ jobs:
           - custom-parsers
           - typescript-example/cjs
           - typescript-example/esm
+          - typescript-client-example/cjs
+          - typescript-client-example/esm
           - webpack-build
           - webpack-build-server
           - basic-crud-application/angular-client

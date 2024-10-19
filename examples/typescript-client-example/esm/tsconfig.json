@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true
+  }
+}
