@@ -35,3 +35,11 @@ if (exports.useFetch) {
   const { transports, Fetch } = require("../..");
   transports.polling = Fetch;
 }
+
+exports.useBuiltinWs = process.env.USE_BUILTIN_WS !== undefined;
+
+if (exports.useBuiltinWs) {
+  console.warn("testing with built-in WebSocket object");
+  const { transports, WebSocket } = require("../..");
+  transports.websocket = WebSocket;
+}

@@ -17,6 +17,19 @@ describe("connection", function () {
     });
   });
 
+  it("should connect to localhost (ws)", (done) => {
+    const socket = new Socket({
+      transports: ["websocket"],
+    });
+    socket.on("open", () => {
+      socket.on("message", (data) => {
+        expect(data).to.equal("hi");
+        socket.close();
+        done();
+      });
+    });
+  });
+
   it("should receive multibyte utf-8 strings with polling", (done) => {
     const socket = new Socket();
     socket.on("open", () => {

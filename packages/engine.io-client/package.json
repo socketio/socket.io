@@ -63,6 +63,7 @@
     "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
     "test:node": "mocha --bail --require test/support/hooks.js test/index.js test/webtransport.mjs",
     "test:node-fetch": "USE_FETCH=1 npm run test:node",
+    "test:node-builtin-ws": "USE_BUILTIN_WS=1 npm run test:node",
     "test:browser": "zuul test/index.js",
     "build": "rimraf ./dist && rollup -c support/rollup.config.umd.js && rollup -c support/rollup.config.esm.js",
     "bundle-size": "node support/bundle-size.js",
