@@ -52,6 +52,7 @@ const prodBundle = {
         mangle: {
           properties: {
             regex: /^_/,
+            reserved: ["_placeholder"],
           },
         },
       }),
