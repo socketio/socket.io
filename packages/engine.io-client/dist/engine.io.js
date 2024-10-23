@@ -1,5 +1,5 @@
 /*!
- * Engine.IO v6.6.1
+ * Engine.IO v6.6.2
  * (c) 2014-2024 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -2010,6 +2010,7 @@
     };
     _proto.doClose = function doClose() {
       if (typeof this.ws !== "undefined") {
+        this.ws.onerror = function () {};
         this.ws.close();
         this.ws = null;
       }

@@ -2,6 +2,7 @@
 
 | Version                                                                                                     | Release date   | Bundle size (UMD min+gzip) |
 |-------------------------------------------------------------------------------------------------------------|----------------|----------------------------|
+| [6.6.2](#662-2024-10-23)                                                                                    | October 2024   | `8.7 KB`                   |
 | [6.6.1](#661-2024-09-21)                                                                                    | September 2024 | `8.7 KB`                   |
 | [6.6.0](#660-2024-06-21)                                                                                    | June 2024      | `8.6 KB`                   |
 | [6.5.4](#654-2024-06-18) (from the [6.5.x](https://github.com/socketio/engine.io-client/tree/6.5.x) branch) | June 2024      | `8.8 KB`                   |
@@ -38,6 +39,21 @@
 | [4.1.0](#410-2021-01-14)                                                                                    | January 2021   | `9.1 KB`                   |
 
 # Release notes
+
+## [6.6.2](https://github.com/socketio/socket.io/compare/engine.io-client@6.6.1...engine.io-client@6.6.2) (2024-10-23)
+
+
+### Bug Fixes
+
+* **types:** remove ws type from .d.ts file ([175a2c5](https://github.com/socketio/socket.io/commit/175a2c58c1bc37eb9b87f87df47e1f9388b01d55))
+* prevent infinite loop with Node.js built-in WebSocket ([4865f2e](https://github.com/socketio/socket.io/commit/4865f2e62eff9cf59f602e753d9f84159a3139af))
+
+
+### Dependencies
+
+- [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) (no change)
+
+
 
 ## [6.6.1](https://github.com/socketio/socket.io/compare/engine.io-client@6.6.0...engine.io-client@6.6.1) (2024-09-21)
 
