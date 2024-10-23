@@ -7,6 +7,8 @@ import {
   EventParams,
   EventsMap,
   Emitter,
+  ReservedOrUserEventNames,
+  ReservedOrUserListener,
 } from "@socket.io/component-emitter";
 import debugModule from "debug"; // debug()
 
@@ -17,6 +19,8 @@ type PrependTimeoutError<T extends any[]> = {
     ? (err: Error, ...args: Params) => Result
     : T[K];
 };
+
+interface ReservedEvents extends EventsMap {}
 
 /**
  * Utility type to decorate the acknowledgement callbacks with a timeout error.
@@ -116,7 +120,7 @@ interface SocketReservedEvents {
   connect_error: (err: Error) => void;
   disconnect: (
     reason: Socket.DisconnectReason,
-    description?: DisconnectDescription,
+    description?: DisconnectDescription
   ) => void;
 }
 
@@ -551,7 +555,7 @@ export class Socket<
           debug(
             "packet [%d] is discarded after %d tries",
             packet.id,
-            packet.tryCount,
+            packet.tryCount
           );
           this._queue.shift();
           if (ack) {
@@ -588,7 +592,7 @@ export class Socket<
     if (packet.pending && !force) {
       debug(
         "packet [%d] has already been sent and is waiting for an ack",
-        packet.id,
+        packet.id
       );
       return;
     }
@@ -662,7 +666,7 @@ export class Socket<
    */
   private onclose(
     reason: Socket.DisconnectReason,
-    description?: DisconnectDescription,
+    description?: DisconnectDescription
   ): void {
     debug("close (%s)", reason);
     this.connected = false;
@@ -680,7 +684,7 @@ export class Socket<
   private _clearAcks() {
     Object.keys(this.acks).forEach((id) => {
       const isBuffered = this.sendBuffer.some(
-        (packet) => String(packet.id) === id,
+        (packet) => String(packet.id) === id
       );
       if (!isBuffered) {
         // note: handlers that do not accept an error as first argument are ignored here
@@ -713,8 +717,8 @@ export class Socket<
           this.emitReserved(
             "connect_error",
             new Error(
-              "It seems you are trying to reach a Socket.IO server in v2.x with a v3.x client, but they are not compatible (more information here: https://socket.io/docs/v3/migrating-from-2-x-to-3-0/)",
-            ),
+              "It seems you are trying to reach a Socket.IO server in v2.x with a v3.x client, but they are not compatible (more information here: https://socket.io/docs/v3/migrating-from-2-x-to-3-0/)"
+            )
           );
         }
         break;
@@ -964,7 +968,7 @@ export class Socket<
    * @returns self
    */
   public timeout(
-    timeout: number,
+    timeout: number
   ): Socket<ListenEvents, DecorateAcknowledgements<EmitEvents>> {
     this.flags.timeout = timeout;
     return this;
@@ -1144,6 +1148,22 @@ export class Socket<
         listener.apply(this, packet.data);
       }
     }
+  }
+
+  /**
+   * @param ev Name of the event
+   * @param listener Callback function
+   * @reserved
+   * - `connect`: This event is fired by the Socket instance upon connection **and** reconnection.
+   * - `connect_error`: This event is fired upon connection failure.
+   * - `disconnect`: This event is fired upon disconnection.
+   * @see [client-api-events](https://socket.io/docs/v4/client-api/#events-1)
+   */
+  public on<Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>>(
+    ev: Ev,
+    listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>
+  ): this {
+    return super.on<Ev>(ev, listener);
   }
 }
 
