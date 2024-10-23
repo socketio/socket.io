@@ -161,7 +161,7 @@ export class Namespace<
     SocketData
   >;
 
-  protected _fns: Array<
+  private _fns: Array<
     (
       socket: Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
       next: (err?: ExtendedError) => void,
