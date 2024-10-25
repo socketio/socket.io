@@ -2,6 +2,7 @@
 
 | Version                                                                                                     | Release date   | Bundle size (UMD min+gzip) |
 |-------------------------------------------------------------------------------------------------------------|----------------|----------------------------|
+| [4.8.1](#481-2024-10-25)                                                                                    | October 2024   | `14.4 KB`                  |
 | [4.8.0](#480-2024-09-21)                                                                                    | September 2024 | `14.4 KB`                  |
 | [4.7.5](#475-2024-03-14)                                                                                    | March 2024     | `14.6 KB`                  |
 | [4.7.4](#474-2024-01-12)                                                                                    | January 2024   | `14.5 KB`                  |
@@ -51,7 +52,22 @@
 
 # Release notes
 
-# [4.8.0](https://github.com/socketio/socket.io/compare/socket.io-client@4.7.5...socket.io-client@4.8.0) (2024-09-21)
+## [4.8.1](https://github.com/socketio/socket.io/compare/socket.io-client@4.8.0...socket.io-client@4.8.1) (2024-10-25)
+
+
+### Bug Fixes
+
+* **bundle:** do not mangle the "_placeholder" attribute ([ca9e994](https://github.com/socketio/socket.io/commit/ca9e994815aa2e31e0342e37ccdc2e9e8c5fd13c))
+
+
+### Dependencies
+
+- [`engine.io-client@~6.6.1`](https://github.com/socketio/engine.io-client/releases/tag/6.5.2) (no change)
+- [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) (no change)
+
+
+
+## [4.8.0](https://github.com/socketio/socket.io/compare/socket.io-client@4.7.5...socket.io-client@4.8.0) (2024-09-21)
 
 ### Features
 
