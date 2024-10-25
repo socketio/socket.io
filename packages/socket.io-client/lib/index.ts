@@ -99,3 +99,12 @@ export {
   lookup as connect,
   lookup as default,
 };
+
+export {
+  Fetch,
+  NodeXHR,
+  XHR,
+  NodeWebSocket,
+  WebSocket,
+  WebTransport,
+} from "engine.io-client";
