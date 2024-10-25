@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.8.0
+ * Socket.IO v4.8.1
  * (c) 2014-2024 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -1432,6 +1432,7 @@
     };
     _proto.doClose = function doClose() {
       if (typeof this.ws !== "undefined") {
+        this.ws.onerror = function () {};
         this.ws.close();
         this.ws = null;
       }

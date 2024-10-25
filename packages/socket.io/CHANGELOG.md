@@ -2,6 +2,7 @@
 
 | Version                                                                                          | Release date   |
 |--------------------------------------------------------------------------------------------------|----------------|
+| [4.8.1](#481-2024-10-25)                                                                         | October 2024   |
 | [4.8.0](#480-2024-09-21)                                                                         | September 2024 |
 | [4.7.5](#475-2024-03-14)                                                                         | March 2024     |
 | [4.7.4](#474-2024-01-12)                                                                         | January 2024   |
@@ -49,6 +50,18 @@
 
 
 # Release notes
+
+## [4.8.1](https://github.com/socketio/socket.io/compare/socket.io@4.8.0...socket.io@4.8.1) (2024-10-25)
+
+Due to a change in the bundler configuration, the production bundle (`socket.io.min.js`) did not support sending and receiving binary data in version `4.8.0`. This is now fixed.
+
+
+### Dependencies
+
+- [`engine.io@~6.6.0`](https://github.com/socketio/engine.io/releases/tag/6.5.2) (no change)
+- [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) (no change)
+
+
 
 ## [4.8.0](https://github.com/socketio/socket.io/compare/socket.io@4.7.5...socket.io@4.8.0) (2024-09-21)
 
