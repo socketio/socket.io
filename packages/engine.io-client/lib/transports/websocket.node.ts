@@ -1,4 +1,4 @@
-import { WebSocket } from "ws";
+import * as ws from "ws";
 import type { Packet, RawData } from "engine.io-parser";
 import { BaseWS } from "./websocket.js";
 
@@ -27,7 +27,7 @@ export class WS extends BaseWS {
         opts.headers.cookie.push(`${name}=${cookie.value}`);
       }
     }
-    return new WebSocket(uri, protocols, opts);
+    return new ws.WebSocket(uri, protocols, opts);
   }
 
   doWrite(packet: Packet, data: RawData) {
