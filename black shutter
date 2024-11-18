@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Black Shutters - Multiplayer</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+      background: url('https://images.unsplash.com/photo-1536510346100-f45d4e63f5c1') no-repeat center center / cover;
+    }
+    .game-info {
+      position: absolute;
+      top: 100px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      color: white;
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .game-info .status {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <div class="game-info" id="gameInfo">
+    <div class="status">Coins: <span id="coins">1000</span></div>
+    <div class="status">Diamonds: <span id="diamonds">10</span></div>
+    <div class="status">Kills: <span id="kills">0</span></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io(); // Connect to WebSocket server
+    const coinsDisplay = document.getElementById('coins');
+    const diamondsDisplay = document.getElementById('diamonds');
+    const killsDisplay = document.getElementById('kills');
+
+    let kills = 0;
+    let coins = 1000;
+    let diamonds = 10;
+
+    // Handle server events
+    socket.on('playerUpdate', (players) => {
+      console.log('Player list updated:', players);
+      // Update player stats (for simplicity, just display kills)
+      const player = players.find(p => p.id === socket.id);
+      if (player) {
+        killsDisplay.textContent = player.kills;
+      }
+    });
+
+    // Simulate killing an enemy
+    function handleKill() {
+      kills += 1;
+      coins += 1000; // Earn coins for a kill
+      coinsDisplay.textContent = coins;
+      killsDisplay.textContent = kills;
+      socket.emit('playerAction', { action: 'kill' }); // Notify server of the kill
+    }
+
+    // Simulate the action every 5 seconds
+    setInterval(handleKill, 5000); // Kill every 5 seconds
+
+  </script>
+</body>
+</html>
+
+
+
+
+Second add your game to Stocker.io to have a multiple player online to make theb
+ game very interesting 
+
+
+We are going to run a service in the terminal service server.js
