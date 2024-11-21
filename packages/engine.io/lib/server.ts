@@ -6,13 +6,13 @@ import { EventEmitter } from "events";
 import { Socket } from "./socket";
 import debugModule from "debug";
 import { serialize } from "cookie";
+import type { SerializeOptions } from "cookie";
 import { Server as DEFAULT_WS_ENGINE } from "ws";
 import type {
   IncomingMessage,
   Server as HttpServer,
   ServerResponse,
 } from "http";
-import type { CookieSerializeOptions } from "cookie";
 import type { CorsOptions, CorsOptionsDelegate } from "cors";
 import type { Duplex } from "stream";
 import { WebTransport } from "./transports/webtransport";
@@ -123,7 +123,7 @@ export interface ServerOptions {
    * might be used for sticky-session. Defaults to not sending any cookie.
    * @default false
    */
-  cookie?: (CookieSerializeOptions & { name: string }) | boolean;
+  cookie?: (SerializeOptions & { name: string }) | boolean;
   /**
    * the options that will be forwarded to the cors module
    */
