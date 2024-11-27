@@ -116,6 +116,32 @@ describe("Transport", () => {
       expect(polling.uri()).to.contain("https://localhost/engine.io?sid=test");
     });
 
+    it("should generate an https uri w/o a port (string)", () => {
+      const polling = new eio.transports.polling({
+        path: "/engine.io",
+        hostname: "localhost",
+        secure: true,
+        query: { sid: "test" },
+        port: "443",
+        timestampRequests: false,
+      });
+      expect(polling.uri()).to.contain("https://localhost/engine.io?sid=test");
+    });
+
+    it("should generate an https uri with a port", () => {
+      const polling = new eio.transports.polling({
+        path: "/engine.io",
+        hostname: "localhost",
+        secure: true,
+        query: { sid: "test" },
+        port: 8443,
+        timestampRequests: false,
+      });
+      expect(polling.uri()).to.contain(
+        "https://localhost:8443/engine.io?sid=test",
+      );
+    });
+
     it("should generate a timestamped uri", () => {
       const polling = new eio.transports.polling({
         path: "/engine.io",
