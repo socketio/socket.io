@@ -542,8 +542,7 @@ export class Socket<
 
     args.push((err, ...responseArgs) => {
       if (packet !== this._queue[0]) {
-        // the packet has already been acknowledged
-        return;
+        return debug("packet [%d] already acknowledged", packet.id);
       }
       const hasError = err !== null;
       if (hasError) {
@@ -834,8 +833,8 @@ export class Socket<
     this._pid = pid; // defined only if connection state recovery is enabled
     this.connected = true;
     this.emitBuffered();
-    this.emitReserved("connect");
     this._drainQueue(true);
+    this.emitReserved("connect");
   }
 
   /**

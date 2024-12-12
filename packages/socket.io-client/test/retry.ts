@@ -110,4 +110,40 @@ describe("retry", () => {
       }, 100);
     });
   });
+
+  it.only("should not emit a packet twice in the 'connect' handler", () => {
+    return wrap((done) => {
+      const socket = io(BASE_URL, {
+        forceNew: true,
+        retries: 3,
+      });
+
+      const received: string[] = [];
+      const sent: string[] = [];
+
+      socket.io.engine.on("packetCreate", ({ data }) => {
+        sent.push(data);
+      });
+
+      socket.io.engine.on("packet", ({ data }) => {
+        received.push(data);
+      });
+
+      socket.on("connect", () => {
+        socket.emit("echo", null);
+      });
+
+      setTimeout(() => {
+        expect(sent).to.eql(["0", '20["echo",null]']);
+
+        expect(received.length).to.eql(3);
+        // 1: engine.io OPEN packet
+        // 2: socket.io CONNECT packet
+        // 3: ack packet
+        expect(received[2]).to.eql("30[null]");
+
+        success(done, socket);
+      }, 100);
+    });
+  });
 });
