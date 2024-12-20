@@ -357,12 +357,22 @@ export class Adapter extends EventEmitter {
     }
   }
 
+  /**
+   * Computation of SIDs to exclude
+   * Even if the room does not exist, add it to exceptSids if it is a sid
+   *
+   * @param exceptRooms - Rooms and Sids(for broadcast)
+   */
   private computeExceptSids(exceptRooms?: Set<Room>) {
     const exceptSids = new Set();
     if (exceptRooms && exceptRooms.size > 0) {
       for (const room of exceptRooms) {
         if (this.rooms.has(room)) {
           this.rooms.get(room).forEach((sid) => exceptSids.add(sid));
+          continue;
+        }
+        if (this.sids.has(room)) {
+          exceptSids.add(room);
         }
       }
     }
