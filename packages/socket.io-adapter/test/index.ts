@@ -140,6 +140,53 @@ describe("socket.io-adapter", () => {
     expect(ids).to.eql(["s3"]);
   });
 
+  it("should exclude the sender from broadcasting, even if they have left the default room.", () => {
+    let ids: string[] = [];
+    function socket(id: string, isSender: boolean = false) {
+      return [
+        id,
+        {
+          id,
+          isSender,
+          rooms: new Set<string>(),
+          client: {
+            writeToEngine(payload: any, opts: any) {
+              if (!isSender) {
+                ids.push(id);
+              } else {
+                throw new Error("Sender should not receive broadcast");
+              }
+            },
+          },
+        },
+      ];
+    }
+    const nsp = {
+      server: {
+        encoder: {
+          encode() {
+            return ["123"];
+          },
+        },
+      },
+      // @ts-ignore
+      sockets: new Map([socket("s1", true), socket("s2"), socket("s3")]),
+    };
+    const adapter = new Adapter(nsp);
+    adapter.addAll("s1", new Set(["r1", "s1"]));
+    adapter.addAll("s2", new Set(["r1"]));
+    adapter.addAll("s3", new Set());
+
+    // sender leaves default room
+    adapter.del("s1", "s1");
+
+    adapter.broadcast([], {
+      rooms: new Set(),
+      except: new Set(["s1"]),
+    });
+    expect(ids).to.eql(["s2", "s3"]);
+  });
+
   it("should precompute the WebSocket frames when broadcasting", () => {
     function socket(id) {
       return [
