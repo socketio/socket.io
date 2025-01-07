@@ -834,8 +834,8 @@ export class Socket<
     this._pid = pid; // defined only if connection state recovery is enabled
     this.connected = true;
     this.emitBuffered();
-    this.emitReserved("connect");
     this._drainQueue(true);
+    this.emitReserved("connect");
   }
 
   /**
