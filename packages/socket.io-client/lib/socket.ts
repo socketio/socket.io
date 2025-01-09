@@ -7,6 +7,8 @@ import {
   EventParams,
   EventsMap,
   Emitter,
+  ReservedOrUserEventNames,
+  ReservedOrUserListener,
 } from "@socket.io/component-emitter";
 import debugModule from "debug"; // debug()
 
@@ -17,6 +19,8 @@ type PrependTimeoutError<T extends any[]> = {
     ? (err: Error, ...args: Params) => Result
     : T[K];
 };
+
+interface ReservedEvents extends EventsMap {}
 
 /**
  * Utility type to decorate the acknowledgement callbacks with a timeout error.
@@ -1144,6 +1148,22 @@ export class Socket<
         listener.apply(this, packet.data);
       }
     }
+  }
+
+  /**
+   * @param ev Name of the event
+   * @param listener Callback function
+   * @reserved
+   * - `connect`: This event is fired by the Socket instance upon connection **and** reconnection.
+   * - `connect_error`: This event is fired upon connection failure.
+   * - `disconnect`: This event is fired upon disconnection.
+   * @see [client-api-events](https://socket.io/docs/v4/client-api/#events-1)
+   */
+  public on<Ev extends ReservedOrUserEventNames<ReservedEvents, ListenEvents>>(
+    ev: Ev,
+    listener: ReservedOrUserListener<ReservedEvents, ListenEvents, Ev>,
+  ): this {
+    return super.on<Ev>(ev, listener);
   }
 }
 
