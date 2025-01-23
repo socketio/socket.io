@@ -2,6 +2,7 @@
 
 | Version                                                                                                     | Release date   | Bundle size (UMD min+gzip) |
 |-------------------------------------------------------------------------------------------------------------|----------------|----------------------------|
+| [6.6.3](#663-2025-01-23)                                                                                    | January 2025   | `8.7 KB`                   |
 | [6.6.2](#662-2024-10-23)                                                                                    | October 2024   | `8.7 KB`                   |
 | [6.6.1](#661-2024-09-21)                                                                                    | September 2024 | `8.7 KB`                   |
 | [6.6.0](#660-2024-06-21)                                                                                    | June 2024      | `8.6 KB`                   |
@@ -39,6 +40,20 @@
 | [4.1.0](#410-2021-01-14)                                                                                    | January 2021   | `9.1 KB`                   |
 
 # Release notes
+
+## [6.6.3](https://github.com/socketio/socket.io/compare/engine.io-client@6.6.2...engine.io-client@6.6.3) (2025-01-23)
+
+
+### Bug Fixes
+
+* correctly consume the `ws` package ([#5220](https://github.com/socketio/socket.io/issues/5220)) ([7fcddcb](https://github.com/socketio/socket.io/commit/7fcddcb3bbd236b46aa8fee6f4ce6c45afb7b03a))
+
+
+### Dependencies
+
+- [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) (no change)
+
+
 
 ## [6.6.2](https://github.com/socketio/socket.io/compare/engine.io-client@6.6.1...engine.io-client@6.6.2) (2024-10-23)
 
