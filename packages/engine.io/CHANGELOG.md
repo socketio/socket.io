@@ -2,6 +2,7 @@
 
 | Version                                                                                              | Release date   |
 |------------------------------------------------------------------------------------------------------|----------------|
+| [6.6.4](#664-2025-01-28)                                                                             | January 2025   |
 | [6.6.3](#663-2025-01-23)                                                                             | January 2025   |
 | [6.6.2](#662-2024-10-09)                                                                             | October 2024   |
 | [6.6.1](#661-2024-09-21)                                                                             | September 2024 |
@@ -47,6 +48,17 @@
 
 
 # Release notes
+
+## [6.6.4](https://github.com/socketio/socket.io/compare/engine.io@6.6.3...engine.io@6.6.4) (2025-01-28)
+
+The bump of the `cookie` dependency was reverted, as it drops support for older Node.js versions (< 14).
+
+
+### Dependencies
+
+- [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) (no change)
+
+
 
 ## [6.6.3](https://github.com/socketio/socket.io/compare/engine.io@6.6.2...engine.io@6.6.3) (2025-01-23)
 
