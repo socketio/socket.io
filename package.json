@@ -43,6 +43,7 @@
     "base64-arraybuffer": "^1.0.2",
     "benchmark": "^2.1.4",
     "blob": "^0.1.0",
+    "cookie": "~0.7.2",
     "eiows": "^7.1.0",
     "engine.io-client-v3": "npm:engine.io-client@^3.5.2",
     "expect.js": "^0.3.1",
