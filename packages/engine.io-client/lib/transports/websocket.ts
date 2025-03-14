@@ -152,8 +152,6 @@ export abstract class BaseWS extends Transport {
   }
 }
 
-const WebSocketCtor = globalThis.WebSocket || globalThis.MozWebSocket;
-
 /**
  * WebSocket transport based on the built-in `WebSocket` object.
  *
@@ -169,6 +167,8 @@ export class WS extends BaseWS {
     protocols: string | string[] | undefined,
     opts: Record<string, any>,
   ) {
+    const WebSocketCtor = globalThis.WebSocket || globalThis.MozWebSocket;
+
     return !isReactNative
       ? protocols
         ? new WebSocketCtor(uri, protocols)
