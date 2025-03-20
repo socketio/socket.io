@@ -334,7 +334,7 @@ export class Adapter extends EventEmitter {
     const rooms = opts.rooms;
     const except = this.computeExceptSids(opts.except);
 
-    if (rooms.size) {
+    if (rooms.size !== undefined) {
       const ids = new Set();
       for (const room of rooms) {
         if (!this.rooms.has(room)) continue;
