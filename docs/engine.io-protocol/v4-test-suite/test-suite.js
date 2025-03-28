@@ -17,16 +17,35 @@ function sleep(delay) {
   return new Promise((resolve) => setTimeout(resolve, delay));
 }
 
+function createWebSocket(url) {
+  const socket = new WebSocket(url);
+  socket._eventBuffer = {};
+  socket._pendingPromises = {};
+
+  for (const eventType of ["open", "close", "message"]) {
+    socket._eventBuffer[eventType] = [];
+    socket._pendingPromises[eventType] = [];
+
+    socket.addEventListener(eventType, (event) => {
+      if (socket._pendingPromises[eventType].length) {
+        socket._pendingPromises[eventType].shift()(event);
+      } else {
+        socket._eventBuffer[eventType].push(event);
+      }
+    });
+  }
+
+  return socket;
+}
+
 function waitFor(socket, eventType) {
-  return new Promise((resolve) => {
-    socket.addEventListener(
-      eventType,
-      (event) => {
-        resolve(event);
-      },
-      { once: true }
-    );
-  });
+  if (socket._eventBuffer[eventType].length) {
+    return Promise.resolve(socket._eventBuffer[eventType].shift());
+  } else {
+    return new Promise((resolve) => {
+      socket._pendingPromises[eventType].push(resolve);
+    });
+  }
 }
 
 async function initLongPollingSession() {
@@ -110,7 +129,7 @@ describe("Engine.IO protocol", () => {
 
     describe("WebSocket", () => {
       it("successfully opens a session", async () => {
-        const socket = new WebSocket(
+        const socket = createWebSocket(
           `${WS_URL}/engine.io/?EIO=4&transport=websocket`
         );
 
@@ -137,7 +156,7 @@ describe("Engine.IO protocol", () => {
       });
 
       it("fails with an invalid 'EIO' query parameter", async () => {
-        const socket = new WebSocket(
+        const socket = createWebSocket(
           `${WS_URL}/engine.io/?transport=websocket`
         );
 
@@ -145,9 +164,9 @@ describe("Engine.IO protocol", () => {
           socket.on("error", () => {});
         }
 
-        waitFor(socket, "close");
+        await waitFor(socket, "close");
 
-        const socket2 = new WebSocket(
+        const socket2 = createWebSocket(
           `${WS_URL}/engine.io/?EIO=abc&transport=websocket`
         );
 
@@ -155,19 +174,19 @@ describe("Engine.IO protocol", () => {
           socket2.on("error", () => {});
         }
 
-        waitFor(socket2, "close");
+        await waitFor(socket2, "close");
       });
 
       it("fails with an invalid 'transport' query parameter", async () => {
-        const socket = new WebSocket(`${WS_URL}/engine.io/?EIO=4`);
+        const socket = createWebSocket(`${WS_URL}/engine.io/?EIO=4`);
 
         if (isNodejs) {
           socket.on("error", () => {});
         }
 
-        waitFor(socket, "close");
+        await waitFor(socket, "close");
 
-        const socket2 = new WebSocket(
+        const socket2 = createWebSocket(
           `${WS_URL}/engine.io/?EIO=4&transport=abc`
         );
 
@@ -175,7 +194,7 @@ describe("Engine.IO protocol", () => {
           socket2.on("error", () => {});
         }
 
-        waitFor(socket2, "close");
+        await waitFor(socket2, "close");
       });
     });
   });
@@ -317,7 +336,7 @@ describe("Engine.IO protocol", () => {
 
     describe("WebSocket", () => {
       it("sends and receives a plain text packet", async () => {
-        const socket = new WebSocket(
+        const socket = createWebSocket(
           `${WS_URL}/engine.io/?EIO=4&transport=websocket`
         );
 
@@ -335,7 +354,7 @@ describe("Engine.IO protocol", () => {
       });
 
       it("sends and receives a binary packet", async () => {
-        const socket = new WebSocket(
+        const socket = createWebSocket(
           `${WS_URL}/engine.io/?EIO=4&transport=websocket`
         );
         socket.binaryType = "arraybuffer";
@@ -352,7 +371,7 @@ describe("Engine.IO protocol", () => {
       });
 
       it("closes the session upon invalid packet format", async () => {
-        const socket = new WebSocket(
+        const socket = createWebSocket(
           `${WS_URL}/engine.io/?EIO=4&transport=websocket`
         );
 
@@ -412,7 +431,7 @@ describe("Engine.IO protocol", () => {
 
     describe("WebSocket", () => {
       it("sends ping/pong packets", async () => {
-        const socket = new WebSocket(
+        const socket = createWebSocket(
           `${WS_URL}/engine.io/?EIO=4&transport=websocket`
         );
 
@@ -430,7 +449,7 @@ describe("Engine.IO protocol", () => {
       });
 
       it("closes the session upon ping timeout", async () => {
-        const socket = new WebSocket(
+        const socket = createWebSocket(
           `${WS_URL}/engine.io/?EIO=4&transport=websocket`
         );
 
@@ -468,7 +487,7 @@ describe("Engine.IO protocol", () => {
 
     describe("WebSocket", () => {
       it("forcefully closes the session", async () => {
-        const socket = new WebSocket(
+        const socket = createWebSocket(
           `${WS_URL}/engine.io/?EIO=4&transport=websocket`
         );
 
@@ -485,7 +504,7 @@ describe("Engine.IO protocol", () => {
     it("successfully upgrades from HTTP long-polling to WebSocket", async () => {
       const sid = await initLongPollingSession();
 
-      const socket = new WebSocket(
+      const socket = createWebSocket(
         `${WS_URL}/engine.io/?EIO=4&transport=websocket&sid=${sid}`
       );
 
@@ -521,12 +540,13 @@ describe("Engine.IO protocol", () => {
     it("ignores HTTP requests with same sid after upgrade", async () => {
       const sid = await initLongPollingSession();
 
-      const socket = new WebSocket(
+      const socket = createWebSocket(
         `${WS_URL}/engine.io/?EIO=4&transport=websocket&sid=${sid}`
       );
 
       await waitFor(socket, "open");
       socket.send("2probe");
+      await waitFor(socket, "message"); // "3probe"
       socket.send("5");
 
       const pollResponse = await fetch(
@@ -545,15 +565,16 @@ describe("Engine.IO protocol", () => {
     it("ignores WebSocket connection with same sid after upgrade", async () => {
       const sid = await initLongPollingSession();
 
-      const socket = new WebSocket(
+      const socket = createWebSocket(
         `${WS_URL}/engine.io/?EIO=4&transport=websocket&sid=${sid}`
       );
 
       await waitFor(socket, "open");
       socket.send("2probe");
+      await waitFor(socket, "message"); // "3probe"
       socket.send("5");
 
-      const socket2 = new WebSocket(
+      const socket2 = createWebSocket(
         `${WS_URL}/engine.io/?EIO=4&transport=websocket&sid=${sid}`
       );
 
