@@ -1,6 +1,6 @@
 # socket.io
 
-# Rounak Hati/Mimo_to 
+# Rounak Hati/Mimo-to 
 
 [![Latest NPM version](https://img.shields.io/npm/v/socket.io.svg)](https://www.npmjs.com/package/socket.io)
 [![Build status](https://github.com/socketio/socket.io/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/socketio/socket.io/actions/workflows/ci.yml)
