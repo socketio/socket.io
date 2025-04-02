@@ -192,7 +192,7 @@ export abstract class Transport extends Emitter<
   private _port() {
     if (
       this.opts.port &&
-      ((this.opts.secure && Number(this.opts.port !== 443)) ||
+      ((this.opts.secure && Number(this.opts.port) !== 443) ||
         (!this.opts.secure && Number(this.opts.port) !== 80))
     ) {
       return ":" + this.opts.port;
