@@ -2609,6 +2609,29 @@ describe("server", () => {
         });
       });
     });
+
+    if (process.env.EIO_WS_ENGINE === "uws") {
+      it("should not throw detached ArrayBuffer error", (done) => {
+        const engine = listen((port) => {
+          const socket = new ClientSocket(`ws://localhost:${port}`, {
+            transports: ["websocket"],
+          });
+          engine.on("connection", (conn) => {
+            conn.on("message", (msg) => {
+              expect(msg.toString()).to.be("hello");
+
+              setTimeout(() => {
+                expect(msg.toString()).to.be("hello");
+                done();
+              }, 10);
+            });
+          });
+          socket.on("open", () => {
+            socket.send(Buffer.from("hello"));
+          });
+        });
+      });
+    }
   });
 
   describe("send", () => {

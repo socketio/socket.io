@@ -93,7 +93,7 @@ export class uServer extends BaseServer {
         },
         message: (ws, message, isBinary) => {
           ws.getUserData().transport.onData(
-            isBinary ? message : Buffer.from(message).toString(),
+            isBinary ? message.slice() : Buffer.from(message).toString(),
           );
         },
         close: (ws, code, message) => {
