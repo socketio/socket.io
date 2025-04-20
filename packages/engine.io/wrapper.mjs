@@ -7,4 +7,5 @@ export {
   attach,
   parser,
   protocol,
+  uServer
 } from "./build/engine.io.js";
