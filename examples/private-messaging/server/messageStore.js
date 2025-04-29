@@ -30,10 +30,16 @@ class RedisMessageStore extends MessageStore {
 
   saveMessage(message) {
     const value = JSON.stringify(message);
-    this.redisClient
-      .multi()
-      .rpush(`messages:${message.from}`, value)
-      .rpush(`messages:${message.to}`, value)
+    const multi = this.redisClient.multi();
+
+    multi.rpush(`messages:${message.from}`, value);
+
+    // Only push to recipient if different from sender
+    if (message.from !== message.to) {
+      multi.rpush(`messages:${message.to}`, value);
+    }
+
+    multi
       .expire(`messages:${message.from}`, CONVERSATION_TTL)
       .expire(`messages:${message.to}`, CONVERSATION_TTL)
       .exec();
