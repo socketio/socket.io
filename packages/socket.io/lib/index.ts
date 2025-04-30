@@ -821,13 +821,12 @@ export class Server<
     restoreAdapter();
 
     if (this.httpServer) {
-      return new Promise<void>((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         this.httpServer.close((err) => {
+          fn && fn(err);
           if (err) {
-            fn && fn(err);
             reject(err);
           } else {
-            fn && fn();
             resolve();
           }
         });
