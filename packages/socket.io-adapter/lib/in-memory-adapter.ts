@@ -419,18 +419,31 @@ export class SessionAwareAdapter extends Adapter {
 
     const timer = setInterval(() => {
       const threshold = Date.now() - this.maxDisconnectionDuration;
+
       this.sessions.forEach((session, sessionId) => {
         const hasExpired = session.disconnectedAt < threshold;
         if (hasExpired) {
           this.sessions.delete(sessionId);
         }
       });
-      for (let i = this.packets.length - 1; i >= 0; i--) {
-        const hasExpired = this.packets[i].emittedAt < threshold;
-        if (hasExpired) {
-          this.packets.splice(0, i + 1);
+
+      let cutIndex = -1;
+      for (let i = 0; i < this.packets.length; i++) {
+        const packet = this.packets[i];
+        const isNeededByAnySession = Array.from(this.sessions.values()).some(
+          (session) =>
+            packet.emittedAt >=
+            session.disconnectedAt - this.maxDisconnectionDuration
+        );
+        if (!isNeededByAnySession) {
+          cutIndex = i;
+        }else {
           break;
         }
+      }
+    
+      if (cutIndex >= 0) {
+        this.packets.splice(0, cutIndex + 1);
       }
     }, 60 * 1000);
     // prevents the timer from keeping the process alive
