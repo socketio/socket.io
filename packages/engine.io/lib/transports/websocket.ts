@@ -7,6 +7,7 @@ const debug = debugModule("engine:ws");
 export class WebSocket extends Transport {
   protected perMessageDeflate: any;
   private socket: any;
+  private currentPackets: Packet[] | undefined;
 
   /**
    * WebSocket transport
@@ -43,6 +44,8 @@ export class WebSocket extends Transport {
 
   send(packets: Packet[]) {
     this.writable = false;
+
+    this.currentPackets = packets;
 
     for (let i = 0; i < packets.length; i++) {
       const packet = packets[i];
@@ -98,8 +101,9 @@ export class WebSocket extends Transport {
     if (err) {
       this.onError("write error", err.stack);
     } else {
-      this.emit("drain");
+      this.emit("drain", this.currentPackets);
       this.writable = true;
+      this.currentPackets = undefined;
       this.emit("ready");
     }
   };
