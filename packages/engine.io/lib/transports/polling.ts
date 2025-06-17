@@ -274,8 +274,8 @@ export class Polling extends Transport {
       headers["Content-Length"] =
         "string" === typeof data ? Buffer.byteLength(data) : data.length;
       this.res.writeHead(200, this.headers(this.req, headers));
+      this.res.once("finish", callback);
       this.res.end(data);
-      callback();
     };
 
     if (!this.httpCompression || !options.compress) {
@@ -298,8 +298,8 @@ export class Polling extends Transport {
     this.compress(data, encoding, (err, data) => {
       if (err) {
         this.res.writeHead(500);
+        this.res.once("finish", callback);
         this.res.end();
-        callback(err);
         return;
       }
 
