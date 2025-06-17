@@ -229,7 +229,7 @@ export class Polling extends Transport {
       const compress = packets.some((packet) => {
         return packet.options && packet.options.compress;
       });
-      this.write(data, { compress });
+      this.write(data, { compress, source: packets });
     };
 
     if (this.protocol === 3) {
@@ -250,7 +250,7 @@ export class Polling extends Transport {
     debug('writing "%s"', data);
     this.doWrite(data, options, () => {
       this.req.cleanup();
-      this.emit("drain");
+      this.emit("drain", options.source);
     });
   }
 

@@ -14,7 +14,10 @@ export interface SendOptions {
 
 type ReadyState = "opening" | "open" | "closing" | "closed";
 
-type SendCallback = (transport: Transport) => void;
+type SendCallback = (
+  transport: Transport,
+  packets: Packet[] | undefined,
+) => void;
 
 export class Socket extends EventEmitter {
   /**
@@ -271,13 +274,13 @@ export class Socket extends EventEmitter {
    *
    * @private
    */
-  private onDrain() {
+  private onDrain(packets: Packet[] | undefined) {
     if (this.sentCallbackFn.length > 0) {
       debug("executing batch send callback");
       const seqFn = this.sentCallbackFn.shift();
       if (seqFn) {
         for (let i = 0; i < seqFn.length; i++) {
-          seqFn[i](this.transport);
+          seqFn[i](this.transport, packets);
         }
       }
     }
@@ -525,8 +528,8 @@ export class Socket extends EventEmitter {
       }
 
       this.transport.send(wbuf);
-      this.emit("drain");
-      this.server.emit("drain", this);
+      this.emit("drain", wbuf);
+      this.server.emit("drain", this, wbuf);
     }
   }
 
