@@ -1,12 +1,13 @@
 import { EngineRequest, Transport } from "../transport";
 import debugModule from "debug";
 import type { Packet, RawData } from "engine.io-parser";
+import type { PerMessageDeflateOptions, WebSocket as WsWebSocket } from "ws";
 
 const debug = debugModule("engine:ws");
 
 export class WebSocket extends Transport {
-  protected perMessageDeflate: any;
-  private socket: any;
+  perMessageDeflate?: boolean | PerMessageDeflateOptions;
+  private socket: WsWebSocket;
 
   /**
    * WebSocket transport
@@ -51,8 +52,8 @@ export class WebSocket extends Transport {
       if (this._canSendPreEncodedFrame(packet)) {
         // the WebSocket frame was computed with WebSocket.Sender.frame()
         // see https://github.com/websockets/ws/issues/617#issuecomment-283002469
+        // @ts-expect-error use of untyped member
         this.socket._sender.sendFrame(
-          // @ts-ignore
           packet.options.wsPreEncodedFrame,
           isLast ? this._onSentLast : this._onSent,
         );
@@ -74,8 +75,8 @@ export class WebSocket extends Transport {
   private _canSendPreEncodedFrame(packet: Packet) {
     return (
       !this.perMessageDeflate &&
+      // @ts-expect-error use of untyped member
       typeof this.socket?._sender?.sendFrame === "function" &&
-      // @ts-ignore
       packet.options?.wsPreEncodedFrame !== undefined
     );
   }

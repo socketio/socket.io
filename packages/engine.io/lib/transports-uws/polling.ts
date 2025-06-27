@@ -3,6 +3,8 @@ import { createGzip, createDeflate } from "zlib";
 import * as accepts from "accepts";
 import debugModule from "debug";
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
+import type * as parser_v4 from "engine.io-parser";
+import type * as parser_v3 from "../parser-v3/index";
 
 const debug = debugModule("engine:polling");
 
@@ -228,9 +230,9 @@ export class Polling extends Transport {
     };
 
     if (this.protocol === 3) {
-      this.parser.decodePayload(data, callback);
+      (this.parser as typeof parser_v3).decodePayload(data, callback);
     } else {
-      this.parser.decodePayload(data).forEach(callback);
+      (this.parser as typeof parser_v4).decodePayload(data).forEach(callback);
     }
   }
 
@@ -263,7 +265,7 @@ export class Polling extends Transport {
       this.shouldClose = null;
     }
 
-    const doWrite = (data) => {
+    const doWrite = (data: string) => {
       const compress = packets.some((packet) => {
         return packet.options && packet.options.compress;
       });
@@ -271,9 +273,13 @@ export class Polling extends Transport {
     };
 
     if (this.protocol === 3) {
-      this.parser.encodePayload(packets, this.supportsBinary, doWrite);
+      (this.parser as typeof parser_v3).encodePayload(
+        packets,
+        this.supportsBinary,
+        doWrite,
+      );
     } else {
-      this.parser.encodePayload(packets, doWrite);
+      (this.parser as typeof parser_v4).encodePayload(packets, doWrite);
     }
   }
 

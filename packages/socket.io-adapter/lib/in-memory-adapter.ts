@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import { yeast } from "./contrib/yeast";
-import WebSocket = require("ws");
+import * as WebSocket from "ws";
 
 // @ts-expect-error
 const canPreComputeFrame = typeof WebSocket?.Sender?.frame === "function";
@@ -51,11 +51,11 @@ export class Adapter extends EventEmitter {
   /**
    * In-memory adapter constructor.
    *
-   * @param {Namespace} nsp
+   * @param nsp
    */
   constructor(readonly nsp: any) {
     super();
-    this.encoder = nsp.server.encoder;
+    this.encoder = nsp.server.encoder; // nsp is a Namespace object
   }
 
   /**

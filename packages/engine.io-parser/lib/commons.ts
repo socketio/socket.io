@@ -32,7 +32,11 @@ export type RawData = any;
 
 export interface Packet {
   type: PacketType;
-  options?: { compress: boolean };
+  options?: {
+    compress: boolean;
+    wsPreEncoded?: string; // deprecated in favor of `wsPreEncodedFrame`
+    wsPreEncodedFrame?: any; // computed in the socket.io-adapter package (should be typed as Buffer)
+  };
   data?: RawData;
 }
 
