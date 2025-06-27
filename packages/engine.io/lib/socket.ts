@@ -5,6 +5,7 @@ import type { EngineRequest, Transport } from "./transport";
 import type { BaseServer } from "./server";
 import { setTimeout, clearTimeout } from "timers";
 import type { Packet, PacketType, RawData } from "engine.io-parser";
+import type transports from "./transports";
 
 const debug = debugModule("engine:socket");
 
@@ -537,9 +538,9 @@ export class Socket extends EventEmitter {
    */
   private getAvailableUpgrades() {
     const availableUpgrades = [];
-    const allUpgrades = this.server.upgrades(this.transport.name);
+    const allUpgrades = this.server.upgrades(this.transport.name as keyof typeof transports);
     for (let i = 0; i < allUpgrades.length; ++i) {
-      const upg = allUpgrades[i];
+      const upg = allUpgrades[i] as keyof typeof transports;
       if (this.server.opts.transports.indexOf(upg) !== -1) {
         availableUpgrades.push(upg);
       }

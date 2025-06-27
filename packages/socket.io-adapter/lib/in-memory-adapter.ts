@@ -1,6 +1,7 @@
 import { EventEmitter } from "events";
 import { yeast } from "./contrib/yeast";
-import WebSocket = require("ws");
+import type {Namespace, Socket} from 'socket.io';
+import * as WebSocket from 'ws';
 
 // @ts-expect-error
 const canPreComputeFrame = typeof WebSocket?.Sender?.frame === "function";
@@ -51,9 +52,9 @@ export class Adapter extends EventEmitter {
   /**
    * In-memory adapter constructor.
    *
-   * @param {Namespace} nsp
+   * @param nsp
    */
-  constructor(readonly nsp: any) {
+  constructor(readonly nsp: Namespace) {
     super();
     this.encoder = nsp.server.encoder;
   }
@@ -171,10 +172,13 @@ export class Adapter extends EventEmitter {
     const encodedPackets = this._encode(packet, packetOpts);
 
     this.apply(opts, (socket) => {
+      // @ts-expect-error use of private
       if (typeof socket.notifyOutgoingListeners === "function") {
+        // @ts-expect-error use of private
         socket.notifyOutgoingListeners(packet);
       }
 
+      // @ts-expect-error use of private
       socket.client.writeToEngine(encodedPackets, packetOpts);
     });
   }
@@ -219,12 +223,16 @@ export class Adapter extends EventEmitter {
       // track the total number of acknowledgements that are expected
       clientCount++;
       // call the ack callback for each client response
+      // @ts-expect-error use of private
       socket.acks.set(packet.id, ack);
 
+      // @ts-expect-error use of private
       if (typeof socket.notifyOutgoingListeners === "function") {
+        // @ts-expect-error use of private
         socket.notifyOutgoingListeners(packet);
       }
 
+      // @ts-expect-error use of private
       socket.client.writeToEngine(encodedPackets, packetOpts);
     });
 
@@ -330,7 +338,7 @@ export class Adapter extends EventEmitter {
     });
   }
 
-  private apply(opts: BroadcastOptions, callback: (socket) => void): void {
+  private apply(opts: BroadcastOptions, callback: (socket: Socket) => void): void {
     const rooms = opts.rooms;
     const except = this.computeExceptSids(opts.except);
 

@@ -1,4 +1,4 @@
-import http = require("http");
+import http from 'http';
 import type { Server as HTTPSServer } from "https";
 import type { Http2SecureServer, Http2Server } from "http2";
 import { createReadStream } from "fs";
@@ -7,7 +7,7 @@ import accepts = require("accepts");
 import { pipeline } from "stream";
 import path = require("path");
 import { attach, Server as Engine, uServer } from "engine.io";
-import type { ServerOptions as EngineOptions, AttachOptions } from "engine.io";
+import type { ServerOptions as EngineOptions, AttachOptions, Socket as RawSocket } from "engine.io";
 import { Client } from "./client";
 import { EventEmitter } from "events";
 import { ExtendedError, Namespace, ServerReservedEventsMap } from "./namespace";
@@ -506,6 +506,11 @@ export class Server<
     return this;
   }
 
+  /**
+   * attach uServer app
+   * @param app
+   * @param opts
+   */
   public attachApp(app /*: TemplatedApp */, opts: Partial<ServerOptions> = {}) {
     // merge the options passed to the Socket.IO server
     Object.assign(opts, this.opts);
@@ -582,7 +587,7 @@ export class Server<
   ): void {
     // initialize engine
     debug("creating engine.io instance with opts %j", opts);
-    this.eio = attach(srv, opts);
+    this.eio = attach(srv as http.Server, opts);
 
     // attach static file serving
     if (this._serveClient) this.attachServe(srv);
@@ -723,11 +728,12 @@ export class Server<
    * @return self
    * @private
    */
-  private onconnection(conn): this {
+  private onconnection(conn: RawSocket): this {
+    // @ts-expect-error use of private
     debug("incoming connection with id %s", conn.id);
     const client = new Client(this, conn);
     if (conn.protocol === 3) {
-      // @ts-ignore
+      // @ts-expect-error use of private
       client.connect("/");
     }
     return this;

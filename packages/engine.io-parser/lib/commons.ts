@@ -32,7 +32,7 @@ export type RawData = any;
 
 export interface Packet {
   type: PacketType;
-  options?: { compress: boolean };
+  options?: { compress: boolean, wsPreEncoded?: string, wsPreEncodedFrame?: boolean };
   data?: RawData;
 }
 

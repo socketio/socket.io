@@ -8,6 +8,7 @@ const debug = debugModule("engine:webtransport");
  * Reference: https://developer.mozilla.org/en-US/docs/Web/API/WebTransport_API
  */
 export class WebTransport extends Transport {
+  static upgradesTo?: undefined;
   private readonly writer;
 
   constructor(

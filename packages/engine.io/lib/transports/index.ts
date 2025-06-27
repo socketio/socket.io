@@ -2,9 +2,10 @@ import { Polling as XHR } from "./polling";
 import { JSONP } from "./polling-jsonp";
 import { WebSocket } from "./websocket";
 import { WebTransport } from "./webtransport";
+import { EngineRequest } from "../transport";
 
 export default {
-  polling: polling,
+  polling,
   websocket: WebSocket,
   webtransport: WebTransport,
 };
@@ -12,8 +13,7 @@ export default {
 /**
  * Polling polymorphic constructor.
  */
-
-function polling(req) {
+function polling(req: EngineRequest) {
   if ("string" === typeof req._query.j) {
     return new JSONP(req);
   } else {

@@ -1,6 +1,6 @@
 import { Decoder, Encoder, Packet, PacketType } from "socket.io-parser";
-import debugModule = require("debug");
-import url = require("url");
+import debugModule from "debug";
+import url from "url";
 import type { IncomingMessage } from "http";
 import type { Server } from "./index";
 import type { Namespace } from "./namespace";
@@ -61,12 +61,13 @@ export class Client<
    */
   constructor(
     server: Server<ListenEvents, EmitEvents, ServerSideEvents, SocketData>,
-    conn: any,
+    conn: RawSocket
   ) {
     this.server = server;
     this.conn = conn;
     this.encoder = server.encoder;
     this.decoder = new server._parser.Decoder();
+    // @ts-expect-error use of private
     this.id = conn.id;
     this.setup();
   }
@@ -216,13 +217,13 @@ export class Client<
    * @param {Object} opts
    * @private
    */
-  _packet(packet: Packet | any[], opts: WriteOptions = {}): void {
+  _packet(packet: Packet | Packet[], opts: WriteOptions = {}): void {
     if (this.conn.readyState !== "open") {
       debug("ignoring packet write %j", packet);
       return;
     }
     const encodedPackets = opts.preEncoded
-      ? (packet as any[]) // previous versions of the adapter incorrectly used socket.packet() instead of writeToEngine()
+      ? (packet as Packet[]) // previous versions of the adapter incorrectly used socket.packet() instead of writeToEngine()
       : this.encoder.encode(packet as Packet);
     this.writeToEngine(encodedPackets, opts);
   }
@@ -250,7 +251,7 @@ export class Client<
    *
    * @private
    */
-  private ondata(data): void {
+  private ondata(data: unknown): void {
     // try/catch is needed for protocol violations (GH-1880)
     try {
       this.decoder.add(data);

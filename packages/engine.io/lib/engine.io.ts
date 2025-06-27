@@ -1,4 +1,4 @@
-import { createServer } from "http";
+import { createServer, Server as HttpServer } from "http";
 import { Server, AttachOptions, ServerOptions } from "./server";
 import transports from "./transports/index";
 import * as parser from "engine.io-parser";
@@ -11,17 +11,21 @@ export { Transport } from "./transport";
 export const protocol = parser.protocol;
 
 /**
- * Creates an http.Server exclusively used for WS upgrades.
+ * Creates an http.Server exclusively used for WS upgrades, and start listening.
  *
- * @param {Number} port
- * @param {Function} callback
- * @param {Object} options
- * @return {Server} websocket.io server
+ * @param port
+ * @param options
+ * @param listenCallback callback for http.Server.listen()
+ * @return engine.io server
  */
 
-function listen(port, options: AttachOptions & ServerOptions, fn) {
+function listen(
+  port: number,
+  options?: AttachOptions & ServerOptions,
+  listenCallback?: () => void,
+): Server {
   if ("function" === typeof options) {
-    fn = options;
+    listenCallback = options;
     options = {};
   }
 
@@ -34,7 +38,7 @@ function listen(port, options: AttachOptions & ServerOptions, fn) {
   const engine = attach(server, options);
   engine.httpServer = server;
 
-  server.listen(port, fn);
+  server.listen(port, listenCallback);
 
   return engine;
 }
@@ -42,12 +46,12 @@ function listen(port, options: AttachOptions & ServerOptions, fn) {
 /**
  * Captures upgrade requests for a http.Server.
  *
- * @param {http.Server} server
- * @param {Object} options
- * @return {Server} engine server
+ * @param server
+ * @param options
+ * @return engine.io server
  */
 
-function attach(server, options: AttachOptions & ServerOptions) {
+function attach(server: HttpServer, options: AttachOptions & ServerOptions): Server {
   const engine = new Server(options);
   engine.attach(server, options);
   return engine;

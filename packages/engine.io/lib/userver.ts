@@ -2,6 +2,7 @@ import debugModule from "debug";
 import { AttachOptions, BaseServer, Server } from "./server";
 import { HttpRequest, HttpResponse, TemplatedApp } from "uWebSockets.js";
 import transports from "./transports-uws";
+import { EngineRequest } from "./transport";
 
 const debug = debugModule("engine:uws");
 
@@ -36,7 +37,7 @@ export class uServer extends BaseServer {
    *
    * @private
    */
-  private prepare(req, res: HttpResponse) {
+  private prepare(req: HttpRequest & EngineRequest, res: HttpResponse) {
     req.method = req.getMethod().toUpperCase();
     req.url = req.getUrl();
 
@@ -48,6 +49,7 @@ export class uServer extends BaseServer {
       req.headers[key] = value;
     });
 
+    // @ts-expect-error
     req.connection = {
       remoteAddress: Buffer.from(res.getRemoteAddressAsText()).toString(),
     };
@@ -57,7 +59,7 @@ export class uServer extends BaseServer {
     });
   }
 
-  protected createTransport(transportName, req) {
+  protected createTransport(transportName: string, req: EngineRequest) {
     return new transports[transportName](req);
   }
 
@@ -238,8 +240,8 @@ export class uServer extends BaseServer {
 
   private abortRequest(
     res: HttpResponse | ResponseWrapper,
-    errorCode,
-    errorContext,
+    errorCode: number,
+    errorContext?: {message?: string},
   ) {
     const statusCode =
       errorCode === Server.errors.FORBIDDEN
