@@ -1,6 +1,11 @@
 import { EventEmitter } from "events";
 import { yeast } from "./contrib/yeast";
-import type {Namespace, Socket} from 'socket.io';
+
+// due to build order and circular dependencies, we cannot import these types directly
+// import type {Namespace, Socket} from 'socket.io';
+type Namespace = any;
+type Socket = any;
+
 import * as WebSocket from 'ws';
 
 // @ts-expect-error
@@ -172,13 +177,10 @@ export class Adapter extends EventEmitter {
     const encodedPackets = this._encode(packet, packetOpts);
 
     this.apply(opts, (socket) => {
-      // @ts-expect-error use of private
       if (typeof socket.notifyOutgoingListeners === "function") {
-        // @ts-expect-error use of private
         socket.notifyOutgoingListeners(packet);
       }
 
-      // @ts-expect-error use of private
       socket.client.writeToEngine(encodedPackets, packetOpts);
     });
   }
@@ -223,16 +225,12 @@ export class Adapter extends EventEmitter {
       // track the total number of acknowledgements that are expected
       clientCount++;
       // call the ack callback for each client response
-      // @ts-expect-error use of private
       socket.acks.set(packet.id, ack);
 
-      // @ts-expect-error use of private
       if (typeof socket.notifyOutgoingListeners === "function") {
-        // @ts-expect-error use of private
         socket.notifyOutgoingListeners(packet);
       }
 
-      // @ts-expect-error use of private
       socket.client.writeToEngine(encodedPackets, packetOpts);
     });
 

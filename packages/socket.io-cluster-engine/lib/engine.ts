@@ -1,4 +1,4 @@
-import { Server, type ServerOptions, Socket, type Transport } from "engine.io";
+import { Server, type ServerOptions, type ErrorCallback, Socket, type Transport } from "engine.io";
 import { randomBytes } from "node:crypto";
 import { setTimeout, clearTimeout } from "node:timers";
 import { type IncomingMessage } from "node:http";
@@ -392,9 +392,9 @@ export abstract class ClusterEngine extends Server {
   override verify(
     req: IncomingMessage & { _query: Record<string, string> },
     upgrade: boolean,
-    fn: (errorCode?: number, context?: any) => void,
+    fn: ErrorCallback
   ): void {
-    super.verify(req, upgrade, (errorCode: number, errorContext: any) => {
+    super.verify(req, upgrade, (errorCode, errorContext) => {
       if (errorCode !== Server.errors.UNKNOWN_SID) {
         return fn(errorCode, errorContext);
       }
@@ -412,7 +412,7 @@ export abstract class ClusterEngine extends Server {
           req[kSenderId] = senderId;
           fn();
         } else {
-          const transport = this.createTransport(transportName, req);
+          const transport = this.createTransport(transportName as any, req);
           this._hookTransport(sid, transport, lockType, senderId);
           transport.onRequest(req);
         }

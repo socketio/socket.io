@@ -4,7 +4,7 @@ import transports from "./transports/index";
 import * as parser from "engine.io-parser";
 
 export { Server, transports, listen, attach, parser };
-export type { AttachOptions, ServerOptions, BaseServer } from "./server";
+export type { AttachOptions, ServerOptions, BaseServer, ErrorCallback } from "./server";
 export { uServer } from "./userver";
 export { Socket } from "./socket";
 export { Transport } from "./transport";

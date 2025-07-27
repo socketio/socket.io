@@ -472,7 +472,7 @@ export abstract class BaseServer extends EventEmitter {
     debug('handshaking client "%s"', id);
 
     try {
-      var transport = this.createTransport(transportName, req);
+      var transport = this.createTransport(transportName as Transport, req);
       if ("polling" === transportName) {
         transport.maxHttpBufferSize = this.opts.maxHttpBufferSize;
         transport.httpCompression = this.opts.httpCompression;
@@ -878,7 +878,7 @@ export class Server extends BaseServer {
         websocket.removeListener("error", onUpgradeError);
 
         const transport: TransportImpl = this.createTransport(
-          req._query.transport,
+          req._query.transport as Transport,
           req
         );
         // @ts-expect-error this option is only for WebSocket impl
