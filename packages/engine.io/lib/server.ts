@@ -609,7 +609,10 @@ export abstract class BaseServer extends EventEmitter {
     }
   }
 
-  protected abstract createTransport(transportName: Transport, req: EngineRequest);
+  protected abstract createTransport(
+    transportName: Transport,
+    req: EngineRequest,
+  );
 
   /**
    * Protocol errors mappings.
@@ -879,7 +882,7 @@ export class Server extends BaseServer {
 
         const transport: TransportImpl = this.createTransport(
           req._query.transport as Transport,
-          req
+          req,
         );
         // @ts-expect-error this option is only for WebSocket impl
         transport.perMessageDeflate = this.opts.perMessageDeflate;

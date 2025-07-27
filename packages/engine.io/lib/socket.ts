@@ -538,7 +538,9 @@ export class Socket extends EventEmitter {
    */
   private getAvailableUpgrades() {
     const availableUpgrades = [];
-    const allUpgrades = this.server.upgrades(this.transport.name as keyof typeof transports);
+    const allUpgrades = this.server.upgrades(
+      this.transport.name as keyof typeof transports,
+    );
     for (let i = 0; i < allUpgrades.length; ++i) {
       const upg = allUpgrades[i] as keyof typeof transports;
       if (this.server.opts.transports.indexOf(upg) !== -1) {

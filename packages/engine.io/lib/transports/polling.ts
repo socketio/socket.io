@@ -235,7 +235,11 @@ export class Polling extends Transport {
     };
 
     if (this.protocol === 3) {
-      (this.parser as typeof parser_v3).encodePayload(packets, this.supportsBinary, doWrite);
+      (this.parser as typeof parser_v3).encodePayload(
+        packets,
+        this.supportsBinary,
+        doWrite,
+      );
     } else {
       (this.parser as typeof parser_v4).encodePayload(packets, doWrite);
     }

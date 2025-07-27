@@ -4,7 +4,12 @@ import transports from "./transports/index";
 import * as parser from "engine.io-parser";
 
 export { Server, transports, listen, attach, parser };
-export type { AttachOptions, ServerOptions, BaseServer, ErrorCallback } from "./server";
+export type {
+  AttachOptions,
+  ServerOptions,
+  BaseServer,
+  ErrorCallback,
+} from "./server";
 export { uServer } from "./userver";
 export { Socket } from "./socket";
 export { Transport } from "./transport";
@@ -51,7 +56,10 @@ function listen(
  * @return engine.io server
  */
 
-function attach(server: HttpServer, options: AttachOptions & ServerOptions): Server {
+function attach(
+  server: HttpServer,
+  options: AttachOptions & ServerOptions,
+): Server {
   const engine = new Server(options);
   engine.attach(server, options);
   return engine;

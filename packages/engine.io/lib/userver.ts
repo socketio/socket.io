@@ -125,7 +125,7 @@ export class uServer extends BaseServer {
     req: HttpRequest & { res: any; _query: any },
   ) {
     debug('handling "%s" http request "%s"', req.getMethod(), req.getUrl());
-    this.prepare(req as unknown as (HttpRequest & EngineRequest), res);
+    this.prepare(req as unknown as HttpRequest & EngineRequest, res);
 
     req.res = res;
 
@@ -148,7 +148,11 @@ export class uServer extends BaseServer {
       } else {
         const closeConnection = (errorCode, errorContext) =>
           this.abortRequest(res, errorCode, errorContext);
-        this.handshake(req._query.transport, req as unknown as EngineRequest, closeConnection);
+        this.handshake(
+          req._query.transport,
+          req as unknown as EngineRequest,
+          closeConnection,
+        );
       }
     };
 
@@ -156,7 +160,11 @@ export class uServer extends BaseServer {
       if (err) {
         callback(Server.errors.BAD_REQUEST, { name: "MIDDLEWARE_FAILURE" });
       } else {
-        this.verify(req as unknown as (HttpRequest & EngineRequest), false, callback);
+        this.verify(
+          req as unknown as HttpRequest & EngineRequest,
+          false,
+          callback,
+        );
       }
     });
   }
@@ -168,7 +176,7 @@ export class uServer extends BaseServer {
   ) {
     debug("on upgrade");
 
-    this.prepare(req as unknown as (HttpRequest & EngineRequest),  res);
+    this.prepare(req as unknown as HttpRequest & EngineRequest, res);
 
     req.res = res;
 
@@ -200,7 +208,10 @@ export class uServer extends BaseServer {
           return res.close();
         } else {
           debug("upgrading existing transport");
-          transport = this.createTransport(req._query.transport, req as unknown as EngineRequest);
+          transport = this.createTransport(
+            req._query.transport,
+            req as unknown as EngineRequest,
+          );
           client._maybeUpgrade(transport);
         }
       } else {
@@ -241,7 +252,7 @@ export class uServer extends BaseServer {
   private abortRequest(
     res: HttpResponse | ResponseWrapper,
     errorCode: number,
-    errorContext?: {message?: string},
+    errorContext?: { message?: string },
   ) {
     const statusCode =
       errorCode === Server.errors.FORBIDDEN

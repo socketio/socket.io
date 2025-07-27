@@ -6,7 +6,7 @@ import { yeast } from "./contrib/yeast";
 type Namespace = any;
 type Socket = any;
 
-import * as WebSocket from 'ws';
+import * as WebSocket from "ws";
 
 // @ts-expect-error
 const canPreComputeFrame = typeof WebSocket?.Sender?.frame === "function";
@@ -336,7 +336,10 @@ export class Adapter extends EventEmitter {
     });
   }
 
-  private apply(opts: BroadcastOptions, callback: (socket: Socket) => void): void {
+  private apply(
+    opts: BroadcastOptions,
+    callback: (socket: Socket) => void,
+  ): void {
     const rooms = opts.rooms;
     const except = this.computeExceptSids(opts.except);
 

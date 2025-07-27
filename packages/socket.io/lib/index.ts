@@ -1,4 +1,4 @@
-import http from 'http';
+import http from "http";
 import type { Server as HTTPSServer } from "https";
 import type { Http2SecureServer, Http2Server } from "http2";
 import { createReadStream } from "fs";
@@ -7,7 +7,11 @@ import accepts = require("accepts");
 import { pipeline } from "stream";
 import path = require("path");
 import { attach, Server as Engine, uServer } from "engine.io";
-import type { ServerOptions as EngineOptions, AttachOptions, Socket as RawSocket } from "engine.io";
+import type {
+  ServerOptions as EngineOptions,
+  AttachOptions,
+  Socket as RawSocket,
+} from "engine.io";
 import { Client } from "./client";
 import { EventEmitter } from "events";
 import { ExtendedError, Namespace, ServerReservedEventsMap } from "./namespace";

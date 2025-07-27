@@ -1,7 +1,7 @@
 import { EngineRequest, Transport } from "../transport";
 import debugModule from "debug";
 import type { Packet, RawData } from "engine.io-parser";
-import type { PerMessageDeflateOptions, WebSocket as WsWebSocket } from 'ws';
+import type { PerMessageDeflateOptions, WebSocket as WsWebSocket } from "ws";
 
 const debug = debugModule("engine:ws");
 
