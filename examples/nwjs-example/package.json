@@ -1,7 +1,0 @@
-{
-  "name": "helloworld",
-  "main": "index.html",
-  "dependencies": {
-    "socket.io-client": "^4.7.5"
-  }
-}
