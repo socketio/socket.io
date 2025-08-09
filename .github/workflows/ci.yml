@@ -22,7 +22,7 @@ jobs:
         node-version:
           - 18
           - 20
-          - 22
+          - 22.17.1 # experimental TS type striping in 22.18.0 breaks the build
 
     services:
       redis:
