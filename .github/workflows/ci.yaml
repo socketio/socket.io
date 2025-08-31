@@ -1,0 +1,23 @@
+name: Continuos integration
+on:
+  pull-request:
+    branches:
+      - main
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Testing at first stage
+        run: npm run test
+        shell: bash
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Linting for code
+        run : npm run lint
+        shell: bash
+
+    
+
+
+  
