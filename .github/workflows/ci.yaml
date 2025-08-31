@@ -4,6 +4,17 @@ on:
     branches:
       - main
 jobs:
+  checkout:
+    - name: Code checkout
+      uses: actions/checkout@v4
+  node-setup:
+    - name: nodejs setup
+      uses: actions/setup-node@v4
+      with:
+        node-version: 16
+  Compile:
+    - name: compiling code
+      run: npm run compile
   testing:
     runs-on: ubuntu-latest
     steps:
