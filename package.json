@@ -10,7 +10,6 @@
     "events",
     "socket",
     "io"  
-    
   ],
   "files": [
     "dist/",
