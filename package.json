@@ -11,6 +11,7 @@
     "packages/socket.io-parser",
     "packages/socket.io-client",
     "packages/socket.io"
+    
   ],
   "overrides": {
     "@types/estree": "0.0.52",
