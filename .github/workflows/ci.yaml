@@ -8,13 +8,17 @@ jobs:
     - name: Code checkout
       uses: actions/checkout@v4
   node-setup:
-    - name: nodejs setup
-      uses: actions/setup-node@v4
-      with:
-        node-version: 16
+    runs-on: ubuntu-latest
+    steps:
+      - name: nodejs setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16
   Compile:
-    - name: compiling code
-      run: npm run compile
+    runs-on: ubuntu-latest
+    steps:
+      - name: compiling code
+        run: npm run compile
   testing:
     runs-on: ubuntu-latest
     steps:
