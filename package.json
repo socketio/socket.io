@@ -36,6 +36,7 @@
     "type": "git",
     "url": "git://github.com/socketio/socket.io"
   },
+  
   "scripts": {
     "compile": "rimraf ./dist && tsc",
     "test": "npm run format:check && npm run compile && npm run test:types && npm run test:unit",
