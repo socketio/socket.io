@@ -16,19 +16,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 16
+    needs: checkout
   Compile:
     runs-on: ubuntu-latest
     steps:
       - name: compiling code
         run: npm run compile
+    needs: node-setup
   testing:
     runs-on: ubuntu-latest
     steps:
       - name: Testing at first stage
         run: npm run test
         shell: bash
+    needs:  Compile
   linting:
     runs-on: ubuntu-latest
+    needs: testing
     steps:
       - name: Linting for code
         run : npm run lint
