@@ -5,8 +5,10 @@ on:
       - main
 jobs:
   checkout:
-    - name: Code checkout
-      uses: actions/checkout@v4
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
   node-setup:
     runs-on: ubuntu-latest
     steps:
