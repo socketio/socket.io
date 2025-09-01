@@ -47,9 +47,9 @@ describe("timeout", () => {
     });
 
     io.on("connection", (socket) => {
-      socket.timeout(50).emit("echo", 42, (err, value) => {
+      socket.timeout(50).emit("echo", 40, (err, value) => {
         expect(err).to.be(null);
-        expect(value).to.be(42);
+        expect(value).to.be(40);
         success(done, io, client);
       });
     });
