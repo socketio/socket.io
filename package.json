@@ -9,7 +9,8 @@
     "tcp",
     "events",
     "socket",
-    "io"  
+    "io" 
+    
   ],
   "files": [
     "dist/",
