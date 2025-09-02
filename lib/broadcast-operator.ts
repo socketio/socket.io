@@ -9,6 +9,7 @@ import type {
   TypedEventBroadcaster,
 } from "./typed-events";
 
+
 export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
   implements TypedEventBroadcaster<EmitEvents>
 {
