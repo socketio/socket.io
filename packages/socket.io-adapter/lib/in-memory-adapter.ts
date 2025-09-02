@@ -90,14 +90,14 @@ export class Adapter extends EventEmitter {
     }
 
     for (const room of rooms) {
-      this.sids.get(id).add(room);
+      this.sids.get(id)!.add(room);
 
       if (!this.rooms.has(room)) {
         this.rooms.set(room, new Set());
         this.emit("create-room", room);
       }
-      if (!this.rooms.get(room).has(id)) {
-        this.rooms.get(room).add(id);
+      if (!this.rooms.get(room)!.has(id)) {
+        this.rooms.get(room)!.add(id);
         this.emit("join-room", room, id);
       }
     }
@@ -111,7 +111,7 @@ export class Adapter extends EventEmitter {
    */
   public del(id: SocketId, room: Room): Promise<void> | void {
     if (this.sids.has(id)) {
-      this.sids.get(id).delete(room);
+      this.sids.get(id)!.delete(room);
     }
 
     this._del(room, id);
@@ -140,7 +140,7 @@ export class Adapter extends EventEmitter {
       return;
     }
 
-    for (const room of this.sids.get(id)) {
+    for (const room of this.sids.get(id)!) {
       this._del(room, id);
     }
 
@@ -284,14 +284,14 @@ export class Adapter extends EventEmitter {
    *
    * @param opts - the filters to apply
    */
-  public fetchSockets(opts: BroadcastOptions): Promise<any[]> {
-    const sockets = [];
+  public async fetchSockets(opts: BroadcastOptions) {
+    const sockets: unknown[] = [];
 
     this.apply(opts, (socket) => {
       sockets.push(socket);
     });
 
-    return Promise.resolve(sockets);
+    return sockets;
   }
 
   /**
@@ -339,7 +339,7 @@ export class Adapter extends EventEmitter {
       for (const room of rooms) {
         if (!this.rooms.has(room)) continue;
 
-        for (const id of this.rooms.get(room)) {
+        for (const id of this.rooms.get(room)!) {
           if (ids.has(id) || except.has(id)) continue;
           const socket = this.nsp.sockets.get(id);
           if (socket) {
@@ -362,7 +362,7 @@ export class Adapter extends EventEmitter {
     if (exceptRooms && exceptRooms.size > 0) {
       for (const room of exceptRooms) {
         if (this.rooms.has(room)) {
-          this.rooms.get(room).forEach((sid) => exceptSids.add(sid));
+          this.rooms.get(room)!.forEach((sid) => exceptSids.add(sid));
         }
       }
     }

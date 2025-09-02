@@ -9,6 +9,3 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 else
     sed -i -e '/debug(/d' ./build/esm/*.js
 fi
-
-# for backward compatibility with `const socket = require("socket.io-client")(...)`
-echo -e '\nmodule.exports = lookup;' >> ./build/cjs/index.js

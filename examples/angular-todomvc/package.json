@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "start:server": "ts-node -O '{\"module\":\"commonjs\"}' server.ts"
+    "start:server": "ts-node server.ts"
   },
   "private": true,
   "dependencies": {

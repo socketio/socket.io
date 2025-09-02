@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
-    "outDir": "build/cjs/",
-    "target": "es2018", // Node.js 10 (https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping)
-    "module": "commonjs",
+    "outDir": "build/esm/",
+    "target": "es2023",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "declaration": true,
-    "esModuleInterop": true
+    "strict": true,
+    "checkJs": true
   },
   "include": [
     "./lib/**/*"

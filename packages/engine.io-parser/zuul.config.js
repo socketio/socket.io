@@ -1,6 +1,6 @@
 "use strict";
 
-const browsers = require("socket.io-browsers");
+import { pullRequest, all } from "socket.io-browsers";
 
 const zuulConfig = (module.exports = {
   ui: "mocha-bdd",
@@ -20,7 +20,7 @@ const zuulConfig = (module.exports = {
   browserify: [
     {
       plugin: ["tsify", {
-        target: "es5"
+        target: "es2023"
       }],
       transform: {
         name: "babelify",
@@ -41,4 +41,4 @@ if (process.env.CI === "true") {
 const isPullRequest =
   process.env.TRAVIS_PULL_REQUEST &&
   process.env.TRAVIS_PULL_REQUEST !== "false";
-zuulConfig.browsers = isPullRequest ? browsers.pullRequest : browsers.all;
+zuulConfig.browsers = isPullRequest ? pullRequest : all;

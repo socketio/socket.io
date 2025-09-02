@@ -8,9 +8,9 @@
       "emitter/index.js": "index.js"
     }
   },
-  "main": "./lib/cjs/index.js",
+  "type": "module",
   "module": "./lib/esm/index.js",
-  "types": "./lib/cjs/index.d.ts",
+  "types": "./lib/esm/index.d.ts",
   "homepage": "https://github.com/socketio/socket.io/tree/main/packages/socket.io-component-emitter#readme",
   "repository": {
     "type": "git",

@@ -78,7 +78,7 @@ export function createPacketEncoderStream(): any {
   });
 }
 
-let TEXT_DECODER;
+let TEXT_DECODER: TextDecoder | undefined;
 
 function totalLength(chunks: Uint8Array[]) {
   return chunks.reduce((acc, chunk) => acc + chunk.length, 0);

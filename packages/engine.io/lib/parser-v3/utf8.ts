@@ -1,3 +1,4 @@
+// @ts-nocheck
 /*! https://mths.be/utf8js v2.1.2 by @mathias */
 
 var stringFromCharCode = String.fromCharCode;
@@ -208,3 +209,5 @@ module.exports = {
 	encode: utf8encode,
 	decode: utf8decode
 };
+
+// @ts-check

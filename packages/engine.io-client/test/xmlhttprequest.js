@@ -1,9 +1,9 @@
-const expect = require("expect.js");
-const { newRequest } = require("../build/cjs/transports/polling-xhr.node.js");
-const env = require("./support/env");
+import expect from "expect.js";
+import { newRequest } from "../build/esm/transports/polling-xhr.node.js";
+import { isIE9, isIE10, isIE11 } from "./support/env";
 
 describe("XMLHttpRequest", () => {
-  if (env.isIE9) {
+  if (isIE9) {
     describe("IE8_9", () => {
       context("when xdomain is false", () => {
         it("should have same properties as XMLHttpRequest does", () => {
@@ -98,7 +98,7 @@ describe("XMLHttpRequest", () => {
     });
   }
 
-  if (env.isIE10 || env.isIE11) {
+  if (isIE10 || isIE11) {
     describe("IE10_11", () => {
       context("when enablesXDR is true and xscheme is false", () => {
         it("should have same properties as XMLHttpRequest does", () => {

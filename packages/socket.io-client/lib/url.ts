@@ -19,7 +19,7 @@ type ParsedUrl = {
   query: string;
   anchor: string;
   pathNames: Array<string>;
-  queryKey: { [key: string]: string };
+  queryKey: Record<string, string>;
 
   // Custom properties (not native to parseuri):
   id: string;
@@ -44,7 +44,7 @@ export function url(
   let obj = uri as ParsedUrl;
 
   // default to window.location
-  loc = loc || (typeof location !== "undefined" && location);
+  loc = loc ?? location;
   if (null == uri) uri = loc.protocol + "//" + loc.host;
 
   // relative path support

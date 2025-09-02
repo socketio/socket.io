@@ -1,16 +1,26 @@
-const PACKET_TYPES = Object.create(null); // no Map = no polyfill
-PACKET_TYPES["open"] = "0";
-PACKET_TYPES["close"] = "1";
-PACKET_TYPES["ping"] = "2";
-PACKET_TYPES["pong"] = "3";
-PACKET_TYPES["message"] = "4";
-PACKET_TYPES["upgrade"] = "5";
-PACKET_TYPES["noop"] = "6";
+const PACKET_TYPES = {
+  open: "0",
+  close: "1",
+  ping: "2",
+  pong: "3",
+  message: "4",
+  upgrade: "5",
+  noop: "6",
+} as const;
 
-const PACKET_TYPES_REVERSE = Object.create(null);
-Object.keys(PACKET_TYPES).forEach((key) => {
-  PACKET_TYPES_REVERSE[PACKET_TYPES[key]] = key;
-});
+type ReverseMap<T extends Record<keyof T, keyof any>> = {
+  [K in keyof T as T[K]]: K;
+};
+
+const PACKET_TYPES_REVERSE = {
+  "0": "open",
+  "1": "close",
+  "2": "ping",
+  "3": "pong",
+  "4": "message",
+  "5": "upgrade",
+  "6": "noop",
+} as const satisfies ReverseMap<typeof PACKET_TYPES>;
 
 const ERROR_PACKET: Packet = { type: "error", data: "parser error" };
 
@@ -26,9 +36,7 @@ export type PacketType =
   | "noop"
   | "error";
 
-// RawData should be "string | Buffer | ArrayBuffer | ArrayBufferView | Blob", but Blob does not exist in Node.js and
-// requires to add the dom lib in tsconfig.json
-export type RawData = any;
+export type RawData = string | Buffer | ArrayBuffer | ArrayBufferView | Blob;
 
 export interface Packet {
   type: PacketType;

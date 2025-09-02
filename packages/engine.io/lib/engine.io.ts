@@ -58,7 +58,7 @@ function listen(
 
 function attach(
   server: HttpServer,
-  options: AttachOptions & ServerOptions,
+  options?: AttachOptions & ServerOptions,
 ): Server {
   const engine = new Server(options);
   engine.attach(server, options);

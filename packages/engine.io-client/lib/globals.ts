@@ -1,23 +1,11 @@
 export const nextTick = (() => {
-  const isPromiseAvailable =
-    typeof Promise === "function" && typeof Promise.resolve === "function";
-  if (isPromiseAvailable) {
-    return (cb) => Promise.resolve().then(cb);
-  } else {
-    return (cb, setTimeoutFn) => setTimeoutFn(cb, 0);
-  }
+    return (cb: CallbackFn) => Promise.resolve().then(cb);
 })();
 
-export const globalThisShim = (() => {
-  if (typeof self !== "undefined") {
-    return self;
-  } else if (typeof window !== "undefined") {
-    return window;
-  } else {
-    return Function("return this")();
-  }
-})();
+export const globalThisShim = globalThis;
 
 export const defaultBinaryType = "arraybuffer";
 
 export function createCookieJar() {}
+
+type CallbackFn = () => void;

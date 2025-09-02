@@ -1,7 +1,5 @@
-import * as XMLHttpRequestModule from "xmlhttprequest-ssl";
+import XMLHttpRequest from "xmlhttprequest-ssl";
 import { BaseXHR, Request, RequestOptions } from "./polling-xhr.js";
-
-const XMLHttpRequest = XMLHttpRequestModule.default || XMLHttpRequestModule;
 
 /**
  * HTTP long-polling based on the `XMLHttpRequest` object provided by the `xmlhttprequest-ssl` package.
@@ -12,11 +10,7 @@ const XMLHttpRequest = XMLHttpRequestModule.default || XMLHttpRequestModule;
  */
 export class XHR extends BaseXHR {
   request(opts: Record<string, any> = {}) {
-    Object.assign(
-      opts,
-      { xd: this.xd, cookieJar: this.socket?._cookieJar },
-      this.opts,
-    );
+    opts = { ...opts, xd: this.xd, cookieJar: this.socket?._cookieJar, ...this.opts };
     return new Request(
       (opts) => new XMLHttpRequest(opts),
       this.uri(),

@@ -59,7 +59,7 @@ export class uServer extends BaseServer {
     });
   }
 
-  protected createTransport(transportName: string, req: EngineRequest) {
+  protected createTransport(transportName: keyof typeof transports, req: EngineRequest) {
     return new transports[transportName](req);
   }
 
@@ -69,7 +69,7 @@ export class uServer extends BaseServer {
    * @param options
    */
   public attach(
-    app /* : TemplatedApp */,
+    app: TemplatedApp,
     options: AttachOptions & uOptions = {},
   ) {
     const path = this._computePath(options);
@@ -129,7 +129,7 @@ export class uServer extends BaseServer {
 
     req.res = res;
 
-    const callback = (errorCode, errorContext) => {
+    const callback = (errorCode: number | undefined, errorContext: any) => {
       if (errorCode !== undefined) {
         this.emit("connection_error", {
           req,
@@ -146,7 +146,7 @@ export class uServer extends BaseServer {
         // @ts-ignore
         this.clients[req._query.sid].transport.onRequest(req);
       } else {
-        const closeConnection = (errorCode, errorContext) =>
+        const closeConnection = (errorCode: number, errorContext: any) =>
           this.abortRequest(res, errorCode, errorContext);
         this.handshake(
           req._query.transport,

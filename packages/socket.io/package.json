@@ -23,7 +23,7 @@
     "lib": "lib/",
     "test": "test/"
   },
-  "type": "commonjs",
+  "type": "module",
   "main": "./dist/index.js",
   "exports": {
     "types": "./dist/index.d.ts",
@@ -77,7 +77,7 @@
     }
   ],
   "engines": {
-    "node": ">=10.2.0"
+    "node": ">=20"
   },
   "tsd": {
     "directory": "test"

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // imported from https://github.com/socketio/engine.io-parser/tree/2.2.x
 
 /**
@@ -483,3 +484,5 @@ export function decodePayloadAsBinary (data, binaryType, callback) {
     callback(decodePacket(buffer, binaryType, true), i, total);
   }
 };
+
+// @ts-check
