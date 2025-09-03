@@ -9,10 +9,7 @@ jobs:
     steps:
       - name: Code checkout
         uses: actions/checkout@v4
-  node-setup:
-    runs-on: ubuntu-latest
-    needs: checkout
-    steps:
+
       - name: nodejs setup
         uses: actions/setup-node@v4
         with:
