@@ -1,4 +1,4 @@
-import { Transport } from "../transport.js";
+import { Transport, TransportError } from "../transport.js";
 import { pick, randomString } from "../util.js";
 import { encodePacket } from "engine.io-parser";
 import type { Packet, RawData } from "engine.io-parser";
@@ -53,7 +53,7 @@ export abstract class BaseWS extends Transport {
     try {
       this.ws = this.createSocket(uri, protocols, opts);
     } catch (err) {
-      return this.emitReserved("error", err);
+      return this.emitReserved("error", err as TransportError);
     }
 
     this.ws.binaryType = this.socket.binaryType;
@@ -65,7 +65,7 @@ export abstract class BaseWS extends Transport {
     uri: string,
     protocols: string | string[] | undefined,
     opts: Record<string, any>,
-  );
+  ): WebSocket;
 
   /**
    * Adds event listeners to the socket
@@ -79,16 +79,16 @@ export abstract class BaseWS extends Transport {
       }
       this.onOpen();
     };
-    this.ws.onclose = (closeEvent) =>
+    this.ws.onclose = (closeEvent: CloseEvent) =>
       this.onClose({
         description: "websocket connection closed",
         context: closeEvent,
       });
-    this.ws.onmessage = (ev) => this.onData(ev.data);
-    this.ws.onerror = (e) => this.onError("websocket error", e);
+    this.ws.onmessage = (ev: MessageEvent) => this.onData(ev.data);
+    this.ws.onerror = (e: ErrorEvent) => this.onError("websocket error", e);
   }
 
-  override write(packets) {
+  override write(packets: Packet[]) {
     this.writable = false;
 
     // encodePacket efficient as it uses WS framing
@@ -119,7 +119,7 @@ export abstract class BaseWS extends Transport {
     }
   }
 
-  abstract doWrite(packet: Packet, data: RawData);
+  abstract doWrite(packet: Packet, data: RawData): void;
 
   override doClose() {
     if (typeof this.ws !== "undefined") {
@@ -152,7 +152,7 @@ export abstract class BaseWS extends Transport {
   }
 }
 
-const WebSocketCtor = globalThis.WebSocket || globalThis.MozWebSocket;
+const WebSocketCtor = globalThis.WebSocket;
 
 /**
  * WebSocket transport based on the built-in `WebSocket` object.

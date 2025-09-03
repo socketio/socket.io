@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "target": "es2017",
-    "module": "commonjs",
+    "target": "es2023",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "declaration": true,
     "esModuleInterop": true,
 
@@ -14,6 +15,7 @@
     "noImplicitThis": false,
     "strictPropertyInitialization": false,
     "noImplicitReturns": true,
+    "checkJs": true
   },
   "include": [
     "./lib/**/*"

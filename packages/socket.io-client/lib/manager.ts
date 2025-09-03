@@ -119,7 +119,7 @@ export class Manager<
   /**
    * @private
    */
-  _reconnecting: boolean;
+  _reconnecting?: boolean;
 
   private readonly uri: string;
   public opts: Partial<ManagerOptions>;
@@ -332,7 +332,7 @@ export class Manager<
       fn && fn();
     });
 
-    const onError = (err) => {
+    const onError = (err: Error) => {
       debug("error");
       this.cleanup();
       this._readyState = "closed";
@@ -426,7 +426,7 @@ export class Manager<
    *
    * @private
    */
-  private ondata(data): void {
+  private ondata(data: any): void {
     try {
       this.decoder.add(data);
     } catch (e) {
@@ -439,7 +439,7 @@ export class Manager<
    *
    * @private
    */
-  private ondecoded(packet): void {
+  private ondecoded(packet: parser.Packet): void {
     // the nextTick call prevents an exception in a user-provided event listener from triggering a disconnection due to a "parse error"
     nextTick(() => {
       this.emitReserved("packet", packet);
@@ -451,7 +451,7 @@ export class Manager<
    *
    * @private
    */
-  private onerror(err): void {
+  private onerror(err: Error): void {
     debug("error", err);
     this.emitReserved("error", err);
   }

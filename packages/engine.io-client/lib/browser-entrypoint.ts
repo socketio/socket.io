@@ -1,3 +1,3 @@
-import { Socket } from "./socket.js";
+import { Socket, SocketOptions } from "./socket.js";
 
-export default (uri, opts) => new Socket(uri, opts);
+export default (uri: string, opts: SocketOptions) => new Socket(uri, opts);

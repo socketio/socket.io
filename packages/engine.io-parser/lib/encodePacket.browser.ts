@@ -60,7 +60,7 @@ function toArray(data: BufferSource) {
   }
 }
 
-let TEXT_ENCODER;
+let TEXT_ENCODER: TextEncoder | undefined;
 
 export function encodePacketToBinary(
   packet: Packet,

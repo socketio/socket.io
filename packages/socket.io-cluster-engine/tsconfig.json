@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "module": "node16",
-    "target": "ES2022",
+    "module": "esnext",
+    "target": "ES2023",
+    "moduleResolution": "bundler",
     "declaration": true,
-    "strict": false
+    "strict": false,
+    "checkJs": true
   },
   "include": [
     "./lib/**/*"

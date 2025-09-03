@@ -1,14 +1,14 @@
-const path = require("path");
-const { exec } = require("child_process");
-const { Socket } = require("../");
-const { repeat } = require("./util");
-const expect = require("expect.js");
-const { parse } = require("../build/cjs/globals.node.js");
+import { join } from "path";
+import { exec } from "child_process";
+import { Socket } from "../";
+import { repeat } from "./util";
+import expect from "expect.js";
+import { parse } from "../build/esm/globals.node.js";
 
 describe("node.js", () => {
   describe("autoRef option", () => {
     const fixture = (filename) =>
-      process.execPath + " " + path.join(__dirname, "fixtures", filename);
+      process.execPath + " " + join(__dirname, "fixtures", filename);
 
     it("should stop once the timer is triggered", (done) => {
       exec(fixture("unref.js"), done);

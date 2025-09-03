@@ -3,9 +3,9 @@ import type { Server as HTTPSServer } from "https";
 import type { Http2SecureServer, Http2Server } from "http2";
 import { createReadStream } from "fs";
 import { createDeflate, createGzip, createBrotliCompress } from "zlib";
-import accepts = require("accepts");
+import accepts from "accepts";
 import { pipeline } from "stream";
-import path = require("path");
+import path from "node:path";
 import { attach, Server as Engine, uServer } from "engine.io";
 import type {
   ServerOptions as EngineOptions,

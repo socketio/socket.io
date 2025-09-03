@@ -1,78 +1,55 @@
 /**
  * Initialize backoff timer with `opts`.
- *
  * - `min` initial timeout in milliseconds [100]
  * - `max` max timeout [10000]
  * - `jitter` [0]
  * - `factor` [2]
- *
- * @param {Object} opts
- * @api public
  */
 
-export function Backoff(opts) {
-  opts = opts || {};
-  this.ms = opts.min || 100;
-  this.max = opts.max || 10000;
-  this.factor = opts.factor || 2;
-  this.jitter = opts.jitter > 0 && opts.jitter <= 1 ? opts.jitter : 0;
-  this.attempts = 0;
+type BackoffOptions = {
+  min?: number;
+  max?: number;
+  jitter?: number;
+  factor?: number;
 }
+export class Backoff {
+  ms: number;
+  max: number
+  factor: number
+  jitter: number
+  attempts: number
 
-/**
- * Return the backoff duration.
- *
- * @return {Number}
- * @api public
- */
-
-Backoff.prototype.duration = function(){
-  var ms = this.ms * Math.pow(this.factor, this.attempts++);
-  if (this.jitter) {
-    var rand =  Math.random();
-    var deviation = Math.floor(rand * this.jitter * ms);
-    ms = (Math.floor(rand * 10) & 1) == 0  ? ms - deviation : ms + deviation;
+  constructor(opts = {min: 100, max: 10000, factor: 2, jitter: 0} satisfies BackoffOptions) {
+    this.ms = opts.min;
+    this.max = opts.max;
+    this.factor = opts.factor;
+    this.jitter = opts.jitter > 0 && opts.jitter <= 1 ? opts.jitter : 0;
+    this.attempts = 0;
   }
-  return Math.min(ms, this.max) | 0;
-};
 
-/**
- * Reset the number of attempts.
- *
- * @api public
- */
+  duration() {
+    let ms = this.ms * Math.pow(this.factor, this.attempts++);
+    if (this.jitter) {
+      const rand =  Math.random();
+      const deviation = Math.floor(rand * this.jitter * ms);
+      ms = (Math.floor(rand * 10) & 1) == 0  ? ms - deviation : ms + deviation;
+    }
+    return Math.min(ms, this.max) | 0;
+  };
 
-Backoff.prototype.reset = function(){
-  this.attempts = 0;
-};
+  reset() {
+    this.attempts = 0;
+  }
 
-/**
- * Set the minimum duration
- *
- * @api public
- */
+  setMin(min: number) {
+    this.ms = min;
+  }
 
-Backoff.prototype.setMin = function(min){
-  this.ms = min;
-};
+  setMax(max: number) {
+    this.max = max;
+  }
 
-/**
- * Set the maximum duration
- *
- * @api public
- */
-
-Backoff.prototype.setMax = function(max){
-  this.max = max;
-};
-
-/**
- * Set the jitter
- *
- * @api public
- */
-
-Backoff.prototype.setJitter = function(jitter){
-  this.jitter = jitter;
-};
-
+  setJitter(jitter: number) {
+    this.jitter = jitter;
+  }
+}

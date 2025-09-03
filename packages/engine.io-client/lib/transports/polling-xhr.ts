@@ -23,7 +23,7 @@ export abstract class BaseXHR extends Polling {
    * @param {Object} opts
    * @package
    */
-  constructor(opts) {
+  constructor(opts: object) {
     super(opts);
 
     if (typeof location !== "undefined") {
@@ -56,7 +56,7 @@ export abstract class BaseXHR extends Polling {
    * @param {Function} called upon flush.
    * @private
    */
-  override doWrite(data, fn) {
+  override doWrite(data: string, fn) {
     const req = this.request({
       method: "POST",
       data: data,

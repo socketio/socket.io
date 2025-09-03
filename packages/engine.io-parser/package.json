@@ -3,15 +3,14 @@
   "description": "Parser for the client for the realtime Engine",
   "license": "MIT",
   "version": "5.2.3",
-  "main": "./build/cjs/index.js",
+  "type": "module",
   "module": "./build/esm/index.js",
   "exports": {
-    "import": "./build/esm/index.js",
-    "require": "./build/cjs/index.js"
+    "import": "./build/esm/index.js"
   },
   "types": "build/esm/index.d.ts",
   "scripts": {
-    "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && ./postcompile.sh",
+    "compile": "rimraf ./build && tsc && ./postcompile.sh",
     "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
     "test:node": "nyc mocha -r ts-node/register test/index.ts",
     "test:browser": "zuul test/index.ts --no-coverage",
@@ -33,11 +32,9 @@
   "browser": {
     "./test/node": "./test/browser",
     "./build/esm/encodePacket.js": "./build/esm/encodePacket.browser.js",
-    "./build/esm/decodePacket.js": "./build/esm/decodePacket.browser.js",
-    "./build/cjs/encodePacket.js": "./build/cjs/encodePacket.browser.js",
-    "./build/cjs/decodePacket.js": "./build/cjs/decodePacket.browser.js"
+    "./build/esm/decodePacket.js": "./build/esm/decodePacket.browser.js"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=20"
   }
 }

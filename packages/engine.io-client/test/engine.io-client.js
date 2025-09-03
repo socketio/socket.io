@@ -1,6 +1,6 @@
-const expect = require("expect.js");
-const { Socket, protocol } = require("..");
-const { randomString } = require("../build/cjs/util.js");
+import expect from "expect.js";
+import { Socket, protocol } from "..";
+import { randomString } from "../build/esm/util.js";
 
 const expectedPort =
   typeof location !== "undefined" && "https:" === location.protocol

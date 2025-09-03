@@ -40,7 +40,7 @@ export const decodePacket = (
       };
 };
 
-const decodeBase64Packet = (data, binaryType) => {
+const decodeBase64Packet = (data, binaryType: string) => {
   if (withNativeArrayBuffer) {
     const decoded = decode(data);
     return mapBinary(decoded, binaryType);
@@ -49,7 +49,7 @@ const decodeBase64Packet = (data, binaryType) => {
   }
 };
 
-const mapBinary = (data, binaryType) => {
+const mapBinary = (data: Blob | ArrayBuffer | Uint8Array , binaryType: string) => {
   switch (binaryType) {
     case "blob":
       if (data instanceof Blob) {
@@ -66,7 +66,7 @@ const mapBinary = (data, binaryType) => {
         return data;
       } else {
         // from WebTransport (Uint8Array)
-        return data.buffer;
+        return (data as Uint8Array).buffer;
       }
   }
 };

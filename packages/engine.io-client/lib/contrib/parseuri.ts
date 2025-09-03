@@ -17,7 +17,7 @@
  * @author Steven Levithan <stevenlevithan.com> (MIT license)
  * @api private
  */
-const re = /^(?:(?![^:@\/?#]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@\/?#]*)(?::([^:@\/?#]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+const re = /^(?:(?![^:@/?#]+:[^:@/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@/?#]*)(?::([^:@/?#]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#/]*\.[^?#/.]+(?:[?#]|$)))*\/?)?([^?#/]*))(?:\?([^#]*))?(?:#(.*))?)/;
 
 const parts = [
     'source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'
@@ -41,7 +41,7 @@ export function parse(str: string) {
         i = 14;
 
     while (i--) {
-        uri[parts[i]] = m[i] || '';
+        uri[parts[i]] = m?.[i] || '';
     }
 
     if (b != -1 && e != -1) {
@@ -57,7 +57,7 @@ export function parse(str: string) {
     return uri;
 }
 
-function pathNames(obj, path) {
+function pathNames(_obj: unknown, path: string) {
     const regx = /\/{2,9}/g,
         names = path.replace(regx, "/").split("/");
 
@@ -71,7 +71,7 @@ function pathNames(obj, path) {
     return names;
 }
 
-function queryKey(uri, query) {
+function queryKey(uri: URL, query: string) {
     const data = {};
 
     query.replace(/(?:^|&)([^&=]*)=?([^&]*)/g, function ($0, $1, $2) {

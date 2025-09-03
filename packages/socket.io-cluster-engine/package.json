@@ -2,7 +2,7 @@
   "name": "@socket.io/cluster-engine",
   "version": "0.1.0",
   "description": "A cluster-friendly engine to share load between multiple Node.js processes (without sticky sessions)",
-  "type": "commonjs",
+  "type": "module",
   "license": "MIT",
   "homepage": "https://github.com/socketio/socket.io/tree/main/packages/socket.io-cluster-engine#readme",
   "repository": {
@@ -32,7 +32,7 @@
     "prepack": "npm run compile"
   },
   "engines": {
-    "node": ">=10.2.0"
+    "node": ">=20"
   },
   "keywords": [
     "socket.io",

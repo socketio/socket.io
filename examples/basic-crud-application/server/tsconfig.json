@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "module": "commonjs",
-    "target": "es2017",
+    "module": "esnext",
+    "target": "es2023",
     "strict": true
   },
   "include": [

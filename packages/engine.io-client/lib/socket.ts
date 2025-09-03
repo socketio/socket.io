@@ -20,7 +20,7 @@ const withEventListeners =
   typeof addEventListener === "function" &&
   typeof removeEventListener === "function";
 
-const OFFLINE_EVENT_LISTENERS = [];
+const OFFLINE_EVENT_LISTENERS: (() => void)[] = [];
 
 if (withEventListeners) {
   // within a ServiceWorker, any event handler for the 'offline' event must be added on the initial evaluation of the
@@ -144,7 +144,11 @@ export interface SocketOptions {
   /**
    * Transport options for Node.js client (headers etc)
    */
-  transportOptions?: Object;
+  transportOptions?: {
+    polling?: { [key: string]: any };
+    websocket?: { [key: string]: any };
+    webtransport?: { [key: string]: any };
+  }
 
   /**
    * (SSL) Certificate, Private key and CA certificates to use for SSL.
@@ -327,7 +331,7 @@ export class SocketWithoutUpgrade extends Emitter<
   Record<never, never>,
   SocketReservedEvents
 > {
-  public id: string;
+  public id: string | null;
   public transport: Transport;
   public binaryType: BinaryType = defaultBinaryType;
   public readyState: SocketState;
@@ -420,8 +424,7 @@ export class SocketWithoutUpgrade extends Emitter<
       this._transportsByName[transportName] = t;
     });
 
-    this.opts = Object.assign(
-      {
+    this.opts = {
         path: "/engine.io",
         agent: false,
         withCredentials: false,
@@ -435,12 +438,11 @@ export class SocketWithoutUpgrade extends Emitter<
         },
         transportOptions: {},
         closeOnBeforeunload: false,
-      },
-      opts,
-    );
+        ...opts,
+      };
 
     this.opts.path =
-      this.opts.path.replace(/\/$/, "") +
+      this.opts.path!.replace(/\/$/, "") +
       (this.opts.addTrailingSlash ? "/" : "");
 
     if (typeof this.opts.query === "string") {
@@ -485,14 +487,12 @@ export class SocketWithoutUpgrade extends Emitter<
 
   /**
    * Creates transport of the given type.
-   *
    * @param {String} name - transport name
-   * @return {Transport}
    * @private
    */
-  protected createTransport(name: string) {
+  protected createTransport(name: string): Transport {
     debug('creating transport "%s"', name);
-    const query: any = Object.assign({}, this.opts.query);
+    const query = {...this.opts.query};
 
     // append engine.io protocol identifier
     query.EIO = protocol;
@@ -503,18 +503,7 @@ export class SocketWithoutUpgrade extends Emitter<
     // session id if we already have one
     if (this.id) query.sid = this.id;
 
-    const opts = Object.assign(
-      {},
-      this.opts,
-      {
-        query,
-        socket: this,
-        hostname: this.hostname,
-        secure: this.secure,
-        port: this.port,
-      },
-      this.opts.transportOptions[name],
-    );
+    const opts = {...this.opts, query, socket: this, ...this.opts.transportOptions?.[name]};
 
     debug("options: %j", opts);
 
@@ -768,26 +757,18 @@ export class SocketWithoutUpgrade extends Emitter<
 
   /**
    * Sends a message.
-   *
-   * @param {String} msg - message.
-   * @param {Object} options.
    * @param {Function} fn - callback function.
-   * @return {Socket} for chaining.
    */
-  public write(msg: RawData, options?: WriteOptions, fn?: () => void) {
+  public write(msg: RawData, options?: WriteOptions, fn?: () => void): SocketWithoutUpgrade {
     this._sendPacket("message", msg, options, fn);
     return this;
   }
 
   /**
    * Sends a message. Alias of {@link Socket#write}.
-   *
-   * @param {String} msg - message.
-   * @param {Object} options.
    * @param {Function} fn - callback function.
-   * @return {Socket} for chaining.
    */
-  public send(msg: RawData, options?: WriteOptions, fn?: () => void) {
+  public send(msg: RawData, options?: WriteOptions, fn?: () => void): SocketWithoutUpgrade {
     this._sendPacket("message", msg, options, fn);
     return this;
   }
@@ -804,7 +785,7 @@ export class SocketWithoutUpgrade extends Emitter<
   private _sendPacket(
     type: PacketType,
     data?: RawData,
-    options?: WriteOptions,
+    options?: WriteOptions | null,
     fn?: () => void,
   ) {
     if ("function" === typeof data) {
@@ -1085,7 +1066,7 @@ export class SocketWithUpgrade extends SocketWithoutUpgrade {
     }
 
     // When the socket is upgraded while we're probing
-    function onupgrade(to) {
+    function onupgrade(to: Transport) {
       if (transport && to.name !== transport.name) {
         debug('"%s" works - aborting "%s"', to.name, transport.name);
         freezeTransport();

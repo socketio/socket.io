@@ -13,7 +13,6 @@
   "files": [
     "build/"
   ],
-  "main": "./build/cjs/index.js",
   "module": "./build/esm/index.js",
   "types": "./build/esm/index.d.ts",
   "exports": {
@@ -21,15 +20,14 @@
       "node": "./build/esm-debug/index.js",
       "development": "./build/esm-debug/index.js",
       "default": "./build/esm/index.js"
-    },
-    "require": "./build/cjs/index.js"
+    }
   },
   "dependencies": {
     "@socket.io/component-emitter": "~3.1.0",
     "debug": "~4.3.1"
   },
   "scripts": {
-    "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && ./postcompile.sh",
+    "compile": "rimraf ./build && tsc && ./postcompile.sh",
     "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
     "test:node": "mocha --reporter dot --bail test/index.js",
     "test:browser": "wdio",
@@ -39,6 +37,6 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=20"
   }
 }

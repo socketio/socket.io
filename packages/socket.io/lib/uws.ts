@@ -134,7 +134,10 @@ export function serveFile(res /* : HttpResponse */, filepath: string) {
     throw error;
   };
 
-  const onDataChunk = (chunk: Buffer) => {
+  const onDataChunk = (chunk: string | Buffer) => {
+    if (typeof chunk === "string") {
+      chunk = Buffer.from(chunk);
+    }
     const arrayBufferChunk = toArrayBuffer(chunk);
 
     res.cork(() => {
