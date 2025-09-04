@@ -4,7 +4,7 @@ The `@socket.io/postgres-emitter` package allows you to easily communicate with 
 
 ![Emitter diagram](./assets/emitter.png)
 
-It must be used in conjunction with [`@socket.io/posgres-adapter`](https://github.com/socketio/socket.io-posgres-adapter/).
+It must be used in conjunction with [`@socket.io/postgres-adapter`](https://github.com/socketio/socket.io-postgres-adapter/).
 
 Supported features:
 
