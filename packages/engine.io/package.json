@@ -37,9 +37,9 @@
     "base64id": "2.0.0",
     "cookie": "~0.7.2",
     "cors": "~2.8.5",
-    "debug": "~4.3.1",
+    "debug": "~4.4.1",
     "engine.io-parser": "~5.2.1",
-    "ws": "~8.17.1"
+    "ws": "~8.18.3"
   },
   "scripts": {
     "compile": "rimraf ./build && tsc",
