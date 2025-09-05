@@ -380,9 +380,10 @@ export class BroadcastOperator<
         document.type,
         this.emitter.channel,
       );
-      await this.emitter.pool.query(
-        `NOTIFY "${this.emitter.channel}", '${payload}'`,
-      );
+      await this.emitter.pool.query("SELECT pg_notify($1, $2)", [
+        this.emitter.channel,
+        payload,
+      ]);
     } catch (err) {
       // @ts-ignore
       this.emit("error", err);
@@ -407,9 +408,10 @@ export class BroadcastOperator<
       type: document.type,
       attachmentId,
     });
-    this.emitter.pool.query(
-      `NOTIFY "${this.emitter.channel}", '${headerPayload}'`,
-    );
+    await this.emitter.pool.query("SELECT pg_notify($1, $2)", [
+      this.emitter.channel,
+      headerPayload,
+    ]);
   }
 
   /**
