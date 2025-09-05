@@ -2,7 +2,10 @@
 
 The `@socket.io/postgres-emitter` package allows you to easily communicate with a group of Socket.IO servers from another Node.js process (server-side).
 
-![Emitter diagram](./assets/emitter.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/emitter_dark.png">
+  <img alt="Diagram of Socket.IO packets forwarded through PostgreSQL" src="./assets/emitter.png">
+</picture>
 
 It must be used in conjunction with [`@socket.io/postgres-adapter`](https://github.com/socketio/socket.io-postgres-adapter/).
 
