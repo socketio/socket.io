@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "@msgpack/msgpack": "~2.8.0",
-    "debug": "~4.3.3",
+    "debug": "~4.4.1",
     "engine.io": "~6.6.0",
     "engine.io-parser": "~5.2.3"
   },

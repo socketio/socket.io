@@ -16,7 +16,7 @@
   "overrides": {
     "@types/estree": "0.0.52",
     "@types/lodash": "4.14.189",
-    "ws": "8.17.1"
+    "ws": "8.18.3"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
