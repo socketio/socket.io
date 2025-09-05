@@ -1,6 +1,6 @@
 {
   "name": "@socket.io/postgres-emitter",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The Socket.IO Postgres emitter, allowing to communicate with a group of Socket.IO servers from another Node.js process",
   "license": "MIT",
   "homepage": "https://github.com/socketio/socket.io/tree/main/packages/socket.io-postgres-emitter#readme",
