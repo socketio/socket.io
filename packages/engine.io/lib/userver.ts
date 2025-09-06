@@ -2,6 +2,7 @@ import debugModule from "debug";
 import { AttachOptions, BaseServer, Server } from "./server";
 import { HttpRequest, HttpResponse, TemplatedApp } from "uWebSockets.js";
 import transports from "./transports-uws";
+import { EngineRequest } from "./transport";
 
 const debug = debugModule("engine:uws");
 
@@ -36,7 +37,7 @@ export class uServer extends BaseServer {
    *
    * @private
    */
-  private prepare(req, res: HttpResponse) {
+  private prepare(req: HttpRequest & EngineRequest, res: HttpResponse) {
     req.method = req.getMethod().toUpperCase();
     req.url = req.getUrl();
 
@@ -48,6 +49,7 @@ export class uServer extends BaseServer {
       req.headers[key] = value;
     });
 
+    // @ts-expect-error
     req.connection = {
       remoteAddress: Buffer.from(res.getRemoteAddressAsText()).toString(),
     };
@@ -57,7 +59,7 @@ export class uServer extends BaseServer {
     });
   }
 
-  protected createTransport(transportName, req) {
+  protected createTransport(transportName: string, req: EngineRequest) {
     return new transports[transportName](req);
   }
 
@@ -123,7 +125,7 @@ export class uServer extends BaseServer {
     req: HttpRequest & { res: any; _query: any },
   ) {
     debug('handling "%s" http request "%s"', req.getMethod(), req.getUrl());
-    this.prepare(req, res);
+    this.prepare(req as unknown as HttpRequest & EngineRequest, res);
 
     req.res = res;
 
@@ -146,7 +148,11 @@ export class uServer extends BaseServer {
       } else {
         const closeConnection = (errorCode, errorContext) =>
           this.abortRequest(res, errorCode, errorContext);
-        this.handshake(req._query.transport, req, closeConnection);
+        this.handshake(
+          req._query.transport,
+          req as unknown as EngineRequest,
+          closeConnection,
+        );
       }
     };
 
@@ -154,7 +160,11 @@ export class uServer extends BaseServer {
       if (err) {
         callback(Server.errors.BAD_REQUEST, { name: "MIDDLEWARE_FAILURE" });
       } else {
-        this.verify(req, false, callback);
+        this.verify(
+          req as unknown as HttpRequest & EngineRequest,
+          false,
+          callback,
+        );
       }
     });
   }
@@ -166,7 +176,7 @@ export class uServer extends BaseServer {
   ) {
     debug("on upgrade");
 
-    this.prepare(req, res);
+    this.prepare(req as unknown as HttpRequest & EngineRequest, res);
 
     req.res = res;
 
@@ -198,13 +208,16 @@ export class uServer extends BaseServer {
           return res.close();
         } else {
           debug("upgrading existing transport");
-          transport = this.createTransport(req._query.transport, req);
+          transport = this.createTransport(
+            req._query.transport,
+            req as unknown as EngineRequest,
+          );
           client._maybeUpgrade(transport);
         }
       } else {
         transport = await this.handshake(
           req._query.transport,
-          req,
+          req as unknown as EngineRequest,
           (errorCode, errorContext) =>
             this.abortRequest(res, errorCode, errorContext),
         );
@@ -231,15 +244,15 @@ export class uServer extends BaseServer {
       if (err) {
         callback(Server.errors.BAD_REQUEST, { name: "MIDDLEWARE_FAILURE" });
       } else {
-        this.verify(req, true, callback);
+        this.verify(req as unknown as EngineRequest, true, callback);
       }
     });
   }
 
   private abortRequest(
     res: HttpResponse | ResponseWrapper,
-    errorCode,
-    errorContext,
+    errorCode: number,
+    errorContext?: { message?: string },
   ) {
     const statusCode =
       errorCode === Server.errors.FORBIDDEN

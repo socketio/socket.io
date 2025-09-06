@@ -59,8 +59,7 @@ const EMPTY_BUFFER = Buffer.concat([]);
  *
  * @api private
  */
-
-export function encodePacket (packet, supportsBinary, utf8encode, callback) {
+export function encodePacket (packet: any, supportsBinary?: any, utf8encode?: any, callback?: any) {
   if (typeof supportsBinary === 'function') {
     callback = supportsBinary;
     supportsBinary = null;
@@ -86,7 +85,7 @@ export function encodePacket (packet, supportsBinary, utf8encode, callback) {
   }
 
   return callback('' + encoded);
-};
+}
 
 /**
  * Encode Buffer data
@@ -120,16 +119,16 @@ export function encodeBase64Packet (packet, callback){
 /**
  * Decodes a packet. Data also available as an ArrayBuffer if requested.
  *
- * @return {Object} with `type` and `data` (if any)
+ * @return {import('engine.io-parser').Packet} with `type` and `data` (if any)
  * @api private
  */
 
-export function decodePacket (data, binaryType, utf8decode) {
+export function decodePacket (data: any, binaryType?: any, utf8decode?: any): any {
   if (data === undefined) {
     return err;
   }
 
-  var type;
+  let type: string | number;
 
   // String data
   if (typeof data === 'string') {
@@ -147,6 +146,7 @@ export function decodePacket (data, binaryType, utf8decode) {
       }
     }
 
+    // @ts-expect-error
     if (Number(type) != type || !packetslist[type]) {
       return err;
     }
@@ -274,7 +274,7 @@ function map(ary, each, done) {
  * @api public
  */
 
-export function decodePayload (data, binaryType, callback) {
+export function decodePayload (data: any, binaryType?: any, callback?: any) {
   if (typeof data !== 'string') {
     return decodePayloadAsBinary(data, binaryType, callback);
   }

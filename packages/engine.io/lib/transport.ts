@@ -5,6 +5,7 @@ import debugModule from "debug";
 import type { IncomingMessage, ServerResponse } from "http";
 import { Packet, RawData } from "engine.io-parser";
 import type * as Parser from "engine.io-parser";
+import type { WebSocket } from "ws";
 
 const debug = debugModule("engine:transport");
 
@@ -16,7 +17,11 @@ export type EngineRequest = IncomingMessage & {
   _query: Record<string, string>;
   res?: ServerResponse;
   cleanup?: Function;
-  websocket?: any;
+  websocket?: WebSocket & {
+    _socket?: {
+      remoteAddress: string;
+    };
+  };
 };
 
 export abstract class Transport extends EventEmitter {
@@ -38,7 +43,7 @@ export abstract class Transport extends EventEmitter {
    *
    * @see https://github.com/socketio/engine.io-protocol
    */
-  public protocol: number;
+  public protocol: 3 | 4;
 
   /**
    * The current state of the transport.
@@ -54,7 +59,7 @@ export abstract class Transport extends EventEmitter {
    * The parser to use (depends on the revision of the {@link Transport#protocol}.
    * @protected
    */
-  protected parser: any;
+  protected parser: typeof parser_v4 | typeof parser_v3;
   /**
    * Whether the transport supports binary payloads (else it will be base64-encoded)
    * @protected
@@ -74,6 +79,11 @@ export abstract class Transport extends EventEmitter {
     );
     this._readyState = state;
   }
+
+  /**
+   * The list of transports this transport can be upgraded to.
+   */
+  static upgradesTo: string[] = [];
 
   /**
    * Transport constructor.
@@ -149,7 +159,7 @@ export abstract class Transport extends EventEmitter {
   /**
    * Called with the encoded packet data.
    *
-   * @param {String} data
+   * @param data
    * @protected
    */
   protected onData(data: RawData) {
