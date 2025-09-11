@@ -46,7 +46,7 @@
   "types": "./build/esm/index.d.ts",
   "dependencies": {
     "@socket.io/component-emitter": "~3.1.0",
-    "debug": "~4.3.2",
+    "debug": "~4.4.1",
     "engine.io-client": "~6.6.1",
     "socket.io-parser": "~4.2.4"
   },

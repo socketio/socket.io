@@ -53,9 +53,9 @@
   ],
   "dependencies": {
     "@socket.io/component-emitter": "~3.1.0",
-    "debug": "~4.3.1",
+    "debug": "~4.4.1",
     "engine.io-parser": "~5.2.1",
-    "ws": "~8.17.1",
+    "ws": "~8.18.3",
     "xmlhttprequest-ssl": "~2.1.1"
   },
   "scripts": {
