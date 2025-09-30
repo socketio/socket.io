@@ -60,7 +60,7 @@ if (process.env.CI === "true") {
     {
       browserName: "internet explorer",
       browserVersion: "10",
-      platformName: "Windows 7",
+      platformName: "Windows 8",
       "sauce:options": BASE_SAUCE_OPTIONS,
     },
     {
