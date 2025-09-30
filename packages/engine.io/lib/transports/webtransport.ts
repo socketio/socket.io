@@ -60,7 +60,7 @@ export class WebTransport extends Transport {
       debug("error while writing: %s", e.message);
     }
 
-    this.emit("drain");
+    this.emit("drain", packets);
     this.writable = true;
     this.emit("ready");
   }
