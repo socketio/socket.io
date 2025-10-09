@@ -197,6 +197,10 @@ export class Namespace<
   _initAdapter(): void {
     // @ts-ignore
     this.adapter = new (this.server.adapter()!)(this);
+
+    Promise.resolve(this.adapter.init()).catch((err) => {
+      debug("error while initializing adapter: %s", err);
+    });
   }
 
   /**
