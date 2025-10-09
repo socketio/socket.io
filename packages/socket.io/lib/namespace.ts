@@ -197,6 +197,7 @@ export class Namespace<
   _initAdapter(): void {
     // @ts-ignore
     this.adapter = new (this.server.adapter()!)(this);
+    this.adapter.init();
   }
 
   /**
