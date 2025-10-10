@@ -53,7 +53,7 @@
   "scripts": {
     "compile": "rimraf ./build && tsc && tsc -p tsconfig.esm.json && ./postcompile.sh",
     "test": "npm run format:check && npm run compile && if test \"$BROWSERS\" = \"1\" ; then npm run test:browser; else npm run test:node; fi",
-    "test:node": "mocha --require ts-node/register --require test/support/hooks.ts --exit test/index.ts",
+    "test:node": "mocha --import=tsx --require test/support/hooks.ts --exit test/index.ts",
     "test:browser": "ts-node test/browser-runner.ts",
     "test:types": "tsd",
     "build": "rollup -c support/rollup.config.umd.js && rollup -c support/rollup.config.esm.js && rollup -c support/rollup.config.umd.msgpack.js",
