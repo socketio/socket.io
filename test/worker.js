@@ -150,11 +150,9 @@ process.on("message", async (msg) => {
       });
       break;
     case "sends an event but timeout if one server does not respond (1)":
-      io.of("/").adapter.requestsTimeout = 200;
-
       io.serverSideEmit("hello with ack", (err, response) => {
         expect(err.message).to.be(
-          "timeout reached: only 1 responses received out of 2"
+          "timeout reached: missing 1 responses"
         );
         expect(response).to.be.an(Array);
         expect(response).to.contain(2);

@@ -349,7 +349,9 @@ describe("@socket.io/cluster-adapter", () => {
       });
     });
 
-    it("sends an event but timeout if one server does not respond", (done) => {
+    it("sends an event but timeout if one server does not respond", function (done) {
+      this.timeout(6000); // currently not possible to configure the timeout delay
+
       workers[0].send(
         "sends an event but timeout if one server does not respond (1)",
       );
