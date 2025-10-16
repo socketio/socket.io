@@ -2,8 +2,7 @@ import { io as ioc, Socket as ClientSocket } from "socket.io-client";
 import expect = require("expect.js");
 import { setupPrimary } from "..";
 import { times, sleep } from "./util";
-import cluster = require("cluster");
-import { Worker } from "cluster";
+import cluster, { Worker } from "node:cluster";
 
 const NODES_COUNT = 3;
 

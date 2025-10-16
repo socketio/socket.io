@@ -1,6 +1,6 @@
-import cluster = require("cluster");
+import cluster from "node:cluster";
 import { Adapter, BroadcastOptions, Room } from "socket.io-adapter";
-import { randomBytes } from "crypto";
+import { randomBytes } from "node:crypto";
 
 const randomId = () => randomBytes(8).toString("hex");
 const debug = require("debug")("socket.io-cluster-adapter");
@@ -297,7 +297,7 @@ export class ClusterAdapter extends Adapter {
       message.nsp
     );
 
-    process.send(message, null, { swallowErrors: true }, ignoreError);
+    process.send(message, null, {}, ignoreError);
   }
 
   /**
