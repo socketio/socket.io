@@ -1,0 +1,35 @@
+{
+  "name": "@socket.io/cluster-adapter",
+  "version": "0.2.2",
+  "description": "The Socket.IO cluster adapter, allowing to broadcast events between several Socket.IO servers",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:socketio/socket.io-cluster-adapter.git"
+  },
+  "files": [
+    "dist/"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "test": "npm run format:check && tsc && nyc mocha --import=tsx test/index.ts",
+    "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.ts'",
+    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.ts'",
+    "prepack": "tsc"
+  },
+  "dependencies": {
+    "debug": "~4.4.1"
+  },
+  "peerDependencies": {
+    "socket.io-adapter": "~2.5.5"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "keywords": [
+    "socket.io",
+    "cluster",
+    "adapter"
+  ]
+}

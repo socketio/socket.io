@@ -8,6 +8,7 @@
     "packages/socket.io-cluster-engine",
     "packages/engine.io-client",
     "packages/socket.io-adapter",
+    "packages/socket.io-cluster-adapter",
     "packages/socket.io-parser",
     "packages/socket.io-client",
     "packages/socket.io",
@@ -73,6 +74,7 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "tsd": "^0.31.1",
+    "tsx": "~4.20.6",
     "typescript": "^5.5.3",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.48.0",
     "wdio-geckodriver-service": "^5.0.2"
