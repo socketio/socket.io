@@ -13,7 +13,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "npm run format:check && tsc && nyc mocha --require ts-node/register test/index.ts",
+    "test": "npm run format:check && tsc && nyc mocha --import=tsx test/index.ts",
     "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.ts'",
     "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.ts'",
     "prepack": "tsc"
@@ -34,7 +34,7 @@
     "prettier": "~3.6.2",
     "socket.io": "^4.6.1",
     "socket.io-client": "^4.7.1",
-    "ts-node": "^9.1.1",
+    "tsx": "~4.20.6",
     "typescript": "~5.9.3"
   },
   "engines": {

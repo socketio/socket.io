@@ -12,9 +12,12 @@ jobs:
     timeout-minutes: 10
 
     strategy:
+      fail-fast: false
       matrix:
         node-version:
           - 20
+          - 22
+          - 24
 
     steps:
       - name: Checkout repository
