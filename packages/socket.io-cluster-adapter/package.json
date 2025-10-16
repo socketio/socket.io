@@ -1,11 +1,15 @@
 {
   "name": "@socket.io/cluster-adapter",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "The Socket.IO cluster adapter, allowing to broadcast events between several Socket.IO servers",
   "license": "MIT",
+  "homepage": "https://github.com/socketio/socket.io/tree/main/packages/socket.io-cluster-adapter#readme",
   "repository": {
     "type": "git",
-    "url": "git@github.com:socketio/socket.io-cluster-adapter.git"
+    "url": "git+https://github.com/socketio/socket.io.git"
+  },
+  "bugs": {
+    "url": "https://github.com/socketio/socket.io/issues"
   },
   "files": [
     "dist/"
@@ -13,10 +17,11 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "npm run format:check && tsc && nyc mocha --import=tsx test/index.ts",
-    "format:check": "prettier --check 'lib/**/*.ts' 'test/**/*.ts'",
-    "format:fix": "prettier --write 'lib/**/*.ts' 'test/**/*.ts'",
-    "prepack": "tsc"
+    "compile": "rimraf ./dist && tsc",
+    "test": "npm run format:check && npm run compile && nyc mocha --import=tsx test/index.ts",
+    "format:check": "prettier --check \"lib/**/*.ts' \"test/**/*.ts\"",
+    "format:fix": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\"",
+    "prepack": "npm run compile"
   },
   "dependencies": {
     "debug": "~4.4.1"

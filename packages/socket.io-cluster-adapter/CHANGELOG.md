@@ -1,13 +1,22 @@
-# History
+# Changelog
 
-- [0.2.2](#022-2023-03-24) (Mar 2023)
-- [0.2.1](#021-2022-10-13) (Oct 2022)
-- [0.2.0](#020-2022-04-28) (Apr 2022)
-- [0.1.0](#010-2021-06-22) (Jun 2021)
+| Version                  | Release date |
+|--------------------------|--------------|
+| [0.3.0](#030-2025-10-16) | October 2025 |
+| [0.2.2](#022-2023-03-24) | March 2023   |
+| [0.2.1](#021-2022-10-13) | October 2022 |
+| [0.2.0](#020-2022-04-28) | April 2022   |
+| [0.1.0](#010-2021-06-22) | June 2021    |
 
 
 
-# Release notes
+## [0.3.0](https://github.com/socketio/socket.io-cluster-adapter/compare/0.2.2...0.3.0) (2025-10-16)
+
+This release contains an important refactor of the adapter ([this commit](https://github.com/socketio/socket.io-cluster-adapter/commit/0c431243e28913fdd2a4a3de3e67a9f38d67a3aa)), as most of the logic has been moved in the `ClusterAdapter` class of the `socket.io-adapter` package.
+
+Besides, the `@socket.io/cluster-adapter` package is now part of the `socket.io` monorepo.
+
+
 
 ## [0.2.2](https://github.com/socketio/socket.io-cluster-adapter/compare/0.2.1...0.2.2) (2023-03-24)
 

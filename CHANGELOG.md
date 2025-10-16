@@ -10,6 +10,7 @@ Here are the detailed changelogs for each package in this monorepo:
 | `socket.io`                    | [link](packages/socket.io/CHANGELOG.md)                 |
 | `socket.io-adapter`            | [link](packages/socket.io-adapter/CHANGELOG.md)         |
 | `socket.io-client`             | [link](packages/socket.io-client/CHANGELOG.md)          |
+| `@socket.io/cluster-adapter`   | [link](packages/socket.io-cluster-adapter/CHANGELOG.md) |
 | `@socket.io/cluster-engine`    | [link](packages/socket.io-cluster-engine/CHANGELOG.md)  |
 | `@socket.io/component-emitter` | [link](packages/socket.io-component-emitter/History.md) |
 | `socket.io-parser`             | [link](packages/socket.io-parser/CHANGELOG.md)          |
