@@ -181,7 +181,7 @@ describe("@socket.io/cluster-adapter", () => {
       });
 
       workers[0].send(
-        "broadcasts with multiple acknowledgements (binary content)"
+        "broadcasts with multiple acknowledgements (binary content)",
       );
 
       workers[0].on("message", (result) => {
@@ -240,7 +240,7 @@ describe("@socket.io/cluster-adapter", () => {
       workers[2].send("join room1");
 
       workers[0].send(
-        "makes the matching socket instances join the specified room"
+        "makes the matching socket instances join the specified room",
       );
 
       await sleep(100);
@@ -270,7 +270,7 @@ describe("@socket.io/cluster-adapter", () => {
       workers[2].send("join room2");
 
       workers[0].send(
-        "makes the matching socket instances leave the specified room"
+        "makes the matching socket instances leave the specified room",
       );
 
       await sleep(100);
@@ -333,13 +333,13 @@ describe("@socket.io/cluster-adapter", () => {
 
     it("sends an event and receives a response from the other server instances", (done) => {
       workers[0].send(
-        "sends an event and receives a response from the other server instances (1)"
+        "sends an event and receives a response from the other server instances (1)",
       );
       workers[1].send(
-        "sends an event and receives a response from the other server instances (2)"
+        "sends an event and receives a response from the other server instances (2)",
       );
       workers[2].send(
-        "sends an event and receives a response from the other server instances (3)"
+        "sends an event and receives a response from the other server instances (3)",
       );
 
       workers[0].on("message", (result) => {
@@ -351,13 +351,13 @@ describe("@socket.io/cluster-adapter", () => {
 
     it("sends an event but timeout if one server does not respond", (done) => {
       workers[0].send(
-        "sends an event but timeout if one server does not respond (1)"
+        "sends an event but timeout if one server does not respond (1)",
       );
       workers[1].send(
-        "sends an event but timeout if one server does not respond (2)"
+        "sends an event but timeout if one server does not respond (2)",
       );
       workers[2].send(
-        "sends an event but timeout if one server does not respond (3)"
+        "sends an event but timeout if one server does not respond (3)",
       );
 
       workers[0].on("message", (result) => {

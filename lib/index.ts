@@ -150,12 +150,12 @@ export class ClusterAdapter extends Adapter {
                   packet: arg,
                 },
               });
-            }
+            },
           );
         } else {
           super.broadcast(
             message.data.packet,
-            ClusterAdapter.deserializeOptions(message.data.opts)
+            ClusterAdapter.deserializeOptions(message.data.opts),
           );
         }
         break;
@@ -177,7 +177,7 @@ export class ClusterAdapter extends Adapter {
         debug("calling addSockets with opts %j", message.data.opts);
         super.addSockets(
           ClusterAdapter.deserializeOptions(message.data.opts),
-          message.data.rooms
+          message.data.rooms,
         );
         break;
       }
@@ -185,7 +185,7 @@ export class ClusterAdapter extends Adapter {
         debug("calling delSockets with opts %j", message.data.opts);
         super.delSockets(
           ClusterAdapter.deserializeOptions(message.data.opts),
-          message.data.rooms
+          message.data.rooms,
         );
         break;
       }
@@ -193,14 +193,14 @@ export class ClusterAdapter extends Adapter {
         debug("calling disconnectSockets with opts %j", message.data.opts);
         super.disconnectSockets(
           ClusterAdapter.deserializeOptions(message.data.opts),
-          message.data.close
+          message.data.close,
         );
         break;
       }
       case EventType.FETCH_SOCKETS: {
         debug("calling fetchSockets with opts %j", message.data.opts);
         const localSockets = await super.fetchSockets(
-          ClusterAdapter.deserializeOptions(message.data.opts)
+          ClusterAdapter.deserializeOptions(message.data.opts),
         );
 
         this.publish({
@@ -227,7 +227,7 @@ export class ClusterAdapter extends Adapter {
 
         request.current++;
         message.data.sockets.forEach((socket: any) =>
-          request.responses.push(socket)
+          request.responses.push(socket),
         );
 
         if (request.current === request.expected) {
@@ -294,7 +294,7 @@ export class ClusterAdapter extends Adapter {
     debug(
       "publish event of type %s for namespace %s",
       message.type,
-      message.nsp
+      message.nsp,
     );
 
     process.send(message, null, {}, ignoreError);
@@ -344,7 +344,7 @@ export class ClusterAdapter extends Adapter {
     packet: any,
     opts: BroadcastOptions,
     clientCountCallback: (clientCount: number) => void,
-    ack: (...args: any[]) => void
+    ack: (...args: any[]) => void,
   ) {
     const onlyLocal = opts?.flags?.local;
     if (!onlyLocal) {
@@ -453,8 +453,8 @@ export class ClusterAdapter extends Adapter {
         if (storedRequest) {
           reject(
             new Error(
-              `timeout reached: only ${storedRequest.current} responses received out of ${storedRequest.expected}`
-            )
+              `timeout reached: only ${storedRequest.current} responses received out of ${storedRequest.expected}`,
+            ),
           );
           this.requests.delete(requestId);
         }
@@ -505,7 +505,7 @@ export class ClusterAdapter extends Adapter {
 
     debug(
       'waiting for %d responses to "serverSideEmit" request',
-      expectedResponseCount
+      expectedResponseCount,
     );
 
     if (expectedResponseCount <= 0) {
@@ -519,9 +519,9 @@ export class ClusterAdapter extends Adapter {
       if (storedRequest) {
         ack(
           new Error(
-            `timeout reached: only ${storedRequest.current} responses received out of ${storedRequest.expected}`
+            `timeout reached: only ${storedRequest.current} responses received out of ${storedRequest.expected}`,
           ),
-          storedRequest.responses
+          storedRequest.responses,
         );
         this.requests.delete(requestId);
       }
@@ -589,7 +589,7 @@ export function setupPrimary() {
             data: worker.id,
           },
           null,
-          ignoreError
+          ignoreError,
         );
       }
     }
