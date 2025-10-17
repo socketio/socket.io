@@ -19,7 +19,7 @@
   "scripts": {
     "compile": "rimraf ./dist && tsc",
     "test": "npm run format:check && npm run compile && nyc mocha --import=tsx test/index.ts",
-    "format:check": "prettier --check \"lib/**/*.ts' \"test/**/*.ts\"",
+    "format:check": "prettier --check \"lib/**/*.ts\" \"test/**/*.ts\"",
     "format:fix": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\"",
     "prepack": "npm run compile"
   },
