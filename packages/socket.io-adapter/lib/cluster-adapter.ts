@@ -199,6 +199,14 @@ export abstract class ClusterAdapter extends Adapter {
       return debug("[%s] ignore message from self", this.uid);
     }
 
+    if (message.nsp !== this.nsp.name) {
+      return debug(
+        "[%s] ignore message from another namespace (%s)",
+        this.uid,
+        message.nsp,
+      );
+    }
+
     debug(
       "[%s] new event of type %d from %s",
       this.uid,
@@ -671,6 +679,8 @@ export abstract class ClusterAdapter extends Adapter {
   protected publish(
     message: DistributiveOmit<ClusterMessage, "nsp" | "uid">,
   ): void {
+    debug("[%s] sending message %s", this.uid, message.type);
+
     this.publishAndReturnOffset(message).catch((err) => {
       debug("[%s] error while publishing message: %s", this.uid, err);
     });
@@ -699,6 +709,14 @@ export abstract class ClusterAdapter extends Adapter {
   ) {
     (response as ClusterResponse).uid = this.uid;
     (response as ClusterResponse).nsp = this.nsp.name;
+
+    debug(
+      "[%s] sending response %s to %s",
+      this.uid,
+      response.type,
+      requesterUid,
+    );
+
     this.doPublishResponse(requesterUid, response as ClusterResponse).catch(
       (err) => {
         debug("[%s] error while publishing response: %s", this.uid, err);
@@ -790,16 +808,9 @@ export abstract class ClusterAdapterWithHeartbeat extends ClusterAdapter {
     }
 
     if (message.uid && message.uid !== EMITTER_UID) {
-      // we track the UID of each sender, in order to know how many servers there are in the cluster
+      // we track the UID of each sender to know how many servers there are in the cluster
       this.nodesMap.set(message.uid, Date.now());
     }
-
-    debug(
-      "[%s] new event of type %d from %s",
-      this.uid,
-      message.type,
-      message.uid,
-    );
 
     switch (message.type) {
       case MessageType.INITIAL_HEARTBEAT:

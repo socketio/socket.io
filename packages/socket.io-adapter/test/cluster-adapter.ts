@@ -67,11 +67,6 @@ describe("cluster adapter", () => {
           serverSockets.push(socket);
           servers.push(io);
           if (servers.length === NODES_COUNT) {
-            // ensure all nodes know each other
-            servers[0].emit("ping");
-            servers[1].emit("ping");
-            servers[2].emit("ping");
-
             done();
           }
         });
