@@ -1,0 +1,38 @@
+{
+  "name": "@socket.io/redis-streams-emitter",
+  "version": "0.0.1",
+  "description": "The Socket.IO Redis streams emitter, allowing to communicate with a group of Socket.IO servers from another Node.js process",
+  "license": "MIT",
+  "homepage": "https://github.com/socketio/socket.io/tree/main/packages/socket.io-redis-streams-emitter#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/socketio/socket.io.git"
+  },
+  "files": [
+    "dist/"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "compile": "rimraf ./dist && tsc",
+    "format:check": "prettier --parser typescript --check 'lib/**/*.ts' 'test/**/*.ts'",
+    "format:fix": "prettier --parser typescript --write 'lib/**/*.ts' 'test/**/*.ts'",
+    "prepack": "npm run compile",
+    "test": "npm run format:check && npm run compile && npm run test:redis-standalone && npm run test:ioredis-standalone",
+    "test:redis-standalone": "nyc mocha --import=tsx test/**/*.ts",
+    "test:redis-cluster": "REDIS_CLUSTER=1 mocha --import=tsx test/**/*.ts",
+    "test:ioredis-standalone": "REDIS_LIB=ioredis mocha --import=tsx test/**/*.ts",
+    "test:ioredis-cluster": "REDIS_LIB=ioredis REDIS_CLUSTER=1 mocha --import=tsx test/**/*.ts",
+    "test:valkey-standalone": "VALKEY=1 mocha --import=tsx test/**/*.ts"
+  },
+  "dependencies": {
+    "@msgpack/msgpack": "~2.8.0",
+    "debug": "~4.4.1"
+  },
+  "keywords": [
+    "socket.io",
+    "redis",
+    "redis-streams",
+    "emitter"
+  ]
+}

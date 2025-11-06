@@ -12,7 +12,8 @@
     "packages/socket.io-parser",
     "packages/socket.io-client",
     "packages/socket.io",
-    "packages/socket.io-postgres-emitter"
+    "packages/socket.io-postgres-emitter",
+    "packages/socket.io-redis-streams-emitter"
   ],
   "overrides": {
     "@types/estree": "0.0.52",
@@ -32,6 +33,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@sinonjs/fake-timers": "^11.2.2",
     "@socket.io/postgres-adapter": "^0.1.0",
+    "@socket.io/redis-streams-adapter": "~0.2.2",
     "@types/debug": "^4.1.12",
     "@types/expect.js": "^0.3.32",
     "@types/mocha": "^10.0.7",
