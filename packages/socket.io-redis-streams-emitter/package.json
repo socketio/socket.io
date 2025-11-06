@@ -1,6 +1,6 @@
 {
   "name": "@socket.io/redis-streams-emitter",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "The Socket.IO Redis streams emitter, allowing to communicate with a group of Socket.IO servers from another Node.js process",
   "license": "MIT",
   "homepage": "https://github.com/socketio/socket.io/tree/main/packages/socket.io-redis-streams-emitter#readme",
