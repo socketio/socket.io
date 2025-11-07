@@ -2,7 +2,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "allowJs": false,
-    "target": "es2017",
+    "target": "es2022",
     "module": "commonjs",
     "declaration": true,
     "strict": true
