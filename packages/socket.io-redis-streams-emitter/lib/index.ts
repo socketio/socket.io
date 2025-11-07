@@ -8,7 +8,7 @@ import type {
 } from "./typed-events";
 import { encode } from "@msgpack/msgpack";
 import { hasBinary, XADD } from "./util";
-import { ClusterMessage, MessageType, BroadcastFlags } from "socket.io-adapter";
+import { ClusterMessage, MessageType, BroadcastFlags } from "./adapter-types";
 
 const debug = debugModule("socket.io-redis-streams-emitter");
 const EMITTER_UID = "emitter";
