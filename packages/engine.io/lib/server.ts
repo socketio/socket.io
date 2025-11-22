@@ -237,9 +237,11 @@ export abstract class BaseServer extends EventEmitter {
   protected abstract init(): void;
 
   /**
-   * Compute the pathname of the requests that are handled by the server
+   * Compute the pathname of the requests that are handled by the server.
+   * 
    * @param options
    * @protected
+   * @returns {string} the normalized request path
    */
   protected _computePath(options: AttachOptions) {
     let path = (options.path || "/engine.io").replace(/\/$/, "");
@@ -422,12 +424,12 @@ export abstract class BaseServer extends EventEmitter {
   }
 
   /**
-   * Handshakes a new client.
+   * Performs the Engine.IO handshake for a new client.
    *
-   * @param {String} transportName
-   * @param {Object} req - the request object
-   * @param {Function} closeConnection
-   *
+   * @param {TransportName} transportName - the selected transport
+   * @param {EngineRequest} req - the incoming request
+   * @param {ErrorCallback} closeConnection - callback used to close the connection with an error
+   * @returns {Promise<void>}
    * @protected
    */
   protected async handshake(
@@ -524,7 +526,14 @@ export abstract class BaseServer extends EventEmitter {
 
     return transport;
   }
-
+  
+  /**
+   * Handles a WebTransport session and performs the necessary handshake logic.
+   *
+   * @param {any} session - the WebTransport session object
+   * @returns {Promise<void>}
+   * @protected
+  */
   public async onWebTransportSession(session: any) {
     const timeout = setTimeout(() => {
       debug(
@@ -682,7 +691,7 @@ export class Server extends BaseServer {
   private ws: WsServer;
 
   /**
-   * Initialize websocket server
+   * Initializes the WebSocket server, if the "websocket" transport is enabled.
    *
    * @protected
    */
@@ -842,10 +851,12 @@ export class Server extends BaseServer {
   }
 
   /**
-   * Called upon a ws.io connection.
-   * @param req
-   * @param socket
-   * @param websocket
+   * Handles an incoming WebSocket upgrade and attaches the appropriate transport.
+   * 
+   * @param {EngineRequest} req - the request object
+   * @param {Duplex} socket - the raw TCP socket
+   * @param {WsWebSocket} websocket - the WebSocket instance
+   * @returns {void}
    * @private
    */
   private onWebSocket(
@@ -912,10 +923,12 @@ export class Server extends BaseServer {
   }
 
   /**
-   * Captures upgrade requests for a http.Server.
+   * Captures upgrade requests for a Node.js HTTP server and forwards them
+   * to the Engine.IO request and upgrade handlers.
    *
-   * @param {http.Server} server
-   * @param {Object} options
+   * @param {HttpServer} server - the underlying Node.js HTTP server
+   * @param {AttachOptions} options - configuration options
+   * @returns {void}
    */
   public attach(server: HttpServer, options: AttachOptions = {}) {
     const path = this._computePath(options);
@@ -971,12 +984,12 @@ export class Server extends BaseServer {
 }
 
 /**
- * Close the HTTP long-polling request
+ * Closes the HTTP long-polling request with an error response.
  *
- * @param res - the response object
- * @param errorCode - the error code
- * @param errorContext - additional error context
- *
+ * @param {ServerResponse} res - the response object
+ * @param {number} errorCode - the error code
+ * @param {{ message?: string }} errorContext - additional error context
+ * @returns {void}
  * @private
  */
 
@@ -1004,7 +1017,7 @@ function abortRequest(
  * Close the WebSocket connection
  *
  * @param {net.Socket} socket
- * @param {string} errorCode - the error code
+ * @param {number} errorCode - the error code
  * @param {object} errorContext - additional error context
  */
 
