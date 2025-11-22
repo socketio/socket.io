@@ -10,7 +10,7 @@ export class WebSocket extends Transport {
   private socket: WsWebSocket;
 
   /**
-   * WebSocket transport
+   * WebSocket transport.
    *
    * @param {EngineRequest} req
    */
@@ -50,8 +50,8 @@ export class WebSocket extends Transport {
       const isLast = i + 1 === packets.length;
 
       if (this._canSendPreEncodedFrame(packet)) {
-        // the WebSocket frame was computed with WebSocket.Sender.frame()
-        // see https://github.com/websockets/ws/issues/617#issuecomment-283002469
+        // The WebSocket frame was computed with WebSocket.Sender.frame().
+        // See https://github.com/websockets/ws/issues/617#issuecomment-283002469
         // @ts-expect-error use of untyped member
         this.socket._sender.sendFrame(
           packet.options.wsPreEncodedFrame,
