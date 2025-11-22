@@ -89,7 +89,7 @@ export class Socket extends EventEmitter {
     this.request = req;
     this.protocol = protocol;
 
-    // Cache IP since it might not be in the req later
+    // Cache IP since it might not be in the request later
     if (req) {
       if (req.websocket && req.websocket._socket) {
         this.remoteAddress = req.websocket._socket.remoteAddress;
@@ -97,8 +97,8 @@ export class Socket extends EventEmitter {
         this.remoteAddress = req.connection.remoteAddress;
       }
     } else {
-      // TODO there is currently no way to get the IP address of the client when it connects with WebTransport
-      //  see https://github.com/fails-components/webtransport/issues/114
+      // TODO: There is currently no way to get the IP address of the client when it connects with WebTransport.
+      // See https://github.com/fails-components/webtransport/issues/114
     }
 
     this.pingTimeoutTimer = null;
@@ -195,7 +195,7 @@ export class Socket extends EventEmitter {
   /**
    * Called upon transport error.
    *
-   * @param {Error} err - error object
+   * @param {Error} err - The error object.
    * @private
    */
   private onError(err: Error) {
@@ -268,7 +268,7 @@ export class Socket extends EventEmitter {
   }
 
   /**
-   * Upon transport "drain" event
+   * Upon transport "drain" event.
    *
    * @private
    */
@@ -337,7 +337,7 @@ export class Socket extends EventEmitter {
       }
     };
 
-    // we force a polling cycle to ensure a fast upgrade
+    // We force a polling cycle to ensure a fast upgrade.
     const check = () => {
       if ("polling" === this.transport.name && this.transport.writable) {
         debug("writing a noop packet to polling for fast upgrade");
@@ -394,12 +394,12 @@ export class Socket extends EventEmitter {
       cleanup();
     }
 
-    // silence further transport errors and prevent uncaught exceptions
+    // silence further transport errors and prevent uncaught exceptions.
     this.transport.on("error", function () {
       debug("error triggered by discarded transport");
     });
 
-    // ensure transport won't stay open
+    // ensure transport won't stay open.
     this.transport.close();
 
     clearTimeout(this.pingTimeoutTimer);
@@ -414,12 +414,12 @@ export class Socket extends EventEmitter {
     if ("closed" !== this.readyState) {
       this.readyState = "closed";
 
-      // clear timers
+      // Clear timers.
       clearTimeout(this.pingIntervalTimer);
       clearTimeout(this.pingTimeoutTimer);
 
-      // clean writeBuffer in next tick, so developers can still
-      // grab the writeBuffer on 'close' event
+      // Clean writeBuffer in next tick, so developers can still
+      // grab the writeBuffer on the "close" event.
       process.nextTick(() => {
         this.writeBuffer = [];
       });
@@ -489,7 +489,7 @@ export class Socket extends EventEmitter {
 
       if (data) packet.data = data;
 
-      // exports packetCreate event
+      // Export packetCreate event.
       this.emit("packetCreate", packet);
 
       this.writeBuffer.push(packet);
