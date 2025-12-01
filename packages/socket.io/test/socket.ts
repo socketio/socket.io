@@ -941,6 +941,23 @@ describe("socket", () => {
     });
   });
 
+  it("should leave multiple rooms at once", (done) => {
+    const io = new Server(0);
+    const client = createClient(io, "/");
+
+    io.on("connection", (socket) => {
+      Promise.resolve(socket.join(["room1", "room2"]))
+        .then(() => Promise.resolve(socket.leave(["room1", "room2"])))
+        .then(() => {
+          const adapter = io.of("/").adapter;
+          expect(adapter.rooms.has("room1")).to.be(false);
+          expect(adapter.rooms.has("room2")).to.be(false);
+          success(done, io, client);
+        })
+        .catch(done);
+    });
+  });
+
   describe("onAny", () => {
     it("should call listener", (done) => {
       const io = new Server(0);
