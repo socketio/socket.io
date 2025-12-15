@@ -1,4 +1,4 @@
-# reference: https://docs.npmjs.com/generating-provenance-statements
+# reference: https://docs.npmjs.com/trusted-publishers#for-github-actions
 
 name: Publish
 
@@ -32,6 +32,4 @@ jobs:
         run: npm run compile --workspaces --if-present
 
       - name: Publish package
-        run: npm publish --workspace=${GITHUB_REF_NAME%@*} --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --workspace=${GITHUB_REF_NAME%@*} --access public
