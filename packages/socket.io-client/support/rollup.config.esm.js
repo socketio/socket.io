@@ -20,6 +20,7 @@ module.exports = {
         mangle: {
           properties: {
             regex: /^_/,
+            reserved: ["_placeholder"],
           },
         },
       }),
