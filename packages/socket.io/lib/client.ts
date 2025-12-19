@@ -267,16 +267,7 @@ export class Client<
    * @private
    */
   private ondecoded(packet: Packet): void {
-    let namespace: string;
-    let authPayload: Record<string, unknown>;
-    if (this.conn.protocol === 3) {
-      const parsed = url.parse(packet.nsp, true);
-      namespace = parsed.pathname!;
-      authPayload = parsed.query;
-    } else {
-      namespace = packet.nsp;
-      authPayload = packet.data;
-    }
+    const { namespace, authPayload } = this._parseNamespace(packet);
     const socket = this.nsps.get(namespace);
 
     if (!socket && packet.type === PacketType.CONNECT) {
@@ -293,6 +284,20 @@ export class Client<
       debug("invalid state (packet type: %s)", packet.type);
       this.close();
     }
+  }
+
+  private _parseNamespace(packet: Packet) {
+    if (this.conn.protocol !== 3) {
+      return {
+        namespace: packet.nsp,
+        authPayload: packet.data,
+      };
+    }
+    const url = new URL(packet.nsp, "https://socket.io");
+    return {
+      namespace: url.pathname,
+      authPayload: Object.fromEntries(url.searchParams.entries()),
+    };
   }
 
   /**
