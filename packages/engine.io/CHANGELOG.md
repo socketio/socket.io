@@ -50,7 +50,7 @@
 
 ## [6.6.5](https://github.com/socketio/socket.io/compare/engine.io@6.6.4...engine.io@6.6.5) (2025-12-22)
 
-The `url.parse()` function is now deprecated and has been replaced by `new URL()` (see [e08293b](https://github.com/socketio/socket.io/commit/e08293bc3735de5b824b347383e86e0b8ab9fbd5b).
+The `url.parse()` function is now deprecated and has been replaced by `new URL()` (see [e08293b](https://github.com/socketio/socket.io/commit/e08293bc3735de5b824b347383e86e0b8ab9fbd5)).
 
 
 ### Dependencies
