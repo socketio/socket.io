@@ -26,9 +26,12 @@
   "type": "commonjs",
   "main": "./dist/index.js",
   "exports": {
-    "types": "./dist/index.d.ts",
-    "import": "./wrapper.mjs",
-    "require": "./dist/index.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./wrapper.mjs",
+      "require": "./dist/index.js"
+     },
+    "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
   "license": "MIT",
