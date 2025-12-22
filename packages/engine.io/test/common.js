@@ -1,5 +1,6 @@
-if (process.env.EIO_CLIENT === "3" && process.versions.node.startsWith("22")) {
-  // FIXME WebSocket error with engine.io-client@3
+if (process.env.EIO_CLIENT === "3") {
+  // we need the WebSocket object provided by the "ws" library to test the SSL certs and HTTP headers so we hide the now built-in WebSocket constructor
+  // ref: https://nodejs.org/api/globals.html#class-websocket
   global.WebSocket = null;
 }
 
