@@ -6,7 +6,7 @@ import { getPort, successFn } from "./support/util";
 
 describe("server attachment", () => {
   describe("http.Server", () => {
-    const clientVersion = require("socket.io-client/package.json").version;
+    const clientVersion = require("../package.json").version;
 
     const testSource = (filename) => (done) => {
       const srv = createServer();

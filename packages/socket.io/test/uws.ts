@@ -229,7 +229,7 @@ describe("socket.io with uWebSocket.js-based engine", () => {
   });
 
   it("should serve static files", (done) => {
-    const clientVersion = require("socket.io-client/package.json").version;
+    const clientVersion = require("../package.json").version;
 
     request(`http://localhost:${port}`)
       .get("/socket.io/socket.io.js")
