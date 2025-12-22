@@ -111,7 +111,7 @@ describe("retry", () => {
     });
   });
 
-  it.only("should not emit a packet twice in the 'connect' handler", () => {
+  it("should not emit a packet twice in the 'connect' handler", () => {
     return wrap((done) => {
       const socket = io(BASE_URL, {
         forceNew: true,
