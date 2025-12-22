@@ -19,11 +19,11 @@
     "format:fix": "prettier --parser typescript --write 'lib/**/*.ts' 'test/**/*.ts'",
     "prepack": "npm run compile",
     "test": "npm run format:check && npm run compile && npm run test:redis-standalone && npm run test:ioredis-standalone",
-    "test:redis-standalone": "nyc mocha --import=tsx test/**/*.ts",
-    "test:redis-cluster": "REDIS_CLUSTER=1 mocha --import=tsx test/**/*.ts",
-    "test:ioredis-standalone": "REDIS_LIB=ioredis mocha --import=tsx test/**/*.ts",
-    "test:ioredis-cluster": "REDIS_LIB=ioredis REDIS_CLUSTER=1 mocha --import=tsx test/**/*.ts",
-    "test:valkey-standalone": "VALKEY=1 mocha --import=tsx test/**/*.ts"
+    "test:redis-standalone": "tsx --test",
+    "test:redis-cluster": "REDIS_CLUSTER=1 npm run test:redis-standalone",
+    "test:ioredis-standalone": "REDIS_LIB=ioredis npm run test:redis-standalone",
+    "test:ioredis-cluster": "REDIS_LIB=ioredis REDIS_CLUSTER=1 npm run test:redis-standalone",
+    "test:valkey-standalone": "VALKEY=1 npm run test:redis-standalone"
   },
   "dependencies": {
     "@msgpack/msgpack": "~2.8.0",

@@ -138,9 +138,17 @@ async function init() {
 export async function setup() {
   const results = await Promise.all([init(), init(), init()]);
 
-  const servers = results.map(({ io }) => io);
-  const serverSockets = results.map(({ socket }) => socket);
-  const clientSockets = results.map(({ clientSocket }) => clientSocket);
+  const servers = results.map(({ io }) => io) as [Server, Server, Server];
+  const serverSockets = results.map(({ socket }) => socket) as [
+    ServerSocket,
+    ServerSocket,
+    ServerSocket,
+  ];
+  const clientSockets = results.map(({ clientSocket }) => clientSocket) as [
+    ClientSocket,
+    ClientSocket,
+    ClientSocket,
+  ];
   const cleanupMethods = results.map(({ cleanup }) => cleanup);
 
   return {

@@ -1,15 +1,16 @@
+import { describe, it, beforeEach, afterEach } from "node:test";
+import * as assert from "node:assert";
 import { type Server, type Socket as ServerSocket } from "socket.io";
 import { type Socket as ClientSocket } from "socket.io-client";
-import expect = require("expect.js");
 import { times, sleep, setup, initRedisClient } from "./util";
 import { Emitter } from "../lib";
 
 const PROPAGATION_DELAY_IN_MS = 100;
 
 describe("@socket.io/redis-streams-emitter", () => {
-  let servers: Server[],
-    serverSockets: ServerSocket[],
-    clientSockets: ClientSocket[],
+  let servers: [Server, Server, Server],
+    serverSockets: [ServerSocket, ServerSocket, ServerSocket],
+    clientSockets: [ClientSocket, ClientSocket, ClientSocket],
     cleanup: () => void,
     emitter: Emitter;
 
@@ -30,80 +31,88 @@ describe("@socket.io/redis-streams-emitter", () => {
   afterEach(() => cleanup());
 
   describe("broadcast", function () {
-    it("broadcasts to all clients", (done) => {
-      const partialDone = times(3, done);
+    it("broadcasts to all clients", () => {
+      return new Promise<void>((resolve) => {
+        const partialResolve = times(3, resolve);
 
-      clientSockets.forEach((clientSocket) => {
-        clientSocket.on("test", (arg1, arg2, arg3) => {
-          expect(arg1).to.eql(1);
-          expect(arg2).to.eql("2");
-          expect(Buffer.isBuffer(arg3)).to.be(true);
-          partialDone();
+        clientSockets.forEach((clientSocket) => {
+          clientSocket.on("test", (arg1, arg2, arg3) => {
+            assert.equal(arg1, 1);
+            assert.equal(arg2, "2");
+            assert.ok(Buffer.isBuffer(arg3));
+            partialResolve();
+          });
+        });
+
+        emitter.emit("test", 1, "2", Buffer.from([3, 4]));
+      });
+    });
+
+    it("broadcasts to all clients in a namespace", () => {
+      return new Promise<void>((resolve) => {
+        const partialResolve = times(3, () => {
+          servers.forEach((server) => server.of("/custom").adapter.close());
+          resolve();
+        });
+
+        servers.forEach((server) => server.of("/custom"));
+
+        const onConnect = times(3, async () => {
+          await sleep(PROPAGATION_DELAY_IN_MS);
+
+          emitter.of("/custom").emit("test");
+        });
+
+        clientSockets.forEach((clientSocket) => {
+          const socket = clientSocket.io.socket("/custom");
+          socket.on("connect", onConnect);
+          socket.on("test", () => {
+            socket.disconnect();
+            partialResolve();
+          });
         });
       });
-
-      emitter.emit("test", 1, "2", Buffer.from([3, 4]));
     });
 
-    it("broadcasts to all clients in a namespace", (done) => {
-      const partialDone = times(3, () => {
-        servers.forEach((server) => server.of("/custom").adapter.close());
-        done();
-      });
+    it("broadcasts to all clients in a room", () => {
+      return new Promise<void>((resolve, reject) => {
+        serverSockets[1].join("room1");
 
-      servers.forEach((server) => server.of("/custom"));
-
-      const onConnect = times(3, async () => {
-        await sleep(PROPAGATION_DELAY_IN_MS);
-
-        emitter.of("/custom").emit("test");
-      });
-
-      clientSockets.forEach((clientSocket) => {
-        const socket = clientSocket.io.socket("/custom");
-        socket.on("connect", onConnect);
-        socket.on("test", () => {
-          socket.disconnect();
-          partialDone();
+        clientSockets[0].on("test", () => {
+          reject("should not happen");
         });
+
+        clientSockets[1].on("test", () => {
+          resolve();
+        });
+
+        clientSockets[2].on("test", () => {
+          reject("should not happen");
+        });
+
+        emitter.to("room1").emit("test");
       });
     });
 
-    it("broadcasts to all clients in a room", (done) => {
-      serverSockets[1].join("room1");
+    it("broadcasts to all clients except in room", () => {
+      return new Promise<void>((resolve, reject) => {
+        const partialResolve = times(2, resolve);
+        serverSockets[1].join("room1");
 
-      clientSockets[0].on("test", () => {
-        done(new Error("should not happen"));
+        clientSockets[0].on("test", () => {
+          partialResolve();
+        });
+
+        clientSockets[1].on("test", () => {
+          reject("should not happen");
+        });
+
+        clientSockets[2].on("test", () => {
+          partialResolve();
+        });
+
+        emitter.of("/").except("room1").emit("test");
       });
-
-      clientSockets[1].on("test", () => {
-        done();
-      });
-
-      clientSockets[2].on("test", () => {
-        done(new Error("should not happen"));
-      });
-
-      emitter.to("room1").emit("test");
-    });
-
-    it("broadcasts to all clients except in room", (done) => {
-      const partialDone = times(2, done);
-      serverSockets[1].join("room1");
-
-      clientSockets[0].on("test", () => {
-        partialDone();
-      });
-
-      clientSockets[1].on("test", () => {
-        done(new Error("should not happen"));
-      });
-
-      clientSockets[2].on("test", () => {
-        partialDone();
-      });
-
-      emitter.of("/").except("room1").emit("test");
     });
   });
 
@@ -113,9 +122,9 @@ describe("@socket.io/redis-streams-emitter", () => {
 
       await sleep(PROPAGATION_DELAY_IN_MS);
 
-      expect(serverSockets[0].rooms.has("room1")).to.be(true);
-      expect(serverSockets[1].rooms.has("room1")).to.be(true);
-      expect(serverSockets[2].rooms.has("room1")).to.be(true);
+      assert.ok(serverSockets[0].rooms.has("room1"));
+      assert.ok(serverSockets[1].rooms.has("room1"));
+      assert.ok(serverSockets[2].rooms.has("room1"));
     });
 
     it("makes the matching socket instances join the specified room", async () => {
@@ -126,9 +135,9 @@ describe("@socket.io/redis-streams-emitter", () => {
 
       await sleep(PROPAGATION_DELAY_IN_MS);
 
-      expect(serverSockets[0].rooms.has("room2")).to.be(true);
-      expect(serverSockets[1].rooms.has("room2")).to.be(false);
-      expect(serverSockets[2].rooms.has("room2")).to.be(true);
+      assert.ok(serverSockets[0].rooms.has("room2"));
+      assert.ok(serverSockets[1].rooms.has("room2") === false);
+      assert.ok(serverSockets[2].rooms.has("room2"));
     });
 
     it("makes the given socket instance join the specified room", async () => {
@@ -136,9 +145,9 @@ describe("@socket.io/redis-streams-emitter", () => {
 
       await sleep(PROPAGATION_DELAY_IN_MS);
 
-      expect(serverSockets[0].rooms.has("room3")).to.be(false);
-      expect(serverSockets[1].rooms.has("room3")).to.be(true);
-      expect(serverSockets[2].rooms.has("room3")).to.be(false);
+      assert.ok(serverSockets[0].rooms.has("room3") === false);
+      assert.ok(serverSockets[1].rooms.has("room3"));
+      assert.ok(serverSockets[2].rooms.has("room3") === false);
     });
   });
 
@@ -151,9 +160,9 @@ describe("@socket.io/redis-streams-emitter", () => {
 
       await sleep(PROPAGATION_DELAY_IN_MS);
 
-      expect(serverSockets[0].rooms.has("room1")).to.be(false);
-      expect(serverSockets[1].rooms.has("room1")).to.be(false);
-      expect(serverSockets[2].rooms.has("room1")).to.be(false);
+      assert.ok(serverSockets[0].rooms.has("room1") === false);
+      assert.ok(serverSockets[1].rooms.has("room1") === false);
+      assert.ok(serverSockets[2].rooms.has("room1") === false);
     });
 
     it("makes the matching socket instances leave the specified room", async () => {
@@ -165,9 +174,9 @@ describe("@socket.io/redis-streams-emitter", () => {
 
       await sleep(PROPAGATION_DELAY_IN_MS);
 
-      expect(serverSockets[0].rooms.has("room2")).to.be(false);
-      expect(serverSockets[1].rooms.has("room2")).to.be(false);
-      expect(serverSockets[2].rooms.has("room2")).to.be(true);
+      assert.ok(serverSockets[0].rooms.has("room2") === false);
+      assert.ok(serverSockets[1].rooms.has("room2") === false);
+      assert.ok(serverSockets[2].rooms.has("room2"));
     });
 
     it("makes the given socket instance leave the specified room", async () => {
@@ -179,46 +188,50 @@ describe("@socket.io/redis-streams-emitter", () => {
 
       await sleep(PROPAGATION_DELAY_IN_MS);
 
-      expect(serverSockets[0].rooms.has("room3")).to.be(true);
-      expect(serverSockets[1].rooms.has("room3")).to.be(false);
-      expect(serverSockets[2].rooms.has("room3")).to.be(true);
+      assert.ok(serverSockets[0].rooms.has("room3"));
+      assert.ok(serverSockets[1].rooms.has("room1") === false);
+      assert.ok(serverSockets[2].rooms.has("room3"));
     });
   });
 
   describe("disconnectSockets", () => {
-    it("makes all socket instances disconnect", (done) => {
-      const partialDone = times(3, done);
+    it("makes all socket instances disconnect", () => {
+      return new Promise<void>((resolve) => {
+        const partialResolve = times(3, resolve);
 
-      clientSockets.forEach((clientSocket) => {
-        clientSocket.on("disconnect", (reason) => {
-          expect(reason).to.eql("io server disconnect");
-          partialDone();
+        clientSockets.forEach((clientSocket) => {
+          clientSocket.on("disconnect", (reason) => {
+            assert.equal(reason, "io server disconnect");
+            partialResolve();
+          });
         });
-      });
 
-      emitter.disconnectSockets();
+        emitter.disconnectSockets();
+      });
     });
   });
 
   describe("serverSideEmit", () => {
-    it("sends an event to other server instances", (done) => {
-      const partialDone = times(3, done);
+    it("sends an event to other server instances", () => {
+      return new Promise<void>((resolve) => {
+        const partialResolve = times(3, resolve);
 
-      emitter.serverSideEmit("hello", "world", 1, "2");
+        emitter.serverSideEmit("hello", "world", 1, "2");
 
-      servers[0].on("hello", (arg1, arg2, arg3) => {
-        expect(arg1).to.eql("world");
-        expect(arg2).to.eql(1);
-        expect(arg3).to.eql("2");
-        partialDone();
-      });
+        servers[0].on("hello", (arg1, arg2, arg3) => {
+          assert.equal(arg1, "world");
+          assert.equal(arg2, 1);
+          assert.equal(arg3, "2");
+          partialResolve();
+        });
 
-      servers[1].on("hello", (arg1, arg2, arg3) => {
-        partialDone();
-      });
+        servers[1].on("hello", (arg1, arg2, arg3) => {
+          partialResolve();
+        });
 
-      servers[2].of("/").on("hello", () => {
-        partialDone();
+        servers[2].of("/").on("hello", () => {
+          partialResolve();
+        });
       });
     });
   });
