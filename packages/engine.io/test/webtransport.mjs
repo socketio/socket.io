@@ -99,6 +99,26 @@ function setup(opts, cb) {
   });
 }
 
+function createHttpServer(port) {
+  const httpServer = createServer();
+
+  let retryCount = 0;
+
+  return new Promise((resolve, reject) => {
+    httpServer.listen(port, () => resolve(httpServer));
+
+    httpServer.on("error", (e) => {
+      if (e.code === "EADDRINUSE" && ++retryCount <= 3) {
+        console.warn("port already in use, retrying...");
+        setTimeout(() => {
+          httpServer.listen(port, () => resolve(httpServer));
+        }, 100);
+      }
+      reject(e);
+    });
+  });
+}
+
 describe("WebTransport", () => {
   it("should allow to connect with WebTransport directly", (done) => {
     setupServer({}, async ({ engine, h3Server, certificate }) => {
@@ -154,9 +174,8 @@ describe("WebTransport", () => {
         transports: ["polling", "websocket", "webtransport"],
       },
       async ({ engine, h3Server, certificate }) => {
-        const httpServer = createServer();
+        const httpServer = await createHttpServer(h3Server.port);
         engine.attach(httpServer);
-        httpServer.listen(h3Server.port);
 
         const partialDone = createPartialDone(() => {
           httpServer.close();

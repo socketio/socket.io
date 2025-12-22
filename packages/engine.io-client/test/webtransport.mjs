@@ -53,6 +53,26 @@ async function setup(opts, cb) {
   cb({ engine, h3Server, certificate });
 }
 
+function createHttpServer(port) {
+  const httpServer = createServer();
+
+  let retryCount = 0;
+
+  return new Promise((resolve, reject) => {
+    httpServer.listen(port, () => resolve(httpServer));
+
+    httpServer.on("error", (e) => {
+      if (e.code === "EADDRINUSE" && ++retryCount <= 3) {
+        console.warn("port already in use, retrying...");
+        setTimeout(() => {
+          httpServer.listen(port, () => resolve(httpServer));
+        }, 100);
+      }
+      reject(e);
+    });
+  });
+}
+
 function success(engine, h3server, done) {
   engine.close();
   h3server.stopServer();
@@ -98,10 +118,9 @@ describe("WebTransport", () => {
       {
         transports: ["polling", "webtransport"],
       },
-      ({ engine, h3Server, certificate }) => {
-        const httpServer = createServer();
+      async ({ engine, h3Server, certificate }) => {
+        const httpServer = await createHttpServer(h3Server.port);
         engine.attach(httpServer);
-        httpServer.listen(h3Server.port);
 
         const socket = createSocket(h3Server.port, certificate, {
           transports: ["polling", "webtransport"],
@@ -120,10 +139,9 @@ describe("WebTransport", () => {
       {
         transports: ["polling", "websocket", "webtransport"],
       },
-      ({ engine, h3Server, certificate }) => {
-        const httpServer = createServer();
+      async ({ engine, h3Server, certificate }) => {
+        const httpServer = await createHttpServer(h3Server.port);
         engine.attach(httpServer);
-        httpServer.listen(h3Server.port);
 
         const socket = createSocket(h3Server.port, certificate, {
           transports: ["polling", "websocket", "webtransport"],
