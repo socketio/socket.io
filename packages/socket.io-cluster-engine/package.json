@@ -26,7 +26,7 @@
   "scripts": {
     "compile": "rimraf ./dist && tsc",
     "test": "npm run format:check && npm run compile && npm run test:unit",
-    "test:unit": "mocha --require ts-node/register test/*.ts",
+    "test:unit": "mocha --import=tsx test/*.ts",
     "format:check": "prettier --check \"lib/**/*.ts\" \"test/**/*.ts\"",
     "format:fix": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\"",
     "prepack": "npm run compile"

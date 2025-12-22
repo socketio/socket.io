@@ -15,7 +15,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "compile": "rimraf ./dist && tsc",
-    "test": "npm run format:check && npm run compile && nyc mocha --require ts-node/register --timeout 5000 test/index.ts",
+    "test": "npm run format:check && npm run compile && nyc mocha --import=tsx --timeout 5000 test/index.ts",
     "format:check": "prettier --parser typescript --check 'lib/**/*.ts' 'test/**/*.ts'",
     "format:fix": "prettier --parser typescript --write 'lib/**/*.ts' 'test/**/*.ts'",
     "prepack": "npm run compile"

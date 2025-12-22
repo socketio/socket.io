@@ -44,7 +44,7 @@
     "compile": "rimraf ./dist && tsc",
     "test": "npm run format:check && npm run compile && npm run test:types && npm run test:unit",
     "test:types": "tsd",
-    "test:unit": "nyc mocha --require ts-node/register --reporter spec --slow 200 --bail --timeout 10000 test/index.ts",
+    "test:unit": "nyc mocha --import=tsx --reporter spec --slow 200 --bail --timeout 10000 test/index.ts",
     "format:check": "prettier --check \"lib/**/*.ts\" \"test/**/*.ts\"",
     "format:fix": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\"",
     "prepack": "npm run compile"
