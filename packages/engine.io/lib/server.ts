@@ -1,5 +1,3 @@
-import * as qs from "querystring";
-import { parse } from "url";
 import * as base64id from "base64id";
 import transports from "./transports";
 import { EventEmitter } from "events";
@@ -736,9 +734,8 @@ export class Server extends BaseServer {
   private prepare(req: EngineRequest) {
     // try to leverage pre-existing `req._query` (e.g: from connect)
     if (!req._query) {
-      req._query = (
-        ~req.url.indexOf("?") ? qs.parse(parse(req.url).query) : {}
-      ) as Record<string, string>;
+      const url = new URL(req.url, "https://socket.io");
+      req._query = Object.fromEntries(url.searchParams.entries());
     }
   }
 
