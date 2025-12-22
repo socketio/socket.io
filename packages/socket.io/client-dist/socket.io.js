@@ -1,6 +1,6 @@
 /*!
- * Socket.IO v4.8.1
- * (c) 2014-2024 Guillermo Rauch
+ * Socket.IO v4.8.2
+ * (c) 2014-2025 Guillermo Rauch
  * Released under the MIT License.
  */
 (function (global, factory) {
@@ -899,7 +899,7 @@
       return hostname.indexOf(":") === -1 ? hostname : "[" + hostname + "]";
     };
     _proto._port = function _port() {
-      if (this.opts.port && (this.opts.secure && Number(this.opts.port !== 443) || !this.opts.secure && Number(this.opts.port) !== 80)) {
+      if (this.opts.port && (this.opts.secure && Number(this.opts.port) !== 443 || !this.opts.secure && Number(this.opts.port) !== 80)) {
         return ":" + this.opts.port;
       } else {
         return "";
@@ -2669,21 +2669,65 @@
       createDebug.namespaces = namespaces;
       createDebug.names = [];
       createDebug.skips = [];
-      var i;
-      var split = (typeof namespaces === 'string' ? namespaces : '').split(/[\s,]+/);
-      var len = split.length;
-      for (i = 0; i < len; i++) {
-        if (!split[i]) {
-          // ignore empty strings
-          continue;
+      var split = (typeof namespaces === 'string' ? namespaces : '').trim().replace(/\s+/g, ',').split(',').filter(Boolean);
+      var _iterator = _createForOfIteratorHelper(split),
+        _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var ns = _step.value;
+          if (ns[0] === '-') {
+            createDebug.skips.push(ns.slice(1));
+          } else {
+            createDebug.names.push(ns);
+          }
         }
-        namespaces = split[i].replace(/\*/g, '.*?');
-        if (namespaces[0] === '-') {
-          createDebug.skips.push(new RegExp('^' + namespaces.slice(1) + '$'));
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+    }
+
+    /**
+     * Checks if the given string matches a namespace template, honoring
+     * asterisks as wildcards.
+     *
+     * @param {String} search
+     * @param {String} template
+     * @return {Boolean}
+     */
+    function matchesTemplate(search, template) {
+      var searchIndex = 0;
+      var templateIndex = 0;
+      var starIndex = -1;
+      var matchIndex = 0;
+      while (searchIndex < search.length) {
+        if (templateIndex < template.length && (template[templateIndex] === search[searchIndex] || template[templateIndex] === '*')) {
+          // Match character or proceed with wildcard
+          if (template[templateIndex] === '*') {
+            starIndex = templateIndex;
+            matchIndex = searchIndex;
+            templateIndex++; // Skip the '*'
+          } else {
+            searchIndex++;
+            templateIndex++;
+          }
+        } else if (starIndex !== -1) {
+          // eslint-disable-line no-negated-condition
+          // Backtrack to the last '*' and try to match more characters
+          templateIndex = starIndex + 1;
+          matchIndex++;
+          searchIndex = matchIndex;
         } else {
-          createDebug.names.push(new RegExp('^' + namespaces + '$'));
+          return false; // No match
         }
       }
+
+      // Handle trailing '*' in template
+      while (templateIndex < template.length && template[templateIndex] === '*') {
+        templateIndex++;
+      }
+      return templateIndex === template.length;
     }
 
     /**
@@ -2693,7 +2737,7 @@
     * @api public
     */
     function disable() {
-      var namespaces = [].concat(_toConsumableArray(createDebug.names.map(toNamespace)), _toConsumableArray(createDebug.skips.map(toNamespace).map(function (namespace) {
+      var namespaces = [].concat(_toConsumableArray(createDebug.names), _toConsumableArray(createDebug.skips.map(function (namespace) {
         return '-' + namespace;
       }))).join(',');
       createDebug.enable('');
@@ -2708,33 +2752,35 @@
     * @api public
     */
     function enabled(name) {
-      if (name[name.length - 1] === '*') {
-        return true;
-      }
-      var i;
-      var len;
-      for (i = 0, len = createDebug.skips.length; i < len; i++) {
-        if (createDebug.skips[i].test(name)) {
-          return false;
+      var _iterator2 = _createForOfIteratorHelper(createDebug.skips),
+        _step2;
+      try {
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          var skip = _step2.value;
+          if (matchesTemplate(name, skip)) {
+            return false;
+          }
         }
+      } catch (err) {
+        _iterator2.e(err);
+      } finally {
+        _iterator2.f();
       }
-      for (i = 0, len = createDebug.names.length; i < len; i++) {
-        if (createDebug.names[i].test(name)) {
-          return true;
+      var _iterator3 = _createForOfIteratorHelper(createDebug.names),
+        _step3;
+      try {
+        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+          var ns = _step3.value;
+          if (matchesTemplate(name, ns)) {
+            return true;
+          }
         }
+      } catch (err) {
+        _iterator3.e(err);
+      } finally {
+        _iterator3.f();
       }
       return false;
-    }
-
-    /**
-    * Convert regexp to namespace
-    *
-    * @param {RegExp} regxep
-    * @return {String} namespace
-    * @api private
-    */
-    function toNamespace(regexp) {
-      return regexp.toString().substring(2, regexp.toString().length - 2).replace(/\.\*\?$/, '*');
     }
 
     /**
@@ -2812,15 +2858,17 @@
       if (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) {
         return false;
       }
+      var m;
 
       // Is webkit? http://stackoverflow.com/a/16459606/376773
       // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
+      // eslint-disable-next-line no-return-assign
       return typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance ||
       // Is firebug? http://stackoverflow.com/a/398120/376773
       typeof window !== 'undefined' && window.console && (window.console.firebug || window.console.exception && window.console.table) ||
       // Is firefox >= v31?
       // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-      typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31 ||
+      typeof navigator !== 'undefined' && navigator.userAgent && (m = navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/)) && parseInt(m[1], 10) >= 31 ||
       // Double check webkit in userAgent just in case we are in a worker
       typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
     }
@@ -2896,7 +2944,7 @@
     function load() {
       var r;
       try {
-        r = exports.storage.getItem('debug');
+        r = exports.storage.getItem('debug') || exports.storage.getItem('DEBUG');
       } catch (error) {
         // Swallow
         // XXX (@Qix-) should we be logging these?
@@ -3828,8 +3876,7 @@
       };
       args.push(function (err) {
         if (packet !== _this4._queue[0]) {
-          // the packet has already been acknowledged
-          return;
+          return debug$2("packet [%d] already acknowledged", packet.id);
         }
         var hasError = err !== null;
         if (hasError) {
@@ -4100,8 +4147,8 @@
       this._pid = pid; // defined only if connection state recovery is enabled
       this.connected = true;
       this.emitBuffered();
-      this.emitReserved("connect");
       this._drainQueue(true);
+      this.emitReserved("connect");
     }
     /**
      * Emit buffered events (received and emitted).

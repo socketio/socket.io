@@ -1,7 +1,8 @@
-# History
+# Changelog
 
 | Version                                                                                          | Release date   |
 |--------------------------------------------------------------------------------------------------|----------------|
+| [4.8.2](#482-2025-12-22)                                                                         | December 2025  |
 | [4.8.1](#481-2024-10-25)                                                                         | October 2024   |
 | [4.8.0](#480-2024-09-21)                                                                         | September 2024 |
 | [4.7.5](#475-2024-03-14)                                                                         | March 2024     |
@@ -49,7 +50,22 @@
 | [2.1.0](#210-2018-03-29)                                                                         | March 2018     |
 
 
-# Release notes
+## [4.8.2](https://github.com/socketio/socket.io/compare/socket.io@4.8.1...socket.io@4.8.2) (2025-12-22)
+
+The `url.parse()` function is now deprecated and has been replaced by `new URL()` (see [8af7019](https://github.com/socketio/socket.io/commit/8af70195bb8c5bc3efe9685997ab6373fb8b1ca9)).
+
+### Bug Fixes
+
+* call adapter.init() when creating each namespace ([f3e1f5e](https://github.com/socketio/socket.io/commit/f3e1f5ebdf59158d0c8d1e20f8230275617fb355))
+* improve `io.close()` function ([#5344](https://github.com/socketio/socket.io/issues/5344)) ([bb0b480](https://github.com/socketio/socket.io/commit/bb0b480d2ab3108a8ae255b539015da451fdb249))
+
+
+### Dependencies
+
+- [`engine.io@~6.6.0`](https://github.com/socketio/engine.io/releases/tag/6.6.0) (no change)
+- [`ws@~8.18.3`](https://github.com/websockets/ws/releases/tag/8.18.3) ([diff](https://github.com/websockets/ws/compare/8.17.1...8.18.3))
+
+
 
 ## [4.8.1](https://github.com/socketio/socket.io/compare/socket.io@4.8.0...socket.io@4.8.1) (2024-10-25)
 
