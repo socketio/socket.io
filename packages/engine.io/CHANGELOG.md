@@ -1,7 +1,8 @@
-# History
+# Changelog
 
 | Version                                                                                              | Release date   |
 |------------------------------------------------------------------------------------------------------|----------------|
+| [6.6.5](#665-2025-12-22)                                                                             | December 2025  |
 | [6.6.4](#664-2025-01-28)                                                                             | January 2025   |
 | [6.6.3](#663-2025-01-23)                                                                             | January 2025   |
 | [6.6.2](#662-2024-10-09)                                                                             | October 2024   |
@@ -47,7 +48,16 @@
 | [3.4.1](#341-2020-04-17)                                                                             | April 2020     |
 
 
-# Release notes
+## [6.6.5](https://github.com/socketio/socket.io/compare/engine.io@6.6.4...engine.io@6.6.5) (2025-12-22)
+
+The `url.parse()` function is now deprecated and has been replaced by `new URL()` (see [e08293b](https://github.com/socketio/socket.io/commit/e08293bc3735de5b824b347383e86e0b8ab9fbd5b).
+
+
+### Dependencies
+
+- [`ws@~8.18.3`](https://github.com/websockets/ws/releases/tag/8.18.3) ([diff](https://github.com/websockets/ws/compare/8.17.1...8.18.3))
+
+
 
 ## [6.6.4](https://github.com/socketio/socket.io/compare/engine.io@6.6.3...engine.io@6.6.4) (2025-01-28)
 
