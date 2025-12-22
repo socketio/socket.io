@@ -542,8 +542,7 @@ export class Socket<
 
     args.push((err, ...responseArgs) => {
       if (packet !== this._queue[0]) {
-        // the packet has already been acknowledged
-        return;
+        return debug("packet [%d] already acknowledged", packet.id);
       }
       const hasError = err !== null;
       if (hasError) {
