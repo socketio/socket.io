@@ -1,5 +1,5 @@
 /*!
- * Engine.IO v6.6.3
+ * Engine.IO v6.6.4
  * (c) 2014-2025 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -34,6 +34,54 @@
     return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", {
       writable: !1
     }), e;
+  }
+  function _createForOfIteratorHelper(r, e) {
+    var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+    if (!t) {
+      if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) {
+        t && (r = t);
+        var n = 0,
+          F = function () {};
+        return {
+          s: F,
+          n: function () {
+            return n >= r.length ? {
+              done: !0
+            } : {
+              done: !1,
+              value: r[n++]
+            };
+          },
+          e: function (r) {
+            throw r;
+          },
+          f: F
+        };
+      }
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+    var o,
+      a = !0,
+      u = !1;
+    return {
+      s: function () {
+        t = t.call(r);
+      },
+      n: function () {
+        var r = t.next();
+        return a = r.done, r;
+      },
+      e: function (r) {
+        u = !0, o = r;
+      },
+      f: function () {
+        try {
+          a || null == t.return || t.return();
+        } finally {
+          if (u) throw o;
+        }
+      }
+    };
   }
   function _extends() {
     return _extends = Object.assign ? Object.assign.bind() : function (n) {
@@ -1049,21 +1097,65 @@
       createDebug.namespaces = namespaces;
       createDebug.names = [];
       createDebug.skips = [];
-      var i;
-      var split = (typeof namespaces === 'string' ? namespaces : '').split(/[\s,]+/);
-      var len = split.length;
-      for (i = 0; i < len; i++) {
-        if (!split[i]) {
-          // ignore empty strings
-          continue;
+      var split = (typeof namespaces === 'string' ? namespaces : '').trim().replace(/\s+/g, ',').split(',').filter(Boolean);
+      var _iterator = _createForOfIteratorHelper(split),
+        _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var ns = _step.value;
+          if (ns[0] === '-') {
+            createDebug.skips.push(ns.slice(1));
+          } else {
+            createDebug.names.push(ns);
+          }
         }
-        namespaces = split[i].replace(/\*/g, '.*?');
-        if (namespaces[0] === '-') {
-          createDebug.skips.push(new RegExp('^' + namespaces.slice(1) + '$'));
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+    }
+
+    /**
+     * Checks if the given string matches a namespace template, honoring
+     * asterisks as wildcards.
+     *
+     * @param {String} search
+     * @param {String} template
+     * @return {Boolean}
+     */
+    function matchesTemplate(search, template) {
+      var searchIndex = 0;
+      var templateIndex = 0;
+      var starIndex = -1;
+      var matchIndex = 0;
+      while (searchIndex < search.length) {
+        if (templateIndex < template.length && (template[templateIndex] === search[searchIndex] || template[templateIndex] === '*')) {
+          // Match character or proceed with wildcard
+          if (template[templateIndex] === '*') {
+            starIndex = templateIndex;
+            matchIndex = searchIndex;
+            templateIndex++; // Skip the '*'
+          } else {
+            searchIndex++;
+            templateIndex++;
+          }
+        } else if (starIndex !== -1) {
+          // eslint-disable-line no-negated-condition
+          // Backtrack to the last '*' and try to match more characters
+          templateIndex = starIndex + 1;
+          matchIndex++;
+          searchIndex = matchIndex;
         } else {
-          createDebug.names.push(new RegExp('^' + namespaces + '$'));
+          return false; // No match
         }
       }
+
+      // Handle trailing '*' in template
+      while (templateIndex < template.length && template[templateIndex] === '*') {
+        templateIndex++;
+      }
+      return templateIndex === template.length;
     }
 
     /**
@@ -1073,7 +1165,7 @@
     * @api public
     */
     function disable() {
-      var namespaces = [].concat(_toConsumableArray(createDebug.names.map(toNamespace)), _toConsumableArray(createDebug.skips.map(toNamespace).map(function (namespace) {
+      var namespaces = [].concat(_toConsumableArray(createDebug.names), _toConsumableArray(createDebug.skips.map(function (namespace) {
         return '-' + namespace;
       }))).join(',');
       createDebug.enable('');
@@ -1088,33 +1180,35 @@
     * @api public
     */
     function enabled(name) {
-      if (name[name.length - 1] === '*') {
-        return true;
-      }
-      var i;
-      var len;
-      for (i = 0, len = createDebug.skips.length; i < len; i++) {
-        if (createDebug.skips[i].test(name)) {
-          return false;
+      var _iterator2 = _createForOfIteratorHelper(createDebug.skips),
+        _step2;
+      try {
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          var skip = _step2.value;
+          if (matchesTemplate(name, skip)) {
+            return false;
+          }
         }
+      } catch (err) {
+        _iterator2.e(err);
+      } finally {
+        _iterator2.f();
       }
-      for (i = 0, len = createDebug.names.length; i < len; i++) {
-        if (createDebug.names[i].test(name)) {
-          return true;
+      var _iterator3 = _createForOfIteratorHelper(createDebug.names),
+        _step3;
+      try {
+        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+          var ns = _step3.value;
+          if (matchesTemplate(name, ns)) {
+            return true;
+          }
         }
+      } catch (err) {
+        _iterator3.e(err);
+      } finally {
+        _iterator3.f();
       }
       return false;
-    }
-
-    /**
-    * Convert regexp to namespace
-    *
-    * @param {RegExp} regxep
-    * @return {String} namespace
-    * @api private
-    */
-    function toNamespace(regexp) {
-      return regexp.toString().substring(2, regexp.toString().length - 2).replace(/\.\*\?$/, '*');
     }
 
     /**
@@ -1192,15 +1286,17 @@
       if (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) {
         return false;
       }
+      var m;
 
       // Is webkit? http://stackoverflow.com/a/16459606/376773
       // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
+      // eslint-disable-next-line no-return-assign
       return typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance ||
       // Is firebug? http://stackoverflow.com/a/398120/376773
       typeof window !== 'undefined' && window.console && (window.console.firebug || window.console.exception && window.console.table) ||
       // Is firefox >= v31?
       // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-      typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31 ||
+      typeof navigator !== 'undefined' && navigator.userAgent && (m = navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/)) && parseInt(m[1], 10) >= 31 ||
       // Double check webkit in userAgent just in case we are in a worker
       typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
     }
@@ -1276,7 +1372,7 @@
     function load() {
       var r;
       try {
-        r = exports.storage.getItem('debug');
+        r = exports.storage.getItem('debug') || exports.storage.getItem('DEBUG');
       } catch (error) {
         // Swallow
         // XXX (@Qix-) should we be logging these?
@@ -1457,7 +1553,7 @@
       return hostname.indexOf(":") === -1 ? hostname : "[" + hostname + "]";
     };
     _proto._port = function _port() {
-      if (this.opts.port && (this.opts.secure && Number(this.opts.port !== 443) || !this.opts.secure && Number(this.opts.port) !== 80)) {
+      if (this.opts.port && (this.opts.secure && Number(this.opts.port) !== 443 || !this.opts.secure && Number(this.opts.port) !== 80)) {
         return ":" + this.opts.port;
       } else {
         return "";

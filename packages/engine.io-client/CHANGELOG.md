@@ -1,7 +1,8 @@
-# History
+# Changelog
 
 | Version                                                                                                     | Release date   | Bundle size (UMD min+gzip) |
 |-------------------------------------------------------------------------------------------------------------|----------------|----------------------------|
+| [6.6.4](#664-2025-12-23)                                                                                    | December 2025  | `8.7 KB`                   |
 | [6.6.3](#663-2025-01-23)                                                                                    | January 2025   | `8.7 KB`                   |
 | [6.6.2](#662-2024-10-23)                                                                                    | October 2024   | `8.7 KB`                   |
 | [6.6.1](#661-2024-09-21)                                                                                    | September 2024 | `8.7 KB`                   |
@@ -39,7 +40,24 @@
 | [4.1.1](#411-2021-02-02)                                                                                    | February 2021  | `9.1 KB`                   |
 | [4.1.0](#410-2021-01-14)                                                                                    | January 2021   | `9.1 KB`                   |
 
-# Release notes
+
+## [6.6.4](https://github.com/socketio/socket.io/compare/engine.io-client@6.6.3...engine.io-client@6.6.4) (2025-12-23)
+
+This release contains a bump of:
+
+- `ws` from `~8.17.1` to `~8.18.3`
+- `debug` from `~4.3.1` to `~4.4.1`
+
+### Bug Fixes
+
+* properly handle port option ([#5241](https://github.com/socketio/socket.io/issues/5241)) ([1da9cdd](https://github.com/socketio/socket.io/commit/1da9cddeab0bf5ce41890d156d73af8194cef656))
+
+
+### Dependencies
+
+- [`ws@~8.18.3`](https://github.com/websockets/ws/releases/tag/8.18.3) ([diff](https://github.com/websockets/ws/compare/8.17.1...8.18.3))
+
+
 
 ## [6.6.3](https://github.com/socketio/socket.io/compare/engine.io-client@6.6.2...engine.io-client@6.6.3) (2025-01-23)
 
