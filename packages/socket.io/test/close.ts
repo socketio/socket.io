@@ -2,7 +2,7 @@ import { createServer } from "http";
 import { io as ioc } from "socket.io-client";
 import { join } from "path";
 import { exec } from "child_process";
-import { Server } from "..";
+import { Server } from "../lib";
 import expect from "expect.js";
 import {
   createClient,
@@ -68,6 +68,27 @@ describe("close", () => {
         done();
       });
     });
+  });
+
+  it("should not throw when the underlying HTTP server is not running (callback)", (done) => {
+    const httpServer = createServer();
+    const io = new Server(httpServer);
+
+    io.close((err) => {
+      expect((err as Error & { code: string }).code).to.eql(
+        "ERR_SERVER_NOT_RUNNING",
+      );
+      done();
+    });
+  });
+
+  it("should not throw when the underlying HTTP server is not running (Promise)", (done) => {
+    const httpServer = createServer();
+    const io = new Server(httpServer);
+
+    io.close()
+      .then(() => done())
+      .catch((e) => done(e));
   });
 
   describe("graceful close", () => {
