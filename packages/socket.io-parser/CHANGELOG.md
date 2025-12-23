@@ -1,7 +1,8 @@
-# History
+# Changelog
 
 | Version                                                                                                     | Release date   |
 |-------------------------------------------------------------------------------------------------------------|----------------|
+| [4.2.5](#425-2025-12-23)                                                                                    | December 2025  |
 | [3.3.4](#334-2024-07-22) (from the [3.3.x](https://github.com/socketio/socket.io-parser/tree/3.3.x) branch) | July 2024      |
 | [4.2.4](#424-2023-05-31)                                                                                    | May 2023       |
 | [3.4.3](#343-2023-05-22) (from the [3.4.x](https://github.com/socketio/socket.io-parser/tree/3.4.x) branch) | May 2023       |
@@ -33,7 +34,11 @@
 | [3.3.0](#330-2018-11-07)                                                                                    | November 2018  |
 
 
-# Release notes
+## [4.2.5](https://github.com/socketio/socket.io/compare/socket.io-parser@4.2.4...socket.io-parser@4.2.5) (2025-12-23)
+
+This release contains a bump of `debug` from `~4.3.1` to `~4.4.1`.
+
+
 
 ## [3.3.4](https://github.com/Automattic/socket.io-parser/compare/3.3.3...3.3.4) (2024-07-22)
 
