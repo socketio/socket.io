@@ -1,0 +1,34 @@
+<head></head>
+
+<body>
+    <script type="text/javascript" src="https://cdn.socket.io/4.6.1/socket.io.js"></script>
+    <script type="text/javascript">
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+        console.log(params.id)
+        var is = io('http://localhost:3000/sessions', {
+            auth: {
+                token: 'aa',
+                room: params.id,
+            },
+        });
+
+        is.on('connect', () => {
+            console.log('a user connected');
+
+        });
+
+        is.on('disconnect', () => {
+            console.log('user disconnected');
+        });
+
+        is.on('connect_error', (err) => {
+            console.log('connect_error', err.message); // prints the message associated with the error
+        });
+
+        is.on('connect_msg', (data) => {
+            console.log('connect_msg', data); // prints the message associated with the error
+        });
+    </script>
+</body>
