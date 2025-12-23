@@ -2,6 +2,7 @@
 
 | Version                                                                                          | Release date   |
 |--------------------------------------------------------------------------------------------------|----------------|
+| [4.8.3](#483-2025-12-23)                                                                         | December 2025  |
 | [4.8.2](#482-2025-12-22)                                                                         | December 2025  |
 | [4.8.1](#481-2024-10-25)                                                                         | October 2024   |
 | [4.8.0](#480-2024-09-21)                                                                         | September 2024 |
@@ -48,6 +49,21 @@
 | [2.2.0](#220-2018-11-29)                                                                         | November 2018  |
 | [2.1.1](#211-2018-05-17)                                                                         | May 2018       |
 | [2.1.0](#210-2018-03-29)                                                                         | March 2018     |
+
+
+## [4.8.3](https://github.com/socketio/socket.io/compare/socket.io@4.8.2...socket.io@4.8.3) (2025-12-23)
+
+
+### Bug Fixes
+
+* do not throw when calling io.close() on a stopped server ([9581f9b](https://github.com/socketio/socket.io/commit/9581f9bcfd0c0fa8cb16eae1604c6a727af21efa))
+
+
+### Dependencies
+
+- [`engine.io@~6.6.0`](https://github.com/socketio/engine.io/releases/tag/6.6.0) (no change)
+- [`ws@~8.18.3`](https://github.com/websockets/ws/releases/tag/8.18.3) (no change)
+
 
 
 ## [4.8.2](https://github.com/socketio/socket.io/compare/socket.io@4.8.1...socket.io@4.8.2) (2025-12-22)
