@@ -4,6 +4,7 @@ import * as parser_v3 from "./parser-v3/index";
 import debugModule from "debug";
 import type { IncomingMessage, ServerResponse } from "http";
 import { Packet, RawData } from "engine.io-parser";
+import type * as Parser from "engine.io-parser";
 import type { WebSocket } from "ws";
 
 const debug = debugModule("engine:transport");
