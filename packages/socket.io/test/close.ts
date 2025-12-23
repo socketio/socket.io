@@ -2,7 +2,7 @@ import { createServer } from "http";
 import { io as ioc } from "socket.io-client";
 import { join } from "path";
 import { exec } from "child_process";
-import { Server } from "../lib";
+import { Server } from "..";
 import expect from "expect.js";
 import {
   createClient,
