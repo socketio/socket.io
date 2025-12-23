@@ -1,5 +1,5 @@
 /*!
- * Socket.IO v4.8.2
+ * Socket.IO v4.8.3
  * (c) 2014-2025 Guillermo Rauch
  * Released under the MIT License.
  */

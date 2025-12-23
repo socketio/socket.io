@@ -2,7 +2,8 @@
 
 | Version                                                                                                     | Release date   | Bundle size (UMD min+gzip) |
 |-------------------------------------------------------------------------------------------------------------|----------------|----------------------------|
-| [4.8.2](#482-2025-12-22)                                                                                    | December 2024  | `14.4 KB`                  |
+| [4.8.3](#483-2025-12-23)                                                                                    | December 2025  | `14.4 KB`                  |
+| [4.8.2](#482-2025-12-22)                                                                                    | December 2025  | `14.4 KB`                  |
 | [4.8.1](#481-2024-10-25)                                                                                    | October 2024   | `14.4 KB`                  |
 | [4.8.0](#480-2024-09-21)                                                                                    | September 2024 | `14.4 KB`                  |
 | [4.7.5](#475-2024-03-14)                                                                                    | March 2024     | `14.6 KB`                  |
@@ -49,6 +50,18 @@
 | [2.2.0](#220-2018-11-29)                                                                                    | November 2018  | `18.6 KB`                  |
 | [2.1.1](#211-2018-05-17)                                                                                    | May 2018       | `18.7 KB`                  |
 | [2.1.0](#210-2018-03-29)                                                                                    | March 2018     | `18.7 KB`                  |
+
+
+## [4.8.3](https://github.com/socketio/socket.io/compare/socket.io-client@4.8.2...socket.io-client@4.8.3) (2025-12-23)
+
+There were some minor bug fixes on the server side, which mandate a client bump.
+
+
+### Dependencies
+
+- [`engine.io-client@~6.6.1`](https://github.com/socketio/engine.io-client/releases/tag/6.5.2) (no change)
+- [`ws@~8.18.3`](https://github.com/websockets/ws/releases/tag/8.18.3) ([diff](https://github.com/websockets/ws/compare/8.17.1...8.18.3))
+
 
 
 ## [4.8.2](https://github.com/socketio/socket.io/compare/socket.io-client@4.8.1...socket.io-client@4.8.2) (2025-12-22)
