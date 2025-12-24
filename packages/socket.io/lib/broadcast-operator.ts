@@ -15,7 +15,8 @@ import type {
 } from "./typed-events";
 
 export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
-  implements TypedEventBroadcaster<EmitEvents> {
+  implements TypedEventBroadcaster<EmitEvents>
+{
   constructor(
     private readonly adapter: Adapter,
     private readonly rooms: Set<Room> = new Set<Room>(),
@@ -23,7 +24,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
     private readonly flags: BroadcastFlags & {
       expectSingleResponse?: boolean;
     } = {},
-  ) { }
+  ) {}
 
   /**
    * Targets a room when emitting.
@@ -477,7 +478,8 @@ interface SocketDetails<SocketData> {
  * Expose of subset of the attributes and methods of the Socket class
  */
 export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
-  implements TypedEventBroadcaster<EmitEvents> {
+  implements TypedEventBroadcaster<EmitEvents>
+{
   public readonly id: SocketId;
   public readonly handshake: Handshake;
   public readonly rooms: Set<Room>;
