@@ -15,8 +15,7 @@ import type {
 } from "./typed-events";
 
 export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
-  implements TypedEventBroadcaster<EmitEvents>
-{
+  implements TypedEventBroadcaster<EmitEvents> {
   constructor(
     private readonly adapter: Adapter,
     private readonly rooms: Set<Room> = new Set<Room>(),
@@ -24,7 +23,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
     private readonly flags: BroadcastFlags & {
       expectSingleResponse?: boolean;
     } = {},
-  ) {}
+  ) { }
 
   /**
    * Targets a room when emitting.
@@ -390,10 +389,18 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * // make all socket instances in the "room1" room join the "room2" and "room3" rooms
    * io.in("room1").socketsJoin(["room2", "room3"]);
    *
+   * // this also works with a single socket ID
+   * io.in(theSocketId).socketsJoin("room1");
+   *
+   * // wait for all servers to process the join (when using a cluster adapter like the cluster adapter)
+   * await io.in(theSocketId).socketsJoin("room1");
+   * io.to("room1").emit("my-event", "payload");
+   *
    * @param room - a room, or an array of rooms
+   * @return {void|Promise<void>} - void when using the default in-memory adapter, or a Promise when using a cluster adapter
    */
-  public socketsJoin(room: Room | Room[]): void {
-    this.adapter.addSockets(
+  public socketsJoin(room: Room | Room[]): void | Promise<void> {
+    return this.adapter.addSockets(
       {
         rooms: this.rooms,
         except: this.exceptRooms,
@@ -416,9 +423,10 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * io.in("room1").socketsLeave(["room2", "room3"]);
    *
    * @param room - a room, or an array of rooms
+   * @return {void|Promise<void>} - void when using the default in-memory adapter, or a Promise when using a cluster adapter
    */
-  public socketsLeave(room: Room | Room[]): void {
-    this.adapter.delSockets(
+  public socketsLeave(room: Room | Room[]): void | Promise<void> {
+    return this.adapter.delSockets(
       {
         rooms: this.rooms,
         except: this.exceptRooms,
@@ -441,9 +449,10 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * io.in("room1").disconnectSockets(true);
    *
    * @param close - whether to close the underlying connection
+   * @return {void|Promise<void>} - void when using the default in-memory adapter, or a Promise when using a cluster adapter
    */
-  public disconnectSockets(close: boolean = false): void {
-    this.adapter.disconnectSockets(
+  public disconnectSockets(close: boolean = false): void | Promise<void> {
+    return this.adapter.disconnectSockets(
       {
         rooms: this.rooms,
         except: this.exceptRooms,
@@ -468,8 +477,7 @@ interface SocketDetails<SocketData> {
  * Expose of subset of the attributes and methods of the Socket class
  */
 export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
-  implements TypedEventBroadcaster<EmitEvents>
-{
+  implements TypedEventBroadcaster<EmitEvents> {
   public readonly id: SocketId;
   public readonly handshake: Handshake;
   public readonly rooms: Set<Room>;
@@ -532,8 +540,9 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
    * Joins a room.
    *
    * @param {String|Array} room - room or array of rooms
+   * @return {void|Promise<void>} - void when using the default in-memory adapter, or a Promise when using a cluster adapter
    */
-  public join(room: Room | Room[]): void {
+  public join(room: Room | Room[]): void | Promise<void> {
     return this.operator.socketsJoin(room);
   }
 
@@ -541,8 +550,9 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
    * Leaves a room.
    *
    * @param {String} room
+   * @return {void|Promise<void>} - void when using the default in-memory adapter, or a Promise when using a cluster adapter
    */
-  public leave(room: Room): void {
+  public leave(room: Room): void | Promise<void> {
     return this.operator.socketsLeave(room);
   }
 
@@ -550,10 +560,13 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
    * Disconnects this client.
    *
    * @param {Boolean} close - if `true`, closes the underlying connection
-   * @return {Socket} self
+   * @return {Socket|Promise<Socket>} self, or a Promise when using a cluster adapter
    */
-  public disconnect(close = false): this {
-    this.operator.disconnectSockets(close);
+  public disconnect(close = false): this | Promise<this> {
+    const result = this.operator.disconnectSockets(close);
+    if (result instanceof Promise) {
+      return result.then(() => this);
+    }
     return this;
   }
 }
