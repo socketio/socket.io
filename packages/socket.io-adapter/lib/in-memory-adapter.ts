@@ -199,7 +199,7 @@ export class Adapter extends EventEmitter {
     opts: BroadcastOptions,
     clientCountCallback: (clientCount: number) => void,
     ack: (...args: any[]) => void,
-  ) {
+  ): { cleanup: () => void } {
     const flags = opts.flags || {};
     const packetOpts = {
       preEncoded: true,
@@ -214,12 +214,15 @@ export class Adapter extends EventEmitter {
     const encodedPackets = this._encode(packet, packetOpts);
 
     let clientCount = 0;
+    const sentToSockets: any[] = [];
 
     this.apply(opts, (socket) => {
       // track the total number of acknowledgements that are expected
       clientCount++;
       // call the ack callback for each client response
       socket.acks.set(packet.id, ack);
+      // track sockets for cleanup on timeout
+      sentToSockets.push(socket);
 
       if (typeof socket.notifyOutgoingListeners === "function") {
         socket.notifyOutgoingListeners(packet);
@@ -229,6 +232,20 @@ export class Adapter extends EventEmitter {
     });
 
     clientCountCallback(clientCount);
+
+    const packetId = packet.id;
+    return {
+      cleanup: () => {
+        // remove pending acks from all sockets on timeout
+        for (const socket of sentToSockets) {
+          if (socket.acks) {
+            socket.acks.delete(packetId);
+          }
+        }
+        // clear array to release socket references
+        sentToSockets.length = 0;
+      },
+    };
   }
 
   private _encode(packet: unknown, packetOpts: Record<string, unknown>) {
