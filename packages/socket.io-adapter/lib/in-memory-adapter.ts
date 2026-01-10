@@ -229,6 +229,14 @@ export class Adapter extends EventEmitter {
     });
 
     clientCountCallback(clientCount);
+
+    return {
+      cleanup: () => {
+        this.apply(opts, (socket) => {
+          socket.acks.delete(packet.id);
+        });
+      },
+    };
   }
 
   private _encode(packet: unknown, packetOpts: Record<string, unknown>) {
