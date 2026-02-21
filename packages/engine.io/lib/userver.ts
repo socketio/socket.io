@@ -226,8 +226,22 @@ export class uServer extends BaseServer {
         }
       }
 
+      // emit headers events for WebSocket upgrades
+      const additionalHeaders = {};
+      const isInitialRequest = !id;
+
+      if (isInitialRequest) {
+        this.emit("initial_headers", additionalHeaders, req);
+      }
+
+      this.emit("headers", additionalHeaders, req);
+
       // calling writeStatus() triggers the flushing of any header added in a middleware
       req.res.writeStatus("101 Switching Protocols");
+
+      Object.keys(additionalHeaders).forEach((key) => {
+        req.res.writeHeader(key, additionalHeaders[key]);
+      });
 
       res.upgrade(
         {
