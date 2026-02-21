@@ -135,6 +135,32 @@ describe("messaging many", () => {
     });
   });
 
+  it("emits to rooms with a Set", (done) => {
+    const io = new Server(0);
+    const socket1 = createClient(io, "/", { multiplex: false });
+    const socket2 = createClient(io, "/", { multiplex: false });
+
+    socket2.on("a", () => {
+      done(new Error("not"));
+    });
+    socket1.on("a", () => {
+      success(done, io, socket1, socket2);
+    });
+    socket1.emit("join", "woot");
+    socket1.emit("emit", "woot");
+
+    io.on("connection", (socket) => {
+      socket.on("join", (room, fn) => {
+        socket.join(room);
+        fn && fn();
+      });
+
+      socket.on("emit", (room) => {
+        io.in(new Set([room])).emit("a");
+      });
+    });
+  });
+
   it("emits to rooms avoiding dupes", (done) => {
     const io = new Server(0);
     const socket1 = createClient(io, "/", { multiplex: false });

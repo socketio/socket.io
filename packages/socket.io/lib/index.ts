@@ -884,10 +884,10 @@ export class Server<
    * // with multiple chained calls
    * io.to("room-101").to("room-102").emit("foo", "bar");
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public to(room: Room | Room[]) {
+  public to(room: Room | Room[] | Set<Room>) {
     return this.sockets.to(room);
   }
 
@@ -898,10 +898,10 @@ export class Server<
    * // disconnect all clients in the "room-101" room
    * io.in("room-101").disconnectSockets();
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public in(room: Room | Room[]) {
+  public in(room: Room | Room[] | Set<Room>) {
     return this.sockets.in(room);
   }
 
@@ -918,10 +918,10 @@ export class Server<
    * // with multiple chained calls
    * io.except("room-101").except("room-102").emit("foo", "bar");
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public except(room: Room | Room[]) {
+  public except(room: Room | Room[] | Set<Room>) {
     return this.sockets.except(room);
   }
 
@@ -1127,7 +1127,7 @@ export class Server<
    * // make all socket instances in the "room1" room join the "room2" and "room3" rooms
    * io.in("room1").socketsJoin(["room2", "room3"]);
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    */
   public socketsJoin(room: Room | Room[]) {
     return this.sockets.socketsJoin(room);
@@ -1145,7 +1145,7 @@ export class Server<
    * // make all socket instances in the "room1" room leave the "room2" and "room3" rooms
    * io.in("room1").socketsLeave(["room2", "room3"]);
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    */
   public socketsLeave(room: Room | Room[]) {
     return this.sockets.socketsLeave(room);
