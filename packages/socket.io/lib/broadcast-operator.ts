@@ -212,7 +212,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
     }
     // set up packet object
     const data = [ev, ...args];
-    const packet = {
+    const packet: { type: PacketType; data: any[]; id?: number } = {
       type: PacketType.EVENT,
       data: data,
     };
@@ -233,8 +233,20 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
     let timedOut = false;
     let responses: any[] = [];
 
+    const broadcastOpts = {
+      rooms: this.rooms,
+      except: this.exceptRooms,
+      flags: this.flags,
+    };
+
     const timer = setTimeout(() => {
       timedOut = true;
+      // Clean up pending ack entries from sockets to prevent memory leaks.
+      // Without this, socket.acks retains references to the callback forever
+      // when clients never respond before the timeout fires.
+      if (typeof this.adapter.removeAcks === "function") {
+        this.adapter.removeAcks(packet.id!, broadcastOpts);
+      }
       ack.apply(this, [
         new Error("operation has timed out"),
         this.flags.expectSingleResponse ? null : responses,
@@ -261,11 +273,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
 
     this.adapter.broadcastWithAck(
       packet,
-      {
-        rooms: this.rooms,
-        except: this.exceptRooms,
-        flags: this.flags,
-      },
+      broadcastOpts,
       (clientCount) => {
         // each Socket.IO server in the cluster sends the number of clients that were notified
         expectedClientCount += clientCount;

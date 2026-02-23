@@ -567,6 +567,40 @@ describe("messaging many", () => {
       });
   });
 
+  it("should clean up socket.acks after emitWithAck timeout (memory leak fix)", (done) => {
+    const io = new Server(0);
+    const socket1 = createClient(io, "/", { multiplex: false });
+    const socket2 = createClient(io, "/", { multiplex: false });
+
+    // socket1 responds, socket2 never responds (simulates timeout)
+    socket1.on("some event", (cb) => {
+      cb(1);
+    });
+
+    socket2.on("some event", () => {
+      // intentionally do not call callback to trigger timeout
+    });
+
+    Promise.all([
+      waitFor(socket1, "connect"),
+      waitFor(socket2, "connect"),
+    ]).then(async () => {
+      try {
+        await io.timeout(200).emitWithAck("some event");
+        expect().fail();
+      } catch (err) {
+        // After timeout, all server-side socket ack maps should be cleaned up.
+        // This verifies the fix for issue #4984 (memory leak in emitWithAck).
+        for (const [, serverSocket] of io.of("/").sockets) {
+          // @ts-ignore accessing private acks map to verify cleanup
+          expect(serverSocket.acks.size).to.be(0);
+        }
+
+        success(done, io, socket1, socket2);
+      }
+    });
+  });
+
   it("should precompute the WebSocket frame when broadcasting", (done) => {
     const io = new Server(0);
     const socket = createClient(io, "/chat", {
