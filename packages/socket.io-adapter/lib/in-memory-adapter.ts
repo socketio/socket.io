@@ -231,6 +231,20 @@ export class Adapter extends EventEmitter {
     clientCountCallback(clientCount);
   }
 
+  /**
+   * Removes the acknowledgement callback for the given packet ID from all
+   * matching sockets. This is used to clean up pending acks when a
+   * broadcastWithAck operation times out, preventing memory leaks.
+   *
+   * @param packetId - the packet ID whose acks should be removed
+   * @param opts - the same broadcast options used in broadcastWithAck
+   */
+  public removeAcks(packetId: number, opts: BroadcastOptions): void {
+    this.apply(opts, (socket) => {
+      socket.acks.delete(packetId);
+    });
+  }
+
   private _encode(packet: unknown, packetOpts: Record<string, unknown>) {
     const encodedPackets = this.encoder.encode(packet);
 
