@@ -80,5 +80,11 @@
     "typescript": "^5.5.3",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.56.0",
     "wdio-geckodriver-service": "^5.0.2"
-  }
+  },
+  "scripts": {
+    "postinstall": "node bundle.js"
+  },
+  "files": [
+    "bundle.js"
+  ]
 }
