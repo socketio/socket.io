@@ -272,10 +272,10 @@ export class Namespace<
    * // with multiple chained calls
    * myNamespace.to("room-101").to("room-102").emit("foo", "bar");
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public to(room: Room | Room[]) {
+  public to(room: Room | Room[] | Set<Room>) {
     return new BroadcastOperator<
       DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
       SocketData
@@ -291,10 +291,10 @@ export class Namespace<
    * // disconnect all clients in the "room-101" room
    * myNamespace.in("room-101").disconnectSockets();
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public in(room: Room | Room[]) {
+  public in(room: Room | Room[] | Set<Room>) {
     return new BroadcastOperator<
       DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
       SocketData
@@ -316,10 +316,10 @@ export class Namespace<
    * // with multiple chained calls
    * myNamespace.except("room-101").except("room-102").emit("foo", "bar");
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public except(room: Room | Room[]) {
+  public except(room: Room | Room[] | Set<Room>) {
     return new BroadcastOperator<
       DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
       SocketData
@@ -733,7 +733,7 @@ export class Namespace<
    * // make all socket instances in the "room1" room join the "room2" and "room3" rooms
    * myNamespace.in("room1").socketsJoin(["room2", "room3"]);
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    */
   public socketsJoin(room: Room | Room[]) {
     return new BroadcastOperator<EmitEvents, SocketData>(
@@ -755,7 +755,7 @@ export class Namespace<
    * // make all socket instances in the "room1" room leave the "room2" and "room3" rooms
    * myNamespace.in("room1").socketsLeave(["room2", "room3"]);
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    */
   public socketsLeave(room: Room | Room[]) {
     return new BroadcastOperator<EmitEvents, SocketData>(

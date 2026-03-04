@@ -349,10 +349,10 @@ export class Socket<
    *   socket.to("room-101").to("room-102").emit("foo", "bar");
    * });
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public to(room: Room | Room[]) {
+  public to(room: Room | Room[] | Set<Room>) {
     return this.newBroadcastOperator().to(room);
   }
 
@@ -365,10 +365,10 @@ export class Socket<
    *   socket.in("room-101").disconnectSockets();
    * });
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public in(room: Room | Room[]) {
+  public in(room: Room | Room[] | Set<Room>) {
     return this.newBroadcastOperator().in(room);
   }
 
@@ -388,10 +388,10 @@ export class Socket<
    *   socket.except("room-101").except("room-102").emit("foo", "bar");
    * });
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public except(room: Room | Room[]) {
+  public except(room: Room | Room[] | Set<Room>) {
     return this.newBroadcastOperator().except(room);
   }
 
