@@ -3598,10 +3598,7 @@ describe("server", () => {
     });
 
     it("should emit a 'initial_headers' event (websocket)", function (done) {
-      if (
-        process.env.EIO_WS_ENGINE === "eiows" ||
-        process.env.EIO_WS_ENGINE === "uws"
-      ) {
+      if (process.env.EIO_WS_ENGINE === "eiows") {
         return this.skip();
       }
       const partialDone = createPartialDone(done, 2);
@@ -3644,10 +3641,7 @@ describe("server", () => {
     });
 
     it("should emit several 'headers' events per connection", function (done) {
-      if (
-        process.env.EIO_WS_ENGINE === "eiows" ||
-        process.env.EIO_WS_ENGINE === "uws"
-      ) {
+      if (process.env.EIO_WS_ENGINE === "eiows") {
         return this.skip();
       }
       const partialDone = createPartialDone(done, 4);
