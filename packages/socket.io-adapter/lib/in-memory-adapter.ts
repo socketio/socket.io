@@ -308,7 +308,10 @@ export class Adapter extends EventEmitter {
    * @param opts - the filters to apply
    * @param rooms - the rooms to join
    */
-  public addSockets(opts: BroadcastOptions, rooms: Room[]): void {
+  public addSockets(
+    opts: BroadcastOptions,
+    rooms: Room[],
+  ): void | Promise<void> {
     this.apply(opts, (socket) => {
       socket.join(rooms);
     });
@@ -320,7 +323,10 @@ export class Adapter extends EventEmitter {
    * @param opts - the filters to apply
    * @param rooms - the rooms to leave
    */
-  public delSockets(opts: BroadcastOptions, rooms: Room[]): void {
+  public delSockets(
+    opts: BroadcastOptions,
+    rooms: Room[],
+  ): void | Promise<void> {
     this.apply(opts, (socket) => {
       rooms.forEach((room) => socket.leave(room));
     });
@@ -332,7 +338,10 @@ export class Adapter extends EventEmitter {
    * @param opts - the filters to apply
    * @param close - whether to close the underlying connection
    */
-  public disconnectSockets(opts: BroadcastOptions, close: boolean): void {
+  public disconnectSockets(
+    opts: BroadcastOptions,
+    close: boolean,
+  ): void | Promise<void> {
     this.apply(opts, (socket) => {
       socket.disconnect(close);
     });
