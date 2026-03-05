@@ -40,7 +40,7 @@
     "cors": "~2.8.5",
     "debug": "~4.4.1",
     "engine.io-parser": "~5.2.1",
-    "ws": "~8.18.3"
+    "ws": "~8.19.0"
   },
   "scripts": {
     "compile": "rimraf ./build && tsc",
