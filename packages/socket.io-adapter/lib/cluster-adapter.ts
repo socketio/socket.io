@@ -438,11 +438,7 @@ export abstract class ClusterAdapter extends Adapter {
         });
         this.addOffsetIfNecessary(packet, opts, offset);
       } catch (e) {
-        return debug(
-          "[%s] error while broadcasting message: %s",
-          this.uid,
-          e.message,
-        );
+        debug("[%s] error while broadcasting message: %s", this.uid, e.message);
       }
     }
 

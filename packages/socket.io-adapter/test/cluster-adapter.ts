@@ -15,6 +15,7 @@ const NODES_COUNT = 3;
 
 class EventEmitterAdapter extends ClusterAdapterWithHeartbeat {
   private offset = 1;
+  public shouldFailPublish = false;
 
   constructor(
     nsp,
@@ -27,6 +28,9 @@ class EventEmitterAdapter extends ClusterAdapterWithHeartbeat {
   }
 
   protected doPublish(message: ClusterMessage): Promise<string> {
+    if (this.shouldFailPublish) {
+      return Promise.reject(new Error("publish failed"));
+    }
     this.eventBus.emit("message", message);
     return Promise.resolve(String(++this.offset));
   }
@@ -150,6 +154,19 @@ describe("cluster adapter", () => {
       clientSockets[2].on("test", shouldNotHappen(done));
 
       servers[0].local.emit("test");
+    });
+
+    it("broadcasts to local clients even when publishAndReturnOffset throws", (done) => {
+      const adapter = servers[0].of("/").adapter as EventEmitterAdapter;
+      adapter.shouldFailPublish = true;
+
+      clientSockets[0].on("test", (arg1) => {
+        expect(arg1).to.eql(1);
+        adapter.shouldFailPublish = false;
+        done();
+      });
+
+      servers[0].emit("test", 1);
     });
 
     it("broadcasts with multiple acknowledgements", (done) => {
