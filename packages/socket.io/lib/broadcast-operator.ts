@@ -13,6 +13,9 @@ import type {
   FirstNonErrorArg,
   EventNamesWithError,
 } from "./typed-events";
+import debugModule from "debug";
+
+const debug = debugModule("socket.io:broadcast-operator");
 
 export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
   implements TypedEventBroadcaster<EmitEvents>
@@ -235,6 +238,17 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
 
     const timer = setTimeout(() => {
       timedOut = true;
+
+      debug("operation has timed out");
+      // @ts-expect-error
+      const packetId = packet.id;
+
+      if (packetId !== undefined) {
+        this.adapter.nsp.sockets.forEach((socket) => {
+          socket.acks.delete(packetId);
+        });
+      }
+
       ack.apply(this, [
         new Error("operation has timed out"),
         this.flags.expectSingleResponse ? null : responses,
@@ -246,6 +260,13 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
     let expectedClientCount = 0;
 
     const checkCompleteness = () => {
+      debug(
+        "responses: servers: %d / %d ; clients: %d / %d",
+        actualServerCount,
+        expectedServerCount,
+        responses.length,
+        expectedClientCount,
+      );
       if (
         !timedOut &&
         expectedServerCount === actualServerCount &&

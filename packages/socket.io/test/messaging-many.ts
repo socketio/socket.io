@@ -534,6 +534,11 @@ describe("messaging many", () => {
         // @ts-ignore
         expect(err.responses).to.contain(1, 2);
 
+        for (const [, serverSocket] of io.of("/").sockets) {
+          // @ts-ignore accessing private acks map to verify cleanup
+          expect(serverSocket.acks.size).to.be(0);
+        }
+
         success(done, io, socket1, socket2, socket3);
       }
     });
