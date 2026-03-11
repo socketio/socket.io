@@ -504,7 +504,7 @@ export abstract class ClusterAdapter extends Adapter {
       }, opts.flags!.timeout);
     }
 
-    return super.broadcastWithAck(packet, opts, clientCountCallback, ack);
+    super.broadcastWithAck(packet, opts, clientCountCallback, ack);
   }
 
   override async addSockets(opts: BroadcastOptions, rooms: Room[]) {
