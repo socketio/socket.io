@@ -232,11 +232,9 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
     const ack = data.pop() as (...args: any[]) => void;
     let timedOut = false;
     let responses: any[] = [];
-    let cleanupPendingAcks: (() => void) | undefined;
 
     const timer = setTimeout(() => {
       timedOut = true;
-      cleanupPendingAcks?.();
       ack.apply(this, [
         new Error("operation has timed out"),
         this.flags.expectSingleResponse ? null : responses,
@@ -261,7 +259,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
       }
     };
 
-    const result = this.adapter.broadcastWithAck(
+    this.adapter.broadcastWithAck(
       packet,
       {
         rooms: this.rooms,
@@ -280,10 +278,6 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
         checkCompleteness();
       },
     );
-
-    if (result && typeof result.cleanup === "function") {
-      cleanupPendingAcks = result.cleanup;
-    }
 
     this.adapter.serverCount().then((serverCount) => {
       expectedServerCount = serverCount;
