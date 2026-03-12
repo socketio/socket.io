@@ -55,7 +55,7 @@ export class WebSocket extends Transport {
         this.socket.send(data, isBinary, compress);
 
         if (isLast) {
-          this.emit("drain");
+          this.emit("drain", packets);
           this.writable = true;
           this.emit("ready");
         }

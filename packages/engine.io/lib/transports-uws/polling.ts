@@ -3,6 +3,7 @@ import { createGzip, createDeflate } from "zlib";
 import * as accepts from "accepts";
 import debugModule from "debug";
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
+import { Packet } from "engine.io-parser";
 import type * as parser_v4 from "engine.io-parser";
 import type * as parser_v3 from "../parser-v3/index";
 
@@ -255,7 +256,7 @@ export class Polling extends Transport {
    * @param {Object} packet
    * @private
    */
-  send(packets) {
+  send(packets: Packet[]) {
     this.writable = false;
 
     if (this.shouldClose) {
@@ -269,7 +270,7 @@ export class Polling extends Transport {
       const compress = packets.some((packet) => {
         return packet.options && packet.options.compress;
       });
-      this.write(data, { compress });
+      this.write(data, { compress, source: packets });
     };
 
     if (this.protocol === 3) {
@@ -294,7 +295,7 @@ export class Polling extends Transport {
     debug('writing "%s"', data);
     this.doWrite(data, options, () => {
       this.req.cleanup();
-      this.emit("drain");
+      this.emit("drain", options.source);
     });
   }
 
