@@ -23,6 +23,14 @@ describe("Socket", function () {
     });
   });
 
+  it("should not mutate the options object", () => {
+    const options = { transports: ["websocket", "polling"] };
+    const originalTransports = [...options.transports];
+    const socket = new Socket(options);
+    expect(options.transports).to.eql(originalTransports);
+    socket.close();
+  });
+
   it("throws an error when no transports are available", (done) => {
     const socket = new Socket({ transports: [] });
     let errorMessage = "";
