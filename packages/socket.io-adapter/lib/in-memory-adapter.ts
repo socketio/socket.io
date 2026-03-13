@@ -104,17 +104,30 @@ export class Adapter extends EventEmitter {
   }
 
   /**
-   * Removes a socket from a room.
+   * Removes a socket from one or multiple rooms.
    *
-   * @param {SocketId} id     the socket id
-   * @param {Room}     room   the room name
+   * @param {SocketId}      id     the socket id
+   * @param {Room|Set<Room>} rooms  the room name or a set of rooms
    */
-  public del(id: SocketId, room: Room): Promise<void> | void {
-    if (this.sids.has(id)) {
-      this.sids.get(id).delete(room);
+  public del(id: SocketId, rooms: Room | Set<Room>): Promise<void> | void {
+    const roomsToRemove = rooms instanceof Set ? rooms : new Set<Room>([rooms]);
+    const socketRooms = this.sids.get(id);
+
+    if (!socketRooms) {
+      for (const room of roomsToRemove) {
+        this._del(room, id);
+      }
+      return;
     }
 
-    this._del(room, id);
+    for (const room of roomsToRemove) {
+      socketRooms.delete(room);
+      this._del(room, id);
+    }
+
+    if (socketRooms.size === 0) {
+      this.sids.delete(id);
+    }
   }
 
   private _del(room: Room, id: SocketId) {
