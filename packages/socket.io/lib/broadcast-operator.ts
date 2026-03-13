@@ -42,12 +42,12 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * // with multiple chained calls
    * io.to("room-101").to("room-102").emit("foo", "bar");
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public to(room: Room | Room[]) {
+  public to(room: Room | Room[] | Set<Room>) {
     const rooms = new Set(this.rooms);
-    if (Array.isArray(room)) {
+    if (Array.isArray(room) || room instanceof Set) {
       room.forEach((r) => rooms.add(r));
     } else {
       rooms.add(room);
@@ -67,10 +67,10 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * // disconnect all clients in the "room-101" room
    * io.in("room-101").disconnectSockets();
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public in(room: Room | Room[]) {
+  public in(room: Room | Room[] | Set<Room>) {
     return this.to(room);
   }
 
@@ -87,12 +87,12 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * // with multiple chained calls
    * io.except("room-101").except("room-102").emit("foo", "bar");
    *
-   * @param room - a room, or an array of rooms
+   * @param room - a room, or an array of rooms, or a Set of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public except(room: Room | Room[]) {
+  public except(room: Room | Room[] | Set<Room>) {
     const exceptRooms = new Set(this.exceptRooms);
-    if (Array.isArray(room)) {
+    if (Array.isArray(room) || room instanceof Set) {
       room.forEach((r) => exceptRooms.add(r));
     } else {
       exceptRooms.add(room);
