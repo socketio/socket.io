@@ -22,8 +22,6 @@ export type EventNames<Map extends EventsMap> = keyof Map & (string | symbol);
 
 /**
  * Returns a union type containing all the keys of an event map that have an acknowledgement callback.
- *
- * That also have *some* data coming in.
  */
 export type EventNamesWithAck<
   Map extends EventsMap,
@@ -32,11 +30,11 @@ export type EventNamesWithAck<
   Last<Parameters<Map[K]>> | Map[K],
   K,
   K extends (
-    Last<Parameters<Map[K]>> extends (...args: any[]) => any
-      ? FirstNonErrorArg<Last<Parameters<Map[K]>>> extends void
-        ? never
-        : K
-      : never
+    Parameters<Map[K]> extends never[]
+      ? never
+      : Last<Parameters<Map[K]>> extends (...args: any[]) => any
+        ? K
+        : never
   )
     ? K
     : never

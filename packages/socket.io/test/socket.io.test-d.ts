@@ -265,15 +265,11 @@ describe("server", () => {
   interface ServerToClientEventsWithMultipleWithAck {
     ackFromServer: (a: boolean, b: string) => Promise<boolean[]>;
     ackFromServerSingleArg: (a: boolean, b: string) => Promise<string[]>;
-    // This should technically be `undefined[]`, but this doesn't work currently *only* with emitWithAck
-    // you can use an empty callback with emit, but not emitWithAck
     onlyCallback: () => Promise<undefined>;
   }
   interface ServerToClientEventsWithAck {
     ackFromServer: (a: boolean, b: string) => Promise<boolean>;
     ackFromServerSingleArg: (a: boolean, b: string) => Promise<string>;
-    // This doesn't work currently *only* with emitWithAck
-    // you can use an empty callback with emit, but not emitWithAck
     onlyCallback: () => Promise<undefined>;
   }
   describe("Emitting Types", () => {
@@ -420,8 +416,9 @@ describe("server", () => {
         sio.timeout(0).emitWithAck("noArgs");
         // @ts-expect-error - "helloFromServer" doesn't have a callback and is thus excluded
         sio.timeout(0).emitWithAck("helloFromServer");
-        // @ts-expect-error - "onlyCallback" doesn't have a callback and is thus excluded
-        sio.timeout(0).emitWithAck("onlyCallback");
+        expectType<
+          ToEmitWithAck<ServerToClientEventsWithMultipleWithAck, "onlyCallback">
+        >(sio.timeout(0).emitWithAck<"onlyCallback">);
         expectType<
           ToEmitWithAck<
             ServerToClientEventsWithMultipleWithAck,
@@ -496,10 +493,12 @@ describe("server", () => {
           s.emitWithAck("noArgs");
           // @ts-expect-error - "helloFromServer" doesn't have a callback and is thus excluded
           s.emitWithAck("helloFromServer");
-          // @ts-expect-error - "onlyCallback" doesn't have a callback and is thus excluded
-          s.emitWithAck("onlyCallback");
-          // @ts-expect-error - "onlyCallback" doesn't have a callback and is thus excluded
-          s.timeout(0).emitWithAck("onlyCallback");
+          expectType<
+            ToEmitWithAck<ServerToClientEventsWithAck, "onlyCallback">
+          >(s.emitWithAck<"onlyCallback">);
+          expectType<
+            ToEmitWithAck<ServerToClientEventsWithAck, "onlyCallback">
+          >(s.timeout(0).emitWithAck<"onlyCallback">);
           expectType<
             ToEmitWithAck<ServerToClientEventsWithAck, "ackFromServerSingleArg">
           >(s.emitWithAck<"ackFromServerSingleArg">);
