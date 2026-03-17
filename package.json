@@ -1,10 +1,10 @@
 {
   "name": "socket.io-parser",
-  "version": "3.4.3",
+  "version": "3.4.4",
   "description": "socket.io protocol parser",
   "repository": {
     "type": "git",
-    "url": "https://github.com/socketio/socket.io-parser.git"
+    "url": "git+https://github.com/socketio/socket.io.git"
   },
   "files": [
     "binary.js",

@@ -1,3 +1,12 @@
+## [3.4.4](https://github.com/socketio/socket.io-parser/compare/3.4.3...3.4.4) (2026-03-17)
+
+
+### Bug Fixes
+
+* add a limit to the number of binary attachments ([719f9eb](https://github.com/socketio/socket.io/commit/719f9ebab0772ffb882bd614b387e585c1aa75d4))
+
+
+
 ## [3.4.3](https://github.com/socketio/socket.io-parser/compare/3.4.2...3.4.3) (2023-05-22)
 
 
