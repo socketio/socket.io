@@ -2,6 +2,7 @@
 
 | Version                                                                                                     | Release date   |
 |-------------------------------------------------------------------------------------------------------------|----------------|
+| [4.2.6](#426-2026-03-17)                                                                                    | March 2026     |
 | [4.2.5](#425-2025-12-23)                                                                                    | December 2025  |
 | [3.3.4](#334-2024-07-22) (from the [3.3.x](https://github.com/socketio/socket.io-parser/tree/3.3.x) branch) | July 2024      |
 | [4.2.4](#424-2023-05-31)                                                                                    | May 2023       |
@@ -32,6 +33,15 @@
 | [3.4.1](#341-2020-05-13)                                                                                    | May 2020       |
 | [3.4.0](#340-2019-09-20)                                                                                    | September 2019 |
 | [3.3.0](#330-2018-11-07)                                                                                    | November 2018  |
+
+
+## [4.2.6](https://github.com/socketio/socket.io/compare/socket.io-parser@4.2.5...socket.io-parser@4.2.6) (2026-03-17)
+
+
+### Bug Fixes
+
+* **parser:** add a limit to the number of binary attachments ([3fff7ca](https://github.com/socketio/socket/commit/3fff7cafa98f1ba5840475b6917c651fe841a943))
+
 
 
 ## [4.2.5](https://github.com/socketio/socket.io/compare/socket.io-parser@4.2.4...socket.io-parser@4.2.5) (2025-12-23)
