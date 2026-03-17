@@ -218,8 +218,12 @@ function encodeAsBinary(obj, callback) {
  * @api public
  */
 
-function Decoder() {
+function Decoder(opts) {
   this.reconstructor = null;
+  opts = opts || {};
+  this.opts = {
+    maxAttachments: opts.maxAttachments || 10,
+  };
 }
 
 /**
@@ -242,7 +246,7 @@ Decoder.prototype.add = function(obj) {
     if (this.reconstructor) {
       throw new Error("got plaintext data when reconstructing a packet");
     }
-    packet = decodeString(obj);
+    packet = decodeString(obj, this.opts.maxAttachments);
     if (exports.BINARY_EVENT === packet.type || exports.BINARY_ACK === packet.type) { // binary packet's json
       this.reconstructor = new BinaryReconstructor(packet);
 
@@ -292,11 +296,12 @@ function isPayloadValid(type, payload) {
  * Decode a packet String (JSON data)
  *
  * @param {String} str
+ * @param {Number} maxAttachments - the maximum number of binary attachments
  * @return {Object} packet
  * @api private
  */
 
-function decodeString(str) {
+function decodeString(str, maxAttachments) {
   var i = 0;
   // look up type
   var p = {
@@ -315,7 +320,13 @@ function decodeString(str) {
     if (buf != Number(buf) || str.charAt(i) !== '-') {
       throw new Error('Illegal attachments');
     }
-    p.attachments = Number(buf);
+    var n = Number(buf);
+    if (!isInteger(n) || n < 0) {
+      throw new Error("Illegal attachments");
+    } else if (n > maxAttachments) {
+      throw new Error("too many attachments");
+    }
+    p.attachments = n;
   }
 
   // look up namespace (if any)
@@ -432,3 +443,13 @@ function error(msg) {
     data: 'parser error: ' + msg
   };
 }
+
+var isInteger =
+  Number.isInteger ||
+  function (value) {
+    return (
+      typeof value === "number" &&
+      isFinite(value) &&
+      Math.floor(value) === value
+    );
+  };

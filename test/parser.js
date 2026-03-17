@@ -101,5 +101,26 @@ describe('parser', function(){
     isInvalidPayload('2[{"toString":"foo"}]');
     isInvalidPayload('2[true,"foo"]');
     isInvalidPayload('2[null,"bar"]');
+
+    function isInvalidAttachmentCount (str) {
+      expect(() => new parser.Decoder().add(str)).to.throwException(
+          /^Illegal attachments$/,
+      );
+    }
+
+    isInvalidAttachmentCount("5");
+    isInvalidAttachmentCount("51");
+    isInvalidAttachmentCount("5a-");
+    isInvalidAttachmentCount("51.23-");
+  });
+
+  it("throws an error when receiving too many attachments", () => {
+    const decoder = new parser.Decoder({ maxAttachments: 2 });
+
+    expect(() => {
+      decoder.add(
+          '53-["hello",{"_placeholder":true,"num":0},{"_placeholder":true,"num":1},{"_placeholder":true,"num":2}]',
+      );
+    }).to.throwException(/^too many attachments$/);
   });
 });
