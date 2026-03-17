@@ -107,6 +107,56 @@ describe("socket.io-parser", () => {
     }
   });
 
+  it("throws an error when receiving too many attachments", () => {
+    const decoder = new Decoder({ maxAttachments: 2 });
+
+    expect(() => {
+      decoder.add(
+        '53-["hello",{"_placeholder":true,"num":0},{"_placeholder":true,"num":1},{"_placeholder":true,"num":2}]',
+      );
+    }).to.throwException(/^too many attachments$/);
+  });
+
+  it("decodes with a custom reviver", () => {
+    const decoder = new Decoder((key, value) => {
+      if (key === "a") {
+        return value.toUpperCase();
+      } else {
+        return value;
+      }
+    });
+
+    return new Promise((resolve) => {
+      decoder.on("decoded", (packet) => {
+        expect(packet.data).to.eql(["b", { a: "VAL" }]);
+        resolve();
+      });
+
+      decoder.add('2["b",{"a":"val"}]');
+    });
+  });
+
+  it("decodes with a custom reviver (options object)", () => {
+    const decoder = new Decoder({
+      reviver: (key, value) => {
+        if (key === "a") {
+          return value.toUpperCase();
+        } else {
+          return value;
+        }
+      },
+    });
+
+    return new Promise((resolve) => {
+      decoder.on("decoded", (packet) => {
+        expect(packet.data).to.eql(["b", { a: "VAL" }]);
+        resolve();
+      });
+
+      decoder.add('2["b",{"a":"val"}]');
+    });
+  });
+
   it("throw an error upon parsing error", () => {
     const isInvalidPayload = (str) =>
       expect(() => new Decoder().add(str)).to.throwException(
@@ -124,6 +174,16 @@ describe("socket.io-parser", () => {
     isInvalidPayload('2[null,"bar"]');
     isInvalidPayload('2["connect"]');
     isInvalidPayload('2["disconnect","123"]');
+
+    const isInvalidAttachmentCount = (str) =>
+      expect(() => new Decoder().add(str)).to.throwException(
+        /^Illegal attachments$/,
+      );
+
+    isInvalidAttachmentCount("5");
+    isInvalidAttachmentCount("51");
+    isInvalidAttachmentCount("5a-");
+    isInvalidAttachmentCount("51.23-");
 
     expect(() => new Decoder().add("999")).to.throwException(
       /^unknown packet type 9$/,

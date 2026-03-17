@@ -135,6 +135,20 @@ interface DecoderReservedEvents {
   decoded: (packet: Packet) => void;
 }
 
+type JSONReviver = (this: any, key: string, value: any) => any;
+
+export interface DecoderOptions {
+  /**
+   * Custom reviver to pass down to JSON.parse()
+   */
+  reviver?: JSONReviver;
+  /**
+   * Maximum number of binary attachments per packet
+   * @default 10
+   */
+  maxAttachments?: number;
+}
+
 /**
  * A socket.io Decoder instance
  *
@@ -142,14 +156,20 @@ interface DecoderReservedEvents {
  */
 export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
   private reconstructor: BinaryReconstructor;
+  private opts: Required<DecoderOptions>;
 
   /**
    * Decoder constructor
-   *
-   * @param {function} reviver - custom reviver to pass down to JSON.stringify
    */
-  constructor(private reviver?: (this: any, key: string, value: any) => any) {
+  constructor(opts?: DecoderOptions | JSONReviver) {
     super();
+    this.opts = Object.assign(
+      {
+        reviver: undefined,
+        maxAttachments: 10,
+      },
+      typeof opts === "function" ? { reviver: opts } : opts,
+    );
   }
 
   /**
@@ -224,7 +244,13 @@ export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
       if (buf != Number(buf) || str.charAt(i) !== "-") {
         throw new Error("Illegal attachments");
       }
-      p.attachments = Number(buf);
+      const n = Number(buf);
+      if (!isInteger(n) || n < 0) {
+        throw new Error("Illegal attachments");
+      } else if (n > this.opts.maxAttachments) {
+        throw new Error("too many attachments");
+      }
+      p.attachments = n;
     }
 
     // look up namespace (if any)
@@ -271,7 +297,7 @@ export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
 
   private tryParse(str) {
     try {
-      return JSON.parse(str, this.reviver);
+      return JSON.parse(str, this.opts.reviver);
     } catch (e) {
       return false;
     }
