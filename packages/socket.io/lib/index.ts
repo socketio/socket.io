@@ -95,6 +95,10 @@ interface ServerOptions extends EngineOptions, AttachOptions {
    */
   connectTimeout: number;
   /**
+   * the default timeout in milliseconds used when waiting for an acknowledgement
+   */
+  ackTimeout: number;
+  /**
    * Whether to enable the recovery of connection state when a client temporarily disconnects.
    *
    * The connection state includes the missed packets, the rooms the socket was in and the `data` attribute.
