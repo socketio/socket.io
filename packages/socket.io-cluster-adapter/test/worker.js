@@ -106,6 +106,14 @@ process.on("message", async (msg) => {
       io.in("room1").socketsJoin("room2");
       break;
 
+    case "test socketsJoin race condition with await":
+      // This demonstrates the fix: await ensures the join completes before emit
+      (async () => {
+        await io.socketsJoin("test-room");
+        io.to("test-room").emit("test-event", "test-payload");
+      })();
+      break;
+
     case "makes all socket instances leave the specified room":
       io.socketsLeave("room1");
       break;
