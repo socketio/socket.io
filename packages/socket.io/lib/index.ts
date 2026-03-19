@@ -45,6 +45,7 @@ import {
   RemoveAcknowledgements,
   EventNamesWithAck,
   FirstNonErrorArg,
+  EventNamesWithError,
 } from "./typed-events";
 import { patchAdapter, restoreAdapter, serveFile } from "./uws";
 import corsMiddleware from "cors";
@@ -94,6 +95,10 @@ interface ServerOptions extends EngineOptions, AttachOptions {
    * @default 45000
    */
   connectTimeout: number;
+  /**
+   * the default timeout in milliseconds used when waiting for an acknowledgement
+   */
+  ackTimeout?: number;
   /**
    * Whether to enable the recovery of connection state when a client temporarily disconnects.
    *
@@ -1084,6 +1089,21 @@ export class Server<
    */
   public timeout(timeout: number) {
     return this.sockets.timeout(timeout);
+  }
+
+  /**
+   * Emits an event and waits for an acknowledgement from all clients.
+   *
+   * @example
+   * const responses = await io.emitWithAck("some-event");
+   *
+   * @return a Promise that will be fulfilled when all clients have acknowledged the event
+   */
+  public emitWithAck<Ev extends EventNamesWithError<EmitEvents>>(
+    ev: Ev,
+    ...args: AllButLast<EventParams<EmitEvents, Ev>>
+  ): Promise<FirstNonErrorArg<Last<EventParams<EmitEvents, Ev>>>> {
+    return this.sockets.emitWithAck(ev, ...args);
   }
 
   /**
