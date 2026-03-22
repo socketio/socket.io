@@ -18,7 +18,7 @@
   "description": "default socket.io in-memory adapter",
   "dependencies": {
     "debug": "~4.4.1",
-    "ws": "~8.18.3"
+    "ws": "~8.20.0"
   },
   "scripts": {
     "compile": "rimraf ./dist && tsc",
