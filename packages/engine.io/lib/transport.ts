@@ -13,7 +13,7 @@ function noop() {}
 type ReadyState = "open" | "closing" | "closed";
 
 export type EngineRequest = IncomingMessage & {
-  _query: Record<string, string>;
+  _query?: Record<string, string>;
   res?: ServerResponse;
   cleanup?: Function;
   websocket?: WebSocket & {
