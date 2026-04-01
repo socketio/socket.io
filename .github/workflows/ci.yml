@@ -67,12 +67,12 @@ jobs:
 
       - name: Run tests with uws (engine.io)
         run: npm run test:uws --workspace=engine.io
-        if: ${{ matrix.node-version == '18' }}
+        if: ${{ matrix.node-version == '24' }}
 
       - name: Run tests with fetch instead of XHR (engine.io-client)
         run: npm run test:node-fetch --workspace=engine.io-client
-        if: ${{ matrix.node-version == '18' }}
+        if: ${{ matrix.node-version == '24' }}
 
       - name: Run tests with Node.js native WebSocket (engine.io-client)
         run: npm run test:node-builtin-ws --workspace=engine.io-client
-        if: ${{ matrix.node-version == '22' }}
+        if: ${{ matrix.node-version == '24' }}
