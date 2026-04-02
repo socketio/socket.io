@@ -15,7 +15,12 @@ export class WebSocket extends Transport {
    * @param {EngineRequest} req
    */
   constructor(req: EngineRequest) {
-    super(req);
+    if (!req._query) {
+      throw new Error("Missing _query in request");
+    }
+
+    super(req as { _query: Record<string, string> });
+
     this.socket = req.websocket;
     this.socket.on("message", (data, isBinary) => {
       const message = isBinary ? data : data.toString();
