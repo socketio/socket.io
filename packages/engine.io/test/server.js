@@ -581,7 +581,7 @@ describe("server", () => {
       });
     });
 
-    it("should not suggest upgrades when none are availble", (done) => {
+    it("should not suggest upgrades when none are available", (done) => {
       listen({ transports: ["polling"] }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`, {});
         socket.on("handshake", (obj) => {

@@ -444,7 +444,7 @@ describe("server", () => {
           nio.emit<"noArgs">,
         );
         expectType<ToEmit<ServerToClientEventsNoAck, "helloFromServer">>(
-          // These errors will dissapear once the TS version is updated from 4.7.4
+          // These errors will disappear once the TS version is updated from 4.7.4
           // the TSD instance is using a newer version of TS than the workspace version
           // to enable the ability to compare against `any`
           sio.emit<"helloFromServer">,
