@@ -21,6 +21,9 @@ app.get("/", (req, res) => {
 });
 
 app.post("/incr", (req, res) => {
+  if (!req.session.userid) {
+    return res.status(401).end();
+  }
   const session = req.session;
   session.count = (session.count || 0) + 1;
   res.status(200).end("" + session.count);
