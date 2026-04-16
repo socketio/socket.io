@@ -53,8 +53,8 @@
 
 ### Bug Fixes
 
-* add `@types/ws` as dependency ([#5458](https://github.com/socketio/socket/issues/5458)) ([07cbe15](https://github.com/socketio/socket/commit/07cbe1510ded7e5460cb82e026e2533e50e30eaf))
-* **uws** emit initial_headers and headers events in uServer ([#5460](https://github.com/socketio/socket/issues/5460)) ([44ed73f](https://github.com/socketio/socket/commit/44ed73f53995d35ef0c8d10df6806d5687238282))
+* add `@types/ws` as dependency ([#5458](https://github.com/socketio/socket.io/issues/5458)) ([07cbe15](https://github.com/socketio/socket.io/commit/07cbe1510ded7e5460cb82e026e2533e50e30eaf))
+* **uws** emit initial_headers and headers events in uServer ([#5460](https://github.com/socketio/socket.io/issues/5460)) ([44ed73f](https://github.com/socketio/socket.io/commit/44ed73f53995d35ef0c8d10df6806d5687238282))
 
 
 ### Dependencies
