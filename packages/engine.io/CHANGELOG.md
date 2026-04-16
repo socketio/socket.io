@@ -138,7 +138,7 @@ See also: https://github.com/advisories/GHSA-pxg6-pf52-xh8x
 
 ### Performance Improvements
 
-* do not reset the hearbeat timer on each packet ([5359bae](https://github.com/socketio/engine.io/commit/5359bae683e2a25742bd4989d0355a8fc10d294e))
+* do not reset the heartbeat timer on each packet ([5359bae](https://github.com/socketio/engine.io/commit/5359bae683e2a25742bd4989d0355a8fc10d294e))
 * **websocket:** use bound callbacks ([9a68c8c](https://github.com/socketio/engine.io/commit/9a68c8ce93cc1bc0bc1a30548558da49860f4acd))
 
 
@@ -535,9 +535,9 @@ Please upgrade as soon as possible.
 
 * decrease the default value of maxHttpBufferSize ([58e274c](https://github.com/socketio/engine.io/commit/58e274c437e9cbcf69fd913c813aad8fbd253703))
 
-This change reduces the default value from 100 mb to a more sane 1 mb.
+This change reduces the default value from 100 MB to a saner 1 MB.
 
-This helps protect the server against denial of service attacks by malicious clients sending huge amounts of data.
+This helps protect the server against denial-of-service attacks by malicious clients sending huge amounts of data.
 
 See also: https://github.com/advisories/GHSA-j4f2-536g-r55m
 
@@ -555,7 +555,7 @@ See also: https://github.com/advisories/GHSA-j4f2-536g-r55m
 So that clients in HTTP long-polling can decide how many packets they have to send to stay under the maxHttpBufferSize
 value.
 
-This is a backward compatible change which should not mandate a new major revision of the protocol (we stay in v4), as
+This is a backward compatible change that should not mandate a new major revision of the protocol (we stay in v4), as
 we only add a field in the JSON-encoded handshake data:
 
 ```
@@ -641,7 +641,7 @@ The codebase was migrated to TypeScript ([c0d6eaa](https://github.com/socketio/e
 
 An ES module wrapper was also added ([401f4b6](https://github.com/socketio/engine.io/commit/401f4b60693fb6702c942692ce42e5bb701d81d7)).
 
-Please note that the communication protocol was not updated, so a v5 client will be able to reach a v6 server (and vice-versa).
+Please note that the communication protocol was not updated, so a v5 client will be able to reach a v6 server (and vice versa).
 
 Reference: https://github.com/socketio/engine.io-protocol
 
