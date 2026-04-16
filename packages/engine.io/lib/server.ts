@@ -529,6 +529,15 @@ export abstract class BaseServer extends EventEmitter {
   }
 
   public async onWebTransportSession(session: any) {
+    if (this.middlewares.length > 0) {
+      // middlewares expect an IncomingMessage argument, which cannot be created from the WebTransport session object
+      // see also: https://github.com/fails-components/webtransport/issues/448
+      debug(
+        "closing session since WebTransport is not compatible with middlewares",
+      );
+      return session.close();
+    }
+
     const timeout = setTimeout(() => {
       debug(
         "the client failed to establish a bidirectional stream in the given period",

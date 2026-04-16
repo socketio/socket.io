@@ -392,6 +392,32 @@ describe("WebTransport", () => {
     );
   });
 
+  it("should refuse the connection when a middleware is registered", (done) => {
+    setupServer({}, async ({ engine, h3Server, certificate }) => {
+      engine.use((req, res, next) => next());
+
+      engine.on("connection", () => {
+        done(new Error("should not happen"));
+      });
+
+      const client = new WebTransport(
+        `https://127.0.0.1:${h3Server.port}/engine.io/`,
+        {
+          serverCertificateHashes: [
+            {
+              algorithm: "sha-256",
+              value: certificate.hash,
+            },
+          ],
+        },
+      );
+
+      await client.closed;
+
+      success(engine, h3Server, done);
+    });
+  });
+
   it("should send ping/pong packets", (done) => {
     setup(
       {
