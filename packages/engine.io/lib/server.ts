@@ -303,7 +303,7 @@ export abstract class BaseServer extends EventEmitter {
     // sid check
     const sid = req._query.sid;
     if (sid) {
-      if (!this.clients.hasOwnProperty(sid)) {
+      if (!hasOwn(this.clients, sid)) {
         debug('unknown sid "%s"', sid);
         return fn(Server.errors.UNKNOWN_SID, {
           sid,
@@ -403,9 +403,9 @@ export abstract class BaseServer extends EventEmitter {
    */
   public close() {
     debug("closing all open clients");
-    for (let i in this.clients) {
-      if (this.clients.hasOwnProperty(i)) {
-        this.clients[i].close(true);
+    for (const sid in this.clients) {
+      if (hasOwn(this.clients, sid)) {
+        this.clients[sid].close(true);
       }
     }
     this.cleanup();
