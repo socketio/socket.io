@@ -302,6 +302,96 @@ describe("WebTransport", () => {
     );
   });
 
+  it("should close a connection that sends an invalid upgrade", (done) => {
+    setupServer(
+      {
+        transports: ["polling", "websocket", "webtransport"],
+      },
+      async ({ engine, h3Server, certificate }) => {
+        const httpServer = await createHttpServer(h3Server.port);
+        engine.attach(httpServer);
+
+        request(`http://localhost:${h3Server.port}/engine.io/`)
+          .query({ EIO: 4, transport: "polling" })
+          .end(async (_, res) => {
+            const payload = JSON.parse(res.text.substring(1));
+
+            expect(payload.upgrades).to.eql(["websocket", "webtransport"]);
+
+            const client = new WebTransport(
+              `https://127.0.0.1:${h3Server.port}/engine.io/`,
+              {
+                serverCertificateHashes: [
+                  {
+                    algorithm: "sha-256",
+                    value: certificate.hash,
+                  },
+                ],
+              },
+            );
+
+            await client.ready;
+
+            const stream = await client.createBidirectionalStream();
+            const writer = stream.writable.getWriter();
+
+            await writer.write(Uint8Array.of(31));
+            await writer.write(
+              TEXT_ENCODER.encode(`0{"sid":"11111111111111111111"}`),
+            );
+
+            client.closed.then(() => {
+              success(engine, h3Server, done);
+            });
+          });
+      },
+    );
+  });
+
+  it("should close a connection that sends an invalid upgrade (bis)", (done) => {
+    setupServer(
+      {
+        transports: ["polling", "websocket", "webtransport"],
+      },
+      async ({ engine, h3Server, certificate }) => {
+        const httpServer = await createHttpServer(h3Server.port);
+        engine.attach(httpServer);
+
+        request(`http://localhost:${h3Server.port}/engine.io/`)
+          .query({ EIO: 4, transport: "polling" })
+          .end(async (_, res) => {
+            const payload = JSON.parse(res.text.substring(1));
+
+            expect(payload.upgrades).to.eql(["websocket", "webtransport"]);
+
+            const client = new WebTransport(
+              `https://127.0.0.1:${h3Server.port}/engine.io/`,
+              {
+                serverCertificateHashes: [
+                  {
+                    algorithm: "sha-256",
+                    value: certificate.hash,
+                  },
+                ],
+              },
+            );
+
+            await client.ready;
+
+            const stream = await client.createBidirectionalStream();
+            const writer = stream.writable.getWriter();
+
+            await writer.write(Uint8Array.of(20));
+            await writer.write(TEXT_ENCODER.encode(`0{"sid":"__proto__"}`));
+
+            client.closed.then(() => {
+              success(engine, h3Server, done);
+            });
+          });
+      },
+    );
+  });
+
   it("should send ping/pong packets", (done) => {
     setup(
       {

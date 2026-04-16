@@ -166,6 +166,11 @@ function parseSessionId(data: string): string | undefined {
   } catch (e) {}
 }
 
+// Object.hasOwn() was introduced in Node.js 16.9
+function hasOwn(obj: Record<string, any>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
+
 export abstract class BaseServer extends EventEmitter {
   public opts: ServerOptions;
 
@@ -583,7 +588,7 @@ export abstract class BaseServer extends EventEmitter {
 
     const sid = parseSessionId(value.data);
 
-    if (!sid) {
+    if (!sid || !hasOwn(this.clients, sid)) {
       debug("invalid WebTransport handshake");
       return session.close();
     }
