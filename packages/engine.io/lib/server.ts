@@ -764,18 +764,20 @@ export class Server extends BaseServer {
   /**
    * Handles an Engine.IO HTTP request.
    *
-   * @param {EngineRequest} req
+   * @param {IncomingMessage} req
    * @param {ServerResponse} res
    */
-  public handleRequest(req: EngineRequest, res: ServerResponse) {
+  public handleRequest(req: IncomingMessage, res: ServerResponse) {
     debug('handling "%s" http request "%s"', req.method, req.url);
-    this.prepare(req);
-    req.res = res;
+    const engineRequest = req as EngineRequest;
+
+    this.prepare(engineRequest);
+    engineRequest.res = res;
 
     const callback: ErrorCallback = (errorCode, errorContext) => {
       if (errorCode !== undefined) {
         this.emit("connection_error", {
-          req,
+          engineRequest,
           code: errorCode,
           message: Server.errorMessages[errorCode],
           context: errorContext,
@@ -784,25 +786,27 @@ export class Server extends BaseServer {
         return;
       }
 
-      if (req._query.sid) {
+      if (engineRequest._query.sid) {
         debug("setting new request for existing client");
-        this.clients[req._query.sid].transport.onRequest(req);
+        this.clients[engineRequest._query.sid].transport.onRequest(
+          engineRequest,
+        );
       } else {
         const closeConnection = (errorCode, errorContext) =>
           abortRequest(res, errorCode, errorContext);
         this.handshake(
-          req._query.transport as TransportName,
-          req,
+          engineRequest._query.transport as TransportName,
+          engineRequest,
           closeConnection,
         );
       }
     };
 
-    this._applyMiddlewares(req, res, (err) => {
+    this._applyMiddlewares(engineRequest, res, (err) => {
       if (err) {
         callback(Server.errors.BAD_REQUEST, { name: "MIDDLEWARE_FAILURE" });
       } else {
-        this.verify(req, false, callback);
+        this.verify(engineRequest, false, callback);
       }
     });
   }
@@ -811,17 +815,19 @@ export class Server extends BaseServer {
    * Handles an Engine.IO HTTP Upgrade.
    */
   public handleUpgrade(
-    req: EngineRequest,
+    req: IncomingMessage,
     socket: Duplex,
     upgradeHead: Buffer,
   ) {
-    this.prepare(req);
+    const engineRequest = req as EngineRequest;
 
-    const res = new WebSocketResponse(req, socket);
+    this.prepare(engineRequest);
+
+    const res = new WebSocketResponse(engineRequest, socket);
     const callback: ErrorCallback = (errorCode, errorContext) => {
       if (errorCode !== undefined) {
         this.emit("connection_error", {
-          req,
+          engineRequest,
           code: errorCode,
           message: Server.errorMessages[errorCode],
           context: errorContext,
@@ -838,18 +844,22 @@ export class Server extends BaseServer {
       res.writeHead();
 
       // delegate to ws
-      this.ws.handleUpgrade(req, socket, head, (websocket) => {
-        this.onWebSocket(req, socket, websocket);
+      this.ws.handleUpgrade(engineRequest, socket, head, (websocket) => {
+        this.onWebSocket(engineRequest, socket, websocket);
       });
     };
 
-    this._applyMiddlewares(req, res as unknown as ServerResponse, (err) => {
-      if (err) {
-        callback(Server.errors.BAD_REQUEST, { name: "MIDDLEWARE_FAILURE" });
-      } else {
-        this.verify(req, true, callback);
-      }
-    });
+    this._applyMiddlewares(
+      engineRequest,
+      res as unknown as ServerResponse,
+      (err) => {
+        if (err) {
+          callback(Server.errors.BAD_REQUEST, { name: "MIDDLEWARE_FAILURE" });
+        } else {
+          this.verify(engineRequest, true, callback);
+        }
+      },
+    );
   }
 
   /**
@@ -947,7 +957,7 @@ export class Server extends BaseServer {
     server.on("request", (req, res) => {
       if (check(req)) {
         debug('intercepting request for path "%s"', path);
-        this.handleRequest(req as EngineRequest, res);
+        this.handleRequest(req, res);
       } else {
         let i = 0;
         const l = listeners.length;
@@ -960,7 +970,7 @@ export class Server extends BaseServer {
     if (~this.opts.transports.indexOf("websocket")) {
       server.on("upgrade", (req, socket, head) => {
         if (check(req)) {
-          this.handleUpgrade(req as EngineRequest, socket, head);
+          this.handleUpgrade(req, socket, head);
         } else if (false !== options.destroyUpgrade) {
           // default node behavior is to disconnect when no handlers
           // but by adding a handler, we prevent that
