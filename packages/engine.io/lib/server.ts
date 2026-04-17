@@ -777,7 +777,7 @@ export class Server extends BaseServer {
     const callback: ErrorCallback = (errorCode, errorContext) => {
       if (errorCode !== undefined) {
         this.emit("connection_error", {
-          engineRequest,
+          req: engineRequest,
           code: errorCode,
           message: Server.errorMessages[errorCode],
           context: errorContext,
@@ -827,7 +827,7 @@ export class Server extends BaseServer {
     const callback: ErrorCallback = (errorCode, errorContext) => {
       if (errorCode !== undefined) {
         this.emit("connection_error", {
-          engineRequest,
+          req: engineRequest,
           code: errorCode,
           message: Server.errorMessages[errorCode],
           context: errorContext,
