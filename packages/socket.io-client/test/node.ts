@@ -28,12 +28,19 @@ describe("autoUnref option", function () {
   });
 
   it("should not stop with autoUnref set to false", (done) => {
+    let doneCalled = false;
     const process = exec(fixture("no-unref.ts"), () => {
-      done(new Error("should not happen"));
+      if (!doneCalled) {
+        doneCalled = true;
+        done(new Error("should not happen"));
+      }
     });
     setTimeout(() => {
       process.kill();
-      done();
+      if (!doneCalled) {
+        doneCalled = true;
+        done();
+      }
     }, 100);
   });
 });
