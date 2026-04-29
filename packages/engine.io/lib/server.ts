@@ -141,6 +141,11 @@ export interface ServerOptions {
    * @default false
    */
   allowEIO3?: boolean;
+  /**
+   * the maximum number of simultaneous connections. Any connection attempt above this threshold will be rejected.
+   * @default Infinity
+   */
+  maxConnections?: number;
 }
 
 /**
@@ -451,6 +456,26 @@ export abstract class BaseServer extends EventEmitter {
         },
       });
       closeConnection(Server.errors.UNSUPPORTED_PROTOCOL_VERSION);
+      return;
+    }
+
+    if (
+      this.opts.maxConnections != null &&
+      this.clientsCount >= this.opts.maxConnections
+    ) {
+      debug(
+        "too many connections (maxConnections=%d)",
+        this.opts.maxConnections,
+      );
+      this.emit("connection_error", {
+        req,
+        code: Server.errors.FORBIDDEN,
+        message: Server.errorMessages[Server.errors.FORBIDDEN],
+        context: {
+          name: "CONNECTION_LIMIT_EXCEEDED",
+        },
+      });
+      closeConnection(Server.errors.FORBIDDEN);
       return;
     }
 
