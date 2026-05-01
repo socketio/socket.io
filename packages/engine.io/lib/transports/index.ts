@@ -14,7 +14,7 @@ export default {
  * Polling polymorphic constructor.
  */
 function polling(req: EngineRequest) {
-  if ("string" === typeof req._query.j) {
+  if ("string" === typeof req._query?.j) {
     return new JSONP(req);
   } else {
     return new XHR(req);

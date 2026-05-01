@@ -13,7 +13,7 @@ function noop() {}
 type ReadyState = "open" | "closing" | "closed";
 
 export type EngineRequest = IncomingMessage & {
-  _query: Record<string, string>;
+  _query?: Record<string, string>;
   res?: ServerResponse;
   cleanup?: Function;
   websocket?: WebSocket & {
@@ -89,9 +89,9 @@ export abstract class Transport extends EventEmitter {
    *
    * @param {EngineRequest} req
    */
-  constructor(req: { _query: Record<string, string> }) {
+  constructor(req: { _query?: Record<string, string> }) {
     super();
-    this.protocol = req._query.EIO === "4" ? 4 : 3; // 3rd revision by default
+    this.protocol = req._query?.EIO === "4" ? 4 : 3; // 3rd revision by default
     this.parser = this.protocol === 4 ? parser_v4 : parser_v3;
     this.supportsBinary = !(req._query && req._query.b64);
   }
