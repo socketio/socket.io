@@ -1,5 +1,4 @@
 import { Polling } from "./polling.js";
-import { CookieJar, createCookieJar } from "../globals.node.js";
 
 /**
  * HTTP long-polling based on the built-in `fetch()` method.
