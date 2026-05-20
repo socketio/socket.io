@@ -213,8 +213,7 @@ export abstract class BaseServer extends EventEmitter {
         {
           name: "io",
           path: "/",
-          // @ts-ignore
-          httpOnly: opts.cookie.path !== false,
+          httpOnly: true,
           sameSite: "lax",
         },
         opts.cookie,

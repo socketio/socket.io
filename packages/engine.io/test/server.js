@@ -336,7 +336,7 @@ describe("server", () => {
             expect(err).to.be(null);
             const sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers["set-cookie"][0]).to.be(
-              `io=${sid}; SameSite=Lax`,
+              `io=${sid}; HttpOnly; SameSite=Lax`,
             );
             done();
           });
