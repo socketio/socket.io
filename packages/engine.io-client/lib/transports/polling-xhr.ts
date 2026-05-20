@@ -52,11 +52,11 @@ export abstract class BaseXHR extends Polling {
   /**
    * Sends data.
    *
-   * @param {String} data to send.
-   * @param {Function} called upon flush.
+   * @param {String} data - data to send.
+   * @param {Function} fn - called upon flush.
    * @private
    */
-  override doWrite(data, fn) {
+  override doWrite(data: string, fn: () => void) {
     const req = this.request({
       method: "POST",
       data: data,

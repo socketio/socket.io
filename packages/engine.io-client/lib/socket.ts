@@ -795,7 +795,7 @@ export class SocketWithoutUpgrade extends Emitter<
   /**
    * Sends a packet.
    *
-   * @param {String} type: packet type.
+   * @param {String} type - packet type.
    * @param {String} data.
    * @param {Object} options.
    * @param {Function} fn - callback function.
