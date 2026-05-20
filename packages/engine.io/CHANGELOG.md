@@ -2,6 +2,8 @@
 
 | Version                                                                                              | Release date   | `ws` version |
 |------------------------------------------------------------------------------------------------------|----------------|--------------|
+| [6.6.8](#668-2026-05-20)                                                                             | May 2026       | `~8.20.1`    |
+| [6.6.7](#667-2026-04-27)                                                                             | April 2026     | `"`          |
 | [6.6.6](#666-2026-03-10)                                                                             | March 2026     | `"`          |
 | [6.6.5](#665-2025-12-22)                                                                             | December 2025  | `~8.18.3`    |
 | [6.6.4](#664-2025-01-28)                                                                             | January 2025   | `"`          |
@@ -47,6 +49,24 @@
 | [**4.0.0**](#400-2020-09-10)                                                                         | September 2020 | `"`          |
 | [3.4.2](#342-2020-06-04)                                                                             | June 2020      | `"`          |
 | [3.4.1](#341-2020-04-17)                                                                             | April 2020     | `^7.1.2`     |
+
+## [6.6.8](https://github.com/socketio/socket.io/compare/engine.io@6.6.7...engine.io@6.6.8) (2026-05-20)
+
+The `ws` dependency was bumped to `~8.20.1` following [CVE-2026-45736](https://github.com/advisories/GHSA-58qx-3vcg-4xpx).
+
+Note from the `ws` maintainers:
+
+> Although the calculated CVSS severity is medium, the actual severity is believed to be low, as the flaw is only exploitable through misuse that is unlikely in practice.
+
+### Bug Fixes
+
+* clean up resources upon WebTransport handshake failure ([f86b95f](https://github.com/socketio/socket/commit/f86b95fdba6dd260b3d2f57e69537aeb8de904bb))
+
+
+### Dependencies
+
+- [`ws@~8.20.1`](https://github.com/websockets/ws/releases/tag/8.20.1) ([diff](https://github.com/websockets/ws/compare/8.18.3...8.20.1))
+
 
 
 ## [6.6.7](https://github.com/socketio/socket.io/compare/engine.io@6.6.6...engine.io@6.6.7) (2026-04-27)
