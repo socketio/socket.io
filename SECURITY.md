@@ -52,6 +52,7 @@ From the transitive dependencies:
 | May 2023      | `socket.io-parser` | [Insufficient validation when decoding a Socket.IO packet](https://github.com/advisories/GHSA-cqmj-92xf-r6r9)           | `CVE-2023-32695` |
 | June 2024     | `ws`               | [DoS when handling a request with many HTTP headers](https://github.com/advisories/GHSA-3h5v-q93c-6h6q)                 | `CVE-2024-37890` |
 | March 2026    | `socket.io-parser` | [Unbounded number of binary attachments](https://github.com/socketio/socket.io/security/advisories/GHSA-677m-j7p3-52f9) | `CVE-2026-33151` |
+| May 2026      | `ws`               | [Uninitialized memory disclosure](https://github.com/advisories/GHSA-58qx-3vcg-4xpx)                                    | `CVE-2026-45736` |
 
 ### For the `socket.io-client` package
 
@@ -69,3 +70,4 @@ From the transitive dependencies:
 | May 2023      | `socket.io-parser` | [Insufficient validation when decoding a Socket.IO packet](https://github.com/advisories/GHSA-cqmj-92xf-r6r9)           | `CVE-2023-32695` |
 | June 2024     | `ws`               | [DoS when handling a request with many HTTP headers](https://github.com/advisories/GHSA-3h5v-q93c-6h6q)                 | `CVE-2024-37890` |
 | March 2026    | `socket.io-parser` | [Unbounded number of binary attachments](https://github.com/socketio/socket.io/security/advisories/GHSA-677m-j7p3-52f9) | `CVE-2026-33151` |
+| May 2026      | `ws`               | [Uninitialized memory disclosure](https://github.com/advisories/GHSA-58qx-3vcg-4xpx)                                    | `CVE-2026-45736` |
