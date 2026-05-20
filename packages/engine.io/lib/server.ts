@@ -548,6 +548,7 @@ export abstract class BaseServer extends EventEmitter {
     const result = await streamReader.read();
 
     if (result.done) {
+      clearTimeout(timeout);
       debug("session is closed");
       return;
     }
@@ -559,18 +560,32 @@ export abstract class BaseServer extends EventEmitter {
     );
     const reader = stream.readable.pipeThrough(transformStream).getReader();
 
+    const closeSession = async () => {
+      try {
+        await reader.cancel();
+      } catch (e) {
+        debug(
+          "error while canceling WebTransport stream reader: %s",
+          e.message,
+        );
+      }
+      reader.releaseLock();
+      session.close();
+    };
+
     // reading the first packet of the stream
     const { value, done } = await reader.read();
+    clearTimeout(timeout);
+
     if (done) {
       debug("stream is closed");
+      reader.releaseLock();
       return;
     }
 
-    clearTimeout(timeout);
-
     if (value.type !== "open") {
       debug("invalid WebTransport handshake");
-      return session.close();
+      return closeSession();
     }
 
     if (value.data === undefined) {
@@ -598,20 +613,20 @@ export abstract class BaseServer extends EventEmitter {
 
     if (!sid || !hasOwn(this.clients, sid)) {
       debug("invalid WebTransport handshake");
-      return session.close();
+      return closeSession();
     }
 
     const client = this.clients[sid];
 
     if (!client) {
       debug("upgrade attempt for closed client");
-      session.close();
+      return closeSession();
     } else if (client.upgrading) {
       debug("transport has already been trying to upgrade");
-      session.close();
+      return closeSession();
     } else if (client.upgraded) {
       debug("transport had already been upgraded");
-      session.close();
+      return closeSession();
     } else {
       debug("upgrading existing transport");
 
