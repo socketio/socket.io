@@ -1,6 +1,6 @@
 {
   "name": "socket.io-adapter",
-  "version": "2.5.6",
+  "version": "2.5.7",
   "license": "MIT",
   "homepage": "https://github.com/socketio/socket.io/tree/main/packages/socket.io-adapter#readme",
   "repository": {

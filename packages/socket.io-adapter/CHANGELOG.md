@@ -2,6 +2,7 @@
 
 | Version                      | Release date   |
 |------------------------------|----------------|
+| [2.5.7](#257-2026-05-20)     | May 2026       |
 | [2.5.6](#256-2025-12-23)     | December 2025  |
 | [2.5.5](#255-2024-06-18)     | June 2024      |
 | [2.5.4](#254-2024-02-22)     | February 2024  |
@@ -20,6 +21,20 @@
 | [2.0.2](#202-2020-09-28)     | September 2020 |
 | [2.0.1](#201-2020-09-28)     | September 2020 |
 | [**2.0.0**](#200-2020-09-25) | September 2020 |
+
+## [2.5.7](https://github.com/socketio/socket.io/compare/socket.io-adapter@2.5.6...socket.io-adapter@2.5.7) (2026-05-20)
+
+The `ws` dependency was bumped to `~8.20.1` following [CVE-2026-45736](https://github.com/advisories/GHSA-58qx-3vcg-4xpx).
+
+Note from the `ws` maintainers:
+
+> Although the calculated CVSS severity is medium, the actual severity is believed to be low, as the flaw is only exploitable through misuse that is unlikely in practice.
+
+
+### Bug Fixes
+
+* do not skip local broadcast when publishAndReturnOffset throws ([#5457](https://github.com/socketio/socket/issues/5457)) ([f630158](https://github.com/socketio/socket/commit/f6301588ca65de270ecfe22da9023d7ec79ba23a))
+
 
 
 ## [2.5.6](https://github.com/socketio/socket.io/compare/socket.io-adapter@2.5.5...socket.io-adapter@2.5.6) (2025-12-23)
