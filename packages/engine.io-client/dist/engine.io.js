@@ -1,6 +1,6 @@
 /*!
- * Engine.IO v6.6.4
- * (c) 2014-2025 Guillermo Rauch
+ * Engine.IO v6.6.5
+ * (c) 2014-2026 Guillermo Rauch
  * Released under the MIT License.
  */
 (function (global, factory) {
@@ -1769,8 +1769,8 @@
     /**
      * Sends data.
      *
-     * @param {String} data to send.
-     * @param {Function} called upon flush.
+     * @param {String} data - data to send.
+     * @param {Function} fn - called upon flush.
      * @private
      */
     _inheritsLoose(BaseXHR, _Polling);
@@ -2725,7 +2725,7 @@
     /**
      * Sends a packet.
      *
-     * @param {String} type: packet type.
+     * @param {String} type - packet type.
      * @param {String} data.
      * @param {Object} options.
      * @param {Function} fn - callback function.
