@@ -109,7 +109,7 @@ export interface SocketOptions {
    * @default ['polling','websocket', 'webtransport']
    */
   transports?:
-    | ("polling" | "websocket" | "webtransport" | string)[]
+    | ("polling" | "websocket" | "webtransport" | (string & {}))[]
     | TransportCtor[];
 
   /**
