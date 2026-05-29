@@ -23,6 +23,19 @@ describe("Socket", function () {
     });
   });
 
+  it("should not mutate the caller's transports option", () => {
+    const optsWithUri = { transports: ["websocket", "polling"] };
+    const optsWithoutUri = { transports: ["polling"] };
+
+    const socketWithUri = new Socket("http://localhost", optsWithUri);
+    const socketWithoutUri = new Socket(optsWithoutUri);
+
+    expect(optsWithUri.transports).to.eql(["websocket", "polling"]);
+    expect(optsWithoutUri.transports).to.eql(["polling"]);
+    socketWithUri.close();
+    socketWithoutUri.close();
+  });
+
   it("throws an error when no transports are available", (done) => {
     const socket = new Socket({ transports: [] });
     let errorMessage = "";

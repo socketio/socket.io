@@ -1167,7 +1167,8 @@ export class Socket extends SocketWithUpgrade {
   constructor(uri?: string, opts?: SocketOptions);
   constructor(opts: SocketOptions);
   constructor(uri?: string | SocketOptions, opts: SocketOptions = {}) {
-    const o = typeof uri === "object" ? uri : opts;
+    const isOptionsOnly = typeof uri === "object";
+    const o = isOptionsOnly ? { ...uri } : { ...opts };
 
     if (
       !o.transports ||
@@ -1178,6 +1179,9 @@ export class Socket extends SocketWithUpgrade {
         .filter((t) => !!t);
     }
 
-    super(uri as string, o as BaseSocketOptions);
+    super(
+      isOptionsOnly ? (o as BaseSocketOptions) : uri,
+      o as BaseSocketOptions,
+    );
   }
 }
