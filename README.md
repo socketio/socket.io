@@ -1,7 +1,7 @@
 # socket.io
 
 [![Latest NPM version](https://img.shields.io/npm/v/socket.io.svg)](https://www.npmjs.com/package/socket.io)
-[![Build status](https://github.com/socketio/socket.io/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/socketio/socket.io/actions/workflows/ci.yml)
+[![Build status](https://github.com/socketio/socket.io/actions/workflows/ci-socket.io.yml/badge.svg?branch=main)](https://github.com/socketio/socket.io/actions/workflows/ci-socket.io.yml)
 [![Downloads per month](https://img.shields.io/npm/dm/socket.io.svg)]((https://www.npmjs.com/package/socket.io))
 
 ## Getting Started
