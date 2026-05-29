@@ -6,14 +6,26 @@ on:
       - '**'
     paths:
       - 'packages/engine.io/**'
+      - 'packages/engine.io-client/**'
       - 'packages/engine.io-parser/**'
+      - 'packages/socket.io/**'
+      - 'packages/socket.io-adapter/**'
+      - 'packages/socket.io-client/**'
       - 'packages/socket.io-cluster-engine/**'
+      - 'packages/socket.io-component-emitter/**'
+      - 'packages/socket.io-parser/**'
       - '.github/workflows/ci-socket.io-cluster-engine.yml'
   pull_request:
     paths:
       - 'packages/engine.io/**'
+      - 'packages/engine.io-client/**'
       - 'packages/engine.io-parser/**'
+      - 'packages/socket.io/**'
+      - 'packages/socket.io-adapter/**'
+      - 'packages/socket.io-client/**'
       - 'packages/socket.io-cluster-engine/**'
+      - 'packages/socket.io-component-emitter/**'
+      - 'packages/socket.io-parser/**'
       - '.github/workflows/ci-socket.io-cluster-engine.yml'
 
 permissions:
