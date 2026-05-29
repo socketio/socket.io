@@ -120,7 +120,7 @@ export class Request extends Emitter<
    * @package
    */
   constructor(
-    private readonly createRequest: (opts: RequestOptions) => XMLHttpRequest,
+    private readonly createRequest: (opts: RequestOptions) => any,
     uri: string,
     opts: RequestOptions,
   ) {
