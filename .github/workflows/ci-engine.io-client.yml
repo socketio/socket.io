@@ -1,0 +1,71 @@
+name: CI (engine.io-client)
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'packages/engine.io/**'
+      - 'packages/engine.io-client/**'
+      - 'packages/engine.io-parser/**'
+      - 'packages/socket.io-component-emitter/**'
+      - '.github/workflows/ci-engine.io-client.yml'
+  pull_request:
+    paths:
+      - 'packages/engine.io/**'
+      - 'packages/engine.io-client/**'
+      - 'packages/engine.io-parser/**'
+      - 'packages/socket.io-component-emitter/**'
+      - '.github/workflows/ci-engine.io-client.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile dependencies
+        run: |
+          npm run compile \
+            --workspace=engine.io-parser
+
+      - name: Compile package
+        run: npm run compile --workspace=engine.io-client
+
+      - name: Compile dev dependencies
+        run: |
+          npm run compile \
+            --workspace=engine.io
+
+      - name: Run tests
+        run: npm test --workspace=engine.io-client
+
+      - name: Run tests with fetch instead of XHR
+        run: npm run test:node-fetch --workspace=engine.io-client
+
+      - name: Run tests with Node.js native WebSocket
+        run: npm run test:node-builtin-ws --workspace=engine.io-client
+
+# TODO: migrate tests from zuul to WebdriverIO
+#      - name: Run tests in browser
+#        if: github.event_name == 'push'
+#        run: npm test --workspace=engine.io-client
+#        env:
+#          BROWSERS: 1
+#          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+#          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}

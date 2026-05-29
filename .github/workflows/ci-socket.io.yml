@@ -1,0 +1,68 @@
+name: CI (socket.io)
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'packages/engine.io/**'
+      - 'packages/engine.io-client/**'
+      - 'packages/engine.io-parser/**'
+      - 'packages/socket.io/**'
+      - 'packages/socket.io-adapter/**'
+      - 'packages/socket.io-client/**'
+      - 'packages/socket.io-component-emitter/**'
+      - 'packages/socket.io-parser/**'
+      - '.github/workflows/ci-socket.io.yml'
+  pull_request:
+    paths:
+      - 'packages/engine.io/**'
+      - 'packages/engine.io-client/**'
+      - 'packages/engine.io-parser/**'
+      - 'packages/socket.io/**'
+      - 'packages/socket.io-adapter/**'
+      - 'packages/socket.io-client/**'
+      - 'packages/socket.io-component-emitter/**'
+      - 'packages/socket.io-parser/**'
+      - '.github/workflows/ci-socket.io.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile dependencies
+        run: |
+          npm run compile \
+            --workspace=engine.io-parser \
+            --workspace=engine.io \
+            --workspace=socket.io-adapter \
+            --workspace=socket.io-parser
+
+      - name: Compile package
+        run: npm run compile --workspace=socket.io
+
+      - name: Compile dev dependencies
+        run: |
+          npm run compile \
+            --workspace=engine.io-client \
+            --workspace=socket.io-client
+
+      - name: Run tests
+        run: npm test --workspace=socket.io

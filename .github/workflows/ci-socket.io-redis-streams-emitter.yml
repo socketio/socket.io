@@ -1,0 +1,62 @@
+name: CI (@socket.io/redis-streams-emitter)
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'packages/socket.io-redis-streams-emitter/**'
+      - '.github/workflows/ci-socket.io-redis-streams-emitter.yml'
+  pull_request:
+    paths:
+      - 'packages/socket.io-redis-streams-emitter/**'
+      - '.github/workflows/ci-socket.io-redis-streams-emitter.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile package
+        run: npm run compile --workspace=@socket.io/redis-streams-emitter
+
+      - name: Compile dev dependencies
+        run: |
+          npm run compile \
+            --workspace=engine.io-parser \
+            --workspace=engine.io-client \
+            --workspace=engine.io \
+            --workspace=socket.io-parser \
+            --workspace=socket.io-client \
+            --workspace=socket.io-adapter \
+            --workspace=socket.io
+
+      - name: Run tests
+        run: npm test --workspace=@socket.io/redis-streams-emitter

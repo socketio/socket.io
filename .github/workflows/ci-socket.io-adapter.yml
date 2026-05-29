@@ -1,0 +1,50 @@
+name: CI (socket.io-adapter)
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'packages/socket.io-adapter/**'
+      - '.github/workflows/ci-socket.io-adapter.yml'
+  pull_request:
+    paths:
+      - 'packages/socket.io-adapter/**'
+      - '.github/workflows/ci-socket.io-adapter.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile package
+        run: npm run compile --workspace=socket.io-adapter
+
+      - name: Compile dev dependencies
+        run: |
+          npm run compile \
+            --workspace=engine.io-parser \
+            --workspace=engine.io-client \
+            --workspace=engine.io \
+            --workspace=socket.io-parser \
+            --workspace=socket.io-client \
+            --workspace=socket.io
+
+      - name: Run tests
+        run: npm test --workspace=socket.io-adapter

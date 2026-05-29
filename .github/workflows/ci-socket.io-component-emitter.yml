@@ -1,0 +1,37 @@
+name: CI (@socket.io/component-emitter)
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'packages/socket.io-component-emitter/**'
+      - '.github/workflows/ci-socket.io-component-emitter.yml'
+  pull_request:
+    paths:
+      - 'packages/socket.io-component-emitter/**'
+      - '.github/workflows/ci-socket.io-component-emitter.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test --workspace=@socket.io/component-emitter
