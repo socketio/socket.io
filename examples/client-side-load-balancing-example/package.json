@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "name": "client-side-load-balancing-example",
+  "version": "0.0.0",
+  "type": "module"
+}
