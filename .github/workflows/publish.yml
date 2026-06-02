@@ -1,4 +1,5 @@
-# reference: https://docs.npmjs.com/trusted-publishers#for-github-actions
+# trusted publishing: https://docs.npmjs.com/trusted-publishers#for-github-actions
+# staged publishing: https://docs.npmjs.com/staged-publishing
 
 name: Publish
 
@@ -33,4 +34,4 @@ jobs:
         run: npm run compile --workspaces --if-present
 
       - name: Publish package
-        run: npm publish --workspace=${GITHUB_REF_NAME%@*} --access public
+        run: npm stage publish --workspace=${GITHUB_REF_NAME%@*} --access public
