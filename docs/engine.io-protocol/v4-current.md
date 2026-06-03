@@ -1,32 +1,36 @@
-# Engine.IO Protocol
+<h1>Engine.IO Protocol</h1>
 
-This document describes the 4th version of the Engine.IO protocol.
+This document describes the version 4.1 of the Engine.IO protocol.
 
 **Table of content**
 
-- [Introduction](#introduction)
-- [Transports](#transports)
-  - [HTTP long-polling](#http-long-polling)
-    - [Request path](#request-path)
-    - [Query parameters](#query-parameters)
-    - [Headers](#headers)
-    - [Sending and receiving data](#sending-and-receiving-data)
-      - [Sending data](#sending-data)
-      - [Receiving data](#receiving-data)
-  - [WebSocket](#websocket)
-- [Protocol](#protocol)
-  - [Handshake](#handshake)
-  - [Heartbeat](#heartbeat)
-  - [Upgrade](#upgrade)
-  - [Message](#message)
-- [Packet encoding](#packet-encoding)
-  - [HTTP long-polling](#http-long-polling-1)
-  - [WebSocket](#websocket-1)
-- [History](#history)
-  - [From v2 to v3](#from-v2-to-v3)
-  - [From v3 to v4](#from-v3-to-v4)
-- [Test suite](#test-suite)
-
+<!-- TOC -->
+  * [Introduction](#introduction)
+  * [Transports](#transports)
+    * [HTTP long-polling](#http-long-polling)
+      * [Request path](#request-path)
+      * [Query parameters](#query-parameters)
+      * [Headers](#headers)
+      * [Sending and receiving data](#sending-and-receiving-data)
+        * [Sending data](#sending-data)
+        * [Receiving data](#receiving-data)
+    * [WebSocket](#websocket)
+    * [WebTransport](#webtransport)
+  * [Protocol](#protocol)
+    * [Handshake](#handshake)
+    * [Heartbeat](#heartbeat)
+    * [Upgrade](#upgrade)
+    * [Message](#message)
+  * [Packet encoding](#packet-encoding)
+    * [HTTP long-polling](#http-long-polling-1)
+    * [WebSocket](#websocket-1)
+    * [WebTransport](#webtransport-1)
+  * [History](#history)
+    * [From v2 to v3](#from-v2-to-v3)
+    * [From v3 to v4](#from-v3-to-v4)
+    * [From v4 to v4.1](#from-v4-to-v41)
+  * [Test suite](#test-suite)
+<!-- TOC -->
 
 
 ## Introduction
@@ -37,10 +41,10 @@ It is based on the [WebSocket protocol](https://en.wikipedia.org/wiki/WebSocket)
 
 The reference implementation is written in [TypeScript](https://www.typescriptlang.org/):
 
-- server: https://github.com/socketio/engine.io
-- client: https://github.com/socketio/engine.io-client
+- server: https://github.com/socketio/socket.io/tree/main/packages/engine.io
+- client: https://github.com/socketio/socket.io/tree/main/packages/engine.io-client
 
-The [Socket.IO protocol](https://github.com/socketio/socket.io-protocol) is built on top of these foundations, bringing additional features over the communication channel provided by the Engine.IO protocol.
+The [Socket.IO protocol](https://github.com/socketio/socket.io/blob/main/docs/socket.io-protocol/v5-current.md) is built on top of these foundations, bringing additional features over the communication channel provided by the Engine.IO protocol.
 
 ## Transports
 
@@ -48,6 +52,7 @@ The connection between an Engine.IO client and an Engine.IO server can be establ
 
 - [HTTP long-polling](#http-long-polling)
 - [WebSocket](#websocket)
+- [WebTransport](#webtransport)
 
 ### HTTP long-polling
 
@@ -146,6 +151,19 @@ Each packet (read or write) is sent its own [WebSocket frame](https://datatracke
 
 A client MUST NOT open more than one WebSocket connection per session. Should it happen, the server MUST close the WebSocket connection.
 
+### WebTransport
+
+The WebTransport transport consists of a [WebTransport bidirectional stream](https://developer.mozilla.org/en-US/docs/Web/API/WebTransport_API), which provides a bidirectional and low-latency communication channel between the server and the client.
+
+From the [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/API/WebTransport_API):
+
+> The WebTransport API provides a modern update to WebSockets, transmitting data between client and server using [HTTP/3 Transport](https://datatracker.ietf.org/doc/html/draft-ietf-webtrans-http3/). WebTransport provides support for multiple streams, unidirectional streams, and out-of-order delivery. It enables reliable transport via streams and unreliable transport via UDP-like datagrams.
+
+A client MUST NOT open more than one WebTransport stream per session. Should it happen, the server MUST close the WebTransport session.
+
+Note: the current version of the protocol does not make use of the query parameters, because they are not part of the WebTransport specification and are an implementation detail. This might change in the future.
+
+
 ## Protocol
 
 An Engine.IO packet consists of:
@@ -191,7 +209,24 @@ CLIENT                                                    SERVER
   │        GET /engine.io/?EIO=4&transport=websocket         │
   │ ───────────────────────────────────────────────────────► │
   │ ◄──────────────────────────────────────────────────────┘ │
-  │                        HTTP 101                          │
+  │               HTTP 101 Switching Protocols               │
+  │                                                          │
+```
+
+- WebTransport-only session
+
+For a WebTransport-only session, the client MUST first send an `open` packet on the bidirectional stream.
+
+```
+CLIENT                                                    SERVER
+
+  │        (WebTransport session + bidirectional stream)     │
+  │ ───────────────────────────────────────────────────────► │
+  │                                                          │
+  │                       0 (open packet)                    │
+  │ ───────────────────────────────────────────────────────► │
+  │ ◄──────────────────────────────────────────────────────  │
+  │                        0{"sid":"..."}                    │
   │                                                          │
 ```
 
@@ -242,12 +277,12 @@ Conversely, if the client does not receive a `ping` packet within `pingInterval 
 
 ### Upgrade
 
-By default, the client SHOULD create an HTTP long-polling connection, and then upgrade to better transports if available.
+By default, the client SHOULD create an HTTP long-polling connection and then upgrade to better transports if available.
 
-To upgrade to WebSocket, the client MUST:
+To upgrade to WebSocket (or WebTransport), the client MUST:
 
 - pause the HTTP long-polling transport (no more HTTP request gets sent), to ensure that no packet gets lost
-- open a WebSocket connection with the same session ID
+- open a WebSocket connection (or WebTransport bidirectional stream) with the same session ID
 - send a `ping` packet with the string `probe` in the payload
 
 The server MUST:
@@ -356,6 +391,46 @@ hello  => message payload (UTF-8 encoded)
 
 Binary payloads are sent as is, without modification.
 
+### WebTransport
+
+WebTransport being a stream-based transport, a header containing details about the payload is sent before the payload itself.
+
+The structure of the header is heavily inspired by the [WebSocket framing](https://datatracker.ietf.org/doc/html/rfc6455#section-5.2).
+
+It depends on the length of the payload:
+
+| Payload length (in bytes) | Header length (in bytes) | Details                                      |
+|---------------------------|--------------------------|----------------------------------------------|
+| `<= 125`                  | 1                        | `x` + the length encoded over 7 bits         |
+| `> 125` and `<= 65 535`   | 3                        | `x1111110` + the length encoded over 2 bytes |
+| `> 65 535`                | 9                        | `x1111111` + the length encoded over 8 bytes |
+
+The `x` bit indicates whether the payload contains plaintext (`0`) or binary (`1`) data.
+
+Example:
+
+`socket.send("hello")` will be sent as:
+
+```
+header: buffer <06>
+
+with:
+
+0       => plaintext payload
+0000110 => 6 bytes
+
+payload: buffer <34 68 65 6c 6c 6f>
+
+with:
+
+0x34 = ASCII "4", the Engine.IO MESSAGE packet type
+0x68 = "h"
+0x65 = "e"
+0x6c = "l"
+0x6c = "l"
+0x6f = "o"
+```
+
 ## History
 
 ### From v2 to v3
@@ -389,7 +464,13 @@ For example, `€` was encoded to `2:4€`, though `Buffer.byteLength('€') ===
 
 Note: this assumes the record separator is not used in the data.
 
-The 4th version (current) is included in Socket.IO `v3` and above.
+The 4th version is included in Socket.IO `v3.0.0` (November 2020) and above.
+
+### From v4 to v4.1
+
+WebTransport support was added.
+
+The 4.1 version is included in Socket.IO `v4.6.0` (June 2023).
 
 ## Test suite
 
