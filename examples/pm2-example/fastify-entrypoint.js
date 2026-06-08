@@ -40,10 +40,13 @@ fastify.addHook("preClose", (done) => {
   done();
 });
 
-fastify.addHook("onClose", (_instance, done) => {
-  io.close(done);
-});
-
 fastify.ready(() => {
   console.log("successfully booted!");
+});
+
+// graceful shutdown
+process.on("SIGINT", () => {
+  fastify.close((err) => {
+    process.exit(err ? 1 : 0);
+  });
 });

@@ -36,3 +36,10 @@ io.on("connection", (socket) => {
     console.log(`disconnect ${socket.id} due to ${reason}`);
   });
 });
+
+// graceful shutdown
+process.on("SIGINT", () => {
+  io.close((err) => {
+    process.exit(err ? 1 : 0);
+  });
+});
