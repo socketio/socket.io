@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Socket.IO PM2 example</title>
+  </head>
+  <body>
+    <p>Connection status: <span id="status">-</span></p>
+    <p>Node ID: <span id="nodeId">-</span></p>
+    <p>Transport: <span id="transport">-</span></p>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const $status = document.getElementById("status");
+      const $nodeId = document.getElementById("nodeId");
+      const $transport = document.getElementById("transport");
+
+      const socket = io({
+        // transports: ["websocket"]
+        transports: ["polling", "websocket"],
+      });
+
+      socket.on("connect", () => {
+        console.log(`connect ${socket.id}`);
+        $status.innerText = "connected";
+        $transport.innerText = socket.io.engine.transport.name;
+
+        socket.io.engine.on("upgrade", (transport) => {
+          console.log(`transport upgraded to ${transport.name}`);
+          $transport.innerText = socket.io.engine.transport.name;
+        });
+      });
+
+      socket.on("nodeId", (nodeId) => {
+        $nodeId.innerText = nodeId;
+      });
+
+      socket.on("connect_error", (err) => {
+        console.log(`connect_error due to ${err.message}`);
+      });
+
+      socket.on("disconnect", (reason) => {
+        console.log(`disconnect due to ${reason}`);
+        $status.innerText = "disconnected";
+        $nodeId.innerText = "-";
+        $transport.innerText = "-";
+      });
+    </script>
+  </body>
+</html>
