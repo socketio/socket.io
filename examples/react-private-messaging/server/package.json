@@ -1,0 +1,17 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node cluster.js"
+  },
+  "author": "Damien Arrachequesne <damien.arrachequesne@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@socket.io/sticky": "^1.0.0",
+    "ioredis": "^4.22.0",
+    "socket.io": "^4.0.0",
+    "socket.io-redis": "^6.0.1"
+  }
+}
