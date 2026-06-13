@@ -657,10 +657,19 @@ describe("socket", () => {
           ackTimeout: 50,
         });
 
-        socket.emit("unknown", (err) => {
-          expect(err).to.be.an(Error);
-          success(done, socket);
+        // When only ackTimeout is set (without explicit .timeout()), the callback
+        // signature is (value) => {} and should not receive an error on timeout
+        // The timeout will silently discard the callback
+        socket.emit("unknown", (_value) => {
+          done(new Error("should not happen"));
         });
+
+        // Wait for timeout to occur
+        setTimeout(() => {
+          // @ts-ignore property 'acks' is private
+          expect(Object.keys(socket.acks).length).to.eql(0);
+          success(done, socket);
+        }, 100);
       });
     });
 
@@ -707,7 +716,7 @@ describe("socket", () => {
         });
       });
 
-      it("should ack with an error upon disconnection (callback & ackTimeout)", () => {
+      it("should not ack upon disconnection (callback & ackTimeout)", () => {
         return wrap((done) => {
           const socket = io(BASE_URL, {
             forceNew: true,
@@ -715,13 +724,18 @@ describe("socket", () => {
           });
 
           socket.on("connect", () => {
-            socket.emit("echo", "a", (err) => {
-              expect(err).to.be.an(Error);
-
-              success(done, socket);
+            // When only ackTimeout is set (without explicit .timeout()), the callback
+            // signature is (value) => {} and should not receive an error on disconnection
+            socket.emit("echo", "a", (_value) => {
+              done(new Error("should not happen"));
             });
 
             socket.disconnect();
+
+            // @ts-ignore property 'acks' is private
+            expect(Object.keys(socket.acks).length).to.eql(0);
+
+            setTimeout(() => success(done, socket), 100);
           });
         });
       });
@@ -782,6 +796,52 @@ describe("socket", () => {
             });
 
             setTimeout(() => socket.connect(), 100);
+          });
+        });
+      });
+    });
+  });
+
+  describe("acknowledgment callback signature", () => {
+    it("should have consistent callback signature when emitting before and after connection with ackTimeout", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL, {
+          forceNew: true,
+          ackTimeout: 5000, // Set ackTimeout but don't use .timeout()
+        });
+
+        let beforeConnectArgs: any[] | null = null;
+        let afterConnectArgs: any[] | null = null;
+
+        // Emit before connection - callback should receive 1 argument (response)
+        socket.emit("echo", "test-before", function () {
+          beforeConnectArgs = Array.from(arguments);
+          // Verify callback receives only 1 argument (the response)
+          expect(beforeConnectArgs.length).to.eql(1);
+          expect(beforeConnectArgs[0]).to.eql("test-before");
+
+          // Check that after connection callback was also called
+          if (afterConnectArgs !== null) {
+            expect(afterConnectArgs.length).to.eql(1);
+            expect(afterConnectArgs[0]).to.eql("test-after");
+            success(done, socket);
+          }
+        });
+
+        socket.on("connect", () => {
+          // Emit after connection - callback should receive 1 argument (response)
+          socket.emit("echo", "test-after", function () {
+            afterConnectArgs = Array.from(arguments);
+            // Verify callback receives only 1 argument (the response)
+            expect(afterConnectArgs.length).to.eql(1);
+            expect(afterConnectArgs[0]).to.eql("test-after");
+
+            // Check that before connection callback was also called
+            if (beforeConnectArgs !== null) {
+              expect(beforeConnectArgs.length).to.eql(1);
+              expect(beforeConnectArgs[0]).to.eql("test-before");
+              success(done, socket);
+            }
           });
         });
       });
