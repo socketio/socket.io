@@ -2,6 +2,7 @@
 
 | Version                      | Release date   |
 |------------------------------|----------------|
+| [2.5.8](#258-2026-06-16)     | June 2026      |
 | [2.5.7](#257-2026-05-20)     | May 2026       |
 | [2.5.6](#256-2025-12-23)     | December 2025  |
 | [2.5.5](#255-2024-06-18)     | June 2024      |
@@ -21,6 +22,11 @@
 | [2.0.2](#202-2020-09-28)     | September 2020 |
 | [2.0.1](#201-2020-09-28)     | September 2020 |
 | [**2.0.0**](#200-2020-09-25) | September 2020 |
+
+## [2.5.8](https://github.com/socketio/socket.io/compare/socket.io-adapter@2.5.7...socket.io-adapter@2.5.8) (2026-06-16)
+
+The `ws` dependency was bumped to `~8.21.0` following [CVE-2026-48779](https://github.com/advisories/GHSA-96hv-2xvq-fx4p).
+
 
 ## [2.5.7](https://github.com/socketio/socket.io/compare/socket.io-adapter@2.5.6...socket.io-adapter@2.5.7) (2026-05-20)
 
