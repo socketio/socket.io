@@ -1,5 +1,5 @@
 /*!
- * Engine.IO v6.6.5
+ * Engine.IO v6.6.6
  * (c) 2014-2026 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -83,6 +83,14 @@
       }
     };
   }
+  function _defineProperty(e, r, t) {
+    return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+      value: t,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[r] = t, e;
+  }
   function _extends() {
     return _extends = Object.assign ? Object.assign.bind() : function (n) {
       for (var e = 1; e < arguments.length; e++) {
@@ -120,6 +128,27 @@
   }
   function _nonIterableSpread() {
     throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  function ownKeys(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function (r) {
+        return Object.getOwnPropertyDescriptor(e, r).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread2(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys(Object(t), !0).forEach(function (r) {
+        _defineProperty(e, r, t[r]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) {
+        Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r));
+      });
+    }
+    return e;
   }
   function _setPrototypeOf(t, e) {
     return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) {
@@ -3040,7 +3069,8 @@
   var Socket = /*#__PURE__*/function (_SocketWithUpgrade) {
     function Socket(uri) {
       var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      var o = _typeof(uri) === "object" ? uri : opts;
+      var isOptionsOnly = _typeof(uri) === "object";
+      var o = isOptionsOnly ? _objectSpread2({}, uri) : _objectSpread2({}, opts);
       if (!o.transports || o.transports && typeof o.transports[0] === "string") {
         o.transports = (o.transports || ["polling", "websocket", "webtransport"]).map(function (transportName) {
           return transports[transportName];
@@ -3048,7 +3078,7 @@
           return !!t;
         });
       }
-      return _SocketWithUpgrade.call(this, uri, o) || this;
+      return _SocketWithUpgrade.call(this, isOptionsOnly ? o : uri, o) || this;
     }
     _inheritsLoose(Socket, _SocketWithUpgrade);
     return Socket;
