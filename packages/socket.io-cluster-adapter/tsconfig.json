@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
+    "rootDir": "lib/",
     "outDir": "./dist",
     "allowJs": false,
     "target": "es2017",
     "module": "commonjs",
     "declaration": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "strict": false,
+    "types": ["node"],
   },
   "include": [
     "./lib/**/*"

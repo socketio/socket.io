@@ -78,7 +78,7 @@ export function createPacketEncoderStream(): any {
   });
 }
 
-let TEXT_DECODER;
+let TEXT_DECODER: TextDecoder | undefined;
 
 function totalLength(chunks: Uint8Array[]) {
   return chunks.reduce((acc, chunk) => acc + chunk.length, 0);
@@ -86,7 +86,7 @@ function totalLength(chunks: Uint8Array[]) {
 
 function concatChunks(chunks: Uint8Array[], size: number) {
   if (chunks[0].length === size) {
-    return chunks.shift();
+    return chunks.shift()!;
   }
   const buffer = new Uint8Array(size);
   let j = 0;
@@ -180,7 +180,7 @@ export function createPacketDecoderStream(
           const data = concatChunks(chunks, expectedLength);
           controller.enqueue(
             decodePacket(
-              isBinary ? data : TEXT_DECODER.decode(data),
+              isBinary ? data : TEXT_DECODER!.decode(data),
               binaryType,
             ),
           );

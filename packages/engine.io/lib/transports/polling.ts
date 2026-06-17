@@ -1,6 +1,6 @@
 import { EngineRequest, Transport } from "../transport";
 import { createGzip, createDeflate } from "zlib";
-import * as accepts from "accepts";
+import accepts = require("accepts");
 import debugModule from "debug";
 import type { IncomingMessage, ServerResponse } from "http";
 import type { Packet, RawData } from "engine.io-parser";

@@ -40,7 +40,7 @@ export const decodePacket = (
       };
 };
 
-const decodeBase64Packet = (data, binaryType) => {
+const decodeBase64Packet = (data: string, binaryType?: BinaryType) => {
   if (withNativeArrayBuffer) {
     const decoded = decode(data);
     return mapBinary(decoded, binaryType);
@@ -49,7 +49,7 @@ const decodeBase64Packet = (data, binaryType) => {
   }
 };
 
-const mapBinary = (data, binaryType) => {
+const mapBinary = (data: any, binaryType?: BinaryType) => {
   switch (binaryType) {
     case "blob":
       if (data instanceof Blob) {

@@ -7,7 +7,7 @@ const withNativeBlob =
 const withNativeArrayBuffer = typeof ArrayBuffer === "function";
 
 // ArrayBuffer.isView method is not defined in IE10
-const isView = (obj) => {
+const isView = (obj: any) => {
   return typeof ArrayBuffer.isView === "function"
     ? ArrayBuffer.isView(obj)
     : obj && obj.buffer instanceof ArrayBuffer;
@@ -60,7 +60,7 @@ function toArray(data: BufferSource) {
   }
 }
 
-let TEXT_ENCODER;
+let TEXT_ENCODER: TextEncoder | undefined;
 
 export function encodePacketToBinary(
   packet: Packet,

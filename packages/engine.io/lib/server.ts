@@ -1,4 +1,4 @@
-import * as base64id from "base64id";
+import base64id = require("base64id");
 import transports from "./transports";
 import { EventEmitter } from "events";
 import { Socket } from "./socket";

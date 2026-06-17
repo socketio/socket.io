@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
+    "rootDir": "lib/",
     "outDir": "build/esm/",
     "target": "es2018",
     "module": "esnext",
-    "moduleResolution": "node",
-    "declaration": true
+    "declaration": true,
+    "strict": false,
+    "types": ["node"]
   },
   "include": [
     "./lib/**/*"

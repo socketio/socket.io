@@ -14,7 +14,10 @@ export const encodePacket = (
   return callback(PACKET_TYPES[type] + (data || ""));
 };
 
-const toBuffer = (data: BufferSource, forceBufferConversion: boolean) => {
+const toBuffer = (
+  data: ArrayBuffer | ArrayBufferView,
+  forceBufferConversion: boolean,
+) => {
   if (
     Buffer.isBuffer(data) ||
     (data instanceof Uint8Array && !forceBufferConversion)
@@ -27,7 +30,7 @@ const toBuffer = (data: BufferSource, forceBufferConversion: boolean) => {
   }
 };
 
-let TEXT_ENCODER;
+let TEXT_ENCODER: TextEncoder | undefined;
 
 export function encodePacketToBinary(
   packet: Packet,

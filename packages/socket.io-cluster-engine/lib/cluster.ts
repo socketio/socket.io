@@ -60,6 +60,6 @@ export class NodeClusterEngine extends ClusterEngine {
     message._source = MESSAGE_SOURCE;
 
     debug("send message to primary");
-    process.send(message, null, { swallowErrors: true }, ignoreError);
+    process.send(message, null, {}, ignoreError);
   }
 }

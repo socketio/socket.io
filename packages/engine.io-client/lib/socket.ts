@@ -342,7 +342,7 @@ export class SocketWithoutUpgrade extends Emitter<
   private _pingInterval: number = -1;
   private _pingTimeout: number = -1;
   private _maxPayload?: number = -1;
-  private _pingTimeoutTimer: NodeJS.Timer;
+  private _pingTimeoutTimer: NodeJS.Timeout;
   /**
    * The expiration timestamp of the {@link _pingTimeoutTimer} object is tracked, in case the timer is throttled and the
    * callback is not fired on time. This can happen for example when a laptop is suspended or when a phone is locked.

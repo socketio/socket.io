@@ -1,15 +1,13 @@
 {
   "compilerOptions": {
+    "rootDir": "lib/",
     "outDir": "./dist",
     "target": "es2017",
     "module": "commonjs",
     "declaration": true,
     "esModuleInterop": true,
+    "types": ["node"],
 
-    "incremental": true,
-    "skipLibCheck": true,
-
-    "strict": true,
     "noImplicitAny": false,
     "noImplicitThis": false,
     "strictPropertyInitialization": false,

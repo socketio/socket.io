@@ -1,6 +1,6 @@
 import { Transport } from "../transport";
 import { createGzip, createDeflate } from "zlib";
-import * as accepts from "accepts";
+import accepts = require("accepts");
 import debugModule from "debug";
 import { HttpRequest, HttpResponse } from "uWebSockets.js";
 import type * as parser_v4 from "engine.io-parser";

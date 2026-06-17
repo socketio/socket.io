@@ -105,7 +105,7 @@ export type Message = {
 );
 
 type ClusterRequest = {
-  timer: NodeJS.Timer;
+  timer: NodeJS.Timeout;
   onSuccess: (...args: any[]) => void;
   onError: () => void;
 };

@@ -162,6 +162,7 @@ export function serveFile(res /* : HttpResponse */, filepath: string) {
 
   res.onAborted(destroyReadStream);
   readStream
+    // @ts-expect-error FIXME
     .on("data", onDataChunk)
     .on("error", onError)
     .on("end", destroyReadStream);
