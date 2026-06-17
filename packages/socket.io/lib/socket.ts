@@ -25,7 +25,7 @@ import type {
   Session,
   SocketId,
 } from "socket.io-adapter";
-import base64id from "base64id";
+import { base64id } from "./contrib/base64id";
 import { BroadcastOperator } from "./broadcast-operator";
 import {
   DisconnectReason,
