@@ -129,13 +129,16 @@ export class Polling extends Transport {
     this.dataReq = req;
     this.dataRes = res;
 
-    let chunks = isBinary ? Buffer.concat([]) : "";
+    const buffers: Buffer[] = [];
+    let stringChunks = "";
+    let contentLength = 0;
+    let exceededMaxHttpBufferSize = false;
 
     const cleanup = () => {
       req.removeListener("data", onData);
       req.removeListener("end", onEnd);
       req.removeListener("close", onClose);
-      this.dataReq = this.dataRes = chunks = null;
+      this.dataReq = this.dataRes = null;
     };
 
     const onClose = () => {
@@ -143,23 +146,32 @@ export class Polling extends Transport {
       this.onError("data request connection closed prematurely");
     };
 
-    const onData = (data) => {
-      let contentLength;
-      if (isBinary) {
-        chunks = Buffer.concat([chunks, data]);
-        contentLength = chunks.length;
-      } else {
-        chunks += data;
-        contentLength = Buffer.byteLength(chunks);
-      }
+    const onData = (chunk) => {
+      contentLength += isBinary ? chunk.length : Buffer.byteLength(chunk);
 
       if (contentLength > this.maxHttpBufferSize) {
+        exceededMaxHttpBufferSize = true;
         res.writeHead(413).end();
         cleanup();
+        return;
+      }
+
+      if (isBinary) {
+        buffers.push(chunk);
+      } else {
+        stringChunks += chunk;
       }
     };
 
     const onEnd = () => {
+      if (exceededMaxHttpBufferSize) {
+        return;
+      }
+
+      const chunks = isBinary
+        ? Buffer.concat(buffers, contentLength)
+        : stringChunks;
+
       this.onData(chunks);
 
       const headers = {
