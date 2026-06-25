@@ -52,7 +52,6 @@ import corsMiddleware from "cors";
 const debug = debugModule("socket.io:server");
 
 const clientVersion = require("../package.json").version;
-const dotMapRegex = /\.map/;
 
 const CLIENT_FILES = new Set([
   "socket.io.esm.min.js",
@@ -285,7 +284,6 @@ export class Server<
   private readonly opts: Partial<ServerOptions>;
   private eio: Engine;
   private _path: string;
-  private clientPathRegex: RegExp;
 
   /**
    * @private
@@ -428,12 +426,6 @@ export class Server<
 
     this._path = v!.replace(/\/$/, "");
 
-    const escapedPath = this._path.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
-    this.clientPathRegex = new RegExp(
-      "^" +
-        escapedPath +
-        "/socket\\.io(\\.msgpack|\\.esm)?(\\.min)?\\.js(\\.map)?(?:\\?|$)",
-    );
     return this;
   }
 
@@ -631,18 +623,21 @@ export class Server<
     const evs = srv.listeners("request").slice(0);
     srv.removeAllListeners("request");
     srv.on("request", (req, res) => {
-      if (this.clientPathRegex.test(req.url!)) {
-        if (this._corsMiddleware) {
-          this._corsMiddleware(req, res, () => {
-            this.serve(req, res);
-          });
-        } else {
-          this.serve(req, res);
+      if (req.url.startsWith(this._path)) {
+        const filename = this.extractFilename(req.url);
+        if (CLIENT_FILES.has(filename)) {
+          if (this._corsMiddleware) {
+            this._corsMiddleware(req, res, () => {
+              this.serve(filename, req, res);
+            });
+          } else {
+            this.serve(filename, req, res);
+          }
+          return;
         }
-      } else {
-        for (let i = 0; i < evs.length; i++) {
-          evs[i].call(srv, req, res);
-        }
+      }
+      for (let i = 0; i < evs.length; i++) {
+        evs[i].call(srv, req, res);
       }
     });
   }
@@ -650,13 +645,17 @@ export class Server<
   /**
    * Handles a request serving of client source and map
    *
+   * @param filename
    * @param req
    * @param res
    * @private
    */
-  private serve(req: IncomingMessage, res: ServerResponse): void {
-    const filename = req.url!.replace(this._path, "").replace(/\?.*$/, "");
-    const isMap = dotMapRegex.test(filename);
+  private serve(
+    filename: string,
+    req: IncomingMessage,
+    res: ServerResponse,
+  ): void {
+    const isMap = filename.endsWith(".map");
     const type = isMap ? "map" : "source";
 
     // Per the standard, ETags must be quoted:

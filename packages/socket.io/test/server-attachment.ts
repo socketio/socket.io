@@ -190,6 +190,47 @@ describe("server attachment", () => {
     });
   });
 
+  describe("static files", () => {
+    let io: Server;
+    let port: number;
+
+    beforeEach(() => {
+      io = new Server(0);
+      port = getPort(io);
+    });
+
+    afterEach(() => {
+      io.close();
+    });
+
+    it("should serve socket.io.js", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/socket.io/socket.io.js`,
+      );
+
+      expect(res.status).to.be(200);
+      expect(res.headers.get("content-type")).to.be(
+        "application/javascript; charset=utf-8",
+      );
+    });
+
+    it("should not serve unknown files from the Socket.IO path", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/socket.io/socket.io.esm.js`,
+      );
+
+      expect(res.status).to.be(400);
+    });
+
+    it("should return 404 for mismatching path", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/abcdefghij/socket.io.js`,
+      );
+
+      expect(res.status).to.be(404);
+    });
+  });
+
   describe("port", () => {
     it("should be bound", (done) => {
       const io = new Server(0);
