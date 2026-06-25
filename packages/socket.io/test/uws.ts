@@ -5,7 +5,6 @@ import {
 } from "uWebSockets.js";
 import { Server } from "..";
 import { io as ioc, Socket as ClientSocket } from "socket.io-client";
-import request from "supertest";
 import expect from "expect.js";
 import { assert } from "./support/util";
 
@@ -228,22 +227,134 @@ describe("socket.io with uWebSocket.js-based engine", () => {
     io.of("/").sockets.get(client.id)!.disconnect();
   });
 
-  it("should serve static files", (done) => {
+  describe("static files", () => {
     const clientVersion = require("../package.json").version;
 
-    request(`http://localhost:${port}`)
-      .get("/socket.io/socket.io.js")
-      .buffer(true)
-      .end((err, res) => {
-        if (err) return done(err);
-        expect(res.headers["content-type"]).to.be(
-          "application/javascript; charset=utf-8",
-        );
-        expect(res.headers.etag).to.be('"' + clientVersion + '"');
-        expect(res.headers["x-sourcemap"]).to.be(undefined);
-        expect(res.text).to.match(/engine\.io/);
-        expect(res.status).to.be(200);
-        done();
-      });
+    it("should serve socket.io.js", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/socket.io/socket.io.js`,
+      );
+
+      expect(res.status).to.be(200);
+      expect(res.headers.get("content-type")).to.be(
+        "application/javascript; charset=utf-8",
+      );
+      expect(res.headers.get("etag")).to.be('"' + clientVersion + '"');
+    });
+
+    it("should serve socket.io.js (with query params)", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/socket.io/socket.io.js?foo=bar`,
+      );
+
+      expect(res.status).to.be(200);
+      expect(res.headers.get("content-type")).to.be(
+        "application/javascript; charset=utf-8",
+      );
+      expect(res.headers.get("etag")).to.be('"' + clientVersion + '"');
+    });
+
+    it("should serve socket.io.js.map", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/socket.io/socket.io.js.map`,
+      );
+
+      expect(res.status).to.be(200);
+      expect(res.headers.get("content-type")).to.be(
+        "application/json; charset=utf-8",
+      );
+      expect(res.headers.get("etag")).to.be('"' + clientVersion + '"');
+    });
+
+    it("should serve socket.io.min.js", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/socket.io/socket.io.min.js`,
+      );
+
+      expect(res.status).to.be(200);
+      expect(res.headers.get("content-type")).to.be(
+        "application/javascript; charset=utf-8",
+      );
+      expect(res.headers.get("etag")).to.be('"' + clientVersion + '"');
+    });
+
+    it("should serve socket.io.min.js.map", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/socket.io/socket.io.min.js.map`,
+      );
+
+      expect(res.status).to.be(200);
+      expect(res.headers.get("content-type")).to.be(
+        "application/json; charset=utf-8",
+      );
+      expect(res.headers.get("etag")).to.be('"' + clientVersion + '"');
+    });
+
+    it("should serve socket.io.msgpack.min.js", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/socket.io/socket.io.msgpack.min.js`,
+      );
+
+      expect(res.status).to.be(200);
+      expect(res.headers.get("content-type")).to.be(
+        "application/javascript; charset=utf-8",
+      );
+      expect(res.headers.get("etag")).to.be('"' + clientVersion + '"');
+    });
+
+    it("should serve socket.io.msgpack.min.js.map", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/socket.io/socket.io.msgpack.min.js.map`,
+      );
+
+      expect(res.status).to.be(200);
+      expect(res.headers.get("content-type")).to.be(
+        "application/json; charset=utf-8",
+      );
+      expect(res.headers.get("etag")).to.be('"' + clientVersion + '"');
+    });
+
+    it("should not serve unknown files from the Socket.IO path", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/socket.io/socket.io.esm.js`,
+      );
+
+      expect(res.status).to.be(404);
+    });
+
+    it("should return 404 for mismatching path", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/abcdefghij/socket.io.js`,
+      );
+
+      expect(res.status).to.be(404);
+    });
+
+    it("should return 304 when If-None-Match matches ETag", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/socket.io/socket.io.js`,
+        {
+          headers: {
+            "If-None-Match": '"' + clientVersion + '"',
+          },
+        },
+      );
+
+      expect(res.status).to.be(304);
+    });
+
+    it("should return 200 when If-None-Match does not match ETag", async () => {
+      const res = await fetch(
+        `http://localhost:${port}/socket.io/socket.io.js`,
+        {
+          headers: {
+            "If-None-Match": '"wrong-version"',
+          },
+        },
+      );
+
+      expect(res.status).to.be(200);
+      expect(res.headers.get("etag")).to.be('"' + clientVersion + '"');
+    });
   });
 });

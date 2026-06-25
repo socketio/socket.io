@@ -54,6 +54,17 @@ const debug = debugModule("socket.io:server");
 const clientVersion = require("../package.json").version;
 const dotMapRegex = /\.map/;
 
+const CLIENT_FILES = new Set([
+  "socket.io.esm.min.js",
+  "socket.io.esm.min.js.map",
+  "socket.io.js",
+  "socket.io.js.map",
+  "socket.io.min.js",
+  "socket.io.min.js.map",
+  "socket.io.msgpack.min.js",
+  "socket.io.msgpack.min.js.map",
+]);
+
 type ParentNspNameMatchFn = (
   name: string,
   auth: { [key: string]: any },
@@ -538,17 +549,13 @@ export class Server<
     if (this._serveClient) {
       // attach static file serving
       app.get(`${this._path}/*`, (res, req) => {
-        if (!this.clientPathRegex.test(req.getUrl())) {
+        const filename = this.extractFilename(req.getUrl());
+        if (!CLIENT_FILES.has(filename)) {
           req.setYield(true);
           return;
         }
 
-        const filename = req
-          .getUrl()
-          .replace(this._path, "")
-          .replace(/\?.*$/, "")
-          .replace(/^\//, "");
-        const isMap = dotMapRegex.test(filename);
+        const isMap = filename.endsWith(".map");
         const type = isMap ? "map" : "source";
 
         // Per the standard, ETags must be quoted:
@@ -581,6 +588,10 @@ export class Server<
     }
 
     patchAdapter(app);
+  }
+
+  private extractFilename(url: string) {
+    return url.substring(this._path.length + 1).split("?")[0];
   }
 
   /**
