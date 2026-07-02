@@ -17,7 +17,7 @@ export function deconstructPacket(packet) {
   return { packet: pack, buffers: buffers };
 }
 
-function _deconstructPacket(data, buffers) {
+function _deconstructPacket(data, buffers, toJSON?) {
   if (!data) return data;
 
   if (isBinary(data)) {
@@ -31,6 +31,9 @@ function _deconstructPacket(data, buffers) {
     }
     return newData;
   } else if (typeof data === "object" && !(data instanceof Date)) {
+    if (data.toJSON && typeof data.toJSON === "function" && !toJSON) {
+      return _deconstructPacket(data.toJSON(), buffers, true);
+    }
     const newData = {};
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
