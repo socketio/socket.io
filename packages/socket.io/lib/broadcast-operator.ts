@@ -253,6 +253,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
         new Error("operation has timed out"),
         this.flags.expectSingleResponse ? null : responses,
       ]);
+      responses = [];
     }, this.flags.timeout);
 
     let expectedServerCount = -1;
