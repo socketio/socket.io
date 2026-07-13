@@ -293,8 +293,10 @@ describe("Socket", function () {
       socket.on("open", () => {
         expect(socket._hasPingExpired()).to.be(false);
 
-        // simulate a throttled timer
+        // simulate a throttled timer with no recent packet either
         socket._pingTimeoutTime = Date.now() - 1;
+        socket._lastPacketTime =
+          Date.now() - (socket._pingInterval + socket._pingTimeout) - 1;
 
         expect(socket._hasPingExpired()).to.be(true);
 
@@ -305,6 +307,22 @@ describe("Socket", function () {
 
       socket.on("close", (reason) => {
         expect(reason).to.eql("ping timeout");
+        done();
+      });
+    });
+
+    it("does not close if a packet was recently received", (done) => {
+      const socket = new Socket();
+
+      socket.on("open", () => {
+        // simulate a throttled timer
+        socket._pingTimeoutTime = Date.now() - 1;
+        // simulate a recently received packet
+        socket._lastPacketTime = Date.now();
+
+        expect(socket._hasPingExpired()).to.be(false);
+
+        socket.close();
         done();
       });
     });
