@@ -1604,6 +1604,56 @@ describe("server", () => {
       });
     });
 
+    it("should close transport upon receiving a close packet (ws)", (done) => {
+      const opts = { allowUpgrades: false, transports: ["websocket"] };
+      const engine = listen(opts, (port) => {
+        engine.on("connection", (conn) => {
+          conn.transport.on("close", done);
+        });
+        const socket = new ClientSocket(`ws://localhost:${port}`, {
+          transports: ["websocket"],
+        });
+        socket.on("open", () => {
+          // bypass the client library entirely and send a raw close packet
+          // ("1", per the Engine.IO protocol), to make sure the server
+          // reacts the same way regardless of which client implementation
+          // is on the other end
+          socket.transport.ws.send("1");
+        });
+      });
+    });
+
+    if (!IS_CLIENT_V3) {
+      // the "engine.io-client-v3" package used when IS_CLIENT_V3 is set is a
+      // separately published legacy dependency, not the "engine.io-client"
+      // package touched by this fix, so this test only applies to the
+      // current (v4) client
+      it("should make the client close its transport upon receiving a close packet (ws)", (done) => {
+        const opts = { allowUpgrades: false, transports: ["websocket"] };
+        const engine = listen(opts, (port) => {
+          engine.on("connection", (conn) => {
+            // simulate a server sending a close packet without necessarily
+            // closing the underlying connection itself right away (e.g. a
+            // different server implementation), to make sure the client
+            // reacts to the packet itself rather than relying on the
+            // underlying WebSocket connection being closed by the server
+            conn.transport.send([{ type: "close" }]);
+          });
+          const socket = new ClientSocket(`ws://localhost:${port}`, {
+            transports: ["websocket"],
+          });
+          socket.on("close", (reason, description) => {
+            expect(reason).to.eql("transport close");
+            // same wording as the polling transport, for consistency
+            expect(description.description).to.eql(
+              "transport closed by the server",
+            );
+            done();
+          });
+        });
+      });
+    }
+
     it("should close transport upon parse error (polling)", (done) => {
       const opts = { allowUpgrades: false, transports: ["polling"] };
       const engine = listen(opts, (port) => {
