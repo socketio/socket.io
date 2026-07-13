@@ -58,6 +58,13 @@ export class Socket extends EventEmitter {
   private cleanupFn: any[] = [];
   private pingTimeoutTimer;
   private pingIntervalTimer;
+  /**
+   * Timestamp of the last packet received from the client, of any type. Used by
+   * the ping timeout check as a cheap liveness signal: a client that is clearly
+   * still sending data shouldn't be dropped just because its next expected pong
+   * happens to be delayed behind other traffic.
+   */
+  private lastPacketTime: number = Date.now();
 
   /**
    * This is the session identifier that the client will use in the subsequent HTTP requests. It must not be shared with
@@ -157,6 +164,7 @@ export class Socket extends EventEmitter {
     // export packet event
     debug(`received packet ${packet.type}`);
     this.emit("packet", packet);
+    this.lastPacketTime = Date.now();
 
     switch (packet.type) {
       case "ping":
@@ -227,15 +235,51 @@ export class Socket extends EventEmitter {
    */
   private resetPingTimeout() {
     clearTimeout(this.pingTimeoutTimer);
-    this.pingTimeoutTimer = setTimeout(
-      () => {
-        if (this.readyState === "closed") return;
-        this.onClose("ping timeout");
-      },
+    const timeout =
       this.protocol === 3
         ? this.server.opts.pingInterval + this.server.opts.pingTimeout
-        : this.server.opts.pingTimeout,
+        : this.server.opts.pingTimeout;
+    this.pingTimeoutTimer = setTimeout(
+      () => this.checkPingTimeout(timeout),
+      timeout,
     );
+  }
+
+  /**
+   * Called when the ping timeout timer fires. Rather than closing the
+   * connection unconditionally, this checks whether any packet (not
+   * necessarily the expected pong) has been received recently enough that the
+   * connection is clearly still alive, and if so, extends the wait instead of
+   * giving up.
+   *
+   * A previous attempt at this refreshed the ping timeout timer on every
+   * incoming packet, which was reverted for allocating a new timer per packet
+   * (wasteful under high message volume) and for not actually delaying the
+   * next scheduled ping, since only the timeout timer was touched, not the
+   * interval timer that governs it. Tracking a plain timestamp instead of
+   * touching any timer on the common (packet received, no timeout pending)
+   * path avoids the first problem, and only ever affects whether *this*
+   * already-scheduled check closes the connection or is extended - the
+   * server's own ping schedule (`pingIntervalTimer`) is never touched, so
+   * there's no change to when pings are sent.
+   *
+   * @param timeout - the ping timeout duration to apply, in milliseconds
+   * @private
+   */
+  private checkPingTimeout(timeout: number) {
+    if (this.readyState === "closed") return;
+
+    const elapsedSinceLastPacket = Date.now() - this.lastPacketTime;
+
+    if (elapsedSinceLastPacket < timeout) {
+      this.pingTimeoutTimer = setTimeout(
+        () => this.checkPingTimeout(timeout),
+        timeout - elapsedSinceLastPacket,
+      );
+      return;
+    }
+
+    this.onClose("ping timeout");
   }
 
   /**
