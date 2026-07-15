@@ -110,6 +110,7 @@ describe('parser', function(){
 
     isInvalidAttachmentCount("5");
     isInvalidAttachmentCount("51");
+    isInvalidAttachmentCount("50-");
     isInvalidAttachmentCount("5a-");
     isInvalidAttachmentCount("51.23-");
   });

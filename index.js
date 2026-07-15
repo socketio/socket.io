@@ -249,11 +249,6 @@ Decoder.prototype.add = function(obj) {
     packet = decodeString(obj, this.opts.maxAttachments);
     if (exports.BINARY_EVENT === packet.type || exports.BINARY_ACK === packet.type) { // binary packet's json
       this.reconstructor = new BinaryReconstructor(packet);
-
-      // no attachments, labeled binary but no binary data to follow
-      if (this.reconstructor.reconPack.attachments === 0) {
-        this.emit('decoded', packet);
-      }
     } else { // non-binary full packet
       this.emit('decoded', packet);
     }
@@ -321,7 +316,7 @@ function decodeString(str, maxAttachments) {
       throw new Error('Illegal attachments');
     }
     var n = Number(buf);
-    if (!isInteger(n) || n < 0) {
+    if (!isInteger(n) || n < 1) {
       throw new Error("Illegal attachments");
     } else if (n > maxAttachments) {
       throw new Error("too many attachments");
