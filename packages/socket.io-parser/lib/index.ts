@@ -190,11 +190,6 @@ export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
         packet.type = isBinaryEvent ? PacketType.EVENT : PacketType.ACK;
         // binary packet's json
         this.reconstructor = new BinaryReconstructor(packet);
-
-        // no attachments, labeled binary but no binary data to follow
-        if (packet.attachments === 0) {
-          super.emitReserved("decoded", packet);
-        }
       } else {
         // non-binary full packet
         super.emitReserved("decoded", packet);
@@ -245,7 +240,7 @@ export class Decoder extends Emitter<{}, {}, DecoderReservedEvents> {
         throw new Error("Illegal attachments");
       }
       const n = Number(buf);
-      if (!isInteger(n) || n < 0) {
+      if (!isInteger(n) || n < 1) {
         throw new Error("Illegal attachments");
       } else if (n > this.opts.maxAttachments) {
         throw new Error("too many attachments");
