@@ -1,4 +1,5 @@
-# reference: https://docs.npmjs.com/trusted-publishers#for-github-actions
+# trusted publishing: https://docs.npmjs.com/trusted-publishers#for-github-actions
+# staged publishing: https://docs.npmjs.com/staged-publishing
 
 name: Publish
 
@@ -18,14 +19,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Use Node.js 24
+      - name: Use Node.js 26
         uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version: 26
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Publish package
-        run: npm publish --tag v2-latest
+        run: npm stage publish --tag v2-latest
