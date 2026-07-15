@@ -1,4 +1,4 @@
-const { PacketType, Decoder } = require("../");
+const { PacketType, Decoder, Encoder } = require("../");
 const helpers = require("./helpers.js");
 const expect = require("expect.js");
 
@@ -27,6 +27,36 @@ describe("Buffer", () => {
       data: ["a", Buffer.from("xxx", "utf8"), {}],
       id: 127,
       nsp: "/back",
+    });
+  });
+
+  it("encodes a Buffer nested in an object with a toJSON() method", () => {
+    class Message {
+      constructor(file) {
+        this.internal = file;
+      }
+      toJSON() {
+        return { file: this.internal };
+      }
+    }
+
+    return new Promise((resolve) => {
+      const encoder = new Encoder();
+      const encodedPackets = encoder.encode({
+        type: PacketType.EVENT,
+        data: ["a", new Message(Buffer.from("abc", "utf8"))],
+        nsp: "/",
+      });
+
+      const decoder = new Decoder();
+      decoder.on("decoded", (packet) => {
+        expect(packet.data).to.eql(["a", { file: Buffer.from("abc", "utf8") }]);
+        resolve();
+      });
+
+      for (let i = 0; i < encodedPackets.length; i++) {
+        decoder.add(encodedPackets[i]);
+      }
     });
   });
 
