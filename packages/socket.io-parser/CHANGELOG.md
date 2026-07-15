@@ -1,40 +1,61 @@
 # Changelog
 
-| Version                                                                                                               | Release date   |
-|-----------------------------------------------------------------------------------------------------------------------|----------------|
-| [3.4.4](#344-2026-03-17) (from the [3.4.x](https://github.com/socketio/socket.io/tree/socket.io-parser/3.4.x) branch) | March 2026     |
-| [3.3.5](#335-2026-03-17) (from the [3.3.x](https://github.com/socketio/socket.io/tree/socket.io-parser/3.3.x) branch) | March 2026     |
-| [4.2.6](#426-2026-03-17)                                                                                              | March 2026     |
-| [4.2.5](#425-2025-12-23)                                                                                              | December 2025  |
-| [3.3.4](#334-2024-07-22) (from the [3.3.x](https://github.com/socketio/socket.io-parser/tree/3.3.x) branch)           | July 2024      |
-| [4.2.4](#424-2023-05-31)                                                                                              | May 2023       |
-| [3.4.3](#343-2023-05-22) (from the [3.4.x](https://github.com/socketio/socket.io-parser/tree/3.4.x) branch)           | May 2023       |
-| [4.2.3](#423-2023-05-22)                                                                                              | May 2023       |
-| [4.2.2](#422-2023-01-19)                                                                                              | January 2023   |
-| [3.3.3](#333-2022-11-09) (from the [3.3.x](https://github.com/socketio/socket.io-parser/tree/3.3.x) branch)           | November 2022  |
-| [3.4.2](#342-2022-11-09) (from the [3.4.x](https://github.com/socketio/socket.io-parser/tree/3.4.x) branch)           | November 2022  |
-| [4.0.5](#405-2022-06-27) (from the [4.0.x](https://github.com/socketio/socket.io-parser/tree/4.0.x) branch)           | June 2022      |
-| [4.2.1](#421-2022-06-27)                                                                                              | June 2022      |
-| [4.2.0](#420-2022-04-17)                                                                                              | April 2022     |
-| [4.1.2](#412-2022-02-17)                                                                                              | February 2022  |
-| [3.3.3](#333-2022-11-09) (from the [3.3.x](https://github.com/socketio/socket.io-parser/tree/3.3.x) branch)           | November 2022  |
-| [3.4.2](#342-2022-11-09) (from the [3.4.x](https://github.com/socketio/socket.io-parser/tree/3.4.x) branch)           | November 2022  |
-| [4.0.5](#405-2022-06-27) (from the [4.0.x](https://github.com/socketio/socket.io-parser/tree/4.0.x) branch)           | June 2022      |
-| [4.2.1](#421-2022-06-27)                                                                                              | June 2022      |
-| [4.2.0](#420-2022-04-17)                                                                                              | April 2022     |
-| [4.1.2](#412-2022-02-17)                                                                                              | February 2022  |
-| [4.1.1](#411-2021-10-14)                                                                                              | October 2021   |
-| [4.1.0](#410-2021-10-11)                                                                                              | October 2021   |
-| [4.0.4](#404-2021-01-15)                                                                                              | January 2021   |
-| [3.3.2](#332-2021-01-09) (from the [3.3.x](https://github.com/socketio/socket.io-parser/tree/3.3.x) branch)           | January 2021   |
-| [4.0.3](#403-2021-01-05)                                                                                              | January 2021   |
-| [4.0.2](#402-2020-11-25)                                                                                              | November 2020  |
-| [4.0.1](#401-2020-11-05)                                                                                              | November 2020  |
-| [3.3.1](#331-2020-09-30) (from the [3.3.x](https://github.com/socketio/socket.io-parser/tree/3.3.x) branch)           | September 2020 |
-| [**4.0.0**](#400-2020-09-28)                                                                                          | September 2020 |
-| [3.4.1](#341-2020-05-13)                                                                                              | May 2020       |
-| [3.4.0](#340-2019-09-20)                                                                                              | September 2019 |
-| [3.3.0](#330-2018-11-07)                                                                                              | November 2018  |
+| Version                      | Release date   |
+|------------------------------|----------------|
+| [4.2.7](#427-2026-07-15)     | July 2026      |
+| [4.2.6](#426-2026-03-17)     | March 2026     |
+| [4.2.5](#425-2025-12-23)     | December 2025  |
+| [4.2.4](#424-2023-05-31)     | May 2023       |
+| [4.2.3](#423-2023-05-22)     | May 2023       |
+| [4.2.2](#422-2023-01-19)     | January 2023   |
+| [4.2.1](#421-2022-06-27)     | June 2022      |
+| [4.2.0](#420-2022-04-17)     | April 2022     |
+| [4.1.2](#412-2022-02-17)     | February 2022  |
+| [4.1.1](#411-2021-10-14)     | October 2021   |
+| [4.1.0](#410-2021-10-11)     | October 2021   |
+| [4.0.4](#404-2021-01-15)     | January 2021   |
+| [4.0.3](#403-2021-01-05)     | January 2021   |
+| [4.0.2](#402-2020-11-25)     | November 2020  |
+| [4.0.1](#401-2020-11-05)     | November 2020  |
+| [**4.0.0**](#400-2020-09-28) | September 2020 |
+
+From the [4.0.x](https://github.com/socketio/socket.io-parser/tree/4.0.x) branch:
+
+| Version                  | Release date |
+|--------------------------|--------------|
+| [4.0.5](#405-2022-06-27) | June 2022    |
+
+From the [3.4.x](https://github.com/socketio/socket.io/tree/socket.io-parser/3.4.x) branch:
+
+| Version                  | Release date   |
+|--------------------------|----------------|
+| [3.4.4](#344-2026-03-17) | March 2026     |
+| [3.4.3](#343-2023-05-22) | May 2023       |
+| [3.4.2](#342-2022-11-09) | November 2022  |
+| [3.4.1](#341-2020-05-13) | May 2020       |
+| [3.4.0](#340-2019-09-20) | September 2019 |
+
+From the [3.3.x](https://github.com/socketio/socket.io/tree/socket.io-parser/3.3.x) branch:
+
+| Version                  | Release date   |
+|--------------------------|----------------|
+| [3.3.5](#335-2026-03-17) | March 2026     |
+| [3.3.4](#334-2024-07-22) | July 2024      |
+| [3.3.3](#333-2022-11-09) | November 2022  |
+| [3.3.2](#332-2021-01-09) | January 2021   |
+| [3.3.1](#331-2020-09-30) | September 2020 |
+| [3.3.0](#330-2018-11-07) | November 2018  |
+
+
+## [4.2.7](https://github.com/socketio/socket.io/compare/socket.io-parser@4.2.6...socket.io-parser@4.2.7) (2026-07-15)
+
+
+### Bug Fixes
+
+* honor toJSON() when deconstructing a binary packet (#5518) ([57f1114](https://github.com/socketio/socket.io/commit/57f111439513809c633f2554be2f3104e4ad432c))
+* reject binary packets with zero attachments ([7c6ef57](https://github.com/socketio/socket.io/commit/7c6ef571a00656718e9e05e3b948fd1758b2a7b4))
+
+
 
 ## [3.4.4](https://github.com/socketio/socket.io-parser/compare/3.4.3...3.4.4) (2026-03-17)
 

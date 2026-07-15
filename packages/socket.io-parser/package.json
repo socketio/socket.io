@@ -1,6 +1,6 @@
 {
   "name": "socket.io-parser",
-  "version": "4.2.6",
+  "version": "4.2.7",
   "description": "socket.io protocol parser",
   "homepage": "https://github.com/socketio/socket.io/tree/main/packages/socket.io-client#readme",
   "repository": {
