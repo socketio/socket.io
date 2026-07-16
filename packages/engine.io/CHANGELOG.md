@@ -83,7 +83,7 @@ Note from the `ws` maintainers:
 
 ### Bug Fixes
 
-* clean up resources upon WebTransport handshake failure ([f86b95f](https://github.com/socketio/socket/commit/f86b95fdba6dd260b3d2f57e69537aeb8de904bb))
+* clean up resources upon WebTransport handshake failure ([f86b95f](https://github.com/socketio/socket.io/commit/f86b95fdba6dd260b3d2f57e69537aeb8de904bb))
 
 
 ### Dependencies
