@@ -166,6 +166,23 @@ function parseSessionId(data: string): string | undefined {
   } catch (e) {}
 }
 
+export function parseQuery(params: URLSearchParams): Record<string, string> {
+  const query: Record<string, string> = {};
+
+  params.forEach((value, key) => {
+    // Define instead of assigning so a `__proto__` query parameter is kept as
+    // a regular own property, matching Object.fromEntries().
+    Object.defineProperty(query, key, {
+      value,
+      enumerable: true,
+      configurable: true,
+      writable: true,
+    });
+  });
+
+  return query;
+}
+
 // Object.hasOwn() was introduced in Node.js 16.9
 function hasOwn(obj: Record<string, any>, key: string): boolean {
   return Object.prototype.hasOwnProperty.call(obj, key);
@@ -763,7 +780,7 @@ export class Server extends BaseServer {
     // try to leverage pre-existing `req._query` (e.g: from connect)
     if (!req._query) {
       const url = new URL(req.url, "https://socket.io");
-      req._query = Object.fromEntries(url.searchParams.entries());
+      req._query = parseQuery(url.searchParams);
     }
   }
 

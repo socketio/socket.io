@@ -42,6 +42,23 @@ describe("server", () => {
   });
 
   describe("verification", () => {
+    it("should support Node.js versions without Object.fromEntries", (done) => {
+      const fromEntries = Object.fromEntries;
+      Object.fromEntries = undefined;
+
+      engine = listen((port) => {
+        request
+          .get(`http://localhost:${port}/engine.io/`)
+          .query({ transport: "polling", EIO: 4 })
+          .end((err, res) => {
+            Object.fromEntries = fromEntries;
+            expect(err).to.be(null);
+            expect(res.status).to.be(200);
+            done();
+          });
+      });
+    });
+
     it("should disallow non-existent transports", (done) => {
       const partialDone = createPartialDone(done, 2);
 

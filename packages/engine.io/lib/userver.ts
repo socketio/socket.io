@@ -1,5 +1,5 @@
 import debugModule from "debug";
-import { AttachOptions, BaseServer, Server } from "./server";
+import { AttachOptions, BaseServer, parseQuery, Server } from "./server";
 import { HttpRequest, HttpResponse, TemplatedApp } from "uWebSockets.js";
 import transports from "./transports-uws";
 import { EngineRequest } from "./transport";
@@ -42,7 +42,7 @@ export class uServer extends BaseServer {
     req.url = req.getUrl();
 
     const params = new URLSearchParams(req.getQuery());
-    req._query = Object.fromEntries(params.entries());
+    req._query = parseQuery(params);
 
     req.headers = {};
     req.forEach((key, value) => {
