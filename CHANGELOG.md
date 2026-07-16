@@ -1,3 +1,12 @@
+## [3.3.6](https://github.com/socketio/socket.io-parser/compare/3.3.5...3.3.6) (2026-07-16)
+
+
+### Bug Fixes
+
+* reject binary packets with zero attachments ([9c6323e](https://github.com/socketio/socket.io/commit/9c6323e5cde41bd75df3379b5fc9293664a5f240))
+
+
+
 ## [3.3.5](https://github.com/socketio/socket.io-parser/compare/3.3.4...3.3.5) (2026-03-17)
 
 
