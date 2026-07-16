@@ -39,7 +39,7 @@ Note from the `ws` maintainers:
 
 ### Bug Fixes
 
-* do not skip local broadcast when publishAndReturnOffset throws ([#5457](https://github.com/socketio/socket/issues/5457)) ([f630158](https://github.com/socketio/socket/commit/f6301588ca65de270ecfe22da9023d7ec79ba23a))
+* do not skip local broadcast when publishAndReturnOffset throws ([#5457](https://github.com/socketio/socket.io/issues/5457)) ([f630158](https://github.com/socketio/socket.io/commit/f6301588ca65de270ecfe22da9023d7ec79ba23a))
 
 
 
