@@ -29,6 +29,7 @@ From the [3.4.x](https://github.com/socketio/socket.io/tree/socket.io-parser/3.4
 
 | Version                  | Release date   |
 |--------------------------|----------------|
+| [3.4.5](#345-2026-07-15) | July 2026      |
 | [3.4.4](#344-2026-03-17) | March 2026     |
 | [3.4.3](#343-2023-05-22) | May 2023       |
 | [3.4.2](#342-2022-11-09) | November 2022  |
@@ -39,12 +40,30 @@ From the [3.3.x](https://github.com/socketio/socket.io/tree/socket.io-parser/3.3
 
 | Version                  | Release date   |
 |--------------------------|----------------|
+| [3.3.6](#336-2026-07-16) | July 2026      |
 | [3.3.5](#335-2026-03-17) | March 2026     |
 | [3.3.4](#334-2024-07-22) | July 2024      |
 | [3.3.3](#333-2022-11-09) | November 2022  |
 | [3.3.2](#332-2021-01-09) | January 2021   |
 | [3.3.1](#331-2020-09-30) | September 2020 |
 | [3.3.0](#330-2018-11-07) | November 2018  |
+
+## [3.3.6](https://github.com/socketio/socket.io-parser/compare/3.3.5...3.3.6) (2026-07-16)
+
+
+### Bug Fixes
+
+* reject binary packets with zero attachments ([9c6323e](https://github.com/socketio/socket.io/commit/9c6323e5cde41bd75df3379b5fc9293664a5f240))
+
+
+
+## [3.4.5](https://github.com/socketio/socket.io-parser/compare/3.4.4...3.4.5) (2026-07-15)
+
+
+### Bug Fixes
+
+* reject binary packets with zero attachments ([ced94ff](https://github.com/socketio/socket.io/commit/ced94ffa3ac020a8f3c14eb98a3bf34acb14d291))
+
 
 
 ## [4.2.7](https://github.com/socketio/socket.io/compare/socket.io-parser@4.2.6...socket.io-parser@4.2.7) (2026-07-15)
