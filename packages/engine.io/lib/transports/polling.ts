@@ -314,40 +314,29 @@ export class Polling extends Transport {
       return;
     }
 
-    this.compress(data, encoding, (err, data) => {
-      if (err) {
-        this.res.writeHead(500);
-        this.res.end();
-        callback(err);
-        return;
-      }
-
-      headers["Content-Encoding"] = encoding;
-      respond(data);
-    });
-  }
-
-  /**
-   * Compresses data.
-   *
-   * @private
-   */
-  private compress(data, encoding, callback) {
     debug("compressing");
 
-    const buffers = [];
-    let nread = 0;
+    headers["Content-Encoding"] = encoding;
+    this.res.writeHead(200, this.headers(this.req, headers));
 
-    compressionMethods[encoding](this.httpCompression)
-      .on("error", callback)
-      .on("data", function (chunk) {
-        buffers.push(chunk);
-        nread += chunk.length;
-      })
-      .on("end", function () {
-        callback(null, Buffer.concat(buffers, nread));
-      })
-      .end(data);
+    const stream = compressionMethods[encoding](this.httpCompression);
+
+    let isErrored = false;
+
+    stream.on("error", (err) => {
+      isErrored = true;
+      this.res.end();
+      callback(err);
+    });
+
+    this.res.once("finish", () => {
+      if (!isErrored) {
+        callback();
+      }
+    });
+
+    stream.pipe(this.res);
+    stream.end(data);
   }
 
   /**
