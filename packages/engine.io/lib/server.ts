@@ -21,6 +21,7 @@ import { WebTransport } from "./transports/webtransport";
 import { createPacketDecoderStream } from "engine.io-parser";
 import type { EngineRequest, Transport } from "./transport";
 import type { CookieSerializeOptions } from "./contrib/types.cookie";
+import { objectFromEntries } from "./utils/objectFromEntries";
 
 const debug = debugModule("engine");
 
@@ -763,7 +764,7 @@ export class Server extends BaseServer {
     // try to leverage pre-existing `req._query` (e.g: from connect)
     if (!req._query) {
       const url = new URL(req.url, "https://socket.io");
-      req._query = Object.fromEntries(url.searchParams.entries());
+      req._query = objectFromEntries(url.searchParams.entries());
     }
   }
 
