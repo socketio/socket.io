@@ -1,4 +1,5 @@
 import debugModule from "debug";
+import { EventEmitter } from "events";
 import { AttachOptions, BaseServer, Server } from "./server";
 import { HttpRequest, HttpResponse, TemplatedApp } from "uWebSockets.js";
 import transports from "./transports-uws";
@@ -76,7 +77,7 @@ export class uServer extends BaseServer {
     (app as TemplatedApp)
       .any(path, this.handleRequest.bind(this))
       //
-      .ws<{ transport: any }>(path, {
+      .ws<{ transport: any; response?: ResponseWrapper }>(path, {
         compression: options.compression,
         idleTimeout: options.idleTimeout,
         maxBackpressure: options.maxBackpressure,
@@ -94,7 +95,9 @@ export class uServer extends BaseServer {
           );
         },
         close: (ws, code, message) => {
-          ws.getUserData().transport.onClose(code, message);
+          const { transport, response } = ws.getUserData();
+          transport.onClose(code, message);
+          response?.emit("close");
         },
       });
   }
@@ -246,6 +249,10 @@ export class uServer extends BaseServer {
       res.upgrade(
         {
           transport,
+          // only set when middlewares are registered (see _applyMiddlewares); used to emit "close" on the
+          // response object once the WebSocket connection actually closes (see the `close` handler below) —
+          // unlike the plain Node.js HTTP server, UWS does not expose a persistent socket to listen on here
+          response: req.res instanceof ResponseWrapper ? req.res : undefined,
         },
         req.getHeader("sec-websocket-key"),
         req.getHeader("sec-websocket-protocol"),
@@ -288,12 +295,21 @@ export class uServer extends BaseServer {
   }
 }
 
-class ResponseWrapper {
+class ResponseWrapper extends EventEmitter {
   private statusWritten: boolean = false;
   private headers = [];
   private isAborted = false;
 
-  constructor(readonly res: HttpResponse) {}
+  constructor(readonly res: HttpResponse) {
+    super();
+    // some middlewares (like pino-http) rely on the "close" event to know when the response is done, which
+    // uWebSockets.js does not expose directly — mirrors WebSocketResponse in server.ts
+    res.onAborted(() => {
+      // Any attempt to use the UWS response object after abort will throw!
+      this.isAborted = true;
+      this.emit("close");
+    });
+  }
 
   public set statusCode(status: number) {
     if (!status) {
@@ -356,6 +372,7 @@ class ResponseWrapper {
   public end(data) {
     if (this.isAborted) return;
 
+    this.emit("finish");
     this.res.cork(() => {
       if (!this.statusWritten) {
         // status will be inferred as "200 OK"
@@ -372,13 +389,10 @@ class ResponseWrapper {
   }
 
   public onAborted(fn) {
-    if (this.isAborted) return;
-
-    this.res.onAborted(() => {
-      // Any attempt to use the UWS response object after abort will throw!
-      this.isAborted = true;
-      fn();
-    });
+    // kept for backward compatibility; the actual UWS-level abort handler is registered once in the
+    // constructor (UWS only supports a single onAborted() callback per response), so this now just
+    // subscribes to the "close" event it emits
+    this.on("close", fn);
   }
 
   public cork(fn) {
