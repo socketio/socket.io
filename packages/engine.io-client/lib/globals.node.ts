@@ -6,7 +6,7 @@ export function createCookieJar() {
   return new CookieJar();
 }
 
-interface Cookie {
+export interface Cookie {
   name: string;
   value: string;
   expires?: Date;

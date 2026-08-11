@@ -111,7 +111,7 @@ export type DisconnectDescription =
       context?: unknown; // context should be typed as CloseEvent | XMLHttpRequest, but these types are not available on non-browser platforms
     };
 
-interface SocketReservedEvents {
+export interface SocketReservedEvents {
   connect: () => void;
   connect_error: (err: Error) => void;
   disconnect: (

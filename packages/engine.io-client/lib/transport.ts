@@ -25,7 +25,7 @@ export interface CloseDetails {
   context?: unknown; // context should be typed as CloseEvent | XMLHttpRequest, but these types are not available on non-browser platforms
 }
 
-interface TransportReservedEvents {
+export interface TransportReservedEvents {
   open: () => void;
   error: (err: TransportError) => void;
   packet: (packet: Packet) => void;
