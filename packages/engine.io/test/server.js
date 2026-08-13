@@ -3684,6 +3684,57 @@ describe("server", () => {
         });
       });
     });
+
+    it("should forward extra upgrade-response headers set via the shared-symbol hook", function (done) {
+      if (process.env.EIO_WS_ENGINE === "eiows") {
+        return this.skip();
+      }
+      // kResponseHeaders used to be a private Symbol unique to this module,
+      // so user code calling Server#handleUpgrade directly could not attach
+      // additional upgrade-response headers. See issue #5497.
+      const kResponseHeaders = Symbol.for("engine.io:responseHeaders");
+
+      const httpServer = http.createServer();
+      const localEngine = new Server();
+      let extraSeen = false;
+
+      // Capture the engine's emitted 'headers' payload once the upgrade is
+      // through. We only need to confirm the extra headers arrive; the
+      // handshake itself is validated by the connected client below.
+      localEngine.on("headers", (headers) => {
+        if (
+          headers["x-test-cors"] === "*" &&
+          headers["x-test-extra"] === "ok"
+        ) {
+          extraSeen = true;
+        }
+      });
+
+      httpServer.listen(0, () => {
+        const port = httpServer.address().port;
+
+        httpServer.on("upgrade", (req, socket, head) => {
+          if (req.url?.startsWith("/engine.io/")) {
+            req[kResponseHeaders] = {
+              "x-test-cors": "*",
+              "x-test-extra": "ok",
+            };
+            return localEngine.handleUpgrade(req, socket, head);
+          }
+        });
+
+        client = new ClientSocket(`ws://localhost:${port}`);
+
+        client.on("open", () => {
+          client.close();
+          httpServer.close(() => {
+            expect(extraSeen).to.be(true);
+            done();
+          });
+        });
+      });
+      engine = localEngine;
+    });
   });
 
   describe("cors", () => {
