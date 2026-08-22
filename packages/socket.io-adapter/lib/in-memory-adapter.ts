@@ -466,7 +466,9 @@ export class SessionAwareAdapter extends Adapter {
     const missedPackets = [];
     for (let i = index + 1; i < this.packets.length; i++) {
       const packet = this.packets[i];
-      if (shouldIncludePacket(session.rooms, packet.opts)) {
+      // volatile packets are part of the offset chain but are never replayed
+      const isVolatile = packet.opts.flags?.volatile !== undefined;
+      if (!isVolatile && shouldIncludePacket(session.rooms, packet.opts)) {
         missedPackets.push(packet.data);
       }
     }
@@ -478,15 +480,16 @@ export class SessionAwareAdapter extends Adapter {
 
   override broadcast(packet: any, opts: BroadcastOptions) {
     const isEventPacket = packet.type === 2;
-    // packets with acknowledgement are not stored because the acknowledgement function cannot be serialized and
-    // restored on another server upon reconnection
+    // packets with acknowledgement are not stored because the acknowledgement function cannot be
+    // serialized and restored on another server upon reconnection
     const withoutAcknowledgement = packet.id === undefined;
-    const notVolatile = opts.flags?.volatile === undefined;
-    if (isEventPacket && withoutAcknowledgement && notVolatile) {
+    if (isEventPacket && withoutAcknowledgement) {
       const id = yeast();
       // the offset is stored at the end of the data array, so the client knows the ID of the last packet it has
       // processed (and the format is backward-compatible)
       packet.data.push(id);
+      // volatile packets are included in the offset chain so that the client always sends a known
+      // offset upon reconnection, but they are excluded from the replay in restoreSession()
       this.packets.push({
         id,
         opts,
