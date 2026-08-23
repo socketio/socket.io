@@ -551,5 +551,48 @@ describe("socket.io-adapter", () => {
 
       expect(session).to.be(null);
     });
+
+    it("should restore a known session without offset", async () => {
+      const adapter = new SessionAwareAdapter({
+        server: {
+          encoder: {
+            encode(packet) {
+              return packet;
+            },
+          },
+          opts: {
+            connectionStateRecovery: {
+              maxDisconnectionDuration: 5000,
+            },
+          },
+        },
+      });
+
+      adapter.persistSession({
+        sid: "abc",
+        pid: "def",
+        data: "ghi",
+        rooms: ["r1", "r2"],
+      });
+
+      adapter.broadcast(
+        {
+          nsp: "/",
+          type: 2,
+          data: ["hello"],
+        },
+        {
+          rooms: new Set(),
+          except: new Set(),
+        },
+      );
+
+      const session = await adapter.restoreSession("def");
+
+      expect(session).to.not.be(null);
+      expect(session.sid).to.eql("abc");
+      expect(session.pid).to.eql("def");
+      expect(session.missedPackets).to.eql([]);
+    });
   });
 });

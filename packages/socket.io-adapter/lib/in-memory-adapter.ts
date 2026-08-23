@@ -387,11 +387,11 @@ export class Adapter extends EventEmitter {
   /**
    * Restore the session and find the packets that were missed by the client.
    * @param pid
-   * @param offset
+   * @param offset - the offset of the last packet received by the client, if any
    */
   public restoreSession(
     pid: PrivateSessionId,
-    offset: string,
+    offset?: string,
   ): Promise<Session> {
     return null;
   }
@@ -444,7 +444,7 @@ export class SessionAwareAdapter extends Adapter {
 
   override restoreSession(
     pid: PrivateSessionId,
-    offset: string,
+    offset?: string,
   ): Promise<Session> {
     const session = this.sessions.get(pid);
     if (!session) {
@@ -458,16 +458,18 @@ export class SessionAwareAdapter extends Adapter {
       this.sessions.delete(pid);
       return null;
     }
-    const index = this.packets.findIndex((packet) => packet.id === offset);
-    if (index === -1) {
-      // the offset may be too old
-      return null;
-    }
     const missedPackets = [];
-    for (let i = index + 1; i < this.packets.length; i++) {
-      const packet = this.packets[i];
-      if (shouldIncludePacket(session.rooms, packet.opts)) {
-        missedPackets.push(packet.data);
+    if (offset !== undefined) {
+      const index = this.packets.findIndex((packet) => packet.id === offset);
+      if (index === -1) {
+        // the offset may be too old
+        return null;
+      }
+      for (let i = index + 1; i < this.packets.length; i++) {
+        const packet = this.packets[i];
+        if (shouldIncludePacket(session.rooms, packet.opts)) {
+          missedPackets.push(packet.data);
+        }
       }
     }
     return Promise.resolve({

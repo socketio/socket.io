@@ -384,12 +384,12 @@ export class Namespace<
     auth: Record<string, unknown>,
   ) {
     const sessionId = auth.pid;
-    const offset = auth.offset;
+    // note: the offset may be undefined, if the client has not yet received any event
+    const offset = typeof auth.offset === "string" ? auth.offset : undefined;
     if (
       // @ts-ignore
       this.server.opts.connectionStateRecovery &&
-      typeof sessionId === "string" &&
-      typeof offset === "string"
+      typeof sessionId === "string"
     ) {
       let session;
       try {
