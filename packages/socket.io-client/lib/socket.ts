@@ -113,7 +113,7 @@ export type DisconnectDescription =
 
 interface SocketReservedEvents {
   connect: () => void;
-  connect_error: (err: Error) => void;
+  connect_error: (err: Error & { data?: any }) => void;
   disconnect: (
     reason: Socket.DisconnectReason,
     description?: DisconnectDescription,
@@ -734,8 +734,7 @@ export class Socket<
 
       case PacketType.CONNECT_ERROR:
         this.destroy();
-        const err = new Error(packet.data.message);
-        // @ts-ignore
+        const err: Error & { data?: any } = new Error(packet.data.message);
         err.data = packet.data.data;
         this.emitReserved("connect_error", err);
         break;
