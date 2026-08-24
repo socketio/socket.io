@@ -111,9 +111,11 @@ export type DisconnectDescription =
       context?: unknown; // context should be typed as CloseEvent | XMLHttpRequest, but these types are not available on non-browser platforms
     };
 
+type ConnectError = Error & { data?: any };
+
 interface SocketReservedEvents {
   connect: () => void;
-  connect_error: (err: Error & { data?: any }) => void;
+  connect_error: (err: ConnectError) => void;
   disconnect: (
     reason: Socket.DisconnectReason,
     description?: DisconnectDescription,
@@ -734,7 +736,7 @@ export class Socket<
 
       case PacketType.CONNECT_ERROR:
         this.destroy();
-        const err: Error & { data?: any } = new Error(packet.data.message);
+        const err: ConnectError = new Error(packet.data.message);
         err.data = packet.data.data;
         this.emitReserved("connect_error", err);
         break;
