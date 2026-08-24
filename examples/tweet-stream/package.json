@@ -1,10 +1,12 @@
 {
   "name": "socket.io-tweet-stream",
   "version": "1.0.0",
-  "description": "tweets about socket.io and javascript",
+  "description": "Stream X posts about Socket.IO with Xquik",
+  "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "node --test test.js"
   },
   "keywords": [
     "socket.io",
@@ -13,8 +15,10 @@
   ],
   "author": "Damien Arrachequesne",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
-    "node-tweet-stream": "^2.0.1",
-    "socket.io": "^4.0.0"
+    "socket.io": "^4.8.3"
   }
 }
