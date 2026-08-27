@@ -690,6 +690,26 @@ export class SocketWithoutUpgrade extends Emitter<
   }
 
   /**
+   * Removes packets that have not been handed to the transport yet.
+   *
+   * @param options - the options object shared by the packets to remove
+   * @private
+   */
+  public _removeFromWriteBuffer(options: WriteOptions) {
+    for (let i = 0; i < this._prevBufferLen; i++) {
+      if (this.writeBuffer[i].options === options) {
+        return;
+      }
+    }
+
+    for (let i = this.writeBuffer.length - 1; i >= this._prevBufferLen; i--) {
+      if (this.writeBuffer[i].options === options) {
+        this.writeBuffer.splice(i, 1);
+      }
+    }
+  }
+
+  /**
    * Flush write buffers.
    *
    * @private

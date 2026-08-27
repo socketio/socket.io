@@ -511,6 +511,16 @@ export class Manager<
   }
 
   /**
+   * Removes a packet that has not been handed to the transport yet.
+   *
+   * @param packet
+   * @private
+   */
+  _removePacketFromBuffer(packet: Partial<Packet & { options: any }>): void {
+    this.engine?._removeFromWriteBuffer(packet.options);
+  }
+
+  /**
    * Clean up transport subscriptions and packet buffer.
    *
    * @private

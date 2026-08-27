@@ -583,6 +583,50 @@ describe("socket", () => {
       });
     });
 
+    it("should discard a timed out packet buffered by Engine.IO", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL + "/", {
+          forceNew: true,
+        });
+
+        socket.on("connect", () => {
+          const engine = socket.io.engine;
+          setTimeout(() => {
+            engine.transport.writable = false;
+
+            const enginePackets = [];
+            const onPacketCreate = (packet) => {
+              enginePackets.push(packet);
+            };
+            engine.on("packetCreate", onPacketCreate);
+
+            let received = false;
+            socket.on("hi", () => {
+              received = true;
+            });
+
+            socket.timeout(50).emit("hi", Uint8Array.from([1]), (err) => {
+              expect(err).to.be.an(Error);
+              expect(enginePackets.length).to.be(2);
+              enginePackets.forEach((packet) => {
+                expect(engine.writeBuffer.indexOf(packet)).to.be(-1);
+              });
+
+              engine.transport.writable = true;
+              // @ts-ignore flush any remaining Engine.IO packets
+              engine.flush();
+
+              setTimeout(() => {
+                expect(received).to.be(false);
+                success(done, socket);
+              }, 50);
+            });
+            engine.off("packetCreate", onPacketCreate);
+          }, 0);
+        });
+      });
+    });
+
     it("should timeout when the server does not acknowledge the event", () => {
       return wrap((done) => {
         const socket = io(BASE_URL + "/");
