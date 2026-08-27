@@ -458,18 +458,19 @@ export class SessionAwareAdapter extends Adapter {
       this.sessions.delete(pid);
       return null;
     }
-    const missedPackets = [];
+    let index = -1;
     if (offset !== undefined) {
-      const index = this.packets.findIndex((packet) => packet.id === offset);
+      index = this.packets.findIndex((packet) => packet.id === offset);
       if (index === -1) {
         // the offset may be too old
         return null;
       }
-      for (let i = index + 1; i < this.packets.length; i++) {
-        const packet = this.packets[i];
-        if (shouldIncludePacket(session.rooms, packet.opts)) {
-          missedPackets.push(packet.data);
-        }
+    }
+    const missedPackets = [];
+    for (let i = index + 1; i < this.packets.length; i++) {
+      const packet = this.packets[i];
+      if (shouldIncludePacket(session.rooms, packet.opts)) {
+        missedPackets.push(packet.data);
       }
     }
     return Promise.resolve({
