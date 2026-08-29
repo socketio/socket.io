@@ -286,6 +286,19 @@ describe("socket", () => {
     });
   });
 
+  it("should fire a connect_error event with error data on middleware failure", () => {
+    return wrap((done) => {
+      const socket = io(BASE_URL + "/with-data", { forceNew: true });
+      socket.on("connect_error", (err) => {
+        expect(err).to.be.an(Error);
+        expect(err.message).to.eql("Auth failed (with data)");
+        expect(err.data).to.eql({ code: 401, details: "Invalid token" });
+        socket.disconnect();
+        done();
+      });
+    });
+  });
+
   it("should not try to reconnect after a middleware failure", () => {
     return wrap((done) => {
       const socket = io(BASE_URL + "/no", {

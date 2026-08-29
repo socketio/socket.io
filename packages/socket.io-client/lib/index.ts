@@ -1,6 +1,11 @@
 import { url } from "./url.js";
 import { Manager, ManagerOptions } from "./manager.js";
-import { DisconnectDescription, Socket, SocketOptions } from "./socket.js";
+import {
+  DisconnectDescription,
+  ExtendedError,
+  Socket,
+  SocketOptions,
+} from "./socket.js";
 import debugModule from "debug"; // debug()
 
 const debug = debugModule("socket.io-client"); // debug()
@@ -92,6 +97,7 @@ export { protocol } from "socket.io-parser";
 
 export {
   DisconnectDescription,
+  ExtendedError,
   Manager,
   ManagerOptions,
   Socket,

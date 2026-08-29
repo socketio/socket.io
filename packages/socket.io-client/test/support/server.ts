@@ -44,6 +44,12 @@ export function createServer() {
     next(new Error("Auth failed (custom namespace)"));
   });
 
+  server.of("/with-data").use((socket, next) => {
+    const err: any = new Error("Auth failed (with data)");
+    err.data = { code: 401, details: "Invalid token" };
+    next(err);
+  });
+
   server.on("connection", (socket) => {
     // simple test
     socket.on("hi", () => {
