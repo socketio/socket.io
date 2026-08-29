@@ -1823,7 +1823,7 @@ describe("server", () => {
       });
     });
 
-    it("should not be receiving data when getting a message longer than maxHttpBufferSize when polling", (done) => {
+    it("should report a message longer than maxHttpBufferSize when polling", (done) => {
       const opts = {
         allowUpgrades: false,
         transports: ["polling"],
@@ -1837,12 +1837,16 @@ describe("server", () => {
               new Error("Test invalidation (message is longer than allowed)"),
             );
           });
+          conn.on("close", (reason, description) => {
+            expect(reason).to.be("transport error");
+            expect(description).to.be.an(Error);
+            expect(description.type).to.be("TransportError");
+            expect(description.message).to.be("payload too large");
+            done();
+          });
         });
         socket.on("open", () => {
           socket.send("aasdasdakjhasdkjhasdkjhasdkjhasdkjhasdkjhasdkjha");
-        });
-        socket.on("close", () => {
-          done();
         });
       });
     });

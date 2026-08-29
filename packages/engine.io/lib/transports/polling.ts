@@ -153,6 +153,7 @@ export class Polling extends Transport {
         exceededMaxHttpBufferSize = true;
         res.writeHead(413).end();
         cleanup();
+        this.onError("payload too large");
         return;
       }
 
