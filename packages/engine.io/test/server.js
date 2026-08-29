@@ -1750,7 +1750,11 @@ describe("server", () => {
 
       function fixture(filename) {
         return (
-          process.execPath + " " + path.join(__dirname, "fixtures", filename)
+          '"' +
+          process.execPath +
+          '" "' +
+          path.join(__dirname, "fixtures", filename) +
+          '"'
         );
       }
 
