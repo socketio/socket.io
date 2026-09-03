@@ -231,6 +231,35 @@ describe("server", () => {
       });
     });
 
+    it("should disallow protocol version mismatch during upgrade", function (done) {
+      if (IS_CLIENT_V3) {
+        return this.skip();
+      }
+      engine = listen({ allowEIO3: true }, (port) => {
+        request
+          .get(`http://localhost:${port}/engine.io/`)
+          .query({ transport: "polling", EIO: 4 })
+          .end((err, res) => {
+            const sid = JSON.parse(res.text.slice(1)).sid;
+
+            engine.on("connection_error", (err) => {
+              expect(err.code).to.be(3);
+              expect(err.message).to.be("Bad request");
+              expect(err.context.name).to.be("PROTOCOL_MISMATCH");
+              expect(err.context.protocol).to.be(3);
+              expect(err.context.previousProtocol).to.be(4);
+              done();
+            });
+
+            const socket = new WebSocket(
+              `ws://localhost:${port}/engine.io/?EIO=3&transport=websocket&sid=${sid}`,
+            );
+
+            socket.on("error", () => {});
+          });
+      });
+    });
+
     it("should disallow `__proto__` as transport (polling)", (done) => {
       const partialDone = createPartialDone(done, 2);
 
@@ -2194,7 +2223,7 @@ describe("server", () => {
           const req = http.request({
             host: "localhost",
             port,
-            path: `/engine.io/?EIO=4&transport=polling&sid=${client.id}`,
+            path: `/engine.io/?EIO=${IS_CLIENT_V3 ? "3" : "4"}&transport=polling&sid=${client.id}`,
             method: "POST",
           });
 
