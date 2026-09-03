@@ -172,6 +172,10 @@ function hasOwn(obj: Record<string, any>, key: string): boolean {
   return Object.prototype.hasOwnProperty.call(obj, key);
 }
 
+function computeProtocolRevision(req: EngineRequest): number {
+  return req._query.EIO === "4" ? 4 : 3; // 3rd revision by default
+}
+
 export abstract class BaseServer extends EventEmitter {
   public opts: ServerOptions;
 
@@ -309,13 +313,24 @@ export abstract class BaseServer extends EventEmitter {
           sid,
         });
       }
-      const previousTransport = this.clients[sid].transport.name;
+      const client = this.clients[sid];
+      const previousTransport = client.transport.name;
       if (!upgrade && previousTransport !== transport) {
         debug("bad request: unexpected transport without upgrade");
         return fn(Server.errors.BAD_REQUEST, {
           name: "TRANSPORT_MISMATCH",
           transport,
           previousTransport,
+        });
+      }
+
+      const protocol = computeProtocolRevision(req);
+      if (client.protocol !== protocol) {
+        debug("bad request: unexpected protocol version during upgrade");
+        return fn(Server.errors.BAD_REQUEST, {
+          name: "PROTOCOL_MISMATCH",
+          protocol,
+          previousProtocol: client.protocol,
         });
       }
     } else {
@@ -438,7 +453,7 @@ export abstract class BaseServer extends EventEmitter {
     req: EngineRequest,
     closeConnection: ErrorCallback,
   ) {
-    const protocol = req._query.EIO === "4" ? 4 : 3; // 3rd revision by default
+    const protocol = computeProtocolRevision(req);
     if (protocol === 3 && !this.opts.allowEIO3) {
       debug("unsupported protocol version");
       this.emit("connection_error", {
