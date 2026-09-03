@@ -322,6 +322,15 @@ export class Polling extends Transport {
     const stream = compressionMethods[encoding](this.httpCompression);
 
     let isErrored = false;
+    let isDone = false;
+
+    const done = () => {
+      if (isDone || isErrored) {
+        return;
+      }
+      isDone = true;
+      callback();
+    };
 
     stream.on("error", (err) => {
       isErrored = true;
@@ -329,11 +338,11 @@ export class Polling extends Transport {
       callback(err);
     });
 
-    this.res.once("finish", () => {
-      if (!isErrored) {
-        callback();
-      }
-    });
+    // 'close' also fires after a normal completion, hence the guard: whatever
+    // happens, the write callback must run exactly once so the transport
+    // cleans up its request state and emits 'drain'.
+    this.res.once("finish", done);
+    this.res.once("close", done);
 
     stream.pipe(this.res);
     stream.end(data);
