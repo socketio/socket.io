@@ -160,24 +160,24 @@ export class Socket extends EventEmitter {
 
     switch (packet.type) {
       case "ping":
-        if (this.transport.protocol !== 3) {
+        if (this.protocol !== 3) {
           this.onError(new Error("invalid heartbeat direction"));
           return;
         }
         debug("got ping");
-        this.pingTimeoutTimer.refresh();
+        this.pingTimeoutTimer?.refresh();
         this.sendPacket("pong");
         this.emit("heartbeat");
         break;
 
       case "pong":
-        if (this.transport.protocol === 3) {
+        if (this.protocol === 3) {
           this.onError(new Error("invalid heartbeat direction"));
           return;
         }
         debug("got pong");
         clearTimeout(this.pingTimeoutTimer);
-        this.pingIntervalTimer.refresh();
+        this.pingIntervalTimer?.refresh();
         this.emit("heartbeat");
         break;
 
