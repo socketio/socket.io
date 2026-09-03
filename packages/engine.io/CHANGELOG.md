@@ -2,6 +2,7 @@
 
 | Version                      | Release date   | `ws` version |
 |------------------------------|----------------|--------------|
+| [6.6.10](#6610-2026-09-03)   | Septemer 2026  | `~8.21.0`    |
 | [6.6.9](#669-2026-06-16)     | June 2026      | `~8.21.0`    |
 | [6.6.8](#668-2026-05-20)     | May 2026       | `~8.20.1`    |
 | [6.6.7](#667-2026-04-27)     | April 2026     | `"`          |
@@ -60,6 +61,27 @@ From the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch:
 | [3.6.1](#361-2022-11-20) | November 2022 | `"`          |
 | [3.6.0](#360-2022-06-06) | June 2022     | `"`          |
 | [3.5.0](#350-2020-12-30) | December 2020 | `~7.4.2`     |
+
+## [6.6.10](https://github.com/socketio/socket.io/compare/engine.io@6.6.9...engine.io@6.6.10) (2026-09-03)
+
+
+### Bug Fixes
+
+* reject protocol mismatch for existing sessions ([86db1fc](https://github.com/socketio/socket.io/commit/86db1fc))
+* restore compatibility with Node.js 10 ([ae7fb46](https://github.com/socketio/socket.io/commit/ae7fb46))
+* run the polling write callback when the client aborts a compressed response ([#5540](https://github.com/socketio/socket.io/issues/5540)) ([915a3ed](https://github.com/socketio/socket.io/commit/915a3ed))
+
+
+### Performance Improvements
+
+* optimize polling request body buffering ([dcbd961](https://github.com/socketio/socket.io/commit/dcbd961))
+* stream compressed polling responses ([91dd763](https://github.com/socketio/socket.io/commit/91dd763))
+
+
+### Dependencies
+
+- [`ws@~8.21.0`](https://github.com/websockets/ws/releases/tag/8.21.0) (no change)
+
 
 
 ## [6.6.9](https://github.com/socketio/socket.io/compare/engine.io@6.6.8...engine.io@6.6.9) (2026-06-16)
