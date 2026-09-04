@@ -283,7 +283,7 @@ export abstract class ClusterEngine extends Server {
           return;
         }
 
-        clearInterval(client[kNoopTimer]);
+        clearTimeout(client[kNoopTimer]);
         client.upgrading = false;
 
         if (message.data.success) {
