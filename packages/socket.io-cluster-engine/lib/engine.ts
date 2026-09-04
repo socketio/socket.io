@@ -30,6 +30,12 @@ function randomId() {
   return randomBytes(3).toString("hex");
 }
 
+function safeGet<T>(obj: Record<string, T>, key: string): T | undefined {
+  if (Object.prototype.hasOwnProperty.call(obj, key)) {
+    return obj[key];
+  }
+}
+
 enum MessageType {
   ACQUIRE_LOCK = 0,
   ACQUIRE_LOCK_RESPONSE,
@@ -185,7 +191,7 @@ export abstract class ClusterEngine extends Server {
     switch (message.type) {
       case MessageType.ACQUIRE_LOCK: {
         const sid = message.data.sid;
-        const client = this.clients[sid];
+        const client = safeGet(this.clients, sid);
         if (!client) {
           return;
         }
@@ -257,7 +263,7 @@ export abstract class ClusterEngine extends Server {
       }
 
       case MessageType.PACKET: {
-        const client = this.clients[message.data.sid];
+        const client = safeGet(this.clients, message.data.sid);
         if (!client) {
           return;
         }
@@ -272,7 +278,7 @@ export abstract class ClusterEngine extends Server {
 
       case MessageType.UPGRADE: {
         const sid = message.data.sid;
-        const client = this.clients[sid];
+        const client = safeGet(this.clients, sid);
         if (!client) {
           return;
         }
@@ -331,7 +337,7 @@ export abstract class ClusterEngine extends Server {
       }
 
       case MessageType.CLOSE: {
-        const client = this.clients[message.data.sid];
+        const client = safeGet(this.clients, message.data.sid);
         if (!client) {
           return;
         }
@@ -553,7 +559,7 @@ export abstract class ClusterEngine extends Server {
 
   override onWebSocket(req: any, socket: any, websocket: any) {
     const sid = req._query.sid;
-    if (!sid || this.clients[sid]) {
+    if (!sid || safeGet(this.clients, sid)) {
       // @ts-expect-error onWebSocket() is private
       return super.onWebSocket(req, socket, websocket);
     }
