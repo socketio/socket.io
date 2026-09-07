@@ -146,4 +146,31 @@ describe("retry", () => {
       }, 100);
     });
   });
+
+  it("should handle queued packets without timeout correctly", () => {
+    return wrap((done) => {
+      const socket = io(BASE_URL, {
+        forceNew: true,
+        retries: 1,
+        // No ackTimeout or explicit timeout
+      });
+
+      let responseReceived = false;
+
+      socket.emit("echo", "test", (err, val) => {
+        // Queue callback expects (err, ...responseArgs) signature
+        expect(err).to.be(null);
+        expect(val).to.eql("test");
+        responseReceived = true;
+        success(done, socket);
+      });
+
+      // Wait a bit to ensure the response is processed
+      setTimeout(() => {
+        if (!responseReceived) {
+          done(new Error("Response not received"));
+        }
+      }, 500);
+    });
+  });
 });

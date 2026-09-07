@@ -246,27 +246,37 @@ export class Socket<
    *
    * The `withError` attribute is used to differentiate handlers that accept an error as first argument:
    *
-   * - `socket.emit("test", (err, value) => { ... })` with `ackTimeout` option
    * - `socket.timeout(5000).emit("test", (err, value) => { ... })`
    * - `const value = await socket.emitWithAck("test")`
    *
    * From those that don't:
    *
    * - `socket.emit("test", (value) => { ... });`
+   * - `socket.emit("test", (value) => { ... })` with `ackTimeout` option (success case)
    *
-   * In the first case, the handlers will be called with an error when:
+   * The `hasTimeout` attribute indicates whether a timeout was configured (either via `.timeout()` or `ackTimeout` option).
+   * This is used for timeout handling, but NOT for disconnection handling.
+   *
+   * In the first case (withError=true), the handlers will be called with an error when:
    *
    * - the timeout is reached
    * - the socket gets disconnected
    *
-   * In the second case, the handlers will be simply discarded upon disconnection, since the client will never receive
+   * In the second case (withError=false but hasTimeout=true), the handlers will NOT be called with an error:
+   *
+   * - on timeout: callback is silently discarded (callback signature is (value) => {} and doesn't accept errors)
+   * - on disconnection: callback is silently discarded (callback signature is (value) => {} and doesn't accept errors)
+   *
+   * Successful responses will NOT prepend null (only when withError=true).
+   *
+   * In the third case (no timeout), the handlers will be simply discarded upon disconnection, since the client will never receive
    * an acknowledgement from the server.
    *
    * @private
    */
   private acks: Record<
     string,
-    ((...args: any[]) => void) & { withError?: boolean }
+    ((...args: any[]) => void) & { withError?: boolean; hasTimeout?: boolean }
   > = {};
   private flags: Flags = {};
   private subs?: Array<VoidFunction>;
@@ -463,30 +473,66 @@ export class Socket<
    */
   private _registerAckCallback(id: number, ack: (...args: any[]) => void) {
     const timeout = this.flags.timeout ?? this._opts.ackTimeout;
-    if (timeout === undefined) {
+    const hasExplicitTimeout = this.flags.timeout !== undefined;
+    const isFromQueue = this.flags.fromQueue === true;
+
+    // If packet is from queue, we need to wrap the callback even without timeout
+    // to ensure onack prepends null (via withError flag) so the queue callback
+    // receives (null, ...responseArgs) format
+    if (timeout === undefined && !isFromQueue) {
       this.acks[id] = ack;
       return;
     }
 
-    // @ts-ignore
-    const timer = this.io.setTimeoutFn(() => {
-      delete this.acks[id];
-      for (let i = 0; i < this.sendBuffer.length; i++) {
-        if (this.sendBuffer[i].id === id) {
-          debug("removing packet with ack id %d from the buffer", id);
-          this.sendBuffer.splice(i, 1);
+    // Create a wrapper function that will handle the callback
+    // Determine if withError will be set (needed for timeout handler)
+    const willHaveWithError = hasExplicitTimeout || isFromQueue;
+    let timer;
+    if (timeout !== undefined) {
+      // @ts-ignore
+      timer = this.io.setTimeoutFn(() => {
+        delete this.acks[id];
+        for (let i = 0; i < this.sendBuffer.length; i++) {
+          if (this.sendBuffer[i].id === id) {
+            debug("removing packet with ack id %d from the buffer", id);
+            this.sendBuffer.splice(i, 1);
+          }
         }
-      }
-      debug("event with ack id %d has timed out after %d ms", id, timeout);
-      ack.call(this, new Error("operation has timed out"));
-    }, timeout);
+        debug("event with ack id %d has timed out after %d ms", id, timeout);
+        // Only call with error if callback expects an error parameter (withError=true)
+        // When only ackTimeout is set (without explicit .timeout() and not from queue),
+        // the callback signature is (value) => {} and should not receive an error on timeout
+        if (willHaveWithError) {
+          ack.call(this, new Error("operation has timed out"));
+        }
+        // Otherwise, silently discard the callback (similar to disconnection behavior)
+      }, timeout);
+    }
 
     const fn = (...args: any[]) => {
-      // @ts-ignore
-      this.io.clearTimeoutFn(timer);
+      if (timer !== undefined) {
+        // @ts-ignore
+        this.io.clearTimeoutFn(timer);
+      }
+      // onack will prepend null when withError is true, so args already contains (null, ...responseArgs)
+      // for queued packets or explicit timeout cases
       ack.apply(this, args);
     };
-    fn.withError = true;
+
+    // Set hasTimeout flag when any timeout is configured (explicit or ackTimeout)
+    // This is used to determine whether to call with error upon disconnection
+    if (timeout !== undefined) {
+      fn.hasTimeout = true;
+    }
+
+    // Set withError flag when:
+    // 1. Explicitly using .timeout() - user expects (err, response) signature
+    // 2. Packet is from queue - queue's internal callback expects (err, response) signature
+    //    onack will prepend null when this flag is set
+    // Otherwise, when only ackTimeout is set, don't set withError to preserve (response) signature
+    if (hasExplicitTimeout || isFromQueue) {
+      fn.withError = true;
+    }
 
     this.acks[id] = fn;
   }
@@ -682,13 +728,19 @@ export class Socket<
         (packet) => String(packet.id) === id,
       );
       if (!isBuffered) {
-        // note: handlers that do not accept an error as first argument are ignored here
         const ack = this.acks[id];
         delete this.acks[id];
 
+        // Only call with error if the callback expects an error parameter (withError=true)
+        // When only ackTimeout is set (without explicit .timeout()), the callback signature
+        // is (value) => {} and should not receive an error on disconnection
         if (ack.withError) {
           ack.call(this, new Error("socket has been disconnected"));
         }
+        // note: handlers without withError flag are ignored here, since the client will never receive
+        // an acknowledgement from the server. This includes:
+        // - handlers without timeout
+        // - handlers with only ackTimeout (but not explicit .timeout())
       }
     });
   }
