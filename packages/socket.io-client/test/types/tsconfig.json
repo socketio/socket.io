@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "declaration": true,
+    "noEmit": true,
+    "types": ["node"],
+    "lib": ["es2018", "dom"],
+    "paths": {
+      "@socket.io/component-emitter": [
+        "../../../../packages/socket.io-component-emitter/lib/cjs/index.d.ts"
+      ],
+      "socket.io-client": [
+        "../../../../packages/socket.io-client/lib/index.ts"
+      ],
+      "engine.io-client": [
+        "../../../../packages/engine.io-client/lib/index.ts"
+      ],
+      "socket.io-parser": [
+        "../../../../packages/socket.io-parser/lib/index.ts"
+      ],
+      "engine.io-parser": ["../../../../packages/engine.io-parser/lib/index.ts"]
+    }
+  },
+  "include": ["ts4023.test.ts"]
+}
