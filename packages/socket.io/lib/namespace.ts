@@ -275,7 +275,7 @@ export class Namespace<
    * @param room - a room, or an array of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public to(room: Room | Room[]) {
+  public to(room: Room | Room[] | Set<Room>) {
     return new BroadcastOperator<
       DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
       SocketData
@@ -294,7 +294,7 @@ export class Namespace<
    * @param room - a room, or an array of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public in(room: Room | Room[]) {
+  public in(room: Room | Room[] | Set<Room>) {
     return new BroadcastOperator<
       DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
       SocketData
@@ -319,7 +319,7 @@ export class Namespace<
    * @param room - a room, or an array of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public except(room: Room | Room[]) {
+  public except(room: Room | Room[] | Set<Room>) {
     return new BroadcastOperator<
       DecorateAcknowledgementsWithMultipleResponses<EmitEvents>,
       SocketData
@@ -735,7 +735,7 @@ export class Namespace<
    *
    * @param room - a room, or an array of rooms
    */
-  public socketsJoin(room: Room | Room[]) {
+  public socketsJoin(room: Room | Room[] | Set<Room>) {
     return new BroadcastOperator<EmitEvents, SocketData>(
       this.adapter,
     ).socketsJoin(room);
@@ -757,7 +757,7 @@ export class Namespace<
    *
    * @param room - a room, or an array of rooms
    */
-  public socketsLeave(room: Room | Room[]) {
+  public socketsLeave(room: Room | Room[] | Set<Room>) {
     return new BroadcastOperator<EmitEvents, SocketData>(
       this.adapter,
     ).socketsLeave(room);
