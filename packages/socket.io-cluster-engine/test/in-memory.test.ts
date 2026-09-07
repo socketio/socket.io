@@ -161,16 +161,27 @@ describe("in-memory", () => {
   it("should acquire read lock (different process)", async () => {
     const sid = await handshake(ports[0]);
 
-    const controller = new AbortController();
-    const fetchPromise = fetch(url(ports[0], sid), {
-      signal: controller.signal,
-    }).catch(() => {});
+    // acquire lock
+    const fetchPromise = fetch(url(ports[0], sid));
 
-    const res = await fetch(url(ports[1], sid));
-    assert.equal(res.status, 400);
+    {
+      // check that the SID is locked for reading
+      const res = await fetch(url(ports[1], sid));
+      assert.equal(res.status, 400);
+      // @ts-expect-error protected property
+      assert.equal(engine2.clients[sid], undefined);
+    }
 
-    controller.abort();
-    await fetchPromise;
+    {
+      // check that the lock works
+      // @ts-expect-error protected property
+      engine1.clients[sid]!.send("hello");
+
+      const res = await fetchPromise;
+      const body = await res.text();
+
+      assert.equal(body, "4hello");
+    }
   });
 
   it("should acquire read lock (same process)", async () => {

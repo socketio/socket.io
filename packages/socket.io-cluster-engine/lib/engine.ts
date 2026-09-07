@@ -213,6 +213,10 @@ export abstract class ClusterEngine extends Server {
           },
         });
 
+        if (!success) {
+          break;
+        }
+
         switch (transportName) {
           case "polling": {
             if (message.data.type === "read") {
