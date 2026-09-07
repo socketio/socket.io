@@ -75,9 +75,9 @@ This repository is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) which co
 | `engine.io`                    | The server-side implementation of the low-level communication layer.                                                                  |
 | `engine.io-client`             | The client-side implementation of the low-level communication layer.                                                                  |
 | `engine.io-parser`             | The parser responsible for encoding and decoding Engine.IO packets, used by both the `engine.io` and `engine.io-client` packages.     |
-| `socket.io`                    | The server-side implementation of the bidirectional channel, built on top on the `engine.io` package.                                 |
+| `socket.io`                    | The server-side implementation of the bidirectional channel, built on top of the `engine.io` package.                                 |
 | `socket.io-adapter`            | An extensible component responsible for broadcasting a packet to all connected clients, used by the `socket.io` package.              |
-| `socket.io-client`             | The client-side implementation of the bidirectional channel, built on top on the `engine.io-client` package.                          |
+| `socket.io-client`             | The client-side implementation of the bidirectional channel, built on top of the `engine.io-client` package.                          |
 | `@socket.io/cluster-engine`    | A cluster-friendly engine to share load between multiple Node.js processes (without sticky sessions)                                  |
 | `@socket.io/component-emitter` | An `EventEmitter` implementation, similar to the one provided by [Node.js](https://nodejs.org/api/events.html) but for all platforms. |
 | `socket.io-parser`             | The parser responsible for encoding and decoding Socket.IO packets, used by both the `socket.io` and `socket.io-client` packages.     |
