@@ -299,6 +299,28 @@ to a single process.
       - `net.Stream`: TCP socket for the request
       - `Buffer`: legacy tail bytes
     - **Returns** `Server` for chaining
+    - **Attaching custom upgrade response headers**
+
+      When you call `Server#handleUpgrade` from your own `'upgrade'` listener
+      (see example (C) above), you can attach extra headers to the upgrade
+      response by setting `req[Symbol.for("engine.io:responseHeaders")]` to an
+      object before calling `handleUpgrade`. Each property is sent as an
+      HTTP header. Example for setting CORS headers without using the `cors`
+      option (which is incompatible with WebTransport):
+
+      ```js
+      const httpServer = require("http").createServer();
+
+      httpServer.on("upgrade", (req, socket, head) => {
+        if (req.url?.startsWith("/engine.io/")) {
+          req[Symbol.for("engine.io:responseHeaders")] = {
+            "Access-Control-Allow-Origin": req.headers.origin || "*",
+            "Access-Control-Allow-Credentials": "true",
+          };
+          engine.handleUpgrade(req, socket, head);
+        }
+      });
+      ```
 - `attach`
     - Attach this Server instance to an `http.Server`
     - Captures `upgrade` requests for a `http.Server`. In other words, makes
