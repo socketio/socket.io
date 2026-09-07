@@ -772,7 +772,9 @@ export class Socket<
       }
     }
     super.emit.apply(this, args);
-    if (this._pid && args.length && typeof args[args.length - 1] === "string") {
+
+    // Consider designing a better way of tracking if an offset was actually added or not
+    if (this._pid && args.length && typeof args[args.length - 1] === "string" && /^\d+-\d+$/.test(args[args.length - 1]) ) {
       this._lastOffset = args[args.length - 1];
     }
   }
