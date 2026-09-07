@@ -788,10 +788,12 @@ export class Server<
       if (typeof name === "function") {
         this.parentNsps.set(name, parentNsp);
       } else {
-        this.parentNsps.set(
-          (nsp, conn, next) => next(null, (name as RegExp).test(nsp)),
-          parentNsp,
-        );
+        this.parentNsps.set((nsp, conn, next) => {
+          // Reset lastIndex so a regex created with the global or sticky flag
+          // matches consistently across connections.
+          (name as RegExp).lastIndex = 0;
+          next(null, (name as RegExp).test(nsp));
+        }, parentNsp);
         this.parentNamespacesFromRegExp.set(name, parentNsp);
       }
       if (fn) {
@@ -806,6 +808,9 @@ export class Server<
     let nsp = this._nsps.get(name);
     if (!nsp) {
       for (const [regex, parentNamespace] of this.parentNamespacesFromRegExp) {
+        // Reset lastIndex so a regex created with the global or sticky flag
+        // matches consistently across connections.
+        regex.lastIndex = 0;
         if (regex.test(name as string)) {
           debug("attaching namespace %s to parent namespace %s", name, regex);
           return parentNamespace.createChild(name as string);
