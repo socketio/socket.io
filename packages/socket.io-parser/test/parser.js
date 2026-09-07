@@ -98,6 +98,26 @@ describe("socket.io-parser", () => {
     expect(() => encoder.encode(data)).to.throwException();
   });
 
+  it("throws an error when encoding a namespace containing a comma", () => {
+    const encoder = new Encoder();
+
+    expect(() =>
+      encoder.encode({
+        type: PacketType.EVENT,
+        nsp: "/a,b",
+        data: ["hello"],
+      }),
+    ).to.throwException(/^invalid namespace: must not contain a comma$/);
+
+    expect(() =>
+      encoder.encode({
+        type: PacketType.EVENT,
+        nsp: "/a,b",
+        data: ["hello", Uint8Array.from([1, 2, 3])],
+      }),
+    ).to.throwException(/^invalid namespace: must not contain a comma$/);
+  });
+
   it("decodes a bad binary packet", () => {
     try {
       const decoder = new Decoder();
@@ -223,6 +243,13 @@ describe("socket.io-parser", () => {
         type: 0,
         nsp: "/admin",
         data: "invalid",
+      }),
+    ).to.eql(false);
+
+    expect(
+      isPacketValid({
+        type: 0,
+        nsp: "/a,b",
       }),
     ).to.eql(false);
 
