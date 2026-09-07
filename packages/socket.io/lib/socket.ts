@@ -36,6 +36,23 @@ import {
 
 const debug = debugModule("socket.io:socket");
 
+function hasBinary(data: unknown): boolean {
+  if (!data || typeof data !== "object") {
+    return false;
+  }
+  if (
+    Buffer.isBuffer(data) ||
+    data instanceof ArrayBuffer ||
+    ArrayBuffer.isView(data)
+  ) {
+    return true;
+  }
+  if (Array.isArray(data)) {
+    return data.some(hasBinary);
+  }
+  return Object.values(data).some(hasBinary);
+}
+
 const RECOVERABLE_DISCONNECT_REASONS: ReadonlySet<DisconnectReason> = new Set([
   "transport error",
   "transport close",
@@ -571,7 +588,10 @@ export class Socket<
         listener.apply(this, args);
       }
     }
-    this.dispatch(args);
+    this.dispatch(
+      args,
+      packet.type === PacketType.BINARY_EVENT || hasBinary(args),
+    );
   }
 
   /**
@@ -817,10 +837,12 @@ export class Socket<
    * @param {Array} event - event that will get emitted
    * @private
    */
-  private dispatch(event: Event): void {
+  private dispatch(event: Event, isBinary: boolean): void {
     debug("dispatching an event %j", event);
+    let isSynchronous = true;
+
     this.run(event, (err) => {
-      process.nextTick(() => {
+      const invoke = () => {
         if (err) {
           return this._onerror(err);
         }
@@ -829,8 +851,16 @@ export class Socket<
         } else {
           debug("ignore packet received after disconnection");
         }
-      });
+      };
+
+      if (isSynchronous && !isBinary && !err) {
+        invoke();
+      } else {
+        process.nextTick(invoke);
+      }
     });
+
+    isSynchronous = false;
   }
 
   /**
