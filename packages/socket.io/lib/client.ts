@@ -11,6 +11,16 @@ import type { Socket as RawSocket } from "engine.io";
 
 const debug = debugModule("socket.io:client");
 
+function objectFromEntries(
+  entries: Iterable<readonly [PropertyKey, string]>,
+): Record<string, string> {
+  const obj: Record<string, string> = Object.create(null);
+  for (const [key, value] of entries) {
+    obj[key as string] = value;
+  }
+  return obj;
+}
+
 interface WriteOptions {
   compress?: boolean;
   volatile?: boolean;
@@ -296,7 +306,7 @@ export class Client<
     const url = new URL(packet.nsp, "https://socket.io");
     return {
       namespace: url.pathname,
-      authPayload: Object.fromEntries(url.searchParams.entries()),
+      authPayload: objectFromEntries(url.searchParams.entries()),
     };
   }
 
