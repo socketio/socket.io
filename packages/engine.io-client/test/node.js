@@ -8,7 +8,11 @@ const { parse } = require("../build/cjs/globals.node.js");
 describe("node.js", () => {
   describe("autoRef option", () => {
     const fixture = (filename) =>
-      process.execPath + " " + path.join(__dirname, "fixtures", filename);
+      '"' +
+      process.execPath +
+      '" "' +
+      path.join(__dirname, "fixtures", filename) +
+      '"';
 
     it("should stop once the timer is triggered", (done) => {
       exec(fixture("unref.js"), done);
