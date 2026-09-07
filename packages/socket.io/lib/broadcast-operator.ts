@@ -325,6 +325,14 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
     ev: Ev,
     ...args: AllButLast<EventParams<EmitEvents, Ev>>
   ): Promise<FirstNonErrorArg<Last<EventParams<EmitEvents, Ev>>>> {
+    const defaultTimeout = this.adapter.nsp.server?.opts?.ackTimeout;
+    const operator =
+      this.flags.timeout === undefined && defaultTimeout !== undefined
+        ? new BroadcastOperator(this.adapter, this.rooms, this.exceptRooms, {
+            ...this.flags,
+            timeout: defaultTimeout,
+          })
+        : this;
     return new Promise((resolve, reject) => {
       args.push((err, responses) => {
         if (err) {
@@ -334,7 +342,10 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
           return resolve(responses);
         }
       });
-      this.emit(ev, ...(args as any[] as EventParams<EmitEvents, Ev>));
+      (operator as this).emit(
+        ev,
+        ...(args as any[] as EventParams<EmitEvents, Ev>),
+      );
     });
   }
 
