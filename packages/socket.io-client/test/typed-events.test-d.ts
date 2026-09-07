@@ -26,7 +26,7 @@ describe("typed events", () => {
         expectError(socket.on("connect", (arg) => {}));
 
         socket.on("connect_error", (err) => {
-          expectType<Error>(err);
+          expectType<Error & { data?: any }>(err);
         });
 
         socket.on("disconnect", (reason) => {

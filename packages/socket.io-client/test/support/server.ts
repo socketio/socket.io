@@ -1,4 +1,4 @@
-import { Server } from "socket.io";
+import { ExtendedError, Server } from "socket.io";
 import expect = require("expect.js");
 
 export function createServer() {
@@ -42,6 +42,12 @@ export function createServer() {
 
   server.of("/no").use((socket, next) => {
     next(new Error("Auth failed (custom namespace)"));
+  });
+
+  server.of("/no-with-data").use((socket, next) => {
+    const err: ExtendedError = new Error("Auth failed (with data)");
+    err.data = { code: "UNAUTHORIZED" };
+    next(err);
   });
 
   server.on("connection", (socket) => {

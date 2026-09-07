@@ -286,6 +286,17 @@ describe("socket", () => {
     });
   });
 
+  it("should forward the data attached to a middleware error", () => {
+    return wrap((done) => {
+      const socket = io(BASE_URL + "/no-with-data", { forceNew: true });
+      socket.on("connect_error", (err) => {
+        expect(err.data).to.eql({ code: "UNAUTHORIZED" });
+        socket.disconnect();
+        done();
+      });
+    });
+  });
+
   it("should not try to reconnect after a middleware failure", () => {
     return wrap((done) => {
       const socket = io(BASE_URL + "/no", {
