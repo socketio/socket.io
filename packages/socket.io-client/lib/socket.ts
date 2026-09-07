@@ -111,9 +111,13 @@ export type DisconnectDescription =
       context?: unknown; // context should be typed as CloseEvent | XMLHttpRequest, but these types are not available on non-browser platforms
     };
 
+export interface ExtendedError extends Error {
+  data?: any;
+}
+
 interface SocketReservedEvents {
   connect: () => void;
-  connect_error: (err: Error) => void;
+  connect_error: (err: ExtendedError) => void;
   disconnect: (
     reason: Socket.DisconnectReason,
     description?: DisconnectDescription,
@@ -734,8 +738,7 @@ export class Socket<
 
       case PacketType.CONNECT_ERROR:
         this.destroy();
-        const err = new Error(packet.data.message);
-        // @ts-ignore
+        const err: ExtendedError = new Error(packet.data.message);
         err.data = packet.data.data;
         this.emitReserved("connect_error", err);
         break;
