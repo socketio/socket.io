@@ -141,7 +141,7 @@ function isValidSessionId(str: string) {
   return typeof str === "string" && str.length === 20;
 }
 
-interface ClusterEngineOptions {
+export interface ClusterEngineOptions {
   /**
    * The maximum waiting time for responses from other nodes, in ms.
    *

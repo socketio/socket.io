@@ -1,4 +1,4 @@
-import { ClusterEngine, type Message } from "./engine";
+import { ClusterEngine, ClusterEngineOptions, type Message } from "./engine";
 import { encode, decode } from "@msgpack/msgpack";
 import { type ServerOptions } from "engine.io";
 import cluster from "node:cluster";
@@ -134,7 +134,11 @@ export class RedisEngine extends ClusterEngine {
   private readonly _pubClient: any;
   private readonly _channelPrefix: string;
 
-  constructor(pubClient: any, subClient: any, opts?: RedisEngineOptions) {
+  constructor(
+    pubClient: any,
+    subClient: any,
+    opts?: RedisEngineOptions & ClusterEngineOptions,
+  ) {
     super(opts);
     this._pubClient = pubClient;
     this._channelPrefix = opts?.channelPrefix || "engine.io";

@@ -1,6 +1,6 @@
 import cluster from "node:cluster";
 import { type ServerOptions } from "engine.io";
-import { ClusterEngine, type Message } from "./engine";
+import { ClusterEngine, ClusterEngineOptions, type Message } from "./engine";
 import debugModule from "debug";
 
 const debug = debugModule("engine:cluster");
@@ -42,7 +42,7 @@ export function setupPrimary() {
 }
 
 export class NodeClusterEngine extends ClusterEngine {
-  constructor(opts?: ServerOptions) {
+  constructor(opts?: ServerOptions & ClusterEngineOptions) {
     super(opts);
 
     process.on("message", (message: Message & { _source?: string }) => {
