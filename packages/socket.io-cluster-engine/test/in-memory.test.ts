@@ -47,7 +47,9 @@ describe("in-memory", () => {
     const port1 = (httpServer1.address() as AddressInfo).port;
 
     httpServer2 = createServer();
-    engine2 = new InMemoryEngine(eventBus);
+    engine2 = new InMemoryEngine(eventBus, {
+      upgradeTimeout: 100,
+    });
     engine2.attach(httpServer2);
     httpServer2.listen(0);
     const port2 = (httpServer2.address() as AddressInfo).port;
@@ -429,5 +431,43 @@ describe("in-memory", () => {
     };
 
     await promise;
+  });
+
+  it("should resume after upgrade failure", async () => {
+    const sid = await handshake(ports[2]);
+
+    const socket = new WebSocket(
+      `ws://localhost:${ports[1]}/engine.io/?EIO=4&transport=websocket&sid=${sid}`,
+    );
+
+    await new Promise<void>((resolve, reject) => {
+      engine3.on("connection", (socket) => {
+        if (socket.upgrading) {
+          return reject("should not be upgrading");
+        }
+        socket.on("message", (data: string) => {
+          assert.equal(data, "ping");
+          socket.send("pong");
+        });
+        resolve();
+      });
+
+      // don't send the probe pong, so the upgrade should time out on engine 1
+      socket.onopen = () => {};
+    });
+
+    {
+      const res = await fetch(url(ports[0], sid), {
+        method: "POST",
+        body: "4ping",
+      });
+      assert.equal(res.status, 200);
+    }
+
+    {
+      const res = await fetch(url(ports[1], sid));
+      assert.equal(res.status, 200);
+      assert.equal(await res.text(), "2\x1e4pong");
+    }
   });
 });

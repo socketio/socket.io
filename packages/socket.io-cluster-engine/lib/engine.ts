@@ -18,6 +18,7 @@ const kDelayedTimer = Symbol("delayedTimer");
 const kBuffer = Symbol("buffer");
 const kPacketListener = Symbol("packetListener");
 const kNoopTimer = Symbol("noopTimer");
+const kUpgradeTimer = Symbol("upgradeTimer");
 const kSenderId = Symbol("senderId");
 
 type Brand<K, T> = K & { __brand: T };
@@ -227,11 +228,25 @@ export abstract class ClusterEngine extends Server {
           case "websocket":
           case "webtransport": {
             client.upgrading = true;
+
             client[kNoopTimer] = setTimeout(() => {
               debug("writing a noop packet to polling for fast upgrade");
               // @ts-expect-error sendPacket() is private
               client.sendPacket("noop");
             }, this._opts.noopUpgradeInterval);
+
+            client[kUpgradeTimer] = setTimeout(() => {
+              if (client.upgrading) {
+                debug("upgrade did not complete, resetting upgrade state");
+                client.upgrading = false;
+                clearTimeout(client[kNoopTimer]);
+                if (client[kDelayed]) {
+                  this._doConnect(client);
+                }
+              }
+            }, this.opts.upgradeTimeout);
+
+            break;
           }
         }
         break;
@@ -288,6 +303,7 @@ export abstract class ClusterEngine extends Server {
         }
 
         clearTimeout(client[kNoopTimer]);
+        clearTimeout(client[kUpgradeTimer]);
         client.upgrading = false;
 
         if (message.data.success) {
@@ -323,6 +339,8 @@ export abstract class ClusterEngine extends Server {
               },
             });
           }
+        } else if (client[kDelayed]) {
+          this._doConnect(client);
         }
         break;
       }
@@ -578,6 +596,16 @@ export abstract class ClusterEngine extends Server {
       () => this._onUpgradeSuccess(sid, transport, req, senderId),
       () => {
         debug("upgrade failure");
+        this.publishMessage({
+          requestId: ++this._requestCount as RequestId,
+          senderId: this._nodeId,
+          recipientId: senderId,
+          type: MessageType.UPGRADE,
+          data: {
+            sid,
+            success: false,
+          },
+        });
       },
     );
   }

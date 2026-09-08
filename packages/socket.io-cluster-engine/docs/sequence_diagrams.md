@@ -5,6 +5,7 @@
     * [HTTP long-polling (read)](#http-long-polling-read)
     * [HTTP long-polling (write)](#http-long-polling-write)
     * [WebSocket upgrade](#websocket-upgrade)
+    * [WebSocket upgrade failure](#websocket-upgrade-failure)
   * [Message types](#message-types)
 <!-- TOC -->
 
@@ -122,6 +123,48 @@ sequenceDiagram
 
         Note over W1,W2: Session ownership remains on Worker A,<br/>WebSocket transport lives on Worker B
     end
+```
+
+### WebSocket upgrade failure
+
+```mermaid
+sequenceDiagram
+    autonumber
+
+    participant C as Client
+    participant W1 as Worker A
+    participant B as Cluster bus
+    participant W2 as Worker B
+
+    Note over W1: Client is connected with HTTP long-polling on Worker A
+
+    C->>W2: HTTP Upgrade WebSocket<br/>sid=abc
+    Note over W2: Session ID unknown locally
+
+    W2->>B: ACQUIRE_LOCK<br/>sid=abc, transport=websocket, type=read
+    B->>W1: ACQUIRE_LOCK
+    Note over W1: Lockable if current transport is polling<br/>and not already upgrading/upgraded
+
+    W1->>B: ACQUIRE_LOCK_RESPONSE<br/>success=true
+    B->>W2: ACQUIRE_LOCK_RESPONSE
+
+    Note over W2: Accept WebSocket upgrade and start upgrade probe
+
+    C->>W2: ping "probe"
+    W2->>C: pong "probe"
+
+    Note over W2: Probe failure (timeout or invalid packet)
+
+    W2->>B: UPGRADE<br/>sid=abc, success=false
+    B->>W1: UPGRADE
+
+    alt connection was still delayed
+        Note over W1: Emit "connection" event
+    else connection was already emitted
+        Note over W1: Stay on HTTP long-polling
+    end
+
+    Note over W2: Close WebSocket transport
 ```
 
 ## Message types
