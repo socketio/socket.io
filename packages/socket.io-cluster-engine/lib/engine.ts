@@ -298,7 +298,6 @@ export abstract class ClusterEngine extends Server {
             client[kDelayed] = false;
             clearTimeout(client[kDelayedTimer]);
             client.close(true);
-            delete this.clients[sid];
 
             this.publishMessage({
               requestId: message.requestId,

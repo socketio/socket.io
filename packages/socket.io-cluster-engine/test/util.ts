@@ -15,3 +15,7 @@ export async function handshake(port: number) {
   const body1 = await res.text();
   return JSON.parse(body1.substring(1)).sid;
 }
+
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

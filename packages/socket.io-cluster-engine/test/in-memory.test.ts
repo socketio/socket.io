@@ -3,15 +3,19 @@ import { createServer, Server } from "node:http";
 import { strict as assert } from "node:assert";
 import { describe, it, beforeEach, afterEach } from "node:test";
 import { WebSocket } from "ws";
-import { ClusterEngine, type Message } from "../lib/engine";
+import {
+  ClusterEngine,
+  ClusterEngineOptions,
+  type Message,
+} from "../lib/engine";
 import { type ServerOptions } from "engine.io";
-import { url, handshake } from "./util";
+import { url, handshake, sleep } from "./util";
 import { type AddressInfo } from "node:net";
 
 class InMemoryEngine extends ClusterEngine {
   constructor(
     readonly eventBus: EventEmitter,
-    opts?: ServerOptions,
+    opts?: ServerOptions & ClusterEngineOptions,
   ) {
     super(opts);
     eventBus.on("message", (message) => this.onMessage(message));
@@ -35,7 +39,9 @@ describe("in-memory", () => {
     const eventBus = new EventEmitter();
 
     httpServer1 = createServer();
-    engine1 = new InMemoryEngine(eventBus);
+    engine1 = new InMemoryEngine(eventBus, {
+      delayedConnectionTimeout: 50,
+    });
     engine1.attach(httpServer1);
     httpServer1.listen(0);
     const port1 = (httpServer1.address() as AddressInfo).port;
@@ -323,6 +329,9 @@ describe("in-memory", () => {
   it("should upgrade and send buffered messages", async () => {
     const promise = new Promise<void>((resolve) => {
       engine2.on("connection", (socket) => {
+        assert.equal(engine1.clientsCount, 0);
+        assert.equal(engine2.clientsCount, 1);
+
         socket.on("upgrade", () => {
           socket.send("hello");
         });
@@ -362,6 +371,59 @@ describe("in-memory", () => {
           break;
         case 1:
           assert.equal(data, "4hello");
+          break;
+      }
+    };
+
+    await promise;
+  });
+
+  it("should upgrade (delayed)", async () => {
+    const promise = new Promise<void>((resolve) => {
+      engine1.on("connection", (socket) => {
+        assert.equal(engine1.clientsCount, 1);
+        assert.equal(engine2.clientsCount, 0);
+
+        socket.on("upgrade", () => {
+          socket.send("hello");
+        });
+
+        socket.on("message", (val: string) => {
+          assert.equal(val, "hi");
+
+          socket.close();
+          resolve();
+        });
+      });
+    });
+
+    const sid = await handshake(ports[0]);
+
+    await sleep(100);
+
+    const socket = new WebSocket(
+      `ws://localhost:${ports[1]}/engine.io/?EIO=4&transport=websocket&sid=${sid}`,
+    );
+
+    socket.onopen = () => {
+      socket.send("2probe");
+    };
+
+    let i = 0;
+
+    socket.onmessage = ({ data }) => {
+      switch (i++) {
+        case 0:
+          assert.equal(data, "3probe");
+          socket.send("5");
+          break;
+        case 1:
+          assert.equal(data, "4hello");
+          socket.send("4hi");
+          break;
+        case 2:
+          assert.equal(data, "1");
+          socket.close();
           break;
       }
     };
