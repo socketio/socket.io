@@ -1,4 +1,4 @@
-import { io, Socket } from "..";
+import { io, Socket, ExtendedError } from "..";
 import type { DefaultEventsMap } from "@socket.io/component-emitter";
 import { expectError, expectType } from "tsd";
 
@@ -26,7 +26,8 @@ describe("typed events", () => {
         expectError(socket.on("connect", (arg) => {}));
 
         socket.on("connect_error", (err) => {
-          expectType<Error>(err);
+          expectType<ExtendedError>(err);
+          expectType<any>(err.data);
         });
 
         socket.on("disconnect", (reason) => {
