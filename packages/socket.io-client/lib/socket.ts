@@ -738,7 +738,7 @@ export class Socket<
 
       case PacketType.CONNECT_ERROR:
         this.destroy();
-        const err: ExtendedError = new Error(packet.data.message);
+        const err = new Error(packet.data.message) as ExtendedError;
         err.data = packet.data.data;
         this.emitReserved("connect_error", err);
         break;
