@@ -214,12 +214,14 @@ export class Adapter extends EventEmitter {
     const encodedPackets = this._encode(packet, packetOpts);
 
     let clientCount = 0;
+    const sockets: any[] = [];
 
     this.apply(opts, (socket) => {
       // track the total number of acknowledgements that are expected
       clientCount++;
       // call the ack callback for each client response
       socket.acks.set(packet.id, ack);
+      sockets.push(socket);
 
       if (typeof socket.notifyOutgoingListeners === "function") {
         socket.notifyOutgoingListeners(packet);
@@ -229,6 +231,16 @@ export class Adapter extends EventEmitter {
     });
 
     clientCountCallback(clientCount);
+
+    // clean up socket.acks entries after the timeout to prevent memory leaks
+    // when clients do not respond with an acknowledgement
+    if (flags.timeout !== undefined) {
+      setTimeout(() => {
+        for (const socket of sockets) {
+          socket.acks.delete(packet.id);
+        }
+      }, flags.timeout);
+    }
   }
 
   private _encode(packet: unknown, packetOpts: Record<string, unknown>) {
