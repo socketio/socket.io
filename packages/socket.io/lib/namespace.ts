@@ -389,10 +389,11 @@ export class Namespace<
       // @ts-ignore
       this.server.opts.connectionStateRecovery &&
       typeof sessionId === "string" &&
-      typeof offset === "string"
+      (typeof offset === "string" || offset === undefined)
     ) {
       let session;
       try {
+        // @ts-ignore - offset may be undefined for zero-event recovery (see #5538)
         session = await this.adapter.restoreSession(sessionId, offset);
       } catch (e) {
         debug("error while restoring session: %s", e);
