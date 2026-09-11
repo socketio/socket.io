@@ -783,6 +783,11 @@ export class Server<
     ) => void,
   ): Namespace<ListenEvents, EmitEvents, ServerSideEvents, SocketData> {
     if (typeof name === "function" || name instanceof RegExp) {
+      if (name instanceof RegExp) {
+        if (name.global || name.sticky) {
+          throw new Error("stateful regular expressions are not supported");
+        }
+      }
       const parentNsp = new ParentNamespace(this);
       debug("initializing parent namespace %s", parentNsp.name);
       if (typeof name === "function") {

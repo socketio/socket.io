@@ -766,8 +766,21 @@ describe("namespaces", () => {
 
       // @ts-ignore
       expect(parentNamespace.children.has(childNamespace)).to.be(true);
-
       io.close();
+    });
+
+    it("should throw an error when a RegExp with global flag is passed to io.of()", () => {
+      const io = new Server();
+      expect(() => {
+        io.of(/^\/dynamic-\d+$/g);
+      }).to.throwError(/stateful regular expressions are not supported/);
+    });
+
+    it("should throw an error when a RegExp with sticky flag is passed to io.of()", () => {
+      const io = new Server();
+      expect(() => {
+        io.of(/^\/dynamic-\d+$/y);
+      }).to.throwError(/stateful regular expressions are not supported/);
     });
   });
 });
