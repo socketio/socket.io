@@ -685,13 +685,17 @@ export abstract class BaseServer extends EventEmitter {
  *
  * @see https://nodejs.org/api/http.html#class-httpserverresponse
  */
-class WebSocketResponse {
+class WebSocketResponse extends EventEmitter {
   constructor(
     readonly req,
     readonly socket: Duplex,
   ) {
+    super();
     // temporarily store the response headers on the req object (see the "headers" event)
     req[kResponseHeaders] = {};
+    // some middlewares (like pino-http) rely on the "close" event to know when the response is done, which the
+    // underlying socket does not expose by default
+    socket.once("close", () => this.emit("close"));
   }
 
   public setHeader(name: string, value: any) {
@@ -711,6 +715,7 @@ class WebSocketResponse {
   public writeHead() {}
 
   public end() {
+    this.emit("finish");
     // we could return a proper error code, but the WebSocket client will emit an "error" event anyway.
     this.socket.destroy();
   }
