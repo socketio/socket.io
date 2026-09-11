@@ -551,5 +551,67 @@ describe("socket.io-adapter", () => {
 
       expect(session).to.be(null);
     });
+
+    it("should still restore a session after the client received a volatile packet", async () => {
+      const adapter = new SessionAwareAdapter({
+        server: {
+          encoder: {
+            encode(packet) {
+              return packet;
+            },
+          },
+          opts: {
+            connectionStateRecovery: {
+              maxDisconnectionDuration: 5000,
+            },
+          },
+        },
+      });
+
+      adapter.persistSession({
+        sid: "abc",
+        pid: "def",
+        data: "ghi",
+        rooms: ["r1"],
+      });
+
+      const packetData = ["hello"];
+
+      adapter.broadcast(
+        {
+          nsp: "/",
+          type: 2,
+          data: packetData,
+        },
+        {
+          rooms: new Set(),
+          except: new Set(),
+        },
+      );
+
+      const volatileData = ["status", "connected"];
+
+      adapter.broadcast(
+        {
+          nsp: "/",
+          type: 2,
+          data: volatileData,
+        },
+        {
+          rooms: new Set(),
+          except: new Set(),
+          flags: {
+            volatile: true,
+          },
+        },
+      );
+
+      // the adapter appends its own offset at the end of the data array, so the client stores
+      // that offset instead of the last argument of the event itself
+      const session = await adapter.restoreSession("def", volatileData[2]);
+
+      expect(session).to.not.be(null);
+      expect(session.missedPackets.length).to.eql(0);
+    });
   });
 });
