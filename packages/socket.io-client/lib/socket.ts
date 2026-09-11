@@ -115,7 +115,7 @@ export interface ExtendedError extends Error {
   data?: any;
 }
 
-interface SocketReservedEvents {
+export interface SocketReservedEvents {
   connect: () => void;
   connect_error: (err: ExtendedError) => void;
   disconnect: (

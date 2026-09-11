@@ -86,7 +86,7 @@ export interface ManagerOptions extends EngineOptions {
   parser: any;
 }
 
-interface ManagerReservedEvents {
+export interface ManagerReservedEvents {
   open: () => void;
   error: (err: Error) => void;
   ping: () => void;

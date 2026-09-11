@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "name": "typescript-check-public-exports",
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "socket.io-client": "^4.8.3"
+  },
+  "scripts": {
+    "build": "tsc"
+  }
+}

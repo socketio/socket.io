@@ -1,10 +1,11 @@
 import { url } from "./url.js";
-import { Manager, ManagerOptions } from "./manager.js";
+import { Manager, ManagerOptions, ManagerReservedEvents } from "./manager.js";
 import {
   DisconnectDescription,
   ExtendedError,
   Socket,
   SocketOptions,
+  SocketReservedEvents,
 } from "./socket.js";
 import debugModule from "debug"; // debug()
 
@@ -100,8 +101,10 @@ export {
   ExtendedError,
   Manager,
   ManagerOptions,
+  ManagerReservedEvents,
   Socket,
   SocketOptions,
+  SocketReservedEvents,
   lookup as io,
   lookup as connect,
   lookup as default,

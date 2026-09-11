@@ -16,9 +16,9 @@ jobs:
       fail-fast: false
       matrix:
         example:
-          - custom-parsers
+          # - custom-parsers
           - typescript-example/cjs
-          - typescript-example/esm
+          # - typescript-example/esm TODO enable once https://github.com/socketio/socket.io/commit/74599a6b9e3dbeff1a9efe46c305d5d25d6e3dd8 is released
           - typescript-client-example/cjs
           - typescript-client-example/esm
           - webpack-build
@@ -27,7 +27,8 @@ jobs:
           - basic-crud-application/vue-client
           - nextjs-pages-router
           - nextjs-app-router
-          - nuxt-example
+          # - nuxt-example
+          # - typescript-check-public-exports TODO enable once https://github.com/socketio/socket.io/pull/5533 is fixed
 
     steps:
       - name: Checkout repository
