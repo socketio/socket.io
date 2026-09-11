@@ -32,10 +32,20 @@ describe("autoUnref option", function () {
   });
 
   it("should not stop with autoUnref set to false", (done) => {
+    let killed = false;
+    let timer: NodeJS.Timeout;
+
     const child = runFixture("no-unref.ts", () => {
+      if (killed) {
+        return;
+      }
+
+      clearTimeout(timer);
       done(new Error("should not happen"));
     });
-    setTimeout(() => {
+
+    timer = setTimeout(() => {
+      killed = true;
       child.kill();
       done();
     }, 100);
