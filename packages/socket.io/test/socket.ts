@@ -9,6 +9,7 @@ import {
 } from "./support/util";
 import { Server } from "..";
 import expect from "expect.js";
+import { PacketType } from "socket.io-parser";
 
 describe("socket", () => {
   it("should not fire events more than once after manually reconnecting", (done) => {
@@ -905,6 +906,146 @@ describe("socket", () => {
       clientSocket.emit("test", Buffer.alloc(10));
       clientSocket.disconnect();
     });
+  });
+
+  it("should dispatch a non-binary event before disconnect cleanup", (done) => {
+    const io = new Server(0);
+    const clientSocket = createClient(io);
+
+    io.on("connection", (socket) => {
+      let anyCalled = false;
+      let namedCalled = false;
+
+      socket.onAny((event) => {
+        if (event === "before-disconnect") {
+          anyCalled = true;
+        }
+      });
+      socket.on("before-disconnect", () => {
+        namedCalled = true;
+      });
+
+      (socket as any).onevent({
+        type: PacketType.EVENT,
+        data: ["before-disconnect"],
+      });
+      (socket as any).ondisconnect();
+
+      expect(anyCalled).to.be(true);
+      expect(namedCalled).to.be(true);
+      success(done, io, clientSocket);
+    });
+  });
+
+  it("should dispatch a non-binary event after synchronous middleware", (done) => {
+    const io = new Server(0);
+    const clientSocket = createClient(io);
+
+    io.on("connection", (socket) => {
+      let namedCalled = false;
+
+      socket.use((_event, next) => {
+        next();
+      });
+      socket.on("before-disconnect", () => {
+        namedCalled = true;
+      });
+
+      (socket as any).onevent({
+        type: PacketType.EVENT,
+        data: ["before-disconnect"],
+      });
+      (socket as any).ondisconnect();
+
+      expect(namedCalled).to.be(true);
+      success(done, io, clientSocket);
+    });
+  });
+
+  it("should ignore an event when middleware completes after disconnect", (done) => {
+    const io = new Server(0);
+    const clientSocket = createClient(io);
+
+    io.on("connection", (socket) => {
+      let namedCalled = false;
+
+      socket.use((_event, next) => {
+        setImmediate(next);
+      });
+      socket.on("before-disconnect", () => {
+        namedCalled = true;
+      });
+
+      (socket as any).onevent({
+        type: PacketType.EVENT,
+        data: ["before-disconnect"],
+      });
+      (socket as any).ondisconnect();
+
+      setImmediate(() => {
+        expect(namedCalled).to.be(false);
+        success(done, io, clientSocket);
+      });
+    });
+  });
+
+  it("should ignore an event received after disconnection", (done) => {
+    const io = new Server(0);
+    const clientSocket = createClient(io);
+
+    io.on("connection", (socket) => {
+      let namedCalled = false;
+
+      socket.on("before-disconnect", () => {
+        namedCalled = true;
+      });
+
+      (socket as any).ondisconnect();
+      (socket as any).onevent({
+        type: PacketType.EVENT,
+        data: ["before-disconnect"],
+      });
+
+      setImmediate(() => {
+        expect(namedCalled).to.be(false);
+        success(done, io, clientSocket);
+      });
+    });
+  });
+
+  it("should dispatch non-binary events before disconnect cleanup for many clients", (done) => {
+    const io = new Server(0);
+    const clients = [];
+    let anyCalled = 0;
+    let namedCalled = 0;
+    let disconnected = 0;
+
+    io.on("connection", (socket) => {
+      socket.onAny((event) => {
+        if (event === "before-disconnect") {
+          anyCalled++;
+        }
+      });
+      socket.on("before-disconnect", () => {
+        namedCalled++;
+      });
+      socket.on("disconnect", () => {
+        if (++disconnected === 40) {
+          expect(anyCalled).to.be(40);
+          expect(namedCalled).to.be(40);
+          success(done, io, ...clients);
+        }
+      });
+    });
+
+    for (let i = 0; i < 40; i++) {
+      const clientSocket = createClient(io);
+      clients.push(clientSocket);
+      clientSocket.on("connect", () => {
+        clientSocket.emit("before-disconnect");
+        clientSocket.disconnect();
+      });
+    }
   });
 
   it("should leave all rooms joined after a middleware failure", (done) => {
