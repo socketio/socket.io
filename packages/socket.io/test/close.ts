@@ -1,7 +1,7 @@
 import { createServer } from "http";
 import { io as ioc } from "socket.io-client";
-import { join } from "path";
-import { exec } from "child_process";
+import { join } from "node:path";
+import { execFile } from "node:child_process";
 import { Server } from "..";
 import expect from "expect.js";
 import {
@@ -92,18 +92,11 @@ describe("close", () => {
   });
 
   describe("graceful close", () => {
-    function fixture(filename) {
-      return (
-        '"' +
-        process.execPath +
-        '" "' +
-        join(__dirname, "fixtures", filename) +
-        '"'
-      );
-    }
+    const runFixture = (filename, done) =>
+      execFile(process.execPath, [join(__dirname, "fixtures", filename)], done);
 
     it("should stop socket and timers", (done) => {
-      exec(fixture("server-close.ts"), done);
+      runFixture("server-close.ts", done);
     });
   });
 

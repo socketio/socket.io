@@ -1,5 +1,5 @@
-const path = require("path");
-const { exec } = require("child_process");
+const path = require("node:path");
+const { execFile } = require("node:child_process");
 
 describe("autoUnref option", function () {
   before(function () {
@@ -8,31 +8,45 @@ describe("autoUnref option", function () {
     }
   });
 
-  const fixture = (filename) =>
-    process.execPath + " " + path.join(__dirname, "fixtures", filename);
+  const runFixture = (filename, done) =>
+    execFile(
+      process.execPath,
+      [path.join(__dirname, "fixtures", filename)],
+      done,
+    );
 
   it("should stop once the timer is triggered", (done) => {
-    exec(fixture("unref.ts"), done);
+    runFixture("unref.ts", done);
   });
 
   it("should stop once the timer is triggered (even when trying to reconnect)", (done) => {
-    exec(fixture("unref-during-reconnection.ts"), done);
+    runFixture("unref-during-reconnection.ts", done);
   });
 
   it("should stop once the timer is triggered (polling)", (done) => {
-    exec(fixture("unref-polling-only.ts"), done);
+    runFixture("unref-polling-only.ts", done);
   });
 
   it("should stop once the timer is triggered (websocket)", (done) => {
-    exec(fixture("unref-websocket-only.ts"), done);
+    runFixture("unref-websocket-only.ts", done);
   });
 
   it("should not stop with autoUnref set to false", (done) => {
-    const process = exec(fixture("no-unref.ts"), () => {
+    let killed = false;
+    let timer: NodeJS.Timeout;
+
+    const child = runFixture("no-unref.ts", () => {
+      if (killed) {
+        return;
+      }
+
+      clearTimeout(timer);
       done(new Error("should not happen"));
     });
-    setTimeout(() => {
-      process.kill();
+
+    timer = setTimeout(() => {
+      killed = true;
+      child.kill();
       done();
     }, 100);
   });

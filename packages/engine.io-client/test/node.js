@@ -1,5 +1,5 @@
-const path = require("path");
-const { exec } = require("child_process");
+const path = require("node:path");
+const { execFile } = require("node:child_process");
 const { Socket } = require("../");
 const { repeat } = require("./util");
 const expect = require("expect.js");
@@ -7,32 +7,36 @@ const { parse } = require("../build/cjs/globals.node.js");
 
 describe("node.js", () => {
   describe("autoRef option", () => {
-    const fixture = (filename) =>
-      process.execPath + " " + path.join(__dirname, "fixtures", filename);
+    const runFixture = (filename, done) =>
+      execFile(
+        process.execPath,
+        [path.join(__dirname, "fixtures", filename)],
+        done,
+      );
 
     it("should stop once the timer is triggered", (done) => {
-      exec(fixture("unref.js"), done);
+      runFixture("unref.js", done);
     });
 
     it("should stop once the timer is triggered (polling)", (done) => {
-      exec(fixture("unref-polling-only.js"), done);
+      runFixture("unref-polling-only.js", done);
     });
 
     it("should stop once the timer is triggered (websocket)", (done) => {
-      exec(fixture("unref-websocket-only.js"), done);
+      runFixture("unref-websocket-only.js", done);
     });
 
     it("should not stop with autoUnref set to false", (done) => {
       let isComplete = false;
 
-      const process = exec(fixture("no-unref.js"), () => {
+      const child = runFixture("no-unref.js", () => {
         if (!isComplete) {
           done(new Error("should not happen"));
         }
       });
       setTimeout(() => {
         isComplete = true;
-        process.kill();
+        child.kill();
         done();
       }, 100);
     });

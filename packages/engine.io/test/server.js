@@ -3,8 +3,8 @@
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
-const path = require("path");
-const exec = require("child_process").exec;
+const { join } = require("node:path");
+const { execFile } = require("node:child_process");
 const zlib = require("zlib");
 const { Server, Socket, attach } = require("..");
 const {
@@ -1777,22 +1777,23 @@ describe("server", () => {
         }
       });
 
-      function fixture(filename) {
-        return (
-          process.execPath + " " + path.join(__dirname, "fixtures", filename)
+      const runFixture = (filename, done) =>
+        execFile(
+          process.execPath,
+          [join(__dirname, "fixtures", filename)],
+          done,
         );
-      }
 
       it("should stop socket and timers", (done) => {
-        exec(fixture("server-close.js"), done);
+        runFixture("server-close.js", done);
       });
 
       it("should stop upgraded socket and timers", (done) => {
-        exec(fixture("server-close-upgraded.js"), done);
+        runFixture("server-close-upgraded.js", done);
       });
 
       it("should stop upgrading socket and timers", (done) => {
-        exec(fixture("server-close-upgrading.js"), done);
+        runFixture("server-close-upgrading.js", done);
       });
     });
   });
