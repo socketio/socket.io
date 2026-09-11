@@ -162,7 +162,13 @@ export abstract class Transport extends EventEmitter {
    * @protected
    */
   protected onData(data: RawData) {
-    this.onPacket(this.parser.decodePacket(data));
+    const packet = this.parser.decodePacket(data);
+    if ("close" === packet.type) {
+      debug("got close packet");
+      this.close();
+      return;
+    }
+    this.onPacket(packet);
   }
 
   /**
