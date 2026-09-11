@@ -25,7 +25,11 @@ import { objectFromEntries } from "./utils/objectFromEntries";
 
 const debug = debugModule("engine");
 
-const kResponseHeaders = Symbol("responseHeaders");
+// Exposed via the runtime-shared `Symbol.for` registry so user code calling
+// `Server#handleUpgrade` directly can attach additional upgrade-response
+// headers (e.g. CORS headers when the `cors` middleware option is not used).
+// See https://github.com/socketio/socket.io/issues/5497.
+export const kResponseHeaders = Symbol.for("engine.io:responseHeaders");
 
 type TransportName = "polling" | "websocket" | "webtransport";
 
@@ -690,8 +694,10 @@ class WebSocketResponse {
     readonly req,
     readonly socket: Duplex,
   ) {
-    // temporarily store the response headers on the req object (see the "headers" event)
-    req[kResponseHeaders] = {};
+    // temporarily store the response headers on the req object (see the "headers" event).
+    // preserve any additional headers that the caller attached to the request before
+    // calling Server#handleUpgrade (see issue #5497).
+    req[kResponseHeaders] = { ...(req[kResponseHeaders] || {}) };
   }
 
   public setHeader(name: string, value: any) {
