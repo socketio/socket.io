@@ -98,7 +98,12 @@ export class Encoder {
     // if we have a namespace other than `/`
     // we append it followed by a comma `,`
     if (obj.nsp && "/" !== obj.nsp) {
-      str += obj.nsp + ",";
+      // coerce once: the check must see the same string that is appended below
+      const nsp = "" + obj.nsp;
+      if (nsp.indexOf(",") !== -1) {
+        throw new Error("invalid namespace: must not contain a comma");
+      }
+      str += nsp + ",";
     }
 
     // immediately followed by the id
@@ -377,7 +382,8 @@ class BinaryReconstructor {
 }
 
 function isNamespaceValid(nsp: unknown) {
-  return typeof nsp === "string";
+  // a comma terminates the namespace on the wire, so one inside it cannot be decoded back
+  return typeof nsp === "string" && nsp.indexOf(",") === -1;
 }
 
 // see https://caniuse.com/mdn-javascript_builtins_number_isinteger

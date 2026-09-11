@@ -277,6 +277,8 @@ long-polling, or in the WebSocket frame).
 
 Note: the namespace is only included if it is different from the main namespace (`/`)
 
+Note: the namespace is delimited by a comma, and there is no escape sequence, so it must not contain one.
+
 ### Examples
 
 #### Connection to a namespace
