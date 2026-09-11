@@ -476,16 +476,19 @@ export class Socket<
    *   socket.leave("room1");
    *
    *   // leave multiple rooms
-   *   socket.leave("room1").leave("room2");
+   *   socket.leave(["room1", "room2"]);
    * });
    *
-   * @param {String} room
+   * @param {String|Array} rooms - room or array of rooms
    * @return a Promise or nothing, depending on the adapter
    */
-  public leave(room: string): Promise<void> | void {
-    debug("leave room %s", room);
+  public leave(rooms: Room | Array<Room>): Promise<void> | void {
+    debug("leave room %s", rooms);
 
-    return this.adapter.del(this.id, room);
+    return this.adapter.del(
+      this.id,
+      new Set(Array.isArray(rooms) ? rooms : [rooms]),
+    );
   }
 
   /**
