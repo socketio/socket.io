@@ -266,7 +266,7 @@ type BaseSocketOptions = Omit<SocketOptions, "transports"> & {
   transports: TransportCtor[];
 };
 
-interface HandshakeData {
+export interface HandshakeData {
   sid: string;
   upgrades: string[];
   pingInterval: number;
@@ -274,7 +274,7 @@ interface HandshakeData {
   maxPayload: number;
 }
 
-interface SocketReservedEvents {
+export interface SocketReservedEvents {
   open: () => void;
   handshake: (data: HandshakeData) => void;
   packet: (packet: Packet) => void;
@@ -295,7 +295,7 @@ interface SocketReservedEvents {
 
 type SocketState = "opening" | "open" | "closing" | "closed";
 
-interface WriteOptions {
+export interface WriteOptions {
   compress?: boolean;
 }
 

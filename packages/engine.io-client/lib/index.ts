@@ -2,16 +2,23 @@ import { Socket } from "./socket.js";
 
 export { Socket };
 export {
+  HandshakeData,
   SocketOptions,
+  SocketReservedEvents,
   SocketWithoutUpgrade,
   SocketWithUpgrade,
+  WriteOptions,
 } from "./socket.js";
 export const protocol = Socket.protocol;
-export { Transport, TransportError } from "./transport.js";
+export {
+  Transport,
+  TransportError,
+  TransportReservedEvents,
+} from "./transport.js";
 export { transports } from "./transports/index.js";
 export { installTimerFunctions } from "./util.js";
 export { parse } from "./contrib/parseuri.js";
-export { nextTick } from "./globals.node.js";
+export { Cookie, nextTick } from "./globals.node.js";
 
 export { Fetch } from "./transports/polling-fetch.js";
 export { XHR as NodeXHR } from "./transports/polling-xhr.node.js";
