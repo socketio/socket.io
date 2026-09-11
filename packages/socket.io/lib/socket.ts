@@ -352,7 +352,7 @@ export class Socket<
    * @param room - a room, or an array of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public to(room: Room | Room[]) {
+  public to(room: Room | Room[] | Set<Room>) {
     return this.newBroadcastOperator().to(room);
   }
 
@@ -368,7 +368,7 @@ export class Socket<
    * @param room - a room, or an array of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public in(room: Room | Room[]) {
+  public in(room: Room | Room[] | Set<Room>) {
     return this.newBroadcastOperator().in(room);
   }
 
@@ -391,7 +391,7 @@ export class Socket<
    * @param room - a room, or an array of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public except(room: Room | Room[]) {
+  public except(room: Room | Room[] | Set<Room>) {
     return this.newBroadcastOperator().except(room);
   }
 
@@ -458,12 +458,12 @@ export class Socket<
    * @param {String|Array} rooms - room or array of rooms
    * @return a Promise or nothing, depending on the adapter
    */
-  public join(rooms: Room | Array<Room>): Promise<void> | void {
+  public join(rooms: Room | Array<Room> | Set<Room>): Promise<void> | void {
     debug("join room %s", rooms);
 
     return this.adapter.addAll(
       this.id,
-      new Set(Array.isArray(rooms) ? rooms : [rooms]),
+      new Set(rooms instanceof Set ? rooms : Array.isArray(rooms) ? rooms : [rooms]),
     );
   }
 

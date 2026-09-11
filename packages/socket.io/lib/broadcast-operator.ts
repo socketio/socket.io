@@ -45,9 +45,9 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * @param room - a room, or an array of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public to(room: Room | Room[]) {
+  public to(room: Room | Room[] | Set<Room>) {
     const rooms = new Set(this.rooms);
-    if (Array.isArray(room)) {
+    if (room instanceof Set || Array.isArray(room)) {
       room.forEach((r) => rooms.add(r));
     } else {
       rooms.add(room);
@@ -70,7 +70,7 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * @param room - a room, or an array of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public in(room: Room | Room[]) {
+  public in(room: Room | Room[] | Set<Room>) {
     return this.to(room);
   }
 
@@ -90,9 +90,9 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * @param room - a room, or an array of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public except(room: Room | Room[]) {
+  public except(room: Room | Room[] | Set<Room>) {
     const exceptRooms = new Set(this.exceptRooms);
-    if (Array.isArray(room)) {
+    if (room instanceof Set || Array.isArray(room)) {
       room.forEach((r) => exceptRooms.add(r));
     } else {
       exceptRooms.add(room);
@@ -413,14 +413,14 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    *
    * @param room - a room, or an array of rooms
    */
-  public socketsJoin(room: Room | Room[]): void {
+  public socketsJoin(room: Room | Room[] | Set<Room>): void {
     this.adapter.addSockets(
       {
         rooms: this.rooms,
         except: this.exceptRooms,
         flags: this.flags,
       },
-      Array.isArray(room) ? room : [room],
+      room instanceof Set ? [...room] : Array.isArray(room) ? room : [room],
     );
   }
 
@@ -438,14 +438,14 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    *
    * @param room - a room, or an array of rooms
    */
-  public socketsLeave(room: Room | Room[]): void {
+  public socketsLeave(room: Room | Room[] | Set<Room>): void {
     this.adapter.delSockets(
       {
         rooms: this.rooms,
         except: this.exceptRooms,
         flags: this.flags,
       },
-      Array.isArray(room) ? room : [room],
+      room instanceof Set ? [...room] : Array.isArray(room) ? room : [room],
     );
   }
 
@@ -554,7 +554,7 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
    *
    * @param {String|Array} room - room or array of rooms
    */
-  public join(room: Room | Room[]): void {
+  public join(room: Room | Room[] | Set<Room>): void {
     return this.operator.socketsJoin(room);
   }
 

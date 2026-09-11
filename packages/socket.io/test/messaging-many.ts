@@ -170,6 +170,41 @@ describe("messaging many", () => {
     });
   });
 
+  it("emits to rooms with a Set", (done) => {
+    const io = new Server(0);
+    const socket1 = createClient(io, "/", { multiplex: false });
+    const socket2 = createClient(io, "/", { multiplex: false });
+
+    const partialDone = createPartialDone(
+      2,
+      successFn(done, io, socket1, socket2),
+    );
+
+    socket2.on("a", () => {
+      done(new Error("not"));
+    });
+    socket1.on("a", partialDone);
+    socket2.on("b", partialDone);
+
+    socket1.emit("join", "woot");
+    socket1.emit("join", "test");
+    socket2.emit("join", "third", () => {
+      socket2.emit("emit");
+    });
+
+    io.on("connection", (socket) => {
+      socket.on("join", (room, fn) => {
+        socket.join(room);
+        fn && fn();
+      });
+
+      socket.on("emit", () => {
+        io.in(new Set(["woot", "test"])).emit("a");
+        io.in(new Set(["third"])).emit("b");
+      });
+    });
+  });
+
   it("broadcasts to rooms", (done) => {
     const io = new Server(0);
     const socket1 = createClient(io, "/", { multiplex: false });
