@@ -275,7 +275,10 @@ long-polling, or in the WebSocket frame).
 + binary attachments extracted
 ```
 
-Note: the namespace is only included if it is different from the main namespace (`/`)
+Notes:
+
+- the namespace is only included if it is different from the main namespace (`/`)
+- with the built-in parser, the namespace is delimited by a comma and there is no escape sequence, so a namespace encoded with this parser MUST NOT contain a comma. Custom parsers MAY define different rules.
 
 ### Examples
 
