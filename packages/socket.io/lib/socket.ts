@@ -529,17 +529,11 @@ export class Socket<
     debug("got packet %j", packet);
     switch (packet.type) {
       case PacketType.EVENT:
-        this.onevent(packet);
-        break;
-
       case PacketType.BINARY_EVENT:
         this.onevent(packet);
         break;
 
       case PacketType.ACK:
-        this.onack(packet);
-        break;
-
       case PacketType.BINARY_ACK:
         this.onack(packet);
         break;
