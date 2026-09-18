@@ -139,6 +139,14 @@ export abstract class Transport extends Emitter<
    */
   protected onData(data: RawData) {
     const packet = decodePacket(data, this.socket.binaryType);
+    if ("close" === packet.type) {
+      debug("got close packet");
+      if (this.readyState === "opening" || this.readyState === "open") {
+        this.doClose();
+        this.onClose({ description: "transport closed by the server" });
+      }
+      return;
+    }
     this.onPacket(packet);
   }
 
