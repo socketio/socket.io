@@ -902,7 +902,7 @@ export class Server<
    * @param room - a room, or an array of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public to(room: Room | Room[]) {
+  public to(room: Room | Room[] | Set<Room>) {
     return this.sockets.to(room);
   }
 
@@ -916,7 +916,7 @@ export class Server<
    * @param room - a room, or an array of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public in(room: Room | Room[]) {
+  public in(room: Room | Room[] | Set<Room>) {
     return this.sockets.in(room);
   }
 
@@ -936,7 +936,7 @@ export class Server<
    * @param room - a room, or an array of rooms
    * @return a new {@link BroadcastOperator} instance for chaining
    */
-  public except(room: Room | Room[]) {
+  public except(room: Room | Room[] | Set<Room>) {
     return this.sockets.except(room);
   }
 
@@ -1144,7 +1144,7 @@ export class Server<
    *
    * @param room - a room, or an array of rooms
    */
-  public socketsJoin(room: Room | Room[]) {
+  public socketsJoin(room: Room | Room[] | Set<Room>) {
     return this.sockets.socketsJoin(room);
   }
 
@@ -1162,7 +1162,7 @@ export class Server<
    *
    * @param room - a room, or an array of rooms
    */
-  public socketsLeave(room: Room | Room[]) {
+  public socketsLeave(room: Room | Room[] | Set<Room>) {
     return this.sockets.socketsLeave(room);
   }
 
