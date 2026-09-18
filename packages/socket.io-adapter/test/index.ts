@@ -317,6 +317,120 @@ describe("socket.io-adapter", () => {
     });
   });
 
+  describe("broadcastWithAck", () => {
+    it("should clean up socket.acks after timeout", (done) => {
+      const acks1 = new Map();
+      const acks2 = new Map();
+      let _ids = 0;
+
+      function socket(id, acks) {
+        return [
+          id,
+          {
+            id,
+            acks,
+            client: {
+              writeToEngine() {},
+            },
+          },
+        ];
+      }
+
+      const nsp = {
+        _ids,
+        name: "/",
+        server: {
+          encoder: {
+            encode() {
+              return ["123"];
+            },
+          },
+        },
+        // @ts-ignore
+        sockets: new Map([socket("s1", acks1), socket("s2", acks2)]),
+      };
+
+      const adapter = new Adapter(nsp);
+      adapter.addAll("s1", new Set(["r1"]));
+      adapter.addAll("s2", new Set(["r1"]));
+
+      const ackFn = () => {};
+
+      adapter.broadcastWithAck(
+        { type: 2, data: ["test", ackFn] },
+        {
+          rooms: new Set(["r1"]),
+          except: new Set(),
+          flags: { timeout: 50 },
+        },
+        () => {},
+        ackFn,
+      );
+
+      // acks should be set immediately
+      expect(acks1.size).to.be(1);
+      expect(acks2.size).to.be(1);
+
+      // acks should be cleaned up after timeout
+      setTimeout(() => {
+        expect(acks1.size).to.be(0);
+        expect(acks2.size).to.be(0);
+        done();
+      }, 100);
+    });
+
+    it("should not set cleanup timer when no timeout is specified", () => {
+      const acks1 = new Map();
+      let _ids = 0;
+
+      function socket(id, acks) {
+        return [
+          id,
+          {
+            id,
+            acks,
+            client: {
+              writeToEngine() {},
+            },
+          },
+        ];
+      }
+
+      const nsp = {
+        _ids,
+        name: "/",
+        server: {
+          encoder: {
+            encode() {
+              return ["123"];
+            },
+          },
+        },
+        // @ts-ignore
+        sockets: new Map([socket("s1", acks1)]),
+      };
+
+      const adapter = new Adapter(nsp);
+      adapter.addAll("s1", new Set(["r1"]));
+
+      const ackFn = () => {};
+
+      adapter.broadcastWithAck(
+        { type: 2, data: ["test", ackFn] },
+        {
+          rooms: new Set(["r1"]),
+          except: new Set(),
+          flags: {},
+        },
+        () => {},
+        ackFn,
+      );
+
+      // acks should be set
+      expect(acks1.size).to.be(1);
+    });
+  });
+
   describe("connection state recovery", () => {
     it("should persist and restore session", async () => {
       const adapter = new SessionAwareAdapter({
