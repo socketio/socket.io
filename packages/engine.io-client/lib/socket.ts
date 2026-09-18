@@ -348,6 +348,13 @@ export class SocketWithoutUpgrade extends Emitter<
    * callback is not fired on time. This can happen for example when a laptop is suspended or when a phone is locked.
    */
   private _pingTimeoutTime = Infinity;
+  /**
+   * Timestamp of the last packet received from the server, of any type. Used
+   * by the ping timeout check as a cheap liveness signal, so a server that is
+   * clearly still sending data isn't considered dead just because its next
+   * ping happens to be delayed (e.g. behind a backlog on its own end).
+   */
+  private _lastPacketTime: number = Date.now();
   private clearTimeoutFn: typeof clearTimeout;
   private readonly _beforeunloadEventListener: () => void;
   private readonly _offlineEventListener: () => void;
@@ -603,6 +610,7 @@ export class SocketWithoutUpgrade extends Emitter<
 
       // Socket is live - any packet counts
       this.emitReserved("heartbeat");
+      this._lastPacketTime = Date.now();
 
       switch (packet.type) {
         case "open":
@@ -662,11 +670,43 @@ export class SocketWithoutUpgrade extends Emitter<
     const delay = this._pingInterval + this._pingTimeout;
     this._pingTimeoutTime = Date.now() + delay;
     this._pingTimeoutTimer = this.setTimeoutFn(() => {
-      this._onClose("ping timeout");
+      this._checkPingTimeout(delay);
     }, delay);
     if (this.opts.autoUnref) {
       this._pingTimeoutTimer.unref();
     }
+  }
+
+  /**
+   * Called when the ping timeout timer fires. Rather than closing the
+   * connection unconditionally, this checks whether any packet has been
+   * received recently enough that the server is clearly still alive, and if
+   * so, extends the wait instead of giving up - mirroring the same check on
+   * the server side (see `Socket#checkPingTimeout` in the `engine.io`
+   * package), which needed the equivalent client-side change to actually take
+   * effect: without it, a client that stopped hearing new pings (because the
+   * server's own next ping was delayed while it waited on a slow pong) would
+   * disconnect on its own regardless of what the server decided.
+   *
+   * @param delay - the ping timeout duration to apply, in milliseconds
+   * @private
+   */
+  private _checkPingTimeout(delay: number) {
+    const elapsedSinceLastPacket = Date.now() - this._lastPacketTime;
+
+    if (elapsedSinceLastPacket < delay) {
+      const remaining = delay - elapsedSinceLastPacket;
+      this._pingTimeoutTime = Date.now() + remaining;
+      this._pingTimeoutTimer = this.setTimeoutFn(() => {
+        this._checkPingTimeout(delay);
+      }, remaining);
+      if (this.opts.autoUnref) {
+        this._pingTimeoutTimer.unref();
+      }
+      return;
+    }
+
+    this._onClose("ping timeout");
   }
 
   /**
@@ -755,6 +795,14 @@ export class SocketWithoutUpgrade extends Emitter<
 
     const hasExpired = Date.now() > this._pingTimeoutTime;
     if (hasExpired) {
+      const delay = this._pingInterval + this._pingTimeout;
+      const elapsedSinceLastPacket = Date.now() - this._lastPacketTime;
+
+      if (elapsedSinceLastPacket < delay) {
+        this._pingTimeoutTime = Date.now() + (delay - elapsedSinceLastPacket);
+        return false;
+      }
+
       debug("throttled timer detected, scheduling connection close");
       this._pingTimeoutTime = 0;
 

@@ -999,6 +999,101 @@ describe("server", () => {
       });
     });
 
+    it("should not trigger a ping timeout on the server if other packets are received while waiting for the pong", (done) => {
+      // pingInterval/pingTimeout are kept short and distinct so a bug here
+      // reliably shows up as a premature close within the test's own window,
+      // without needing to wait out multiple full cycles.
+      const opts = { allowUpgrades: false, pingInterval: 50, pingTimeout: 30 };
+      const engine = listen(opts, (port) => {
+        const socket = new ClientSocket(`ws://localhost:${port}`);
+        let serverClosed = false;
+        let messageInterval;
+
+        engine.on("connection", (conn) => {
+          conn.on("close", () => {
+            serverClosed = true;
+          });
+        });
+
+        socket.on("open", () => {
+          // This test is scoped to the server's own decision, so the client's
+          // independent ping timeout watchdog (covered separately below) is
+          // neutralized here - otherwise the client would eventually give up
+          // waiting for a next ping of its own accord (since the server never
+          // gets to send one without a pong to resume its own cycle from),
+          // which would mask whether the server's check is actually correct.
+          socket._resetPingTimeout = () => {};
+
+          // Suppress the client's automatic "ping" -> "pong" reply (simulating
+          // a pong that is delayed or lost behind other traffic), while still
+          // dispatching every other packet type as usual.
+          socket[sendPacketMethod] = (
+            (original) => (type, data, options, fn) => {
+              if (type === "pong") return;
+              return original(type, data, options, fn);
+            }
+          )(socket[sendPacketMethod].bind(socket));
+
+          // Keep sending "message" packets well within pingTimeout (30ms) of
+          // each other, so the connection should look alive to the server
+          // even though no pong ever arrives.
+          messageInterval = setInterval(() => socket.send("still here"), 10);
+        });
+
+        setTimeout(() => {
+          clearInterval(messageInterval);
+          expect(serverClosed).to.be(false);
+          socket.close();
+          engine.httpServer.close();
+          done();
+        }, 250); // several multiples of pingInterval + pingTimeout
+      });
+    });
+
+    it("should not trigger a ping timeout on the client if other packets are received while waiting for the next ping", (done) => {
+      // Symmetric counterpart of the test above: here the *server's* ping
+      // schedule is what's stalled (simulating it never getting a pong to
+      // resume its own cycle from), while both ends keep exchanging ordinary
+      // "message" packets. The client should not give up on its own accord
+      // just because no fresh ping arrives.
+      const opts = { allowUpgrades: false, pingInterval: 50, pingTimeout: 30 };
+      const engine = listen(opts, (port) => {
+        const socket = new ClientSocket(`ws://localhost:${port}`);
+        let clientClosed = false;
+        let clientMessageInterval;
+
+        socket.on("open", () => {
+          clientMessageInterval = setInterval(
+            () => socket.send("client alive"),
+            10,
+          );
+        });
+        socket.on("close", () => {
+          clientClosed = true;
+        });
+
+        engine.on("connection", (conn) => {
+          const originalSendPacket = conn.sendPacket.bind(conn);
+          conn.sendPacket = (type, data, options, fn) => {
+            if (type === "ping") return;
+            return originalSendPacket(type, data, options, fn);
+          };
+          const serverMessageInterval = setInterval(() => {
+            if (conn.readyState === "open") conn.send("still here");
+          }, 10);
+          conn.on("close", () => clearInterval(serverMessageInterval));
+        });
+
+        setTimeout(() => {
+          clearInterval(clientMessageInterval);
+          expect(clientClosed).to.be(false);
+          socket.close();
+          engine.httpServer.close();
+          done();
+        }, 250);
+      });
+    });
+
     it("should trigger when server closes a client", (done) => {
       const engine = listen({ allowUpgrades: false }, (port) => {
         const socket = new ClientSocket(`ws://localhost:${port}`);
