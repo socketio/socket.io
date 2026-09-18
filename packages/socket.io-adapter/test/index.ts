@@ -26,6 +26,19 @@ describe("socket.io-adapter", () => {
     expect(adapter.sids.has("s2")).to.be(false);
   });
 
+  it("should remove multiple rooms with a single call", () => {
+    const adapter = new Adapter({ server: { encoder: null } });
+    adapter.addAll("s1", new Set(["r1", "r2", "r3"]));
+
+    adapter.del("s1", new Set(["r1", "r3"]));
+
+    expect(adapter.rooms.has("r1")).to.be(false);
+    expect(adapter.rooms.has("r3")).to.be(false);
+    expect(adapter.rooms.has("r2")).to.be(true);
+    expect(adapter.sids.get("s1").size).to.be(1);
+    expect(adapter.sids.get("s1").has("r2")).to.be(true);
+  });
+
   it("should return a list of sockets", async () => {
     const adapter = new Adapter({
       server: { encoder: null },
