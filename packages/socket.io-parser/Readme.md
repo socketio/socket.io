@@ -1,4 +1,5 @@
 
+
 # socket.io-parser
 
 [![Build Status](https://github.com/socketio/socket.io-parser/workflows/CI/badge.svg)](https://github.com/socketio/socket.io-parser/actions)

@@ -1,4 +1,5 @@
 
+
 # socket.io-client
 
 [![Build Status](https://github.com/socketio/socket.io-client/workflows/CI/badge.svg?branch=main)](https://github.com/socketio/socket.io-client/actions)

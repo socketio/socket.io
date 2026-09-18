@@ -58,12 +58,6 @@ if (process.env.CI === "true") {
       "sauce:options": BASE_SAUCE_OPTIONS,
     },
     {
-      browserName: "internet explorer",
-      browserVersion: "10",
-      platformName: "Windows 8",
-      "sauce:options": BASE_SAUCE_OPTIONS,
-    },
-    {
       browserName: "safari",
       browserVersion: "latest",
       platformName: "macOS 12",
