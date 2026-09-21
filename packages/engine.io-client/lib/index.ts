@@ -5,9 +5,9 @@ export {
   HandshakeData,
   SocketOptions,
   SocketReservedEvents,
-  SocketWithoutUpgrade,
-  SocketWithUpgrade,
   WriteOptions,
+  TransportCtor,
+  TransportName,
 } from "./socket.js";
 export const protocol = Socket.protocol;
 export {
