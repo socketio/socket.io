@@ -685,11 +685,17 @@ export abstract class BaseServer extends EventEmitter {
  *
  * @see https://nodejs.org/api/http.html#class-httpserverresponse
  */
-class WebSocketResponse {
+class WebSocketResponse extends EventEmitter {
+  /**
+   * The status code of the handshake response written by the "ws" package.
+   */
+  public statusCode = 101;
+
   constructor(
     readonly req,
     readonly socket: Duplex,
   ) {
+    super();
     // temporarily store the response headers on the req object (see the "headers" event)
     req[kResponseHeaders] = {};
   }
@@ -875,6 +881,11 @@ export class Server extends BaseServer {
 
       // delegate to ws
       this.ws.handleUpgrade(engineRequest, socket, head, (websocket) => {
+        // the handshake response has been written, so middlewares which track the
+        // response lifecycle (loggers, metrics) can now complete
+        res.emit("finish");
+        res.emit("close");
+
         this.onWebSocket(engineRequest, socket, websocket);
       });
     };

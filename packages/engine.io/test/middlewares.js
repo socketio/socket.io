@@ -249,6 +249,38 @@ describe("middlewares", () => {
     });
   });
 
+  it("should support middlewares that track the response lifecycle (websocket)", function (done) {
+    // the uWebSockets.js server has its own response wrapper, see ResponseWrapper in lib/userver.ts
+    if (process.env.EIO_WS_ENGINE === "uws") {
+      return this.skip();
+    }
+    const engine = listen((port) => {
+      let responseClosed = false;
+
+      engine.use((req, res, next) => {
+        // response loggers such as pino-http register listeners on the response
+        res.on("close", () => {
+          responseClosed = true;
+        });
+        next();
+      });
+
+      const socket = new WebSocket(
+        `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`,
+      );
+
+      socket.on("open", () => {
+        expect(responseClosed).to.be(true);
+
+        socket.close();
+        if (engine.httpServer) {
+          engine.httpServer.close();
+        }
+        done();
+      });
+    });
+  });
+
   it("should fail on errors (polling)", (done) => {
     const engine = listen((port) => {
       engine.use((req, res, next) => {
