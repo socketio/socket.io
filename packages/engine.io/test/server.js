@@ -1642,13 +1642,22 @@ describe("server", () => {
           const socket = new ClientSocket(`ws://localhost:${port}`, {
             transports: ["websocket"],
           });
+          const onClose = socket.transport.onClose;
+          let onCloseCalls = 0;
+          socket.transport.onClose = function (details) {
+            onCloseCalls++;
+            return onClose.call(this, details);
+          };
           socket.on("close", (reason, description) => {
             expect(reason).to.eql("transport close");
             // same wording as the polling transport, for consistency
             expect(description.description).to.eql(
               "transport closed by the server",
             );
-            done();
+            setTimeout(() => {
+              expect(onCloseCalls).to.eql(1);
+              done();
+            }, 10);
           });
         });
       });
