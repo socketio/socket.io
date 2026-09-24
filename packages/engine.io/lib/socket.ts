@@ -56,8 +56,23 @@ export class Socket extends EventEmitter {
   private packetsFn: SendCallback[] = [];
   private sentCallbackFn: SendCallback[][] = [];
   private cleanupFn: any[] = [];
-  private pingTimeoutTimer;
-  private pingIntervalTimer;
+  /**
+   * Timer used to detect an expired heartbeat.
+   *
+   * For protocol v3, the timer is reset after each client PING.
+   * For protocol v4, the timer is set after sending a server PING and is
+   * cleared once the matching client PONG is received.
+   */
+  private pingTimeoutTimer: NodeJS.Timeout | null = null;
+  /**
+   * Timer used to schedule the next server PING (only for protocol v4).
+   */
+  private pingIntervalTimer: NodeJS.Timeout | null = null;
+  /**
+   * Whether the current protocol v4 ping timeout has already been extended
+   * because another packet was received while waiting for a PONG.
+   */
+  private hasRefreshedPingTimeout = false;
 
   /**
    * This is the session identifier that the client will use in the subsequent HTTP requests. It must not be shared with
@@ -100,9 +115,6 @@ export class Socket extends EventEmitter {
       // TODO there is currently no way to get the IP address of the client when it connects with WebTransport
       //  see https://github.com/fails-components/webtransport/issues/114
     }
-
-    this.pingTimeoutTimer = null;
-    this.pingIntervalTimer = null;
 
     this.setTransport(transport);
     this.onOpen();
@@ -158,6 +170,17 @@ export class Socket extends EventEmitter {
     debug(`received packet ${packet.type}`);
     this.emit("packet", packet);
 
+    if (
+      this.protocol !== 3 &&
+      this.pingTimeoutTimer !== null &&
+      !this.hasRefreshedPingTimeout &&
+      packet.type !== "pong"
+    ) {
+      debug("got packet while waiting for pong - refreshing ping timeout");
+      this.pingTimeoutTimer.refresh();
+      this.hasRefreshedPingTimeout = true;
+    }
+
     switch (packet.type) {
       case "ping":
         if (this.protocol !== 3) {
@@ -177,6 +200,7 @@ export class Socket extends EventEmitter {
         }
         debug("got pong");
         clearTimeout(this.pingTimeoutTimer);
+        this.pingTimeoutTimer = null;
         this.pingIntervalTimer?.refresh();
         this.emit("heartbeat");
         break;
@@ -215,6 +239,7 @@ export class Socket extends EventEmitter {
         "writing ping packet - expecting pong within %sms",
         this.server.opts.pingTimeout,
       );
+      this.hasRefreshedPingTimeout = false;
       this.sendPacket("ping");
       this.resetPingTimeout();
     }, this.server.opts.pingInterval);
@@ -403,6 +428,7 @@ export class Socket extends EventEmitter {
     this.transport.close();
 
     clearTimeout(this.pingTimeoutTimer);
+    this.pingTimeoutTimer = null;
   }
 
   /**
