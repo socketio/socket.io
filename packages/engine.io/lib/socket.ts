@@ -56,8 +56,8 @@ export class Socket extends EventEmitter {
   private packetsFn: SendCallback[] = [];
   private sentCallbackFn: SendCallback[][] = [];
   private cleanupFn: any[] = [];
-  private pingTimeoutTimer;
-  private pingIntervalTimer;
+  private pingTimeoutTimer: NodeJS.Timeout | null = null;
+  private pingIntervalTimer: NodeJS.Timeout | null = null;
 
   /**
    * This is the session identifier that the client will use in the subsequent HTTP requests. It must not be shared with
@@ -100,9 +100,6 @@ export class Socket extends EventEmitter {
       // TODO there is currently no way to get the IP address of the client when it connects with WebTransport
       //  see https://github.com/fails-components/webtransport/issues/114
     }
-
-    this.pingTimeoutTimer = null;
-    this.pingIntervalTimer = null;
 
     this.setTransport(transport);
     this.onOpen();
@@ -158,6 +155,15 @@ export class Socket extends EventEmitter {
     debug(`received packet ${packet.type}`);
     this.emit("packet", packet);
 
+    if (
+      this.protocol !== 3 &&
+      this.pingTimeoutTimer !== null &&
+      packet.type !== "pong"
+    ) {
+      debug("got packet while waiting for pong - refreshing ping timeout");
+      this.pingTimeoutTimer.refresh();
+    }
+
     switch (packet.type) {
       case "ping":
         if (this.protocol !== 3) {
@@ -177,6 +183,7 @@ export class Socket extends EventEmitter {
         }
         debug("got pong");
         clearTimeout(this.pingTimeoutTimer);
+        this.pingTimeoutTimer = null;
         this.pingIntervalTimer?.refresh();
         this.emit("heartbeat");
         break;
@@ -403,6 +410,7 @@ export class Socket extends EventEmitter {
     this.transport.close();
 
     clearTimeout(this.pingTimeoutTimer);
+    this.pingTimeoutTimer = null;
   }
 
   /**
