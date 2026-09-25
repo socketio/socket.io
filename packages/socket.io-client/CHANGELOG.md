@@ -1,55 +1,81 @@
 # Changelog
 
-| Version                                                                                                     | Release date   | Bundle size (UMD min+gzip) |
-|-------------------------------------------------------------------------------------------------------------|----------------|----------------------------|
-| [4.8.3](#483-2025-12-23)                                                                                    | December 2025  | `14.4 KB`                  |
-| [4.8.2](#482-2025-12-22)                                                                                    | December 2025  | `14.4 KB`                  |
-| [4.8.1](#481-2024-10-25)                                                                                    | October 2024   | `14.4 KB`                  |
-| [4.8.0](#480-2024-09-21)                                                                                    | September 2024 | `14.4 KB`                  |
-| [4.7.5](#475-2024-03-14)                                                                                    | March 2024     | `14.6 KB`                  |
-| [4.7.4](#474-2024-01-12)                                                                                    | January 2024   | `14.5 KB`                  |
-| [4.7.3](#473-2024-01-03)                                                                                    | January 2024   | `14.5 KB`                  |
-| [4.7.2](#472-2023-08-02)                                                                                    | August 2023    | `14.5 KB`                  |
-| [4.7.1](#471-2023-06-28)                                                                                    | June 2023      | `14.1 KB`                  |
-| [4.7.0](#470-2023-06-22)                                                                                    | June 2023      | `14.0 KB`                  |
-| [4.6.2](#462-2023-05-31)                                                                                    | May 2023       | `13.4 KB`                  |
-| [4.6.1](#461-2023-02-20)                                                                                    | February 2023  | `13.3 KB`                  |
-| [4.6.0](#460-2023-02-07)                                                                                    | February 2023  | `13.3 KB`                  |
-| [4.5.4](#454-2022-11-22)                                                                                    | November 2022  | `12.8 KB`                  |
-| [4.5.3](#453-2022-10-15)                                                                                    | October 2022   | `12.8 KB`                  |
-| [4.5.2](#452-2022-09-02)                                                                                    | September 2022 | `12.7 KB`                  |
-| [2.5.0](#250-2022-06-26) (from the [2.x](https://github.com/socketio/socket.io-client/tree/2.x) branch)     | June 2022      | `18.8 KB`                  |
-| [4.5.1](#451-2022-05-17)                                                                                    | May 2022       | `12.7 KB`                  |
-| [4.5.0](#450-2022-04-23)                                                                                    | April 2022     | `12.7 KB`                  |
-| [4.4.1](#441-2022-01-06)                                                                                    | January 2022   | `12.3 KB`                  |
-| [4.4.0](#440-2021-11-18)                                                                                    | November 2021  | `12.3 KB`                  |
-| [4.3.2](#432-2021-10-16)                                                                                    | October 2021   | `12.1 KB`                  |
-| [4.3.1](#431-2021-10-15)                                                                                    | October 2021   | `12.1 KB`                  |
-| [4.3.0](#430-2021-10-14)                                                                                    | October 2021   | `12.1 KB`                  |
-| [4.2.0](#420-2021-08-30)                                                                                    | August 2021    | `15.2 KB`                  |
-| [4.1.3](#413-2021-07-10)                                                                                    | July 2021      | `14.9 KB`                  |
-| [4.1.2](#412-2021-05-17)                                                                                    | May 2021       | `14.9 KB`                  |
-| [4.1.1](#411-2021-05-11)                                                                                    | May 2021       | `14.9 KB`                  |
-| [4.1.0](#410-2021-05-11)                                                                                    | May 2021       | `14.9 KB`                  |
-| [4.0.2](#402-2021-05-06)                                                                                    | May 2021       | `14.9 KB`                  |
-| [4.0.1](#401-2021-03-31)                                                                                    | March 2021     | `14.9 KB`                  |
-| [3.1.3](#313-2021-03-12) (from the [3.1.x](https://github.com/socketio/socket.io-client/tree/3.1.x) branch) | March 2021     | `14.6 KB`                  |
-| [**4.0.0**](#400-2021-03-10)                                                                                | March 2021     | `14.9 KB`                  |
-| [3.1.2](#312-2021-02-26)                                                                                    | February 2021  | `14.6 KB`                  |
-| [3.1.1](#311-2021-02-03)                                                                                    | February 2021  | `14.5 KB`                  |
-| [3.1.0](#310-2021-01-15)                                                                                    | January 2021   | `14.5 KB`                  |
-| [3.0.5](#305-2021-01-05)                                                                                    | January 2021   | `14.5 KB`                  |
-| [2.4.0](#240-2021-01-04) (from the [2.x](https://github.com/socketio/socket.io-client/tree/2.x) branch)     | January 2021   | `18.8 KB`                  |
-| [3.0.4](#304-2020-12-07)                                                                                    | December 2020  | `14.6 KB`                  |
-| [3.0.3](#303-2020-11-19)                                                                                    | November 2020  | `14.5 KB`                  |
-| [3.0.2](#302-2020-11-17)                                                                                    | November 2020  | `14.5 KB`                  |
-| [3.0.1](#301-2020-11-09)                                                                                    | November 2020  | `14.7 KB`                  |
-| [**3.0.0**](#300-2020-11-05)                                                                                | November 2020  | `14.6 KB`                  |
-| [2.3.1](#231-2020-09-30)                                                                                    | September 2020 | `18.8 KB`                  |
-| [2.3.0](#230-2019-09-20)                                                                                    | September 2019 | `19.6 KB`                  |
-| [2.2.0](#220-2018-11-29)                                                                                    | November 2018  | `18.6 KB`                  |
-| [2.1.1](#211-2018-05-17)                                                                                    | May 2018       | `18.7 KB`                  |
-| [2.1.0](#210-2018-03-29)                                                                                    | March 2018     | `18.7 KB`                  |
+| Version                      | Release date   | Bundle size (UMD min+gzip) |
+|------------------------------|----------------|----------------------------|
+| [4.8.4](#484-2026-09-25)     | September 2026 | `14.5 KB`                  |
+| [4.8.3](#483-2025-12-23)     | December 2025  | `14.4 KB`                  |
+| [4.8.2](#482-2025-12-22)     | December 2025  | `14.4 KB`                  |
+| [4.8.1](#481-2024-10-25)     | October 2024   | `14.4 KB`                  |
+| [4.8.0](#480-2024-09-21)     | September 2024 | `14.4 KB`                  |
+| [4.7.5](#475-2024-03-14)     | March 2024     | `14.6 KB`                  |
+| [4.7.4](#474-2024-01-12)     | January 2024   | `14.5 KB`                  |
+| [4.7.3](#473-2024-01-03)     | January 2024   | `14.5 KB`                  |
+| [4.7.2](#472-2023-08-02)     | August 2023    | `14.5 KB`                  |
+| [4.7.1](#471-2023-06-28)     | June 2023      | `14.1 KB`                  |
+| [4.7.0](#470-2023-06-22)     | June 2023      | `14.0 KB`                  |
+| [4.6.2](#462-2023-05-31)     | May 2023       | `13.4 KB`                  |
+| [4.6.1](#461-2023-02-20)     | February 2023  | `13.3 KB`                  |
+| [4.6.0](#460-2023-02-07)     | February 2023  | `13.3 KB`                  |
+| [4.5.4](#454-2022-11-22)     | November 2022  | `12.8 KB`                  |
+| [4.5.3](#453-2022-10-15)     | October 2022   | `12.8 KB`                  |
+| [4.5.2](#452-2022-09-02)     | September 2022 | `12.7 KB`                  |
+| [4.5.1](#451-2022-05-17)     | May 2022       | `12.7 KB`                  |
+| [4.5.0](#450-2022-04-23)     | April 2022     | `12.7 KB`                  |
+| [4.4.1](#441-2022-01-06)     | January 2022   | `12.3 KB`                  |
+| [4.4.0](#440-2021-11-18)     | November 2021  | `12.3 KB`                  |
+| [4.3.2](#432-2021-10-16)     | October 2021   | `12.1 KB`                  |
+| [4.3.1](#431-2021-10-15)     | October 2021   | `12.1 KB`                  |
+| [4.3.0](#430-2021-10-14)     | October 2021   | `12.1 KB`                  |
+| [4.2.0](#420-2021-08-30)     | August 2021    | `15.2 KB`                  |
+| [4.1.3](#413-2021-07-10)     | July 2021      | `14.9 KB`                  |
+| [4.1.2](#412-2021-05-17)     | May 2021       | `14.9 KB`                  |
+| [4.1.1](#411-2021-05-11)     | May 2021       | `14.9 KB`                  |
+| [4.1.0](#410-2021-05-11)     | May 2021       | `14.9 KB`                  |
+| [4.0.2](#402-2021-05-06)     | May 2021       | `14.9 KB`                  |
+| [4.0.1](#401-2021-03-31)     | March 2021     | `14.9 KB`                  |
+| [**4.0.0**](#400-2021-03-10) | March 2021     | `14.9 KB`                  |
+| [3.1.2](#312-2021-02-26)     | February 2021  | `14.6 KB`                  |
+| [3.1.1](#311-2021-02-03)     | February 2021  | `14.5 KB`                  |
+| [3.1.0](#310-2021-01-15)     | January 2021   | `14.5 KB`                  |
+| [3.0.5](#305-2021-01-05)     | January 2021   | `14.5 KB`                  |
+| [3.0.4](#304-2020-12-07)     | December 2020  | `14.6 KB`                  |
+| [3.0.3](#303-2020-11-19)     | November 2020  | `14.5 KB`                  |
+| [3.0.2](#302-2020-11-17)     | November 2020  | `14.5 KB`                  |
+| [3.0.1](#301-2020-11-09)     | November 2020  | `14.7 KB`                  |
+| [**3.0.0**](#300-2020-11-05) | November 2020  | `14.6 KB`                  |
+| [2.3.1](#231-2020-09-30)     | September 2020 | `18.8 KB`                  |
+| [2.3.0](#230-2019-09-20)     | September 2019 | `19.6 KB`                  |
+| [2.2.0](#220-2018-11-29)     | November 2018  | `18.6 KB`                  |
+| [2.1.1](#211-2018-05-17)     | May 2018       | `18.7 KB`                  |
+| [2.1.0](#210-2018-03-29)     | March 2018     | `18.7 KB`                  |
+
+From the [2.x](https://github.com/socketio/socket.io-client/tree/2.x) branch:
+
+| Version                  | Release date | Bundle size (UMD min+gzip) |
+|--------------------------|--------------|----------------------------|
+| [2.5.0](#250-2022-06-26) | June 2022    | `18.8 KB`                  |
+| [2.4.0](#240-2021-01-04) | January 2021 | `18.8 KB`                  |
+
+From the [3.1.x](https://github.com/socketio/socket.io-client/tree/3.1.x) branch:
+
+| Version                  | Release date | Bundle size (UMD min+gzip) |
+|--------------------------|--------------|----------------------------|
+| [3.1.3](#313-2021-03-12) | March 2021   | `14.6 KB`                  |
+
+
+## [4.8.4](https://github.com/socketio/socket.io/compare/socket.io-client%404.8.3...socket.io-client%404.8.4) (2026-09-25)
+
+
+### Bug Fixes
+
+* **types:** export ExtendedError for connect_error event ([#5548](https://github.com/socketio/socket.io/issues/5548)) ([c0d5450](https://github.com/socketio/socket.io/commit/c0d54509fbe7dafd3ed8b5a2f3f74a12810da4a3))
+* **types:** export reserved event interfaces ([#5533](https://github.com/socketio/socket.io/issues/5533)) ([03945df](https://github.com/socketio/socket.io/commit/03945df6b750dfa6379305ef29ea4235a424ca47))
+
+
+### Dependencies
+
+- [`engine.io-client@~6.6.1`](https://github.com/socketio/socket.io/releases/tag/engine.io-client%406.6.7) (no change)
+- [`ws@~8.21.0`](https://github.com/websockets/ws/releases/tag/8.21.0) ([diff](https://github.com/websockets/ws/compare/8.18.3...8.21.0))
 
 
 ## [4.8.3](https://github.com/socketio/socket.io/compare/socket.io-client@4.8.2...socket.io-client@4.8.3) (2025-12-23)
@@ -59,7 +85,7 @@ There were some minor bug fixes on the server side, which mandate a client bump.
 
 ### Dependencies
 
-- [`engine.io-client@~6.6.1`](https://github.com/socketio/engine.io-client/releases/tag/6.5.2) (no change)
+- [`engine.io-client@~6.6.1`](https://github.com/socketio/socket.io/releases/tag/engine.io-client%406.6.1) (no change)
 - [`ws@~8.18.3`](https://github.com/websockets/ws/releases/tag/8.18.3) ([diff](https://github.com/websockets/ws/compare/8.17.1...8.18.3))
 
 
@@ -75,7 +101,7 @@ There were some minor bug fixes on the server side, which mandate a client bump.
 
 ### Dependencies
 
-- [`engine.io-client@~6.6.1`](https://github.com/socketio/engine.io-client/releases/tag/6.5.2) (no change)
+- [`engine.io-client@~6.6.1`](https://github.com/socketio/socket.io/releases/tag/engine.io-client%406.6.1) (no change)
 - [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) (no change)
 
 
@@ -90,7 +116,7 @@ There were some minor bug fixes on the server side, which mandate a client bump.
 
 ### Dependencies
 
-- [`engine.io-client@~6.6.1`](https://github.com/socketio/engine.io-client/releases/tag/6.5.2) (no change)
+- [`engine.io-client@~6.6.1`](https://github.com/socketio/socket.io/releases/tag/engine.io-client%406.6.1) (no change)
 - [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) (no change)
 
 
@@ -172,7 +198,7 @@ Added in [579b243](https://github.com/socketio/engine.io-client/commit/579b243e8
 
 ### Dependencies
 
-- [`engine.io-client@~6.6.1`](https://github.com/socketio/engine.io-client/releases/tag/6.5.2) ([diff](https://github.com/socketio/engine.io-client/compare/6.5.3...6.6.0) and [diff](https://github.com/socketio/socket.io/compare/engine.io-client@6.6.0...engine.io-client@6.6.1))
+- [`engine.io-client@~6.6.1`](https://github.com/socketio/socket.io/releases/tag/engine.io-client%406.6.1) ([diff](https://github.com/socketio/engine.io-client/compare/6.5.3...6.6.0) and [diff](https://github.com/socketio/socket.io/compare/engine.io-client@6.6.0...engine.io-client@6.6.1))
 - [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) ([diff](https://github.com/websockets/ws/compare/8.11.0...8.17.1))
 
 

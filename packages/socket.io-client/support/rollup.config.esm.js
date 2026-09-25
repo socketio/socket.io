@@ -1,6 +1,6 @@
 const { nodeResolve } = require("@rollup/plugin-node-resolve");
 const commonjs = require("@rollup/plugin-commonjs");
-const { terser } = require("@rollup/plugin-terser");
+const terser = require("@rollup/plugin-terser");
 
 const version = require("../package.json").version;
 const banner = `/*!
