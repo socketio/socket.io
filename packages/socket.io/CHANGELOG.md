@@ -52,6 +52,7 @@ From the [2.x](https://github.com/socketio/socket.io/tree/2.x) branch
 
 | Version                  | Release date |
 |--------------------------|--------------|
+| [2.5.1](#251-2024-06-19) | June 2024    |
 | [2.5.0](#250-2022-06-26) | June 2022    |
 | [2.4.1](#241-2021-01-07) | January 2021 |
 | [2.4.0](#240-2021-01-04) | January 2021 |
@@ -132,6 +133,21 @@ Due to a change in the bundler configuration, the production bundle (`socket.io.
 
 - [`engine.io@~6.6.0`](https://github.com/socketio/engine.io/releases/tag/6.5.2) ([diff](https://github.com/socketio/engine.io/compare/6.5.2...6.6.0) and [diff](https://github.com/socketio/socket.io/compare/engine.io@6.6.0...engine.io@6.6.1))
 - [`ws@~8.17.1`](https://github.com/websockets/ws/releases/tag/8.17.1) ([diff](https://github.com/websockets/ws/compare/8.11.0...8.17.1))
+
+
+
+## [2.5.1](https://github.com/socketio/socket.io/compare/2.5.0...2.5.1) (2024-06-19)
+
+
+### Bug Fixes
+
+* add a noop handler for the error event ([d30630b](https://github.com/socketio/socket.io/commit/d30630ba10562bf987f4d2b42440fc41a828119c))
+
+
+### Dependencies
+
+- [`engine.io@~3.6.0`](https://github.com/socketio/engine.io/releases/tag/3.6.0) (no change)
+- [`ws@~7.4.2`](https://github.com/websockets/ws/releases/tag/7.4.2) (no change)
 
 
 
