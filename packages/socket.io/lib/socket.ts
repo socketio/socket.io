@@ -836,6 +836,10 @@ export class Socket<
    *     if (isUnauthorized(event)) {
    *       return next(new Error("unauthorized event"));
    *     }
+   *     if (shouldDrop(event)) {
+   *       // return without next() to silently drop the packet
+   *       return;
+   *     }
    *     // do not forget to call next
    *     next();
    *   });
