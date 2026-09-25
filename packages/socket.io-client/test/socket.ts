@@ -596,6 +596,95 @@ describe("socket", () => {
       });
     });
 
+    it("should not flush a timed out event when the transport becomes writable again", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL + "/", {
+          forceNew: true,
+          transports: ["websocket"],
+        });
+
+        socket.on("connect", () => {
+          const engine = socket.io.engine;
+          engine.transport.writable = false;
+
+          const results: { one?: unknown; three?: unknown } = {};
+          let timedOut = false;
+
+          socket.emit("tracked", "one", (value) => {
+            results.one = value;
+            maybeDone();
+          });
+
+          socket.timeout(50).emit("tracked", "two", (err) => {
+            expect(err).to.be.an(Error);
+            timedOut = true;
+
+            engine.transport.writable = true;
+            // @ts-ignore flush remaining Engine.IO packets
+            engine.flush();
+          });
+
+          socket.timeout(1000).emit("tracked", "three", (err, value) => {
+            results.three = err || value;
+            maybeDone();
+          });
+
+          function maybeDone() {
+            if (results.one === undefined || results.three === undefined) {
+              return;
+            }
+
+            expect(timedOut).to.be(true);
+            expect(results.one).to.be("one");
+            expect(results.three).to.be("three");
+
+            socket.emit("getTracked", (events) => {
+              expect(events).to.eql(["one", "three"]);
+              success(done, socket);
+            });
+          }
+        });
+      });
+    });
+
+    it("should discard a timed out packet buffered by Engine.IO", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL + "/", {
+          forceNew: true,
+          transports: ["websocket"],
+        });
+
+        socket.on("connect", () => {
+          const engine = socket.io.engine;
+          engine.transport.writable = false;
+
+          const enginePackets = [];
+          const onPacketCreate = (packet) => {
+            enginePackets.push(packet);
+          };
+          engine.on("packetCreate", onPacketCreate);
+
+          socket.timeout(50).emit("tracked", Uint8Array.from([1]), (err) => {
+            expect(err).to.be.an(Error);
+            expect(enginePackets.length).to.be(2);
+            enginePackets.forEach((packet) => {
+              expect(engine.writeBuffer.indexOf(packet)).to.be(-1);
+            });
+
+            engine.transport.writable = true;
+            // @ts-ignore flush remaining Engine.IO packets
+            engine.flush();
+
+            socket.emit("getTracked", (events) => {
+              expect(events).to.eql([]);
+              success(done, socket);
+            });
+          });
+          engine.off("packetCreate", onPacketCreate);
+        });
+      });
+    });
+
     it("should timeout when the server does not acknowledge the event", () => {
       return wrap((done) => {
         const socket = io(BASE_URL + "/");
