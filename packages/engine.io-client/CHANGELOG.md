@@ -2,6 +2,7 @@
 
 | Version                      | Release date   | `ws` version | Bundle size (UMD min+gzip) |
 |------------------------------|----------------|--------------|----------------------------|
+| [6.6.7](#667-2026-09-25)     | September 2026 | `~8.21.0`    | `9.0 KB`                   |
 | [6.6.6](#666-2026-06-16)     | June 2026      | `~8.21.0`    | `8.9 KB`                   |
 | [6.6.5](#665-2026-05-20)     | May 2026       | `~8.20.1`    | `8.7 KB`                   |
 | [6.6.4](#664-2025-12-23)     | December 2025  | `~8.18.3`    | `8.7 KB`                   |
@@ -62,6 +63,20 @@ From the [4.1.x](https://github.com/socketio/engine.io-client/tree/4.1.x) branch
 | Version                  | Release date | `ws` version | Bundle size (UMD min+gzip) |
 |--------------------------|--------------|--------------|----------------------------|
 | [4.1.4](#414-2021-05-05) | May 2021     | `"`          | `9.1 KB`                   |
+
+
+## [6.6.7](https://github.com/socketio/socket.io/compare/engine.io-client%406.6.6...engine.io-client%406.6.7) (2026-09-25)
+
+
+### Bug Fixes
+
+* **types:** export reserved event interfaces ([#5533](https://github.com/socketio/socket.io/issues/5533)) ([ced7dfd](https://github.com/socketio/socket.io/commit/ced7dfdef2408e1cd078e6f8bb408e024cffc21b))
+* restore default transport resolution ([3df3fed](https://github.com/socketio/socket.io/commit/3df3fed075fd2312e84481786235aa14d08b8fe7))
+
+
+### Dependencies
+
+- [`ws@~8.21.0`](https://github.com/websockets/ws/releases/tag/8.21.0) (no change)
 
 
 
