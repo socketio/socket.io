@@ -395,22 +395,13 @@ export abstract class BaseServer extends EventEmitter {
       return callback();
     }
 
-    const apply = (i) => {
-      debug("applying middleware n°%d", i + 1);
-      this.middlewares[i](req, res, (err?: any) => {
-        if (err) {
-          return callback(err);
-        }
+    let chain = Promise.resolve();
 
-        if (i + 1 < this.middlewares.length) {
-          apply(i + 1);
-        } else {
-          callback();
-        }
-      });
-    };
+    for (const middleware of this.middlewares) {
+      chain = chain.then(() => runMiddleware(middleware, req, res));
+    }
 
-    apply(0);
+    chain.then(() => callback(), callback);
   }
 
   /**
@@ -1088,6 +1079,37 @@ function abortUpgrade(
     );
   }
   socket.destroy();
+}
+
+function runMiddleware(
+  middleware: Middleware,
+  req: IncomingMessage,
+  res: ServerResponse,
+) {
+  return new Promise<void>((resolve, reject) => {
+    let settled = false;
+
+    const next = (err?: any) => {
+      if (settled) {
+        debug("middleware already settled, ignoring extra callback");
+        return;
+      }
+
+      settled = true;
+
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    };
+
+    try {
+      Promise.resolve(middleware(req, res, next)).catch(next);
+    } catch (e) {
+      next(e);
+    }
+  });
 }
 
 /* eslint-disable */
