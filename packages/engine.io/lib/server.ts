@@ -397,17 +397,23 @@ export abstract class BaseServer extends EventEmitter {
 
     const apply = (i) => {
       debug("applying middleware n°%d", i + 1);
-      this.middlewares[i](req, res, (err?: any) => {
-        if (err) {
-          return callback(err);
-        }
+      try {
+        Promise.resolve(
+          this.middlewares[i](req, res, (err?: any) => {
+            if (err) {
+              return callback(err);
+            }
 
-        if (i + 1 < this.middlewares.length) {
-          apply(i + 1);
-        } else {
-          callback();
-        }
-      });
+            if (i + 1 < this.middlewares.length) {
+              apply(i + 1);
+            } else {
+              callback();
+            }
+          }),
+        ).catch(callback);
+      } catch (e) {
+        callback(e);
+      }
     };
 
     apply(0);
@@ -1116,7 +1122,7 @@ const validHdrChars = [
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1  // ... 255
-]
+];
 
 function checkInvalidHeaderChar(val?: string) {
   val += "";

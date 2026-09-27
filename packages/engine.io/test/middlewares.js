@@ -4,7 +4,7 @@ const request = require("superagent");
 const { WebSocket } = require("ws");
 const helmet = require("helmet");
 const session = require("express-session");
-const { ClientSocket } = require("./common");
+const { ClientSocket, createPartialDone } = require("./common");
 
 describe("middlewares", () => {
   it("should apply middleware (polling)", (done) => {
@@ -246,6 +246,36 @@ describe("middlewares", () => {
       socket.on("open", () => {
         socket.close();
       });
+    });
+  });
+
+  it("should fail on synchronous middleware errors (polling)", (done) => {
+    const partialDone = createPartialDone(done, 2);
+    const engine = listen((port) => {
+      engine.use(() => {
+        throw new Error("will always fail");
+      });
+
+      engine.on("connection_error", (err) => {
+        expect(err.req).to.be.ok();
+        expect(err.code).to.eql(3);
+        expect(err.message).to.eql("Bad request");
+        expect(err.context.name).to.eql("MIDDLEWARE_FAILURE");
+        partialDone();
+      });
+
+      request
+        .get(`http://localhost:${port}/engine.io/`)
+        .query({ EIO: 4, transport: "polling" })
+        .end((err, res) => {
+          expect(err).to.be.an(Error);
+          expect(res.status).to.eql(400);
+
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          partialDone();
+        });
     });
   });
 
