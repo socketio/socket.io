@@ -115,8 +115,7 @@ export class ParentNamespace<
 class ParentBroadcastAdapter extends Adapter {
   broadcast(packet: any, opts: BroadcastOptions) {
     this.nsp.children.forEach((nsp) => {
-      // Each child adapter may append its own recovery offset to the packet.
-      nsp.adapter.broadcast({ ...packet, data: [...packet.data] }, opts);
+      nsp.adapter.broadcast(packet, opts);
     });
   }
 }

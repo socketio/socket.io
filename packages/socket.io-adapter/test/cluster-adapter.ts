@@ -22,8 +22,8 @@ class EventEmitterAdapter extends ClusterAdapterWithHeartbeat {
     readonly eventBus,
   ) {
     super(nsp, {});
-    this.eventBus.on("message", (message) => {
-      this.onMessage(message as ClusterMessage);
+    this.eventBus.on("message", (message, offset) => {
+      this.onMessage(message as ClusterMessage, offset);
     });
   }
 
@@ -31,8 +31,9 @@ class EventEmitterAdapter extends ClusterAdapterWithHeartbeat {
     if (this.shouldFailPublish) {
       return Promise.reject(new Error("publish failed"));
     }
-    this.eventBus.emit("message", message);
-    return Promise.resolve(String(++this.offset));
+    const offset = String(++this.offset);
+    this.eventBus.emit("message", message, offset);
+    return Promise.resolve(offset);
   }
 
   protected doPublishResponse(
@@ -43,6 +44,77 @@ class EventEmitterAdapter extends ClusterAdapterWithHeartbeat {
     return Promise.resolve();
   }
 }
+
+describe("cluster adapter connection state recovery", () => {
+  for (const recovery of [false, true]) {
+    it(`should only copy packets when recovery is enabled (recovery: ${recovery})`, async () => {
+      const payload = { hello: "world" };
+      const binary = Buffer.from("hello");
+      const packet = {
+        nsp: "/",
+        type: 2,
+        data: ["hello", payload, binary],
+      };
+      const encodedPackets: (typeof packet)[] = [];
+      const eventBus = new EventEmitter();
+      const adapters = Array.from(
+        { length: 2 },
+        () =>
+          new EventEmitterAdapter(
+            {
+              name: "/",
+              server: {
+                encoder: {
+                  encode(packet) {
+                    encodedPackets.push(packet);
+                    return [];
+                  },
+                },
+                opts: {
+                  connectionStateRecovery: recovery ? {} : undefined,
+                },
+              },
+            },
+            eventBus,
+          ),
+      );
+
+      try {
+        for (let i = 0; i < 2; i++) {
+          await adapters[0].broadcast(packet, {
+            rooms: new Set(),
+            except: new Set(),
+          });
+        }
+
+        expect(packet.data).to.eql(["hello", payload, binary]);
+        expect(encodedPackets).to.have.length(4);
+        for (const encoded of encodedPackets) {
+          expect(encoded.data[1]).to.be(payload);
+          expect(encoded.data[2]).to.be(binary);
+          if (recovery) {
+            expect(encoded).to.not.be(packet);
+            expect(encoded.data).to.not.be(packet.data);
+            expect(encoded.data).to.have.length(4);
+            expect(encoded.data[3]).to.be.a("string");
+          } else {
+            expect(encoded).to.be(packet);
+            expect(encoded.data).to.be(packet.data);
+          }
+        }
+        if (recovery) {
+          expect(encodedPackets[0].data[3]).to.be(encodedPackets[1].data[3]);
+          expect(encodedPackets[2].data[3]).to.be(encodedPackets[3].data[3]);
+          expect(encodedPackets[0].data[3]).to.not.be(
+            encodedPackets[2].data[3],
+          );
+        }
+      } finally {
+        adapters.forEach((adapter) => adapter.close());
+      }
+    });
+  }
+});
 
 describe("cluster adapter", () => {
   let servers: Server[],
