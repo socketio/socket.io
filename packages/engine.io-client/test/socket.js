@@ -13,6 +13,56 @@ const { repeat } = require("./util");
 describe("Socket", function () {
   this.timeout(10000);
 
+  describe("_removeFromWriteBuffer", () => {
+    it("should remove all matching packets that have not been flushed", () => {
+      const socket = Object.create(Socket.prototype);
+      const options = {};
+      const otherPacket = { options: {} };
+      socket.writeBuffer = [{ options }, otherPacket, { options }];
+      socket._prevBufferLen = 0;
+
+      socket._removeFromWriteBuffer(options);
+
+      expect(socket.writeBuffer).to.eql([otherPacket]);
+    });
+
+    it("should preserve all matching packets when one has been flushed", () => {
+      const socket = Object.create(Socket.prototype);
+      const options = {};
+      const packets = [{ options }, { options }];
+      socket.writeBuffer = packets.slice();
+      socket._prevBufferLen = 1;
+
+      socket._removeFromWriteBuffer(options);
+
+      expect(socket.writeBuffer).to.eql(packets);
+    });
+
+    it("should not remove already flushed packets or change the flush cursor", () => {
+      const socket = Object.create(Socket.prototype);
+      const options = {};
+      const flushed = { options: {} };
+      socket.writeBuffer = [flushed, { options }, { options }];
+      socket._prevBufferLen = 1;
+
+      socket._removeFromWriteBuffer(options);
+
+      expect(socket.writeBuffer).to.eql([flushed]);
+      expect(socket._prevBufferLen).to.be(1);
+    });
+
+    it("should ignore a missing options object", () => {
+      const socket = Object.create(Socket.prototype);
+      const packet = { options: {} };
+      socket.writeBuffer = [packet];
+      socket._prevBufferLen = 0;
+
+      socket._removeFromWriteBuffer(undefined);
+
+      expect(socket.writeBuffer).to.eql([packet]);
+    });
+  });
+
   describe("filterUpgrades", () => {
     it("should return only available transports", () => {
       const socket = new Socket({ transports: ["polling"] });
