@@ -249,6 +249,21 @@ describe("@socket.io/cluster-adapter", () => {
       expect((await getRooms(workers[1])).has("room2")).to.be(false);
       expect((await getRooms(workers[2])).has("room2")).to.be(true);
     });
+
+    it("avoids race condition when followed by emit (with await)", (done) => {
+      const partialDone = times(3, done);
+
+      clientSockets.forEach((clientSocket) => {
+        clientSocket.on("test-event", (payload) => {
+          expect(payload).to.eql("test-payload");
+          partialDone();
+        });
+      });
+
+      // This test verifies that awaiting socketsJoin ensures all sockets
+      // receive the subsequent broadcast
+      workers[0].send("test socketsJoin race condition with await");
+    });
   });
 
   describe("socketsLeave", () => {
