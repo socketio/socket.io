@@ -551,5 +551,39 @@ describe("socket.io-adapter", () => {
 
       expect(session).to.be(null);
     });
+
+    it("should emit a 'session-expiry' event when a session has expired", async () => {
+      const adapter = new SessionAwareAdapter({
+        server: {
+          encoder: {
+            encode(packet) {
+              return packet;
+            },
+          },
+          opts: {
+            connectionStateRecovery: {
+              maxDisconnectionDuration: -1,
+            },
+          },
+        },
+      });
+
+      adapter.persistSession({
+        sid: "abc",
+        pid: "def",
+        data: "ghi",
+        rooms: ["r1", "r2"],
+      });
+
+      let expiredSid: string | undefined;
+      adapter.on("session-expiry", (sid) => {
+        expiredSid = sid;
+      });
+
+      const session = await adapter.restoreSession("def", "some-offset");
+
+      expect(session).to.be(null);
+      expect(expiredSid).to.eql("abc");
+    });
   });
 });
