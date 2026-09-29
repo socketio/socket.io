@@ -28,7 +28,7 @@ jobs:
           - nextjs-pages-router
           - nextjs-app-router
           # - nuxt-example
-          # - typescript-check-public-exports TODO enable once https://github.com/socketio/socket.io/pull/5533 is fixed
+          - typescript-check-public-exports
 
     steps:
       - name: Checkout repository
