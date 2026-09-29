@@ -56,6 +56,29 @@ describe("middlewares", () => {
     });
   });
 
+  it("should expose EventEmitter methods on the response object during upgrade (regression for pino-http)", (done) => {
+    const engine = listen((port) => {
+      engine.use((req, res, next) => {
+        expect(res.on).to.be.a("function");
+        res.on("close", () => {
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          done();
+        });
+        next();
+      });
+
+      const socket = new WebSocket(
+        `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`,
+      );
+
+      socket.on("open", () => {
+        socket.close();
+      });
+    });
+  });
+
   it("should apply all middlewares in order", (done) => {
     const engine = listen((port) => {
       let count = 0;
