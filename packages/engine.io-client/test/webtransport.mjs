@@ -50,6 +50,14 @@ async function setup(opts, cb) {
 
   await h3Server.ready;
 
+  h3Server.setRequestCallback(async ({ header }) => {
+    const url = new URL(header[":path"], "http://localhost");
+    if (url.pathname === "/engine.io/") {
+      return { status: 200, path: url.pathname };
+    }
+    return { status: 404 };
+  });
+
   cb({ engine, h3Server, certificate });
 }
 

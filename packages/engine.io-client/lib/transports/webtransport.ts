@@ -29,7 +29,7 @@ export class WT extends Transport {
     try {
       // @ts-ignore
       this._transport = new WebTransport(
-        this.createUri("https"),
+        this.createUri("https", this.query),
         this.opts.transportOptions[this.name],
       );
     } catch (err) {
