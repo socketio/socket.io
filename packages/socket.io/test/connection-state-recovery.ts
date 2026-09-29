@@ -113,6 +113,143 @@ describe("connection state recovery", () => {
     io.close();
   });
 
+  it("should restore session even if the client did not receive any event", async () => {
+    const httpServer = createServer().listen(0);
+    const io = new Server(httpServer, {
+      connectionStateRecovery: {},
+    });
+
+    io.once("connection", (socket) => {
+      expect(socket.recovered).to.eql(false);
+
+      socket.join("room1");
+      socket.data.foo = "bar";
+    });
+
+    // Engine.IO handshake
+    const eioSid = await eioHandshake(httpServer);
+
+    // Socket.IO handshake (without any prior event, hence without any offset)
+    await eioPush(httpServer, eioSid, "40");
+    const handshakeBody = await eioPoll(httpServer, eioSid);
+
+    expect(handshakeBody.startsWith("40")).to.be(true);
+
+    const handshake = JSON.parse(handshakeBody.substring(2));
+
+    expect(handshake.sid).to.not.be(undefined);
+    expect(handshake.pid).to.not.be(undefined);
+
+    await eioPush(httpServer, eioSid, "1"); // close
+
+    const newSid = await eioHandshake(httpServer);
+
+    const [socket] = await Promise.all([
+      waitFor<Socket>(io, "connection"),
+      eioPush(httpServer, newSid, `40{"pid":"${handshake.pid}"}`),
+    ]);
+
+    expect(socket.id).to.eql(handshake.sid);
+    expect(socket.recovered).to.eql(true);
+
+    expect(socket.rooms.has(socket.id)).to.eql(true);
+    expect(socket.rooms.has("room1")).to.eql(true);
+
+    expect(socket.data.foo).to.eql("bar");
+
+    const payload = await eioPoll(httpServer, newSid);
+    expect(payload).to.eql(
+      `40{"sid":"${handshake.sid}","pid":"${handshake.pid}"}`,
+    );
+
+    io.close();
+  });
+
+  it("should replay missed packets even if the client did not receive any event before disconnection", async () => {
+    const httpServer = createServer().listen(0);
+    const io = new Server(httpServer, {
+      connectionStateRecovery: {},
+    });
+
+    io.once("connection", (socket) => {
+      socket.join("room1");
+    });
+
+    // Engine.IO handshake
+    const eioSid = await eioHandshake(httpServer);
+
+    // Socket.IO handshake (without any prior event, hence without any offset)
+    await eioPush(httpServer, eioSid, "40");
+    const handshakeBody = await eioPoll(httpServer, eioSid);
+    const handshake = JSON.parse(handshakeBody.substring(2));
+
+    await eioPush(httpServer, eioSid, "1"); // close
+
+    // emit while disconnected - these packets should be replayed even though the client never received any event before
+    io.to("room1").emit("hello", "world");
+    io.emit("broadcast");
+
+    const newSid = await eioHandshake(httpServer);
+
+    const [socket] = await Promise.all([
+      waitFor<Socket>(io, "connection"),
+      eioPush(httpServer, newSid, `40{"pid":"${handshake.pid}"}`),
+    ]);
+
+    expect(socket.id).to.eql(handshake.sid);
+    expect(socket.recovered).to.eql(true);
+    expect(socket.rooms.has("room1")).to.eql(true);
+
+    const payload = await eioPoll(httpServer, newSid);
+    const packets = payload.split("\x1e");
+
+    // missed packets are sent before the CONNECT packet
+    expect(packets.length).to.eql(3);
+    expect(packets[0].startsWith('42["hello"')).to.be(true);
+    expect(packets[1].startsWith('42["broadcast"')).to.be(true);
+    expect(packets[2]).to.eql(
+      `40{"sid":"${handshake.sid}","pid":"${handshake.pid}"}`,
+    );
+
+    io.close();
+  });
+
+  it("should not restore session if the provided offset is not a string", async () => {
+    const httpServer = createServer().listen(0);
+    const io = new Server(httpServer, {
+      connectionStateRecovery: {},
+    });
+
+    io.once("connection", (socket) => {
+      socket.join("room1");
+    });
+
+    // Engine.IO handshake
+    const eioSid = await eioHandshake(httpServer);
+
+    // Socket.IO handshake
+    await eioPush(httpServer, eioSid, "40");
+    const handshakeBody = await eioPoll(httpServer, eioSid);
+    const handshake = JSON.parse(handshakeBody.substring(2));
+
+    await eioPush(httpServer, eioSid, "1"); // close
+
+    const newSid = await eioHandshake(httpServer);
+
+    const [socket] = await Promise.all([
+      waitFor<Socket>(io, "connection"),
+      eioPush(httpServer, newSid, `40{"pid":"${handshake.pid}","offset":123}`),
+    ]);
+
+    // malformed offset should fail closed - new session, not recovered
+    expect(socket.recovered).to.eql(false);
+    expect(socket.id).to.not.eql(handshake.sid);
+    expect(socket.rooms.has("room1")).to.eql(false);
+
+    await eioPoll(httpServer, newSid); // drain buffer
+    io.close();
+  });
+
   it("should not run middlewares upon recovery by default", async () => {
     const httpServer = createServer().listen(0);
     const io = new Server(httpServer, {
