@@ -7,6 +7,7 @@ import {
   successFn,
   createPartialDone,
   assert,
+  waitFor,
 } from "./support/util";
 
 describe("namespaces", () => {
@@ -555,6 +556,54 @@ describe("namespaces", () => {
         partialDone();
       });
     });
+
+    for (const recovery of [false, true]) {
+      for (const binary of [false, true]) {
+        it(`should isolate room broadcasts across child namespaces (recovery: ${recovery}, binary: ${binary})`, async () => {
+          const io = new Server(
+            0,
+            recovery ? { connectionStateRecovery: {} } : {},
+          );
+          const parent = io.of(/^\/dynamic-\d+$/);
+          parent.on("connection", (socket) => socket.join("some-room"));
+
+          const clients = ["/dynamic-101", "/dynamic-102"].map((nsp) =>
+            createClient(io, nsp, { forceNew: true }),
+          );
+          const payload = binary ? Buffer.from("hello") : { hello: "world" };
+
+          try {
+            await Promise.all(
+              clients.map((client) => waitFor(client, "connect")),
+            );
+
+            const received = clients.map(
+              (client) =>
+                new Promise<unknown[]>((resolve) => {
+                  client.once("hello", (...args) => resolve(args));
+                }),
+            );
+
+            parent.to("some-room").emit("hello", payload, 42);
+
+            const messages = await Promise.all(received);
+            for (const args of messages) {
+              expect(args.length).to.be(recovery ? 3 : 2);
+              expect(args.slice(0, 2)).to.eql([payload, 42]);
+              if (recovery) {
+                expect(args[2]).to.be.a("string");
+              }
+            }
+            if (recovery) {
+              expect(messages[0][2]).to.not.be(messages[1][2]);
+            }
+          } finally {
+            clients.forEach((client) => client.disconnect());
+            await io.close();
+          }
+        });
+      }
+    }
 
     it("should allow connections to dynamic namespaces with a function", (done) => {
       const io = new Server(0);
