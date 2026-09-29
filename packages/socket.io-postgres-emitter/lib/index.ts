@@ -97,6 +97,9 @@ export class Emitter<
     const channelPrefix = opts.channelPrefix || "socket.io";
     this.channel = `${channelPrefix}#${nsp}`;
     this.tableName = opts.tableName || "socket_io_attachments";
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(this.tableName)) {
+      throw new Error("invalid tableName");
+    }
     this.payloadThreshold = opts.payloadThreshold || 8000;
   }
 
@@ -399,7 +402,9 @@ export class BroadcastOperator<
       this.emitter.channel,
     );
     const result = await this.emitter.pool.query(
-      `INSERT INTO ${this.emitter.tableName} (payload) VALUES ($1) RETURNING id;`,
+      "INSERT INTO " +
+        this.emitter.tableName +
+        " (payload) VALUES ($1) RETURNING id;",
       [payload],
     );
     const attachmentId = result.rows[0].id;
