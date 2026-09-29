@@ -138,6 +138,21 @@ interface ServerOptions extends EngineOptions, AttachOptions {
  *
  * const io = new Server();
  *
+ * The server exposes the main namespace (`"/"`) through a set of shorthand
+ * methods. For example, `io.on("connection")`, `io.use(...)` and
+ * `io.emit(...)` are equivalent to calling `io.of("/")` and then the
+ * corresponding {@link Namespace} method.
+ *
+ * @example
+ * io.on("connection", (socket) => {});
+ * io.use((socket, next) => { next(); });
+ * io.emit("hello");
+ *
+ * // are equivalent to:
+ * io.of("/").on("connection", (socket) => {});
+ * io.of("/").use((socket, next) => { next(); });
+ * io.of("/").emit("hello");
+ *
  * io.on("connection", (socket) => {
  *   console.log(`socket ${socket.id} connected`);
  *
@@ -230,6 +245,19 @@ export class Server<
     SocketData
   >
 > {
+  /**
+   * The main namespace, named `"/"`.
+   *
+   * Most namespace-level methods exposed by {@link Server}, such as
+   * `on("connection")`, `use()`, `emit()`, `to()`, `in()` and `except()`, are
+   * shortcuts for calling the same methods on this namespace.
+   *
+   * @example
+   * io.sockets.emit("hello");
+   *
+   * // is equivalent to:
+   * io.emit("hello");
+   */
   public readonly sockets: Namespace<
     ListenEvents,
     EmitEvents,
