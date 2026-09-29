@@ -2,7 +2,7 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.4.
 
-Inspired from the [TodoMVC](http://todomvc.com/) [angular example](https://github.com/tastejs/todomvc/tree/master/examples/angular2).
+Inspired from the [TodoMVC](http://todomvc.com/) [angular example](https://github.com/tastejs/todomvc).
 
 ![demo](assets/demo.gif)
 
