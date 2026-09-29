@@ -29,7 +29,7 @@ This document describes the 5th version of the Socket.IO protocol.
 
 ## Introduction
 
-The Socket.IO protocol enables [full-duplex](https://en.wikipedia.org/wiki/Duplex_(telecommunications)#FULL-DUPLEX) and low-overhead communication between a client and a server.
+The Socket.IO protocol enables [full-duplex](https://en.wikipedia.org/wiki/Duplex_%28telecommunications%29#FULL-DUPLEX) and low-overhead communication between a client and a server.
 
 It is built on top of [the Engine.IO protocol](https://github.com/socketio/engine.io-protocol), which handles the low-level plumbing with WebSocket and HTTP long-polling.
 

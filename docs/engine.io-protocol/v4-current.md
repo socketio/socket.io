@@ -35,7 +35,7 @@ This document describes the version 4.1 of the Engine.IO protocol.
 
 ## Introduction
 
-The Engine.IO protocol enables [full-duplex](https://en.wikipedia.org/wiki/Duplex_(telecommunications)#FULL-DUPLEX) and low-overhead communication between a client and a server.
+The Engine.IO protocol enables [full-duplex](https://en.wikipedia.org/wiki/Duplex_%28telecommunications%29#FULL-DUPLEX) and low-overhead communication between a client and a server.
 
 It is based on the [WebSocket protocol](https://en.wikipedia.org/wiki/WebSocket) and uses [HTTP long-polling](https://en.wikipedia.org/wiki/Push_technology#Long_polling) as fallback if the WebSocket connection can't be established.
 
