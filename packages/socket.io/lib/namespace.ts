@@ -14,6 +14,7 @@ import {
   EventNamesWithAck,
   FirstNonErrorArg,
   EventNamesWithoutAck,
+  EventNamesWithError,
 } from "./typed-events";
 import type { Client } from "./client";
 import debugModule from "debug";
@@ -467,6 +468,23 @@ export class Namespace<
       ev,
       ...args,
     );
+  }
+
+  /**
+   * Emits an event and waits for an acknowledgement from all clients.
+   *
+   * @example
+   * const responses = await myNamespace.emitWithAck("some-event");
+   *
+   * @return a Promise that will be fulfilled when all clients have acknowledged the event
+   */
+  public emitWithAck<Ev extends EventNamesWithError<EmitEvents>>(
+    ev: Ev,
+    ...args: AllButLast<EventParams<EmitEvents, Ev>>
+  ): Promise<FirstNonErrorArg<Last<EventParams<EmitEvents, Ev>>>> {
+    return new BroadcastOperator<EmitEvents, SocketData>(
+      this.adapter,
+    ).emitWithAck(ev, ...args);
   }
 
   /**
