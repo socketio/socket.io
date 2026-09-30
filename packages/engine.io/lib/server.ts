@@ -397,22 +397,44 @@ export abstract class BaseServer extends EventEmitter {
 
     const apply = (i) => {
       debug("applying middleware n°%d", i + 1);
-      try {
-        Promise.resolve(
-          this.middlewares[i](req, res, (err?: any) => {
-            if (err) {
-              return callback(err);
-            }
 
-            if (i + 1 < this.middlewares.length) {
-              apply(i + 1);
-            } else {
-              callback();
-            }
-          }),
-        ).catch(callback);
+      // next(), a throw, or a rejection may each reach callback. Only the first
+      // one wins: a middleware that calls next() and then throws must not fire
+      // callback a second time. Errors thrown by next()'s own continuation are
+      // not middleware failures and are rethrown.
+      let settled = false;
+      let continuationError: any;
+
+      const done = (err?: any) => {
+        if (settled) {
+          debug("middleware already settled, ignoring extra callback");
+          return;
+        }
+        settled = true;
+
+        try {
+          if (err) {
+            callback(err);
+          } else if (i + 1 < this.middlewares.length) {
+            apply(i + 1);
+          } else {
+            callback();
+          }
+        } catch (e) {
+          continuationError = e;
+          throw e;
+        }
+      };
+
+      try {
+        Promise.resolve(this.middlewares[i](req, res, done)).catch((err) => {
+          done(err);
+        });
       } catch (e) {
-        callback(e);
+        if (continuationError) {
+          throw continuationError;
+        }
+        done(e);
       }
     };
 
@@ -1047,6 +1069,16 @@ function abortRequest(
     errorContext && errorContext.message
       ? errorContext.message
       : Server.errorMessages[errorCode];
+
+  // A middleware may have already committed the response before failing.
+  // Writing again throws "Cannot write headers after they are sent".
+  if (res.headersSent) {
+    debug("response headers already sent, skipping error response");
+    if (!res.writableEnded && !res.finished) {
+      res.end();
+    }
+    return;
+  }
 
   res.writeHead(statusCode, { "Content-Type": "application/json" });
   res.end(
