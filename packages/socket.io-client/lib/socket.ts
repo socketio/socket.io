@@ -543,6 +543,7 @@ export class Socket<
       args,
       flags: Object.assign({ fromQueue: true }, this.flags),
     };
+    this.flags = {};
 
     args.push((err, ...responseArgs) => {
       if (packet !== this._queue[0]) {
