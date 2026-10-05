@@ -82,7 +82,7 @@ export class CookieJar {
     });
   }
 
-  get cookies() {
+  get cookies(): IterableIterator<[string, Cookie]> {
     const now = Date.now();
     this._cookies.forEach((cookie, name) => {
       if (cookie.expires?.getTime() < now) {
