@@ -357,6 +357,8 @@ export class BroadcastOperator<
 
   private async publish(document: any) {
     document.uid = EMITTER_UID;
+    // the adapter routes incoming messages by their top-level `nsp` (since @socket.io/postgres-adapter@0.4.0)
+    document.nsp = this.emitter.nsp;
 
     try {
       if (

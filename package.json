@@ -33,7 +33,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^1.0.0",
     "@sinonjs/fake-timers": "^11.2.2",
-    "@socket.io/postgres-adapter": "^0.1.0",
+    "@socket.io/postgres-adapter": "^0.5.0",
     "@socket.io/redis-streams-adapter": "~0.2.2",
     "@types/debug": "^4.1.12",
     "@types/expect.js": "^0.3.32",
