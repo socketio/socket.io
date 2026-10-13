@@ -36,6 +36,15 @@ describe("Socket", function () {
     socketWithoutUri.close();
   });
 
+  it("should keep '=' characters in query values", () => {
+    const socket = new Socket("http://localhost?token=abc==&flag", {
+      transports: ["polling"],
+    });
+
+    expect(socket.opts.query).to.eql({ token: "abc==", flag: "" });
+    socket.close();
+  });
+
   it("throws an error when no transports are available", (done) => {
     const socket = new Socket({ transports: [] });
     let errorMessage = "";
