@@ -344,6 +344,86 @@ describe("Transport", () => {
     });
   }
 
+  describe("close during handshake", () => {
+    const OPEN_PACKET =
+      '0{"sid":"close-during-handshake","upgrades":[],"pingInterval":25000,"pingTimeout":20000,"maxPayload":1000000}';
+
+    let originalFetch;
+    let fetchCalls;
+    let releaseHandshake;
+
+    beforeEach(() => {
+      originalFetch = globalThis.fetch;
+      fetchCalls = [];
+      let release;
+      const gate = new Promise((resolve) => {
+        release = resolve;
+      });
+      releaseHandshake = release;
+      const okResponse = (text) => ({
+        ok: true,
+        status: 200,
+        headers: { getSetCookie: () => [] },
+        text: () => Promise.resolve(text),
+      });
+      globalThis.fetch = (url, opts = {}) => {
+        const method = (opts.method || "GET").toUpperCase();
+        fetchCalls.push({ method, url, body: opts.body ?? null });
+        if (method === "GET") {
+          // hang the handshake poll until the test releases it
+          return gate.then(() => okResponse(OPEN_PACKET));
+        }
+        return Promise.resolve(okResponse("ok"));
+      };
+    });
+
+    afterEach(() => {
+      globalThis.fetch = originalFetch;
+    });
+
+    const createSocket = () =>
+      new eio.Socket({ transportImplementations: [eio.Fetch] });
+
+    const closePackets = () =>
+      fetchCalls.filter((call) => call.method === "POST" && call.body === "1");
+
+    it("should send the close packet when the transport is closed mid-handshake", (done) => {
+      const socket = createSocket();
+      setTimeout(() => {
+        socket.transport.close();
+        releaseHandshake();
+        setTimeout(() => {
+          const packets = closePackets();
+          expect(packets.length).to.be(1);
+          expect(packets[0].url).to.contain("sid=close-during-handshake");
+          // the transport must not poll again once closed
+          expect(
+            fetchCalls.filter((call) => call.method === "GET").length,
+          ).to.be(1);
+          socket.close();
+          done();
+        }, 50);
+      }, 20);
+    });
+
+    it("should send the close packet when the socket is closed mid-handshake", (done) => {
+      const socket = createSocket();
+      setTimeout(() => {
+        socket.close();
+        releaseHandshake();
+        setTimeout(() => {
+          const packets = closePackets();
+          expect(packets.length).to.be(1);
+          expect(packets[0].url).to.contain("sid=close-during-handshake");
+          expect(
+            fetchCalls.filter((call) => call.method === "GET").length,
+          ).to.be(1);
+          done();
+        }, 50);
+      }, 20);
+    });
+  });
+
   describe("options", () => {
     it("should accept an `extraHeaders` option for XMLHttpRequest in browser", () => {
       const headers = {
