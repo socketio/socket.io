@@ -1,6 +1,7 @@
 import { url } from "./url.js";
 import { Manager, ManagerOptions, ManagerReservedEvents } from "./manager.js";
 import {
+  DecorateAcknowledgements,
   DisconnectDescription,
   ExtendedError,
   Socket,
@@ -97,6 +98,7 @@ export { protocol } from "socket.io-parser";
  */
 
 export {
+  DecorateAcknowledgements,
   DisconnectDescription,
   ExtendedError,
   Manager,

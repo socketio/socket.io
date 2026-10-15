@@ -13,6 +13,7 @@ on:
       - 'packages/socket.io-client/**'
       - 'packages/socket.io-component-emitter/**'
       - 'packages/socket.io-parser/**'
+      - 'examples/typescript-check-public-exports/**'
       - '.github/workflows/ci-socket.io-client.yml'
   pull_request:
     paths:
@@ -24,6 +25,7 @@ on:
       - 'packages/socket.io-client/**'
       - 'packages/socket.io-component-emitter/**'
       - 'packages/socket.io-parser/**'
+      - 'examples/typescript-check-public-exports/**'
       - '.github/workflows/ci-socket.io-client.yml'
 
 permissions:
@@ -56,6 +58,9 @@ jobs:
 
       - name: Compile package
         run: npm run compile --workspace=socket.io-client
+
+      - name: Check public type declarations
+        run: npm run test:types --workspace=socket.io-client
 
       - name: Compile dev dependencies
         run: |
