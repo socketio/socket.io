@@ -72,8 +72,23 @@ jobs:
       - name: Run tests
         run: npm test --workspace=socket.io-client
 
-      - name: Run browser tests
+      - name: Check browser test credentials
         if: github.event_name == 'push'
+        id: browser-tests
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+        run: |
+          if [ -n "$SAUCE_USERNAME" ] && [ -n "$SAUCE_ACCESS_KEY" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping Sauce Labs browser tests: credentials are not configured."
+            echo "Browser tests skipped because Sauce Labs credentials are not configured. Browser coverage has not been verified." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Run browser tests
+        if: github.event_name == 'push' && steps.browser-tests.outputs.enabled == 'true'
         run: npm test --workspace=socket.io-client
         env:
           BROWSERS: 1
