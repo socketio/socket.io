@@ -413,8 +413,8 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    *
    * @param room - a room, or an array of rooms
    */
-  public socketsJoin(room: Room | Room[]): void {
-    this.adapter.addSockets(
+  public socketsJoin(room: Room | Room[]): void | Promise<void> {
+    return this.adapter.addSockets(
       {
         rooms: this.rooms,
         except: this.exceptRooms,
@@ -438,8 +438,8 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    *
    * @param room - a room, or an array of rooms
    */
-  public socketsLeave(room: Room | Room[]): void {
-    this.adapter.delSockets(
+  public socketsLeave(room: Room | Room[]): void | Promise<void> {
+    return this.adapter.delSockets(
       {
         rooms: this.rooms,
         except: this.exceptRooms,
@@ -463,8 +463,8 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    *
    * @param close - whether to close the underlying connection
    */
-  public disconnectSockets(close: boolean = false): void {
-    this.adapter.disconnectSockets(
+  public disconnectSockets(close: boolean = false): void | Promise<void> {
+    return this.adapter.disconnectSockets(
       {
         rooms: this.rooms,
         except: this.exceptRooms,
@@ -554,7 +554,7 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
    *
    * @param {String|Array} room - room or array of rooms
    */
-  public join(room: Room | Room[]): void {
+  public join(room: Room | Room[]): void | Promise<void> {
     return this.operator.socketsJoin(room);
   }
 
@@ -563,7 +563,7 @@ export class RemoteSocket<EmitEvents extends EventsMap, SocketData>
    *
    * @param {String} room
    */
-  public leave(room: Room): void {
+  public leave(room: Room): void | Promise<void> {
     return this.operator.socketsLeave(room);
   }
 
