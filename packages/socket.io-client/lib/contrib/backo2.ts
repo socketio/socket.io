@@ -30,8 +30,7 @@ Backoff.prototype.duration = function(){
   var ms = this.ms * Math.pow(this.factor, this.attempts++);
   // after many attempts, the value overflows to Infinity, and the jitter
   // below would then compute Infinity - Infinity = NaN (so a delay of 0)
-  ms = Math.min(ms, Number.MAX_VALUE);
-  if (this.jitter) {
+  if (this.jitter && isFinite(ms)) {
     var rand =  Math.random();
     var deviation = Math.floor(rand * this.jitter * ms);
     ms = (Math.floor(rand * 10) & 1) == 0  ? ms - deviation : ms + deviation;
