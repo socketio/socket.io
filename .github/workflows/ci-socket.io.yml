@@ -13,6 +13,7 @@ on:
       - 'packages/socket.io-client/**'
       - 'packages/socket.io-component-emitter/**'
       - 'packages/socket.io-parser/**'
+      - 'package-lock.json'
       - '.github/workflows/ci-socket.io.yml'
   pull_request:
     paths:
@@ -24,6 +25,7 @@ on:
       - 'packages/socket.io-client/**'
       - 'packages/socket.io-component-emitter/**'
       - 'packages/socket.io-parser/**'
+      - 'package-lock.json'
       - '.github/workflows/ci-socket.io.yml'
 
 permissions:

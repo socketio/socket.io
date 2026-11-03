@@ -9,6 +9,7 @@ on:
       - 'packages/engine.io-client/**'
       - 'packages/engine.io-parser/**'
       - 'packages/socket.io-component-emitter/**'
+      - 'package-lock.json'
       - '.github/workflows/ci-engine.io.yml'
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - 'packages/engine.io-client/**'
       - 'packages/engine.io-parser/**'
       - 'packages/socket.io-component-emitter/**'
+      - 'package-lock.json'
       - '.github/workflows/ci-engine.io.yml'
 
 permissions:

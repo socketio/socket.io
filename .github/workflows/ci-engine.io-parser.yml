@@ -6,10 +6,12 @@ on:
       - '**'
     paths:
       - 'packages/engine.io-parser/**'
+      - 'package-lock.json'
       - '.github/workflows/ci-engine.io-parser.yml'
   pull_request:
     paths:
       - 'packages/engine.io-parser/**'
+      - 'package-lock.json'
       - '.github/workflows/ci-engine.io-parser.yml'
 
 permissions:
