@@ -19,7 +19,8 @@
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-    "noEmit": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./dist",
 
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
