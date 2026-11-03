@@ -278,7 +278,7 @@ describe("engine.io-parser", () => {
 
         expect(value.type).to.eql("message");
         expect(value.data).to.be.an(ArrayBuffer);
-        expect(areArraysEqual(value.data, Uint8Array.of(1, 2, 3)));
+        expect(areArraysEqual(value.data, Uint8Array.of(1, 2, 3))).to.be(true);
       });
 
       it("should decode a binary packet (ArrayBuffer) (medium)", async () => {
@@ -296,7 +296,7 @@ describe("engine.io-parser", () => {
 
         expect(value.type).to.eql("message");
         expect(value.data).to.be.an(ArrayBuffer);
-        expect(areArraysEqual(value.data, payload));
+        expect(areArraysEqual(value.data, payload)).to.be(true);
       });
 
       it("should decode a binary packet (ArrayBuffer) (big)", async () => {
@@ -314,7 +314,7 @@ describe("engine.io-parser", () => {
 
         expect(value.type).to.eql("message");
         expect(value.data).to.be.an(ArrayBuffer);
-        expect(areArraysEqual(value.data, payload));
+        expect(areArraysEqual(value.data, payload)).to.be(true);
       });
 
       it("should return an error packet if the length of the payload is too big", async () => {
