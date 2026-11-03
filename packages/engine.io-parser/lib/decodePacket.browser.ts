@@ -66,7 +66,13 @@ const mapBinary = (data: any, binaryType?: BinaryType) => {
         return data;
       } else {
         // from WebTransport (Uint8Array)
-        return data.buffer;
+        return data.byteOffset === 0 &&
+          data.byteLength === data.buffer.byteLength
+          ? data.buffer
+          : data.buffer.slice(
+              data.byteOffset,
+              data.byteOffset + data.byteLength,
+            );
       }
   }
 };
