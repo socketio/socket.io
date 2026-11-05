@@ -273,6 +273,23 @@ describe("connection", () => {
     });
   });
 
+  it("reconnect delay should not drop to zero after many attempts", () => {
+    const manager = new Manager(BASE_URL, {
+      autoConnect: false,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      randomizationFactor: 0.5,
+    });
+    // @ts-ignore
+    const backoff = manager.backoff;
+    // 1000 * 2^1015 overflows to Infinity (after ~85 minutes of failed attempts)
+    backoff.attempts = 1015;
+
+    for (let i = 0; i < 100; i++) {
+      expect(backoff.duration()).to.be(5000);
+    }
+  });
+
   it("should not reconnect when force closed", () => {
     return wrap((done) => {
       const socket = io(BASE_URL + "/invalid", {
