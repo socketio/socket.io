@@ -850,6 +850,34 @@ export class Socket extends Emitter<
   }
 
   /**
+   * Removes packets that have not been handed to the transport yet.
+   *
+   * Packets from one Socket.IO event share the same `options` object. If any of
+   * those packets is already part of the current flush batch, all related
+   * packets are left intact so a multi-packet payload cannot be partially sent.
+   *
+   * @param options - the options object shared by the packets to remove
+   * @private
+   */
+  /* private */ _removeFromWriteBuffer(options: WriteOptions) {
+    if (options == null) {
+      return;
+    }
+
+    for (let i = 0; i < this._prevBufferLen; i++) {
+      if (this.writeBuffer[i].options === options) {
+        return;
+      }
+    }
+
+    for (let i = this.writeBuffer.length - 1; i >= this._prevBufferLen; i--) {
+      if (this.writeBuffer[i].options === options) {
+        this.writeBuffer.splice(i, 1);
+      }
+    }
+  }
+
+  /**
    * Flush write buffers.
    *
    * @private

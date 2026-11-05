@@ -60,6 +60,18 @@ export function createServer() {
       cb(arg);
     });
 
+    socket.on("tracked", (arg, cb) => {
+      socket.data.tracked = socket.data.tracked || [];
+      socket.data.tracked.push(arg);
+      if (typeof cb === "function") {
+        cb(arg);
+      }
+    });
+
+    socket.on("getTracked", (cb) => {
+      cb(socket.data.tracked || []);
+    });
+
     // ack tests
     socket.on("ack", () => {
       socket.emit("ack", (a, b) => {

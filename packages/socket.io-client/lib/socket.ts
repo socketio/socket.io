@@ -440,7 +440,7 @@ export class Socket<
       debug("emitting packet with ack id %d", id);
 
       const ack = args.pop() as (...args: any[]) => void;
-      this._registerAckCallback(id, ack);
+      this._registerAckCallback(id, ack, packet);
       packet.id = id;
     }
 
@@ -465,7 +465,11 @@ export class Socket<
   /**
    * @private
    */
-  private _registerAckCallback(id: number, ack: (...args: any[]) => void) {
+  private _registerAckCallback(
+    id: number,
+    ack: (...args: any[]) => void,
+    packet: Packet & { options?: { compress?: boolean } },
+  ) {
     const timeout = this.flags.timeout ?? this._opts.ackTimeout;
     if (timeout === undefined) {
       this.acks[id] = ack;
@@ -475,6 +479,9 @@ export class Socket<
     // @ts-ignore
     const timer = this.io.setTimeoutFn(() => {
       delete this.acks[id];
+      // The packet may already have been written to the Engine.IO buffer
+      // (connection still "open" but transport temporarily unwritable).
+      this.io.engine?._removeFromWriteBuffer(packet.options);
       for (let i = 0; i < this.sendBuffer.length; i++) {
         if (this.sendBuffer[i].id === id) {
           debug("removing packet with ack id %d from the buffer", id);
