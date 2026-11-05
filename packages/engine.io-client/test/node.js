@@ -4,6 +4,7 @@ const { Socket } = require("../");
 const { repeat } = require("./util");
 const expect = require("expect.js");
 const { parse } = require("../build/cjs/globals.node.js");
+const { CookieJar } = require("../build/cjs/globals.node.js");
 
 describe("node.js", () => {
   describe("autoRef option", () => {
@@ -138,5 +139,45 @@ describe("cookie parsing", () => {
       name: "foo",
       value: "bar=bar&foo=foo&John=Doe&Doe=John",
     });
+  });
+});
+
+describe("cookie expiry", () => {
+  // RFC 6265, section 5.2.2: "If delta-seconds is less than or equal to zero (0), let expiry-time
+  // be the earliest representable date and time."
+  it("should treat Max-Age=0 as an expired cookie", () => {
+    const jar = new CookieJar();
+    jar.parseCookies(["foo=bar; Max-Age=0"]);
+
+    expect([...jar.cookies]).to.eql([]);
+  });
+
+  it("should treat a negative Max-Age as an expired cookie", () => {
+    const jar = new CookieJar();
+    jar.parseCookies(["foo=bar; Max-Age=-1"]);
+
+    expect([...jar.cookies]).to.eql([]);
+  });
+
+  it("should not keep a cookie whose Max-Age cannot be parsed", () => {
+    // a malformed attribute must not turn a deletion request into a session cookie
+    const jar = new CookieJar();
+    jar.parseCookies(["foo=bar; Max-Age=abc"]);
+
+    expect([...jar.cookies]).to.eql([]);
+  });
+
+  it("should not keep a cookie whose Expires date cannot be parsed", () => {
+    const jar = new CookieJar();
+    jar.parseCookies(["foo=bar; Expires=not-a-date"]);
+
+    expect([...jar.cookies]).to.eql([]);
+  });
+
+  it("should keep a cookie with a Max-Age in the future", () => {
+    const jar = new CookieJar();
+    jar.parseCookies(["foo=bar; Max-Age=1000"]);
+
+    expect([...jar.cookies].map(([name]) => name)).to.eql(["foo"]);
   });
 });
