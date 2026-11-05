@@ -1,10 +1,11 @@
-const listen = require("./common").listen;
+const { listen } = require("./common");
+const { Server } = require("..");
 const expect = require("expect.js");
 const request = require("superagent");
 const { WebSocket } = require("ws");
 const helmet = require("helmet");
 const session = require("express-session");
-const { ClientSocket } = require("./common");
+const { ClientSocket, createPartialDone } = require("./common");
 
 describe("middlewares", () => {
   it("should apply middleware (polling)", (done) => {
@@ -246,6 +247,312 @@ describe("middlewares", () => {
       socket.on("open", () => {
         socket.close();
       });
+    });
+  });
+
+  it("should fail on synchronous middleware errors (polling)", (done) => {
+    const partialDone = createPartialDone(done, 2);
+    const engine = listen((port) => {
+      engine.use(() => {
+        throw new Error("will always fail");
+      });
+
+      engine.on("connection_error", (err) => {
+        expect(err.req).to.be.ok();
+        expect(err.code).to.eql(3);
+        expect(err.message).to.eql("Bad request");
+        expect(err.context.name).to.eql("MIDDLEWARE_FAILURE");
+        partialDone();
+      });
+
+      request
+        .get(`http://localhost:${port}/engine.io/`)
+        .query({ EIO: 4, transport: "polling" })
+        .end((err, res) => {
+          expect(err).to.be.an(Error);
+          expect(res.status).to.eql(400);
+
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          partialDone();
+        });
+    });
+  });
+
+  it("should fail on rejected middleware promises (polling)", (done) => {
+    const partialDone = createPartialDone(done, 2);
+    const engine = listen((port) => {
+      engine.use(() => {
+        return Promise.reject(new Error("will always fail"));
+      });
+
+      engine.on("connection", () => {
+        done(new Error("should not connect"));
+      });
+
+      engine.on("connection_error", (err) => {
+        expect(err.req).to.be.ok();
+        expect(err.code).to.eql(3);
+        expect(err.message).to.eql("Bad request");
+        expect(err.context.name).to.eql("MIDDLEWARE_FAILURE");
+        partialDone();
+      });
+
+      request
+        .get(`http://localhost:${port}/engine.io/`)
+        .query({ EIO: 4, transport: "polling" })
+        .end((err, res) => {
+          expect(err).to.be.an(Error);
+          expect(res.status).to.eql(400);
+
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          partialDone();
+        });
+    });
+  });
+
+  it("should ignore a throw after next() and continue (polling)", (done) => {
+    let connectionErrors = 0;
+    let connections = 0;
+    const engine = listen((port) => {
+      engine.use((req, res, next) => {
+        next();
+        throw new Error("after next");
+      });
+
+      engine.use((req, res, next) => {
+        res.setHeader("foo", "bar");
+        next();
+      });
+
+      engine.on("connection_error", () => {
+        connectionErrors++;
+      });
+
+      engine.on("connection", () => {
+        connections++;
+      });
+
+      request
+        .get(`http://localhost:${port}/engine.io/`)
+        .query({ EIO: 4, transport: "polling" })
+        .end((err, res) => {
+          expect(err).to.be(null);
+          expect(res.status).to.eql(200);
+          expect(res.headers["foo"]).to.eql("bar");
+          expect(connectionErrors).to.eql(0);
+          expect(connections).to.eql(1);
+
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          done();
+        });
+    });
+  });
+
+  it("should ignore a throw after next(err) and fail once (polling)", (done) => {
+    let connectionErrors = 0;
+    const engine = listen((port) => {
+      engine.use((req, res, next) => {
+        next(new Error("will always fail"));
+        throw new Error("after next(err)");
+      });
+
+      engine.use(() => {
+        done(new Error("next middleware should not run"));
+      });
+
+      engine.on("connection", () => {
+        done(new Error("should not connect"));
+      });
+
+      engine.on("connection_error", (err) => {
+        connectionErrors++;
+        expect(err.req).to.be.ok();
+        expect(err.code).to.eql(3);
+        expect(err.message).to.eql("Bad request");
+        expect(err.context.name).to.eql("MIDDLEWARE_FAILURE");
+      });
+
+      request
+        .get(`http://localhost:${port}/engine.io/`)
+        .query({ EIO: 4, transport: "polling" })
+        .end((err, res) => {
+          expect(err).to.be.an(Error);
+          expect(res.status).to.eql(400);
+          expect(connectionErrors).to.eql(1);
+
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          done();
+        });
+    });
+  });
+
+  it("should ignore a rejection after next() and continue (polling)", (done) => {
+    let connectionErrors = 0;
+    let connections = 0;
+    const engine = listen((port) => {
+      engine.use((req, res, next) => {
+        next();
+        return Promise.reject(new Error("after next"));
+      });
+
+      engine.on("connection_error", () => {
+        connectionErrors++;
+      });
+
+      engine.on("connection", () => {
+        connections++;
+      });
+
+      request
+        .get(`http://localhost:${port}/engine.io/`)
+        .query({ EIO: 4, transport: "polling" })
+        .end((err, res) => {
+          expect(err).to.be(null);
+          expect(res.status).to.eql(200);
+          expect(connectionErrors).to.eql(0);
+          expect(connections).to.eql(1);
+
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          done();
+        });
+    });
+  });
+
+  it("should propagate errors thrown while handling next()", () => {
+    const engine = new Server({ transports: ["polling"] });
+    let calls = 0;
+
+    engine.use((_req, _res, next) => {
+      next();
+    });
+
+    try {
+      expect(() => {
+        engine._applyMiddlewares({}, {}, () => {
+          calls++;
+          throw new Error("continuation failed");
+        });
+      }).to.throwException((err) => {
+        expect(err.message).to.eql("continuation failed");
+      });
+      expect(calls).to.eql(1);
+    } finally {
+      engine.close();
+    }
+  });
+
+  it("should keep the middleware response when it throws after sending (polling)", (done) => {
+    let connectionErrors = 0;
+    const engine = listen((port) => {
+      engine.use((_req, res) => {
+        res.writeHead(503, { "Content-Type": "text/plain" });
+        res.end("nope");
+        throw new Error("after end");
+      });
+
+      engine.on("connection", () => {
+        done(new Error("should not connect"));
+      });
+
+      engine.on("connection_error", (err) => {
+        connectionErrors++;
+        expect(err.context.name).to.eql("MIDDLEWARE_FAILURE");
+      });
+
+      request
+        .get(`http://localhost:${port}/engine.io/`)
+        .query({ EIO: 4, transport: "polling" })
+        .end((err, res) => {
+          expect(err).to.be.an(Error);
+          expect(res.status).to.eql(503);
+          expect(res.text).to.eql("nope");
+          expect(connectionErrors).to.eql(1);
+
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          done();
+        });
+    });
+  });
+
+  it("should keep the middleware response when it rejects after sending (polling)", (done) => {
+    let connectionErrors = 0;
+    const engine = listen((port) => {
+      engine.use((_req, res) => {
+        res.writeHead(503, { "Content-Type": "text/plain" });
+        res.end("nope");
+        return Promise.reject(new Error("after end"));
+      });
+
+      engine.on("connection", () => {
+        done(new Error("should not connect"));
+      });
+
+      engine.on("connection_error", (err) => {
+        connectionErrors++;
+        expect(err.context.name).to.eql("MIDDLEWARE_FAILURE");
+      });
+
+      request
+        .get(`http://localhost:${port}/engine.io/`)
+        .query({ EIO: 4, transport: "polling" })
+        .end((err, res) => {
+          expect(err).to.be.an(Error);
+          expect(res.status).to.eql(503);
+          expect(res.text).to.eql("nope");
+          expect(connectionErrors).to.eql(1);
+
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          done();
+        });
+    });
+  });
+
+  it("should invoke the callback once when next() is called twice (polling)", (done) => {
+    let runs = 0;
+    let connections = 0;
+    const engine = listen((port) => {
+      engine.use((req, res, next) => {
+        next();
+        next();
+      });
+
+      engine.use((req, res, next) => {
+        runs++;
+        next();
+      });
+
+      engine.on("connection", () => {
+        connections++;
+      });
+
+      request
+        .get(`http://localhost:${port}/engine.io/`)
+        .query({ EIO: 4, transport: "polling" })
+        .end((err, res) => {
+          expect(err).to.be(null);
+          expect(res.status).to.eql(200);
+          expect(runs).to.eql(1);
+          expect(connections).to.eql(1);
+
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          done();
+        });
     });
   });
 

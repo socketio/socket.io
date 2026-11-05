@@ -1,4 +1,5 @@
 import debugModule from "debug";
+import { STATUS_CODES } from "http";
 import { AttachOptions, BaseServer, Server } from "./server";
 import { HttpRequest, HttpResponse, TemplatedApp } from "uWebSockets.js";
 import transports from "./transports-uws";
@@ -269,6 +270,15 @@ export class uServer extends BaseServer {
     errorCode: number,
     errorContext?: { message?: string },
   ) {
+    // uWS throws if HttpResponse is used after a successful end().
+    if (res instanceof ResponseWrapper && res.headersSent) {
+      debug("response headers already sent, skipping error response");
+      if (!res.writableEnded) {
+        res.end();
+      }
+      return;
+    }
+
     const statusCode =
       errorCode === Server.errors.FORBIDDEN
         ? "403 Forbidden"
@@ -291,21 +301,45 @@ export class uServer extends BaseServer {
 
 class ResponseWrapper {
   private statusWritten: boolean = false;
+  private ended = false;
   private headers = [];
   private isAborted = false;
 
   constructor(readonly res: HttpResponse) {}
 
+  public get headersSent() {
+    return this.statusWritten || this.ended;
+  }
+
+  public get writableEnded() {
+    return this.ended;
+  }
+
   public set statusCode(status: number) {
     if (!status) {
       return;
     }
-    // FIXME: handle all status codes?
-    this.writeStatus(status === 200 ? "200 OK" : "204 No Content");
+    const reason = STATUS_CODES[status] || "Unknown";
+    this.writeStatus(`${status} ${reason}`);
   }
 
-  public writeHead(status: number) {
-    this.statusCode = status;
+  public writeHead(status?: number, headers?: any, maybeHeaders?: any) {
+    if (typeof status === "number") {
+      this.statusCode = status;
+    }
+
+    const headerFields =
+      headers !== null && typeof headers === "object" ? headers : maybeHeaders;
+    if (
+      !headerFields ||
+      typeof headerFields !== "object" ||
+      Array.isArray(headerFields)
+    ) {
+      return;
+    }
+    Object.keys(headerFields).forEach((key) => {
+      this.setHeader(key, headerFields[key]);
+    });
   }
 
   public setHeader(key, value) {
@@ -354,15 +388,20 @@ class ResponseWrapper {
     });
   }
 
-  public end(data) {
-    if (this.isAborted) return;
+  public end(data?) {
+    if (this.isAborted || this.ended) return;
 
+    this.ended = true;
     this.res.cork(() => {
       if (!this.statusWritten) {
         // status will be inferred as "200 OK"
         this.writeBufferedHeaders();
       }
-      this.res.end(data);
+      if (data === undefined) {
+        this.res.end();
+      } else {
+        this.res.end(data);
+      }
     });
   }
 
