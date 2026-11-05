@@ -4,7 +4,7 @@
 [![Build Status](https://github.com/socketio/socket.io/workflows/CI/badge.svg)](https://github.com/socketio/socket.io/actions)
 [![NPM version](https://badge.fury.io/js/socket.io.svg)](https://www.npmjs.com/package/socket.io)
 ![Downloads](https://img.shields.io/npm/dm/socket.io.svg?style=flat)
-[![](https://slackin-socketio.now.sh/badge.svg)](https://slackin-socketio.now.sh)
+[![Discord](https://img.shields.io/badge/discord-online-brightgreen.svg)](https://discord.gg/G7Qnnhy)
 
 ## Features
 
