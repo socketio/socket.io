@@ -146,4 +146,58 @@ describe("retry", () => {
       }, 100);
     });
   });
+
+  it("should not apply the flags of a queued packet to the next one", () => {
+    return wrap((done) => {
+      const socket = io(BASE_URL, {
+        forceNew: true,
+        retries: 3,
+        ackTimeout: 50,
+      });
+
+      const compressFlags: boolean[] = [];
+
+      socket.io.engine.on("packetCreate", ({ type, data, options }) => {
+        if (type === "message" && data.startsWith("2")) {
+          compressFlags.push(options.compress);
+        }
+      });
+
+      // the socket is not connected yet, so both packets are queued
+      socket.compress(false).emit("echo", 1);
+      socket.emit("echo", 2, () => {
+        expect(compressFlags).to.eql([false, true]);
+
+        success(done, socket);
+      });
+    });
+  });
+
+  it("should not apply the flags of a pending packet to the next one", () => {
+    return wrap((done) => {
+      const socket = io(BASE_URL, {
+        forceNew: true,
+        retries: 3,
+        ackTimeout: 50,
+      });
+
+      const compressFlags: boolean[] = [];
+
+      socket.io.engine.on("packetCreate", ({ type, data, options }) => {
+        if (type === "message" && data.startsWith("2")) {
+          compressFlags.push(options.compress);
+        }
+      });
+
+      socket.on("connect", () => {
+        socket.emit("echo", 1);
+        socket.compress(false).emit("echo", 2);
+        socket.emit("echo", 3, () => {
+          expect(compressFlags).to.eql([true, false, true]);
+
+          success(done, socket);
+        });
+      });
+    });
+  });
 });
