@@ -45,6 +45,16 @@ export abstract class Transport extends Emitter<
   public query: Record<string, string>;
   public writable: boolean = false;
 
+  /**
+   * Whether doClose() deferred the actual close until the transport is open.
+   * The polling transport sets this when close() is called mid-handshake, as
+   * the close packet can only be written once the handshake completes (see
+   * Polling#doClose). While set, close() skips its synchronous onClose()
+   * call -- the transport calls onClose() itself once the deferred close
+   * runs.
+   */
+  protected closeDeferred: boolean = false;
+
   protected opts: SocketOptions;
   protected supportsBinary: boolean;
   protected readyState: TransportState;
@@ -100,7 +110,13 @@ export abstract class Transport extends Emitter<
   public close() {
     if (this.readyState === "opening" || this.readyState === "open") {
       this.doClose();
-      this.onClose();
+      // doClose() may defer the close until the transport is open (the
+      // polling transport waits for the handshake to complete so the close
+      // packet can be sent), in which case onClose() runs once the deferred
+      // close completes
+      if (!this.closeDeferred) {
+        this.onClose();
+      }
     }
 
     return this;
