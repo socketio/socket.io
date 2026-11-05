@@ -124,6 +124,7 @@ export abstract class BaseWS extends Transport {
   override doClose() {
     if (typeof this.ws !== "undefined") {
       this.ws.onerror = () => {};
+      this.ws.onclose = () => {};
       this.ws.close();
       this.ws = null;
     }
