@@ -198,6 +198,35 @@ describe("Transport", () => {
       expect(ws.uri()).to.be("wss://test/engine.io");
     });
 
+    it("should include query parameters in WebTransport uris", () => {
+      let actualUri;
+      const previousWebTransport = globalThis.WebTransport;
+      globalThis.WebTransport = function (uri) {
+        actualUri = uri;
+        this.closed = new Promise(() => {});
+        this.ready = new Promise(() => {});
+      };
+
+      try {
+        new eio.transports.webtransport({
+          path: "/engine.io",
+          hostname: "test",
+          secure: true,
+          query: { token: "abc", EIO: "4", transport: "webtransport" },
+          transportOptions: { webtransport: {} },
+        }).open();
+      } finally {
+        globalThis.WebTransport = previousWebTransport;
+      }
+
+      const url = new URL(actualUri);
+      expect(url.origin).to.be("https://test");
+      expect(url.pathname).to.be("/engine.io");
+      expect(url.searchParams.get("token")).to.be("abc");
+      expect(url.searchParams.get("EIO")).to.be("4");
+      expect(url.searchParams.get("transport")).to.be("webtransport");
+    });
+
     it("should timestamp ws uris", () => {
       const ws = new eio.transports.websocket({
         path: "/engine.io",
