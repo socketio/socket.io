@@ -46,16 +46,17 @@ export function parse(setCookieString: string): Cookie {
     if (subParts.length !== 2) {
       continue;
     }
-    const key = subParts[0].trim();
+    // attribute names are case-insensitive (RFC 6265, section 5.2)
+    const key = subParts[0].trim().toLowerCase();
     const value = subParts[1].trim();
     switch (key) {
-      case "Expires": {
+      case "expires": {
         const expires = new Date(value);
         // an unparseable date must not turn a deletion into a cookie that is kept forever
         cookie.expires = isNaN(expires.getTime()) ? new Date(0) : expires;
         break;
       }
-      case "Max-Age": {
+      case "max-age": {
         const delta = parseInt(value, 10);
         // RFC 6265, section 5.2.2: a delta-seconds of zero or less means the cookie expires
         // immediately, and an unparseable one must not be kept either
