@@ -174,6 +174,18 @@ describe("cookie expiry", () => {
     expect([...jar.cookies]).to.eql([]);
   });
 
+  // RFC 6265, section 5.2: attribute names are matched case-insensitively
+  it("should match the Expires and Max-Age attributes case-insensitively", () => {
+    const jar = new CookieJar();
+    jar.parseCookies([
+      "foo=bar; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/",
+      "bar=baz; max-age=0",
+      "baz=qux; MAX-AGE=0",
+    ]);
+
+    expect([...jar.cookies]).to.eql([]);
+  });
+
   it("should keep a cookie with a Max-Age in the future", () => {
     const jar = new CookieJar();
     jar.parseCookies(["foo=bar; Max-Age=1000"]);
