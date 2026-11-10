@@ -17,12 +17,12 @@ export class WS extends BaseWS {
     opts: Record<string, any>,
   ): any {
     if (this.socket?._cookieJar) {
-      opts.headers = opts.headers || {};
+      opts.headers = Object.assign({}, opts.headers);
 
       opts.headers.cookie =
         typeof opts.headers.cookie === "string"
           ? [opts.headers.cookie]
-          : opts.headers.cookie || [];
+          : [...(opts.headers.cookie || [])];
       for (const [name, cookie] of this.socket._cookieJar.cookies) {
         opts.headers.cookie.push(`${name}=${cookie.value}`);
       }
