@@ -128,7 +128,7 @@ socket.on("message", (data) => {
 
 ## API
 
-See the [API documentation](./docs/API.md) for the full list of available options, methods, events, and properties.
+See the [API documentation](https://github.com/socketio/socket.io/blob/main/packages/engine.io/docs/API.md) for the full list of available options, methods, events, and properties.
 
 ## License
 
