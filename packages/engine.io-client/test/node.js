@@ -124,10 +124,49 @@ describe("cookie parsing", () => {
     const cookieStr =
       "foo=bar; Max-Age=1000; Domain=.example.com; Path=/; Expires=Tue, 01 Jul 2025 10:01:11 GMT; HttpOnly; Secure; SameSite=strict";
 
-    expect(parse(cookieStr)).to.eql({
+    const cookie = parse(cookieStr);
+    const expected = Date.now() + 1000 * 1000;
+    expect(cookie.name).to.eql("foo");
+    expect(cookie.value).to.eql("bar");
+    // Max-Age takes precedence over Expires (RFC 6265, section 5.3)
+    expect(cookie.expires.getTime()).to.be.within(
+      expected - 1000,
+      expected + 1000,
+    );
+  });
+
+  it("should give Max-Age precedence when it appears before Expires", () => {
+    const cookie = parse(
+      "foo=bar; Max-Age=1000; Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+    );
+    const expected = Date.now() + 1000 * 1000;
+    expect(cookie.name).to.eql("foo");
+    expect(cookie.value).to.eql("bar");
+    expect(cookie.expires.getTime()).to.be.within(
+      expected - 1000,
+      expected + 1000,
+    );
+  });
+
+  it("should give Max-Age precedence when it appears after Expires", () => {
+    const cookie = parse(
+      "foo=bar; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=1000",
+    );
+    const expected = Date.now() + 1000 * 1000;
+    expect(cookie.name).to.eql("foo");
+    expect(cookie.value).to.eql("bar");
+    expect(cookie.expires.getTime()).to.be.within(
+      expected - 1000,
+      expected + 1000,
+    );
+  });
+
+  it("should honor Expires when Max-Age is absent", () => {
+    const expires = "Fri, 01 Jan 2100 00:00:00 GMT";
+    expect(parse(`foo=bar; Expires=${expires}`)).to.eql({
       name: "foo",
       value: "bar",
-      expires: new Date("Tue Jul 01 2025 06:01:11 GMT-0400 (EDT)"),
+      expires: new Date(expires),
     });
   });
 
@@ -191,5 +230,14 @@ describe("cookie expiry", () => {
     jar.parseCookies(["foo=bar; Max-Age=1000"]);
 
     expect([...jar.cookies].map(([name]) => name)).to.eql(["foo"]);
+  });
+
+  it("should delete a cookie when Max-Age=0 even if Expires is in the future", () => {
+    const jar = new CookieJar();
+    jar.parseCookies([
+      "foo=bar; Max-Age=0; Expires=Fri, 01 Jan 2100 00:00:00 GMT",
+    ]);
+
+    expect([...jar.cookies]).to.eql([]);
   });
 });

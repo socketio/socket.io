@@ -41,6 +41,7 @@ export function parse(setCookieString: string): Cookie {
     value,
   };
 
+  let hasMaxAge = false;
   for (let j = 1; j < parts.length; j++) {
     const subParts = parts[j].split("=");
     if (subParts.length !== 2) {
@@ -51,12 +52,17 @@ export function parse(setCookieString: string): Cookie {
     const value = subParts[1].trim();
     switch (key) {
       case "expires": {
+        if (hasMaxAge) {
+          // Max-Age takes precedence over Expires (RFC 6265, section 5.3)
+          continue;
+        }
         const expires = new Date(value);
         // an unparseable date must not turn a deletion into a cookie that is kept forever
         cookie.expires = isNaN(expires.getTime()) ? new Date(0) : expires;
         break;
       }
       case "max-age": {
+        hasMaxAge = true;
         const delta = parseInt(value, 10);
         // RFC 6265, section 5.2.2: a delta-seconds of zero or less means the cookie expires
         // immediately, and an unparseable one must not be kept either
