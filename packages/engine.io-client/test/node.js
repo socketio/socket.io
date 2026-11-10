@@ -108,6 +108,21 @@ describe("node.js", () => {
       done();
     });
   });
+
+  it("should not modify the extraHeaders option with withCredentials: true", (done) => {
+    const extraHeaders = { foo: "bar" };
+    const socket = new Socket("http://localhost:3000", {
+      withCredentials: true,
+      extraHeaders,
+    });
+
+    socket.on("upgrade", () => {
+      expect(extraHeaders).to.eql({ foo: "bar" });
+
+      socket.close();
+      done();
+    });
+  });
 });
 
 describe("cookie parsing", () => {
