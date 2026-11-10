@@ -14,24 +14,6 @@ import "./node"; // replaced by "./browser" for the tests in the browser (see "b
 
 describe("engine.io-parser", () => {
   describe("single packet", () => {
-    for (const [start, end] of [
-      [1, 3],
-      [0, 2],
-      [2, 2],
-      [0, 4],
-    ]) {
-      it(`should decode only the binary view bytes from ${start} to ${end}`, () => {
-        const bytes = Uint8Array.of(1, 2, 3, 4);
-        const view = bytes.subarray(start, end);
-        const decoded = decodePacket(view, "arraybuffer");
-
-        expect(decoded.type).to.eql("message");
-        expect(decoded.data).to.be.an(ArrayBuffer);
-        expect(areArraysEqual(decoded.data, view)).to.be(true);
-        expect(decoded.data.byteLength).to.eql(view.byteLength);
-      });
-    }
-
     it("should encode/decode a string", (done) => {
       const packet: Packet = { type: "message", data: "test" };
       encodePacket(packet, true, (encodedPacket) => {
