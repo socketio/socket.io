@@ -97,13 +97,20 @@ export class CookieJar {
 
   get cookies(): IterableIterator<[string, Cookie]> {
     const now = Date.now();
+    const expiredCookies = new Set<string>();
+
     this._cookies.forEach((cookie, name) => {
       // a cookie is expired as soon as its expiry time is reached, so Max-Age=0 (a deletion
       // request) must not stay alive until the clock advances past it
       if (cookie.expires !== undefined && cookie.expires.getTime() <= now) {
-        this._cookies.delete(name);
+        expiredCookies.add(name);
       }
     });
+
+    for (const name of expiredCookies) {
+      this._cookies.delete(name);
+    }
+
     return this._cookies.entries();
   }
 
