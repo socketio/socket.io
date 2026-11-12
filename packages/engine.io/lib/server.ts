@@ -910,7 +910,7 @@ export class Server extends BaseServer {
       transports[req._query.transport] !== undefined &&
       !transports[req._query.transport].prototype.handlesUpgrades
     ) {
-      debug("transport doesnt handle upgraded requests");
+      debug("transport doesn't handle upgraded requests");
       websocket.close();
       return;
     }
