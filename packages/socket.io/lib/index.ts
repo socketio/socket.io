@@ -845,7 +845,12 @@ export class Server<
       }),
     );
 
-    this.engine.close();
+    // the engine may be a custom implementation (see bind())
+    if (typeof this.engine.gracefulClose === "function") {
+      await this.engine.gracefulClose();
+    } else {
+      this.engine.close();
+    }
 
     // restore the Adapter prototype, when the Socket.IO server was attached to a uWebSockets.js server
     restoreAdapter();
