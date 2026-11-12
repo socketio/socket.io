@@ -52,7 +52,7 @@ export class Socket extends EventEmitter {
   private server: BaseServer;
   /* private */ upgrading = false;
   /* private */ upgraded = false;
-  private writeBuffer: Packet[] = [];
+  /* private */ writeBuffer: Packet[] = [];
   private packetsFn: SendCallback[] = [];
   private sentCallbackFn: SendCallback[][] = [];
   private cleanupFn: any[] = [];

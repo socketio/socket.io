@@ -183,6 +183,10 @@ export abstract class BaseServer extends EventEmitter {
   protected clients: Record<string, Socket>;
   public clientsCount: number;
   protected middlewares: Middleware[] = [];
+  /**
+   * Whether the server is waiting for the write buffers to be drained, in which case new sessions are rejected.
+   */
+  private isClosingGracefully = false;
 
   /**
    * Server constructor.
@@ -334,6 +338,13 @@ export abstract class BaseServer extends EventEmitter {
         });
       }
     } else {
+      if (this.isClosingGracefully) {
+        debug("server is closing, rejecting new session");
+        return fn(Server.errors.BAD_REQUEST, {
+          name: "SERVER_CLOSING",
+        });
+      }
+
       // handshake is GET only
       if ("GET" !== req.method) {
         return fn(Server.errors.BAD_HANDSHAKE_METHOD, {
@@ -425,6 +436,63 @@ export abstract class BaseServer extends EventEmitter {
     }
     this.cleanup();
     return this;
+  }
+
+  /**
+   * Closes all clients, after waiting for the packets that are still buffered to be sent.
+   *
+   * With HTTP long-polling, the buffered packets can only be sent when the client sends its next GET request. The
+   * returned Promise is resolved once all the write buffers are drained, or after the given delay, whichever comes
+   * first. The remaining packets are then discarded, like with {@link close}.
+   *
+   * New sessions are rejected in the meantime.
+   *
+   * @param timeout - the maximum delay to wait for the write buffers to be drained, in milliseconds
+   */
+  public async gracefulClose(timeout = 1000): Promise<void> {
+    this.isClosingGracefully = true;
+
+    const pendingClients: Socket[] = [];
+    for (const sid in this.clients) {
+      if (hasOwn(this.clients, sid)) {
+        const client = this.clients[sid];
+        if (
+          (client.readyState === "open" || client.readyState === "closing") &&
+          client.writeBuffer.length
+        ) {
+          pendingClients.push(client);
+        }
+      }
+    }
+
+    if (pendingClients.length) {
+      debug(
+        "waiting for %d client(s) to drain their buffer",
+        pendingClients.length,
+      );
+
+      let timer: NodeJS.Timeout;
+
+      await Promise.race([
+        Promise.all(
+          pendingClients.map(
+            (client) =>
+              new Promise<void>((resolve) => {
+                client.once("drain", resolve);
+                client.once("close", resolve);
+              }),
+          ),
+        ),
+        new Promise<void>((resolve) => {
+          timer = setTimeout(resolve, timeout);
+        }),
+      ]);
+
+      clearTimeout(timer);
+    }
+
+    this.close();
+    this.isClosingGracefully = false;
   }
 
   protected abstract cleanup();
@@ -544,6 +612,11 @@ export abstract class BaseServer extends EventEmitter {
   }
 
   public async onWebTransportSession(session: any) {
+    if (this.isClosingGracefully) {
+      debug("server is closing, rejecting new session");
+      return session.close();
+    }
+
     if (this.middlewares.length > 0) {
       // middlewares expect an IncomingMessage argument, which cannot be created from the WebTransport session object
       // see also: https://github.com/fails-components/webtransport/issues/448
