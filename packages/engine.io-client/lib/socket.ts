@@ -637,9 +637,9 @@ export class Socket extends Emitter<
 
             this.setTransport(transport);
             transport.send([{ type: "upgrade" }]);
+            this.upgrading = false;
             this.emitReserved("upgrade", transport);
             transport = null;
-            this.upgrading = false;
             this.flush();
           });
         } else {
