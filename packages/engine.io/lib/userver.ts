@@ -181,6 +181,11 @@ export class uServer extends BaseServer {
 
     req.res = res;
 
+    // the uWS.HttpRequest object cannot be accessed once the handler has returned (e.g. with an asynchronous middleware or allowRequest() function)
+    const secWebSocketKey = req.getHeader("sec-websocket-key");
+    const secWebSocketProtocol = req.getHeader("sec-websocket-protocol");
+    const secWebSocketExtensions = req.getHeader("sec-websocket-extensions");
+
     const callback = async (errorCode, errorContext) => {
       if (errorCode !== undefined) {
         this.emit("connection_error", {
@@ -237,22 +242,24 @@ export class uServer extends BaseServer {
 
       this.emit("headers", additionalHeaders, req);
 
-      // calling writeStatus() triggers the flushing of any header added in a middleware
-      req.res.writeStatus("101 Switching Protocols");
+      res.cork(() => {
+        // calling writeStatus() triggers the flushing of any header added in a middleware
+        req.res.writeStatus("101 Switching Protocols");
 
-      Object.keys(additionalHeaders).forEach((key) => {
-        req.res.writeHeader(key, additionalHeaders[key]);
+        Object.keys(additionalHeaders).forEach((key) => {
+          req.res.writeHeader(key, additionalHeaders[key]);
+        });
+
+        res.upgrade(
+          {
+            transport,
+          },
+          secWebSocketKey,
+          secWebSocketProtocol,
+          secWebSocketExtensions,
+          context,
+        );
       });
-
-      res.upgrade(
-        {
-          transport,
-        },
-        req.getHeader("sec-websocket-key"),
-        req.getHeader("sec-websocket-protocol"),
-        req.getHeader("sec-websocket-extensions"),
-        context,
-      );
     };
 
     this._applyMiddlewares(req, res, (err) => {

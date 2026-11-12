@@ -56,6 +56,55 @@ describe("middlewares", () => {
     });
   });
 
+  it("should apply an asynchronous middleware (polling)", (done) => {
+    const engine = listen((port) => {
+      engine.use((req, res, next) => {
+        res.setHeader("foo", "bar");
+        setTimeout(next, 10);
+      });
+
+      request
+        .get(`http://localhost:${port}/engine.io/`)
+        .query({ EIO: 4, transport: "polling" })
+        .end((err, res) => {
+          expect(err).to.be(null);
+          expect(res.status).to.eql(200);
+          expect(res.headers["foo"]).to.eql("bar");
+
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          done();
+        });
+    });
+  });
+
+  it("should apply an asynchronous middleware (websocket)", (done) => {
+    const engine = listen((port) => {
+      engine.use((req, res, next) => {
+        res.setHeader("foo", "bar");
+        setTimeout(next, 10);
+      });
+
+      const socket = new WebSocket(
+        `ws://localhost:${port}/engine.io/?EIO=4&transport=websocket`,
+      );
+
+      socket.on("upgrade", (res) => {
+        expect(res.headers["foo"]).to.eql("bar");
+
+        if (engine.httpServer) {
+          engine.httpServer.close();
+        }
+        done();
+      });
+
+      socket.on("open", () => {
+        socket.close();
+      });
+    });
+  });
+
   it("should apply all middlewares in order", (done) => {
     const engine = listen((port) => {
       let count = 0;
