@@ -389,6 +389,8 @@ export class Socket extends Emitter<
       uri = null;
     }
 
+    opts = Object.assign({}, opts);
+
     if (uri) {
       const parsedUri = parse(uri as string);
       opts.hostname = parsedUri.host;
