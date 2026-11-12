@@ -76,6 +76,24 @@ describe("middleware", () => {
     });
   });
 
+  it("should pass the error thrown by a function", (done) => {
+    const io = new Server(0);
+
+    io.use(() => {
+      throw new Error("Authentication error");
+    });
+
+    const socket = createClient(io);
+    socket.on("connect", () => {
+      done(new Error("nope"));
+    });
+    socket.on("connect_error", (err) => {
+      expect(err.message).to.be("Authentication error");
+
+      success(done, io, socket);
+    });
+  });
+
   it("should only call connection after fns", (done) => {
     const io = new Server(0);
 
