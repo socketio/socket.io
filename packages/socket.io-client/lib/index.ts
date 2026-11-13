@@ -42,7 +42,7 @@ function lookup(
     uri = undefined;
   }
 
-  opts = opts || {};
+  opts = Object.assign({}, opts);
 
   const parsed = url(uri as string, opts.path || "/socket.io");
   const source = parsed.source;

@@ -36,6 +36,33 @@ describe("Socket", function () {
     socketWithoutUri.close();
   });
 
+  it("should not copy the parts of the URI into the caller's options", () => {
+    const optsWithUri = { transports: ["polling"] };
+    const optsWithHost = { host: "localhost", transports: ["polling"] };
+
+    const socketWithUri = new Socket(
+      "https://localhost?token=abc",
+      optsWithUri,
+    );
+    const socketWithHost = new Socket(optsWithHost);
+
+    expect(optsWithUri).to.eql({ transports: ["polling"] });
+    expect(optsWithHost).to.eql({ host: "localhost", transports: ["polling"] });
+    socketWithUri.close();
+    socketWithHost.close();
+  });
+
+  it("should not send the query of a previous URI when the options are reused", () => {
+    const opts = { transports: ["polling"] };
+
+    const socket1 = new Socket("http://localhost?token=abc", opts);
+    const socket2 = new Socket("http://localhost", opts);
+
+    expect(socket2.transport.query.token).to.be(undefined);
+    socket1.close();
+    socket2.close();
+  });
+
   it("should keep '=' characters in query values", () => {
     const socket = new Socket("http://localhost?token=abc==&flag", {
       transports: ["polling"],
