@@ -108,7 +108,9 @@ export class Request extends Emitter<
 
   private _xhr: any;
   private setTimeoutFn: typeof setTimeout;
+  private clearTimeoutFn: typeof clearTimeout;
   private _index: number;
+  private _timeoutTimer: NodeJS.Timeout;
 
   static requestsCount = 0;
   static requests = {};
@@ -215,6 +217,22 @@ export class Request extends Emitter<
 
       debug("xhr data %s", this._data);
       xhr.send(this._data);
+
+      if (this._opts.requestTimeout && !("ontimeout" in xhr)) {
+        // the XMLHttpRequest implementation does not support the "timeout" attribute (e.g. the "xmlhttprequest-ssl"
+        // package in Node.js), so we handle the timeout ourselves
+        this._timeoutTimer = this.setTimeoutFn(() => {
+          debug("xhr timeout after %d ms", this._opts.requestTimeout);
+          this.emitReserved("error", 0, this._xhr);
+          // note: xhr.abort() is not called here, because with the "xmlhttprequest-ssl" package, aborting a pending
+          // request throws an uncaught exception (see https://github.com/mjwwit/node-XMLHttpRequest/issues/37)
+          this._cleanup();
+        }, this._opts.requestTimeout);
+
+        if (this._opts.autoUnref) {
+          this._timeoutTimer.unref();
+        }
+      }
     } catch (e) {
       // Need to defer since .create() is called directly from the constructor
       // and thus the 'error' event can only be only bound *after* this exception
@@ -250,6 +268,7 @@ export class Request extends Emitter<
     if ("undefined" === typeof this._xhr || null === this._xhr) {
       return;
     }
+    this.clearTimeoutFn(this._timeoutTimer);
     this._xhr.onreadystatechange = empty;
 
     if (fromError) {
