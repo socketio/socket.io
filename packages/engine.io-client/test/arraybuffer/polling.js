@@ -93,4 +93,26 @@ describe("arraybuffer", function () {
       });
     });
   });
+
+  it("should use the exact base64 length when merging binary packets", (done) => {
+    const socket = new Socket({ transports: ["polling"] });
+    // both packets are buffered before the handshake, so they are flushed together:
+    // "bAA==" (5) + separator (1) + "4" + "a" x 94 (95) = 101 bytes, above the maxPayload value of 100
+    socket.send(new Uint8Array(1));
+    socket.send(repeat("a", 94));
+
+    const onClose = (reason) => done(new Error(`unexpected close: ${reason}`));
+    socket.on("close", onClose);
+
+    let count = 0;
+    socket.on("message", (data) => {
+      if (data === "hi") return;
+      count++;
+      if (count === 2) {
+        socket.off("close", onClose);
+        socket.close();
+        done();
+      }
+    });
+  });
 });
