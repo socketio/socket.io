@@ -3,6 +3,9 @@ import { createServer } from "http";
 import request from "supertest";
 import expect from "expect.js";
 import { getPort, successFn } from "./support/util";
+import { readFileSync } from "fs";
+import { join } from "path";
+import { brotliDecompressSync } from "zlib";
 
 describe("server attachment", () => {
   describe("http.Server", () => {
@@ -83,6 +86,27 @@ describe("server attachment", () => {
           expect(res.status).to.be(200);
           done();
         });
+    });
+
+    it("should serve the same compressed client to each request", async () => {
+      const srv = createServer();
+      new Server(srv);
+      const expected = readFileSync(
+        join(__dirname, "../client-dist/socket.io.js"),
+      );
+      for (let i = 0; i < 2; i++) {
+        const res = await request(srv)
+          .get("/socket.io/socket.io.js")
+          .set("accept-encoding", "br")
+          .buffer(true)
+          .parse((res, callback) => {
+            const chunks: Buffer[] = [];
+            res.on("data", (chunk) => chunks.push(chunk));
+            res.on("end", () => callback(null, Buffer.concat(chunks)));
+          });
+        expect(res.headers["content-encoding"]).to.be("br");
+        expect(brotliDecompressSync(res.body).equals(expected)).to.be(true);
+      }
     });
 
     it("should serve client with necessary CORS headers", (done) => {
