@@ -423,20 +423,29 @@ describe("socket", () => {
 
     it("should discard a volatile packet when the namespace is not connected yet", () => {
       return wrap((done) => {
-        const socket = io(BASE_URL, { forceNew: true });
+        const socket = io(BASE_URL, {
+          forceNew: true,
+          transports: ["websocket"],
+        });
 
         socket.on("connect", () => {
-          // the transport is writable, but the server has not acknowledged the CONNECT packet of this namespace yet
-          const fooSocket = socket.io.socket("/foo");
+          // the server delays the acknowledgement of the CONNECT packet of this namespace
+          const delayedSocket = socket.io.socket("/delayed");
 
-          fooSocket.volatile.emit("getId", () => {
-            done(new Error("should not happen"));
-          });
+          // wait until the transport is writable again after the CONNECT packet
+          setTimeout(() => {
+            expect(socket.io.engine.transport.writable).to.be(true);
+            expect(delayedSocket.connected).to.be(false);
 
-          fooSocket.emit("getId", () => {
-            fooSocket.disconnect();
-            success(done, socket);
-          });
+            delayedSocket.volatile.emit("getId", () => {
+              done(new Error("should not happen"));
+            });
+
+            delayedSocket.emit("getId", () => {
+              delayedSocket.disconnect();
+              success(done, socket);
+            });
+          }, 20);
         });
       });
     });
