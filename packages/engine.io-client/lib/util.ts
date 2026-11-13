@@ -23,16 +23,14 @@ export function installTimerFunctions(obj, opts) {
   }
 }
 
-// base64 encoded buffers are about 33% bigger (https://en.wikipedia.org/wiki/Base64)
-const BASE64_OVERHEAD = 1.33;
-
 // we could also have used `new Blob([obj]).size`, but it isn't supported in IE9
 export function byteLength(obj) {
   if (typeof obj === "string") {
     return utf8Length(obj);
   }
-  // arraybuffer or blob
-  return Math.ceil((obj.byteLength || obj.size) * BASE64_OVERHEAD);
+  // arraybuffer or blob, which are base64 encoded with HTTP long-polling: each group of 3 bytes gives 4 characters,
+  // and the last group is padded (https://en.wikipedia.org/wiki/Base64)
+  return Math.ceil((obj.byteLength || obj.size) / 3) * 4;
 }
 
 function utf8Length(str) {
