@@ -814,16 +814,14 @@ export class Socket<
   private dispatch(event: Event): void {
     debug("dispatching an event %j", event);
     this.run(event, (err) => {
-      process.nextTick(() => {
-        if (err) {
-          return this._onerror(err);
-        }
-        if (this.connected) {
-          super.emitUntyped.apply(this, event);
-        } else {
-          debug("ignore packet received after disconnection");
-        }
-      });
+      if (err) {
+        return this._onerror(err);
+      }
+      if (this.connected) {
+        super.emitUntyped.apply(this, event);
+      } else {
+        debug("ignore packet received after disconnection");
+      }
     });
   }
 

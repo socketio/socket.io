@@ -890,11 +890,35 @@ describe("socket", () => {
     });
   });
 
+  it("should receive a packet just before disconnection", (done) => {
+    const io = new Server(0);
+    const clientSocket = createClient(io);
+    let wasEventReceived = false;
+
+    io.on("connection", async (socket) => {
+      socket.on("test", () => {
+        wasEventReceived = true;
+      });
+      socket.on("disconnect", () => {
+        expect(wasEventReceived).to.eql(true);
+        success(done, io, clientSocket);
+      });
+    });
+
+    clientSocket.on("connect", () => {
+      clientSocket.emit("test", Buffer.alloc(10));
+      clientSocket.disconnect();
+    });
+  });
+
   it("should ignore a packet received after disconnection", (done) => {
     const io = new Server(0);
     const clientSocket = createClient(io);
 
     io.on("connection", (socket) => {
+      socket.use((_, next) => {
+        setTimeout(() => next(), 10);
+      });
       socket.on("test", () => {
         done(new Error("should not happen"));
       });
