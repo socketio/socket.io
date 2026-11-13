@@ -88,4 +88,15 @@ describe("url", () => {
     expect(parsed.id).to.be("https://woot.com:443/some-path");
     expect(parsed.path).to.be("/some-namespace");
   });
+
+  it("works with no protocol and no location (Node.js and React Native)", function () {
+    if (typeof location !== "undefined") {
+      return this.skip();
+    }
+    const parsed = url("woot.com:3000");
+    expect(parsed.protocol).to.be("https");
+    expect(parsed.host).to.be("woot.com");
+    expect(parsed.port).to.be("3000");
+    expect(parsed.id).to.be("https://woot.com:3000");
+  });
 });

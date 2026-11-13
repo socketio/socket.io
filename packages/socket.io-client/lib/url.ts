@@ -59,7 +59,7 @@ export function url(
 
     if (!/^(https?|wss?):\/\//.test(uri)) {
       debug("protocol-less url %s", uri);
-      if ("undefined" !== typeof loc) {
+      if (loc) {
         uri = loc.protocol + "//" + uri;
       } else {
         uri = "https://" + uri;
