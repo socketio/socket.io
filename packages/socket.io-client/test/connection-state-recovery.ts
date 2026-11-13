@@ -1,5 +1,6 @@
 import expect = require("expect.js");
 import { io } from "..";
+import { PacketType } from "socket.io-parser";
 import { wrap, BASE_URL, success } from "./support/util";
 
 describe("connection state recovery", () => {
@@ -26,5 +27,20 @@ describe("connection state recovery", () => {
         });
       });
     });
+  });
+
+  it("should not be recovered when the server does not use connection state recovery", () => {
+    const socket = io(BASE_URL, { forceNew: true, autoConnect: false });
+
+    // the CONNECT packet of a server without connection state recovery has no "pid" attribute
+    // @ts-ignore method 'onpacket' is private
+    socket.onpacket({
+      type: PacketType.CONNECT,
+      nsp: "/",
+      data: { sid: "abc" },
+    });
+
+    expect(socket.connected).to.be(true);
+    expect(socket.recovered).to.be(false);
   });
 });
