@@ -1,6 +1,6 @@
 const path = require("node:path");
 const { execFile } = require("node:child_process");
-const { Socket } = require("../");
+const { Socket, Fetch } = require("../");
 const { repeat } = require("./util");
 const expect = require("expect.js");
 const { parse } = require("../build/cjs/globals.node.js");
@@ -106,6 +106,50 @@ describe("node.js", () => {
 
       socket.close();
       done();
+    });
+  });
+
+  describe("credentials mode of the fetch() transport", () => {
+    const originalFetch = globalThis.fetch;
+    let credentials;
+
+    beforeEach(() => {
+      credentials = [];
+      globalThis.fetch = (url, init) => {
+        credentials.push(init.credentials);
+        return originalFetch(url, init);
+      };
+    });
+
+    afterEach(() => {
+      globalThis.fetch = originalFetch;
+    });
+
+    it("should send same-origin cookies with withCredentials: false", (done) => {
+      const socket = new Socket({
+        transports: [Fetch],
+        withCredentials: false,
+      });
+
+      socket.on("open", () => {
+        // like XMLHttpRequest, and unlike "omit", which drops the cookies of the page origin
+        expect(credentials).to.eql(["same-origin"]);
+        socket.close();
+        done();
+      });
+    });
+
+    it("should send cross-origin cookies with withCredentials: true", (done) => {
+      const socket = new Socket({
+        transports: [Fetch],
+        withCredentials: true,
+      });
+
+      socket.on("open", () => {
+        expect(credentials).to.eql(["include"]);
+        socket.close();
+        done();
+      });
     });
   });
 
