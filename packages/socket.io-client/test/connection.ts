@@ -403,6 +403,45 @@ describe("connection", () => {
     });
   });
 
+  it("should accept 0 as the value of the reconnection options", () => {
+    const manager = new Manager(BASE_URL, {
+      autoConnect: false,
+      reconnectionAttempts: 0,
+      reconnectionDelay: 0,
+      reconnectionDelayMax: 0,
+    });
+
+    expect(manager.reconnectionAttempts()).to.be(0);
+    expect(manager.reconnectionDelay()).to.be(0);
+    expect(manager.reconnectionDelayMax()).to.be(0);
+    // @ts-ignore property 'backoff' is private
+    expect(manager.backoff.duration()).to.be(0);
+  });
+
+  it("should not try to reconnect when requested zero attempts", () => {
+    return wrap((done) => {
+      const manager = new Manager(BASE_URL, {
+        reconnection: true,
+        timeout: 0,
+        reconnectionAttempts: 0,
+        reconnectionDelay: 10,
+      });
+      let socket;
+
+      manager.on("reconnect_attempt", () => {
+        done(new Error("should not happen"));
+      });
+
+      manager.on("reconnect_failed", () => {
+        socket.close();
+        manager._close();
+        done();
+      });
+
+      socket = manager.socket("/timeout");
+    });
+  });
+
   it("should fire reconnect_* events on manager", () => {
     return wrap((done) => {
       const manager = new Manager(BASE_URL, {
