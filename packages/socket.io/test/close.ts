@@ -2,6 +2,7 @@ import { createServer } from "http";
 import { io as ioc } from "socket.io-client";
 import { join } from "node:path";
 import { execFile } from "node:child_process";
+import { EventEmitter } from "node:events";
 import { Server } from "..";
 import expect from "expect.js";
 import {
@@ -89,6 +90,49 @@ describe("close", () => {
     io.close()
       .then(() => done())
       .catch((e) => done(e));
+  });
+
+  it("should send the buffered packets to polling clients before closing (#5088)", (done) => {
+    const httpServer = createServer().listen(0);
+    const io = new Server(httpServer);
+    const port = getPort(io);
+
+    io.on("connection", (socket) => {
+      socket.on("auth", (cb) => {
+        cb();
+        socket.disconnect(true);
+        io.close();
+      });
+    });
+
+    const clientSocket = ioc(`http://localhost:${port}`, {
+      transports: ["polling"],
+      reconnection: false,
+    });
+
+    clientSocket.on("connect", () => {
+      clientSocket.emit("auth", () => {});
+    });
+
+    clientSocket.on("disconnect", (reason) => {
+      expect(reason).to.eql("io server disconnect");
+      done();
+    });
+  });
+
+  it("should close a custom engine without gracefulClose()", async () => {
+    let closed = false;
+    const engine = Object.assign(new EventEmitter(), {
+      close: () => {
+        closed = true;
+      },
+    });
+    const io = new Server();
+    io.bind(engine);
+
+    await io.close();
+
+    expect(closed).to.be(true);
   });
 
   describe("graceful close", () => {

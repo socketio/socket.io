@@ -1770,6 +1770,65 @@ describe("server", () => {
       });
     });
 
+    it("should send the packets in the writeBuffer when stopping the server gracefully", (done) => {
+      engine = listen((port) => {
+        const clientSocket = new ClientSocket(`ws://localhost:${port}`, {
+          transports: ["polling"],
+        });
+
+        clientSocket.on("data", (val) => {
+          expect(val).to.eql("hello");
+
+          clientSocket.close();
+          done();
+        });
+
+        engine.on("connection", (socket) => {
+          socket.write("hello");
+          socket.close(); // readyState is now "closing"
+          engine.gracefulClose();
+        });
+      });
+    });
+
+    it("should discard the packets in the writeBuffer after the timeout when stopping the server gracefully", (done) => {
+      engine = listen(async (port) => {
+        engine.on("connection", async (socket) => {
+          socket.write("hello");
+
+          const start = Date.now();
+          await engine.gracefulClose(100);
+
+          expect(Date.now() - start).to.be.within(90, 500);
+          expect(socket.readyState).to.eql("closed");
+          done();
+        });
+
+        // the client never polls, so the buffer cannot be drained
+        await runHandshake(port);
+      });
+    });
+
+    it("should reject new sessions when stopping the server gracefully", (done) => {
+      engine = listen(async (port) => {
+        engine.on("connection", async (socket) => {
+          socket.write("hello");
+
+          const closePromise = engine.gracefulClose(100);
+
+          const res = await fetch(
+            `http://localhost:${port}/engine.io/?EIO=4&transport=polling`,
+          );
+          expect(res.status).to.eql(400);
+
+          await closePromise;
+          done();
+        });
+
+        await runHandshake(port);
+      });
+    });
+
     describe("graceful close", () => {
       before(function () {
         if (process.env.EIO_WS_ENGINE === "uws") {
