@@ -6,8 +6,8 @@ import type {
 } from "http";
 import type { Server as HTTPSServer } from "https";
 import type { Http2SecureServer, Http2Server } from "http2";
-import { createReadStream } from "fs";
-import { createDeflate, createGzip, createBrotliCompress } from "zlib";
+import { createReadStream, readFile } from "fs";
+import { brotliCompress, deflate, gzip } from "zlib";
 import accepts = require("accepts");
 import { pipeline } from "stream";
 import path = require("path");
@@ -63,6 +63,41 @@ const CLIENT_FILES = new Set([
   "socket.io.msgpack.min.js",
   "socket.io.msgpack.min.js.map",
 ]);
+
+const COMPRESSORS = {
+  br: brotliCompress,
+  gzip,
+  deflate,
+};
+
+type ClientFileEncoding = keyof typeof COMPRESSORS;
+
+// the client files are static, so each one is only compressed once per encoding
+const compressedClientFiles = new Map<string, Promise<Buffer>>();
+
+function compressClientFile(
+  filename: string,
+  encoding: ClientFileEncoding,
+): Promise<Buffer> {
+  const key = encoding + ":" + filename;
+  let content = compressedClientFiles.get(key);
+  if (!content) {
+    content = new Promise((resolve, reject) => {
+      readFile(
+        path.join(__dirname, "../client-dist/", filename),
+        (err, data) => {
+          if (err) return reject(err);
+          COMPRESSORS[encoding](data, (err, result) =>
+            err ? reject(err) : resolve(result),
+          );
+        },
+      );
+    });
+    content.catch(() => compressedClientFiles.delete(key));
+    compressedClientFiles.set(key, content);
+  }
+  return content;
+}
 
 type ParentNspNameMatchFn = (
   name: string,
@@ -696,34 +731,31 @@ export class Server<
     req: IncomingMessage,
     res: ServerResponse,
   ): void {
+    const encoding = accepts(req).encodings(["br", "gzip", "deflate"]);
+
+    if (encoding === "br" || encoding === "gzip" || encoding === "deflate") {
+      compressClientFile(filename, encoding).then(
+        (content) => {
+          res.writeHead(200, { "content-encoding": encoding });
+          res.end(content);
+        },
+        () => {
+          res.writeHead(200, { "content-encoding": encoding });
+          res.end();
+        },
+      );
+      return;
+    }
+
     const readStream = createReadStream(
       path.join(__dirname, "../client-dist/", filename),
     );
-    const encoding = accepts(req).encodings(["br", "gzip", "deflate"]);
-
-    const onError = (err: NodeJS.ErrnoException | null) => {
+    res.writeHead(200);
+    pipeline(readStream, res, (err) => {
       if (err) {
         res.end();
       }
-    };
-
-    switch (encoding) {
-      case "br":
-        res.writeHead(200, { "content-encoding": "br" });
-        pipeline(readStream, createBrotliCompress(), res, onError);
-        break;
-      case "gzip":
-        res.writeHead(200, { "content-encoding": "gzip" });
-        pipeline(readStream, createGzip(), res, onError);
-        break;
-      case "deflate":
-        res.writeHead(200, { "content-encoding": "deflate" });
-        pipeline(readStream, createDeflate(), res, onError);
-        break;
-      default:
-        res.writeHead(200);
-        pipeline(readStream, res, onError);
-    }
+    });
   }
 
   /**
