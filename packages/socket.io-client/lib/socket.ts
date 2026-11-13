@@ -545,7 +545,7 @@ export class Socket<
     };
     this.flags = {};
 
-    args.push((err, ...responseArgs) => {
+    const onResponse = (err, ...responseArgs) => {
       if (packet !== this._queue[0]) {
         return debug("packet [%d] already acknowledged", packet.id);
       }
@@ -571,7 +571,10 @@ export class Socket<
       }
       packet.pending = false;
       return this._drainQueue();
-    });
+    };
+    // the first argument is always the error (or null), even without the "ackTimeout" option
+    onResponse.withError = true;
+    args.push(onResponse);
 
     this._queue.push(packet);
     this._drainQueue();
