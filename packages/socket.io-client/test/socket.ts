@@ -421,6 +421,26 @@ describe("socket", () => {
       });
     });
 
+    it("should discard a volatile packet when the namespace is not connected yet", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL, { forceNew: true });
+
+        socket.on("connect", () => {
+          // the transport is writable, but the server has not acknowledged the CONNECT packet of this namespace yet
+          const fooSocket = socket.io.socket("/foo");
+
+          fooSocket.volatile.emit("getId", () => {
+            done(new Error("should not happen"));
+          });
+
+          fooSocket.emit("getId", () => {
+            fooSocket.disconnect();
+            success(done, socket);
+          });
+        });
+      });
+    });
+
     it("should send a volatile packet when the socket is connected and the pipe is ready", () => {
       return wrap((done) => {
         const socket = io(BASE_URL, { forceNew: true });
