@@ -776,7 +776,11 @@ export class Socket<
       }
     }
     super.emit.apply(this, args);
-    if (this._pid && args.length && typeof args[args.length - 1] === "string") {
+    if (
+      this._pid &&
+      args.length > 1 &&
+      typeof args[args.length - 1] === "string"
+    ) {
       this._lastOffset = args[args.length - 1];
     }
   }
