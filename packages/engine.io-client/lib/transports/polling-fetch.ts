@@ -52,7 +52,9 @@ export class Fetch extends Polling {
       method: isPost ? "POST" : "GET",
       body: isPost ? data : null,
       headers,
-      credentials: this.opts.withCredentials ? "include" : "omit",
+      // same behavior as XMLHttpRequest: cookies are always sent for same-origin requests, and only with
+      // `withCredentials: true` for cross-origin requests
+      credentials: this.opts.withCredentials ? "include" : "same-origin",
     }).then((res) => {
       // @ts-ignore getSetCookie() was added in Node.js v19.7.0
       this.socket._cookieJar?.parseCookies(res.headers.getSetCookie());
