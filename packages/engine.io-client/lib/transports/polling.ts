@@ -95,6 +95,27 @@ export abstract class Polling extends Transport {
 
       // otherwise bypass onData and handle the message
       this.onPacket(packet);
+
+      if (this.closeDeferred && "open" === packet.type) {
+        // close() was called while the handshake was still in flight and it
+        // just completed, so the deferred close packet can now be written.
+        // The sid is read from the open packet itself, as the Socket may have
+        // already dropped its listeners (see Socket#_onClose).
+        this.closeDeferred = false;
+        if (!this.query.sid && typeof packet.data === "string") {
+          try {
+            const sid = JSON.parse(packet.data).sid;
+            if (sid) {
+              this.query.sid = sid;
+            }
+          } catch (e) {
+            debug("could not parse sid from open packet");
+          }
+        }
+        debug("writing deferred close packet");
+        this.write([{ type: "close" }]);
+        this.onClose();
+      }
     };
 
     // decode payload
@@ -127,12 +148,16 @@ export abstract class Polling extends Transport {
 
     if ("open" === this.readyState) {
       debug("transport open - closing");
+      this.closeDeferred = false;
       close();
     } else {
-      // in case we're trying to close while
-      // handshaking is in progress (GH-164)
+      // in case we're trying to close while handshaking is in progress
+      // (GH-164), wait for the handshake to complete before writing the close
+      // packet. This intentionally does not rely on a one-off "open"
+      // listener: the Socket clears all transport listeners when it closes
+      // (see Socket#_onClose), which would silently drop the deferred close.
       debug("transport not open - deferring close");
-      this.once("open", close);
+      this.closeDeferred = true;
     }
   }
 
