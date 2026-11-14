@@ -837,7 +837,7 @@ export class Socket<
   private onconnect(id: string, pid: string) {
     debug("socket connected with id %s", id);
     this.id = id;
-    this.recovered = pid && this._pid === pid;
+    this.recovered = !!pid && this._pid === pid;
     this._pid = pid; // defined only if connection state recovery is enabled
     this.connected = true;
     this.emitBuffered();
