@@ -10,6 +10,9 @@ import { Polling } from "./polling.js";
  * @see https://nodejs.org/api/globals.html#fetch
  */
 export class Fetch extends Polling {
+  private _abortController =
+    typeof AbortController === "function" ? new AbortController() : null;
+
   override doPoll() {
     this._fetch()
       .then((res) => {
@@ -24,18 +27,28 @@ export class Fetch extends Polling {
       });
   }
 
-  override doWrite(data: string, callback: () => void) {
+  override doWrite(
+    data: string,
+    callback: () => void,
+    errorCallback?: () => void,
+  ) {
     this._fetch(data)
       .then((res) => {
         if (!res.ok) {
-          return this.onError("fetch write error", res.status, res);
+          this.onError("fetch write error", res.status, res);
+          return errorCallback && errorCallback();
         }
 
         callback();
       })
       .catch((err) => {
         this.onError("fetch write error", err);
+        errorCallback && errorCallback();
       });
+  }
+
+  protected override abortRequests() {
+    this._abortController?.abort();
   }
 
   private _fetch(data?: string) {
@@ -53,6 +66,7 @@ export class Fetch extends Polling {
       body: isPost ? data : null,
       headers,
       credentials: this.opts.withCredentials ? "include" : "omit",
+      signal: this._abortController?.signal,
     }).then((res) => {
       // @ts-ignore getSetCookie() was added in Node.js v19.7.0
       this.socket._cookieJar?.parseCookies(res.headers.getSetCookie());
