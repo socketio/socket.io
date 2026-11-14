@@ -40,7 +40,10 @@ export class WS extends BaseWS {
       const len =
         // @ts-ignore
         "string" === typeof data ? Buffer.byteLength(data) : data.length;
-      if (len < this.opts.perMessageDeflate.threshold) {
+      const { threshold } = this.opts.perMessageDeflate as {
+        threshold?: number;
+      };
+      if (len < threshold) {
         opts.compress = false;
       }
     }
