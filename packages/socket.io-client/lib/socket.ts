@@ -183,6 +183,20 @@ export class Socket<
   private _lastOffset: string;
 
   /**
+   * Whether a CONNECT packet was sent and the server has not answered it yet.
+   *
+   * @private
+   */
+  private _connectPending = false;
+
+  /**
+   * Removes the listener added by {@link disconnect()} during the handshake, if any.
+   *
+   * @private
+   */
+  private _cancelPendingDisconnect?: () => void;
+
+  /**
    * Whether the socket is currently connected to the server.
    *
    * @example
@@ -359,6 +373,15 @@ export class Socket<
    */
   public connect(): this {
     if (this.connected) return this;
+
+    if (this._cancelPendingDisconnect) {
+      // the server has not answered the previous CONNECT packet yet: wait for that answer instead of sending a new one
+      debug("reconnect during the handshake (%s)", this.nsp);
+      this._cancelPendingDisconnect();
+      this._connectPending = true;
+      this.subEvents();
+      return this;
+    }
 
     this.subEvents();
     if (!this.io["_reconnecting"]) this.io.open(); // ensure open
@@ -637,6 +660,7 @@ export class Socket<
    * @private
    */
   private _sendConnectPacket(data: Record<string, unknown>) {
+    this._connectPending = true;
     this.packet({
       type: PacketType.CONNECT,
       data: this._pid
@@ -670,6 +694,7 @@ export class Socket<
   ): void {
     debug("close (%s)", reason);
     this.connected = false;
+    this._connectPending = false;
     delete this.id;
     this.emitReserved("disconnect", reason, description);
     this._clearAcks();
@@ -738,6 +763,7 @@ export class Socket<
         break;
 
       case PacketType.CONNECT_ERROR:
+        this._connectPending = false;
         this.destroy();
         const err = new Error(packet.data.message) as ExtendedError;
         err.data = packet.data.data;
@@ -839,6 +865,7 @@ export class Socket<
     this.id = id;
     this.recovered = pid && this._pid === pid;
     this._pid = pid; // defined only if connection state recovery is enabled
+    this._connectPending = false;
     this.connected = true;
     this.emitBuffered();
     this._drainQueue(true);
@@ -908,6 +935,8 @@ export class Socket<
     if (this.connected) {
       debug("performing disconnect (%s)", this.nsp);
       this.packet({ type: PacketType.DISCONNECT });
+    } else if (this._connectPending && this.active) {
+      this._disconnectUponConnect();
     }
 
     // remove socket from pool
@@ -918,6 +947,41 @@ export class Socket<
       this.onclose("io client disconnect");
     }
     return this;
+  }
+
+  /**
+   * Called when the socket is disconnected while the server has not answered the CONNECT packet yet. The DISCONNECT
+   * packet cannot be sent right away (the server would close the whole connection, since it has no socket for this
+   * namespace yet), so it is sent once the server has answered.
+   *
+   * @private
+   */
+  private _disconnectUponConnect(): void {
+    debug("disconnect during the handshake (%s)", this.nsp);
+    this._connectPending = false;
+    const cleanup = () => {
+      subs.forEach((subDestroy) => subDestroy());
+      this._cancelPendingDisconnect = undefined;
+    };
+    const subs = [
+      on(this.io, "packet", (packet: Packet) => {
+        if (packet.nsp !== this.nsp) return;
+        if (packet.type === PacketType.CONNECT) {
+          cleanup();
+          if (packet.data && packet.data.sid) {
+            debug(
+              "server accepted the connection, now disconnecting (%s)",
+              this.nsp,
+            );
+            this.packet({ type: PacketType.DISCONNECT });
+          }
+        } else if (packet.type === PacketType.CONNECT_ERROR) {
+          cleanup();
+        }
+      }),
+      on(this.io, "close", cleanup),
+    ];
+    this._cancelPendingDisconnect = cleanup;
   }
 
   /**

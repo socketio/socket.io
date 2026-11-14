@@ -29,6 +29,16 @@ export function createServer() {
     // register namespace
   });
 
+  server
+    .of("/slow-handshake")
+    .use((socket, next) => {
+      // delay the answer to the CONNECT packet
+      setTimeout(next, 100);
+    })
+    .on("connection", () => {
+      // register namespace
+    });
+
   server.of("/abc").on("connection", (socket) => {
     socket.emit("handshake", socket.handshake);
   });
@@ -58,6 +68,10 @@ export function createServer() {
 
     socket.on("echo", (arg, cb) => {
       cb(arg);
+    });
+
+    socket.on("getSlowHandshakeSocketIds", (cb) => {
+      cb([...server.of("/slow-handshake").sockets.keys()]);
     });
 
     // ack tests
