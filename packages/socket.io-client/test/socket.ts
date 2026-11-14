@@ -421,6 +421,35 @@ describe("socket", () => {
       });
     });
 
+    it("should discard a volatile packet when the namespace is not connected yet", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL, {
+          forceNew: true,
+          transports: ["websocket"],
+        });
+
+        socket.on("connect", () => {
+          // the server delays the acknowledgement of the CONNECT packet of this namespace
+          const delayedSocket = socket.io.socket("/delayed");
+
+          // wait until the transport is writable again after the CONNECT packet
+          setTimeout(() => {
+            expect(socket.io.engine.transport.writable).to.be(true);
+            expect(delayedSocket.connected).to.be(false);
+
+            delayedSocket.volatile.emit("getId", () => {
+              done(new Error("should not happen"));
+            });
+
+            delayedSocket.emit("getId", () => {
+              delayedSocket.disconnect();
+              success(done, socket);
+            });
+          }, 20);
+        });
+      });
+    });
+
     it("should send a volatile packet when the socket is connected and the pipe is ready", () => {
       return wrap((done) => {
         const socket = io(BASE_URL, { forceNew: true });
