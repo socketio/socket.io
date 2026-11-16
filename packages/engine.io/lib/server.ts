@@ -1011,12 +1011,13 @@ export class Server extends BaseServer {
           // but by adding a handler, we prevent that
           // and if no eio thing handles the upgrade
           // then the socket needs to die!
+          socket.on("error", (e) => {
+            debug("error while destroying upgrade: %s", e.message);
+          });
+
           setTimeout(function () {
             // @ts-ignore
             if (socket.writable && socket.bytesWritten <= 0) {
-              socket.on("error", (e) => {
-                debug("error while destroying upgrade: %s", e.message);
-              });
               return socket.end();
             }
           }, destroyUpgradeTimeout);
