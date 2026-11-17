@@ -2,7 +2,7 @@
 
 # socket.io-client
 
-[![Build Status](https://github.com/socketio/socket.io-client/workflows/CI/badge.svg?branch=main)](https://github.com/socketio/socket.io-client/actions)
+[![Build Status](https://github.com/socketio/socket.io/actions/workflows/ci-socket.io-client.yml/badge.svg)](https://github.com/socketio/socket.io/actions/workflows/ci-socket.io-client.yml)
 [![NPM version](https://badge.fury.io/js/socket.io-client.svg)](https://www.npmjs.com/package/socket.io-client)
 ![Downloads](http://img.shields.io/npm/dm/socket.io-client.svg?style=flat)
 [![](http://slack.socket.io/badge.svg?)](http://slack.socket.io)
