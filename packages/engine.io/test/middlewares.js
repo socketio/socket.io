@@ -113,10 +113,7 @@ describe("middlewares", () => {
     });
   });
 
-  it("should end the request (polling)", function (done) {
-    if (process.env.EIO_WS_ENGINE === "uws") {
-      return this.skip();
-    }
+  it("should end the request (polling)", (done) => {
     const engine = listen((port) => {
       engine.use((req, res, _next) => {
         res.writeHead(503);

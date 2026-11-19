@@ -1,4 +1,5 @@
 import debugModule from "debug";
+import { STATUS_CODES } from "http";
 import { EventEmitter } from "events";
 import { AttachOptions, BaseServer, Server } from "./server";
 import { HttpRequest, HttpResponse, TemplatedApp } from "uWebSockets.js";
@@ -334,12 +335,27 @@ class ResponseWrapper extends EventEmitter {
     if (!status) {
       return;
     }
-    // FIXME: handle all status codes?
-    this.writeStatus(status === 200 ? "200 OK" : "204 No Content");
+    const reason = STATUS_CODES[status] || "Unknown";
+    this.writeStatus(`${status} ${reason}`);
   }
 
-  public writeHead(status: number) {
-    this.statusCode = status;
+  public writeHead(status?: number, headers?: any, maybeHeaders?: any) {
+    if (typeof status === "number") {
+      this.statusCode = status;
+    }
+
+    const headerFields =
+      headers !== null && typeof headers === "object" ? headers : maybeHeaders;
+    if (
+      !headerFields ||
+      typeof headerFields !== "object" ||
+      Array.isArray(headerFields)
+    ) {
+      return;
+    }
+    Object.keys(headerFields).forEach((key) => {
+      this.setHeader(key, headerFields[key]);
+    });
   }
 
   public setHeader(key, value) {
