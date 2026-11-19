@@ -1039,6 +1039,15 @@ function abortRequest(
       ? errorContext.message
       : Server.errorMessages[errorCode];
 
+  // a middleware may have already committed the response before failing
+  if (res.headersSent) {
+    debug("response headers already sent, skipping error response");
+    if (!res.writableEnded) {
+      res.end();
+    }
+    return;
+  }
+
   res.writeHead(statusCode, { "Content-Type": "application/json" });
   res.end(
     JSON.stringify({

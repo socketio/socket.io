@@ -276,6 +276,15 @@ export class uServer extends BaseServer {
     errorCode: number,
     errorContext?: { message?: string },
   ) {
+    // a middleware may have already committed the response before failing
+    if (res instanceof ResponseWrapper && res.headersSent) {
+      debug("response headers already sent, skipping error response");
+      if (!res.writableEnded) {
+        res.end();
+      }
+      return;
+    }
+
     const statusCode =
       errorCode === Server.errors.FORBIDDEN
         ? "403 Forbidden"
@@ -298,6 +307,7 @@ export class uServer extends BaseServer {
 
 class ResponseWrapper extends EventEmitter {
   private statusWritten: boolean = false;
+  private ended = false;
   private headers = [];
   private isAborted = false;
 
@@ -310,6 +320,14 @@ class ResponseWrapper extends EventEmitter {
       this.isAborted = true;
       this.emit("close");
     });
+  }
+
+  public get headersSent() {
+    return this.statusWritten || this.ended;
+  }
+
+  public get writableEnded() {
+    return this.ended;
   }
 
   public set statusCode(status: number) {
@@ -370,16 +388,21 @@ class ResponseWrapper extends EventEmitter {
     });
   }
 
-  public end(data) {
-    if (this.isAborted) return;
+  public end(data?) {
+    if (this.isAborted || this.ended) return;
 
+    this.ended = true;
     this.emit("finish");
     this.res.cork(() => {
       if (!this.statusWritten) {
         // status will be inferred as "200 OK"
         this.writeBufferedHeaders();
       }
-      this.res.end(data);
+      if (data === undefined) {
+        this.res.end();
+      } else {
+        this.res.end(data);
+      }
     });
   }
 

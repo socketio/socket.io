@@ -450,6 +450,76 @@ describe("middlewares", () => {
     });
   });
 
+  it("should keep the middleware response when it throws after sending (polling)", (done) => {
+    let connectionErrors = 0;
+    const engine = listen((port) => {
+      engine.use((_req, res) => {
+        res.writeHead(503, { "Content-Type": "text/plain" });
+        res.end("nope");
+        throw new Error("after end");
+      });
+
+      engine.on("connection", () => {
+        done(new Error("should not connect"));
+      });
+
+      engine.on("connection_error", (err) => {
+        connectionErrors++;
+        expect(err.context.name).to.eql("MIDDLEWARE_FAILURE");
+      });
+
+      request
+        .get(`http://localhost:${port}/engine.io/`)
+        .query({ EIO: 4, transport: "polling" })
+        .end((err, res) => {
+          expect(err).to.be.an(Error);
+          expect(res.status).to.eql(503);
+          expect(res.text).to.eql("nope");
+          expect(connectionErrors).to.eql(1);
+
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          done();
+        });
+    });
+  });
+
+  it("should keep the middleware response when it rejects after sending (polling)", (done) => {
+    let connectionErrors = 0;
+    const engine = listen((port) => {
+      engine.use((_req, res) => {
+        res.writeHead(503, { "Content-Type": "text/plain" });
+        res.end("nope");
+        return Promise.reject(new Error("after end"));
+      });
+
+      engine.on("connection", () => {
+        done(new Error("should not connect"));
+      });
+
+      engine.on("connection_error", (err) => {
+        connectionErrors++;
+        expect(err.context.name).to.eql("MIDDLEWARE_FAILURE");
+      });
+
+      request
+        .get(`http://localhost:${port}/engine.io/`)
+        .query({ EIO: 4, transport: "polling" })
+        .end((err, res) => {
+          expect(err).to.be.an(Error);
+          expect(res.status).to.eql(503);
+          expect(res.text).to.eql("nope");
+          expect(connectionErrors).to.eql(1);
+
+          if (engine.httpServer) {
+            engine.httpServer.close();
+          }
+          done();
+        });
+    });
+  });
+
   it("should invoke the callback once when next() is called twice (polling)", (done) => {
     let runs = 0;
     let connections = 0;
