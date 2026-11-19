@@ -2,6 +2,7 @@
 
 | Version                      | Release date   | `ws` version |
 |------------------------------|----------------|--------------|
+| [6.6.12](#6612-2026-11-19)   | November 2026  | `~8.21.0`    |
 | [6.6.11](#6611-2026-09-24)   | September 2026 | `~8.21.0`    |
 | [6.6.10](#6610-2026-09-03)   | September 2026 | `~8.21.0`    |
 | [6.6.9](#669-2026-06-16)     | June 2026      | `~8.21.0`    |
@@ -62,6 +63,25 @@ From the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch:
 | [3.6.1](#361-2022-11-20) | November 2022 | `"`          |
 | [3.6.0](#360-2022-06-06) | June 2022     | `"`          |
 | [3.5.0](#350-2020-12-30) | December 2020 | `~7.4.2`     |
+
+## [6.6.12](https://github.com/socketio/socket.io/compare/engine.io%406.6.11...engine.io%406.6.12) (2026-11-19)
+
+### Bug Fixes
+
+* catch errors when destroying invalid upgrades ([f8e8746](https://github.com/socketio/socket.io/commit/f8e8746492f4118c7ef6a40e51f9c26fdc3ecc31))
+* catch middleware errors ([#5564](https://github.com/socketio/socket.io/issues/5564)) ([f2fb365](https://github.com/socketio/socket.io/commit/f2fb365e4fdab950106794462ce64d5eb5960dc9))
+* expose EventEmitter interface on WebSocket upgrade response ([#5526](https://github.com/socketio/socket.io/issues/5526)) ([a65c0f0](https://github.com/socketio/socket.io/commit/a65c0f0908e0d68b60815d86066e0a926adbd94e))
+* preserve middleware responses after failures ([#5564](https://github.com/socketio/socket.io/issues/5564)) ([b2be65d](https://github.com/socketio/socket.io/commit/b2be65d6583407e35fc06d9c4bc1464fc66d80d6))
+* **uws:** add uServer to ESM module wrapper ([#5331](https://github.com/socketio/socket.io/issues/5331)) ([87b4b43](https://github.com/socketio/socket.io/commit/87b4b43f9b0b6d2a9cabbcafb871e130928981c0))
+* **uws:** do not access the uWS request after an async middleware ([#5579](https://github.com/socketio/socket.io/issues/5579)) ([94a9bcd](https://github.com/socketio/socket.io/commit/94a9bcdbdf7117bff7ce561c2879252814cc497b))
+* **uws:** fix ArrayBuffer detached error with uWebSockets.js ([#5331](https://github.com/socketio/socket.io/issues/5331)) ([91b5f19](https://github.com/socketio/socket.io/commit/91b5f198dff46df20986a59a05acd878e3d615f8))
+* **uws:** improve the uWebSockets.js response wrapper ([#5564](https://github.com/socketio/socket.io/issues/5564)) ([685d14b](https://github.com/socketio/socket.io/commit/685d14bec47ad54e51deb9239bb1a49407068750))
+
+### Dependencies
+
+- [`ws@~8.21.0`](https://github.com/websockets/ws/releases/tag/8.21.0) (no change)
+
+
 
 ## [6.6.11](https://github.com/socketio/socket.io/compare/engine.io%406.6.10...engine.io%406.6.11) (2026-09-24)
 
