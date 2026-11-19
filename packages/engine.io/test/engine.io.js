@@ -6,10 +6,7 @@ const request = require("superagent");
 const http = require("http");
 const { execFile } = require("node:child_process");
 const { join } = require("node:path");
-
-/**
- * Tests.
- */
+const success = require("./utils/success");
 
 describe("engine", () => {
   it("should expose protocol number", () => {
@@ -39,11 +36,11 @@ describe("engine", () => {
       if (process.env.EIO_WS_ENGINE === "uws") {
         return this.skip();
       }
-      listen((port) => {
+      const engine = listen((port) => {
         request.get(`http://localhost:${port}`, (err, res) => {
           expect(err).to.be.an(Error);
           expect(res.status).to.be(501);
-          done();
+          success(done, engine);
         });
       });
     });
@@ -104,6 +101,7 @@ describe("engine", () => {
 
         client.on("end", () => {
           clearTimeout(check);
+          server.close();
           done();
         });
       });
@@ -129,6 +127,8 @@ describe("engine", () => {
 
           setTimeout(() => {
             client.removeListener("end", onEnd);
+            client.destroySoon();
+            server.close();
             done();
           }, 100);
 
@@ -167,6 +167,7 @@ describe("engine", () => {
           }, 100);
 
           function onEnd() {
+            server.close();
             done();
           }
 
@@ -210,7 +211,10 @@ describe("engine", () => {
 
           client.on("data", (data) => {});
 
-          client.on("end", done);
+          client.on("end", () => {
+            server.close();
+            done();
+          });
         });
       });
     });

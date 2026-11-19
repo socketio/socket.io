@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const cookieMod = require("cookie");
 const { listen } = require("./common");
 const expect = require("expect.js");
+const success = require("./utils/success");
 
 function getSidFromResponse(res) {
   const c = cookieMod.parse(res.headers["set-cookie"][0]);
@@ -12,16 +13,8 @@ function getSidFromResponse(res) {
 }
 
 describe("polling compression", () => {
-  let engine;
-
-  afterEach(() => {
-    if (engine && engine.httpServer) {
-      engine.httpServer.close();
-    }
-  });
-
   it("should not lose the write callback when the client aborts a compressed response mid-stream", (done) => {
-    engine = listen(
+    const engine = listen(
       {
         cookie: true,
         transports: ["polling"],
@@ -61,7 +54,7 @@ describe("polling compression", () => {
               setTimeout(() => {
                 try {
                   expect(sendCallbackCalled).to.be(true);
-                  done();
+                  success(done, engine);
                 } catch (e) {
                   done(e);
                 }

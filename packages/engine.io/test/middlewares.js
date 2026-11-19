@@ -5,6 +5,7 @@ const { WebSocket } = require("ws");
 const helmet = require("helmet");
 const session = require("express-session");
 const { ClientSocket, createPartialDone } = require("./common");
+const success = require("./utils/success");
 
 describe("middlewares", () => {
   it("should apply middleware (polling)", (done) => {
@@ -22,10 +23,7 @@ describe("middlewares", () => {
           expect(res.status).to.eql(200);
           expect(res.headers["foo"]).to.eql("bar");
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
     });
   });
@@ -44,10 +42,7 @@ describe("middlewares", () => {
       socket.on("upgrade", (res) => {
         expect(res.headers["foo"]).to.eql("bar");
 
-        if (engine.httpServer) {
-          engine.httpServer.close();
-        }
-        done();
+        success(done, engine);
       });
 
       socket.on("open", () => {
@@ -61,10 +56,7 @@ describe("middlewares", () => {
       engine.use((req, res, next) => {
         expect(res.on).to.be.a("function");
         res.on("close", () => {
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
         next();
       });
@@ -94,10 +86,7 @@ describe("middlewares", () => {
           expect(res.status).to.eql(200);
           expect(res.headers["foo"]).to.eql("bar");
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
     });
   });
@@ -116,10 +105,7 @@ describe("middlewares", () => {
       socket.on("upgrade", (res) => {
         expect(res.headers["foo"]).to.eql("bar");
 
-        if (engine.httpServer) {
-          engine.httpServer.close();
-        }
-        done();
+        success(done, engine);
       });
 
       socket.on("open", () => {
@@ -154,10 +140,7 @@ describe("middlewares", () => {
           expect(err).to.be(null);
           expect(res.status).to.eql(200);
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
     });
   });
@@ -180,10 +163,7 @@ describe("middlewares", () => {
           expect(err).to.be.an(Error);
           expect(res.status).to.eql(503);
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
     });
   });
@@ -204,10 +184,7 @@ describe("middlewares", () => {
       );
 
       socket.addEventListener("error", () => {
-        if (engine.httpServer) {
-          engine.httpServer.close();
-        }
-        done();
+        success(done, engine);
       });
     });
   });
@@ -225,10 +202,7 @@ describe("middlewares", () => {
           expect(res.headers["x-download-options"]).to.eql("noopen");
           expect(res.headers["x-content-type-options"]).to.eql("nosniff");
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
     });
   });
@@ -245,10 +219,7 @@ describe("middlewares", () => {
         expect(res.headers["x-download-options"]).to.eql("noopen");
         expect(res.headers["x-content-type-options"]).to.eql("nosniff");
 
-        if (engine.httpServer) {
-          engine.httpServer.close();
-        }
-        done();
+        success(done, engine);
       });
 
       socket.on("open", () => {
@@ -278,10 +249,7 @@ describe("middlewares", () => {
             true,
           );
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
     });
   });
@@ -306,10 +274,7 @@ describe("middlewares", () => {
           true,
         );
 
-        if (engine.httpServer) {
-          engine.httpServer.close();
-        }
-        done();
+        success(done, engine);
       });
 
       socket.on("open", () => {
@@ -319,7 +284,7 @@ describe("middlewares", () => {
   });
 
   it("should fail on synchronous middleware errors (polling)", (done) => {
-    const partialDone = createPartialDone(done, 2);
+    const partialDone = createPartialDone(() => success(done, engine), 2);
     const engine = listen((port) => {
       engine.use(() => {
         throw new Error("will always fail");
@@ -340,16 +305,14 @@ describe("middlewares", () => {
           expect(err).to.be.an(Error);
           expect(res.status).to.eql(400);
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
           partialDone();
         });
     });
   });
 
   it("should fail on rejected middleware promises (polling)", (done) => {
-    const partialDone = createPartialDone(done, 2);
+    const partialDone = createPartialDone(() => success(done, engine), 2);
+
     const engine = listen((port) => {
       engine.use(() => {
         return Promise.reject(new Error("will always fail"));
@@ -374,9 +337,6 @@ describe("middlewares", () => {
           expect(err).to.be.an(Error);
           expect(res.status).to.eql(400);
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
           partialDone();
         });
     });
@@ -414,10 +374,7 @@ describe("middlewares", () => {
           expect(connectionErrors).to.eql(0);
           expect(connections).to.eql(1);
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
     });
   });
@@ -454,10 +411,7 @@ describe("middlewares", () => {
           expect(res.status).to.eql(400);
           expect(connectionErrors).to.eql(1);
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
     });
   });
@@ -488,10 +442,7 @@ describe("middlewares", () => {
           expect(connectionErrors).to.eql(0);
           expect(connections).to.eql(1);
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
     });
   });
@@ -523,10 +474,7 @@ describe("middlewares", () => {
           expect(res.text).to.eql("nope");
           expect(connectionErrors).to.eql(1);
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
     });
   });
@@ -558,10 +506,7 @@ describe("middlewares", () => {
           expect(res.text).to.eql("nope");
           expect(connectionErrors).to.eql(1);
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
     });
   });
@@ -593,10 +538,7 @@ describe("middlewares", () => {
           expect(runs).to.eql(1);
           expect(connections).to.eql(1);
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
     });
   });
@@ -614,10 +556,7 @@ describe("middlewares", () => {
           expect(err).to.be.an(Error);
           expect(res.status).to.eql(400);
 
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
     });
 
@@ -636,10 +575,7 @@ describe("middlewares", () => {
         );
 
         socket.addEventListener("error", () => {
-          if (engine.httpServer) {
-            engine.httpServer.close();
-          }
-          done();
+          success(done, engine);
         });
       });
     });
@@ -665,8 +601,8 @@ describe("middlewares", () => {
       socket.on("open", () => {
         socket.send("aasdasdakjhasdkjhasdkjhasdkjhasdkjhasdkjhasdkjha");
       });
-      socket.on("close", (reason) => {
-        done();
+      socket.on("close", () => {
+        success(done, engine);
       });
     });
   });
