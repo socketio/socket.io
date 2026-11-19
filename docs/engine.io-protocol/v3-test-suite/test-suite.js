@@ -120,7 +120,7 @@ describe("Engine.IO protocol", () => {
           socket.on("error", () => {});
         }
 
-        waitFor(socket, "close");
+        await waitFor(socket, "close");
 
         const socket2 = new WebSocket(
           `${WS_URL}/engine.io/?EIO=abc&transport=websocket`
@@ -130,7 +130,7 @@ describe("Engine.IO protocol", () => {
           socket2.on("error", () => {});
         }
 
-        waitFor(socket2, "close");
+        await waitFor(socket2, "close");
       });
 
       it("fails with an invalid 'transport' query parameter", async () => {
@@ -140,7 +140,7 @@ describe("Engine.IO protocol", () => {
           socket.on("error", () => {});
         }
 
-        waitFor(socket, "close");
+        await waitFor(socket, "close");
 
         const socket2 = new WebSocket(
           `${WS_URL}/engine.io/?EIO=3&transport=abc`
@@ -150,7 +150,7 @@ describe("Engine.IO protocol", () => {
           socket2.on("error", () => {});
         }
 
-        waitFor(socket2, "close");
+        await waitFor(socket2, "close");
       });
     });
   });
