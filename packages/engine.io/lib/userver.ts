@@ -185,6 +185,11 @@ export class uServer extends BaseServer {
 
     req.res = res;
 
+    // the uWS.HttpRequest object cannot be accessed once the handler has returned (e.g. with an asynchronous middleware or allowRequest() function)
+    const secWebSocketKey = req.getHeader("sec-websocket-key");
+    const secWebSocketProtocol = req.getHeader("sec-websocket-protocol");
+    const secWebSocketExtensions = req.getHeader("sec-websocket-extensions");
+
     const callback = async (errorCode, errorContext) => {
       if (errorCode !== undefined) {
         this.emit("connection_error", {
@@ -241,26 +246,28 @@ export class uServer extends BaseServer {
 
       this.emit("headers", additionalHeaders, req);
 
-      // calling writeStatus() triggers the flushing of any header added in a middleware
-      req.res.writeStatus("101 Switching Protocols");
+      res.cork(() => {
+        // calling writeStatus() triggers the flushing of any header added in a middleware
+        req.res.writeStatus("101 Switching Protocols");
 
-      Object.keys(additionalHeaders).forEach((key) => {
-        req.res.writeHeader(key, additionalHeaders[key]);
+        Object.keys(additionalHeaders).forEach((key) => {
+          req.res.writeHeader(key, additionalHeaders[key]);
+        });
+
+        res.upgrade(
+          {
+            transport,
+            // only set when middlewares are registered (see _applyMiddlewares); used to emit "close" on the
+            // response object once the WebSocket connection actually closes (see the `close` handler below) —
+            // unlike the plain Node.js HTTP server, UWS does not expose a persistent socket to listen on here
+            response: req.res instanceof ResponseWrapper ? req.res : undefined,
+          },
+          secWebSocketKey,
+          secWebSocketProtocol,
+          secWebSocketExtensions,
+          context,
+        );
       });
-
-      res.upgrade(
-        {
-          transport,
-          // only set when middlewares are registered (see _applyMiddlewares); used to emit "close" on the
-          // response object once the WebSocket connection actually closes (see the `close` handler below) —
-          // unlike the plain Node.js HTTP server, UWS does not expose a persistent socket to listen on here
-          response: req.res instanceof ResponseWrapper ? req.res : undefined,
-        },
-        req.getHeader("sec-websocket-key"),
-        req.getHeader("sec-websocket-protocol"),
-        req.getHeader("sec-websocket-extensions"),
-        context,
-      );
     };
 
     this._applyMiddlewares(req, res, (err) => {

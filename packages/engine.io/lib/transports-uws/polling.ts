@@ -53,9 +53,9 @@ export class Polling extends Transport {
     // remove the reference to the ServerResponse object (as the first request of the session is kept in memory by default)
     req.res = null;
 
-    if (req.getMethod() === "get") {
+    if (req.method === "GET") {
       this.onPollRequest(req, res);
-    } else if (req.getMethod() === "post") {
+    } else if (req.method === "POST") {
       this.onDataRequest(req, res);
     } else {
       res.writeStatus("500 Internal Server Error");
