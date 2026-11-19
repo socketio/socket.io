@@ -208,6 +208,17 @@ describe("connection", function () {
           });
       });
     });
+
+    it("should close when close() is called in an upgrade listener", (done) => {
+      const socket = new Socket();
+      socket.on("upgrade", () => {
+        socket.on("close", (reason) => {
+          expect(reason).to.be("forced close");
+          done();
+        });
+        socket.close();
+      });
+    });
   }
 
   if (env.browser && typeof addEventListener === "function") {

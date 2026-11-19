@@ -7,6 +7,14 @@
     "socket.io-client": "^4.8.4"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "npm run build-v4 && npm run build-v5 && npm run build-v6",
+    "build-v4": "./node_modules/typescript-v4/bin/tsc -p tsconfig-v4.json",
+    "build-v5": "./node_modules/typescript-v5/bin/tsc",
+    "build-v6": "./node_modules/typescript-v6/bin/tsc"
+  },
+  "devDependencies": {
+    "typescript-v4": "npm:typescript@^4.9.5",
+    "typescript-v5": "npm:typescript@^5.9.3",
+    "typescript-v6": "npm:typescript@^6.0.3"
   }
 }

@@ -395,22 +395,13 @@ export abstract class BaseServer extends EventEmitter {
       return callback();
     }
 
-    const apply = (i) => {
-      debug("applying middleware n°%d", i + 1);
-      this.middlewares[i](req, res, (err?: any) => {
-        if (err) {
-          return callback(err);
-        }
+    let chain = Promise.resolve();
 
-        if (i + 1 < this.middlewares.length) {
-          apply(i + 1);
-        } else {
-          callback();
-        }
-      });
-    };
+    for (const middleware of this.middlewares) {
+      chain = chain.then(() => runMiddleware(middleware, req, res));
+    }
 
-    apply(0);
+    chain.then(() => callback(), callback);
   }
 
   /**
@@ -685,13 +676,17 @@ export abstract class BaseServer extends EventEmitter {
  *
  * @see https://nodejs.org/api/http.html#class-httpserverresponse
  */
-class WebSocketResponse {
+class WebSocketResponse extends EventEmitter {
   constructor(
     readonly req,
     readonly socket: Duplex,
   ) {
+    super();
     // temporarily store the response headers on the req object (see the "headers" event)
     req[kResponseHeaders] = {};
+    // some middlewares (like pino-http) rely on the "close" event to know when the response is done, which the
+    // underlying socket does not expose by default
+    socket.once("close", () => this.emit("close"));
   }
 
   public setHeader(name: string, value: any) {
@@ -711,6 +706,7 @@ class WebSocketResponse {
   public writeHead() {}
 
   public end() {
+    this.emit("finish");
     // we could return a proper error code, but the WebSocket client will emit an "error" event anyway.
     this.socket.destroy();
   }
@@ -910,7 +906,7 @@ export class Server extends BaseServer {
       transports[req._query.transport] !== undefined &&
       !transports[req._query.transport].prototype.handlesUpgrades
     ) {
-      debug("transport doesnt handle upgraded requests");
+      debug("transport doesn't handle upgraded requests");
       websocket.close();
       return;
     }
@@ -1006,12 +1002,13 @@ export class Server extends BaseServer {
           // but by adding a handler, we prevent that
           // and if no eio thing handles the upgrade
           // then the socket needs to die!
+          socket.on("error", (e) => {
+            debug("error while destroying upgrade: %s", e.message);
+          });
+
           setTimeout(function () {
             // @ts-ignore
             if (socket.writable && socket.bytesWritten <= 0) {
-              socket.on("error", (e) => {
-                debug("error while destroying upgrade: %s", e.message);
-              });
               return socket.end();
             }
           }, destroyUpgradeTimeout);
@@ -1041,6 +1038,15 @@ function abortRequest(
     errorContext && errorContext.message
       ? errorContext.message
       : Server.errorMessages[errorCode];
+
+  // a middleware may have already committed the response before failing
+  if (res.headersSent) {
+    debug("response headers already sent, skipping error response");
+    if (!res.writableEnded) {
+      res.end();
+    }
+    return;
+  }
 
   res.writeHead(statusCode, { "Content-Type": "application/json" });
   res.end(
@@ -1082,6 +1088,37 @@ function abortUpgrade(
     );
   }
   socket.destroy();
+}
+
+function runMiddleware(
+  middleware: Middleware,
+  req: IncomingMessage,
+  res: ServerResponse,
+) {
+  return new Promise<void>((resolve, reject) => {
+    let settled = false;
+
+    const next = (err?: any) => {
+      if (settled) {
+        debug("middleware already settled, ignoring extra callback");
+        return;
+      }
+
+      settled = true;
+
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    };
+
+    try {
+      Promise.resolve(middleware(req, res, next)).catch(next);
+    } catch (e) {
+      next(e);
+    }
+  });
 }
 
 /* eslint-disable */

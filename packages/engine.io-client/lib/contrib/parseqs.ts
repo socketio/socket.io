@@ -32,7 +32,7 @@ export function decode (qs) {
     let pairs = qs.split('&');
     for (let i = 0, l = pairs.length; i < l; i++) {
         let pair = pairs[i].split('=');
-        qry[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+        qry[decodeURIComponent(pair[0])] = decodeURIComponent(pair.slice(1).join('='));
     }
     return qry;
 }

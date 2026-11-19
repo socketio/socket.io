@@ -47,7 +47,7 @@ export abstract class BaseWS extends Transport {
         );
 
     if (this.opts.extraHeaders) {
-      opts.headers = this.opts.extraHeaders;
+      opts.headers = Object.assign({}, this.opts.extraHeaders);
     }
 
     try {

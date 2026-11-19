@@ -13,6 +13,7 @@ require("./transport");
 require("./connection");
 require("./xmlhttprequest");
 require("./parseuri");
+require("./contrib/parseqs");
 
 if (typeof ArrayBuffer !== "undefined") {
   require("./arraybuffer");

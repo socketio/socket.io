@@ -2,6 +2,7 @@
 
 | Version                      | Release date   | `ws` version | Bundle size (UMD min+gzip) |
 |------------------------------|----------------|--------------|----------------------------|
+| [6.6.8](#668-2026-11-10)     | November 2026  | `~8.21.0`    | `9.0 KB`                   |
 | [6.6.7](#667-2026-09-25)     | September 2026 | `~8.21.0`    | `9.0 KB`                   |
 | [6.6.6](#666-2026-06-16)     | June 2026      | `~8.21.0`    | `8.9 KB`                   |
 | [6.6.5](#665-2026-05-20)     | May 2026       | `~8.20.1`    | `8.7 KB`                   |
@@ -63,6 +64,19 @@ From the [4.1.x](https://github.com/socketio/engine.io-client/tree/4.1.x) branch
 | Version                  | Release date | `ws` version | Bundle size (UMD min+gzip) |
 |--------------------------|--------------|--------------|----------------------------|
 | [4.1.4](#414-2021-05-05) | May 2021     | `"`          | `9.1 KB`                   |
+
+## [6.6.8](https://github.com/socketio/socket.io/compare/engine.io-client%406.6.7...engine.io-client%406.6.8) (2026-11-10)
+
+### Bug Fixes
+
+* **types:** avoid MapIterator in generated typings ([#5568](https://github.com/socketio/socket.io/issues/5568)) ([b8b6ef0](https://github.com/socketio/socket.io/commit/b8b6ef085ee8d4529cfe7a9245bbb0337c262e80))
+* honor Max-Age=0 and unparseable expiry attributes ([#5585](https://github.com/socketio/socket.io/issues/5585)) ([303a765](https://github.com/socketio/socket.io/commit/303a765cdd435889c6d144448acc7a16bd54fd75))
+* keep '=' characters in query values ([#5574](https://github.com/socketio/socket.io/issues/5574)) ([238db10](https://github.com/socketio/socket.io/commit/238db106e27805403cfeb65ab98e8416ddb7a65c))
+* match cookie attribute names case-insensitively ([#5589](https://github.com/socketio/socket.io/issues/5589)) ([294ad42](https://github.com/socketio/socket.io/commit/294ad4208f89eb7605a26da16fab3be8473d2c83))
+
+### Dependencies
+
+- [`ws@~8.21.0`](https://github.com/websockets/ws/releases/tag/8.21.0) (no change)
 
 
 ## [6.6.7](https://github.com/socketio/socket.io/compare/engine.io-client%406.6.6...engine.io-client%406.6.7) (2026-09-25)

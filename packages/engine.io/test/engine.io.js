@@ -4,6 +4,8 @@ const listen = require("./common").listen;
 const expect = require("expect.js");
 const request = require("superagent");
 const http = require("http");
+const { execFile } = require("node:child_process");
+const { join } = require("node:path");
 
 /**
  * Tests.
@@ -247,6 +249,24 @@ describe("engine", () => {
             });
           },
         );
+      });
+    });
+
+    it("should ignore connection resets", function (done) {
+      if (process.env.EIO_WS_ENGINE === "uws") {
+        this.skip();
+      }
+
+      const runFixture = (filename, done) =>
+        execFile(
+          process.execPath,
+          [join(__dirname, "fixtures", filename)],
+          done,
+        );
+
+      runFixture("connection-reset.js", (err) => {
+        expect(err).to.be(null);
+        done();
       });
     });
   });

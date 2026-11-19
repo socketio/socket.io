@@ -1,5 +1,5 @@
 /*!
- * Engine.IO v6.6.7
+ * Engine.IO v6.6.8
  * (c) 2014-2026 Guillermo Rauch
  * Released under the MIT License.
  */
@@ -129,15 +129,15 @@
   function _toConsumableArray(r) {
     return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread();
   }
-  function _toPrimitive(t, r) {
+  function _toPrimitive(t, e) {
     if ("object" != typeof t || !t) return t;
-    var e = t[Symbol.toPrimitive];
-    if (void 0 !== e) {
-      var i = e.call(t, r || "default");
+    var r;
+    if ("undefined" != typeof Symbol && void 0 !== (r = t[Symbol.toPrimitive])) {
+      var i = r.call(t, e || "default");
       if ("object" != typeof i) return i;
       throw new TypeError("@@toPrimitive must return a primitive value.");
     }
-    return ("string" === r ? String : Number)(t);
+    return ("string" === e ? String : Number)(t);
   }
   function _toPropertyKey(t) {
     var i = _toPrimitive(t, "string");
@@ -769,7 +769,7 @@
     var pairs = qs.split('&');
     for (var i = 0, l = pairs.length; i < l; i++) {
       var pair = pairs[i].split('=');
-      qry[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+      qry[decodeURIComponent(pair[0])] = decodeURIComponent(pair.slice(1).join('='));
     }
     return qry;
   }
@@ -1436,7 +1436,7 @@
     }
     _inheritsLoose(TransportError, _Error);
     return TransportError;
-  }( /*#__PURE__*/_wrapNativeSuper(Error));
+  }(/*#__PURE__*/_wrapNativeSuper(Error));
   var Transport = /*#__PURE__*/function (_Emitter) {
     /**
      * Transport abstract constructor.

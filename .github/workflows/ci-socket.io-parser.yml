@@ -7,11 +7,13 @@ on:
     paths:
       - 'packages/socket.io-component-emitter/**'
       - 'packages/socket.io-parser/**'
+      - 'package-lock.json'
       - '.github/workflows/ci-socket.io-parser.yml'
   pull_request:
     paths:
       - 'packages/socket.io-component-emitter/**'
       - 'packages/socket.io-parser/**'
+      - 'package-lock.json'
       - '.github/workflows/ci-socket.io-parser.yml'
 
 permissions:

@@ -41,24 +41,37 @@ export function parse(setCookieString: string): Cookie {
     value,
   };
 
+  let hasMaxAge = false;
   for (let j = 1; j < parts.length; j++) {
     const subParts = parts[j].split("=");
     if (subParts.length !== 2) {
       continue;
     }
-    const key = subParts[0].trim();
+    // attribute names are case-insensitive (RFC 6265, section 5.2)
+    const key = subParts[0].trim().toLowerCase();
     const value = subParts[1].trim();
     switch (key) {
-      case "Expires":
-        cookie.expires = new Date(value);
+      case "expires": {
+        if (hasMaxAge) {
+          // Max-Age takes precedence over Expires (RFC 6265, section 5.3)
+          continue;
+        }
+        const expires = new Date(value);
+        // an unparseable date must not turn a deletion into a cookie that is kept forever
+        cookie.expires = isNaN(expires.getTime()) ? new Date(0) : expires;
         break;
-      case "Max-Age":
-        const expiration = new Date();
-        expiration.setUTCSeconds(
-          expiration.getUTCSeconds() + parseInt(value, 10),
-        );
-        cookie.expires = expiration;
+      }
+      case "max-age": {
+        hasMaxAge = true;
+        const delta = parseInt(value, 10);
+        // RFC 6265, section 5.2.2: a delta-seconds of zero or less means the cookie expires
+        // immediately, and an unparseable one must not be kept either
+        cookie.expires =
+          isNaN(delta) || delta <= 0
+            ? new Date(0)
+            : new Date(Date.now() + delta * 1000);
         break;
+      }
       default:
       // ignore other keys
     }
@@ -82,13 +95,22 @@ export class CookieJar {
     });
   }
 
-  get cookies() {
+  get cookies(): IterableIterator<[string, Cookie]> {
     const now = Date.now();
+    const expiredCookies = new Set<string>();
+
     this._cookies.forEach((cookie, name) => {
-      if (cookie.expires?.getTime() < now) {
-        this._cookies.delete(name);
+      // a cookie is expired as soon as its expiry time is reached, so Max-Age=0 (a deletion
+      // request) must not stay alive until the clock advances past it
+      if (cookie.expires !== undefined && cookie.expires.getTime() <= now) {
+        expiredCookies.add(name);
       }
     });
+
+    for (const name of expiredCookies) {
+      this._cookies.delete(name);
+    }
+
     return this._cookies.entries();
   }
 

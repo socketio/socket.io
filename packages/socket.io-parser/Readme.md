@@ -2,7 +2,7 @@
 
 # socket.io-parser
 
-[![Build Status](https://github.com/socketio/socket.io-parser/workflows/CI/badge.svg)](https://github.com/socketio/socket.io-parser/actions)
+[![Build Status](https://github.com/socketio/socket.io/actions/workflows/ci-socket.io-parser.yml/badge.svg)](https://github.com/socketio/socket.io/actions/workflows/ci-socket.io-parser.yml)
 [![NPM version](https://badge.fury.io/js/socket.io-parser.svg)](http://badge.fury.io/js/socket.io-parser)
 
 A socket.io encoder and decoder written in JavaScript complying with version `5`

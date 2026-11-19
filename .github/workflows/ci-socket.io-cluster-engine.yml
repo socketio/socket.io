@@ -14,6 +14,7 @@ on:
       - 'packages/socket.io-cluster-engine/**'
       - 'packages/socket.io-component-emitter/**'
       - 'packages/socket.io-parser/**'
+      - 'package-lock.json'
       - '.github/workflows/ci-socket.io-cluster-engine.yml'
   pull_request:
     paths:
@@ -26,6 +27,7 @@ on:
       - 'packages/socket.io-cluster-engine/**'
       - 'packages/socket.io-component-emitter/**'
       - 'packages/socket.io-parser/**'
+      - 'package-lock.json'
       - '.github/workflows/ci-socket.io-cluster-engine.yml'
 
 permissions:

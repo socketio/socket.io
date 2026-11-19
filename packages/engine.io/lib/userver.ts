@@ -1,4 +1,6 @@
 import debugModule from "debug";
+import { STATUS_CODES } from "http";
+import { EventEmitter } from "events";
 import { AttachOptions, BaseServer, Server } from "./server";
 import { HttpRequest, HttpResponse, TemplatedApp } from "uWebSockets.js";
 import transports from "./transports-uws";
@@ -77,7 +79,7 @@ export class uServer extends BaseServer {
     (app as TemplatedApp)
       .any(path, this.handleRequest.bind(this))
       //
-      .ws<{ transport: any }>(path, {
+      .ws<{ transport: any; response?: ResponseWrapper }>(path, {
         compression: options.compression,
         idleTimeout: options.idleTimeout,
         maxBackpressure: options.maxBackpressure,
@@ -91,11 +93,13 @@ export class uServer extends BaseServer {
         },
         message: (ws, message, isBinary) => {
           ws.getUserData().transport.onData(
-            isBinary ? message : Buffer.from(message).toString(),
+            isBinary ? message.slice() : Buffer.from(message).toString(),
           );
         },
         close: (ws, code, message) => {
-          ws.getUserData().transport.onClose(code, message);
+          const { transport, response } = ws.getUserData();
+          transport.onClose(code, message);
+          response?.emit("close");
         },
       });
   }
@@ -253,6 +257,10 @@ export class uServer extends BaseServer {
         res.upgrade(
           {
             transport,
+            // only set when middlewares are registered (see _applyMiddlewares); used to emit "close" on the
+            // response object once the WebSocket connection actually closes (see the `close` handler below) —
+            // unlike the plain Node.js HTTP server, UWS does not expose a persistent socket to listen on here
+            response: req.res instanceof ResponseWrapper ? req.res : undefined,
           },
           secWebSocketKey,
           secWebSocketProtocol,
@@ -276,6 +284,15 @@ export class uServer extends BaseServer {
     errorCode: number,
     errorContext?: { message?: string },
   ) {
+    // a middleware may have already committed the response before failing
+    if (res instanceof ResponseWrapper && res.headersSent) {
+      debug("response headers already sent, skipping error response");
+      if (!res.writableEnded) {
+        res.end();
+      }
+      return;
+    }
+
     const statusCode =
       errorCode === Server.errors.FORBIDDEN
         ? "403 Forbidden"
@@ -296,23 +313,56 @@ export class uServer extends BaseServer {
   }
 }
 
-class ResponseWrapper {
+class ResponseWrapper extends EventEmitter {
   private statusWritten: boolean = false;
+  private ended = false;
   private headers = [];
   private isAborted = false;
 
-  constructor(readonly res: HttpResponse) {}
+  constructor(readonly res: HttpResponse) {
+    super();
+    // some middlewares (like pino-http) rely on the "close" event to know when the response is done, which
+    // uWebSockets.js does not expose directly — mirrors WebSocketResponse in server.ts
+    res.onAborted(() => {
+      // Any attempt to use the UWS response object after abort will throw!
+      this.isAborted = true;
+      this.emit("close");
+    });
+  }
+
+  public get headersSent() {
+    return this.statusWritten || this.ended;
+  }
+
+  public get writableEnded() {
+    return this.ended;
+  }
 
   public set statusCode(status: number) {
     if (!status) {
       return;
     }
-    // FIXME: handle all status codes?
-    this.writeStatus(status === 200 ? "200 OK" : "204 No Content");
+    const reason = STATUS_CODES[status] || "Unknown";
+    this.writeStatus(`${status} ${reason}`);
   }
 
-  public writeHead(status: number) {
-    this.statusCode = status;
+  public writeHead(status?: number, headers?: any, maybeHeaders?: any) {
+    if (typeof status === "number") {
+      this.statusCode = status;
+    }
+
+    const headerFields =
+      headers !== null && typeof headers === "object" ? headers : maybeHeaders;
+    if (
+      !headerFields ||
+      typeof headerFields !== "object" ||
+      Array.isArray(headerFields)
+    ) {
+      return;
+    }
+    Object.keys(headerFields).forEach((key) => {
+      this.setHeader(key, headerFields[key]);
+    });
   }
 
   public setHeader(key, value) {
@@ -361,15 +411,21 @@ class ResponseWrapper {
     });
   }
 
-  public end(data) {
-    if (this.isAborted) return;
+  public end(data?) {
+    if (this.isAborted || this.ended) return;
 
+    this.ended = true;
+    this.emit("finish");
     this.res.cork(() => {
       if (!this.statusWritten) {
         // status will be inferred as "200 OK"
         this.writeBufferedHeaders();
       }
-      this.res.end(data);
+      if (data === undefined) {
+        this.res.end();
+      } else {
+        this.res.end(data);
+      }
     });
   }
 
@@ -380,13 +436,10 @@ class ResponseWrapper {
   }
 
   public onAborted(fn) {
-    if (this.isAborted) return;
-
-    this.res.onAborted(() => {
-      // Any attempt to use the UWS response object after abort will throw!
-      this.isAborted = true;
-      fn();
-    });
+    // kept for backward compatibility; the actual UWS-level abort handler is registered once in the
+    // constructor (UWS only supports a single onAborted() callback per response), so this now just
+    // subscribes to the "close" event it emits
+    this.on("close", fn);
   }
 
   public cork(fn) {

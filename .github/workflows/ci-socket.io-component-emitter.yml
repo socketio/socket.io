@@ -6,10 +6,12 @@ on:
       - '**'
     paths:
       - 'packages/socket.io-component-emitter/**'
+      - 'package-lock.json'
       - '.github/workflows/ci-socket.io-component-emitter.yml'
   pull_request:
     paths:
       - 'packages/socket.io-component-emitter/**'
+      - 'package-lock.json'
       - '.github/workflows/ci-socket.io-component-emitter.yml'
 
 permissions:
