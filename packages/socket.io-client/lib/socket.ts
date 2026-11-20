@@ -50,6 +50,16 @@ export type AllButLast<T extends any[]> = T extends [...infer H, infer L]
 export type FirstArg<T> = T extends (arg: infer Param) => infer Result
   ? Param
   : any;
+export type FirstNonErrorTuple<T extends unknown[]> = T[0] extends Error
+  ? T[1]
+  : T[0];
+/**
+ * The type of the value of the acknowledgement: the first argument of the callback, or the second one when the
+ * timeout() flag adds an error as first argument.
+ */
+export type FirstNonErrorArg<T> = T extends (...args: infer Params) => any
+  ? FirstNonErrorTuple<Params>
+  : any;
 
 export interface SocketOptions {
   /**
@@ -514,7 +524,7 @@ export class Socket<
   public emitWithAck<Ev extends EventNames<EmitEvents>>(
     ev: Ev,
     ...args: AllButLast<EventParams<EmitEvents, Ev>>
-  ): Promise<FirstArg<Last<EventParams<EmitEvents, Ev>>>> {
+  ): Promise<FirstNonErrorArg<Last<EventParams<EmitEvents, Ev>>>> {
     return new Promise((resolve, reject) => {
       const fn = (arg1, arg2) => {
         return arg1 ? reject(arg1) : resolve(arg2);
