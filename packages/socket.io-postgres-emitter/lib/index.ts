@@ -357,6 +357,7 @@ export class BroadcastOperator<
 
   private async publish(document: any) {
     document.uid = EMITTER_UID;
+    document.nsp = this.emitter.nsp;
 
     try {
       if (
