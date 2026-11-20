@@ -242,16 +242,20 @@ export class Namespace<
     const fns = this._fns.slice(0);
 
     function run(i: number) {
-      fns[i](socket, (err) => {
-        // upon error, short-circuit
-        if (err) return fn(err);
+      try {
+        fns[i](socket, (err) => {
+          // upon error, short-circuit
+          if (err) return fn(err);
 
-        // if no middleware left, summon callback
-        if (!fns[i + 1]) return fn();
+          // if no middleware left, summon callback
+          if (!fns[i + 1]) return fn();
 
-        // go on to next
-        run(i + 1);
-      });
+          // go on to next
+          run(i + 1);
+        });
+      } catch (err) {
+        fn(err as ExtendedError);
+      }
     }
 
     run(0);
