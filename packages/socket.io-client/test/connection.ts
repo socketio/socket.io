@@ -290,6 +290,49 @@ describe("connection", () => {
     }
   });
 
+  it("should keep a zero value for the reconnection options", () => {
+    const manager = new Manager(BASE_URL, {
+      autoConnect: false,
+      reconnectionAttempts: 0,
+      reconnectionDelay: 0,
+      reconnectionDelayMax: 0,
+    });
+
+    expect(manager.reconnectionAttempts()).to.be(0);
+    expect(manager.reconnectionDelay()).to.be(0);
+    expect(manager.reconnectionDelayMax()).to.be(0);
+
+    // the backoff object should honor the zero delay too
+    // @ts-ignore
+    const backoff = manager.backoff;
+    backoff.attempts = 5;
+    expect(backoff.duration()).to.be(0);
+
+    manager._close();
+  });
+
+  it("should not attempt to reconnect when reconnectionAttempts is 0", () => {
+    return wrap((done) => {
+      const manager = new Manager(BASE_URL, {
+        reconnection: true,
+        timeout: 0,
+        reconnectionAttempts: 0,
+        reconnectionDelay: 0,
+      });
+      const socket = manager.socket("/timeout");
+      let attempts = 0;
+      manager.on("reconnect_attempt", () => {
+        attempts++;
+      });
+      manager.on("reconnect_failed", () => {
+        expect(attempts).to.be(0);
+        socket.close();
+        manager._close();
+        done();
+      });
+    });
+  });
+
   it("should not reconnect when force closed", () => {
     return wrap((done) => {
       const socket = io(BASE_URL + "/invalid", {
