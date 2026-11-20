@@ -116,7 +116,7 @@ export function setupPrimaryWithRedis(
       message._primaryId = primaryId;
 
       debug("publish message to channel %s", channel);
-      pubClient.publish(channel, encode(message));
+      pubClient.publish(channel, Buffer.from(encode(message)));
     },
   );
 }
