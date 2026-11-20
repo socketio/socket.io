@@ -1,5 +1,7 @@
 const path = require("node:path");
 const { execFile } = require("node:child_process");
+const { createServer } = require("node:http");
+const { WebSocketServer } = require("ws");
 const { Socket } = require("../");
 const { repeat } = require("./util");
 const expect = require("expect.js");
@@ -121,6 +123,58 @@ describe("node.js", () => {
 
       socket.close();
       done();
+    });
+  });
+
+  it("should close the probe transport when the probe fails", (done) => {
+    const httpServer = createServer((req, res) => {
+      if (req.method === "POST") {
+        return res.end("ok");
+      }
+      if (!new URL(req.url, "http://localhost").searchParams.has("sid")) {
+        return res.end(
+          '0{"sid":"abc","upgrades":["websocket"],"pingInterval":10000,"pingTimeout":5000,"maxPayload":1000000}',
+        );
+      }
+      // long-polling request: never answered
+    });
+
+    const wss = new WebSocketServer({ server: httpServer });
+
+    let upgradeErrorCount = 0;
+
+    wss.on("connection", (ws) => {
+      ws.on("message", (data) => {
+        if (data.toString() === "2probe") {
+          ws.send("3invalid"); // instead of "3probe"
+        }
+      });
+
+      ws.on("close", () => {
+        // the probe transport must be closed before the socket itself
+        expect(socket.readyState).to.eql("open");
+        expect(upgradeErrorCount).to.eql(1);
+
+        socket.close();
+        expect(upgradeErrorCount).to.eql(1);
+
+        wss.close();
+        httpServer.closeAllConnections();
+        httpServer.close();
+        done();
+      });
+    });
+
+    let socket;
+
+    httpServer.listen(0, () => {
+      socket = new Socket(`http://localhost:${httpServer.address().port}`);
+
+      socket.on("upgradeError", (err) => {
+        expect(err.message).to.eql("probe error");
+        expect(err.transport).to.eql("websocket");
+        upgradeErrorCount++;
+      });
     });
   });
 });

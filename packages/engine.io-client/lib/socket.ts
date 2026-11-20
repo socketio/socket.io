@@ -647,6 +647,7 @@ export class Socket extends Emitter<
           const err = new Error("probe error");
           // @ts-ignore
           err.transport = transport.name;
+          freezeTransport();
           this.emitReserved("upgradeError", err);
         }
       });
