@@ -32,6 +32,10 @@
         "default": "./build/cjs/index.js"
       }
     },
+    "./browser": {
+      "types": "./build/esm/index.d.ts",
+      "default": "./dist/socket.io.esm.min.js"
+    },
     "./debug": {
       "import": {
         "types": "./build/esm/index.d.ts",
