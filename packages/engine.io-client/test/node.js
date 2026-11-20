@@ -1,7 +1,9 @@
 const path = require("node:path");
 const { execFile } = require("node:child_process");
+const { createServer } = require("node:http");
 const { Socket } = require("../");
 const { repeat } = require("./util");
+const { useFetch } = require("./support/env");
 const expect = require("expect.js");
 const { parse } = require("../build/cjs/globals.node.js");
 const { CookieJar } = require("../build/cjs/globals.node.js");
@@ -121,6 +123,37 @@ describe("node.js", () => {
 
       socket.close();
       done();
+    });
+  });
+
+  it("should abort the request after requestTimeout ms (polling)", (done) => {
+    const httpServer = createServer(() => {
+      // never answered
+    });
+
+    httpServer.listen(0, () => {
+      const socket = new Socket(
+        `http://localhost:${httpServer.address().port}`,
+        {
+          transports: ["polling"],
+          requestTimeout: 100,
+        },
+      );
+
+      socket.on("error", (err) => {
+        expect(err.type).to.eql("TransportError");
+        expect(err.message).to.eql(
+          useFetch ? "fetch read error" : "xhr poll error",
+        );
+      });
+
+      socket.on("close", (reason) => {
+        expect(reason).to.eql("transport error");
+
+        httpServer.closeAllConnections();
+        httpServer.close();
+        done();
+      });
     });
   });
 });

@@ -50,6 +50,7 @@ export abstract class Transport extends Emitter<
   protected readyState: TransportState;
   protected socket: Socket;
   protected setTimeoutFn: typeof setTimeout;
+  protected clearTimeoutFn: typeof clearTimeout;
 
   /**
    * Transport abstract constructor.

@@ -48,16 +48,37 @@ export class Fetch extends Polling {
 
     this.socket._cookieJar?.appendCookies(headers);
 
+    let signal: AbortSignal;
+    let timeoutTimer: NodeJS.Timeout;
+
+    if (this.opts.requestTimeout) {
+      const controller = new AbortController();
+      signal = controller.signal;
+      timeoutTimer = this.setTimeoutFn(
+        () => controller.abort(),
+        this.opts.requestTimeout,
+      );
+    }
+
     return fetch(this.uri(), {
       method: isPost ? "POST" : "GET",
       body: isPost ? data : null,
       headers,
       credentials: this.opts.withCredentials ? "include" : "omit",
-    }).then((res) => {
-      // @ts-ignore getSetCookie() was added in Node.js v19.7.0
-      this.socket._cookieJar?.parseCookies(res.headers.getSetCookie());
+      signal,
+    }).then(
+      (res) => {
+        this.clearTimeoutFn(timeoutTimer);
 
-      return res;
-    });
+        // @ts-ignore getSetCookie() was added in Node.js v19.7.0
+        this.socket._cookieJar?.parseCookies(res.headers.getSetCookie());
+
+        return res;
+      },
+      (err) => {
+        this.clearTimeoutFn(timeoutTimer);
+        throw err;
+      },
+    );
   }
 }
