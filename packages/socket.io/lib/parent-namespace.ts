@@ -81,10 +81,20 @@ export class ParentNamespace<
 
       namespace._remove = (socket) => {
         remove.call(namespace, socket);
-        if (namespace.sockets.size === 0) {
+        if (
+          namespace.sockets.size === 0 &&
+          // a socket may still be in its (async) middleware, in which case
+          // the namespace must not be released yet
+          // @ts-ignore
+          namespace["_preConnectSockets"].size === 0
+        ) {
           debug("closing child namespace %s", name);
           namespace.adapter.close();
-          this.server._nsps.delete(namespace.name);
+          // only unregister the namespace if it still points to this object,
+          // a newer namespace may have been created under the same name
+          if (this.server._nsps.get(namespace.name) === namespace) {
+            this.server._nsps.delete(namespace.name);
+          }
           this.children.delete(namespace);
         }
       };
