@@ -17,6 +17,18 @@ export function createServer() {
     });
   });
 
+  server
+    .of("/delayed")
+    .use((socket, next) => {
+      // delay the acknowledgement of the CONNECT packet
+      setTimeout(next, 100);
+    })
+    .on("connection", (socket) => {
+      socket.on("getId", (cb) => {
+        cb(socket.id);
+      });
+    });
+
   server.of("/timeout_socket").on("connection", () => {
     // register namespace
   });
