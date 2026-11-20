@@ -122,7 +122,14 @@ export abstract class Polling extends Transport {
   override doClose() {
     const close = () => {
       debug("writing close packet");
-      this.write([{ type: "close" }]);
+      this.writable = false;
+
+      encodePayload([{ type: "close" }], (data) => {
+        // once the close packet is sent (or cannot be sent), the pending requests (for example the long-polling
+        // request, if the server did not answer it) are not needed anymore
+        const onSettled = () => this.abortRequests();
+        this.doWrite(data, onSettled, onSettled);
+      });
     };
 
     if ("open" === this.readyState) {
@@ -174,6 +181,17 @@ export abstract class Polling extends Transport {
     return this.createUri(schema, query);
   }
 
+  /**
+   * Aborts the pending requests, once the transport is closed.
+   *
+   * @protected
+   */
+  protected abortRequests() {}
+
   abstract doPoll();
-  abstract doWrite(data: string, callback: () => void);
+  abstract doWrite(
+    data: string,
+    callback: () => void,
+    errorCallback?: () => void,
+  );
 }

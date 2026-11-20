@@ -5,8 +5,46 @@ const { repeat } = require("./util");
 const expect = require("expect.js");
 const { parse } = require("../build/cjs/globals.node.js");
 const { CookieJar } = require("../build/cjs/globals.node.js");
+const { createServer } = require("node:http");
+const { useFetch } = require("./support/env");
 
 describe("node.js", () => {
+  it("should abort the long-polling request once the close packet is sent", function (done) {
+    if (!useFetch) {
+      // aborting a pending request with the "xmlhttprequest-ssl" package throws an uncaught exception (see
+      // https://github.com/mjwwit/node-XMLHttpRequest/issues/37)
+      return this.skip();
+    }
+
+    let socket;
+
+    const httpServer = createServer((req, res) => {
+      if (req.method === "POST") {
+        req.resume();
+        return req.on("end", () => res.end("ok"));
+      }
+      if (!new URL(req.url, "http://localhost").searchParams.has("sid")) {
+        return res.end(
+          '0{"sid":"abc","upgrades":[],"pingInterval":10000,"pingTimeout":5000,"maxPayload":1000000}',
+        );
+      }
+      // the long-polling request is never answered
+      res.on("close", () => {
+        httpServer.close();
+        done();
+      });
+
+      // the socket is closed while the long-polling request is pending
+      socket.close();
+    });
+
+    httpServer.listen(0, () => {
+      socket = new Socket(`http://localhost:${httpServer.address().port}`, {
+        transports: ["polling"],
+      });
+    });
+  });
+
   describe("autoRef option", () => {
     const runFixture = (filename, done) =>
       execFile(
