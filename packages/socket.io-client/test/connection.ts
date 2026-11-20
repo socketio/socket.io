@@ -42,6 +42,17 @@ describe("connection", () => {
     s2.disconnect();
   });
 
+  it("should not send the query of a previous connection when the options are reused", () => {
+    const opts = { forceNew: true };
+    const s1 = io(BASE_URL + "/?token=abc", opts);
+    const s2 = io(BASE_URL + "/", opts);
+
+    expect(opts).to.eql({ forceNew: true });
+    expect(s2.io.engine.transport.query.token).to.be(undefined);
+    s1.disconnect();
+    s2.disconnect();
+  });
+
   it("should start two connections with different paths", () => {
     const s1 = io(BASE_URL + "/", { path: "/foo" });
     const s2 = io(BASE_URL + "/", { path: "/bar" });
