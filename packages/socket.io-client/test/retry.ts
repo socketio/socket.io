@@ -111,6 +111,63 @@ describe("retry", () => {
     });
   });
 
+  it("should retry an unacknowledged packet upon reconnection without ackTimeout", () => {
+    return wrap((done) => {
+      const socket = io(BASE_URL, {
+        forceNew: true,
+        retries: 1,
+        reconnectionDelay: 10,
+        reconnectionDelayMax: 10,
+      });
+
+      let count = 0;
+      socket.on("ack", () => {
+        count++;
+        if (count === 1) {
+          socket.io.engine.close();
+        } else {
+          expect(count).to.eql(2);
+          success(done, socket);
+        }
+      });
+
+      // The server emits "ack" when it receives this event, but does not
+      // acknowledge it. The pending packet must be sent on the new connection.
+      socket.emit("ack");
+      socket.emit("echo", "next", () => {
+        done(new Error("should not skip the unacknowledged packet"));
+      });
+    });
+  });
+
+  it("should drain the next packet after exhausting the retries", () => {
+    return wrap((done) => {
+      const socket = io(BASE_URL, {
+        forceNew: true,
+        retries: 1,
+        ackTimeout: 50,
+      });
+
+      let attempts = 0;
+      let failed = false;
+      socket.on("ack", () => {
+        attempts++;
+      });
+
+      socket.emit("ack", (err) => {
+        expect(err).to.be.an(Error);
+        expect(attempts).to.eql(2);
+        failed = true;
+      });
+      socket.emit("echo", "next", (err, value) => {
+        expect(failed).to.be(true);
+        expect(err).to.be(null);
+        expect(value).to.eql("next");
+        success(done, socket);
+      });
+    });
+  });
+
   it("should not emit a packet twice in the 'connect' handler", () => {
     return wrap((done) => {
       const socket = io(BASE_URL, {
