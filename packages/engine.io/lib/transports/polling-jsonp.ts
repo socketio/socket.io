@@ -1,6 +1,7 @@
 import { Polling } from "./polling";
 import * as qs from "querystring";
 import type { RawData } from "engine.io-parser";
+import type { TransportOptions } from "../transport";
 
 const rDoubleSlashes = /\\\\n/g;
 const rSlashes = /(\\)?\\n/g;
@@ -12,8 +13,8 @@ export class JSONP extends Polling {
   /**
    * JSON-P polling transport.
    */
-  constructor(req) {
-    super(req);
+  constructor(req, opts: TransportOptions) {
+    super(req, opts);
 
     this.head = "___eio[" + (req._query.j || "").replace(/[^0-9]/g, "") + "](";
     this.foot = ");";

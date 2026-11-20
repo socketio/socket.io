@@ -4,7 +4,8 @@ import * as parser_v3 from "./parser-v3/index";
 import debugModule from "debug";
 import type { IncomingMessage, ServerResponse } from "http";
 import { Packet, RawData } from "engine.io-parser";
-import type { WebSocket } from "ws";
+import type { PerMessageDeflateOptions, WebSocket } from "ws";
+import type { ZlibOptions } from "node:zlib";
 
 const debug = debugModule("engine:transport");
 
@@ -22,6 +23,12 @@ export type EngineRequest = IncomingMessage & {
     };
   };
 };
+
+export interface TransportOptions {
+  perMessageDeflate?: PerMessageDeflateOptions;
+  maxHttpBufferSize?: number;
+  httpCompression?: false | (ZlibOptions & { threshold: number });
+}
 
 export abstract class Transport extends EventEmitter {
   /**
@@ -87,9 +94,13 @@ export abstract class Transport extends EventEmitter {
   /**
    * Transport constructor.
    *
-   * @param {EngineRequest} req
+   * @param {EngineRequest} req - initial HTTP request
+   * @param {TransportOptions} opts - options
    */
-  constructor(req: { _query: Record<string, string> }) {
+  constructor(
+    req: { _query: Record<string, string> },
+    protected readonly opts: TransportOptions = {},
+  ) {
     super();
     this.protocol = req._query.EIO === "4" ? 4 : 3; // 3rd revision by default
     this.parser = this.protocol === 4 ? parser_v4 : parser_v3;

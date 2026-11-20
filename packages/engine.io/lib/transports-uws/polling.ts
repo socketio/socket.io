@@ -14,25 +14,13 @@ const compressionMethods = {
 };
 
 export class Polling extends Transport {
-  public maxHttpBufferSize: number;
-  public httpCompression: any;
-
   private req: HttpRequest & { cleanup: () => void };
   private res: HttpResponse;
   private dataReq: HttpRequest;
   private dataRes: HttpResponse;
   private shouldClose: Function;
 
-  private readonly closeTimeout: number;
-
-  /**
-   * HTTP polling constructor.
-   */
-  constructor(req) {
-    super(req);
-
-    this.closeTimeout = 30 * 1000;
-  }
+  private readonly closeTimeout = 30 * 1000;
 
   /**
    * Transport name
@@ -127,7 +115,7 @@ export class Polling extends Transport {
       return;
     }
 
-    if (expectedContentLength > this.maxHttpBufferSize) {
+    if (expectedContentLength > this.opts.maxHttpBufferSize) {
       this.onError("payload too large");
       res.writeStatus("413 Payload Too Large").end();
       return;
@@ -326,13 +314,13 @@ export class Polling extends Transport {
       callback();
     };
 
-    if (!this.httpCompression || !options.compress) {
+    if (!this.opts.httpCompression || !options.compress) {
       respond(data);
       return;
     }
 
     const len = isString ? Buffer.byteLength(data) : data.length;
-    if (len < this.httpCompression.threshold) {
+    if (len < this.opts.httpCompression.threshold) {
       respond(data);
       return;
     }
@@ -367,7 +355,7 @@ export class Polling extends Transport {
     const buffers = [];
     let nread = 0;
 
-    compressionMethods[encoding](this.httpCompression)
+    compressionMethods[encoding](this.opts.httpCompression)
       .on("error", callback)
       .on("data", function (chunk) {
         buffers.push(chunk);

@@ -1,21 +1,21 @@
-import { EngineRequest, Transport } from "../transport";
+import { EngineRequest, Transport, TransportOptions } from "../transport";
 import debugModule from "debug";
 import type { Packet, RawData } from "engine.io-parser";
-import type { PerMessageDeflateOptions, WebSocket as WsWebSocket } from "ws";
+import type { WebSocket as WsWebSocket } from "ws";
 
 const debug = debugModule("engine:ws");
 
 export class WebSocket extends Transport {
-  perMessageDeflate?: boolean | PerMessageDeflateOptions;
   private socket: WsWebSocket;
 
   /**
    * WebSocket transport
    *
    * @param {EngineRequest} req
+   * @param {TransportOptions} opts
    */
-  constructor(req: EngineRequest) {
-    super(req);
+  constructor(req: EngineRequest, opts: TransportOptions) {
+    super(req, opts);
     this.socket = req.websocket;
     this.socket.on("message", (data, isBinary) => {
       const message = isBinary ? data : data.toString();
@@ -25,7 +25,6 @@ export class WebSocket extends Transport {
     this.socket.once("close", this.onClose.bind(this));
     this.socket.on("error", this.onError.bind(this));
     this.writable = true;
-    this.perMessageDeflate = null;
   }
 
   /**
@@ -74,7 +73,7 @@ export class WebSocket extends Transport {
    */
   private _canSendPreEncodedFrame(packet: Packet) {
     return (
-      !this.perMessageDeflate &&
+      !this.opts.perMessageDeflate &&
       // @ts-expect-error use of untyped member
       typeof this.socket?._sender?.sendFrame === "function" &&
       packet.options?.wsPreEncodedFrame !== undefined

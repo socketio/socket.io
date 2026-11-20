@@ -1,4 +1,4 @@
-import { Transport } from "../transport";
+import { Transport, TransportOptions } from "../transport";
 import debugModule from "debug";
 import { createPacketEncoderStream } from "engine.io-parser";
 
@@ -14,8 +14,9 @@ export class WebTransport extends Transport {
     private readonly session,
     stream,
     reader,
+    opts: TransportOptions,
   ) {
-    super({ _query: { EIO: "4" } });
+    super({ _query: { EIO: "4" } }, opts);
 
     const transformStream = createPacketEncoderStream();
     transformStream.readable.pipeTo(stream.writable).catch(() => {

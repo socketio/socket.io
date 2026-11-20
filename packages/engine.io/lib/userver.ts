@@ -63,7 +63,11 @@ export class uServer extends BaseServer {
   }
 
   protected createTransport(transportName: string, req: EngineRequest) {
-    return new transports[transportName](req);
+    return new transports[transportName](req, {
+      perMessageDeflate: this.opts.perMessageDeflate,
+      maxHttpBufferSize: this.opts.maxHttpBufferSize,
+      httpCompression: this.opts.httpCompression,
+    });
   }
 
   /**

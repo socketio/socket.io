@@ -15,25 +15,13 @@ const compressionMethods = {
 };
 
 export class Polling extends Transport {
-  public maxHttpBufferSize: number;
-  public httpCompression: any;
-
   private req: EngineRequest;
   private res: ServerResponse;
   private dataReq: IncomingMessage;
   private dataRes: ServerResponse;
   private shouldClose: () => void;
 
-  private readonly closeTimeout: number;
-
-  /**
-   * HTTP polling constructor.
-   */
-  constructor(req) {
-    super(req);
-
-    this.closeTimeout = 30 * 1000;
-  }
+  private readonly closeTimeout = 30 * 1000;
 
   /**
    * Transport name
@@ -149,7 +137,7 @@ export class Polling extends Transport {
     const onData = (chunk) => {
       contentLength += isBinary ? chunk.length : Buffer.byteLength(chunk);
 
-      if (contentLength > this.maxHttpBufferSize) {
+      if (contentLength > this.opts.maxHttpBufferSize) {
         exceededMaxHttpBufferSize = true;
         res.writeHead(413).end();
         cleanup();
@@ -297,13 +285,13 @@ export class Polling extends Transport {
       callback();
     };
 
-    if (!this.httpCompression || !options.compress) {
+    if (!this.opts.httpCompression || !options.compress) {
       respond(data);
       return;
     }
 
     const len = isString ? Buffer.byteLength(data) : data.length;
-    if (len < this.httpCompression.threshold) {
+    if (len < this.opts.httpCompression.threshold) {
       respond(data);
       return;
     }
@@ -319,7 +307,7 @@ export class Polling extends Transport {
     headers["Content-Encoding"] = encoding;
     this.res.writeHead(200, this.headers(this.req, headers));
 
-    const stream = compressionMethods[encoding](this.httpCompression);
+    const stream = compressionMethods[encoding](this.opts.httpCompression);
 
     let isErrored = false;
     let isDone = false;

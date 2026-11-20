@@ -4,19 +4,7 @@ import debugModule from "debug";
 const debug = debugModule("engine:ws");
 
 export class WebSocket extends Transport {
-  protected perMessageDeflate: any;
   private socket: any;
-
-  /**
-   * WebSocket transport
-   *
-   * @param req
-   */
-  constructor(req) {
-    super(req);
-    this.writable = false;
-    this.perMessageDeflate = null;
-  }
 
   /**
    * Transport name
@@ -48,8 +36,8 @@ export class WebSocket extends Transport {
       const send = (data) => {
         const isBinary = typeof data !== "string";
         const compress =
-          this.perMessageDeflate &&
-          Buffer.byteLength(data) > this.perMessageDeflate.threshold;
+          this.opts.perMessageDeflate &&
+          Buffer.byteLength(data) > this.opts.perMessageDeflate.threshold;
 
         debug('writing "%s"', data);
         this.socket.send(data, isBinary, compress);

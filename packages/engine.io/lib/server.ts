@@ -22,6 +22,7 @@ import { createPacketDecoderStream } from "engine.io-parser";
 import type { EngineRequest, Transport } from "./transport";
 import type { CookieSerializeOptions } from "./contrib/types.cookie";
 import { objectFromEntries } from "./utils/objectFromEntries";
+import { ZlibOptions } from "node:zlib";
 
 const debug = debugModule("engine");
 
@@ -114,7 +115,7 @@ export interface ServerOptions {
    * parameters of the http compression for the polling transports (see zlib api docs). Set to false to disable.
    * @default true
    */
-  httpCompression?: boolean | object;
+  httpCompression?: false | (ZlibOptions & { threshold: number });
   /**
    * what WebSocket server implementation to use. Specified module must
    * conform to the ws interface (see ws module api docs).
@@ -482,12 +483,6 @@ export abstract class BaseServer extends EventEmitter {
 
     try {
       var transport = this.createTransport(transportName, req);
-      if ("polling" === transportName) {
-        transport.maxHttpBufferSize = this.opts.maxHttpBufferSize;
-        transport.httpCompression = this.opts.httpCompression;
-      } else if ("websocket" === transportName) {
-        transport.perMessageDeflate = this.opts.perMessageDeflate;
-      }
     } catch (e) {
       debug('error handshaking to transport "%s"', transportName);
       this.emit("connection_error", {
@@ -596,7 +591,7 @@ export abstract class BaseServer extends EventEmitter {
     }
 
     if (value.data === undefined) {
-      const transport = new WebTransport(session, stream, reader);
+      const transport = new WebTransport(session, stream, reader, {});
 
       // note: we cannot use "this.generateId()", because there is no "req" argument
       const id = base64id.generateId();
@@ -637,7 +632,7 @@ export abstract class BaseServer extends EventEmitter {
     } else {
       debug("upgrading existing transport");
 
-      const transport = new WebTransport(session, stream, reader);
+      const transport = new WebTransport(session, stream, reader, {});
       client._maybeUpgrade(transport);
     }
   }
@@ -784,7 +779,11 @@ export class Server extends BaseServer {
     req: IncomingMessage,
   ): Transport {
     // @ts-expect-error 'polling' is a plain function used as constructor
-    return new transports[transportName](req);
+    return new transports[transportName](req, {
+      perMessageDeflate: this.opts.perMessageDeflate,
+      maxHttpBufferSize: this.opts.maxHttpBufferSize,
+      httpCompression: this.opts.httpCompression,
+    });
   }
 
   /**
@@ -938,8 +937,6 @@ export class Server extends BaseServer {
           req._query.transport as TransportName,
           req,
         );
-        // @ts-expect-error this option is only for WebSocket impl
-        transport.perMessageDeflate = this.opts.perMessageDeflate;
         client._maybeUpgrade(transport);
       }
     } else {
