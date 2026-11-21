@@ -123,6 +123,21 @@ describe("node.js", () => {
       done();
     });
   });
+
+  it("should not modify an array of cookies in the extraHeaders option", (done) => {
+    const extraHeaders = { cookie: ["foo=bar"] };
+    const socket = new Socket("http://localhost:3000", {
+      withCredentials: true,
+      extraHeaders,
+    });
+
+    socket.on("upgrade", () => {
+      expect(extraHeaders).to.eql({ cookie: ["foo=bar"] });
+
+      socket.close();
+      done();
+    });
+  });
 });
 
 describe("cookie parsing", () => {
