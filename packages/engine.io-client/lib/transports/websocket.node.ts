@@ -22,7 +22,7 @@ export class WS extends BaseWS {
       opts.headers.cookie =
         typeof opts.headers.cookie === "string"
           ? [opts.headers.cookie]
-          : opts.headers.cookie || [];
+          : [...(opts.headers.cookie || [])];
       for (const [name, cookie] of this.socket._cookieJar.cookies) {
         opts.headers.cookie.push(`${name}=${cookie.value}`);
       }
