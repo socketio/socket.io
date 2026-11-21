@@ -185,6 +185,20 @@ describe("cookie parsing", () => {
     });
   });
 
+  // RFC 6265, section 5.2: the attributes are split on every semi-colon,
+  // whether or not it is followed by a whitespace
+  it("should parse attributes separated by a semi-colon without a space", () => {
+    const cookie = parse("foo=bar;Max-Age=1000;Path=/");
+
+    const expected = Date.now() + 1000 * 1000;
+    expect(cookie.name).to.eql("foo");
+    expect(cookie.value).to.eql("bar");
+    expect(cookie.expires.getTime()).to.be.within(
+      expected - 1000,
+      expected + 1000,
+    );
+  });
+
   it("should parse a weird but valid cookie", () => {
     const cookieStr =
       "foo=bar=bar&foo=foo&John=Doe&Doe=John; Domain=.example.com; Path=/; HttpOnly; Secure";
@@ -236,6 +250,20 @@ describe("cookie expiry", () => {
       "bar=baz; max-age=0",
       "baz=qux; MAX-AGE=0",
     ]);
+
+    expect([...jar.cookies]).to.eql([]);
+  });
+
+  it("should treat Max-Age=0 as an expired cookie even without a space after the semi-colon", () => {
+    const jar = new CookieJar();
+    jar.parseCookies(["foo=bar;Max-Age=0"]);
+
+    expect([...jar.cookies]).to.eql([]);
+  });
+
+  it("should parse attributes separated by a tab character", () => {
+    const jar = new CookieJar();
+    jar.parseCookies(["foo=bar;\tMax-Age=0"]);
 
     expect([...jar.cookies]).to.eql([]);
   });
