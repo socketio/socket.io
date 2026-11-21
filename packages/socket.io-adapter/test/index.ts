@@ -319,10 +319,12 @@ describe("socket.io-adapter", () => {
 
   describe("connection state recovery", () => {
     it("should persist and restore session", async () => {
+      let offset: string;
       const adapter = new SessionAwareAdapter({
         server: {
           encoder: {
             encode(packet) {
+              offset = packet.data[1];
               return packet;
             },
           },
@@ -355,7 +357,7 @@ describe("socket.io-adapter", () => {
         },
       );
 
-      const offset = packetData[1];
+      expect(packetData).to.eql(["hello"]);
       const session = await adapter.restoreSession("def", offset);
 
       expect(session).to.not.be(null);
@@ -365,10 +367,14 @@ describe("socket.io-adapter", () => {
     });
 
     it("should restore missed packets", async () => {
+      let offset: string;
       const adapter = new SessionAwareAdapter({
         server: {
           encoder: {
             encode(packet) {
+              if (offset === undefined) {
+                offset = packet.data[1];
+              }
               return packet;
             },
           },
@@ -489,7 +495,7 @@ describe("socket.io-adapter", () => {
         },
       );
 
-      const offset = packetData[1];
+      expect(packetData).to.eql(["hello"]);
       const session = await adapter.restoreSession("def", offset);
 
       expect(session).to.not.be(null);
@@ -501,6 +507,55 @@ describe("socket.io-adapter", () => {
       expect(session.missedPackets[0][0]).to.eql("all");
       expect(session.missedPackets[1][0]).to.eql("room");
       expect(session.missedPackets[2][0]).to.eql("no except");
+    });
+
+    it("should isolate recovery offsets across namespaces", () => {
+      const payload = { hello: "world" };
+      const binary = Buffer.from("hello");
+      const packet = {
+        nsp: "/",
+        type: 2,
+        data: ["hello", payload, binary],
+      };
+      const encodedPackets: (typeof packet)[] = [];
+
+      for (const name of ["/first", "/second"]) {
+        const adapter = new SessionAwareAdapter({
+          name,
+          server: {
+            encoder: {
+              encode(packet) {
+                encodedPackets.push(packet);
+                return [];
+              },
+            },
+            opts: {
+              connectionStateRecovery: {
+                maxDisconnectionDuration: 5000,
+              },
+            },
+          },
+        });
+        adapter.broadcast(packet, {
+          rooms: new Set(),
+          except: new Set(),
+        });
+      }
+
+      expect(packet.data).to.eql(["hello", payload, binary]);
+      expect(encodedPackets).to.have.length(2);
+      for (const encoded of encodedPackets) {
+        expect(encoded.data[1]).to.be(payload);
+        expect(encoded.data[2]).to.be(binary);
+        expect(encoded).to.not.be(packet);
+        expect(encoded.data).to.not.be(packet.data);
+        expect(encoded.data).to.have.length(4);
+        expect(encoded.data[3]).to.be.a("string");
+      }
+      expect(packet.nsp).to.be("/");
+      expect(encodedPackets[0].nsp).to.be("/first");
+      expect(encodedPackets[1].nsp).to.be("/second");
+      expect(encodedPackets[0].data[3]).to.not.be(encodedPackets[1].data[3]);
     });
 
     it("should fail to restore an unknown session", async () => {

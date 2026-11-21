@@ -486,7 +486,10 @@ export class SessionAwareAdapter extends Adapter {
       const id = yeast();
       // the offset is stored at the end of the data array, so the client knows the ID of the last packet it has
       // processed (and the format is backward-compatible)
-      packet.data.push(id);
+      packet = {
+        ...packet,
+        data: [...packet.data, id],
+      };
       this.packets.push({
         id,
         opts,

@@ -1,6 +1,12 @@
 import { Server, Socket } from "..";
 import expect from "expect.js";
-import { waitFor, eioHandshake, eioPush, eioPoll } from "./support/util";
+import {
+  waitFor,
+  eioHandshake,
+  eioPush,
+  eioPoll,
+  createClient,
+} from "./support/util";
 import { createServer, Server as HttpServer } from "http";
 import { Adapter } from "socket.io-adapter";
 
@@ -75,6 +81,64 @@ describe("connection state recovery", () => {
     expect(packets[3]).to.eql(`40{"sid":"${sid}","pid":"${pid}"}`);
 
     io.close();
+  });
+
+  it("should recover twice after replaying a parent namespace room broadcast", async () => {
+    const io = new Server(0, { connectionStateRecovery: {} });
+    const parent = io.of(/^\/dynamic-\d+$/);
+    parent.on("connection", (socket) => socket.join("some-room"));
+
+    const clients = ["/dynamic-101", "/dynamic-102"].map((nsp) =>
+      createClient(io, nsp, { forceNew: true, reconnection: false }),
+    );
+
+    try {
+      await Promise.all(clients.map((client) => waitFor(client, "connect")));
+      const ids = clients.map((client) => client.id);
+
+      const initialPackets = clients.map((client) => waitFor(client, "seed"));
+      parent.emit("seed");
+      await Promise.all(initialPackets);
+
+      const missedPackets = clients.map((client) => waitFor(client, "hello"));
+
+      for (let attempt = 0; attempt < 2; attempt++) {
+        await Promise.all(
+          clients.map((client) => {
+            const socket = io.of(client.nsp).sockets.get(client.id);
+            const disconnected = Promise.all([
+              waitFor(client, "disconnect"),
+              waitFor(socket, "disconnect"),
+            ]);
+            socket.conn.close();
+            return disconnected;
+          }),
+        );
+
+        if (attempt === 0) {
+          parent.to("some-room").emit("hello", "world");
+        }
+        // The second recovery must use the replayed offset, without a new event.
+        await Promise.all(
+          clients.map((client) => {
+            const connected = waitFor(client, "connect");
+            client.connect();
+            return connected;
+          }),
+        );
+
+        for (let i = 0; i < clients.length; i++) {
+          expect(clients[i].recovered).to.be(true);
+          expect(clients[i].id).to.be(ids[i]);
+        }
+        if (attempt === 0) {
+          expect(await Promise.all(missedPackets)).to.eql(["world", "world"]);
+        }
+      }
+    } finally {
+      clients.forEach((client) => client.disconnect());
+      await io.close();
+    }
   });
 
   it("should restore rooms and data attributes", async () => {

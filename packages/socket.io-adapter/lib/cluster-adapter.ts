@@ -251,10 +251,12 @@ export abstract class ClusterAdapter extends Adapter {
             },
           );
         } else {
-          const packet = message.data.packet;
           const opts = decodeOptions(message.data.opts);
-
-          this.addOffsetIfNecessary(packet, opts, offset);
+          const packet = this.addOffsetIfNecessary(
+            message.data.packet,
+            opts,
+            offset,
+          );
 
           super.broadcast(packet, opts);
         }
@@ -436,7 +438,7 @@ export abstract class ClusterAdapter extends Adapter {
             opts: encodeOptions(opts),
           },
         });
-        this.addOffsetIfNecessary(packet, opts, offset);
+        packet = this.addOffsetIfNecessary(packet, opts, offset);
       } catch (e) {
         debug("[%s] error while broadcasting message: %s", this.uid, e.message);
       }
@@ -446,8 +448,8 @@ export abstract class ClusterAdapter extends Adapter {
   }
 
   /**
-   * Adds an offset at the end of the data array in order to allow the client to receive any missed packets when it
-   * reconnects after a temporary disconnection.
+   * Returns a copy of the packet with an offset at the end of the data array, if necessary, in order to allow the client
+   * to receive any missed packets when it reconnects after a temporary disconnection.
    *
    * @param packet
    * @param opts
@@ -460,7 +462,7 @@ export abstract class ClusterAdapter extends Adapter {
     offset: Offset,
   ) {
     if (!this.nsp.server.opts.connectionStateRecovery) {
-      return;
+      return packet;
     }
     const isEventPacket = packet.type === 2;
     // packets with acknowledgement are not stored because the acknowledgement function cannot be serialized and
@@ -469,8 +471,12 @@ export abstract class ClusterAdapter extends Adapter {
     const notVolatile = opts.flags?.volatile === undefined;
 
     if (isEventPacket && withoutAcknowledgement && notVolatile) {
-      packet.data.push(offset);
+      return {
+        ...packet,
+        data: [...packet.data, offset],
+      };
     }
+    return packet;
   }
 
   override broadcastWithAck(
