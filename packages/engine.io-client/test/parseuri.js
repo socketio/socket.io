@@ -4,6 +4,41 @@ const parseuri = require("..").parse;
 const { repeat } = require("./util");
 
 describe("parseuri", function () {
+  [
+    "/[room:name]",
+    "/?filter[name]=alice",
+    "/?filter=[name:alice]",
+    "/#section[name:alice]",
+  ].forEach((relative) => {
+    it(`should preserve brackets outside the host (${relative})`, () => {
+      const source = "https://example.com:8080" + relative;
+      const parsed = parseuri(source);
+
+      expect(parsed.source).to.be(source);
+      expect(parsed.authority).to.be("example.com:8080");
+      expect(parsed.host).to.be("example.com");
+      expect(parsed.port).to.be("8080");
+      expect(parsed.relative).to.be(relative);
+      expect(parsed.ipv6uri).to.be(undefined);
+    });
+  });
+
+  ["", "http://", "https://", "ws://", "wss://"].forEach((protocol) => {
+    it(`should preserve brackets after an IPv6 host (${protocol})`, () => {
+      const relative = "/[room:name]?filter[name]=alice#section[name:alice]";
+      const source = protocol + "user:pass@[2001:db8::1]:8080" + relative;
+      const parsed = parseuri(source);
+
+      expect(parsed.source).to.be(source);
+      expect(parsed.authority).to.be("user:pass@2001:db8::1:8080");
+      expect(parsed.host).to.be("2001:db8::1");
+      expect(parsed.port).to.be("8080");
+      expect(parsed.userInfo).to.be("user:pass");
+      expect(parsed.relative).to.be(relative);
+      expect(parsed.ipv6uri).to.be(true);
+    });
+  });
+
   it("should parse an uri", function () {
     const http = parseuri("http://google.com"),
       https = parseuri("https://www.google.com:80"),

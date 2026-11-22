@@ -29,8 +29,9 @@ export function parse(str: string) {
     }
 
     const src = str,
-        b = str.indexOf('['),
-        e = str.indexOf(']');
+        ipv6 = /^(?:(?:http|https|ws|wss):\/\/)?(?:[^@\/?#]*@)?(\[[^\]\/?#]*\])/.exec(str),
+        b = ipv6 ? ipv6[0].length - ipv6[1].length : -1,
+        e = ipv6 ? ipv6[0].length - 1 : -1;
 
     if (b != -1 && e != -1) {
         str = str.substring(0, b) + str.substring(b, e).replace(/:/g, ';') + str.substring(e, str.length);
