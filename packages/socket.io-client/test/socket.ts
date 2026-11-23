@@ -421,6 +421,48 @@ describe("socket", () => {
       });
     });
 
+    it("should not keep the ack handler of a discarded volatile packet (callback)", () => {
+      const socket = io(BASE_URL, { forceNew: true, autoConnect: false });
+
+      socket.volatile.emit("getId", () => {});
+
+      // @ts-ignore property 'acks' is private
+      expect(Object.keys(socket.acks).length).to.eql(0);
+    });
+
+    it("should ack with an error when a volatile packet is discarded (callback & timeout)", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL, { forceNew: true, autoConnect: false });
+
+        socket.volatile.timeout(10_000).emit("getId", (err) => {
+          expect(err).to.be.an(Error);
+
+          // @ts-ignore property 'acks' is private
+          expect(Object.keys(socket.acks).length).to.eql(0);
+
+          done();
+        });
+      });
+    });
+
+    it("should reject when a volatile packet is discarded (promise)", () => {
+      return wrap(async (done) => {
+        const socket = io(BASE_URL, { forceNew: true, autoConnect: false });
+
+        try {
+          await socket.volatile.emitWithAck("getId");
+          done(new Error("should not happen"));
+        } catch (e) {
+          expect(e).to.be.an(Error);
+
+          // @ts-ignore property 'acks' is private
+          expect(Object.keys(socket.acks).length).to.eql(0);
+
+          done();
+        }
+      });
+    });
+
     it("should send a volatile packet when the socket is connected and the pipe is ready", () => {
       return wrap((done) => {
         const socket = io(BASE_URL, { forceNew: true });

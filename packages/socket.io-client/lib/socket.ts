@@ -459,6 +459,17 @@ export class Socket<
 
     this.flags = {};
 
+    if (discardPacket && packet.id !== undefined) {
+      // the server will never acknowledge a discarded packet
+      const ack = this.acks[packet.id];
+      delete this.acks[packet.id];
+
+      // note: handlers that do not accept an error as first argument are ignored here
+      if (ack.withError) {
+        ack.call(this, new Error("packet has been discarded"));
+      }
+    }
+
     return this;
   }
 
