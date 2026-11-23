@@ -16,7 +16,9 @@ export interface Cookie {
  * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
  */
 export function parse(setCookieString: string): Cookie {
-  const parts = setCookieString.split("; ");
+  // the name-value pair and the attributes are separated by a semi-colon,
+  // which is only optionally followed by a whitespace (RFC 6265, section 5.2)
+  const parts = setCookieString.split(";");
   const i = parts[0].indexOf("=");
 
   if (i === -1) {
