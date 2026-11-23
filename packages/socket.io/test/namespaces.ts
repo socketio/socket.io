@@ -759,6 +759,64 @@ describe("namespaces", () => {
       });
     });
 
+    it("should NOT clean up namespace when cleanupEmptyChildNamespaces is ON and a client is still in middleware", (done) => {
+      const io = new Server(0, { cleanupEmptyChildNamespaces: true });
+      let releaseHandshake: () => void;
+      const handshakeGate = new Promise<void>((resolve) => {
+        releaseHandshake = resolve;
+      });
+      let handshakes = 0;
+      io.of(/^\/room-\w+$/).use(async (socket, next) => {
+        handshakes++;
+        if (handshakes === 2) await handshakeGate;
+        next();
+      });
+
+      const first = createClient(io, "/room-a");
+      first.on("connect", () => {
+        const nspAtStart = io._nsps.get("/room-a");
+        const held = createClient(io, "/room-a");
+        // let the second handshake reach the middleware, then disconnect the
+        // only connected socket
+        setTimeout(() => {
+          first.disconnect();
+          setTimeout(() => {
+            // the namespace must not be released while a socket is still in
+            // its middleware
+            expect(io._nsps.get("/room-a")).to.be(nspAtStart);
+            releaseHandshake();
+            held.on("connect", () => {
+              const third = createClient(io, "/room-a");
+              third.on("connect", () => {
+                // both sockets must share the same (still registered)
+                // namespace object
+                expect(io._nsps.get("/room-a")).to.be(nspAtStart);
+                let receivedHeld = 0;
+                let receivedThird = 0;
+                held.on("news", () => receivedHeld++);
+                third.on("news", () => receivedThird++);
+                io.of("/room-a").emit("news");
+                setTimeout(() => {
+                  expect(receivedHeld).to.be(1);
+                  expect(receivedThird).to.be(1);
+                  held.disconnect();
+                  setTimeout(() => {
+                    // the namespace "third" is in must still be registered
+                    expect(io._nsps.has("/room-a")).to.be(true);
+                    io.of("/room-a").emit("news");
+                    setTimeout(() => {
+                      expect(receivedThird).to.be(2);
+                      success(done, io, first, held, third);
+                    }, 100);
+                  }, 100);
+                }, 100);
+              });
+            });
+          }, 100);
+        }, 100);
+      });
+    });
+
     it("should attach a child namespace to its parent upon manual creation", () => {
       const io = new Server(0);
       const parentNamespace = io.of(/^\/dynamic-\d+$/);
