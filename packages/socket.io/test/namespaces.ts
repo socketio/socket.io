@@ -59,6 +59,53 @@ describe("namespaces", () => {
     });
   });
 
+  it("should ignore a duplicate CONNECT packet while the first one is pending", (done) => {
+    const io = new Server(0);
+    const clientSocket = createClient(io, "/", { transports: ["websocket"] });
+    let count = 0;
+
+    io.use((socket, next) => {
+      // keep the first CONNECT pending while the second one is decoded
+      setTimeout(next, 50);
+    });
+
+    io.on("connection", () => {
+      count++;
+    });
+
+    clientSocket.io.engine.on("open", () => {
+      clientSocket.io.engine.write("0");
+    });
+
+    clientSocket.on("connect", () => {
+      setTimeout(() => {
+        expect(count).to.eql(1);
+        expect(io.of("/").sockets.size).to.eql(1);
+        success(done, io, clientSocket);
+      }, 100);
+    });
+  });
+
+  it("should allow a new CONNECT after a middleware error", (done) => {
+    const io = new Server(0);
+    const clientSocket = createClient(io, "/", { transports: ["websocket"] });
+    let attempts = 0;
+
+    io.use((socket, next) => {
+      attempts++;
+      next(attempts === 1 ? new Error("nope") : undefined);
+    });
+
+    clientSocket.on("connect_error", () => {
+      clientSocket.connect();
+    });
+
+    clientSocket.on("connect", () => {
+      expect(attempts).to.eql(2);
+      success(done, io, clientSocket);
+    });
+  });
+
   it("should fire a `connect` event", (done) => {
     const io = new Server(0);
     const clientSocket = createClient(io);
