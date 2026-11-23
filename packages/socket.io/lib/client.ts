@@ -56,6 +56,7 @@ export class Client<
     SocketId,
     Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
   > = new Map();
+  private readonly connectingNsps = new Set<string>();
   private nsps: Map<
     string,
     Socket<ListenEvents, EmitEvents, ServerSideEvents, SocketData>
@@ -126,6 +127,7 @@ export class Client<
    * @private
    */
   private connect(name: string, auth: Record<string, unknown> = {}): void {
+    this.connectingNsps.add(name);
     if (this.server._nsps.has(name)) {
       debug("connecting to namespace %s", name);
       return this.doConnect(name, auth);
@@ -143,6 +145,7 @@ export class Client<
           this.doConnect(name, auth);
         } else {
           debug("creation of namespace %s was denied", name);
+          this.connectingNsps.delete(name);
           this._packet({
             type: PacketType.CONNECT_ERROR,
             nsp: name,
@@ -167,6 +170,7 @@ export class Client<
     const nsp = this.server.of(name);
 
     nsp._add(this, auth, (socket) => {
+      this.connectingNsps.delete(name);
       this.sockets.set(socket.id, socket);
       this.nsps.set(nsp.name, socket);
 
@@ -175,6 +179,15 @@ export class Client<
         this.connectTimeout = undefined;
       }
     });
+  }
+
+  /**
+   * Called when a pending connection to a namespace fails.
+   *
+   * @private
+   */
+  _onConnectFailed(name: string): void {
+    this.connectingNsps.delete(name);
   }
 
   /**
@@ -281,6 +294,10 @@ export class Client<
     const socket = this.nsps.get(namespace);
 
     if (!socket && packet.type === PacketType.CONNECT) {
+      if (this.connectingNsps.has(namespace)) {
+        debug("already connecting to namespace %s, ignoring", namespace);
+        return;
+      }
       this.connect(namespace, authPayload);
     } else if (
       socket &&

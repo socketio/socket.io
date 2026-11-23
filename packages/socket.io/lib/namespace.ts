@@ -357,12 +357,14 @@ export class Namespace<
       process.nextTick(() => {
         if ("open" !== client.conn.readyState) {
           debug("next called after client was closed - ignoring socket");
+          client._onConnectFailed(this.name);
           socket._cleanup();
           return;
         }
 
         if (err) {
           debug("middleware error, sending CONNECT_ERROR packet to the client");
+          client._onConnectFailed(this.name);
           socket._cleanup();
           if (client.conn.protocol === 3) {
             return socket._error(err.data || err.message);
