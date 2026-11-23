@@ -2,6 +2,7 @@
 
 | Version                      | Release date   | `ws` version |
 |------------------------------|----------------|--------------|
+| [6.6.13](#6613-2026-11-23)   | November 2026  | `^8.23.0`    |
 | [6.6.12](#6612-2026-11-19)   | November 2026  | `~8.21.0`    |
 | [6.6.11](#6611-2026-09-24)   | September 2026 | `~8.21.0`    |
 | [6.6.10](#6610-2026-09-03)   | September 2026 | `~8.21.0`    |
@@ -63,6 +64,24 @@ From the [3.x](https://github.com/socketio/engine.io/tree/3.x) branch:
 | [3.6.1](#361-2022-11-20) | November 2022 | `"`          |
 | [3.6.0](#360-2022-06-06) | June 2022     | `"`          |
 | [3.5.0](#350-2020-12-30) | December 2020 | `~7.4.2`     |
+
+
+## [6.6.13](https://github.com/socketio/socket.io/compare/engine.io%406.6.12...engine.io%406.6.13) (2026-11-23)
+
+The `ws` dependency was bumped to `^8.23.0` following [GHSA-37g9-w4hg-h9qr](https://github.com/websockets/ws/security/advisories/GHSA-37g9-w4hg-h9qr).
+
+Note: the dependency range was updated from `~8.21.0` (only allowing patch-level updates) to `^8.23.0` (allowing compatible minor and patch updates) to include any future security fix.
+
+### Bug Fixes
+
+* add timeout for polling request bodies ([9adc438](https://github.com/socketio/socket.io/commit/9adc438d53231e544dc2f0007456bd1910f468c2))
+* bound polling request chunk buffering ([f0df289](https://github.com/socketio/socket.io/commit/f0df289212e6ff138723933e33db891796f4d3d1))
+
+### Dependencies
+
+- [`ws@^8.23.0`](https://github.com/websockets/ws/releases/tag/8.23.0) ([diff](https://github.com/websockets/ws/compare/8.21.0...8.23.0))
+
+
 
 ## [6.6.12](https://github.com/socketio/socket.io/compare/engine.io%406.6.11...engine.io%406.6.12) (2026-11-19)
 
