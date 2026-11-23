@@ -246,9 +246,9 @@ export interface SocketOptions {
 
   /**
    * parameters of the WebSocket permessage-deflate extension (see ws module api docs). Set to false to disable.
-   * @default false
+   * @default { threshold: 1024 }
    */
-  perMessageDeflate?: { threshold: number };
+  perMessageDeflate?: boolean | { threshold?: number };
 
   /**
    * The path to get our client file from, in the case of the server
@@ -934,7 +934,13 @@ export class Socket extends Emitter<
    * @param {Function} fn - callback function.
    * @return {Socket} for chaining.
    */
-  public write(msg: RawData, options?: WriteOptions, fn?: () => void) {
+  public write(msg: RawData, fn?: () => void): this;
+  public write(msg: RawData, options?: WriteOptions, fn?: () => void): this;
+  public write(
+    msg: RawData,
+    options?: WriteOptions | (() => void),
+    fn?: () => void,
+  ) {
     this._sendPacket("message", msg, options, fn);
     return this;
   }
@@ -947,7 +953,13 @@ export class Socket extends Emitter<
    * @param {Function} fn - callback function.
    * @return {Socket} for chaining.
    */
-  public send(msg: RawData, options?: WriteOptions, fn?: () => void) {
+  public send(msg: RawData, fn?: () => void): this;
+  public send(msg: RawData, options?: WriteOptions, fn?: () => void): this;
+  public send(
+    msg: RawData,
+    options?: WriteOptions | (() => void),
+    fn?: () => void,
+  ) {
     this._sendPacket("message", msg, options, fn);
     return this;
   }
@@ -964,7 +976,7 @@ export class Socket extends Emitter<
   private _sendPacket(
     type: PacketType,
     data?: RawData,
-    options?: WriteOptions,
+    options?: WriteOptions | (() => void),
     fn?: () => void,
   ) {
     if ("function" === typeof data) {
@@ -974,7 +986,7 @@ export class Socket extends Emitter<
 
     if ("function" === typeof options) {
       fn = options;
-      options = null;
+      options = {};
     }
 
     if ("closing" === this.readyState || "closed" === this.readyState) {

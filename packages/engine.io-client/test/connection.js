@@ -60,6 +60,16 @@ describe("connection", function () {
     });
   });
 
+  it("should accept a callback as the second argument of send()", (done) => {
+    const socket = new Socket();
+    socket.on("open", () => {
+      socket.send("hi", () => {
+        socket.close();
+        done();
+      });
+    });
+  });
+
   it("should not send packets if socket closes", (done) => {
     const socket = new Socket();
     socket.on("open", () => {
