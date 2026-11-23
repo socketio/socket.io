@@ -5,6 +5,7 @@ import { install } from "@sinonjs/fake-timers";
 import textBlobBuilder from "text-blob-builder";
 import { BASE_URL, wrap } from "./support/util";
 import { nextTick } from "engine.io-client";
+import { PacketType } from "socket.io-parser";
 
 describe("connection", () => {
   it("should connect to localhost", () => {
@@ -129,6 +130,35 @@ describe("connection", () => {
       socket.on("connect", () => {
         const foo = manager.socket("/foo");
         foo.on("connect", () => {
+          foo.close();
+          socket.close();
+          manager._close();
+          done();
+        });
+      });
+    });
+  });
+
+  it("should not send a second CONNECT packet when connect() is called during the handshake", () => {
+    return wrap((done) => {
+      const manager = new Manager(BASE_URL);
+      const socket = manager.socket("/");
+      socket.on("connect", () => {
+        const namespaces: string[] = [];
+        const _packet = manager._packet.bind(manager);
+        manager._packet = (packet) => {
+          if (packet.type === PacketType.CONNECT) {
+            namespaces.push(packet.nsp);
+          }
+          _packet(packet);
+        };
+
+        const foo = manager.socket("/foo");
+        // the CONNECT packet is sent, but the server has not acknowledged it yet
+        foo.connect();
+
+        foo.on("connect", () => {
+          expect(namespaces).to.eql(["/foo"]);
           foo.close();
           socket.close();
           manager._close();

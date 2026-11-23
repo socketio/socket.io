@@ -360,9 +360,12 @@ export class Socket<
   public connect(): this {
     if (this.connected) return this;
 
+    // an active socket has already sent its CONNECT packet (or will send it upon the next "open" event of the Manager)
+    const isHandshakePending = this.active && "open" === this.io._readyState;
+
     this.subEvents();
     if (!this.io["_reconnecting"]) this.io.open(); // ensure open
-    if ("open" === this.io._readyState) this.onopen();
+    if ("open" === this.io._readyState && !isHandshakePending) this.onopen();
     return this;
   }
 
