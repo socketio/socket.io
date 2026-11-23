@@ -18,6 +18,7 @@ const expect = require("expect.js");
 const request = require("superagent");
 const cookieMod = require("cookie");
 const { WebSocket } = require("ws");
+const success = require("./utils/success");
 
 const IS_CLIENT_V3 = process.env.EIO_CLIENT === "3";
 
@@ -25,9 +26,9 @@ const IS_CLIENT_V3 = process.env.EIO_CLIENT === "3";
 const onErrorMethod = IS_CLIENT_V3 ? "onError" : "_onError";
 const sendPacketMethod = IS_CLIENT_V3 ? "sendPacket" : "_sendPacket";
 
-/**
- * Tests.
- */
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 describe("server", () => {
   let engine, client;
@@ -2202,10 +2203,6 @@ describe("server", () => {
     });
 
     it("should arrive when content is sent with chunked transfer-encoding (polling)", function (done) {
-      if (process.env.EIO_WS_ENGINE === "uws") {
-        // µWebSockets.js does not currently support chunked encoding: https://github.com/uNetworking/uWebSockets.js/issues/669
-        return this.skip();
-      }
       const engine = listen((port) => {
         const client = new ClientSocket(`ws://localhost:${port}`, {
           transports: ["polling"],
@@ -2632,6 +2629,76 @@ describe("server", () => {
         });
       });
     }
+
+    describe("maxBufferedChunks option", () => {
+      it("should be receiving data when the number of chunks is below maxBufferedChunks", (done) => {
+        // uWebSockets.js receives one additional empty chunk at the end
+        const maxBufferedChunks = process.env.EIO_WS_ENGINE === "uws" ? 3 : 2;
+        const engine = listen({ maxBufferedChunks }, (port) => {
+          const socket = new ClientSocket(`ws://localhost:${port}`, {
+            transports: ["polling"],
+          });
+
+          socket.on("open", async () => {
+            const nodeReq = http.request(
+              {
+                hostname: "localhost",
+                port,
+                path: `/engine.io/?transport=polling&EIO=${IS_CLIENT_V3 ? "3" : "4"}&sid=${socket.id}`,
+                method: "POST",
+                headers: {
+                  "Content-Type": "text/plain",
+                  "Transfer-Encoding": "chunked",
+                },
+              },
+              (res) => {
+                expect(res.statusCode).to.be(200);
+                success(done, engine);
+              },
+            );
+
+            nodeReq.write("4");
+            await sleep(10);
+            nodeReq.write("20");
+            nodeReq.end();
+          });
+        });
+      });
+
+      it("should not be receiving data when getting too many chunks when polling", (done) => {
+        const engine = listen({ maxBufferedChunks: 2 }, (port) => {
+          const socket = new ClientSocket(`ws://localhost:${port}`, {
+            transports: ["polling"],
+          });
+
+          socket.on("open", async () => {
+            const nodeReq = http.request(
+              {
+                hostname: "localhost",
+                port,
+                path: `/engine.io/?transport=polling&EIO=${IS_CLIENT_V3 ? "3" : "4"}&sid=${socket.id}`,
+                method: "POST",
+                headers: {
+                  "Content-Type": "text/plain",
+                  "Transfer-Encoding": "chunked",
+                },
+              },
+              (res) => {
+                expect(res.statusCode).to.be(413);
+                success(done, engine);
+              },
+            );
+
+            nodeReq.write("4");
+            await sleep(10);
+            nodeReq.write("2");
+            await sleep(10);
+            nodeReq.write("0");
+            nodeReq.end();
+          });
+        });
+      });
+    });
   });
 
   describe("send", () => {

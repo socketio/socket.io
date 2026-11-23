@@ -118,9 +118,8 @@ export class Polling extends Transport {
     this.dataRes = res;
 
     const buffers: Buffer[] = [];
-    let stringChunks = "";
     let contentLength = 0;
-    let exceededMaxHttpBufferSize = false;
+    let isAborted = false;
 
     const cleanup = () => {
       req.removeListener("data", onData);
@@ -134,33 +133,37 @@ export class Polling extends Transport {
       this.onError("data request connection closed prematurely");
     };
 
-    const onData = (chunk) => {
-      contentLength += isBinary ? chunk.length : Buffer.byteLength(chunk);
+    const onData = (chunk: Buffer) => {
+      contentLength += chunk.length;
 
       if (contentLength > this.opts.maxHttpBufferSize) {
-        exceededMaxHttpBufferSize = true;
+        isAborted = true;
         res.writeHead(413).end();
+        this.onError("payload too large");
         cleanup();
+        req.destroy();
         return;
       }
 
-      if (isBinary) {
-        buffers.push(chunk);
-      } else {
-        stringChunks += chunk;
+      buffers.push(chunk);
+
+      if (buffers.length > this.opts.maxBufferedChunks) {
+        isAborted = true;
+        res.writeHead(413).end();
+        this.onError("too many chunks");
+        cleanup();
+        req.destroy();
+        return;
       }
     };
 
     const onEnd = () => {
-      if (exceededMaxHttpBufferSize) {
+      if (isAborted) {
         return;
       }
 
-      const chunks = isBinary
-        ? Buffer.concat(buffers, contentLength)
-        : stringChunks;
-
-      this.onData(chunks);
+      const finalBuffer = Buffer.concat(buffers, contentLength);
+      this.onData(isBinary ? finalBuffer : finalBuffer.toString());
 
       const headers = {
         // text/html is required instead of text/plain to avoid an
@@ -175,7 +178,6 @@ export class Polling extends Transport {
     };
 
     req.on("close", onClose);
-    if (!isBinary) req.setEncoding("utf8");
     req.on("data", onData);
     req.on("end", onEnd);
   }

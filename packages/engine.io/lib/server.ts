@@ -117,6 +117,11 @@ export interface ServerOptions {
    */
   httpCompression?: false | (ZlibOptions & { threshold: number });
   /**
+   * The maximum number of chunks that can be buffered while reading an HTTP request body.
+   * @default 10_000
+   */
+  maxBufferedChunks?: number;
+  /**
    * what WebSocket server implementation to use. Specified module must
    * conform to the ws interface (see ws module api docs).
    * An alternative c++ addon is also available by installing eiows module.
@@ -210,6 +215,7 @@ export abstract class BaseServer extends EventEmitter {
         },
         cors: false,
         allowEIO3: false,
+        maxBufferedChunks: 10_000,
       },
       opts,
     );
@@ -729,6 +735,7 @@ export class Server extends BaseServer {
       clientTracking: false,
       perMessageDeflate: this.opts.perMessageDeflate,
       maxPayload: this.opts.maxHttpBufferSize,
+      maxBufferedChunks: this.opts.maxBufferedChunks,
     });
 
     if (typeof this.ws.on === "function") {
@@ -782,6 +789,7 @@ export class Server extends BaseServer {
     return new transports[transportName](req, {
       perMessageDeflate: this.opts.perMessageDeflate,
       maxHttpBufferSize: this.opts.maxHttpBufferSize,
+      maxBufferedChunks: this.opts.maxBufferedChunks,
       httpCompression: this.opts.httpCompression,
     });
   }

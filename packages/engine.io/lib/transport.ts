@@ -27,6 +27,7 @@ export type EngineRequest = IncomingMessage & {
 export interface TransportOptions {
   perMessageDeflate?: PerMessageDeflateOptions;
   maxHttpBufferSize?: number;
+  maxBufferedChunks?: number;
   httpCompression?: false | (ZlibOptions & { threshold: number });
 }
 

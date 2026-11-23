@@ -107,20 +107,6 @@ export class Polling extends Transport {
       return;
     }
 
-    const expectedContentLength = Number(req.headers["content-length"]);
-
-    if (!expectedContentLength) {
-      this.onError("content-length header required");
-      res.writeStatus("411 Length Required").end();
-      return;
-    }
-
-    if (expectedContentLength > this.opts.maxHttpBufferSize) {
-      this.onError("payload too large");
-      res.writeStatus("413 Payload Too Large").end();
-      return;
-    }
-
     const isBinary = "application/octet-stream" === req.headers["content-type"];
 
     if (isBinary && this.protocol === 4) {
@@ -131,9 +117,6 @@ export class Polling extends Transport {
     this.dataReq = req;
     this.dataRes = res;
 
-    let buffer;
-    let offset = 0;
-
     const headers = {
       // text/html is required instead of text/plain to avoid an
       // unwanted download dialog on certain user-agents (GH-43)
@@ -141,53 +124,57 @@ export class Polling extends Transport {
     };
 
     this.headers(req, headers);
-    for (let key in headers) {
-      res.writeHeader(key, String(headers[key]));
-    }
 
-    const onEnd = (buffer) => {
-      this.onData(buffer.toString());
-      this.onDataRequestCleanup();
-      res.cork(() => {
-        res.end("ok");
-      });
-    };
+    const chunks: Buffer[] = [];
+    let contentLength = 0;
+    let isAborted = false;
 
     res.onAborted(() => {
       this.onDataRequestCleanup();
-      this.onError("data request connection closed prematurely");
+
+      if (!isAborted) {
+        this.onError("data request connection closed prematurely");
+      }
     });
 
-    res.onData((arrayBuffer, isLast) => {
-      const totalLength = offset + arrayBuffer.byteLength;
-      if (totalLength > expectedContentLength) {
-        this.onError("content-length mismatch");
-        res.close(); // calls onAborted
+    // collectBody() helper was added in v20.61.0 (March 2026)
+    res.onData((arrayBuffer: ArrayBuffer, isLast: boolean) => {
+      if (isAborted) return;
+
+      // note: this creates a copy of the arraybuffer
+      const chunk = Buffer.from(new Uint8Array(arrayBuffer));
+
+      contentLength += chunk.length;
+
+      if (contentLength > this.opts.maxHttpBufferSize) {
+        isAborted = true;
+        res.writeStatus("413 Payload Too Large").end();
+        this.onError("payload too large");
+        this.onDataRequestCleanup();
         return;
       }
 
-      if (!buffer) {
-        if (isLast) {
-          onEnd(Buffer.from(arrayBuffer));
-          return;
-        }
-        buffer = Buffer.allocUnsafe(expectedContentLength);
-      }
+      chunks.push(chunk);
 
-      Buffer.from(arrayBuffer).copy(buffer, offset);
+      if (chunks.length > this.opts.maxBufferedChunks) {
+        isAborted = true;
+        res.writeStatus("413 Payload Too Large").end();
+        this.onError("too many chunks");
+        this.onDataRequestCleanup();
+        return;
+      }
 
       if (isLast) {
-        if (totalLength != expectedContentLength) {
-          this.onError("content-length mismatch");
-          res.writeStatus("400 Content-Length Mismatch").end();
-          this.onDataRequestCleanup();
-          return;
-        }
-        onEnd(buffer);
-        return;
+        const finalBuffer = Buffer.concat(chunks, contentLength);
+        this.onData(isBinary ? finalBuffer : finalBuffer.toString());
+        this.onDataRequestCleanup();
+        res.cork(() => {
+          for (let key in headers) {
+            res.writeHeader(key, String(headers[key]));
+          }
+          res.end("ok");
+        });
       }
-
-      offset = totalLength;
     });
   }
 

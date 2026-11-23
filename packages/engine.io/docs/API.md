@@ -181,6 +181,7 @@ to a single process.
     - `maxHttpBufferSize` (`Number`): how many bytes or characters a message
       can be, before closing the session (to avoid DoS). Default
       value is `1E6`.
+    - `maxBufferedChunks` (`Number`): how many chunks can be buffered while reading an HTTP request body (`10_000`)
     - `allowRequest` (`Function`): A function that receives a given handshake
       or upgrade request as its first parameter, and can decide whether to
       continue or not. The second argument is a function that needs to be

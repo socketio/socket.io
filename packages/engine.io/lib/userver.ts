@@ -66,6 +66,7 @@ export class uServer extends BaseServer {
     return new transports[transportName](req, {
       perMessageDeflate: this.opts.perMessageDeflate,
       maxHttpBufferSize: this.opts.maxHttpBufferSize,
+      maxBufferedChunks: this.opts.maxBufferedChunks,
       httpCompression: this.opts.httpCompression,
     });
   }
