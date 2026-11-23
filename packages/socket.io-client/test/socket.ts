@@ -167,6 +167,75 @@ describe("socket", () => {
     });
   });
 
+  describe("disconnect during the handshake", () => {
+    it("should disconnect on the server side once the server answers the CONNECT packet", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL, { forceNew: true });
+
+        socket.on("connect", () => {
+          const slow = socket.io.socket("/slow-handshake");
+          slow.on("connect", () => {
+            done(new Error("should not happen"));
+          });
+          // the server answers the CONNECT packet after 100 ms
+          slow.disconnect();
+          expect(slow.connected).to.be(false);
+
+          setTimeout(() => {
+            socket.emit("getSlowHandshakeSocketIds", (ids) => {
+              expect(ids).to.eql([]);
+              expect(socket.connected).to.be(true);
+              socket.disconnect();
+              done();
+            });
+          }, 300);
+        });
+      });
+    });
+
+    it("should connect once when reconnected before the server answers the CONNECT packet", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL, { forceNew: true });
+
+        socket.on("connect", () => {
+          const slow = socket.io.socket("/slow-handshake");
+          let connectCount = 0;
+          slow.on("connect", () => {
+            connectCount++;
+          });
+          slow.disconnect();
+          slow.connect();
+
+          setTimeout(() => {
+            expect(connectCount).to.eql(1);
+            expect(slow.connected).to.be(true);
+            socket.emit("getSlowHandshakeSocketIds", (ids) => {
+              expect(ids).to.eql([slow.id]);
+              slow.disconnect();
+              socket.disconnect();
+              done();
+            });
+          }, 300);
+        });
+      });
+    });
+
+    it("should close the connection when the socket was the only one", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL + "/slow-handshake", { forceNew: true });
+
+        socket.io.engine.on("open", () => {
+          socket.disconnect();
+        });
+        socket.io.on("close", (reason) => {
+          expect(reason).to.eql("forced close");
+          expect(socket.connected).to.be(false);
+          done();
+        });
+      });
+    });
+  });
+
   describe("query option", () => {
     it("should accept an object (default namespace)", () => {
       return wrap((done) => {
