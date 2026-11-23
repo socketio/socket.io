@@ -1,5 +1,7 @@
 const path = require("node:path");
 const { execFile } = require("node:child_process");
+const { createServer } = require("node:http");
+const { attach } = require("engine.io");
 const { Socket } = require("../");
 const { repeat } = require("./util");
 const expect = require("expect.js");
@@ -106,6 +108,31 @@ describe("node.js", () => {
 
       socket.close();
       done();
+    });
+  });
+
+  it("should not close when pingInterval + pingTimeout is above the maximum timer delay", (done) => {
+    const httpServer = createServer();
+    const engine = attach(httpServer, {
+      pingInterval: 25000,
+      pingTimeout: 2147483647, // the maximum delay of setTimeout()
+    });
+
+    httpServer.listen(0, () => {
+      const socket = new Socket(
+        `http://localhost:${httpServer.address().port}`,
+        { transports: ["websocket"] },
+      );
+
+      socket.on("open", () => {
+        setTimeout(() => {
+          expect(socket.readyState).to.eql("open");
+          socket.close();
+          engine.close();
+          httpServer.close();
+          done();
+        }, 100);
+      });
     });
   });
 

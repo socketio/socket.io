@@ -22,6 +22,9 @@ const withEventListeners =
 
 const OFFLINE_EVENT_LISTENERS = [];
 
+// the maximum delay of setTimeout() (about 24.8 days), a larger value makes the timer fire immediately
+const MAX_TIMER_DELAY = 2147483647;
+
 if (withEventListeners) {
   // within a ServiceWorker, any event handler for the 'offline' event must be added on the initial evaluation of the
   // script, so we create one single event listener here which will forward the event to the socket instances
@@ -819,7 +822,10 @@ export class Socket extends Emitter<
    */
   private _resetPingTimeout() {
     this.clearTimeoutFn(this._pingTimeoutTimer);
-    const delay = this._pingInterval + this._pingTimeout;
+    const delay = Math.min(
+      this._pingInterval + this._pingTimeout,
+      MAX_TIMER_DELAY,
+    );
     this._pingTimeoutTime = Date.now() + delay;
     this._pingTimeoutTimer = this.setTimeoutFn(() => {
       this._onClose("ping timeout");
