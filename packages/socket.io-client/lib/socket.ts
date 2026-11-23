@@ -447,9 +447,12 @@ export class Socket<
     const isTransportWritable = this.io.engine?.transport?.writable;
     const isConnected = this.connected && !this.io.engine?._hasPingExpired();
 
-    const discardPacket = this.flags.volatile && !isTransportWritable;
+    const discardPacket =
+      this.flags.volatile && !(isTransportWritable && isConnected);
     if (discardPacket) {
-      debug("discard packet as the transport is not currently writable");
+      debug(
+        "discard packet as the socket is not connected or the transport is not currently writable",
+      );
     } else if (isConnected) {
       this.notifyOutgoingListeners(packet);
       this.packet(packet);
