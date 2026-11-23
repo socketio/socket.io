@@ -23,4 +23,9 @@ export class XHR extends BaseXHR {
       opts as RequestOptions,
     );
   }
+
+  protected override abortRequests() {
+    // note: the pending requests are not aborted, because aborting a pending request with the "xmlhttprequest-ssl"
+    // package throws an uncaught exception (see https://github.com/mjwwit/node-XMLHttpRequest/issues/37)
+  }
 }

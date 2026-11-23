@@ -16,6 +16,7 @@ export abstract class BaseXHR extends Polling {
   protected readonly xd: boolean;
 
   private pollXhr: any;
+  private _requests = new Set<Request>();
 
   /**
    * XHR Polling constructor.
@@ -56,14 +57,20 @@ export abstract class BaseXHR extends Polling {
    * @param {Function} fn - called upon flush.
    * @private
    */
-  override doWrite(data: string, fn: () => void) {
+  override doWrite(data: string, fn: () => void, errorFn?: () => void) {
     const req = this.request({
       method: "POST",
       data: data,
     });
-    req.on("success", fn);
+    this._requests.add(req);
+    req.on("success", () => {
+      this._requests.delete(req);
+      fn();
+    });
     req.on("error", (xhrStatus, context) => {
+      this._requests.delete(req);
       this.onError("xhr post error", xhrStatus, context);
+      errorFn && errorFn();
     });
   }
 
@@ -75,11 +82,21 @@ export abstract class BaseXHR extends Polling {
   override doPoll() {
     debug("xhr poll");
     const req = this.request();
-    req.on("data", this.onData.bind(this));
+    this._requests.add(req);
+    req.on("data", (data) => {
+      this._requests.delete(req);
+      this.onData(data);
+    });
     req.on("error", (xhrStatus, context) => {
+      this._requests.delete(req);
       this.onError("xhr poll error", xhrStatus, context);
     });
     this.pollXhr = req;
+  }
+
+  protected override abortRequests() {
+    this._requests.forEach((req) => req.abort(true));
+    this._requests.clear();
   }
 }
 
@@ -282,10 +299,12 @@ export class Request extends Emitter<
   /**
    * Aborts the request.
    *
+   * @param {Boolean} force - whether the underlying XMLHttpRequest object should be aborted too (which closes the
+   * connection)
    * @package
    */
-  public abort() {
-    this._cleanup();
+  public abort(force?: boolean) {
+    this._cleanup(force);
   }
 }
 
