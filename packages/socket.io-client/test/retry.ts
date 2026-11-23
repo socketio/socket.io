@@ -111,6 +111,41 @@ describe("retry", () => {
     });
   });
 
+  it("should not treat the acknowledgement as an error without ackTimeout", () => {
+    return wrap((done) => {
+      const socket = io(BASE_URL, {
+        forceNew: true,
+        retries: 3,
+      });
+
+      const sent: string[] = [];
+
+      socket.io.engine.on("packetCreate", ({ data }) => {
+        sent.push(data);
+      });
+
+      socket.emit("echo", 1, (err, val) => {
+        expect(err).to.be(null);
+        expect(val).to.eql(1);
+        expect(sent).to.eql(["0", '20["echo",1]']);
+
+        success(done, socket);
+      });
+    });
+  });
+
+  it("should resolve emitWithAck() without ackTimeout", async () => {
+    const socket = io(BASE_URL, {
+      forceNew: true,
+      retries: 3,
+    });
+
+    const val = await socket.emitWithAck("echo", 2);
+    expect(val).to.eql(2);
+
+    socket.disconnect();
+  });
+
   it("should not emit a packet twice in the 'connect' handler", () => {
     return wrap((done) => {
       const socket = io(BASE_URL, {
