@@ -81,6 +81,11 @@ export interface ServerOptions {
    */
   maxHttpBufferSize?: number;
   /**
+   * How many milliseconds to wait for an HTTP request body to be fully received.
+   * @default 30_000
+   */
+  httpRequestBodyTimeout?: number;
+  /**
    * A function that receives a given handshake or upgrade request as its first parameter,
    * and can decide whether to continue or not. The second argument is a function that needs
    * to be called with the decided information: fn(err, success), where success is a boolean
@@ -216,6 +221,7 @@ export abstract class BaseServer extends EventEmitter {
         cors: false,
         allowEIO3: false,
         maxBufferedChunks: 10_000,
+        httpRequestBodyTimeout: 30_000,
       },
       opts,
     );
@@ -791,6 +797,7 @@ export class Server extends BaseServer {
       maxHttpBufferSize: this.opts.maxHttpBufferSize,
       maxBufferedChunks: this.opts.maxBufferedChunks,
       httpCompression: this.opts.httpCompression,
+      httpRequestBodyTimeout: this.opts.httpRequestBodyTimeout,
     });
   }
 

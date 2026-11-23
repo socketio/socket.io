@@ -28,6 +28,7 @@ export interface TransportOptions {
   perMessageDeflate?: PerMessageDeflateOptions;
   maxHttpBufferSize?: number;
   maxBufferedChunks?: number;
+  httpRequestBodyTimeout?: number;
   httpCompression?: false | (ZlibOptions & { threshold: number });
 }
 

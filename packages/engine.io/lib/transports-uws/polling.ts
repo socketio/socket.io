@@ -129,7 +129,15 @@ export class Polling extends Transport {
     let contentLength = 0;
     let isAborted = false;
 
+    const timeoutTimer = setTimeout(() => {
+      isAborted = true;
+      res.writeStatus("408 Request Timeout").end();
+      this.onError("http request timeout");
+      this.onDataRequestCleanup();
+    }, this.opts.httpRequestBodyTimeout);
+
     res.onAborted(() => {
+      clearTimeout(timeoutTimer);
       this.onDataRequestCleanup();
 
       if (!isAborted) {
@@ -140,6 +148,10 @@ export class Polling extends Transport {
     // collectBody() helper was added in v20.61.0 (March 2026)
     res.onData((arrayBuffer: ArrayBuffer, isLast: boolean) => {
       if (isAborted) return;
+
+      if (isLast) {
+        clearTimeout(timeoutTimer);
+      }
 
       // note: this creates a copy of the arraybuffer
       const chunk = Buffer.from(new Uint8Array(arrayBuffer));

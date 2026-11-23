@@ -2699,6 +2699,58 @@ describe("server", () => {
         });
       });
     });
+
+    describe("httpRequestBodyTimeout option", () => {
+      it("should return 408 if request body is not finished within the timeout", (done) => {
+        const engine = listen({ httpRequestBodyTimeout: 100 }, (port) => {
+          request
+            .get(`http://localhost:${port}/engine.io/`)
+            .query({ transport: "polling", EIO: 4 })
+            .end((err, res) => {
+              const sid = JSON.parse(res.text.substring(1)).sid;
+
+              const dataReq = http.request(
+                {
+                  port,
+                  path: `/engine.io/?transport=polling&sid=${sid}&EIO=4`,
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "text/plain",
+                  },
+                },
+                (res) => {
+                  expect(res.statusCode).to.be(408);
+                  success(done, engine);
+                },
+              );
+
+              dataReq.write("partial data");
+              // Do not call .end() yet, wait for timeout
+            });
+        });
+      });
+
+      it("should not return 408 if request body is finished within the timeout", (done) => {
+        const engine = listen({ httpRequestBodyTimeout: 100 }, (port) => {
+          request
+            .get(`http://localhost:${port}/engine.io/`)
+            .query({ transport: "polling", EIO: 4 })
+            .end((err, res) => {
+              const sid = JSON.parse(res.text.substring(1)).sid;
+
+              request
+                .post(`http://localhost:${port}/engine.io/`)
+                .query({ transport: "polling", sid: sid, EIO: 4 })
+                .set("Content-Type", "text/plain")
+                .send("data")
+                .end((err, res) => {
+                  expect(res.status).to.be(200);
+                  success(done, engine);
+                });
+            });
+        });
+      });
+    });
   });
 
   describe("send", () => {

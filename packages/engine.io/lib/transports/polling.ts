@@ -121,7 +121,16 @@ export class Polling extends Transport {
     let contentLength = 0;
     let isAborted = false;
 
+    let timeoutTimer = setTimeout(() => {
+      isAborted = true;
+      res.writeHead(408).end();
+      this.onError("http request timeout");
+      cleanup();
+      req.destroy();
+    }, this.opts.httpRequestBodyTimeout);
+
     const cleanup = () => {
+      clearTimeout(timeoutTimer);
       req.removeListener("data", onData);
       req.removeListener("end", onEnd);
       req.removeListener("close", onClose);

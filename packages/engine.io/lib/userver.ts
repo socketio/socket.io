@@ -68,6 +68,7 @@ export class uServer extends BaseServer {
       maxHttpBufferSize: this.opts.maxHttpBufferSize,
       maxBufferedChunks: this.opts.maxBufferedChunks,
       httpCompression: this.opts.httpCompression,
+      httpRequestBodyTimeout: this.opts.httpRequestBodyTimeout,
     });
   }
 
