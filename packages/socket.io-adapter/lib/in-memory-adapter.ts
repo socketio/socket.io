@@ -423,6 +423,7 @@ export class SessionAwareAdapter extends Adapter {
         const hasExpired = session.disconnectedAt < threshold;
         if (hasExpired) {
           this.sessions.delete(sessionId);
+          this.emit("session-expiry", session.sid);
         }
       });
       for (let i = this.packets.length - 1; i >= 0; i--) {
@@ -456,6 +457,7 @@ export class SessionAwareAdapter extends Adapter {
     if (hasExpired) {
       // the session has expired
       this.sessions.delete(pid);
+      this.emit("session-expiry", session.sid);
       return null;
     }
     const index = this.packets.findIndex((packet) => packet.id === offset);
