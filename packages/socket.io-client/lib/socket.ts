@@ -440,7 +440,7 @@ export class Socket<
       debug("emitting packet with ack id %d", id);
 
       const ack = args.pop() as (...args: any[]) => void;
-      this._registerAckCallback(id, ack);
+      this._registerAckCallback(id, ack, packet);
       packet.id = id;
     }
 
@@ -465,7 +465,11 @@ export class Socket<
   /**
    * @private
    */
-  private _registerAckCallback(id: number, ack: (...args: any[]) => void) {
+  private _registerAckCallback(
+    id: number,
+    ack: (...args: any[]) => void,
+    packet: Partial<Packet & { options: any }>,
+  ) {
     const timeout = this.flags.timeout ?? this._opts.ackTimeout;
     if (timeout === undefined) {
       this.acks[id] = ack;
@@ -475,11 +479,17 @@ export class Socket<
     // @ts-ignore
     const timer = this.io.setTimeoutFn(() => {
       delete this.acks[id];
+      let removedFromSendBuffer = false;
       for (let i = 0; i < this.sendBuffer.length; i++) {
         if (this.sendBuffer[i].id === id) {
           debug("removing packet with ack id %d from the buffer", id);
           this.sendBuffer.splice(i, 1);
+          removedFromSendBuffer = true;
+          break;
         }
+      }
+      if (!removedFromSendBuffer) {
+        this.io._removePacketFromBuffer(packet);
       }
       debug("event with ack id %d has timed out after %d ms", id, timeout);
       ack.call(this, new Error("operation has timed out"));
