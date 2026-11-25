@@ -596,6 +596,255 @@ describe("socket", () => {
       });
     });
 
+    it("should discard a timed out event buffered by Engine.IO", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL + "/", {
+          forceNew: true,
+          transports: ["websocket"],
+        });
+
+        socket.on("connect", () => {
+          const engine = socket.io.engine;
+          engine.transport.writable = false;
+
+          let receivedHi = false;
+          socket.on("hi", () => {
+            receivedHi = true;
+          });
+
+          const timedOutPackets = [];
+          const onPacketCreate = (packet) => {
+            timedOutPackets.push(packet);
+          };
+          engine.on("packetCreate", onPacketCreate);
+
+          socket.timeout(50).emit("hi", (err) => {
+            expect(err).to.be.an(Error);
+            expect(timedOutPackets.length).to.be(1);
+            expect(engine.writeBuffer.indexOf(timedOutPackets[0])).to.be(-1);
+
+            engine.transport.writable = true;
+            // @ts-ignore flush remaining packets
+            engine.flush();
+          });
+          engine.off("packetCreate", onPacketCreate);
+
+          socket.timeout(5000).emit("echo", "kept", (err, val) => {
+            expect(err).to.be(null);
+            expect(val).to.be("kept");
+            expect(receivedHi).to.be(false);
+            success(done, socket);
+          });
+        });
+      });
+    });
+
+    it("should discard all Engine.IO packets of a timed out binary event", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL + "/", {
+          forceNew: true,
+          transports: ["websocket"],
+        });
+
+        socket.on("connect", () => {
+          const engine = socket.io.engine;
+          engine.transport.writable = false;
+
+          const enginePackets = [];
+          const onPacketCreate = (packet) => {
+            enginePackets.push(packet);
+          };
+          engine.on("packetCreate", onPacketCreate);
+
+          let receivedHi = false;
+          socket.on("hi", () => {
+            receivedHi = true;
+          });
+
+          socket.timeout(50).emit("hi", Uint8Array.from([1, 2, 3]), (err) => {
+            expect(err).to.be.an(Error);
+            expect(enginePackets.length).to.be(2);
+            enginePackets.forEach((packet) => {
+              expect(engine.writeBuffer.indexOf(packet)).to.be(-1);
+            });
+
+            engine.transport.writable = true;
+            // @ts-ignore flush remaining packets
+            engine.flush();
+
+            socket.emit("echo", "after-binary", (val) => {
+              expect(val).to.be("after-binary");
+              expect(receivedHi).to.be(false);
+              success(done, socket);
+            });
+          });
+          engine.off("packetCreate", onPacketCreate);
+        });
+      });
+    });
+
+    it("should preserve remaining binary attachments when the header packet is already in flight", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL + "/", {
+          forceNew: true,
+          transports: ["websocket"],
+        });
+
+        socket.on("connect", () => {
+          const engine = socket.io.engine;
+          engine.transport.writable = false;
+
+          const enginePackets = [];
+          const onPacketCreate = (packet) => {
+            enginePackets.push(packet);
+          };
+          engine.on("packetCreate", onPacketCreate);
+
+          socket.timeout(50).emit("hi", Uint8Array.from([1, 2, 3]), (err) => {
+            expect(err).to.be.an(Error);
+            expect(enginePackets.length).to.be(2);
+            expect(engine.writeBuffer.indexOf(enginePackets[0])).to.not.be(-1);
+            expect(engine.writeBuffer.indexOf(enginePackets[1])).to.not.be(-1);
+
+            // @ts-ignore restore state and flush cleanly so the server receives a complete binary packet
+            engine._prevBufferLen = 0;
+            engine.transport.writable = true;
+            // @ts-ignore flush packets
+            engine.flush();
+
+            socket.emit("echo", "still-healthy", (val) => {
+              expect(val).to.be("still-healthy");
+              success(done, socket);
+            });
+          });
+          engine.off("packetCreate", onPacketCreate);
+
+          // simulate that the header packet was already handed to the transport
+          // @ts-ignore private property
+          engine._prevBufferLen = 1;
+        });
+      });
+    });
+
+    it("should discard a timed out event emitted with emitWithAck when buffered by Engine.IO", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL + "/", {
+          forceNew: true,
+          transports: ["websocket"],
+        });
+
+        socket.on("connect", async () => {
+          try {
+            const engine = socket.io.engine;
+            engine.transport.writable = false;
+
+            let receivedHi = false;
+            socket.on("hi", () => {
+              receivedHi = true;
+            });
+
+            try {
+              await socket.timeout(50).emitWithAck("hi");
+              done(new Error("should not happen"));
+              return;
+            } catch (err) {
+              expect(err).to.be.an(Error);
+              expect(engine.writeBuffer).to.be.empty();
+            }
+
+            engine.transport.writable = true;
+            // @ts-ignore flush remaining packets
+            engine.flush();
+
+            const val = await socket.timeout(5000).emitWithAck("echo", "ok");
+            expect(val).to.be("ok");
+            expect(receivedHi).to.be(false);
+            success(done, socket);
+          } catch (err) {
+            socket.disconnect();
+            done(err as Error);
+          }
+        });
+      });
+    });
+
+    it("should discard timed out retry attempts buffered by Engine.IO", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL + "/", {
+          forceNew: true,
+          transports: ["websocket"],
+          retries: 1,
+          ackTimeout: 50,
+        });
+
+        socket.on("connect", () => {
+          const engine = socket.io.engine;
+          engine.transport.writable = false;
+
+          let receivedHi = false;
+          socket.on("hi", () => {
+            receivedHi = true;
+          });
+
+          socket.emit("hi", (err) => {
+            expect(err).to.be.an(Error);
+            expect(engine.writeBuffer).to.be.empty();
+
+            engine.transport.writable = true;
+            // @ts-ignore flush remaining packets
+            engine.flush();
+
+            socket.emit("echo", "after-retries", (echoErr, val) => {
+              expect(echoErr).to.be(null);
+              expect(val).to.be("after-retries");
+              expect(receivedHi).to.be(false);
+              success(done, socket);
+            });
+          });
+        });
+      });
+    });
+
+    it("should discard a timed out event moved from sendBuffer to Engine.IO writeBuffer", () => {
+      return wrap((done) => {
+        const socket = io(BASE_URL + "/", {
+          forceNew: true,
+          autoConnect: false,
+          transports: ["websocket"],
+        });
+
+        let receivedHi = false;
+        socket.on("hi", () => {
+          receivedHi = true;
+        });
+
+        socket.onAnyOutgoing((ev) => {
+          if (ev === "hi") {
+            socket.io.engine.transport.writable = false;
+          }
+        });
+
+        socket.timeout(100).emit("hi", (err) => {
+          expect(err).to.be.an(Error);
+          expect(socket.sendBuffer).to.be.empty();
+          expect(socket.io.engine.writeBuffer).to.be.empty();
+
+          socket.io.engine.transport.writable = true;
+          // @ts-ignore flush remaining packets
+          socket.io.engine.flush();
+
+          socket.emit("echo", "after-reconnect", (val) => {
+            expect(val).to.be("after-reconnect");
+            expect(receivedHi).to.be(false);
+            success(done, socket);
+          });
+        });
+
+        expect(socket.sendBuffer.length).to.be(1);
+        socket.connect();
+      });
+    });
+
     it("should timeout when the server does not acknowledge the event", () => {
       return wrap((done) => {
         const socket = io(BASE_URL + "/");

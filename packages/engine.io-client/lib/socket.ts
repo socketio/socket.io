@@ -850,6 +850,45 @@ export class Socket extends Emitter<
   }
 
   /**
+   * Removes buffered packets sharing the given options object if none of them
+   * have already been handed to the transport.
+   *
+   * @param options - the options object shared by the packets to remove
+   * @private
+   */
+  /* private */ _removeFromWriteBuffer(options: WriteOptions) {
+    if (!options) {
+      return;
+    }
+
+    const prevBufferLen = Math.min(
+      this._prevBufferLen,
+      this.writeBuffer.length,
+    );
+    for (let i = 0; i < prevBufferLen; i++) {
+      if (this.writeBuffer[i].options === options) {
+        return;
+      }
+    }
+
+    let removed = false;
+    for (let i = this.writeBuffer.length - 1; i >= prevBufferLen; i--) {
+      if (this.writeBuffer[i].options === options) {
+        this.writeBuffer.splice(i, 1);
+        removed = true;
+      }
+    }
+
+    if (
+      removed &&
+      0 === this.writeBuffer.length &&
+      "closing" === this.readyState
+    ) {
+      this.emitReserved("drain");
+    }
+  }
+
+  /**
    * Flush write buffers.
    *
    * @private

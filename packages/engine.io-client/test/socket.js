@@ -23,6 +23,80 @@ describe("Socket", function () {
     });
   });
 
+  describe("_removeFromWriteBuffer", () => {
+    it("should remove all matching packets that have not been flushed", () => {
+      const socket = Object.create(Socket.prototype);
+      const targetOptions = { compress: true };
+      const inFlightPacket = { type: "message", options: { compress: true } };
+      const otherPacket = { type: "message", options: { compress: true } };
+      socket.writeBuffer = [
+        inFlightPacket,
+        { type: "message", options: targetOptions },
+        otherPacket,
+        { type: "message", options: targetOptions },
+      ];
+      socket._prevBufferLen = 1;
+      socket.readyState = "open";
+
+      socket._removeFromWriteBuffer(targetOptions);
+
+      expect(socket.writeBuffer).to.eql([inFlightPacket, otherPacket]);
+    });
+
+    it("should preserve all matching packets when one is already in flight", () => {
+      const socket = Object.create(Socket.prototype);
+      const targetOptions = { compress: true };
+      const packets = [
+        { type: "message", options: targetOptions },
+        { type: "message", options: targetOptions },
+      ];
+      socket.writeBuffer = packets.slice();
+      socket._prevBufferLen = 1;
+      socket.readyState = "open";
+
+      socket._removeFromWriteBuffer(targetOptions);
+
+      expect(socket.writeBuffer).to.eql(packets);
+    });
+
+    it("should ignore falsy options", () => {
+      const socket = Object.create(Socket.prototype);
+      const packets = [{ type: "message" }, { type: "message", options: null }];
+      socket.writeBuffer = packets.slice();
+      socket._prevBufferLen = 0;
+      socket.readyState = "open";
+
+      socket._removeFromWriteBuffer(undefined);
+      socket._removeFromWriteBuffer(null);
+
+      expect(socket.writeBuffer).to.eql(packets);
+    });
+
+    it("should emit drain only when emptying writeBuffer while closing", () => {
+      const socket = Object.create(Socket.prototype);
+      const openOptions = { compress: true };
+      let drainCount = 0;
+      socket.on("drain", () => {
+        drainCount++;
+      });
+
+      socket.writeBuffer = [{ type: "message", options: openOptions }];
+      socket._prevBufferLen = 0;
+      socket.readyState = "open";
+      socket._removeFromWriteBuffer(openOptions);
+      expect(socket.writeBuffer).to.eql([]);
+      expect(drainCount).to.eql(0);
+
+      const closingOptions = { compress: true };
+      socket.writeBuffer = [{ type: "message", options: closingOptions }];
+      socket._prevBufferLen = 0;
+      socket.readyState = "closing";
+      socket._removeFromWriteBuffer(closingOptions);
+      expect(socket.writeBuffer).to.eql([]);
+      expect(drainCount).to.eql(1);
+    });
+  });
+
   it("should not mutate the caller's transports option", () => {
     const optsWithUri = { transports: ["websocket", "polling"] };
     const optsWithoutUri = { transports: ["polling"] };
