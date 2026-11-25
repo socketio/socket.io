@@ -89,6 +89,75 @@ describe("utility methods", () => {
       expect(remoteSocket.rooms).to.contain("42", "room1");
       expect(remoteSocket.data).to.eql({ username: "john" });
     });
+
+    it("wraps remote sockets attached to timeout errors", async () => {
+      const localSocket = serverSockets[0];
+      class PartialTimeoutAdapter extends Adapter {
+        fetchSockets(_opts: BroadcastOptions): Promise<any[]> {
+          const err: Error & { responses?: any[] } = new Error(
+            "timeout reached: missing 1 responses",
+          );
+          err.responses = [
+            localSocket,
+            {
+              id: "42",
+              handshake: {
+                headers: {
+                  accept: "*/*",
+                },
+                query: {
+                  transport: "polling",
+                  EIO: "4",
+                },
+              },
+              rooms: ["42", "room1"],
+              data: {
+                username: "john",
+              },
+            },
+          ];
+          return Promise.reject(err);
+        }
+      }
+
+      io.adapter(PartialTimeoutAdapter);
+      try {
+        await io.fetchSockets();
+        expect().fail();
+      } catch (err: any) {
+        expect(err).to.be.an(Error);
+        expect(err.message).to.eql("timeout reached: missing 1 responses");
+        expect(err.responses).to.be.an(Array);
+        expect(err.responses).to.have.length(2);
+        expect(err.responses[0]).to.be(localSocket);
+
+        const remoteSocket = err.responses[1];
+        expect(remoteSocket.id).to.eql("42");
+        expect(remoteSocket.rooms).to.be.a(Set);
+        expect(remoteSocket.rooms).to.contain("42", "room1");
+        expect(remoteSocket.data).to.eql({ username: "john" });
+        expect(typeof remoteSocket.emit).to.eql("function");
+        expect(typeof remoteSocket.join).to.eql("function");
+      }
+    });
+
+    it("rethrows adapter errors unchanged when responses are absent", async () => {
+      const failure = new Error("adapter failure");
+      class FailingAdapter extends Adapter {
+        fetchSockets(_opts: BroadcastOptions): Promise<any[]> {
+          return Promise.reject(failure);
+        }
+      }
+
+      io.adapter(FailingAdapter);
+      try {
+        await io.fetchSockets();
+        expect().fail();
+      } catch (err: any) {
+        expect(err).to.be(failure);
+        expect(err.responses).to.be(undefined);
+      }
+    });
   });
 
   describe("socketsJoin", () => {

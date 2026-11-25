@@ -584,14 +584,14 @@ export abstract class ClusterAdapter extends Adapter {
       const timeout = setTimeout(() => {
         const storedRequest = this.requests.get(requestId);
         if (storedRequest) {
-          reject(
-            new Error(
-              `timeout reached: only ${storedRequest.current} responses received out of ${storedRequest.expected}`,
-            ),
+          const err: Error & { responses?: any[] } = new Error(
+            `timeout reached: only ${storedRequest.current} responses received out of ${storedRequest.expected}`,
           );
+          err.responses = storedRequest.responses;
+          reject(err);
           this.requests.delete(requestId);
         }
-      }, opts.flags.timeout || DEFAULT_TIMEOUT);
+      }, opts.flags?.timeout || DEFAULT_TIMEOUT);
 
       const storedRequest = {
         type: MessageType.FETCH_SOCKETS,
@@ -916,14 +916,14 @@ export abstract class ClusterAdapterWithHeartbeat extends ClusterAdapter {
       const timeout = setTimeout(() => {
         const storedRequest = this.customRequests.get(requestId);
         if (storedRequest) {
-          reject(
-            new Error(
-              `timeout reached: missing ${storedRequest.missingUids.size} responses`,
-            ),
+          const err: Error & { responses?: any[] } = new Error(
+            `timeout reached: missing ${storedRequest.missingUids.size} responses`,
           );
+          err.responses = storedRequest.responses;
+          reject(err);
           this.customRequests.delete(requestId);
         }
-      }, opts.flags.timeout || DEFAULT_TIMEOUT);
+      }, opts.flags?.timeout || DEFAULT_TIMEOUT);
 
       const storedRequest = {
         type: MessageType.FETCH_SOCKETS,
