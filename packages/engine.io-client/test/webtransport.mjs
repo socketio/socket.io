@@ -198,6 +198,99 @@ describe("WebTransport", () => {
     });
   });
 
+  it("should handle a close packet sent by the server", (done) => {
+    setup({}, ({ engine, h3Server, certificate }) => {
+      const socket = createSocket(h3Server.port, certificate, {
+        transports: ["webtransport"],
+      });
+
+      let serverSocket;
+      let clientOpened = false;
+      let serverClosed = false;
+      let clientClosed = false;
+      let onCloseCalls = 0;
+      let settled = false;
+
+      const fail = (err) => {
+        if (settled) return;
+        settled = true;
+        socket.close();
+        engine.close();
+        h3Server.stopServer();
+        done(err);
+      };
+
+      const maybeSendClose = () => {
+        if (serverSocket && clientOpened) {
+          if (serverSocket.transport.writable) {
+            serverSocket.transport.send([{ type: "close" }]);
+          } else {
+            serverSocket.transport.once("ready", () => {
+              serverSocket.transport.send([{ type: "close" }]);
+            });
+          }
+        }
+      };
+
+      const finishIfDone = () => {
+        if (serverClosed && clientClosed && !settled) {
+          setTimeout(() => {
+            if (settled) return;
+            try {
+              expect(onCloseCalls).to.eql(1);
+              settled = true;
+              success(engine, h3Server, done);
+            } catch (err) {
+              fail(err);
+            }
+          }, 50);
+        }
+      };
+
+      engine.on("connection", (s) => {
+        serverSocket = s;
+        s.on("close", () => {
+          serverClosed = true;
+          finishIfDone();
+        });
+        maybeSendClose();
+      });
+
+      socket.on("packet", (packet) => {
+        if (packet.type === "close") {
+          fail(new Error("should not emit a close packet event"));
+        }
+      });
+
+      socket.on("open", () => {
+        const transport = socket.transport;
+        const originalOnClose = transport.onClose;
+        transport.onClose = function (...args) {
+          onCloseCalls++;
+          return originalOnClose.apply(this, args);
+        };
+
+        clientOpened = true;
+        maybeSendClose();
+      });
+
+      socket.on("close", (reason, details) => {
+        try {
+          expect(reason).to.eql("transport close");
+          expect(details).to.eql({
+            description: "transport closed by the server",
+          });
+          expect(socket.readyState).to.eql("closed");
+          expect(socket.transport.readyState).to.eql("closed");
+          clientClosed = true;
+          finishIfDone();
+        } catch (err) {
+          fail(err);
+        }
+      });
+    });
+  });
+
   it("should handle connections closed by the client", (done) => {
     setup({}, ({ engine, h3Server, certificate }) => {
       const socket = createSocket(h3Server.port, certificate, {

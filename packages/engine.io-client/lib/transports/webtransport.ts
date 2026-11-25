@@ -39,11 +39,15 @@ export class WT extends Transport {
     this._transport.closed
       .then(() => {
         debug("transport closed gracefully");
-        this.onClose();
+        if (this.readyState !== "closed") {
+          this.onClose();
+        }
       })
       .catch((err) => {
         debug("transport closed due to %s", err);
-        this.onError("webtransport error", err);
+        if (this.readyState !== "closed") {
+          this.onError("webtransport error", err);
+        }
       });
 
     // note: we could have used async/await, but that would require some additional polyfills
@@ -69,7 +73,9 @@ export class WT extends Transport {
               }
               debug("received chunk: %o", value);
               this.onPacket(value);
-              read();
+              if (this.readyState !== "closed") {
+                read();
+              }
             })
             .catch((err) => {
               debug("an error occurred while reading: %s", err);

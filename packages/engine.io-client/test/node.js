@@ -1,5 +1,7 @@
+const http = require("node:http");
 const path = require("node:path");
 const { execFile } = require("node:child_process");
+const { attach } = require("engine.io");
 const { Socket } = require("../");
 const { repeat } = require("./util");
 const expect = require("expect.js");
@@ -254,5 +256,248 @@ describe("cookie expiry", () => {
     ]);
 
     expect([...jar.cookies]).to.eql([]);
+  });
+});
+
+describe("close packet handling", () => {
+  let httpServer, engine;
+
+  const startServer = (opts = {}) =>
+    new Promise((resolve) => {
+      httpServer = http.createServer();
+      engine = attach(httpServer, opts);
+      httpServer.listen(0, () => {
+        resolve(httpServer.address().port);
+      });
+    });
+
+  const sendClosePacket = (serverSocket) => {
+    if (serverSocket.transport.writable) {
+      serverSocket.transport.send([{ type: "close" }]);
+    } else {
+      serverSocket.transport.once("ready", () => {
+        serverSocket.transport.send([{ type: "close" }]);
+      });
+    }
+  };
+
+  const spyOnClose = (transport) => {
+    const spy = { calls: 0 };
+    const originalOnClose = transport.onClose;
+    transport.onClose = function (...args) {
+      spy.calls++;
+      return originalOnClose.apply(this, args);
+    };
+    return spy;
+  };
+
+  const assertClosedByServer = (socket, reason, details) => {
+    expect(reason).to.eql("transport close");
+    expect(details).to.eql({
+      description: "transport closed by the server",
+    });
+    expect(socket.readyState).to.eql("closed");
+    expect(socket.transport.readyState).to.eql("closed");
+  };
+
+  afterEach((done) => {
+    if (engine) {
+      engine.close();
+      engine = null;
+    }
+    if (httpServer) {
+      const server = httpServer;
+      httpServer = null;
+      server.close(done);
+    } else {
+      done();
+    }
+  });
+
+  it("should close the connection when receiving a close packet over websocket", async () => {
+    const port = await startServer({ transports: ["websocket"] });
+
+    await new Promise((resolve, reject) => {
+      let serverSocket;
+      let clientOpened = false;
+      let serverClosed = false;
+      let clientClosed = false;
+      let onCloseSpy;
+
+      const maybeSendClose = () => {
+        if (serverSocket && clientOpened) {
+          sendClosePacket(serverSocket);
+        }
+      };
+
+      const finishIfDone = () => {
+        if (serverClosed && clientClosed) {
+          // wait briefly to ensure the underlying WebSocket close event does not invoke onClose() a second time
+          setTimeout(() => {
+            try {
+              expect(onCloseSpy.calls).to.eql(1);
+              resolve();
+            } catch (err) {
+              reject(err);
+            }
+          }, 50);
+        }
+      };
+
+      engine.on("connection", (s) => {
+        serverSocket = s;
+        s.on("close", () => {
+          serverClosed = true;
+          finishIfDone();
+        });
+        maybeSendClose();
+      });
+
+      const socket = new Socket(`http://localhost:${port}`, {
+        transports: ["websocket"],
+      });
+
+      socket.on("packet", (packet) => {
+        if (packet.type === "close") {
+          socket.close();
+          reject(new Error("should not emit a close packet event"));
+        }
+      });
+
+      socket.on("open", () => {
+        onCloseSpy = spyOnClose(socket.transport);
+        clientOpened = true;
+        maybeSendClose();
+      });
+
+      socket.on("close", (reason, details) => {
+        try {
+          assertClosedByServer(socket, reason, details);
+          clientClosed = true;
+          finishIfDone();
+        } catch (err) {
+          reject(err);
+        }
+      });
+    });
+  });
+
+  it("should close the connection when receiving a close packet over polling", async () => {
+    const port = await startServer({ transports: ["polling"] });
+
+    await new Promise((resolve, reject) => {
+      let serverSocket;
+      let clientOpened = false;
+      let onCloseSpy;
+
+      const maybeSendClose = () => {
+        if (serverSocket && clientOpened) {
+          sendClosePacket(serverSocket);
+        }
+      };
+
+      engine.on("connection", (s) => {
+        serverSocket = s;
+        maybeSendClose();
+      });
+
+      const socket = new Socket(`http://localhost:${port}`, {
+        transports: ["polling"],
+      });
+
+      socket.on("packet", (packet) => {
+        if (packet.type === "close") {
+          socket.close();
+          reject(new Error("should not emit a close packet event"));
+        }
+      });
+
+      socket.on("open", () => {
+        onCloseSpy = spyOnClose(socket.transport);
+        clientOpened = true;
+        maybeSendClose();
+      });
+
+      socket.on("close", (reason, details) => {
+        try {
+          assertClosedByServer(socket, reason, details);
+          expect(onCloseSpy.calls).to.eql(1);
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      });
+    });
+  });
+
+  it("should close the connection when receiving a close packet after upgrading to websocket", async () => {
+    const port = await startServer({ transports: ["polling", "websocket"] });
+
+    await new Promise((resolve, reject) => {
+      let serverSocket;
+      let serverUpgraded = false;
+      let clientUpgraded = false;
+      let serverClosed = false;
+      let clientClosed = false;
+      let onCloseSpy;
+
+      const maybeSendClose = () => {
+        if (serverUpgraded && clientUpgraded) {
+          sendClosePacket(serverSocket);
+        }
+      };
+
+      const finishIfDone = () => {
+        if (serverClosed && clientClosed) {
+          setTimeout(() => {
+            try {
+              expect(onCloseSpy.calls).to.eql(1);
+              resolve();
+            } catch (err) {
+              reject(err);
+            }
+          }, 50);
+        }
+      };
+
+      engine.on("connection", (s) => {
+        serverSocket = s;
+        s.on("upgrade", () => {
+          serverUpgraded = true;
+          maybeSendClose();
+        });
+        s.on("close", () => {
+          serverClosed = true;
+          finishIfDone();
+        });
+      });
+
+      const socket = new Socket(`http://localhost:${port}`, {
+        transports: ["polling", "websocket"],
+      });
+
+      socket.on("packet", (packet) => {
+        if (packet.type === "close") {
+          socket.close();
+          reject(new Error("should not emit a close packet event"));
+        }
+      });
+
+      socket.on("upgrade", (transport) => {
+        onCloseSpy = spyOnClose(transport);
+        clientUpgraded = true;
+        maybeSendClose();
+      });
+
+      socket.on("close", (reason, details) => {
+        try {
+          assertClosedByServer(socket, reason, details);
+          clientClosed = true;
+          finishIfDone();
+        } catch (err) {
+          reject(err);
+        }
+      });
+    });
   });
 });
