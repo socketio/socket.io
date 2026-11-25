@@ -148,6 +148,14 @@ export abstract class Transport extends Emitter<
    * @protected
    */
   protected onPacket(packet: Packet) {
+    if ("close" === packet.type) {
+      if (this.readyState !== "closed") {
+        this.doClose();
+        this.onClose({ description: "transport closed by the server" });
+      }
+      return;
+    }
+
     super.emitReserved("packet", packet);
   }
 

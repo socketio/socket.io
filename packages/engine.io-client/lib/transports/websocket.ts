@@ -122,7 +122,10 @@ export abstract class BaseWS extends Transport {
   abstract doWrite(packet: Packet, data: RawData);
 
   override doClose() {
-    if (typeof this.ws !== "undefined") {
+    if (this.ws) {
+      this.ws.onopen = () => {};
+      this.ws.onclose = () => {};
+      this.ws.onmessage = () => {};
       this.ws.onerror = () => {};
       this.ws.close();
       this.ws = null;
