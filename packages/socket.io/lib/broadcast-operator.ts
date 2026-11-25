@@ -378,23 +378,29 @@ export class BroadcastOperator<EmitEvents extends EventsMap, SocketData>
    * }
    */
   public fetchSockets(): Promise<RemoteSocket<EmitEvents, SocketData>[]> {
+    const mapSockets = (sockets: any[]) =>
+      sockets.map((socket) => {
+        if (socket.server) {
+          return socket as RemoteSocket<EmitEvents, SocketData>; // local instance
+        } else {
+          return new RemoteSocket(
+            this.adapter,
+            socket as SocketDetails<SocketData>,
+          );
+        }
+      });
+
     return this.adapter
       .fetchSockets({
         rooms: this.rooms,
         except: this.exceptRooms,
         flags: this.flags,
       })
-      .then((sockets) => {
-        return sockets.map((socket) => {
-          if (socket.server) {
-            return socket as RemoteSocket<EmitEvents, SocketData>; // local instance
-          } else {
-            return new RemoteSocket(
-              this.adapter,
-              socket as SocketDetails<SocketData>,
-            );
-          }
-        });
+      .then(mapSockets, (err) => {
+        if (err && Array.isArray(err.responses)) {
+          err.responses = mapSockets(err.responses);
+        }
+        throw err;
       });
   }
 

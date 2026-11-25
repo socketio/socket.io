@@ -5,6 +5,7 @@ import expect = require("expect.js");
 import type { AddressInfo } from "net";
 import { times, shouldNotHappen, sleep } from "./util";
 import {
+  ClusterAdapter,
   ClusterAdapterWithHeartbeat,
   type ClusterMessage,
   type ClusterResponse,
@@ -16,6 +17,11 @@ const NODES_COUNT = 3;
 class EventEmitterAdapter extends ClusterAdapterWithHeartbeat {
   private offset = 1;
   public shouldFailPublish = false;
+  public shouldDropResponse = false;
+  public onPublishResponse?: (
+    requesterUid: string,
+    response: ClusterResponse,
+  ) => Promise<void> | void;
 
   constructor(
     nsp,
@@ -39,6 +45,48 @@ class EventEmitterAdapter extends ClusterAdapterWithHeartbeat {
     requesterUid: string,
     response: ClusterResponse,
   ): Promise<void> {
+    if (this.onPublishResponse) {
+      return Promise.resolve(this.onPublishResponse(requesterUid, response));
+    }
+    if (this.shouldDropResponse) {
+      return Promise.resolve();
+    }
+    this.eventBus.emit("message", response);
+    return Promise.resolve();
+  }
+}
+
+class BasicClusterAdapter extends ClusterAdapter {
+  private offset = 1;
+  public shouldDropResponse = false;
+
+  constructor(
+    nsp,
+    readonly eventBus: EventEmitter,
+    private readonly totalServers: number,
+  ) {
+    super(nsp);
+    this.eventBus.on("message", (message) => {
+      this.onMessage(message as ClusterMessage);
+    });
+  }
+
+  override serverCount(): Promise<number> {
+    return Promise.resolve(this.totalServers);
+  }
+
+  protected doPublish(message: ClusterMessage): Promise<string> {
+    this.eventBus.emit("message", message);
+    return Promise.resolve(String(++this.offset));
+  }
+
+  protected doPublishResponse(
+    requesterUid: string,
+    response: ClusterResponse,
+  ): Promise<void> {
+    if (this.shouldDropResponse) {
+      return Promise.resolve();
+    }
     this.eventBus.emit("message", response);
     return Promise.resolve();
   }
@@ -385,6 +433,192 @@ describe("cluster adapter", () => {
       const sockets = await servers[0].local.fetchSockets();
 
       expect(sockets).to.have.length(1);
+    });
+
+    it("attaches partial responses to the error on timeout", async () => {
+      serverSockets[1].data = "test" as any;
+      (servers[2].of("/").adapter as EventEmitterAdapter).shouldDropResponse =
+        true;
+
+      try {
+        await servers[0].timeout(50).fetchSockets();
+        expect().fail();
+      } catch (err: any) {
+        expect(err).to.be.an(Error);
+        expect(err.message).to.be("timeout reached: missing 1 responses");
+        expect(err.responses).to.be.an(Array);
+        expect(err.responses).to.have.length(2);
+
+        const localSocket = err.responses.find(
+          (socket) => socket.id === serverSockets[0].id,
+        );
+        const remoteSocket = err.responses.find(
+          (socket) => socket.id === serverSockets[1].id,
+        );
+        expect(localSocket).to.be(serverSockets[0]);
+        expect(remoteSocket).to.not.be(undefined);
+        expect(remoteSocket.handshake).to.eql(serverSockets[1].handshake);
+        expect(remoteSocket.data).to.eql("test");
+        expect(remoteSocket.rooms).to.be.a(Set);
+        expect(remoteSocket.rooms.size).to.eql(1);
+
+        remoteSocket.join("room-partial");
+        await sleep();
+        expect(serverSockets[1].rooms.has("room-partial")).to.be(true);
+
+        // @ts-ignore
+        expect(servers[0].of("/").adapter.customRequests.size).to.eql(0);
+      }
+    });
+
+    it("attaches only local sockets on timeout when no remote node responds", async () => {
+      (servers[1].of("/").adapter as EventEmitterAdapter).shouldDropResponse =
+        true;
+      (servers[2].of("/").adapter as EventEmitterAdapter).shouldDropResponse =
+        true;
+
+      try {
+        await servers[0].timeout(50).fetchSockets();
+        expect().fail();
+      } catch (err: any) {
+        expect(err).to.be.an(Error);
+        expect(err.message).to.be("timeout reached: missing 2 responses");
+        expect(err.responses).to.be.an(Array);
+        expect(err.responses).to.have.length(1);
+        expect(err.responses[0]).to.be(serverSockets[0]);
+        // @ts-ignore
+        expect(servers[0].of("/").adapter.customRequests.size).to.eql(0);
+      }
+    });
+
+    it("respects room filters in partial responses on timeout", async () => {
+      serverSockets[0].join("room1");
+      serverSockets[2].join("room1");
+      (servers[2].of("/").adapter as EventEmitterAdapter).shouldDropResponse =
+        true;
+
+      try {
+        await servers[0].in("room1").timeout(50).fetchSockets();
+        expect().fail();
+      } catch (err: any) {
+        expect(err).to.be.an(Error);
+        expect(err.message).to.be("timeout reached: missing 1 responses");
+        expect(err.responses).to.be.an(Array);
+        expect(err.responses).to.have.length(1);
+        expect(err.responses[0]).to.be(serverSockets[0]);
+      }
+    });
+
+    it("does not mutate partial responses when a late response arrives after timeout", async () => {
+      const slowAdapter = servers[2].of("/").adapter as EventEmitterAdapter;
+      let lateResponse: ClusterResponse | undefined;
+      slowAdapter.onPublishResponse = (_requesterUid, response) => {
+        lateResponse = response;
+      };
+
+      let partialResponses: any[];
+      try {
+        await servers[0].timeout(50).fetchSockets();
+        expect().fail();
+      } catch (err: any) {
+        expect(err).to.be.an(Error);
+        expect(err.responses).to.be.an(Array);
+        expect(err.responses).to.have.length(2);
+        partialResponses = err.responses;
+      }
+
+      expect(lateResponse).to.not.be(undefined);
+      slowAdapter.eventBus.emit("message", lateResponse);
+      expect(partialResponses).to.have.length(2);
+    });
+
+    it("succeeds even if an instance leaves the cluster", async () => {
+      const leavingAdapter = servers[2].of("/").adapter as EventEmitterAdapter;
+      leavingAdapter.onPublishResponse = () => {
+        leavingAdapter.close();
+      };
+
+      const sockets = await servers[0].timeout(500).fetchSockets();
+
+      expect(sockets).to.be.an(Array);
+      expect(sockets).to.have.length(2);
+      const ids = sockets.map((socket) => socket.id);
+      expect(ids).to.contain(serverSockets[0].id);
+      expect(ids).to.contain(serverSockets[1].id);
+      // @ts-ignore
+      expect(servers[0].of("/").adapter.customRequests.size).to.eql(0);
+    });
+
+    it("attaches partial responses to the error on timeout in ClusterAdapter", async () => {
+      const basicServers: Server[] = [];
+      const basicServerSockets: ServerSocket[] = [];
+      const basicClientSockets: ClientSocket[] = [];
+      const bus = new EventEmitter();
+
+      try {
+        await new Promise<void>((resolve) => {
+          for (let i = 0; i < NODES_COUNT; i++) {
+            const httpServer = createServer();
+            const io = new Server(httpServer);
+            // @ts-ignore
+            io.adapter(function (nsp) {
+              return new BasicClusterAdapter(nsp, bus, NODES_COUNT);
+            });
+            httpServer.listen(() => {
+              const port = (httpServer.address() as AddressInfo).port;
+              const clientSocket = ioc(`http://localhost:${port}`);
+
+              io.on("connection", (socket) => {
+                basicClientSockets.push(clientSocket);
+                basicServerSockets.push(socket);
+                basicServers.push(io);
+                if (basicServers.length === NODES_COUNT) {
+                  resolve();
+                }
+              });
+            });
+          }
+        });
+
+        basicServerSockets[1].data = "basic-test" as any;
+        (
+          basicServers[2].of("/").adapter as BasicClusterAdapter
+        ).shouldDropResponse = true;
+
+        try {
+          await basicServers[0].timeout(50).fetchSockets();
+          expect().fail();
+        } catch (err: any) {
+          expect(err).to.be.an(Error);
+          expect(err.message).to.be(
+            "timeout reached: only 1 responses received out of 2",
+          );
+          expect(err.responses).to.be.an(Array);
+          expect(err.responses).to.have.length(2);
+
+          const localSocket = err.responses.find(
+            (socket) => socket.id === basicServerSockets[0].id,
+          );
+          const remoteSocket = err.responses.find(
+            (socket) => socket.id === basicServerSockets[1].id,
+          );
+          expect(localSocket).to.be(basicServerSockets[0]);
+          expect(remoteSocket).to.not.be(undefined);
+          expect(remoteSocket.data).to.eql("basic-test");
+          expect(remoteSocket.rooms).to.be.a(Set);
+          // @ts-ignore
+          expect(basicServers[0].of("/").adapter.requests.size).to.eql(0);
+        }
+      } finally {
+        basicServers.forEach((server) => {
+          // @ts-ignore
+          server.httpServer.close();
+          server.of("/").adapter.close();
+        });
+        basicClientSockets.forEach((socket) => {
+          socket.disconnect();
+        });
+      }
     });
   });
 
