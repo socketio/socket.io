@@ -466,7 +466,11 @@ export class Emitter<
   }
 
   public of(nsp: string) {
-    return new Emitter(this.#redisClient, this.#opts, nsp);
+    return new Emitter(
+      this.#redisClient,
+      this.#opts,
+      (nsp[0] !== "/" ? "/" : "") + nsp,
+    );
   }
 
   protected override publish(

@@ -74,6 +74,32 @@ describe("@socket.io/redis-streams-emitter", () => {
       });
     });
 
+    it("broadcasts to all clients in a namespace without a leading slash", () => {
+      return new Promise<void>((resolve) => {
+        const partialResolve = times(3, () => {
+          servers.forEach((server) => server.of("/custom").adapter.close());
+          resolve();
+        });
+
+        servers.forEach((server) => server.of("/custom"));
+
+        const onConnect = times(3, async () => {
+          await sleep(PROPAGATION_DELAY_IN_MS);
+
+          emitter.of("custom").emit("test");
+        });
+
+        clientSockets.forEach((clientSocket) => {
+          const socket = clientSocket.io.socket("/custom");
+          socket.on("connect", onConnect);
+          socket.on("test", () => {
+            socket.disconnect();
+            partialResolve();
+          });
+        });
+      });
+    });
+
     it("broadcasts to all clients in a room", () => {
       return new Promise<void>((resolve, reject) => {
         serverSockets[1].join("room1");
