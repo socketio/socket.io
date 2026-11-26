@@ -92,7 +92,7 @@ export class Emitter<
   constructor(
     readonly pool: any,
     readonly nsp: string = "/",
-    opts: Partial<PostgresEmitterOptions> = {},
+    private readonly opts: Partial<PostgresEmitterOptions> = {},
   ) {
     const channelPrefix = opts.channelPrefix || "socket.io";
     this.channel = `${channelPrefix}#${nsp}`;
@@ -107,7 +107,7 @@ export class Emitter<
    * @public
    */
   public of(nsp: string): Emitter {
-    return new Emitter(this.pool, (nsp[0] !== "/" ? "/" : "") + nsp);
+    return new Emitter(this.pool, (nsp[0] !== "/" ? "/" : "") + nsp, this.opts);
   }
 
   /**
