@@ -122,6 +122,18 @@ describe("@socket.io/postgres-emitter", () => {
       });
     });
 
+    it("keeps the options of the emitter in a namespace", () => {
+      const customEmitter = new Emitter(pool, "/", {
+        channelPrefix: "custom-prefix",
+        tableName: "custom_attachments",
+        payloadThreshold: 100,
+      }).of("/custom");
+
+      expect(customEmitter.channel).to.eql("custom-prefix#/custom");
+      expect(customEmitter.tableName).to.eql("custom_attachments");
+      expect(customEmitter.payloadThreshold).to.eql(100);
+    });
+
     it("broadcasts to all clients in a room", (done) => {
       serverSockets[1].join("room1");
 
